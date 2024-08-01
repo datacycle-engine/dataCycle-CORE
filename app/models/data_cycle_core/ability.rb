@@ -72,8 +72,6 @@ module DataCycleCore
     def can_edit_attribute?(options)
       return false if options.virtual_attribute?
 
-      # binding.pry if options.attribute_name == 'name_aggregate_for_override' && options.scope.to_s == 'update'
-
       if options.scope.to_s == 'edit'
         return false if options.computed_attribute? && !options.aggregated_attribute?
         return false if (options.aggregate_attribute? || options.overlay_attribute?) && !options.options_for_original_key.attribute_allowed?

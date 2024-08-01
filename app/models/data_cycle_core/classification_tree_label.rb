@@ -114,6 +114,9 @@ module DataCycleCore
     end
 
     def upsert_all_external_classifications(attributes)
+      raise ArgumentError, 'attributes must be an array' unless attributes.is_a?(Array)
+      raise ArgumentError, 'a concept cannot be its own parent (external_key == parent_external_key)' if attributes.any? { |a| a[:external_key] == a[:parent_external_key] }
+
       sql_values = attributes.compact_blank.map { |row|
         next if row[:name].blank?
 
@@ -196,6 +199,7 @@ module DataCycleCore
           ON CONFLICT (classification_alias_id) WHERE deleted_at IS NULL
             DO UPDATE SET parent_classification_alias_id = EXCLUDED.parent_classification_alias_id,
               classification_tree_label_id = EXCLUDED.classification_tree_label_id,
+              external_source_id = EXCLUDED.external_source_id,
               updated_at = NOW()
         )
         SELECT * FROM classification_trees_data;

@@ -123,6 +123,15 @@ CREATE FUNCTION public.compute_thing_schema_types(schema_types jsonb, template_n
 
 
 --
+-- Name: concept_links_create_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.concept_links_create_paths_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM upsert_ca_paths (ARRAY_AGG(new_concept_links.child_id)) FROM new_concept_links WHERE new_concept_links.link_type = 'broader'; RETURN NULL; END; $$;
+
+
+--
 -- Name: concept_links_create_transitive_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -141,6 +150,15 @@ CREATE FUNCTION public.concept_links_delete_transitive_paths_trigger_function() 
 
 
 --
+-- Name: concept_links_update_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.concept_links_update_paths_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM upsert_ca_paths (ARRAY_AGG(updated_concept_links.child_id)) FROM ( SELECT DISTINCT new_concept_links.child_id FROM old_concept_links JOIN new_concept_links ON old_concept_links.id = new_concept_links.id WHERE new_concept_links.link_type = 'broader' AND old_concept_links.parent_id IS DISTINCT FROM new_concept_links.parent_id OR old_concept_links.child_id IS DISTINCT FROM new_concept_links.child_id ) "updated_concept_links"; RETURN NULL; END; $$;
+
+
+--
 -- Name: concept_links_update_transitive_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -150,12 +168,30 @@ CREATE FUNCTION public.concept_links_update_transitive_paths_trigger_function() 
 
 
 --
+-- Name: concept_schemes_update_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.concept_schemes_update_paths_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM upsert_ca_paths (ARRAY_AGG(updated_concepts.id)) FROM ( SELECT DISTINCT concepts.id FROM old_concept_schemes JOIN new_concept_schemes ON old_concept_schemes.id = new_concept_schemes.id JOIN concepts ON concepts.concept_scheme_id = new_concept_schemes.id WHERE old_concept_schemes.name IS DISTINCT FROM new_concept_schemes.name ) "updated_concepts"; RETURN NULL; END; $$;
+
+
+--
 -- Name: concept_schemes_update_transitive_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.concept_schemes_update_transitive_paths_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ BEGIN PERFORM upsert_ca_paths_transitive (ARRAY_AGG(updated_concepts.id)) FROM ( SELECT DISTINCT concepts.id FROM old_concept_schemes JOIN new_concept_schemes ON old_concept_schemes.id = new_concept_schemes.id JOIN concepts ON concepts.concept_scheme_id = new_concept_schemes.id WHERE old_concept_schemes.name IS DISTINCT FROM new_concept_schemes.name ) "updated_concepts"; RETURN NULL; END; $$;
+
+
+--
+-- Name: concepts_create_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.concepts_create_paths_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM upsert_ca_paths (ARRAY_AGG(new_concepts.id)) FROM new_concepts; RETURN NULL; END; $$;
 
 
 --
@@ -174,6 +210,15 @@ CREATE FUNCTION public.concepts_create_transitive_paths_trigger_function() RETUR
 CREATE FUNCTION public.concepts_delete_transitive_paths_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ BEGIN PERFORM upsert_ca_paths_transitive (ARRAY_AGG(old_concepts.id)) FROM old_concepts; RETURN NULL; END; $$;
+
+
+--
+-- Name: concepts_update_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.concepts_update_paths_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM upsert_ca_paths (ARRAY_AGG(updated_concepts.id)) FROM ( SELECT DISTINCT new_concepts.id FROM old_concepts JOIN new_concepts ON old_concepts.id = new_concepts.id WHERE old_concepts.internal_name IS DISTINCT FROM new_concepts.internal_name OR old_concepts.concept_scheme_id IS DISTINCT FROM new_concepts.concept_scheme_id ) "updated_concepts"; RETURN NULL; END; $$;
 
 
 --
@@ -339,33 +384,6 @@ CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_
 
 
 --
--- Name: generate_classification_alias_paths_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY[NEW.id]::UUID[]) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.id = ANY (ancestor_ids)) "new_child_classification_aliases"; RETURN NEW; END; $$;
-
-
---
--- Name: generate_classification_alias_paths_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY[NEW.classification_alias_id]::UUID[]) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.classification_alias_id = ANY (ancestor_ids)) "changed_child_classification_aliases"; RETURN NEW; END; $$;
-
-
---
--- Name: generate_classification_alias_paths_trigger_3(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(classification_alias_id)) FROM ( SELECT classification_alias_id FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id) "changed_tree_classification_aliases"; RETURN NEW; END; $$;
-
-
---
 -- Name: generate_collected_cl_content_relations_transitive(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -488,7 +506,7 @@ CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
 
 CREATE FUNCTION public.generate_schedule_occurences_array(s_dtstart timestamp with time zone, s_rrule character varying, s_rdate timestamp with time zone[], s_exdate timestamp with time zone[], s_duration interval) RETURNS tstzmultirange
     LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE
-    AS $$ DECLARE schedule_array tstzmultirange; schedule_duration INTERVAL; all_occurrences timestamp WITHOUT time zone []; BEGIN CASE WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds'; WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds'; ELSE schedule_duration = s_duration; END CASE ; CASE WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone]; WHEN s_rrule IS NOT NULL THEN all_occurrences := public.get_occurrences ( ( CASE WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule ELSE (s_rrule || ';UNTIL=2029-07-01') END )::public.rrule, s_dtstart AT TIME ZONE 'Europe/Vienna', '2029-07-01' AT TIME ZONE 'Europe/Vienna' ); END CASE ; WITH occurences AS ( SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence UNION SELECT unnest(s_rdate) AS occurence ), exdates AS ( SELECT tstzrange( DATE_TRUNC('day', s.exdate), DATE_TRUNC('day', s.exdate) + INTERVAL '1 day' ) exdate FROM unnest(s_exdate) AS s(exdate) ) SELECT range_agg( tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ) INTO schedule_array FROM occurences WHERE occurences.occurence IS NOT NULL AND occurences.occurence + schedule_duration > '2023-07-01' AND NOT EXISTS ( SELECT 1 FROM exdates WHERE exdates.exdate && tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ); RETURN schedule_array; END; $$;
+    AS $$ DECLARE schedule_array tstzmultirange; schedule_duration INTERVAL; all_occurrences timestamp WITHOUT time zone []; BEGIN CASE WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds'; WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds'; ELSE schedule_duration = s_duration; END CASE ; CASE WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone]; WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences ( ( CASE WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule ELSE (s_rrule || ';UNTIL=2029-08-01') END )::rrule, s_dtstart AT TIME ZONE 'Europe/Vienna', '2029-08-01' AT TIME ZONE 'Europe/Vienna' ); END CASE ; WITH occurences AS ( SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence UNION SELECT unnest(s_rdate) AS occurence ), exdates AS ( SELECT tstzrange( DATE_TRUNC('day', s.exdate), DATE_TRUNC('day', s.exdate) + INTERVAL '1 day' ) exdate FROM unnest(s_exdate) AS s(exdate) ) SELECT range_agg( tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ) INTO schedule_array FROM occurences WHERE occurences.occurence IS NOT NULL AND occurences.occurence + schedule_duration > '2023-08-01' AND NOT EXISTS ( SELECT 1 FROM exdates WHERE exdates.exdate && tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ); RETURN schedule_array; END; $$;
 
 
 --
@@ -654,6 +672,15 @@ CREATE FUNCTION public.update_classification_tree_tree_label_id(classification_t
 
 
 --
+-- Name: update_classification_tree_tree_label_id_concept_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_classification_tree_tree_label_id_concept_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN UPDATE concepts SET concept_scheme_id = uct.classification_tree_label_id FROM ( SELECT nct.* FROM old_classification_trees oct JOIN new_classification_trees nct ON oct.id = nct.id WHERE nct.deleted_at IS NULL AND nct.classification_tree_label_id IS DISTINCT FROM oct.classification_tree_label_id ) "uct" WHERE uct.classification_alias_id = concepts.id; RETURN NULL; END; $$;
+
+
+--
 -- Name: update_classification_tree_tree_label_id_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -758,6 +785,15 @@ CREATE FUNCTION public.update_template_name_dependent_in_things() RETURNS trigge
       END;
 
       $$;
+
+
+--
+-- Name: upsert_ca_paths(uuid[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.upsert_ca_paths(concept_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN IF array_length(concept_ids, 1) > 0 THEN WITH RECURSIVE paths( id, parent_id, ancestor_ids, full_path_ids, full_path_names, tree_label_id ) AS ( SELECT c.id, cl.parent_id, ARRAY []::uuid [], ARRAY [c.id], ARRAY [c.internal_name], c.concept_scheme_id FROM concepts c JOIN concept_links cl ON cl.child_id = c.id AND cl.link_type = 'broader' WHERE c.id = ANY(concept_ids) UNION ALL SELECT paths.id, cl.parent_id, ancestor_ids || c.id, full_path_ids || c.id, full_path_names || c.internal_name, c.concept_scheme_id FROM concepts c JOIN paths ON paths.parent_id = c.id JOIN concept_links cl ON cl.child_id = c.id AND cl.link_type = 'broader' WHERE c.id <> ALL (paths.full_path_ids) ), child_paths( id, ancestor_ids, full_path_ids, full_path_names ) AS ( SELECT paths.id AS id, paths.ancestor_ids AS ancestor_ids, paths.full_path_ids AS full_path_ids, paths.full_path_names || cs.name AS full_path_names FROM paths JOIN concept_schemes cs ON cs.id = paths.tree_label_id WHERE paths.parent_id IS NULL UNION ALL SELECT c.id AS id, (cl.parent_id || p1.ancestor_ids) AS ancestors_ids, (c.id || p1.full_path_ids) AS full_path_ids, (c.internal_name || p1.full_path_names) AS full_path_names FROM concepts c JOIN concept_links cl ON cl.child_id = c.id AND cl.link_type = 'broader' JOIN child_paths p1 ON p1.id = cl.parent_id WHERE c.id <> ALL (p1.full_path_ids) ) INSERT INTO classification_alias_paths ( id, ancestor_ids, full_path_ids, full_path_names ) SELECT DISTINCT ON (child_paths.full_path_ids) child_paths.id, child_paths.ancestor_ids, child_paths.full_path_ids, child_paths.full_path_names FROM child_paths ON CONFLICT ON CONSTRAINT classification_alias_paths_pkey DO UPDATE SET ancestor_ids = EXCLUDED.ancestor_ids, full_path_ids = EXCLUDED.full_path_ids, full_path_names = EXCLUDED.full_path_names; END IF; END; $$;
 
 
 --
@@ -3821,10 +3857,19 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 
 
 --
+-- Name: concept_links concept_links_create_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER concept_links_create_paths_trigger AFTER INSERT ON public.concept_links REFERENCING NEW TABLE AS new_concept_links FOR EACH STATEMENT EXECUTE FUNCTION public.concept_links_create_paths_trigger_function();
+
+
+--
 -- Name: concept_links concept_links_create_transitive_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER concept_links_create_transitive_paths_trigger AFTER INSERT ON public.concept_links REFERENCING NEW TABLE AS new_concept_links FOR EACH STATEMENT EXECUTE FUNCTION public.concept_links_create_transitive_paths_trigger_function();
+
+ALTER TABLE public.concept_links DISABLE TRIGGER concept_links_create_transitive_paths_trigger;
 
 
 --
@@ -3833,12 +3878,30 @@ CREATE TRIGGER concept_links_create_transitive_paths_trigger AFTER INSERT ON pub
 
 CREATE TRIGGER concept_links_delete_transitive_paths_trigger AFTER DELETE ON public.concept_links REFERENCING OLD TABLE AS old_concept_links FOR EACH STATEMENT EXECUTE FUNCTION public.concept_links_delete_transitive_paths_trigger_function();
 
+ALTER TABLE public.concept_links DISABLE TRIGGER concept_links_delete_transitive_paths_trigger;
+
+
+--
+-- Name: concept_links concept_links_update_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER concept_links_update_paths_trigger AFTER UPDATE ON public.concept_links REFERENCING OLD TABLE AS old_concept_links NEW TABLE AS new_concept_links FOR EACH STATEMENT EXECUTE FUNCTION public.concept_links_update_paths_trigger_function();
+
 
 --
 -- Name: concept_links concept_links_update_transitive_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER concept_links_update_transitive_paths_trigger AFTER UPDATE ON public.concept_links REFERENCING OLD TABLE AS old_concept_links NEW TABLE AS new_concept_links FOR EACH STATEMENT EXECUTE FUNCTION public.concept_links_update_transitive_paths_trigger_function();
+
+ALTER TABLE public.concept_links DISABLE TRIGGER concept_links_update_transitive_paths_trigger;
+
+
+--
+-- Name: concept_schemes concept_schemes_update_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER concept_schemes_update_paths_trigger AFTER UPDATE ON public.concept_schemes REFERENCING OLD TABLE AS old_concept_schemes NEW TABLE AS new_concept_schemes FOR EACH STATEMENT EXECUTE FUNCTION public.concept_schemes_update_paths_trigger_function();
 
 
 --
@@ -3847,12 +3910,23 @@ CREATE TRIGGER concept_links_update_transitive_paths_trigger AFTER UPDATE ON pub
 
 CREATE TRIGGER concept_schemes_update_transitive_paths_trigger AFTER UPDATE ON public.concept_schemes REFERENCING OLD TABLE AS old_concept_schemes NEW TABLE AS new_concept_schemes FOR EACH STATEMENT EXECUTE FUNCTION public.concept_schemes_update_transitive_paths_trigger_function();
 
+ALTER TABLE public.concept_schemes DISABLE TRIGGER concept_schemes_update_transitive_paths_trigger;
+
+
+--
+-- Name: concepts concepts_create_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER concepts_create_paths_trigger AFTER INSERT ON public.concepts REFERENCING NEW TABLE AS new_concepts FOR EACH STATEMENT EXECUTE FUNCTION public.concepts_create_paths_trigger_function();
+
 
 --
 -- Name: concepts concepts_create_transitive_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER concepts_create_transitive_paths_trigger AFTER INSERT ON public.concepts REFERENCING NEW TABLE AS new_concepts FOR EACH STATEMENT EXECUTE FUNCTION public.concepts_create_transitive_paths_trigger_function();
+
+ALTER TABLE public.concepts DISABLE TRIGGER concepts_create_transitive_paths_trigger;
 
 
 --
@@ -3861,12 +3935,23 @@ CREATE TRIGGER concepts_create_transitive_paths_trigger AFTER INSERT ON public.c
 
 CREATE TRIGGER concepts_delete_transitive_paths_trigger AFTER DELETE ON public.concepts REFERENCING OLD TABLE AS old_concepts FOR EACH STATEMENT EXECUTE FUNCTION public.concepts_delete_transitive_paths_trigger_function();
 
+ALTER TABLE public.concepts DISABLE TRIGGER concepts_delete_transitive_paths_trigger;
+
+
+--
+-- Name: concepts concepts_update_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER concepts_update_paths_trigger AFTER UPDATE ON public.concepts REFERENCING OLD TABLE AS old_concepts NEW TABLE AS new_concepts FOR EACH STATEMENT EXECUTE FUNCTION public.concepts_update_paths_trigger_function();
+
 
 --
 -- Name: concepts concepts_update_transitive_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER concepts_update_transitive_paths_trigger AFTER UPDATE ON public.concepts REFERENCING OLD TABLE AS old_concepts NEW TABLE AS new_concepts FOR EACH STATEMENT EXECUTE FUNCTION public.concepts_update_transitive_paths_trigger_function();
+
+ALTER TABLE public.concepts DISABLE TRIGGER concepts_update_transitive_paths_trigger;
 
 
 --
@@ -3875,6 +3960,8 @@ CREATE TRIGGER concepts_update_transitive_paths_trigger AFTER UPDATE ON public.c
 
 CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_alias_paths_transitive REFERENCING OLD TABLE AS old_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ccc_relations_transitive_trigger_2();
 
+ALTER TABLE public.classification_alias_paths_transitive DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_contents delete_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
@@ -3882,14 +3969,14 @@ CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.cl
 
 CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.delete_ccc_relations_transitive_trigger_1();
 
+ALTER TABLE public.classification_contents DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups delete_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
-
-ALTER TABLE public.classification_groups DISABLE TRIGGER delete_collected_classification_content_relations_trigger_1;
 
 
 --
@@ -3989,6 +4076,8 @@ CREATE TRIGGER dict_update_in_searches_trigger BEFORE UPDATE OF locale ON public
 
 CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_alias_paths_transitive REFERENCING NEW TABLE AS new_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_1();
 
+ALTER TABLE public.classification_alias_paths_transitive DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_contents generate_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
@@ -3996,12 +4085,7 @@ CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.
 
 CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_2();
 
-
---
--- Name: classification_trees generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
+ALTER TABLE public.classification_contents DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
 
 
 --
@@ -4010,16 +4094,12 @@ CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON publi
 
 CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT ON public.classification_alias_paths REFERENCING NEW TABLE AS new_classification_alias_paths FOR EACH STATEMENT EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_5();
 
-ALTER TABLE public.classification_alias_paths DISABLE TRIGGER generate_collected_classification_content_relations_trigger;
-
 
 --
 -- Name: classification_contents generate_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
-
-ALTER TABLE public.classification_contents DISABLE TRIGGER generate_collected_classification_content_relations_trigger_1;
 
 
 --
@@ -4028,16 +4108,12 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER generate_collected_cl
 
 CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_2();
 
-ALTER TABLE public.classification_contents DISABLE TRIGGER generate_collected_classification_content_relations_trigger_2;
-
 
 --
 -- Name: classification_groups generate_collected_classification_content_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_4();
-
-ALTER TABLE public.classification_groups DISABLE TRIGGER generate_collected_classification_content_relations_trigger_4;
 
 
 --
@@ -4137,35 +4213,14 @@ CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE UPDATE OF full_text ON publi
 
 CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id IS DISTINCT FROM new.content_data_id) OR (old.classification_id IS DISTINCT FROM new.classification_id) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text))) EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_2();
 
+ALTER TABLE public.classification_contents DISABLE TRIGGER update_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups update_ccc_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER update_ccc_relations_trigger_4 AFTER UPDATE OF classification_id, classification_alias_id ON public.classification_groups FOR EACH ROW WHEN (((old.classification_id IS DISTINCT FROM new.classification_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id))) EXECUTE FUNCTION public.update_collected_classification_content_relations_trigger_4();
-
-ALTER TABLE public.classification_groups DISABLE TRIGGER update_ccc_relations_trigger_4;
-
-
---
--- Name: classification_aliases update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text IS DISTINCT FROM (new.internal_name)::text)) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
-
-
---
--- Name: classification_tree_labels update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text IS DISTINCT FROM (new.name)::text)) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
-
-
---
--- Name: classification_trees update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id) OR (new.classification_tree_label_id IS DISTINCT FROM old.classification_tree_label_id))) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
 
 
 --
@@ -4183,6 +4238,13 @@ CREATE TRIGGER update_classification_tree_order_a_trigger AFTER UPDATE ON public
 
 
 --
+-- Name: classification_trees update_classification_tree_tree_label_id_concept; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_classification_tree_tree_label_id_concept AFTER UPDATE ON public.classification_trees REFERENCING OLD TABLE AS old_classification_trees NEW TABLE AS new_classification_trees FOR EACH STATEMENT EXECUTE FUNCTION public.update_classification_tree_tree_label_id_concept_trigger();
+
+
+--
 -- Name: classification_trees update_classification_tree_tree_label_id_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4195,16 +4257,12 @@ CREATE TRIGGER update_classification_tree_tree_label_id_trigger AFTER UPDATE ON 
 
 CREATE TRIGGER update_collected_classification_content_relations_trigger AFTER UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_3();
 
-ALTER TABLE public.classification_alias_paths DISABLE TRIGGER update_collected_classification_content_relations_trigger;
-
 
 --
 -- Name: classification_contents update_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id IS DISTINCT FROM new.content_data_id) OR (old.classification_id IS DISTINCT FROM new.classification_id) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text))) EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
-
-ALTER TABLE public.classification_contents DISABLE TRIGGER update_collected_classification_content_relations_trigger_1;
 
 
 --
@@ -4255,8 +4313,6 @@ CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE ON public.conte
 
 CREATE TRIGGER update_deleted_at_ccc_relations_trigger_4 AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
 
-ALTER TABLE public.classification_groups DISABLE TRIGGER update_deleted_at_ccc_relations_trigger_4;
-
 
 --
 -- Name: users update_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
@@ -4287,6 +4343,14 @@ CREATE TRIGGER upsert_concept_tables_trigger AFTER INSERT ON public.classificati
 
 
 --
+-- Name: classification_alias_paths fk_cap_concepts; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_alias_paths
+    ADD CONSTRAINT fk_cap_concepts FOREIGN KEY (id) REFERENCES public.concepts(id) ON DELETE CASCADE;
+
+
+--
 -- Name: collected_classification_contents fk_classification_aliases; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4307,7 +4371,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 --
 
 ALTER TABLE ONLY public.content_content_links
-    ADD CONSTRAINT fk_content_content_links_content_contents FOREIGN KEY (content_content_id) REFERENCES public.content_contents(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT fk_content_content_links_content_contents FOREIGN KEY (content_content_id) REFERENCES public.content_contents(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4331,7 +4395,7 @@ ALTER TABLE ONLY public.things
 --
 
 ALTER TABLE ONLY public.classification_trees
-    ADD CONSTRAINT fk_rails_0aeb2f8fa2 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_rails_0aeb2f8fa2 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
 
 
 --
@@ -4371,7 +4435,7 @@ ALTER TABLE ONLY public.thing_histories
 --
 
 ALTER TABLE ONLY public.classification_trees
-    ADD CONSTRAINT fk_rails_344c9a3b48 FOREIGN KEY (classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_344c9a3b48 FOREIGN KEY (classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4403,7 +4467,7 @@ ALTER TABLE ONLY public.concept_schemes
 --
 
 ALTER TABLE ONLY public.user_group_users
-    ADD CONSTRAINT fk_rails_485739ff03 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_485739ff03 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4435,7 +4499,7 @@ ALTER TABLE ONLY public.classification_trees
 --
 
 ALTER TABLE ONLY public.classification_contents
-    ADD CONSTRAINT fk_rails_6ff9fbf404 FOREIGN KEY (content_data_id) REFERENCES public.things(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_6ff9fbf404 FOREIGN KEY (content_data_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4443,7 +4507,7 @@ ALTER TABLE ONLY public.classification_contents
 --
 
 ALTER TABLE ONLY public.thing_histories
-    ADD CONSTRAINT fk_rails_71ac418654 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_rails_71ac418654 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
 
 
 --
@@ -4451,7 +4515,7 @@ ALTER TABLE ONLY public.thing_histories
 --
 
 ALTER TABLE ONLY public.classifications
-    ADD CONSTRAINT fk_rails_72385dbd06 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_rails_72385dbd06 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
 
 
 --
@@ -4459,7 +4523,7 @@ ALTER TABLE ONLY public.classifications
 --
 
 ALTER TABLE ONLY public.classification_trees
-    ADD CONSTRAINT fk_rails_744c1d38fc FOREIGN KEY (classification_tree_label_id) REFERENCES public.classification_tree_labels(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_744c1d38fc FOREIGN KEY (classification_tree_label_id) REFERENCES public.classification_tree_labels(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4467,7 +4531,7 @@ ALTER TABLE ONLY public.classification_trees
 --
 
 ALTER TABLE ONLY public.classification_groups
-    ADD CONSTRAINT fk_rails_783650782d FOREIGN KEY (classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_783650782d FOREIGN KEY (classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4475,7 +4539,7 @@ ALTER TABLE ONLY public.classification_groups
 --
 
 ALTER TABLE ONLY public.things
-    ADD CONSTRAINT fk_rails_7b61990cb0 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_rails_7b61990cb0 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
 
 
 --
@@ -4483,7 +4547,7 @@ ALTER TABLE ONLY public.things
 --
 
 ALTER TABLE ONLY public.external_system_syncs
-    ADD CONSTRAINT fk_rails_8fcdea2ef6 FOREIGN KEY (external_system_id) REFERENCES public.external_systems(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_8fcdea2ef6 FOREIGN KEY (external_system_id) REFERENCES public.external_systems(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4523,7 +4587,7 @@ ALTER TABLE ONLY public.collections
 --
 
 ALTER TABLE ONLY public.classification_aliases
-    ADD CONSTRAINT fk_rails_a7798aa495 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_rails_a7798aa495 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
 
 
 --
@@ -4547,7 +4611,7 @@ ALTER TABLE ONLY public.active_storage_attachments
 --
 
 ALTER TABLE ONLY public.classification_alias_paths_transitive
-    ADD CONSTRAINT fk_rails_ca1c042635 FOREIGN KEY (classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_ca1c042635 FOREIGN KEY (classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4571,7 +4635,7 @@ ALTER TABLE ONLY public.collection_shares
 --
 
 ALTER TABLE ONLY public.classification_groups
-    ADD CONSTRAINT fk_rails_d9919e12e6 FOREIGN KEY (classification_id) REFERENCES public.classifications(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_d9919e12e6 FOREIGN KEY (classification_id) REFERENCES public.classifications(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4579,7 +4643,7 @@ ALTER TABLE ONLY public.classification_groups
 --
 
 ALTER TABLE ONLY public.user_group_users
-    ADD CONSTRAINT fk_rails_da075980a7 FOREIGN KEY (user_group_id) REFERENCES public.user_groups(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_da075980a7 FOREIGN KEY (user_group_id) REFERENCES public.user_groups(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4627,7 +4691,7 @@ ALTER TABLE ONLY public.collections
 --
 
 ALTER TABLE ONLY public.classification_groups
-    ADD CONSTRAINT fk_rails_f570600b17 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL;
+    ADD CONSTRAINT fk_rails_f570600b17 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
 
 
 --
@@ -4846,7 +4910,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210518133349'),
-('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
@@ -4859,101 +4922,63 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
-('20210802130128'),
-('20210803170527'),
 ('20210804140504'),
 ('20210817101040'),
 ('20210908095952'),
 ('20211001085525'),
-('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
-('20211007150305'),
-('20211011060931'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
-('20211110092804'),
-('20211115140202'),
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
-('20211217111102'),
 ('20220105142232'),
 ('20220111132413'),
 ('20220113113445'),
-('20220113150316'),
-('20220119101040'),
-('20220125101015'),
 ('20220218095025'),
 ('20220221123152'),
 ('20220304071341'),
-('20220308150335'),
-('20220308150336'),
 ('20220316115212'),
-('20220316130143'),
-('20220316140219'),
 ('20220317105304'),
 ('20220317131316'),
-('20220317140209'),
-('20220317150319'),
 ('20220322104259'),
-('20220323090941'),
-('20220328090933'),
 ('20220426105827'),
-('20220502150336'),
 ('20220505135021'),
-('20220510085119'),
 ('20220513075644'),
 ('20220516134326'),
-('20220518121205'),
 ('20220520065309'),
 ('20220524095157'),
 ('20220530063350'),
-('20220530140254'),
-('20220531080830'),
-('20220531140218'),
 ('20220602074421'),
-('20220602130139'),
 ('20220613074116'),
 ('20220614085121'),
 ('20220615085015'),
 ('20220615104611'),
 ('20220617113231'),
-('20220712090957'),
 ('20220715173507'),
-('20220829102251'),
 ('20220905101007'),
 ('20220914090315'),
 ('20220915081205'),
 ('20220919112419'),
-('20220919130156'),
 ('20220920083836'),
 ('20220922061116'),
-('20220923130110'),
 ('20221017094112'),
-('20221027101008'),
 ('20221028074348'),
-('20221028090936'),
-('20221102101038'),
-('20221114090938'),
 ('20221118075303'),
 ('20221202071928'),
 ('20221207085950'),
-('20221212150341'),
 ('20230110113327'),
 ('20230111134615'),
-('20230112090929'),
 ('20230123071358'),
 ('20230201083504'),
 ('20230208145904'),
-('20230208150324'),
-('20230209120003'),
 ('20230214091138'),
 ('20230223112058'),
 ('20230223115656'),
@@ -4962,90 +4987,58 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230303150323'),
 ('20230306092709'),
 ('20230313072638'),
-('20230313130117'),
 ('20230317083224'),
 ('20230321085100'),
 ('20230322145244'),
-('20230322160410'),
 ('20230329123152'),
-('20230329140200'),
 ('20230330081538'),
 ('20230403113641'),
 ('20230425060228'),
-('20230504121200'),
 ('20230515081146'),
 ('20230516132624'),
-('20230516150343'),
 ('20230517085644'),
-('20230525101028'),
 ('20230531065846'),
 ('20230605061741'),
-('20230605101053'),
 ('20230606085940'),
-('20230606121247'),
-('20230606150346'),
-('20230612160453'),
 ('20230615093555'),
-('20230623121246'),
 ('20230701115607'),
 ('20230705061652'),
 ('20230712062841'),
-('20230714111113'),
 ('20230718071217'),
-('20230718090951'),
 ('20230721072044'),
 ('20230721072045'),
 ('20230724083209'),
-('20230724111116'),
 ('20230802112843'),
 ('20230802112844'),
 ('20230804062814'),
-('20230804080807'),
 ('20230807063824'),
 ('20230809085903'),
 ('20230810101627'),
-('20230810121221'),
 ('20230821094137'),
 ('20230823081910'),
 ('20230824060920'),
-('20230824080838'),
 ('20231010095157'),
 ('20231023100607'),
 ('20231108115445'),
 ('20231109091823'),
 ('20231109142629'),
-('20231109150314'),
-('20231109150335'),
 ('20231113104134'),
 ('20231115104227'),
-('20231115111112'),
-('20231122080801'),
 ('20231122124135'),
-('20231122140256'),
 ('20231123103232'),
-('20231123111140'),
-('20231123111151'),
 ('20231127144259'),
-('20231128121249'),
 ('20231201083233'),
-('20231201101006'),
-('20231212130157'),
 ('20231220082023'),
-('20231220111146'),
 ('20240118164523'),
 ('20240124113601'),
-('20240124121235'),
 ('20240227133132'),
 ('20240311123217'),
-('20240313080838'),
 ('20240318112843'),
-('20240318121257'),
 ('20240325085848'),
 ('20240325103342'),
 ('20240326094944'),
 ('20240326121702'),
 ('20240328130446'),
-('20240328140204'),
 ('20240402073855'),
 ('20240405095332'),
 ('20240408124153'),
@@ -5061,19 +5054,14 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240425100129'),
 ('20240507072758'),
 ('20240507134603'),
-('20240508080855'),
-('20240521090907'),
 ('20240604110021'),
 ('20240606080312'),
-('20240606121211'),
-('20240607130102'),
 ('20240611101126'),
-('20240611160419'),
 ('20240614081426'),
 ('20240618110250'),
 ('20240619082251'),
 ('20240624062503'),
-('20240624150353'),
-('20240625133900');
+('20240625133900'),
+('20240801061938');
 
 

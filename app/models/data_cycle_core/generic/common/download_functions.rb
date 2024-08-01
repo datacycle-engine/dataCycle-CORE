@@ -1050,6 +1050,7 @@ module DataCycleCore
                             next if item_data.nil?
 
                             item_id = data_id.call(item_data) || nil
+                            item_data['id'] = item_id if item_data['id'] != item_id
                             item_name = data_name.call(item_data) || nil
 
                             item = mongo_items.dig(item_id) || mongo_item_parallel.new('external_id': item_id)

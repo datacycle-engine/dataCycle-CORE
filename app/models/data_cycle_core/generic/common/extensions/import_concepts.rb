@@ -79,6 +79,9 @@ module DataCycleCore
 
                           upserted = concept_scheme.upsert_all_external_classifications(concepts)
                           item_count += upserted.count
+                          times << Time.current
+
+                          logging.info("Imported   #{upserted.count.to_s.rjust(7)} items (#{concept_scheme.name}) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 0, 3)}")
                         end
 
                         concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:)
@@ -87,7 +90,7 @@ module DataCycleCore
 
                         times << Time.current
 
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items (#{mapping_count} new mappings) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 0, 3)}")
+                        logging.info("Imported   #{item_count.to_s.rjust(7)} items (#{mapping_count} new mappings) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds")
                       end
                     rescue StandardError => e
                       logging.error("#{importer_name}(#{phase_name}) #{locale}", nil, nil, e.message)

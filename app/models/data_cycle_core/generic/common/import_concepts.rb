@@ -40,14 +40,17 @@ module DataCycleCore
               name = extract_property(raw_data, options, 'name')
               external_id_prefix = options.dig(:import, :external_id_prefix) || extract_property(raw_data, options, 'external_id_prefix')
               concept_scheme_external_id_prefix = options.dig(:import, :concept_scheme_external_id_prefix) || extract_property(raw_data, options, 'concept_scheme_external_id_prefix')
+              parent_id = extract_property(raw_data, options, 'parent_id')
 
               return if external_id.blank? || name.blank?
+
+              parent_id = nil if parent_id == external_id # concept cannot be its own parent
 
               {
                 external_key: [external_id_prefix, external_id].compact_blank.join,
                 external_source_id: utility_object.external_source.id,
                 name:,
-                parent_external_key: extract_property(raw_data, options, 'parent_id').presence&.then { |pid| [external_id_prefix, pid].compact_blank.join },
+                parent_external_key: parent_id.presence&.then { |pid| [external_id_prefix, pid].compact_blank.join },
                 external_system_identifier: extract_property(raw_data, options, 'external_system_identifier'),
                 description: extract_property(raw_data, options, 'description'),
                 uri: extract_property(raw_data, options, 'uri'),
