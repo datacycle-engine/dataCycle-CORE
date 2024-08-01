@@ -39,50 +39,39 @@ module DataCycleCore
 
         def external_system(ids = nil, type = 'import')
           return self if ids.blank?
+          return external_source(ids) if type == 'import'
 
-          if type == 'import'
-            return external_source(ids)
-          elsif type == 'all'
-            alias1 = "things_#{SecureRandom.hex(5)}"
-            sub_query = <<-SQL.squish
-              things.id IN (
-                SELECT "ess"."syncable_id"
-                FROM "external_system_syncs" "ess"
-                WHERE "ess"."external_system_id" IN (:ids)
-                UNION ALL
-                SELECT "#{alias1}"."id"
-                FROM "things" "#{alias1}"
-                WHERE "#{alias1}"."external_source_id" IN (:ids)
+          # this query performs well in all possible cases, things.id in (subquery) is worse in some cases with sorting (random)
+          if type == 'all'
+            reflect(
+              @query.where(
+                external_system_sync.where(
+                  external_system_sync[:external_system_id].in(ids)
+                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
+                ).exists
+                .or(thing[:external_source_id].in(ids))
               )
-            SQL
-          else
-            sub_query = <<-SQL.squish
-              things.id IN (
-                SELECT "ess"."syncable_id"
-                FROM "external_system_syncs" "ess"
-                WHERE "ess"."external_system_id" IN (:ids)
-                AND "ess"."sync_type" = :type
-              )
-            SQL
-          end
-
-          reflect(
-            @query.where(
-              ActiveRecord::Base.send(:sanitize_sql_array, [
-                                        sub_query,
-                                        ids:,
-                                        type:
-                                      ])
             )
-          )
+          else
+            reflect(
+              @query.where(
+                external_system_sync
+                  .where(
+                    external_system_sync[:external_system_id].in(ids)
+                      .and(external_system_sync[:syncable_id].eq(thing[:id]))
+                      .and(external_system_sync[:sync_type].eq(type))
+                  ).exists
+              )
+            )
+          end
         end
 
         def not_external_system(ids = nil, type = 'import')
           return self if ids.blank?
+          return not_external_source(ids) if type == 'import'
 
-          if type == 'import'
-            not_external_source(ids)
-          elsif type == 'all' # not in is very slow in specific cases
+          # this query performs well in all possible cases, things.id in (subquery) is worse in some cases with sorting (random)
+          if type == 'all'
             reflect(
               @query.where(
                 external_system_sync.where(
