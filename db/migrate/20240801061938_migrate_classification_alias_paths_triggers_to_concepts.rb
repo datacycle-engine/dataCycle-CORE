@@ -17,7 +17,7 @@ class MigrateClassificationAliasPathsTriggersToConcepts < ActiveRecord::Migratio
 
       DROP FUNCTION IF EXISTS public.generate_classification_alias_paths_trigger_2();
 
-      DROP FUNCTION IF EXISTS public.generate_classification_alias_paths();
+      DROP FUNCTION IF EXISTS public.generate_classification_alias_paths(uuid[]);
 
       CREATE OR REPLACE FUNCTION public.upsert_ca_paths(concept_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(concept_ids, 1) > 0 THEN WITH RECURSIVE paths(
         id,
@@ -245,7 +245,7 @@ class MigrateClassificationAliasPathsTriggersToConcepts < ActiveRecord::Migratio
 
       ALTER TABLE IF EXISTS public.classification_alias_paths DROP CONSTRAINT IF EXISTS fk_cap_concepts;
 
-      DROP FUNCTION IF EXISTS public.upsert_ca_paths();
+      DROP FUNCTION IF EXISTS public.upsert_ca_paths(uuid[]);
 
       CREATE OR REPLACE FUNCTION public.generate_classification_alias_paths(classification_alias_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
       DELETE FROM classification_alias_paths

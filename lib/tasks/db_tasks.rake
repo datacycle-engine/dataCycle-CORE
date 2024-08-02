@@ -96,10 +96,10 @@ namespace :db do
   namespace :configure do
     desc 'rebuild all tables concerning transitive classifications'
     task rebuild_transitive_tables: :environment do
-      function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'upsert_ca_paths_transitive' : 'generate_classification_alias_paths'
+      function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'upsert_ca_paths_transitive' : 'upsert_ca_paths'
 
       ActiveRecord::Base.connection.execute <<-SQL.squish
-        SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM classification_aliases;
+        SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM concepts;
       SQL
 
       next if Rails.env.test?
