@@ -39,6 +39,8 @@ class AddMissingExternalKeysToClassificationAliases < ActiveRecord::Migration[6.
       SELECT *
       FROM deleted_groups;
 
+      SET session_replication_role = replica;
+
       UPDATE classification_aliases
       SET external_key = ca_data.external_key
       FROM (
@@ -53,6 +55,8 @@ class AddMissingExternalKeysToClassificationAliases < ActiveRecord::Migration[6.
             AND ca.external_key IS NULL
         ) ca_data
       WHERE classification_aliases.id = ca_data.id;
+
+      SET session_replication_role = DEFAULT;
     SQL
   end
 
