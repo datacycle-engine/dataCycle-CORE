@@ -47,7 +47,7 @@ module DataCycleCore
             version_prop['ui']['edit']['data_attributes'] ||= {}
             version_prop['ui']['edit']['data_attributes']['overlay_type'] = version
 
-            version_prop.deep_reject { |_k, v| v.blank? }
+            version_prop.deep_reject { |_k, v| DataHashService.blank?(v) }
           end
 
           def overlay_prop(key, prop, versions)
@@ -61,7 +61,7 @@ module DataCycleCore
               'parameters' => [key, *versions]
             }
 
-            overlay_prop.deep_reject { |_k, v| v.blank? }
+            overlay_prop.deep_reject { |_k, v| DataHashService.blank?(v) }
           end
 
           def add_overlay_properties!(properties)
