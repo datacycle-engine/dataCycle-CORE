@@ -135,7 +135,7 @@ module DataCycleCore
 
         def load_templates_from_path(template_path, set)
           Dir[File.join(template_path, set.to_s, '*.yml')].each do |path|
-            data_templates = Array.wrap(YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol]))
+            data_templates = Array.wrap(YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol], aliases: true))
 
             data_templates.each do |template|
               @template_definitions.push({

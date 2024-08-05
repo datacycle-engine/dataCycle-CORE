@@ -16,9 +16,13 @@ module DataCycleCore
             'schedule' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze
           }.freeze
           OVERLAY_PROP_EXCEPTIONS = ['overlay', 'default_value', 'compute', 'virtual', 'content_score', 'exif', 'validations', 'api', 'label', 'position'].freeze
+          ALLOWED_PROP_OVERRIDES = ['default_value', 'ui'].freeze
 
           def overlay_version_prop(key, prop, version)
             version_prop = prop.deep_dup.except(*OVERLAY_PROP_EXCEPTIONS)
+            override_props = version_prop.dig('features', 'overlay', version)&.slice(*ALLOWED_PROP_OVERRIDES) || {}
+            version_prop.deep_merge!(override_props)
+
             version_prop['features'] = {
               'overlay' => {
                 'overlay_for' => key,
@@ -87,7 +91,7 @@ module DataCycleCore
           def transform_prop_with_overlay!(prop)
             prop.delete('overlay')
             prop['features'] ||= {}
-            prop['features']['overlay'] = { allowed: true }
+            prop['features'].deep_merge!({ 'overlay' => { allowed: true } })
           end
 
           def self.allowed_postfixes_for_type(type)

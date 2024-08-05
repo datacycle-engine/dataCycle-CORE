@@ -18,7 +18,7 @@ module DataCycleCore
           @template_paths.reverse_each do |core_template_path|
             @content_sets.each do |content_set_name|
               Dir[File.join(core_template_path, content_set_name.to_s, @mixins_folder, '*.yml')].each do |path|
-                data_templates = YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol])
+                data_templates = YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol], aliases: true)
 
                 next @errors.push(path) if data_templates.many?
 

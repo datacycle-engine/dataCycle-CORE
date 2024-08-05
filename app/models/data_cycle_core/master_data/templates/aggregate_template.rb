@@ -11,6 +11,7 @@ module DataCycleCore
         ADDITIONAL_BASE_TEMPLATES_KEY = 'additional_base_templates'
         AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze
         PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type'].freeze
+        ALLOWED_PROP_OVERRIDES = ['features', 'ui'].freeze
 
         def initialize(data:)
           @data = data
@@ -172,9 +173,11 @@ module DataCycleCore
         end
 
         def add_feature_definition_for_prop!(prop:)
+          override_props = prop.dig('features', 'aggregate')&.slice(*ALLOWED_PROP_OVERRIDES) || {}
           prop[:features] = {
             aggregate: { allowed: true }
           }
+          prop.deep_merge!(override_props)
         end
 
         def add_aggregate_property!

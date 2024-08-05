@@ -5,10 +5,9 @@
   <div class="v-select">
     <% classification_items = classification_alias_filter_items(definition['tree_label'], { internal_name: :asc }) %>
     <% single_select = definition.dig('ui', 'edit', 'options', 'multiple') == false || definition.dig('validations', 'max') == 1 %>
-    <% async = definition.dig('ui', 'edit', 'options', 'async') != false %>
     <%= hidden_field_tag "#{key}[]", nil %>
 
-    <% if (async && classification_items.size > DataCycleCore.max_asynch_classification_items) %>
+    <% if (definition.dig('ui', 'edit', 'async').to_s != 'false' && classification_items.size > DataCycleCore.max_asynch_classification_items) %>
       <%= select_tag(
             "#{key}[]",
             async_classification_select_options(value, DataCycleCore::Classification),

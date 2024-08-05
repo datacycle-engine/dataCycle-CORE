@@ -14,7 +14,7 @@ module DataCycleCore
 
             return value_definition if value_definition.is_a?(::Array)
 
-            content&.external? ? value_definition.dig('external') : value_definition.dig('internal')
+            (content&.external? ? value_definition.dig('external') : value_definition.dig('internal')) || []
           end
         end
       end
