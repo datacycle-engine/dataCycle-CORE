@@ -676,8 +676,11 @@ module DataCycleCore
             value
           elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base)
             value.first.class.unscoped.by_ordered_values(value.pluck(:id)).tap { |rel| rel.send(:load_records, value) }
-          elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
+          elsif linked_property_names.include?(key)
             DataCycleCore::Thing.by_ordered_values(value)
+          elsif embedded_property_names.include?(key)
+            # TODO: allow initialization of thing without persisting it, to correctly initialize default_values for embedded objects
+            value.blank? || (value.is_a?(::Array) && value.all?(::String) && value.all?(&:uuid?)) ? DataCycleCore::Thing.by_ordered_values(value) : DataCycleCore::Thing.none
           elsif classification_property_names.include?(key)
             DataCycleCore::Classification.by_ordered_values(value)
           elsif asset_property_names.include?(key)

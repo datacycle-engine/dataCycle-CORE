@@ -11,10 +11,18 @@ module DataCycleCore
 
           def by_name_value_source(content:, property_definition:, **_args)
             value_definition = property_definition.dig('default_value', 'value')
+            if value_definition.is_a?(::Array)
+              values = value_definition
+            else
+              values = (content&.external? ? value_definition.dig('external') : value_definition.dig('internal')) || []
+            end
 
-            return value_definition if value_definition.is_a?(::Array)
+            first_template = Array.wrap(property_definition.dig('template_name')).first
 
-            (content&.external? ? value_definition.dig('external') : value_definition.dig('internal')) || []
+            values.map do |value|
+              value['template_name'] ||= first_template
+              value
+            end
           end
         end
       end
