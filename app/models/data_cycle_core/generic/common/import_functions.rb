@@ -102,15 +102,20 @@ module DataCycleCore
                             )
                           end
                         rescue StandardError => e
-                          last_err = e
-                          e.message << " occured at '#{e.backtrace&.first}" if e.backtrace.present?
-                          e.message << " while trying to import ext. key '#{last_ext_key}'" if last_ext_key.present?
-                          logging.info("E: #{e.message}")
+                          full_message = +e.message # unfreeze the string
+                          full_message << " occured at '#{e.backtrace&.first}" if e.backtrace.present?
+                          full_message << " while trying to import ext. key '#{last_ext_key}'" if last_ext_key.present?
+
+                          last_err = e.exception(full_message)
+
+                          logging.info("E: #{full_message}")
+
                           e.backtrace.each do |line|
                             logging.info("E: #{line}")
                           end
-                          utility_object.external_source.handle_import_error_notification(e)
-                          raise e.exception
+
+                          utility_object.external_source.handle_import_error_notification(last_err)
+                          raise last_err
                         ensure
                           Marshal.dump({ count: item_count, timestamp: Time.current, last_err: last_err&.message}, write)
                           write.close
