@@ -156,8 +156,7 @@ module DataCycleCore
 
       def self.clone_role_permissions(role, ability)
         user_segment = Segments::UsersByRole.new(role.name)
-        user_segment.instance_variable_set(:@user, ability.user)
-        user_segment.instance_variable_set(:@session, ability.session)
+        user_segment.ability = ability
 
         permissions = list.select { |l| l[:condition].class.in?([Segments::UsersByRole, Segments::UsersExceptRoles]) && l[:condition].include?(DataCycleCore::User.new(role:)) }
         cloned_permissions = permissions.map do |permission|
@@ -216,8 +215,7 @@ module DataCycleCore
 
         filtered_list(ability.user).each do |permission|
           definition = permission[:definition].clone
-          definition.instance_variable_set(:@user, ability.user)
-          definition.instance_variable_set(:@session, ability.session)
+          definition.ability = ability
 
           parameters = [:can, permission[:actions], definition.subject]
           parameters.push(definition.scope) if definition.respond_to?(:scope)

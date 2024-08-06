@@ -375,15 +375,6 @@ CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_2() RETURNS tri
 
 
 --
--- Name: generate_classification_alias_paths(uuid[]); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_ids uuid[]) RETURNS void
-    LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM classification_alias_paths WHERE id = ANY(classification_alias_ids); WITH RECURSIVE paths( id, parent_id, ancestor_ids, full_path_ids, full_path_names, tree_label_id ) AS ( SELECT classification_aliases.id, classification_trees.parent_classification_alias_id, ARRAY []::uuid [], ARRAY [classification_aliases.id], ARRAY [classification_aliases.internal_name], classification_trees.classification_tree_label_id FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id WHERE classification_trees.classification_alias_id = ANY(classification_alias_ids) UNION ALL SELECT paths.id, classification_trees.parent_classification_alias_id, ancestor_ids || classification_aliases.id, full_path_ids || classification_aliases.id, full_path_names || classification_aliases.internal_name, classification_trees.classification_tree_label_id FROM classification_trees JOIN paths ON paths.parent_id = classification_trees.classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id ) INSERT INTO classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) SELECT paths.id, paths.ancestor_ids, paths.full_path_ids, paths.full_path_names || classification_tree_labels.name FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id WHERE paths.parent_id IS NULL; RETURN; END; $$;
-
-
---
 -- Name: generate_collected_cl_content_relations_transitive(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5062,6 +5053,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240619082251'),
 ('20240624062503'),
 ('20240625133900'),
-('20240801061938');
+('20240801061938'),
+('20240802065842');
 
 

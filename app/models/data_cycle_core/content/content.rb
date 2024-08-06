@@ -635,8 +635,7 @@ module DataCycleCore
 
         contents.find_each do |t|
           ordered_properties.select! do |k, v|
-            user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit, :bulk_edit)) &&
-              user.can?(:update, DataCycleCore::DataAttribute.new(k, v, {}, t, :update))
+            user.can_attribute?(key: k, definition: v, content: t, scope: :update, context: :editor, options: { edit_scope: 'bulk_edit' })
           end
         end
 

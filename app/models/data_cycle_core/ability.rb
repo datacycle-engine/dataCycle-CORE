@@ -11,10 +11,19 @@ module DataCycleCore
 
       @user = user
       @session = session
+      @user.ability = self
 
       DataCycleCore::Abilities::PermissionsList.add_abilities_for_user(self)
+    end
 
-      @user.instance_variable_set(:@ability, self)
+    def concept_scheme(cs_name)
+      @concept_scheme ||= Hash.new do |h, name|
+        h[name] = begin
+          DataCycleCore::ClassificationTreeLabel.find_by(name:)
+        end
+      end
+
+      @concept_scheme[cs_name]
     end
 
     def can_attribute?(r_options = nil, key: nil, definition: {}, options: {}, content: nil, context: nil, scope: nil)
@@ -38,7 +47,10 @@ module DataCycleCore
           )
 
           next false if opts.definition&.dig('type') == 'classification' &&
-                        !DataCycleCore::ClassificationService.visible_classification_tree?(opts.definition['tree_label'], opts.scope.to_s)
+                        !DataCycleCore::ClassificationService.visible_classification_tree?(
+                          concept_scheme(opts.definition['tree_label']),
+                          opts.scope.to_s
+                        )
 
           next false if opts.scope.to_s == 'update' && opts.definition&.dig('type') == 'linked' && opts.definition&.dig('link_direction') == 'inverse'
 

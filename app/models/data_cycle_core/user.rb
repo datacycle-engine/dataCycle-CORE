@@ -12,7 +12,7 @@ module DataCycleCore
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
     attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, *WEBHOOK_ACCESSORS
-    attr_writer :user_api_feature
+    attr_writer :user_api_feature, :ability
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
       'email',

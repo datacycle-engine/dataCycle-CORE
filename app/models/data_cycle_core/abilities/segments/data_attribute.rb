@@ -82,7 +82,7 @@ module DataCycleCore
           return true if attribute.definition.dig('local')
           return true if attribute.definition.dig('tree_label').blank? # only for classification type attributes
 
-          tree_label_external_id = DataCycleCore::ClassificationTreeLabel.find_by(name: attribute.definition['tree_label'])&.external_source_id
+          tree_label_external_id = ability.concept_scheme(attribute.definition['tree_label'])&.external_source_id
 
           return true if tree_label_external_id.blank?
 

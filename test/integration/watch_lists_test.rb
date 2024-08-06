@@ -239,7 +239,7 @@ module DataCycleCore
 
     test 'bulk edit all watch_list items' do
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
-      shared_ordered_properties = @watch_list.things.shared_ordered_properties(@current_user).keys
+      shared_ordered_properties = @watch_list.things.shared_ordered_properties(@current_user).reject { |_, v| v.dig('ui', 'edit', 'disabled').to_s == 'true' }.keys
 
       get bulk_edit_watch_list_path(@watch_list), params: {}, headers: {
         referer: watch_list_path(@watch_list)
@@ -247,7 +247,7 @@ module DataCycleCore
 
       assert_response :success
 
-      shared_ordered_properties.except('release_status_id').each do |property|
+      shared_ordered_properties.each do |property|
         assert_select ".form-element.#{property}"
       end
     end
