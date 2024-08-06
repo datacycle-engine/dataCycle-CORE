@@ -469,13 +469,8 @@ module DataCycleCore
           end
         end
 
-        potentially_delete = available_update_item_keys - updated_item_keys
-        potentially_delete.each do |key|
-          # fully destroy all remaining embedded!
-          item = DataCycleCore::Thing.find_by(id: key)
-          item.destroy_children(current_user: options.current_user, save_time: options.save_time, destroy_locale: false)
-          item.destroy
-        end
+        to_delete = available_update_item_keys - updated_item_keys
+        DataCycleCore::Thing.where(id: to_delete).find_each { |item| item.destroy(current_user: options.current_user, save_time: options.save_time) } if to_delete.present?
       end
 
       def upsert_content(name, item, options)
