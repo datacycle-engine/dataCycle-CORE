@@ -207,6 +207,7 @@ en:
         - Imported
         - "Data type: %{template_names}"
       thing_by_template_name: "Data type: %{template_names}"
+      thing_by_classification_tree_path: "Classifications: %{concept_paths}"
       thing_by_user_and_template_name:
         - User is %{attribute_name}
         - "Data type: %{template_names}"

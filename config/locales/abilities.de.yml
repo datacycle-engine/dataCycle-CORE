@@ -187,6 +187,7 @@ de:
         - importiert
         - "Datentyp: %{template_names}"
       thing_by_template_name: "Datentyp: %{template_names}"
+      thing_by_classification_tree_path: "Klassifizierungen: %{concept_paths}"
       thing_by_user_and_template_name:
         - "Benutzer ist %{attribute_name}"
         - "Datentyp: %{template_names}"
