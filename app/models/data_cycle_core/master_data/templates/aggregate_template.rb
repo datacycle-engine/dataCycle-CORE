@@ -9,8 +9,8 @@ module DataCycleCore
         AGGREGATE_PROPERTY_NAME = 'aggregate_for'
         AGGREGATE_INVERSE_PROPERTY_NAME = 'belongs_to_aggregate'
         ADDITIONAL_BASE_TEMPLATES_KEY = 'additional_base_templates'
-        AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze
-        PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type'].freeze
+        AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze # keys that should not be included in the aggregate definition
+        PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type', 'slug'].freeze # keys that should not be aggregated
         ALLOWED_PROP_OVERRIDES = ['features', 'ui'].freeze
 
         def initialize(data:)
@@ -95,8 +95,23 @@ module DataCycleCore
           @aggregate[:properties] = props.to_h
         end
 
+        def slug_definition(key:, prop:)
+          new_prop = prop.dc_deep_dup
+          new_prop[:compute] = {
+            module: 'Slug',
+            method: 'slug_value_from_first_existing_linked',
+            parameters: [
+              "#{self.class.aggregate_property_key(key)}.#{key}",
+              "#{AGGREGATE_PROPERTY_NAME}.#{key}"
+            ]
+          }
+
+          [[key, new_prop]]
+        end
+
         def transform_aggregate_property(key:, prop:)
           return [] if AGGREGATE_KEY_EXCEPTIONS.include?(key)
+          return slug_definition(key:, prop:) if key == 'slug'
           return [[key, prop]] unless self.class.key_allowed_for_aggregate?(key:, prop:)
 
           prop.except!(*AGGREGATE_PROP_EXCEPTIONS)

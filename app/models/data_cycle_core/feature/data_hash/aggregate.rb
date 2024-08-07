@@ -23,7 +23,8 @@ module DataCycleCore
 
           return unless aggregate_type_aggregate?
 
-          changed_aggregates = previous_datahash_changes&.dig(MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME).to_h
+          changed_aggregates = previous_datahash_changes&.dig(MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME).to_h { |v| v.first(2) }
+
           DataCycleCore::Thing.where(id: changed_aggregates['+']).update_all(cache_valid_since: Time.zone.now, aggregate_type: 'belongs_to_aggregate') if changed_aggregates['+'].present?
           DataCycleCore::Thing.where(id: changed_aggregates['-']).update_all(cache_valid_since: Time.zone.now, aggregate_type: 'default') if changed_aggregates['-'].present?
         end
