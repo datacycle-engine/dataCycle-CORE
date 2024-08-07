@@ -154,36 +154,36 @@ module DataCycleCore
         list.select { |l| l[:condition].include?(user) }
       end
 
+      def self.clone_permissions(permissions, ability)
+        permissions.map do |permission|
+          definition = permission[:definition].clone
+          definition.ability = ability
+
+          DataCycleCore::Permission.new(
+            condition: permission[:condition].clone,
+            actions: permission[:actions].clone,
+            definition:,
+            ability:
+          )
+        end
+      end
+
       def self.clone_role_permissions(role, ability)
         user_segment = Segments::UsersByRole.new(role.name)
         user_segment.ability = ability
 
         permissions = list.select { |l| l[:condition].class.in?([Segments::UsersByRole, Segments::UsersExceptRoles]) && l[:condition].include?(DataCycleCore::User.new(role:)) }
-        cloned_permissions = permissions.map do |permission|
-          DataCycleCore::Permission.new(
-            condition: permission[:condition].clone,
-            actions: permission[:actions].clone,
-            definition: permission[:definition].clone,
-            ability:
-          )
-        end
+
+        cloned_permissions = clone_permissions(permissions, ability)
 
         return user_segment, cloned_permissions
       end
 
       def self.cloned_additional_permissions(key, permissions, ability)
         key_segment = key.clone
-        key_segment.instance_variable_set(:@user, ability.user)
-        key_segment.instance_variable_set(:@session, ability.session)
+        key_segment.ability = ability
 
-        cloned_permissions = permissions.map do |permission|
-          DataCycleCore::Permission.new(
-            condition: permission[:condition].clone,
-            actions: permission[:actions].clone,
-            definition: permission[:definition].clone,
-            ability:
-          )
-        end
+        cloned_permissions = clone_permissions(permissions, ability)
 
         return key_segment, cloned_permissions
       end
