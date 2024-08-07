@@ -175,7 +175,7 @@ module DataCycleCore
         end
 
         def translated_attribute_labels_with_template_name(translation_key, keys)
-          keys.map do |k, v|
+          Array.wrap(keys).map do |k, v|
             AttributeTranslation.new(Array.wrap(v), k.to_s, ->(data, template_name) { I18n.t("abilities.data_attribute_method_names.#{translation_key}", locale:, data:, template_name:) })
           end
         end
