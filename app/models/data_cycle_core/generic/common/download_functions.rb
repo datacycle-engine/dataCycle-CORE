@@ -569,6 +569,7 @@ module DataCycleCore
                             data_hash[:archive_reason] = item.dump[key].try(:[], 'archive_reason') if item.dump[key].try(:[], 'archive_reason').present?
                             data_hash[:last_seen_before_archived] = item.dump[key].try(:[], 'last_seen_before_archived') if item.dump[key].try(:[], 'last_seen_before_archived').present?
                           end
+                          item.data_has_changed = nil if item.data_has_changed == false # reset data_has_changed if it was false in previous
                           data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                           item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(key, 'mark_for_update').present?
                           item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
