@@ -18,7 +18,7 @@ module DataCycleCore
       assert_response :success
 
       assert_select 'ul.permission-overview > li', {
-        count: DataCycleCore::Role.pluck(:name).uniq.count
+        count: DataCycleCore::Role.distinct.pluck(:name).size
       }
     end
   end
