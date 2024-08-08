@@ -281,6 +281,7 @@ module DataCycleCore
 
       def storage_cases_set(options, key, properties)
         return if virtual_property_names.include?(key)
+
         value = options.data_hash[key]
         # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
@@ -288,21 +289,21 @@ module DataCycleCore
           save_slug(key, value, options.data_hash)
         when 'key'
           true # do nothing
-        when *Content::LINKED_PROPERTY_TYPES
+        when *LINKED_PROPERTY_TYPES
           set_linked(key, value, properties)
-        when *Content::EMBEDDED_PROPERTY_TYPES
+        when *EMBEDDED_PROPERTY_TYPES
           set_embedded(key, value, properties['template_name'], properties['translated'], options)
-        when 'object', *Content::PLAIN_PROPERTY_TYPES
+        when *SIMPLE_OBJECT_PROPERTY_TYPES, *PLAIN_PROPERTY_TYPES, *TABLE_PROPERTY_TYPES
           save_values(key, value, properties)
-        when *Content::CLASSIFICATION_PROPERTY_TYPES
+        when *CLASSIFICATION_PROPERTY_TYPES
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
-        when *Content::ASSET_PROPERTY_TYPES
+        when *ASSET_PROPERTY_TYPES
           set_asset_id(value, key, properties['asset_type'])
-        when *Content::SCHEDULE_PROPERTY_TYPES
+        when *SCHEDULE_PROPERTY_TYPES
           set_schedule(value, key)
-        when *Content::COLLECTION_PROPERTY_TYPES
+        when *COLLECTION_PROPERTY_TYPES
           set_collection_links(key, value)
-        when *Content::TIMESERIES_PROPERTY_TYPES
+        when *TIMESERIES_PROPERTY_TYPES
           set_timeseries(key, value)
         end
       end

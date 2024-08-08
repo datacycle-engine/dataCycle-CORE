@@ -23,6 +23,8 @@ module DataCycleCore
       TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
       ASSET_PROPERTY_TYPES = ['asset'].freeze
       COLLECTION_PROPERTY_TYPES = ['collection'].freeze
+      TABLE_PROPERTY_TYPES = ['table'].freeze
+      SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
       ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
 
@@ -251,7 +253,7 @@ module DataCycleCore
 
         property_definition&.dig('storage_location') == 'translated_value' ||
           (property_definition&.dig('storage_location') == 'column' && translated_columns.include?(property_name)) ||
-          (property_definition&.dig('type') == 'embedded' && !property_definition&.dig('translated'))
+          (EMBEDDED_PROPERTY_TYPES.include?(property_definition&.dig('type')) && !property_definition&.dig('translated'))
       end
 
       def untranslatable_property_names
@@ -293,6 +295,10 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition['virtual'].present? }
       end
 
+      def table_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| TABLE_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
       def linked_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
       end
@@ -310,7 +316,7 @@ module DataCycleCore
       end
 
       def included_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'object' }
+        name_property_selector(include_overlay) { |definition| SIMPLE_OBJECT_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def computed_property_names(include_overlay = false)
@@ -366,12 +372,12 @@ module DataCycleCore
       end
 
       def untranslatable_embedded_property_names
-        name_property_selector { |definition| definition['type'] == 'embedded' && definition.dig('translated') }
+        name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition.dig('translated') }
       end
 
       def searchable_embedded_property_names
         property_definitions.select { |_, definition|
-          definition['type'] == 'embedded' && definition['advanced_search'] == true
+          EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition['advanced_search'] == true
         }.keys
       end
 
@@ -381,7 +387,7 @@ module DataCycleCore
 
       def advanced_included_search_property_names
         property_definitions.select { |_, definition|
-          definition['type'] == 'object' && definition['advanced_search'] == true
+          SIMPLE_OBJECT_PROPERTY_TYPES.include?(definition['type']) && definition['advanced_search'] == true
         }.keys
       end
 
@@ -440,7 +446,7 @@ module DataCycleCore
       def attribute_to_h(property_name)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
-        elsif plain_property_names.include?(property_name)
+        elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name)
           send(property_name)&.as_json
         elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name) || collection_property_names.include?(property_name)
           send(property_name).try(:pluck, :id)
@@ -499,7 +505,7 @@ module DataCycleCore
         (@get_property_value ||= {})[key] =
           if virtual_property_names.include?(property_name)
             load_virtual_attribute(property_name, I18n.locale)
-          elsif plain_property_names.include?(property_name)
+          elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name)
             load_json_attribute(property_name, property_definition, overlay_flag)
           elsif included_property_names.include?(property_name)
             load_included_data(property_name, property_definition, overlay_flag)

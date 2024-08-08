@@ -25,7 +25,8 @@ module DataCycleCore
         def generic_diff(a, b, cmp)
           return if cmp.call(a, b)
           return ['+', b] if a.blank? && !a.is_a?(FalseClass)
-          return ['-', a] if b.blank?
+          return ['-', a] if b.blank? && !b.is_a?(FalseClass)
+
           ['~', a, b]
         end
 

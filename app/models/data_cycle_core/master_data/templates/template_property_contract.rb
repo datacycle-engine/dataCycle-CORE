@@ -28,7 +28,7 @@ module DataCycleCore
                'datetime', 'date', 'geographic', 'slug',
                'object', 'embedded', 'linked', 'classification',
                'asset', 'schedule', 'opening_time',
-               'timeseries', 'collection']
+               'timeseries', 'collection', 'table']
             )
           end
           optional(:storage_location) do

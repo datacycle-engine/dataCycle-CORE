@@ -1239,6 +1239,9 @@ de:
       boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
       string: "%{label} ist kein String, sondern %{template}."
+      table: "%{label} ist keine Tabelle (Array of Arrays), sondern %{template}."
+      table_row_wrong_size: "Die Anzahl der Spalten in der Zeile %{row} ist falsch."
+      table_cell_wrong_type: "Der Wert in der Zelle %{cell} kann nicht in JSON umgewandelt werden."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
       geo_no_linestring: "Für diesen Typ müssen mindestens zwei Punkte angegeben werden"
       schedule:

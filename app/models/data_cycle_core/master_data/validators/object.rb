@@ -20,7 +20,8 @@ module DataCycleCore
             'asset' => Validators::Asset,
             'schedule' => Validators::Schedule,
             'opening_time' => Validators::Schedule,
-            'collection' => Validators::Collection
+            'collection' => Validators::Collection,
+            'table' => Validators::Table
           }
         end
 

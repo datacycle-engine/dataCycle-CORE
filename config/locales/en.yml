@@ -1195,6 +1195,9 @@ en:
       boolean: "%{data} is not a valid boolean format. (Only 'true' or 'false' allowed)"
       url: "%{data} is not a valid url (valid example: 'https://www.example.com')."
       string: "%{template} is not a string, but %{label}."
+      table: "%{label} is not a table (array of arrays), but %{template}."
+      table_row_wrong_size: "row has wrong number of columns: %{row}"
+      table_cell_wrong_type: "The value in cell %{cell} cannot be converted to JSON."
       geo:
         Incorrect data type specified for %{template} (%{data}). Expect Geometric/Geographical
         type, or a WKT formatted string.
