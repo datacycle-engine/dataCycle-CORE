@@ -4,7 +4,6 @@ import ObserverHelpers from "../helpers/observer_helpers";
 class StoredSearchesFilter {
 	constructor(inputField) {
 		this.inputField = inputField;
-		this.inputField.classList.add("dcjs-stored-searches-filter");
 		this.url = this.inputField.dataset.url;
 		this.dropdownTrigger = this.inputField.closest(".search-favorites-short");
 		this.dropdownList = this.inputField.closest("ul");

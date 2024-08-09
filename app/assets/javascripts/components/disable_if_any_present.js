@@ -3,7 +3,6 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 class DisableIfAnyPresent {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-disable-if-any-present");
 		this.disabled = false;
 		this.dependentOnAttributes = DomElementHelpers.parseDataAttribute(
 			this.element.dataset.disableIfAnyPresent,

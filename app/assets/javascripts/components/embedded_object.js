@@ -47,15 +47,10 @@ class EmbeddedObject {
 			scrollToLocationHash: this.scrollToLocationHash.bind(this),
 			clear: this.clear.bind(this),
 		};
-		this.addedItemsObserver = new MutationObserver(
-			this.checkForAddedNodes.bind(this),
-		);
 
 		this.setup();
 	}
 	setup() {
-		this.element.classList.add("dcjs-embedded-object");
-
 		this.sortable = new Sortable(this.element, {
 			forceAutoScrollFallback: true,
 			scrollSpeed: 50,
@@ -74,34 +69,19 @@ class EmbeddedObject {
 		this.element.addEventListener("clear", this.eventHandlers.clear);
 
 		this.addEventHandlers();
+		DataCycle.registerAddCallback(
+			`#${this.element.id} > .content-object-item:not(.hidden)`,
+			"coi",
+			this.setupContentObjectItem.bind(this),
+		);
 		this.update();
-		this.addedItemsObserver.observe(this.element, { childList: true });
 	}
 	setupContentObjectItem(element) {
-		element.classList.add("dcjs-coi");
-
 		element
 			.querySelector(this.selectorForRemoveContentObject())
 			?.addEventListener("click", this.eventHandlers.removeItem);
 
 		this.setupSwappableButtons(element);
-	}
-	runAddCallbacks(node) {
-		ObserverHelpers.checkForConditionRecursive(
-			node,
-			".content-object-item:not(.hidden):not(.dcjs-coi)",
-			this.setupContentObjectItem.bind(this),
-		);
-	}
-	checkForAddedNodes(mutations) {
-		for (const mutation of mutations) {
-			if (mutation.type !== "childList") continue;
-
-			for (const addedNode of mutation.addedNodes) {
-				if (addedNode.nodeType === Node.ELEMENT_NODE)
-					this.runAddCallbacks(addedNode);
-			}
-		}
 	}
 	locale() {
 		return this.element.dataset.locale || "de";
@@ -290,8 +270,6 @@ class EmbeddedObject {
 			button.removeEventListener("click", this.eventHandlers.addItem);
 			button.addEventListener("click", this.eventHandlers.addItem);
 		}
-
-		this.runAddCallbacks(this.element);
 
 		this.$element
 			.off("init.zf.accordion", this.eventHandlers.scrollToLocationHash)

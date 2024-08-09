@@ -1,4 +1,5 @@
 import ObserverHelpers from "../helpers/observer_helpers";
+import DataCycleHttpClient from "./data_cycle_http_client";
 
 class DataCycle {
 	constructor(config = {}) {
@@ -38,8 +39,12 @@ class DataCycle {
 
 		this.htmlObserver = {
 			observer: new MutationObserver(this._addToCallbackQueue.bind(this)),
-			addCallbacks: [],
-			removeCallbacks: [],
+			intersection: new IntersectionObserver(
+				this._lazyInitElement.bind(this),
+				ObserverHelpers.intersectionObserverConfig,
+			),
+			addCallbacks: {},
+			removeCallbacks: {},
 		};
 
 		this.notifications = new Comment("dataCycle-notifications");
@@ -48,120 +53,12 @@ class DataCycle {
 
 		this.init();
 	}
-
 	init() {
 		Object.freeze(this.config);
 		this.htmlObserver.observer.observe(
 			document.body,
 			ObserverHelpers.newItemsConfig,
 		);
-	}
-	joinPath(...segments) {
-		const parts = segments.reduce((parts, segment) => {
-			if (!segment) return parts;
-
-			let s = segment;
-
-			if (parts.length > 0) s = s.replace(/^\//, "");
-
-			s = s.replace(/\/$/, "");
-
-			return parts.concat(s.split("/"));
-		}, []);
-
-		const resultParts = [];
-
-		for (const part of parts) {
-			if (part === ".") continue;
-			if (part === "..") {
-				resultParts.pop();
-				continue;
-			}
-
-			resultParts.push(part);
-		}
-
-		return resultParts.join("/");
-	}
-	wait(delay) {
-		return new Promise((resolve) => setTimeout(resolve, delay));
-	}
-	defaultHttpHeaders() {
-		return {
-			"X-CSRF-Token": document.getElementsByName("csrf-token")[0].content,
-			Accept: "application/json",
-		};
-	}
-	flattenParamsRecursive(key, value, params = []) {
-		if (Array.isArray(value))
-			for (const v of value) this.flattenParamsRecursive(`${key}[]`, v, params);
-		else if (typeof value === "object" && value !== null && value !== undefined)
-			for (const [k, v] of Object.entries(value))
-				this.flattenParamsRecursive(`${key}[${k}]`, v, params);
-		else params.push([key, value]);
-
-		return params;
-	}
-	objectToUrlSearchParams(object) {
-		const params = new URLSearchParams();
-
-		for (const [key, value] of Object.entries(object))
-			for (const [k, v] of this.flattenParamsRecursive(key, value))
-				params.append(k, v);
-
-		return params;
-	}
-	mergeHttpOptions(urlParam, options) {
-		let url = urlParam;
-		if (!options.method) options.method = "GET";
-		else options.method = options.method.toUpperCase();
-
-		options.headers = Object.assign(this.defaultHttpHeaders(), options.headers);
-
-		if (this.config.EnginePath && !url.includes(this.config.EnginePath))
-			url = this.joinPath(this.config.EnginePath, url);
-
-		if (!(options.body instanceof FormData || options.headers["Content-Type"]))
-			options.headers["Content-Type"] = "application/json";
-
-		if (options.method === "GET" && options.body) {
-			url += `?${this.objectToUrlSearchParams(options.body).toString()}`;
-			options.body = undefined;
-		} else if (
-			options.headers["Content-Type"] === "application/json" &&
-			options.body &&
-			typeof options.body !== "string" &&
-			!(options.body instanceof String)
-		)
-			options.body = JSON.stringify(options.body);
-
-		if (
-			(options.method !== "GET" && options.method !== "POST") ||
-			options.body instanceof FormData
-		)
-			options.cache = "no-cache";
-
-		return [url, options];
-	}
-	httpRequest(url, options = {}, retries = 3) {
-		const [mergedUrl, mergedOptions] = this.mergeHttpOptions(url, options);
-
-		return fetch(mergedUrl, mergedOptions).then((res) => {
-			if (res.ok) {
-				return res.json().catch(() => undefined);
-			}
-
-			if (
-				retries > 0 &&
-				this.config.retryableHttpCodes.includes(res.status) &&
-				import.meta.env.PROD
-			)
-				return this.wait(1000 * (3 / retries)).then(() =>
-					this.httpRequest(mergedUrl, mergedOptions, retries - 1),
-				);
-
-			throw new Error(res.status);
-		});
 	}
 	_prepareElement(element, innerHTML = undefined) {
 		let el = element;
@@ -173,12 +70,10 @@ class DataCycle {
 			el.dataset.disableWith = innerHTML;
 		} else if (el.hasAttribute("data-dc-disable-with")) {
 			if (!el.dataset.dcDisableWith) {
-				// biome-ignore lint/performance/noDelete: <explanation>
 				delete el.dataset.disableWith;
 			} else {
 				el.dataset.disableWith = el.dataset.dcDisableWith;
 			}
-			// biome-ignore lint/performance/noDelete: <explanation>
 			delete el.dataset.dcDisableWith;
 		}
 
@@ -202,26 +97,95 @@ class DataCycle {
 		if (this.mutableNodes.includes(el.nodeName))
 			el.classList.remove("disabled");
 	}
-	initNewElements(selector, callback) {
-		if (document.querySelector(selector))
-			for (const element of document.querySelectorAll(selector))
-				callback(element);
-		this.htmlObserver.addCallbacks.push([selector, callback]);
+	registerAddCallback(selector, identifier, callback, lazy = false) {
+		const [identifierFull, selectorKey] = this._generateSelector(
+			selector,
+			identifier,
+		);
+
+		if (!Object.hasOwn(this.htmlObserver.addCallbacks, selectorKey)) {
+			this.htmlObserver.addCallbacks[selectorKey] = {
+				lazy,
+				callback,
+				identifier: identifierFull,
+			};
+		}
+		if (document.querySelector(selectorKey))
+			for (const element of document.querySelectorAll(selectorKey))
+				this._runCallback(element, selectorKey);
 	}
-	_runAddCallbacks(node) {
-		for (const [selector, callback] of this.htmlObserver.addCallbacks) {
-			if (node.querySelector(selector))
-				for (const element of node.querySelectorAll(selector))
-					callback(element);
-			if (node.matches(selector)) callback(node);
+	registerLazyAddCallback(selector, identifier, callback) {
+		this.registerAddCallback(selector, identifier, callback, true);
+	}
+	registerRemoveCallback(selector, callback) {
+		if (!Object.hasOwn(this.htmlObserver.removeCallbacks, selector)) {
+			this.htmlObserver.removeCallbacks[selector] = callback;
 		}
 	}
+	_generateSelector(selector, identifier) {
+		const identifierFull = identifier.startsWith("dcjs-")
+			? identifier
+			: `dcjs-${identifier}`;
+
+		return [
+			identifierFull,
+			selector
+				.split(",")
+				.map((v) => `${v.trim()}:not(.${identifierFull})`)
+				.join(", "),
+		];
+	}
+	_lazyInitElement(entries, observer) {
+		for (const entry of entries) {
+			if (!entry.isIntersecting) continue;
+
+			const item = entry.target;
+			observer.unobserve(item);
+			const { callback } = this.htmlObserver.addCallbacks[item.dcSelectorKey];
+			this._runImmediateCallback(item, callback);
+		}
+	}
+	_runImmediateCallback(element, callback) {
+		if (!element || !callback) return;
+
+		callback(element);
+	}
+	_runLazyCallback(element, selectorKey) {
+		if (!element || !selectorKey) return;
+
+		element.dcSelectorKey = selectorKey;
+		this.htmlObserver.intersection.observe(element);
+	}
+	_runCallback(element, selectorKey) {
+		const { identifier, callback, lazy } =
+			this.htmlObserver.addCallbacks[selectorKey];
+
+		element.classList.add(identifier);
+
+		if (lazy) this._runLazyCallback(element, selectorKey);
+		else this._runImmediateCallback(element, callback);
+	}
+	_runAddCallbacks(node) {
+		for (const selectorKey of Object.keys(this.htmlObserver.addCallbacks)) {
+			if (node.querySelector(selectorKey))
+				for (const element of node.querySelectorAll(selectorKey))
+					this._runCallback(element, selectorKey);
+			if (node.matches(selectorKey)) this._runCallback(node, selectorKey);
+		}
+	}
+	_runRemoveCallback(element, selector) {
+		if (!element || !selector) return;
+
+		const callback = this.htmlObserver.removeCallbacks[selector];
+
+		if (callback) callback(element);
+	}
 	_runRemoveCallbacks(node) {
-		for (const [selector, callback] of this.htmlObserver.removeCallbacks) {
+		for (const selector of Object.keys(this.htmlObserver.removeCallbacks)) {
 			if (node.querySelector(selector))
 				for (const element of node.querySelectorAll(selector))
-					callback(element);
-			if (node.matches(selector)) callback(node);
+					this._runRemoveCallback(element, selector);
+			if (node.matches(selector)) this._runRemoveCallback(element, selector);
 		}
 	}
 	_addToCallbackQueue(mutations) {
@@ -246,5 +210,7 @@ class DataCycle {
 		this.callbackQueue.length = 0;
 	}
 }
+
+Object.assign(DataCycle.prototype, DataCycleHttpClient);
 
 export default DataCycle;

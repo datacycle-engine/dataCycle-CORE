@@ -154,7 +154,6 @@ function focusFirstInputField(element) {
 }
 
 function monitorNewContents(element) {
-	element.classList.add("dcjs-monitor-new-contents");
 	const changeObserver = new MutationObserver((m) =>
 		checkForChangedFormData(m, element),
 	);
@@ -165,9 +164,8 @@ function monitorNewContents(element) {
 }
 
 export default function () {
-	DataCycle.initNewElements(
-		".dropdown-pane:not(.dcjs-monitor-new-contents)",
-		(e) => monitorNewContents(e),
+	DataCycle.registerAddCallback(".dropdown-pane", "monitor-new-contents", (e) =>
+		monitorNewContents(e),
 	);
 
 	$(document).on(

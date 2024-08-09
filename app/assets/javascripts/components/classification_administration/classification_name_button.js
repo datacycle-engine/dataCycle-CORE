@@ -1,7 +1,6 @@
 class ClassificationNameButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-classification-name-button");
 		this.childrenContainer = this.item
 			.closest("li")
 			.querySelector(":scope > ul.children");

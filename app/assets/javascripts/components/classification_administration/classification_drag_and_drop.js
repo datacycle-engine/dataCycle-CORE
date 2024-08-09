@@ -7,7 +7,6 @@ import ConfirmationModal from "../confirmation_modal";
 class ClassificationDragAndDrop {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-classification-drag-and-drop");
 		this.treeLabel = this.item.closest("li.classification_tree_label");
 		this.disableButton = this.treeLabel.querySelector(
 			":scope > .inner-item > .classification-order-button",

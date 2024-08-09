@@ -2,28 +2,29 @@ import AssetSelector from "./../components/asset_selector";
 const AssetUploader = () => import("./../components/asset_uploader");
 
 function initAssetUploader(item) {
-	item.classList.add("dcjs-asset-uploader");
 	AssetUploader().then((mod) => new mod.default(item));
 }
 
 export default function () {
-	DataCycle.initNewElements(
-		".asset-selector-reveal:not(.dcjs-asset-selector)",
+	DataCycle.registerAddCallback(
+		".asset-selector-reveal",
+		"asset-selector",
 		(e) => new AssetSelector(e),
 	);
 
-	DataCycle.initNewElements(
-		".asset-upload-reveal:not(.dcjs-asset-uploader)",
+	DataCycle.registerAddCallback(
+		".asset-upload-reveal",
+		"asset-uploader",
 		initAssetUploader.bind(this),
 	);
 
-	DataCycle.initNewElements(
-		".download-content-form:not(.dcjs-download-content-form)",
+	DataCycle.registerAddCallback(
+		".download-content-form",
+		"download-content-form",
 		initDownloadContentReveal.bind(this),
 	);
 
 	function initDownloadContentReveal(element) {
-		element.classList.add("dcjs-download-content-form");
 		toggleAssetVersion(element);
 		toggleAssetTransformation(element);
 

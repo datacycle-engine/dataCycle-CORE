@@ -3,14 +3,12 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 class LegacyContentScore {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-content-score-class");
 
 		this.setContentScoreClass();
 	}
 	async setContentScoreClass() {
-		this.element.classList.add("dcjs-content-score-class");
 		const embeddedParent = this.element.closest(".detail-type.embedded");
-		const value = parseInt(
+		const value = Number.parseInt(
 			DomElementHelpers.parseDataAttribute(this.element.dataset.value),
 		);
 		const icon = this.element.querySelector(
@@ -19,12 +17,12 @@ class LegacyContentScore {
 
 		if (!(value && icon)) return;
 
-		const min = parseInt(
+		const min = Number.parseInt(
 			embeddedParent
 				? embeddedParent.querySelector(".detail-type.min_value").dataset.value
 				: DomElementHelpers.parseDataAttribute(this.element.dataset.min) || 0,
 		);
-		const max = parseInt(
+		const max = Number.parseInt(
 			embeddedParent
 				? embeddedParent.querySelector(".detail-type.max_value").dataset.value
 				: DomElementHelpers.parseDataAttribute(this.element.dataset.max) || 100,

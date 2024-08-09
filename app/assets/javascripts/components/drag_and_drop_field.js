@@ -1,6 +1,5 @@
 class DragAndDropField {
 	constructor(container) {
-		container.classList.add("dcjs-drag-and-drop-field");
 		this.container = container;
 		this.uploaderRevealId = this.container.dataset.assetUploader;
 		this.uploaderReveal = document.getElementById(this.uploaderRevealId);

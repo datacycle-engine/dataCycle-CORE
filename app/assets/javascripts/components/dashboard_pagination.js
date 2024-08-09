@@ -3,7 +3,6 @@ import DomElementHelper from "../helpers/dom_element_helpers";
 class DashboardPagination {
 	constructor(element) {
 		this.paginationElement = element;
-		this.paginationElement.classList.add("dcjs-dashboard-pagination");
 		this.paginationContainer = this.paginationElement.closest(
 			".pagination-container",
 		);

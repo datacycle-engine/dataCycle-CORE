@@ -2,7 +2,6 @@ class OffCanvasClickHandler {
 	constructor(item) {
 		this.offCanvas = item;
 		this.$offCanvas = $(this.offCanvas);
-		this.offCanvas.classList.add("dcjs-offcanvas-click-handler");
 		this.clickHandlers = {
 			close: this.closeOffCanvas.bind(this),
 		};

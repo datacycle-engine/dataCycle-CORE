@@ -7,8 +7,10 @@ class ContentLock {
 		this.editable = this.button.hasClass("editable-lock");
 		this.buttonTooltip = this.button.closest("[data-dc-tooltip]").get(0);
 		this.locks = {};
-		this.lockLength = parseInt(this.button.data("lock-length"));
-		this.lockRenewBefore = parseInt(this.button.data("lock-renew-before"));
+		this.lockLength = Number.parseInt(this.button.data("lock-length"));
+		this.lockRenewBefore = Number.parseInt(
+			this.button.data("lock-renew-before"),
+		);
 		this.buttonDataDisableWith = this.button.data("disable-with");
 		this.lockCheckInterval = 1;
 		this.lockStateInterval;
@@ -25,7 +27,6 @@ class ContentLock {
 		this.setup();
 	}
 	setup() {
-		this.button[0].classList.add("dcjs-content-lock");
 		this.initActionCable();
 		this.calculateLockedUntil(this.button.data("locks"));
 
@@ -67,12 +68,12 @@ class ContentLock {
 		return promise;
 	}
 	updateLocks(newLocks = {}, texts = {}) {
-		for (let key in this.locks) {
+		for (const key in this.locks) {
 			if (this.locks.hasOwnProperty(key)) this.unlockButton(key);
 		}
 
 		if (Object.keys(newLocks).length !== 0 && newLocks.constructor === Object) {
-			for (let key in newLocks) {
+			for (const key in newLocks) {
 				if (newLocks.hasOwnProperty(key))
 					this.newLock(key, newLocks[key], texts[key]);
 			}
@@ -80,14 +81,14 @@ class ContentLock {
 	}
 	leavePage(_event) {
 		this.lockContentChannel.unsubscribe();
-		let data = new FormData();
+		const data = new FormData();
 		data.append("token", this.token);
 		navigator.sendBeacon(this.lockPath, data);
 	}
 	calculateLockedUntil(lockedUntil = {}) {
-		for (let key in lockedUntil) {
+		for (const key in lockedUntil) {
 			if (lockedUntil.hasOwnProperty(key))
-				lockedUntil[key] = new Date(parseInt(lockedUntil[key]) * 1000);
+				lockedUntil[key] = new Date(Number.parseInt(lockedUntil[key]) * 1000);
 		}
 
 		Object.assign(this.locks, lockedUntil);
@@ -113,7 +114,7 @@ class ContentLock {
 		);
 	}
 	newLock(lockId, lockedUntil, buttonText = "") {
-		let isFirst = this._noActiveLocks;
+		const isFirst = this._noActiveLocks;
 		this.calculateLockedUntil({ [lockId]: lockedUntil });
 
 		if (this.buttonTooltip) {
@@ -161,7 +162,7 @@ class ContentLock {
 			.find(".pie-text")
 			.text(DurationHelpers.seconds_to_human_time(diffSeconds));
 
-		for (let key in this.locks) {
+		for (const key in this.locks) {
 			if (this.locks.hasOwnProperty(key) && this.buttonTooltip) {
 				const $tooltipHtml = $(
 					`<div>${this.buttonTooltip.dataset.dcTooltip}</div>`,
@@ -173,7 +174,7 @@ class ContentLock {
 						`${Math.max(
 							0,
 							Math.round(
-								parseFloat((this.locks[key] - Date.now()) / (1000 * 60)),
+								Number.parseFloat((this.locks[key] - Date.now()) / (1000 * 60)),
 							),
 						)}min`,
 					);
@@ -182,7 +183,7 @@ class ContentLock {
 			}
 		}
 
-		let degree = 360 - parseInt((diffSeconds * 360) / this.lockLength);
+		const degree = 360 - Number.parseInt((diffSeconds * 360) / this.lockLength);
 		if (degree > 180) {
 			this.button
 				.find(".pie-timer > .pie-filler")
@@ -196,8 +197,8 @@ class ContentLock {
 		}
 	}
 	async checkLockState() {
-		let diffSeconds = this.checkActiveLocks();
-		let diffMinutes = parseInt(diffSeconds / 60);
+		const diffSeconds = this.checkActiveLocks();
+		const diffMinutes = Number.parseInt(diffSeconds / 60);
 
 		if (diffSeconds > 0) this.renderCountDown(diffSeconds);
 
@@ -224,11 +225,11 @@ class ContentLock {
 	}
 	checkActiveLocks() {
 		let max = 0;
-		for (let key in this.locks) {
+		for (const key in this.locks) {
 			if (!this.locks.hasOwnProperty(key)) continue;
 
-			let rest =
-				Math.max(0, parseInt((this.locks[key] - Date.now()) / 1000)) -
+			const rest =
+				Math.max(0, Number.parseInt((this.locks[key] - Date.now()) / 1000)) -
 				(this.editable ? this.editOffset : 0);
 			if (this.editable && rest <= 0) this.lockEditor(key);
 			else if (rest <= 0) this.unlockButton(key);

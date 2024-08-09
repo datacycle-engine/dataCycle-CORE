@@ -56,7 +56,6 @@ class DashboardFilter {
 		this.$searchForm[0].dataset.initialFormData = JSON.stringify(
 			Array.from(new FormData(this.$searchForm[0])),
 		);
-		this.$searchForm[0].classList.add("dcjs-dashboard-filter");
 	}
 	initDefaultFilters() {
 		if (!this.$defaultFilterContainer.length) return;

@@ -4,7 +4,6 @@ import ConfirmationModal from "../confirmation_modal";
 class LifeCylceButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-life-cycle-button");
 		this.lifeCycleContainer = this.item.closest(".content-pool-buttons");
 		this.classificationsContainer =
 			this.lifeCycleContainer.previousElementSibling;

@@ -10,7 +10,6 @@ const showTimeMapping = {
 class ToastNotification {
 	constructor(notificationContainer) {
 		this.notificationContainer = notificationContainer;
-		this.notificationContainer.classList.add("dcjs-toast-notification");
 		this.setUp();
 	}
 

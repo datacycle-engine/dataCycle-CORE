@@ -15,15 +15,13 @@ class DcStickyBar {
 		return DcStickyBar.stickyHtmlClasses.map((c) => `.${c}`).join(", ");
 	}
 	setup() {
-		DataCycle.initNewElements(
-			`${this.constructor.stickyHtmlClasses
-				.map((c) => `.${c}:not(.dcjs-sticky-bar)`)
-				.join(", ")}`,
+		DataCycle.registerAddCallback(
+			this.constructor.joinedStickyHtmlClasses(),
+			"sticky-bar",
 			this.initNewStickyBar.bind(this),
 		);
 	}
 	initNewStickyBar(element) {
-		element.classList.add("dcjs-sticky-bar");
 		this.constructor.setStickyOffset(element);
 
 		this.throttledUpdateAllStickyZIndizes();

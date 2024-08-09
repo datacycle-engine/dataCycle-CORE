@@ -3,7 +3,6 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 
 class ReverseGeocoding {
 	constructor(element) {
-		element.classList.add("dcjs-reverse-geocoding");
 		this.element = element;
 		this.sourceKey = this.element.dataset.sourceKey;
 		this.sourceElement = document.querySelector(

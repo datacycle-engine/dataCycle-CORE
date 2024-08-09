@@ -13,7 +13,6 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 class ObjectBrowser {
 	constructor(selector) {
 		this.element = selector;
-		this.element.classList.add("dcjs-object-browser");
 		this.$element = $(this.element);
 		this.objectListElement = this.element.querySelector(
 			":scope > .media-thumbs > .object-thumbs",

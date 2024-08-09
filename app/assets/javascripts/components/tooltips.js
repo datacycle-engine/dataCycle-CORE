@@ -44,13 +44,13 @@ class Tooltips {
 		this.tooltip = tooltip;
 	}
 	initNewTooltips() {
-		DataCycle.initNewElements(
-			"[data-dc-tooltip]:not(.dcjs-tooltip)",
+		DataCycle.registerAddCallback(
+			"[data-dc-tooltip]",
+			"tooltip",
 			this.addEventsForTooltip.bind(this),
 		);
 	}
 	addEventsForTooltip(element) {
-		element.classList.add("dcjs-tooltip");
 		element.dataset.dcTooltipId = domElementHelpers.randomId();
 		element.addEventListener("mouseenter", this.showTooltipDelayed.bind(this));
 		element.addEventListener("mouseleave", this.hideTooltip.bind(this));

@@ -1,14 +1,20 @@
-import htmldiff from 'htmldiff/src/htmldiff';
+import htmldiff from "htmldiff/src/htmldiff";
 
 export default function () {
-  DataCycle.initNewElements('.detail-type.string.has-changes.edit:not(.dcjs-diff-content)', diffContent.bind(this));
+	DataCycle.registerAddCallback(
+		".detail-type.string.has-changes.edit",
+		"diff-content",
+		diffContent.bind(this),
+	);
 }
 
 function diffContent(textField) {
-  textField.classList.add('dcjs-diff-content');
-  const detailContent = textField.querySelector('.detail-content');
+	const detailContent = textField.querySelector(".detail-content");
 
-  if (!detailContent) return;
+	if (!detailContent) return;
 
-  detailContent.innerHTML = htmldiff(textField.dataset.diffBefore, textField.dataset.diffAfter);
+	detailContent.innerHTML = htmldiff(
+		textField.dataset.diffBefore,
+		textField.dataset.diffAfter,
+	);
 }

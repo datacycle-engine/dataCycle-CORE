@@ -5,7 +5,6 @@ import CalloutHelpers from "../../helpers/callout_helpers";
 class ClassificationEditForm {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-classification-edit-form");
 		this.liElement = this.item.closest("li");
 		this.container = document.getElementById("classification-administration");
 		this.submitButton = this.item.querySelector(".submit-button");

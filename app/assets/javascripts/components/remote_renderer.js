@@ -31,8 +31,9 @@ class RemoteRenderer {
 			this.reloadAfterFail.bind(this),
 		);
 
-		DataCycle.initNewElements(
-			".remote-render:not(.dcjs-remote-render)",
+		DataCycle.registerAddCallback(
+			".remote-render",
+			"remote-render",
 			this.addRemoteRenderHandler.bind(this),
 		);
 	}
@@ -43,7 +44,6 @@ class RemoteRenderer {
 		this.intersectionObserver.unobserve(element);
 	}
 	addRemoteRenderHandler(element) {
-		element.classList.add("dcjs-remote-render");
 		this.observeElement(element);
 
 		$(element).on("dc:remote:render", () => {

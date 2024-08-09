@@ -8,10 +8,9 @@ export default function () {
 		"input[data-type=timepicker]",
 	];
 
-	DataCycle.initNewElements(
-		dateSelectors
-			.map((c) => `${c}:not(.flatpickr-input):not(.dcjs-date-picker)`)
-			.join(", "),
+	DataCycle.registerAddCallback(
+		dateSelectors.map((c) => `${c}:not(.flatpickr-input)`).join(", "),
+		"date-picker",
 		(e) => new DatePicker(e),
 	);
 }

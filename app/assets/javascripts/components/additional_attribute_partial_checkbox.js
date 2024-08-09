@@ -4,7 +4,6 @@ import ObserverHelpers from "../helpers/observer_helpers";
 class AdditionalAttributePartialCheckbox {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-additional-attribute-partial-checkbox");
 		this.context = this.element.dataset.context;
 		this.updateOnChange = DomElementHelpers.parseDataAttribute(
 			this.element.dataset.updateOnChange,

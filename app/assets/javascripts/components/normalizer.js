@@ -1,7 +1,6 @@
 class DataCycleNormalizer {
 	constructor(button) {
 		this.normalize_button = $(button);
-		this.normalize_button[0].classList.add("dcjs-data-cycle-normalizer");
 		this.normalize_url = this.normalize_button.data("url");
 		this.form_element = $(".edit-content-form");
 		this.form_data = [];
@@ -30,8 +29,8 @@ class DataCycleNormalizer {
 				this.normalized_data = [];
 				if (data) {
 					this.mapFieldNamesToValues(data);
-					for (let attr_key in this.normalized_data) {
-						var normalized_field = $(
+					for (const attr_key in this.normalized_data) {
+						const normalized_field = $(
 							`input[name="thing[datahash]${attr_key}"]`,
 						);
 						if (normalized_field.length) {
@@ -91,12 +90,12 @@ class DataCycleNormalizer {
 		}
 	}
 	showChangeSelector(field, options) {
-		var list_html = `<div class="change-selector" id="${field.prop(
+		let list_html = `<div class="change-selector" id="${field.prop(
 			"id",
 		)}_selector" data-target="${field.prop(
 			"id",
 		)}"><span class="change-selector-title">Vorschläge:</span>`;
-		for (var i = 0; i < options.length; i++) {
+		for (let i = 0; i < options.length; i++) {
 			list_html += `<span class="change-selector-option" data-value="${options[i]}"><i class="fa fa-check change-selector-checkbox" aria-hidden="true"></i>${options[i]}</span>`;
 		}
 		list_html +=

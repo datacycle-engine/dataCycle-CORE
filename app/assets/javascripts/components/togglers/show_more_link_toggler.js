@@ -1,20 +1,23 @@
 class ShowMoreLinkToggler {
-  constructor(item) {
-    this.item = item;
-    this.item.classList.add('dcjs-show-more-link-toggler');
+	constructor(item) {
+		this.item = item;
 
-    this.setup();
-  }
-  setup() {
-    this.item.addEventListener('click', this.toggle.bind(this));
-  }
-  toggle(event) {
-    event.preventDefault();
-    event.stopPropagation();
+		this.setup();
+	}
+	setup() {
+		this.item.addEventListener("click", this.toggle.bind(this));
+	}
+	toggle(event) {
+		event.preventDefault();
+		event.stopPropagation();
 
-    this.item.parentElement.classList.toggle('active');
-    this.item.parentElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-  }
+		this.item.parentElement.classList.toggle("active");
+		this.item.parentElement.scrollIntoView({
+			behavior: "smooth",
+			block: "nearest",
+			inline: "nearest",
+		});
+	}
 }
 
 export default ShowMoreLinkToggler;

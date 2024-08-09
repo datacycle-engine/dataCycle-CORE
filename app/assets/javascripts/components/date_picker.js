@@ -9,7 +9,6 @@ import ObserverHelpers from "../helpers/observer_helpers";
 class DatePicker {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-date-picker");
 		this.elementName = this.element.getAttribute("name");
 		this.calType = "single";
 		this.sibling;

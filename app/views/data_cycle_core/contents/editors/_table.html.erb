@@ -2,6 +2,7 @@
 
   <%= attribute_edit_label_tag(**local_assigns) %>
 
-  <%= text_field_tag key, value, options.merge({ class: 'form-control', data: definition&.slice('validations', 'warnings'), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !attribute_editable?(key, definition, options, content) }) %>
+  <%= hidden_field_tag key, value, options.merge({ data: definition&.slice('validations', 'warnings'), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !attribute_editable?(key, definition, options, content) }) %>
 
+  <table class="table-editor" data-key="<%= key %>"></table>
 <% end %>

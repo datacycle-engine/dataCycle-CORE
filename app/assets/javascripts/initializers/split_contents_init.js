@@ -2,8 +2,9 @@ import SplitView from "./../components/split_view";
 import SimpleFields from "../components/SimpleFields";
 
 export default function () {
-	DataCycle.initNewElements(
-		".flex-box .detail-content .properties:not(.dcjs-split-view)",
+	DataCycle.registerAddCallback(
+		".flex-box .detail-content .properties",
+		"split-view",
 		(e) => new SplitView(e),
 	);
 	new SimpleFields();

@@ -8,7 +8,6 @@ import ObjectUtilities from "../helpers/object_utilities";
 class NewContentDialog {
 	constructor(form) {
 		this.form = form;
-		this.form.classList.add("dcjs-new-content-dialog");
 		this.$form = $(this.form);
 		this.nextButton = this.$form.find(".next");
 		this.prevButton = this.$form.find(".prev");
