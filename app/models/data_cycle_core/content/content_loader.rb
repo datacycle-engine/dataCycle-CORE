@@ -85,7 +85,7 @@ module DataCycleCore
 
       def load_asset_relation(relation_name)
         DataCycleCore::Asset.joins(:asset_content)
-          .where(asset_contents: { content_data_id: id, relation: relation_name })
+          .where(asset_contents: { thing_id: id, relation: relation_name })
       end
 
       def load_schedule(relation_name, _overlay_flag = false)

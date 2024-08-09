@@ -64,7 +64,7 @@ module DataCycleCore
           has_many :indirect_data_links, through: :data_link_content_items
           has_many :data_links, as: :item, dependent: :destroy
           has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
-          has_many :asset_contents, dependent: :destroy, as: :content_data
+          has_many :asset_contents, dependent: :destroy, foreign_key: :thing_id
           has_many :assets, through: :asset_contents
 
           belongs_to :thing_template, inverse_of: :things, foreign_key: :template_name, primary_key: :template_name

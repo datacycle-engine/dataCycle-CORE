@@ -20,7 +20,7 @@ module DataCycleCore
     include AssetHelpers
 
     has_one :asset_content, dependent: :destroy
-    has_one :thing, through: :asset_content, source: 'content_data'
+    has_one :thing, through: :asset_content
 
     # @todo: disable default for audio and pdf assets
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
@@ -59,7 +59,7 @@ module DataCycleCore
 
     def duplicate
       new_asset = dup
-      new_asset.file.attach(io: File.open(file.service.path_for(file.key)), filename: file.filename)
+      new_asset.file.attach(io: File.open(file.service.path_for(file.key)), filename: file.filename, content_type: file.content_type, identify: false)
       new_asset.save
       new_asset.persisted? ? new_asset : nil
     end

@@ -137,7 +137,7 @@ namespace :dc do
           SELECT 1 FROM assets
           INNER JOIN asset_contents
           ON asset_contents.asset_id = assets.id
-          WHERE asset_contents.content_data_id = things.id
+          WHERE asset_contents.thing_id = things.id
         )
       SQL
 

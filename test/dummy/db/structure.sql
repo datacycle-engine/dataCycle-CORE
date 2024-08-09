@@ -894,12 +894,10 @@ CREATE TABLE public.ar_internal_metadata (
 
 CREATE TABLE public.asset_contents (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    content_data_id uuid,
-    content_data_type character varying,
-    asset_id uuid,
+    thing_id uuid NOT NULL,
+    asset_id uuid NOT NULL,
     asset_type character varying,
     relation character varying,
-    seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -2794,14 +2792,14 @@ CREATE INDEX index_activities_on_user_id_activity_type_created_at ON public.acti
 -- Name: index_asset_contents_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_asset_contents_on_asset_id ON public.asset_contents USING btree (asset_id);
+CREATE UNIQUE INDEX index_asset_contents_on_asset_id ON public.asset_contents USING btree (asset_id);
 
 
 --
--- Name: index_asset_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_asset_contents_on_thing_id_and_relation; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_asset_contents_on_content_data_id ON public.asset_contents USING btree (content_data_id);
+CREATE UNIQUE INDEX index_asset_contents_on_thing_id_and_relation ON public.asset_contents USING btree (thing_id, relation);
 
 
 --
@@ -4486,6 +4484,14 @@ ALTER TABLE ONLY public.classification_trees
 
 
 --
+-- Name: asset_contents fk_rails_68dcc7f8da; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_contents
+    ADD CONSTRAINT fk_rails_68dcc7f8da FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
 -- Name: classification_contents fk_rails_6ff9fbf404; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4579,6 +4585,14 @@ ALTER TABLE ONLY public.collections
 
 ALTER TABLE ONLY public.classification_aliases
     ADD CONSTRAINT fk_rails_a7798aa495 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
+
+
+--
+-- Name: asset_contents fk_rails_bebf4c0f3f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_contents
+    ADD CONSTRAINT fk_rails_bebf4c0f3f FOREIGN KEY (asset_id) REFERENCES public.assets(id) ON DELETE CASCADE;
 
 
 --
@@ -5054,6 +5068,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240624062503'),
 ('20240625133900'),
 ('20240801061938'),
-('20240802065842');
+('20240802065842'),
+('20240808124224'),
+('20240808131247');
 
 

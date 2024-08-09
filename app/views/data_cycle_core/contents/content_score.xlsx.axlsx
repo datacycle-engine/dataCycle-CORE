@@ -93,9 +93,9 @@ def render_score_for_template(sheet, template, styles)
 
     if asset_attributes.present?
       asset_contents = DataCycleCore::AssetContent.where(
-        content_data_id: content_ids,
+        thing_id: content_ids,
         relation: asset_attributes
-      ).group_by { |v| [v.content_data_id, v.relation] }
+      ).group_by { |v| [v.thing_id, v.relation] }
 
       assets = DataCycleCore::Asset.where(id: asset_contents.values.flatten.map(&:asset_id))
     end

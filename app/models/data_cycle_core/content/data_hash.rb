@@ -536,26 +536,23 @@ module DataCycleCore
         asset_id = asset_id.first.id if asset_id.is_a?(ActiveRecord::Relation) || asset_id.is_a?(::Array)
         asset_id = asset_id.id if asset_id.is_a?(DataCycleCore::Asset)
         old_ids = load_asset_relation(relation_name).ids
-
-        if id.present? && asset_id.present?
-          DataCycleCore::AssetContent.find_or_create_by(
-            'content_data_id' => id,
-            'content_data_type' => self.class.to_s,
-            asset_id:,
-            asset_type:,
-            relation: relation_name
-          )
-        end
-
         to_delete = old_ids - Array.wrap(asset_id)
 
-        return if to_delete.empty?
+        if to_delete.present?
+          asset_contents
+            .with_assets(to_delete, asset_type)
+            .with_relation(relation_name)
+            .destroy_all
+        end
 
-        DataCycleCore::AssetContent
-          .with_content(id, self.class.to_s)
-          .with_assets(to_delete, asset_type)
-          .with_relation(relation_name)
-          .destroy_all
+        return unless id.present? && asset_id.present?
+
+        DataCycleCore::AssetContent.find_or_create_by(
+          thing_id: id,
+          asset_id:,
+          asset_type:,
+          relation: relation_name
+        )
       end
 
       def set_schedule(input_data, relation_name)
