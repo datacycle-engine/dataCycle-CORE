@@ -108,8 +108,8 @@ dependencies:
     specifier: ^1.7.0
     version: 1.15.0
   tabulator-tables:
-    specifier: ^5.5.2
-    version: 5.5.2
+    specifier: ^6.2.5
+    version: 6.2.5
   tui-image-editor:
     specifier: ^3.15.2
     version: 3.15.3
@@ -2703,8 +2703,8 @@ packages:
     dev: false
     optional: true
 
-  /tabulator-tables@5.5.2:
-    resolution: {integrity: sha512-GlzUPXeH9Rw1iPXcl3uBLJk6Sz51xdwscZ5RrsKxDQDQ+t2g31hGq/0xjaj6ea62wHgl8vzVsHuwap0jKzsUNg==}
+  /tabulator-tables@6.2.5:
+    resolution: {integrity: sha512-f/TI78hV+GNoBefdqQ4q5RXbP+vJkvwSwt7sqeCTriAchNXax3ekcT1GG3i2J+8mhz6dHg0PFKyCYfmMW45HEg==}
     dev: false
 
   /tar@6.2.0:
