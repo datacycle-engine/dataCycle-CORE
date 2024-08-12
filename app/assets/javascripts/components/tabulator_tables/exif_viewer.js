@@ -1,5 +1,5 @@
 import DomElementHelpers from "../../helpers/dom_element_helpers";
-const Tabulator = () => import("tabulator-tables");
+const TabulatorLoader = () => import("tabulator-tables");
 
 class ExifViewer {
 	constructor(element) {
@@ -21,7 +21,7 @@ class ExifViewer {
 			return { name: key, value: value };
 		});
 
-		Tabulator().then(({ TabulatorFull }) => {
+		TabulatorLoader().then(({ TabulatorFull }) => {
 			new TabulatorFull(this.element, {
 				data: transformedTableData,
 				layout: "fitColumns", //fit columns to width of table (optional)

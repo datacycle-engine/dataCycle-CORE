@@ -276,6 +276,8 @@ module DataCycleCore
             value = value.blank? ? nil : value.to_i
           elsif type == 'boolean'
             value = blank?(value) ? nil : value == 'true'
+          elsif type == 'table'
+            value = JSON.parse(value) rescue nil # rubocop:disable Style/RescueModifier
           elsif type == 'geographic'
             if value.blank?
               value = nil
