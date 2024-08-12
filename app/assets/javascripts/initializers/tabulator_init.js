@@ -1,5 +1,5 @@
 import ExifViewer from "../components/tabulator_tables/exif_viewer";
-import TableEditor from "../components/tabulator_tables/table_attribute";
+import TableEditor from "../components/tabulator_tables/table_editor";
 
 export default function () {
 	DataCycle.registerLazyAddCallback(
