@@ -678,7 +678,7 @@ ul.footer-links {
     }
   }
 
-  &:hover {
+  &.in-visible-transition-state:hover {
     animation-play-state: paused;
 
     .toast-timer-bar {
