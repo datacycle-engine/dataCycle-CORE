@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class ExternalSystem < ApplicationRecord
+    include ExternalSystemExtensions::Import
+
     attribute :last_import_time, :interval
     attribute :last_successful_import_time, :interval
     attribute :last_download_time, :interval
@@ -164,117 +166,6 @@ module DataCycleCore
       raise "Missing refresh_strategy for #{name}, options given: #{options}" if refresh_config.dig(:strategy).blank?
       utility_object = DataCycleCore::Export::RefreshObject.new(external_system: self)
       refresh_config.dig(:strategy).constantize.process(utility_object:, options:)
-    end
-
-    def download(options = {}, &)
-      raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
-      success = true
-      ts_start = Time.zone.now
-      skip_save = options.delete(:skip_save)
-      self.last_download = ts_start
-      save if skip_save.blank?
-      download_config.sort_by { |v|
-        v.second['sorting']
-      }.filter { |_, v|
-        v.dig('depends_on').blank?
-      }.each do |(name, _)|
-        success &&= download_single(name, options, &)
-      end
-      ts_after = Time.zone.now
-      self.last_download_time = ts_after - ts_start
-      if success
-        self.last_successful_download = ts_start
-        self.last_successful_download_time = ts_after - ts_start
-      end
-      save if skip_save.blank?
-      success
-    end
-
-    def download_range(options = {}, &)
-      raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
-      success = true
-      max_sorting = download_config.map { |_name, data| data.dig('sorting') }.max
-      min = options.dig(:min) || 0
-      max = options.dig(:max) || max_sorting + 1
-      download_config.select { |_key, hash|
-        hash.dig('sorting').in?((min..max))
-      }.sort_by { |v|
-        v.second['sorting']
-      }.each do |(name, _data)|
-        success &&= download_single(name, options, &)
-      end
-      success
-    end
-
-    def download_single(name, options = {})
-      raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
-      success = true
-      full_options = full_options(name, 'download', options)
-      locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
-      raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
-
-      cred = credentials
-      cred = cred[full_options[:credentials_index]] if full_options[:credentials_index].present?
-      strategy = full_options.dig(:download, :download_strategy).safe_constantize
-      cred = {} if strategy.respond_to?(:credentials?) && !strategy.credentials?
-
-      Array.wrap(cred).each do |credential|
-        utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales:, credentials: credential))
-        success &&= strategy.download_content(utility_object:, options: full_options.merge(locales:).deep_symbolize_keys)
-      end
-
-      success
-    end
-    alias single_download download_single
-
-    def import(options = {}, &)
-      raise 'First parameter has to be an options Hash!' unless options.is_a?(::Hash)
-      ts_start = Time.zone.now
-      self.last_import = ts_start
-      save
-      import_config.sort_by { |v|
-        v.second['sorting']
-      }.filter { |_, v|
-        v.dig('depends_on').blank?
-      }.each do |(name, _)|
-        self.last_import_time = Time.zone.now - ts_start
-        save
-        import_single(name, options, &)
-        self.last_import_time = Time.zone.now - ts_start
-        save
-      end
-      self.last_successful_import = ts_start
-      self.last_successful_import_time = Time.zone.now - ts_start
-      save
-    end
-
-    def import_range(options = {}, &)
-      raise 'First parameter has to be an options Hash!' unless options.is_a?(::Hash)
-      max_sorting = import_config.map { |_name, data| data.dig('sorting') }.max
-      min = options.dig(:min) || 0
-      max = options.dig(:max) || max_sorting + 1
-      import_config.select { |_key, hash|
-        hash.dig('sorting').in?((min..max))
-      }.sort_by { |v|
-        v.second['sorting']
-      }.each do |(name, _)|
-        import_single(name, options, &)
-      end
-    end
-
-    def import_single(name, options = {})
-      raise "unknown importer name: #{name}" if import_config.dig(name).blank?
-      full_options = full_options(name, 'import', options)
-      locales = full_options[:import][:locales] || full_options[:locales] || I18n.available_locales
-      utility_object = DataCycleCore::Generic::ImportObject.new(**full_options.merge(external_source: self, locales:))
-      raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?
-      full_options.dig(:import, :import_strategy).constantize.import_data(utility_object:, options: full_options.merge(locales:).deep_symbolize_keys)
-    end
-    alias single_import import_single
-
-    def import_one(name, external_key, options = {}, mode = 'full')
-      raise 'no external key given' if external_key.blank?
-      import_single(name, options.deep_merge({ mode:, import: { source_filter: { external_id: external_key } } }))
     end
 
     def collections

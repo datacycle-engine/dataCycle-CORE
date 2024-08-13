@@ -82,28 +82,20 @@ module DataCycleCore
           errors.push("#{data_hash[:name]}.#{error.path.join('.')} => #{error.text}")
         end
 
-        validate_import = ExternalSystemImportContract.new
-        import_config = validation_hash.dig(:config, :import_config) || {}
-        if import_config.is_a?(Hash)
-          import_config.each do |key, value|
-            validate_import.call(value).errors.each do |error|
-              errors.push("#{data_hash[:name]}.config.import_config.#{key}.#{error.path.join('.')} => #{error.text}")
-            end
-          end
-        else
-          errors.push("#{data_hash[:name]}.config.import_config.general => Import config must be a Hash")
-        end
+        [:import_config, :download_config].each do |config_key|
+          validator = ExternalSystemStepContract.new
+          data = validation_hash.dig(:config, config_key) || {}
 
-        validate_download = ExternalSystemDownloadContract.new
-        download_config = validation_hash.dig(:config, :download_config) || {}
-        if download_config.is_a?(Hash)
-          download_config.each do |key, value|
-            validate_download.call(value).errors.each do |error|
-              errors.push("#{data_hash[:name]}.config.download_config.#{key}.#{error.path.join('.')} => #{error.text}")
+          if data.is_a?(Hash)
+            data.each do |key, value|
+              validator.call(value).errors.each do |error|
+                error_path = [data_hash[:name], 'config', config_key, key, *error.path].compact_blank.join('.')
+                errors.push("#{error_path} => #{error.text}")
+              end
             end
+          else
+            errors.push("#{data_hash[:name]}.config.#{config_key} => Import config must be a Hash")
           end
-        else
-          errors.push("#{data_hash[:name]}.config.download_config.general => Download config must be a Hash")
         end
 
         errors
@@ -174,27 +166,15 @@ module DataCycleCore
         rule('config.export_config.delete.filter').validate(:filter_config)
       end
 
-      class ExternalSystemDownloadContract < DataCycleCore::MasterData::Contracts::GeneralContract
+      class ExternalSystemStepContract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
+          optional(:read_type) { str? | (array? & each { str? }) }
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
           optional(:endpoint) { str? }
-          required(:download_strategy) { str? }
+          optional(:import_strategy) { str? }
+          optional(:download_strategy) { str? }
           optional(:logging_strategy) { str? }
-          optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
-        end
-
-        rule(:endpoint).validate(:dc_class)
-        rule(:download_strategy).validate(:dc_module)
-        rule(:logging_strategy).validate(:dc_logging_strategy)
-      end
-
-      class ExternalSystemImportContract < DataCycleCore::MasterData::Contracts::GeneralContract
-        schema do
-          optional(:sorting) { int? & gt?(0) }
-          required(:source_type) { str? }
-          optional(:read_type) { str? }
-          required(:import_strategy) { str? }
           optional(:tree_label) { str? }
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
@@ -204,8 +184,14 @@ module DataCycleCore
           optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
         end
 
+        rule(:endpoint).validate(:dc_class)
+        rule(:download_strategy).validate(:dc_module)
         rule(:import_strategy).validate(:dc_module)
         rule(:logging_strategy).validate(:dc_logging_strategy)
+
+        rule do
+          base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)
+        end
       end
     end
   end

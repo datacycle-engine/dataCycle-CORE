@@ -26,11 +26,11 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
     end
 
     let(:external_source_download_contract) do
-      subject::ExternalSystemDownloadContract.new
+      subject::ExternalSystemStepContract.new
     end
 
     let(:external_source_import_contract) do
-      subject::ExternalSystemImportContract.new
+      subject::ExternalSystemStepContract.new
     end
 
     it 'has a config path defined' do
