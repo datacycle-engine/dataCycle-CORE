@@ -5,7 +5,7 @@ module DataCycleCore
     module DataConverter
       def self.convert_to_type(type, data, definition = nil, content = nil)
         case type
-        when 'key', 'table'
+        when 'key'
           data
         when 'number'
           string_to_number(data, definition)
@@ -21,6 +21,8 @@ module DataCycleCore
           string_to_geographic(data)
         when 'slug'
           string_to_slug(data, content)
+        when 'table'
+          data&.map { |v| v&.map(&:to_s) }
         end
       end
 
@@ -41,7 +43,7 @@ module DataCycleCore
         when 'slug'
           slug_to_string(data, content)
         when 'table'
-          data
+          data&.map { |v| v&.map(&:to_s) }
         end
       end
 
