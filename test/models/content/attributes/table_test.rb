@@ -33,7 +33,7 @@ module DataCycleCore
             table_data:
           })
 
-          assert_equal table_data, content.table_data
+          assert_equal table_data&.map { |v| v&.map(&:to_s) }, content.table_data
         end
       end
     end
