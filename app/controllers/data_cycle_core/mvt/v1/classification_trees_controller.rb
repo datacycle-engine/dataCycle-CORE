@@ -39,13 +39,12 @@ module DataCycleCore
         end
 
         def log_activity
-          current_user.log_activity(type: "mvt_v#{@api_version}", data: permitted_params.to_h.merge(
-            controller: params.dig('controller'),
-            action: params.dig('action'),
-            referer: request.referer,
-            origin: request.origin,
-            middlewareOrigin: request.headers['X-Dc-Middleware-Origin']
-          ))
+          current_user.log_request_activity(
+            type: "mvt_v#{@api_version}",
+            data: permitted_params.to_h,
+            request:,
+            activitiable: @collection || @content
+          )
         end
 
         def check_feature_enabled

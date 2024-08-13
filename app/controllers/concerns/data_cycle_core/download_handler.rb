@@ -186,11 +186,12 @@ module DataCycleCore
         response.stream.write(chunk)
       end
 
-      content.activities.create(user: current_user, activity_type: 'download', data: additional_data.merge(
-        referer: request.referer,
-        origin: request.origin,
-        middlewareOrigin: request.headers['X-Dc-Middleware-Origin']
-      ))
+      current_user.log_request_activity(
+        type: 'download',
+        data: additional_data,
+        request:,
+        activitiable: content
+      )
     rescue ActionController::Live::ClientDisconnected
       # ignore client disconnections
       nil

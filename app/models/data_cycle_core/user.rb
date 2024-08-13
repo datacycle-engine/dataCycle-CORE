@@ -78,6 +78,18 @@ module DataCycleCore
 
     default_scope { where(deleted_at: nil) }
 
+    CONTROLLER_CONTEXT_SCHEMA = Dry::Schema.Params do
+      optional(:controller).filled(:string)
+      optional(:action).filled(:string)
+    end
+
+    CUSTOM_TRACKING_HEADERS = {
+      middlewareOrigin: 'X-Dc-Middleware-Origin',
+      widgetIdentifier: 'X-Dc-Widget-Identifier',
+      widgetType: 'X-Dc-Widget-Type',
+      widgetVersion: 'X-Dc-Widget-Version'
+    }.freeze
+
     def user_api_feature
       @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
     end
@@ -264,13 +276,24 @@ module DataCycleCore
       ].compact, ' ')
     end
 
-    def log_activity(type:, data:)
+    def log_request_activity(type:, data: {}, request: nil, activitiable: nil)
+      data ||= {}
+      data = data.with_indifferent_access
+      data = data.merge(CONTROLLER_CONTEXT_SCHEMA.call(request&.params).to_h)
+      data[:format] = request&.format&.to_sym
+      data[:referer] = request&.referer
+      data[:origin] = request&.origin
+
+      CUSTOM_TRACKING_HEADERS.each do |key, header|
+        data[key] = request&.headers&.[](header)
+      end
+
       transaction(joinable: true) do
-        # disable cleanup for now, as performance is seriously impacted
-        # activities.where('activities.activity_type = ? AND activities.created_at < ?', type, 3.months.ago).delete_all
-        activities.create(activity_type: type, data:)
+        activities.create(activity_type: type, data:, activitiable:)
       end
     end
+
+    alias log_activity log_request_activity
 
     def deleted?
       deleted_at.present?
