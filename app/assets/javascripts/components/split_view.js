@@ -58,7 +58,6 @@ class SplitView {
 	}
 	setup() {
 		this.observeForNewFields();
-		this.setupButtons(this.container);
 	}
 	buttonContainerSelectors(scope, selector = "") {
 		let selectors = [
@@ -94,12 +93,13 @@ class SplitView {
 			.value;
 	}
 	addSubcriberNoticeHandler() {
-		const notice = this.container
-			.closest(".split-content")
-			.querySelector(".close-subscribe-notice");
-
-		if (notice)
-			notice.addEventListener("click", this.dismissSubscribeNotice.bind(this));
+		DataCycle.registerAddCallback(
+			".split-content .close-subscribe-notice",
+			"close-subscribe-notice",
+			(e) => {
+				e.addEventListener("click", this.dismissSubscribeNotice.bind(this));
+			},
+		);
 	}
 	addSingleClickHandler() {
 		DataCycle.registerAddCallback("a.copy", "copy-split", (e) => {
@@ -168,19 +168,24 @@ class SplitView {
 		this.addButtonsForEditFields(element);
 	}
 	setupButtons(container) {
+		if (container.classList.contains("dcjs-split-view-buttons")) return;
+
+		container.classList.add("dcjs-split-view-buttons");
+
 		const availableEditors = this.availableEditors(
 			container,
 			this.copyableTypes,
 		);
 
-		for (let i = 0; i < availableEditors.length; ++i) {
-			this.addButtons(availableEditors[i]);
+		for (const editor of availableEditors) {
+			this.addButtons(editor);
 		}
 
 		const availableLinkedEditors = this.availableEditors(container, [
 			"object_browser",
 			"embedded_object",
 		]);
+
 		for (const editor of availableLinkedEditors) {
 			this.addButtons(editor, true);
 		}
@@ -192,8 +197,8 @@ class SplitView {
 		);
 		const viewFields = this.findFieldsByKey(targetKey, this.leftContainer);
 
-		for (let i = 0; i < viewFields.length; ++i) {
-			this.setupButtons(viewFields[i]);
+		for (const field of viewFields) {
+			this.setupButtons(field);
 		}
 	}
 	findFieldsByKey(

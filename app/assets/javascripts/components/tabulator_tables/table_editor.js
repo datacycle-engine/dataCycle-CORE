@@ -10,6 +10,9 @@ class TableEditor extends TableViewer {
 			`input[type=hidden][name="${this.key}"]`,
 		);
 		this.editable = this.hiddenField && !this.hiddenField.disabled;
+		this.uploadButton = this.formElement.querySelector(
+			"button.table-data-upload",
+		);
 		this.headerMenu = [
 			{
 				label: '<i class="fa fa-trash"></i>',
@@ -21,6 +24,7 @@ class TableEditor extends TableViewer {
 			editableTitle: true,
 			cssClass: "table-editor-movable-column",
 			headerMenu: this.headerMenu,
+			sorter: "string",
 		};
 
 		this.value = DomElementHelpers.parseDataAttribute(this.hiddenField.value);
@@ -31,6 +35,7 @@ class TableEditor extends TableViewer {
 			autoColumnsDefinitions: this.autoColumnsDefinitions.bind(this),
 			movableColumns: true,
 			movableRows: true,
+			tabEndNewRow: true,
 			rowHeader: {
 				headerSort: false,
 				resizable: false,
@@ -51,6 +56,8 @@ class TableEditor extends TableViewer {
 		return definitions;
 	}
 	updateHiddenValue() {
+		if (!this.table) return;
+
 		const columns = this.table
 			.getColumnDefinitions()
 			.filter(
@@ -81,6 +88,7 @@ class TableEditor extends TableViewer {
 				MoveColumnsModule,
 				MoveRowsModule,
 				MenuModule,
+				ImportModule,
 			}) => {
 				Tabulator.registerModule([
 					EditModule,
@@ -90,6 +98,7 @@ class TableEditor extends TableViewer {
 					MoveColumnsModule,
 					MoveRowsModule,
 					MenuModule,
+					ImportModule,
 				]);
 				this.loadInitialData();
 				const config = this.editable
@@ -111,6 +120,7 @@ class TableEditor extends TableViewer {
 		table.on("dataChanged", this.updateHiddenValue.bind(this));
 		table.on("columnMoved", this.updateHiddenValue.bind(this));
 		table.on("rowMoved", this.updateHiddenValue.bind(this));
+		table.on("dataProcessed", this.dataProcessed.bind(this, table));
 	}
 	handleFormatter(cell) {
 		const element = cell.getElement();
@@ -118,10 +128,8 @@ class TableEditor extends TableViewer {
 
 		return '<i class="fa fa-bars"></i>';
 	}
-	addButtonColumn() {
-		if (!this.table) return;
-
-		this.table.addColumn({
+	dataProcessed(table) {
+		table.addColumn({
 			title: '<i class="fa fa-plus"></i>',
 			field: "dcjs_delete_column",
 			formatter: this.initDeleteRowButton.bind(this),
@@ -134,10 +142,11 @@ class TableEditor extends TableViewer {
 			cellClick: this.deleteRow.bind(this),
 			headerClick: this.addColumn.bind(this),
 		});
+
+		this.updateHiddenValue();
 	}
 	postInit() {
 		this.addEventHandlers();
-		this.addButtonColumn();
 	}
 	initDeleteRowButton() {
 		return '<i class="fa fa-trash"></i>';
@@ -163,12 +172,24 @@ class TableEditor extends TableViewer {
 	deleteColumn(_e, cell) {
 		cell.delete();
 	}
+	uploadData(e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		this.table.import("csv", ".csv");
+	}
 	addEventHandlers() {
 		this.addButton = this.table.footerManager.element.querySelector(
 			".table-editor-add-row",
 		);
+
 		if (this.addButton) {
 			this.addButton.addEventListener("click", this.addRow.bind(this));
+		}
+
+		if (this.uploadButton) {
+			this.uploadButton.disabled = false;
+			this.uploadButton.addEventListener("click", this.uploadData.bind(this));
 		}
 	}
 }

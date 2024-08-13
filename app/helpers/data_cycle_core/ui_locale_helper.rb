@@ -72,6 +72,7 @@ module DataCycleCore
       label_html.prepend(tag.i(class: 'fa fa-ban', aria_hidden: true)) unless attribute_editable?(key, definition, options, content)
       label_html << render('data_cycle_core/contents/helper_text', key:, content: parent, definition:)
       label_html << render('data_cycle_core/contents/content_score', key:, content: parent, definition:) if definition.key?('content_score')
+      label_html << yield_content!(:additional_label_content) if content_for?(:additional_label_content)
 
       label_tag "#{options&.dig(:prefix)}#{sanitize_to_id(key)}", label_html, class: "attribute-edit-label #{html_classes}".strip
     end

@@ -1,10 +1,14 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
+  <% content_for :additional_label_content do %>
+    <%= button_tag(tag.i(class: 'fa fa-upload'), type: 'button', class: 'table-data-upload', disabled: true) %>
+  <% end if definition&.dig('ui', 'edit', 'options', 'data_upload') %>
+
   <%= attribute_edit_label_tag(**local_assigns) %>
 
   <%= hidden_field_tag key, value.to_json, options.merge({ data: definition&.slice('validations', 'warnings'), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !attribute_editable?(key, definition, options, content) }) %>
 
   <div class="table-editor-wrapper">
-    <div class="table-editor" data-key="<%= key %>"></div>
+    <div class="table-editor" data-key="<%= key %>" data-allow-upload="<%= definition&.dig('ui', 'edit', 'options', 'data_upload') %>"></div>
   </div>
 <% end %>

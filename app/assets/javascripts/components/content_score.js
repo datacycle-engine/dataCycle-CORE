@@ -18,6 +18,12 @@ class ContentScore {
 		this.contentEmbedded = DomElementHelper.parseDataAttribute(
 			this.element.dataset.contentScoreEmbedded,
 		);
+		this.dependentKeys = DomElementHelper.parseDataAttribute(
+			this.element.dataset.contentScoreDependentKeys,
+		);
+		this.dependentKeyQuery = this.dependentKeys
+			?.map((v) => `.form-element[data-key*="${v}"]`)
+			.join(", ");
 		this.template = this.element.dataset.contentScoreTemplate;
 		this.attributeKey = this.element.dataset.key;
 		this.locale = this.element.dataset.locale;
@@ -36,7 +42,13 @@ class ContentScore {
 	setup() {
 		if (this.stylingContainer)
 			this.stylingContainer.classList.add("dc-content-score");
-		$(this.container).on("change", this.loadScore.bind(this)); // not yet working with native 'change' event
+		$(this.container).on("change", this.checkForChangedAttributes.bind(this)); // not yet working with native 'change' event
+
+		this.loadScore();
+	}
+	checkForChangedAttributes(event) {
+		if (this.dependentKeyQuery && !event.target.closest(this.dependentKeyQuery))
+			return;
 
 		this.loadScore();
 	}

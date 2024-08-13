@@ -105,8 +105,6 @@ class Validator {
 		$(event.target).closest(".single_warning").remove();
 	}
 	validateSingle(event, data) {
-		event.stopPropagation();
-
 		if (data && data.type === "reset") return;
 
 		this.requests = [this.validateItem(event.currentTarget)];

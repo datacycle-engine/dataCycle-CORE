@@ -11,7 +11,6 @@ class TableViewer {
 		);
 		this.data = [];
 		this.tabulatorConfig = {
-			locale: DataCycle.uiLocale,
 			data: this.data,
 			layout: "fitColumns",
 			autoColumns: true,

@@ -1,6 +1,12 @@
 .form-element.table {
+  .attribute-edit-label {
+    .table-data-upload {
+      padding: 0;
+    }
+  }
+
   .table-editor-wrapper {
-    padding: 2.5rem 1rem 1.2rem 1rem;
+    padding: 3rem 1rem 1.2rem 1rem;
 
     .tabulator-table {
       .tabulator-row {
@@ -143,4 +149,5 @@
 
 .detail-content.table {
   width: 100%;
+  display: inline-flex;
 }
