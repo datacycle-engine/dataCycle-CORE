@@ -175,7 +175,7 @@ module DataCycleCore
           optional(:import_strategy) { str? }
           optional(:download_strategy) { str? }
           optional(:logging_strategy) { str? }
-          optional(:tree_label) { str? }
+          optional(:tree_label) { str? | (array? & each { str? }) }
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
           optional(:external_id_prefix) { str? }
