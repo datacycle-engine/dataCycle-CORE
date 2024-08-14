@@ -77,7 +77,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_mime'
 
   # File Upload
-  s.add_dependency 'mini_magick'
+  s.add_dependency 'mini_magick', '>= 4.13.2'
   s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
   s.add_dependency 'taglib-ruby'
