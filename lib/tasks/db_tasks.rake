@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/db_helper'
+
 namespace :db do
   namespace :migrate do
     desc 'run data migrations'
@@ -135,6 +137,14 @@ namespace :db do
     end
   end
 
+  desc 'Show the existing database backups'
+  task dumps: :environment do
+    backup_dir = DbHelper.backup_directory(Rails.env)
+    puts backup_dir
+
+    puts 'backup dir does not exists' unless system "cd #{backup_dir} && du -hs --time *"
+  end
+
   desc 'Dumps the database to backups (mode = review|activities|full)'
   task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
     temp = Time.zone.now
@@ -180,7 +190,7 @@ namespace :db do
 
       DbHelper.with_config do |host, port, db, user, password|
         backup_dir = DbHelper.backup_directory
-        files      = Dir.glob("#{backup_dir}/**/*#{pattern}*")
+        files      = Dir.glob("#{backup_dir}/**/#{pattern}")
 
         case files.size
         when 0

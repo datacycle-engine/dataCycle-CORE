@@ -84,10 +84,8 @@ namespace :data_cycle_core do
 
     desc 'Show the existing database backups'
     task dumps: :environment do
-      backup_dir = DbHelper.backup_directory(Rails.env)
-      puts backup_dir
-
-      puts 'backup dir does not exists' unless system "cd #{backup_dir} && du -hs --time *"
+      Rake::Task['db:dumps'].invoke
+      Rake::Task['db:dumps'].reenable
     end
 
     desc 'Restores the database from a backup using PATTERN'
