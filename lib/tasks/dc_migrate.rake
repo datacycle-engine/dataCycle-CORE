@@ -149,14 +149,29 @@ namespace :dc do
       contents.find_each do |content|
         I18n.with_locale(content.first_available_locale) do
           asset_type = content.schema&.dig('properties', 'asset', 'asset_type')
-          logger.warn("missing asset_type for #{content.id}") && next if asset_type.blank?
+          if asset_type.blank?
+            logger.warn("missing asset_type for #{content.id}")
+            progressbar.increment
+            next
+          end
 
           file_url = content.try(:content_url)
-          logger.warn("missing content_url for #{content.id}") && next if file_url.blank?
+          if file_url.blank?
+            logger.warn("missing content_url for #{content.id}")
+            progressbar.increment
+            next
+          end
 
-          asset = DataCycleCore.asset_objects.find { |a| a == "DataCycleCore::#{asset_type.classify}" }&.safe_constantize&.new(name: content.title, remote_file_url: file_url)
+          asset_model = DataCycleCore.asset_objects
+            .find { |a| a == "DataCycleCore::#{asset_type.classify}" }
+            &.safe_constantize
+          asset = asset_model&.new(name: content.title, remote_file_url: file_url)
 
-          logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}") && next unless asset&.save
+          unless asset&.save
+            logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}")
+            progressbar.increment
+            next
+          end
 
           content.external_source_to_external_system_syncs('import')
 
@@ -176,6 +191,9 @@ namespace :dc do
           end
 
           progressbar.increment
+        rescue DataCycleCore::Error::Asset::RemoteFileDownloadError
+          progressbar.increment
+          logger.error("Error downloading asset for #{content.id} from #{file_url}")
         end
       end
 
