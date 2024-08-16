@@ -160,6 +160,9 @@ namespace :dc do
             logger.warn("missing content_url for #{content.id}")
             progressbar.increment
             next
+          elsif file_url.split('/').last&.starts_with?('.')
+            # add dummy filename if missing
+            file_url = file_url.split('/').tap { |a| a[-1] = "dummy.#{file_url.split('.').last}" }.join('/')
           end
 
           asset_model = DataCycleCore.asset_objects
