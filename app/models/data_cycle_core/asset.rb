@@ -73,14 +73,17 @@ module DataCycleCore
     end
 
     def file_extension_validation
-      extension = nil
-
       if file.present?
-        extension = MiniMime.lookup_by_filename(file.record&.name.to_s)&.extension
-        extension ||= MiniMime.lookup_by_content_type(file.content_type)&.extension
-      end
+        extension = MiniMime.lookup_by_content_type(file.content_type.to_s)&.extension
+        return if self.class.content_type_white_list.include?(extension)
 
-      return if file.present? && self.class.content_type_white_list.include?(extension)
+        specific_mime_type = file.content_type&.then { |mt| [model_name.element, mt.split('/').last].join('/') }
+        extension = MiniMime.lookup_by_content_type(specific_mime_type.to_s)&.extension
+        return if self.class.content_type_white_list.include?(extension)
+
+        extension = MiniMime.lookup_by_filename(file.record&.name.to_s)&.extension
+        return if self.class.content_type_white_list.include?(extension)
+      end
 
       errors.add :file,
                  path: 'uploader.validation.format_not_supported',
