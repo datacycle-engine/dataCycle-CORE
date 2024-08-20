@@ -94,11 +94,30 @@ module DataCycleCore
 
         def content_request(type: :update)
           strategy, external_system = api_strategy
-          return { error: 'endpoint not active' }, :not_found if strategy.nil?
+          @webhook_logger ||= ::Logger.new('./log/APIv4_webhook.log')
+          @webhook_logger.info("[Request #{request.request_id}] Incoming webhook (APIv4) for external system '#{external_system.identifier}'. User #{current_user.id} #{current_user.email}. Payload: #{content_params}")
+          return_value = nil
+          status = nil
+
+          return_logger = lambda { |return_status, data|
+            @webhook_logger.info("[#{return_status}] [Request #{request.request_id}] Returning for webhook (APIv4). Return value: #{data}")
+          }
+
+          if strategy.nil?
+            return_value = { error: 'endpoint not active'}
+            status = :not_found
+            return_logger.call(status, return_value)
+            return return_value, status
+          end
 
           locale = params.dig(:@context, :@language)
           locale = I18n.available_locales.first if locale.blank?
-          return { error: 'Invalid locale. Allowed are: ' + I18n.available_locales.join(', ') }, :bad_request unless locale.to_sym.in?(I18n.available_locales)
+          unless locale.to_sym.in?(I18n.available_locales)
+            return_value = { error: 'Invalid locale. Allowed are: ' + I18n.available_locales.join(', ') }
+            status = :bad_request
+            return_logger.call(status, return_value)
+            return return_value, status
+          end
 
           I18n.with_locale(locale) do
             responses = content_params.map do |data|
@@ -110,10 +129,16 @@ module DataCycleCore
             end
 
             error_present = responses.any? { |i| i[:error].present? }
-            return responses, error_present ? :bad_request : :ok unless responses.size == 1
-            status = responses.first[:status]
+            return_value = responses
+            unless responses.size == 1
+              status = error_present ? :bad_request : :ok
+              return_logger.call(status, return_value)
+              return return_value, status
+            end
+            status = responses.first[:status].present? ? responses.first[:status] : error_present ? :bad_request : :ok
             responses.first.delete(:status)
-            return responses, status.present? ? status : error_present ? :bad_request : :ok
+            return_logger.call(status, return_value)
+            return return_value, status
           end
         end
 
