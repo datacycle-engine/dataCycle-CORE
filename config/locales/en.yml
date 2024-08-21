@@ -21,6 +21,21 @@ en:
 
   template_names:
     skos:Concept: Classification
+    # embedded
+    ContentBlockTextImage: Text with Image
+    ContentBlockAccordion: Accordion
+    ContentBlockAccordionItem: Accordion - content
+    ContentBlockButton: Button
+    ContentBlockExternalContent: External Content
+    ContentBlockHeadline: Headline
+    ContentBlockInfobox: Infobox
+    ContentBlockLeadtext: Leadtext
+    ContentBlockMedia: Media
+    ContentBlockPromoTeaser: Promo teaser
+    ContentBlockQuotation: Quotation
+    ContentBlockTable: Table
+    ContentBlockTeaser: Teaser
+    ContentBlockText: Text
 
   attribute_labels:
     additional_information:

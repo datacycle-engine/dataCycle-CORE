@@ -41,6 +41,30 @@ de:
     TouristAttraction: POI
     Trail: Tour
     GtfsStop: Haltestelle
+    BodyOfWater: Badesee
+    MountainArea: Skigebiet
+    MountainAreaDescription: Skigebiets-Beschreibung
+    Recipe: Rezept
+    SkiSlope: Skipiste
+    SnowReportLocation: Schneebericht - Ort
+    Snowpark: Schneepark
+    TouristDestination: Touristische Destination
+    ContentPage: Inhaltsseite
+    # embedded
+    ContentBlockTextImage: Text mit Bild
+    ContentBlockAccordion: Akkordion
+    ContentBlockAccordionItem: Akkordion - Inhalt
+    ContentBlockButton: Button
+    ContentBlockExternalContent: Externer Inhalt
+    ContentBlockHeadline: Überschrift
+    ContentBlockInfobox: Infobox
+    ContentBlockLeadtext: Leadtext
+    ContentBlockMedia: Medien
+    ContentBlockPromoTeaser: Promo-Teaser
+    ContentBlockQuotation: Zitat
+    ContentBlockTable: Tabelle
+    ContentBlockTeaser: Teaser
+    ContentBlockText: Text
 
   attribute_labels:
     additional_information:
