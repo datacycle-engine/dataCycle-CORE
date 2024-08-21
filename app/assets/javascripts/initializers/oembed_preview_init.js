@@ -13,7 +13,11 @@ export default function () {
             "oembed-preview",
             (element) => {
                 let oembedData = JSON.parse(element.getAttribute('oembed_preview') || "{}");
-                oembedPreview.validate_oembed(element, oembedData);
+
+                if (element.value !== "" && element.value !== undefined){
+                    oembedPreview.validate_oembed(element, oembedData);
+                    $("#"+element.id+"_spinner").hide();
+                }
 
                 element.addEventListener('blur', function (event){
                     let elem = event.target;
