@@ -53,7 +53,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.oembed_no_url'
             }
-            return {error: @error, success:, oembed_url: nil}
+            return {error: @error, success:, oembed_url: nil, request_url: data}
           end
 
           oembed_url = nil
@@ -107,6 +107,7 @@ module DataCycleCore
           else
             success = true
             oembed_url = "#{selected.first['oembed_url'].sub('{format}', 'json')}?url=#{data}#{maxwidth.present? ? "&maxwidth=#{maxwidth}" : ''}#{maxheight.present? ? "&maxheight=#{maxheight}" : ''}"
+            @error = { error: {}, warning: {}, result: {} }
           end
 
           {error: @error, success:, oembed_url:}

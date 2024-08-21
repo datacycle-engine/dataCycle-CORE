@@ -28,23 +28,17 @@ class OembedPreview {
     prettyErrors(errors){
         let errorToDisplay;
         if (Array.isArray(errors) && errors.length>0){
-            console.log(1)
             errorToDisplay = errors[errors.length-1];
         } else if (errors.length > 0){
-            console.log(2)
             errorToDisplay = errors;
         } else {
-            console.log(3)
             errorToDisplay = "";
         }
-        console.log(4)
 
         let errorDiv = document.createElement("div");
         errorDiv.innerHTML = `<i class="fa fa-exclamation-triangle" aria_hidden="true"></i> &nbsp;`;
         errorDiv.innerHTML += `<span>${errorToDisplay}</span>`;
         errorDiv.className='toast-notification alert';
-
-        console.log(errorDiv);
 
         return errorDiv;
 
