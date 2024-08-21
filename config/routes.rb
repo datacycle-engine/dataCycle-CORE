@@ -241,6 +241,8 @@ DataCycleCore::Engine.routes.draw do
       end
     end
 
+    get '/oembed', action: :fetch, controller: :oembed, defaults: { format: :json }
+
     get '/reports', to: 'reports#index'
     match '/download_reports', to: 'reports#download_report', via: [:get, :post]
 

@@ -1,0 +1,25 @@
+---
+- :data:
+    :name: OEmbed
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+      - Dataset
+    :boost: 1.0
+    :features:
+      :creatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :url:
+        :label: URL
+        :type: oembed
+        :storage_location: value

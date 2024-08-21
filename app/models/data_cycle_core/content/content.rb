@@ -24,6 +24,7 @@ module DataCycleCore
       ASSET_PROPERTY_TYPES = ['asset'].freeze
       COLLECTION_PROPERTY_TYPES = ['collection'].freeze
       TABLE_PROPERTY_TYPES = ['table'].freeze
+      OEMBED_PROPERTY_TYPES = ['oembed'].freeze
       SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
       ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
@@ -299,6 +300,10 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| TABLE_PROPERTY_TYPES.include?(definition['type']) }
       end
 
+      def oembed_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| OEMBED_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
       def linked_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
       end
@@ -446,7 +451,7 @@ module DataCycleCore
       def attribute_to_h(property_name)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
-        elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name)
+        elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name) || oembed_property_names.include?(property_name)
           send(property_name)&.as_json
         elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name) || collection_property_names.include?(property_name)
           send(property_name).try(:pluck, :id)
@@ -505,7 +510,7 @@ module DataCycleCore
         (@get_property_value ||= {})[key] =
           if virtual_property_names.include?(property_name)
             load_virtual_attribute(property_name, I18n.locale)
-          elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name)
+          elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name) || oembed_property_names.include?(property_name)
             load_json_attribute(property_name, property_definition, overlay_flag)
           elsif included_property_names.include?(property_name)
             load_included_data(property_name, property_definition, overlay_flag)

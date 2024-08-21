@@ -267,11 +267,14 @@ en:
       edit_image: edit image
       unsupported_format: The image will be converted to a supported file format by the image editor.
       save_error: The image could not be saved
-    gravity_edito:
+    gravity_editor:
       success_set: "Gravity was successfully set to %{data}"
       success_reset: "Gravity was successfully reset"
       error: "Gravity could not be set"
       hint: "The 'smart' option is used by default if no other option has been selected."
+    oembed:
+      preview:
+        title: oEmbed preview
 
   schedule:
     dtstart: Start time
@@ -1198,6 +1201,12 @@ en:
       table: "%{label} is not a table (array of arrays), but %{template}."
       table_row_wrong_size: "row has wrong number of columns: %{row}"
       table_cell_wrong_type: "The value in cell %{cell} cannot be converted to JSON."
+      oembed: "%{label} ist not a valid oembed URL, but a %{template}"
+      oembed_unsupported_format: "Format %{oembed_format} not supported"
+      oembed_no_url: "Url parameter missing!"
+      oembed_unsupported_url: "%{oembed_url} is not a valid url."
+      oembed_no_provider: "Could not find an oembed provider for url %{oembed_url}."
+      oembed_too_many_providers: "Could not find unique Oembed-Provider for URL %{oembed_url}. Possible providers: %{oembed_found}."
       geo:
         Incorrect data type specified for %{template} (%{data}). Expect Geometric/Geographical
         type, or a WKT formatted string.

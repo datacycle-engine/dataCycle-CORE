@@ -1,0 +1,42 @@
+<%
+  url = local_assigns.deep_merge({ options: options.merge({ 'class' => Array.wrap(options['class']).push('string').compact_blank.join(' ') }) }).dig(:value)
+  oembed = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_data?(url) || {}
+  viewer = local_assigns[:viewer]
+
+  oembed_id_base = local_assigns[:key].gsub('[', '_').gsub(']', '')
+
+  html = ""
+  if oembed[:oembed_url].present? && viewer == 'view'
+    oembed_uri = URI(oembed[:oembed_url])
+    response = Rails.cache.fetch(oembed[:oembed_url], expires_in: 1.hour) do
+      Net::HTTP.get_response(oembed_uri)
+    end
+    html = JSON.parse(response.body).dig('html')
+  end
+%>
+
+
+<div class="oembed-preview-wrapper row clearfix <%= 'detail-type' if viewer == 'view' %>">
+  <% if viewer == 'view' %>
+    <span class="detail-label">
+      <i class="dc-type-icon property-icon type-oembed"></i>
+      <span class="attribute-label-text">
+        <%= I18n.t('frontend.oembed.preview.title', locale: active_ui_locale) %>
+      </span>
+    </span>
+    <div id="<%= "#{oembed_id_base}_oembed_preview" %>" class="oembed-preview-html oembed-default-padding columns small-12 detail-content">
+      <%= html.html_safe %>
+    </div>
+  <% else %>
+    <div class="columns small-12">
+      <label><%= I18n.t('frontend.oembed.preview.title', locale: active_ui_locale) %></label>
+    </div>
+    <div id="<%= "#{oembed_id_base}_oembed_preview" %>" class="oembed-preview-html oembed-default-padding columns small-12">
+    </div>
+    <div id="<%="#{oembed_id_base}_spinner"%>" class="oembed-preview-spinner oembed-default-padding column small-12">
+      <span>
+        <i class="fa fa-spinner fa-spin fa-fw"></i>
+      </span>
+    </div>
+  <% end %>
+</div>

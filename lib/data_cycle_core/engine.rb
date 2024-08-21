@@ -195,6 +195,9 @@ module DataCycleCore
   mattr_accessor :content_warnings
   self.content_warnings = {}
 
+  mattr_accessor :oembed_providers
+  self.oembed_providers = {}
+
   mattr_accessor :classification_visibilities
   self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view', 'classification_overview', 'classification_administration']
 

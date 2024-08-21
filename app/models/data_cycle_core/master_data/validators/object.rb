@@ -21,7 +21,8 @@ module DataCycleCore
             'schedule' => Validators::Schedule,
             'opening_time' => Validators::Schedule,
             'collection' => Validators::Collection,
-            'table' => Validators::Table
+            'table' => Validators::Table,
+            'oembed' => Validators::Oembed
           }
         end
 

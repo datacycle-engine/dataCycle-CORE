@@ -1,0 +1,31 @@
+<%=
+    render 'data_cycle_core/contents/viewers/attribute',
+  local_assigns.merge(data_attributes: {
+    editor: definition.dig('ui', 'edit', 'type').try(:underscore) || 'string',
+    'diff-before': html_escape_once(options.dig(:item_diff, 1)),
+    'diff-after': html_escape_once(options.dig(:item_diff, 2)),
+    value: value
+  }) do %>
+  <span class="detail-content">
+    <%
+      value = options.dig(:item_diff, 1).presence if options.dig(:item_diff, 0) == '+'
+      value = value.try(:html_safe) if definition.dig('ui', 'edit', 'type').try(:underscore) == 'text_editor'
+    %>
+
+    <%= value %>
+  </span>
+
+<% end %>
+
+<%=
+  unless local_assigns[:options]&.dig('compare') == true
+    render 'data_cycle_core/contents/oembed_preview',
+             local_assigns.merge(data_attributes: {
+               editor: definition.dig('ui', 'edit', 'type').try(:underscore) || 'string',
+               'diff-before': html_escape_once(options.dig(:item_diff, 1)),
+               'diff-after': html_escape_once(options.dig(:item_diff, 2)),
+               value: value
+             }).merge({ viewer: 'view'})
+  end
+%>
+

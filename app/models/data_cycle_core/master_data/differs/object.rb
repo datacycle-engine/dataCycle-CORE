@@ -22,7 +22,8 @@ module DataCycleCore
             'opening_time' => Differs::Schedule,
             'collection' => Differs::Collection,
             'timeseries' => Differs::Timeseries,
-            'table' => Differs::Table
+            'table' => Differs::Table,
+            'oembed' => Differs::Oembed
           }
         end
 

@@ -293,7 +293,7 @@ module DataCycleCore
           set_linked(key, value, properties)
         when *EMBEDDED_PROPERTY_TYPES
           set_embedded(key, value, properties['template_name'], properties['translated'], options)
-        when *SIMPLE_OBJECT_PROPERTY_TYPES, *PLAIN_PROPERTY_TYPES, *TABLE_PROPERTY_TYPES
+        when *SIMPLE_OBJECT_PROPERTY_TYPES, *PLAIN_PROPERTY_TYPES, *TABLE_PROPERTY_TYPES, *OEMBED_PROPERTY_TYPES
           save_values(key, value, properties)
         when *CLASSIFICATION_PROPERTY_TYPES
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])

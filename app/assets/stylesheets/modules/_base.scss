@@ -847,7 +847,8 @@ footer {
   .form-element.radio_button,
   .form-element.table,
   .form-element.geographic .geographic,
-  .select2 {
+  .select2,
+  .oembed-preview-wrapper {
     border: 1px solid rgba($dark-gray, 0.5);
     outline: none;
     height: auto;
@@ -1125,7 +1126,9 @@ footer {
     .string:not(.date, .datetime, .text_editor) input,
     input.single_date,
     .single_date input.form-control,
-    .number input {
+    .number input,
+    .oembed input,
+    .oembed-preview-html{
       padding: 2.5rem 1rem 1.2rem 1rem;
       line-height: initial;
     }

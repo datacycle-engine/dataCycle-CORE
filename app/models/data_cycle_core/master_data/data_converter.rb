@@ -9,7 +9,7 @@ module DataCycleCore
           data
         when 'number'
           string_to_number(data, definition)
-        when 'string'
+        when 'string', 'oembed'
           string_to_string(data)
         when 'date'
           string_to_date(data)
@@ -30,7 +30,7 @@ module DataCycleCore
         case type
         when 'key', 'number'
           data&.to_s
-        when 'string'
+        when 'string', 'oembed'
           string_to_string(data)
         when 'date'
           date_to_string(data)
