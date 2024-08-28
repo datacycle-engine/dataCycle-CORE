@@ -25,7 +25,8 @@ module DataCycleCore
           external_key: content.external_key || content.id,
           external_detail_url: content.external_source.external_detail_url(content),
           external_edit_url: content.external_source.external_url(content),
-          title: "#{t('common.external_key', locale: active_ui_locale)}: #{content.external_key || content.id}"
+          title: "#{t('common.external_key', locale: active_ui_locale)}: #{content.external_key || content.id}",
+          external_system_id: content.external_source.id
         }]
       end
 

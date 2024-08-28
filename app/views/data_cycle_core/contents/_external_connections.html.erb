@@ -7,7 +7,7 @@
             class: 'external-connection copy-to-clipboard',
             data: {
               toggle: "external-connections-#{name.underscore_blanks}" ,
-              value: syncs.pluck(:external_system_id),
+              value: syncs.pluck(:external_system_id).first
           }) do %>
             <i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i>
             <%= name %>
