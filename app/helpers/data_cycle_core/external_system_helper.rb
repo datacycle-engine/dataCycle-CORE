@@ -32,6 +32,7 @@ module DataCycleCore
       content.external_system_syncs.includes(:external_system).find_each do |sync|
         (syncs[sync.external_system.name] ||= []).push({
           id: sync.id,
+          external_system_id: sync.external_system.id,
           status: sync.status,
           sync_type: sync.sync_type,
           date: sync.last_successful_sync_at,

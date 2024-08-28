@@ -3,12 +3,18 @@
 
   <% external_connections&.each do |name, syncs| %>
     <div class="external-connection-with-dropdown">
-      <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>">
-        <i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i>
-        <%= name %>
-        <%= tag.span('*', class: 'primary-external-system', data: { dc_tooltip: t('content_external_data.primary_external_system_tooltip', locale: active_ui_locale) }) if syncs.any?{ |s| s[:primary] } %>
-        (<%= syncs.size %>)
-      </span>
+      <%= tag.span(
+            class: 'external-connection copy-to-clipboard',
+            data: {
+              toggle: "external-connections-#{name.underscore_blanks}" ,
+              value: syncs.pluck(:external_system_id),
+          }) do %>
+            <i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i>
+            <%= name %>
+            <%= tag.span('*', class: 'primary-external-system', data: { dc_tooltip: t('content_external_data.primary_external_system_tooltip', locale: active_ui_locale) }) if syncs.any?{ |s| s[:primary] } %>
+            (<%= syncs.size %>)
+      <% end %>
+          
       <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown>
         <ul class="list-items no-bullet">
           <% syncs.each do |sync| %>
