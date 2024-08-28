@@ -34,9 +34,10 @@ module DataCycleCore
           source_filter_stage = { full_data_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
+          # @todo: why do we need this stage
           post_unwind_source_filter_stage = source_filter_stage
             .deep_stringify_keys
-            .deep_reject { |k, _| k.exclude?(full_data_path) }
+            .reject { |k, _| k.exclude?(full_data_path) }
             .deep_transform_keys { |k| k.gsub(full_data_path, 'data') }
 
           project_filter_stage = {
@@ -58,7 +59,6 @@ module DataCycleCore
           group_stage = {
             '_id' => '$data.id', 'data' => { '$first' => '$data'}
           }
-
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
                                          {
