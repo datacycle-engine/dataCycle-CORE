@@ -119,16 +119,32 @@ namespace :dc do
       puts "DONE: #{es.name} is now primary System for all Things provided."
     end
 
-    desc 'download external assets into dataCycle for things with external_system_id'
-    task :download_external_assets, [:external_system_id] => :environment do |_, args|
+    desc 'download external assets into dataCycle for things with external_system_id or collection_id'
+    task :download_external_assets, [:external_system_id, :collection_id] => :environment do |_, args|
+      collection_id = args[:collection_id]
       logger = Logger.new('log/download_assets.log')
       logger.info('Started Downloading...')
+      if args[:external_system_id].blank? && collection_id.blank?
+        error = 'external_system_id or collection_id not given'
+        logger.error(error) && abort(error)
+      end
+      collection = DataCycleCore::Collection.find_by(id: collection_id)
+      if collection_id.present? && collection.blank?
+        error = "collection with id #{collection_id} not found"
+        logger.error(error) && abort(error)
+      end
 
       external_system_id = args[:external_system_id]
       allowed_template_names = DataCycleCore::ThingTemplate.where("thing_templates.schema -> 'properties' ->> 'asset' IS NOT NULL").pluck(:template_name)
 
       if external_system_id.blank? || allowed_template_names.blank?
         error = 'external_system_id not given or no viable Templates found'
+        logger.error(error) && abort(error)
+      end
+
+      es = DataCycleCore::ExternalSystem.find_by(id: external_system_id)
+      if external_system_id.present? && es.blank?
+        error = "external_system with id #{external_system_id} not found"
         logger.error(error) && abort(error)
       end
 
@@ -141,7 +157,15 @@ namespace :dc do
         )
       SQL
 
-      contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
+      contents = nil
+
+      if collection_id.present? && external_system_id.present?
+        contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).apply.select(:id)).by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
+      elsif collection_id.present?
+        contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).apply.select(:id)).where(template_name: allowed_template_names).where(asset_sql)
+      else
+        contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
+      end
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
       logger.info("DOWNLOADING: assets for #{contents.size} things...")
@@ -160,9 +184,9 @@ namespace :dc do
             logger.warn("missing content_url for #{content.id}")
             progressbar.increment
             next
-          elsif file_url.split('/').last&.starts_with?('.')
-            # add dummy filename if missing
-            file_url = file_url.split('/').tap { |a| a[-1] = "dummy.#{file_url.split('.').last}" }.join('/')
+            # elsif file_url.split('/').last&.starts_with?('.')
+            #   # add dummy filename if missing
+            #   file_url = file_url.split('/').tap { |a| a[-1] = "dummy.#{file_url.split('.').last}" }.join('/')
           end
 
           asset_model = DataCycleCore.asset_objects

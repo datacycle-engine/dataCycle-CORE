@@ -39,6 +39,13 @@
 
     <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? && stored_filter.api %>
 
+    <%= link_to tag.i(class: 'fa fa-hashtag'), '#',
+          class: 'copy-to-clipboard',
+          data: {
+            value: stored_filter.id,
+            dc_tooltip: t('actions.copy_to_clipboard_data', data: 'ID', locale: active_ui_locale)
+          } if stored_filter.id %>
+
     <%= link_to tag.i(class: 'fa fa-clipboard'),
                 send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: stored_filter),
                 class: 'copy-to-clipboard left',
