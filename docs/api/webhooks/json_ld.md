@@ -143,6 +143,23 @@ _Beispiel 1: POI_
           "name": "Kurzbeschreibung",
           "description": "Text"
         }
+      ],
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "validFrom": "2024-08-27",
+          "validThrough": "2024-09-11",
+          "opens": "08:00",
+          "closes": "13:00",
+          "dayOfWeek": ["https://schema.org/Wednesday"]
+        }
+      ],
+      "potentialAction": [
+        {
+          "@type": "Action",
+          "name": "Buchung",
+          "dc:classification:actionType": ["44b0d225-1ead-41d5-8351-5b210da9bb3b"]
+        }
       ]
     }
   ],
@@ -151,6 +168,11 @@ _Beispiel 1: POI_
   }
 }
 ```
+
+Hinweise:
+
+- Öffnungszeiten (`openingHoursSpecification`) sind ein Array aus [schema.org `OpeningHoursSpecification`-Typen](https://schema.org/OpeningHoursSpecification). Das Atrribut `dayOfWeek` ist dabei ein Array aus [schema.org `DayOfWeek`-Typen](https://schema.org/DayOfWeek) mit dem Format `https://schema.org/[DayOfWeek]`.
+- `potentialAction` ist ein Array aus [schema.org `Action`-Typen](https://schema.org/Action). `dc:classification:actionType` muss dabei die ID des Klassifizierungsaliases der Aktion enthalten (z.B. ActionTypes > Bestellen). Weiteres dazu ist unter dem Punkt [Klassifizierungen](#klassifizierungen) zu finden.
 
 _Beispiel 2: Veranstaltung_
 
@@ -608,6 +630,8 @@ Inhalte können auch gelöscht werden. Dazu kann entweder die dataCycle ID oder 
 Klassifizierungen können ebenfalls gesetzt werden. Dafür muss unterschieden werden, ob die Klassifizierung als eigenes Attribute gesetzt wird, oder als "universal classifications". Infos dazu finden man beim jeweiligen [Schema](/schema).
 
 Klassifizierungen müssen immer mit `dc:classification:` geprefixed werden. Um eine Klassifizierung zu setzen, benötigt man auch deren ID. Diese kann man in der [Klassifizierungsübersicht](/classifications) finden. Details zu Schnittstellen für Klassifizierungen finden sich in der [Klassifizierungs-API](/docs/api/classifications).
+
+Um eine Klassifizierung zu setzen, muss man die ID des entsprechendes Klassifizierungsaliases kennen. Das sind jene IDs, die man in der Klassifizierungsverwaltung unter [Klassifizierungen](/classifications) findet.
 
 Angenommen wir wollen bei einem POI eine Klassifizierung für den Tag (tags - eigenes Attribut) und eine für den Ausgabekanal (universal classifications) setzen.
 
