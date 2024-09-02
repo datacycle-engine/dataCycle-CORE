@@ -640,11 +640,22 @@ class ObjectBrowser {
 		if (this.chosen.length === 0) {
 			this.renderHiddenField();
 		} else {
+			const itemsToClone = this.$overlay.find(".chosen-items-container li.item");
+			const clonedItems = this.cloneHtml(itemsToClone);
+
+			clonedItems.each((item) => {
+				const elem = clonedItems[item];
+				// remove the disabled attribute from the input fields
+				elem.querySelectorAll("input[type='hidden']").forEach((input) => {
+					input.removeAttribute("disabled");
+				});
+			});
+
 			this.$element
 				.children(".media-thumbs")
 				.children(".object-thumbs")
 				.html(
-					this.cloneHtml(this.$overlay.find(".chosen-items-container li.item")),
+					this.cloneHtml(clonedItems),
 				);
 		}
 
