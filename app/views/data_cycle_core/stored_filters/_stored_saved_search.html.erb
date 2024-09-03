@@ -64,6 +64,13 @@
         </li>
       <% end %>
 
+      <%= link_to tag.i(class: 'fa fa-hashtag'), '#',
+      class: 'copy-to-clipboard',
+      data: {
+        value: stored_search.id,
+        dc_tooltip: t('actions.copy_to_clipboard_data', data: 'ID', locale: active_ui_locale)
+      } if stored_search.id %>
+
       <%= render 'data_cycle_core/application/downloads/download_buttons', content: stored_search %>
 
       <%= tag.li(render('data_cycle_core/application/preview/widget', content: stored_search)) if DataCycleCore::Feature::Preview.enabled? && stored_search.api %>

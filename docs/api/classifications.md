@@ -4,7 +4,6 @@ Ein wesentlicher Baustein für die Verwendung der Datenschnittstelle von dataCyc
 
 Für die Nutzung im Rahmen eines Inhaltsfilters ist es in den meisten Fällen notwendig, die Klassifizierungen bereits vorab zum Aufbauen des gewünschten Filters zur Verfügung zu haben. Zu diesem Zweck können alle verfügbaren (und für die Datenschnittstelle freigegebenen) Klassifizierungsbäume und die zugehörigen Klassifizierungen über die Datenschnittstelle abgefragt werden. Alternativ dazu können die zu einem Klassifizierungsbaum gehörenden Klassifizierungen auch direkt abgerufen werden, wenn der Klassifizierungsbaum z.B. über eine vorherige Abfrage eines Inhalts bereits bekannt ist.
 
-
 ## Abfragen von Klassifizierungsbäumen
 
 Alle Klassifizierungen in dataCycle sind in Form von Klassifizierungsbäumen organisiert. Um alle vorhandenen Klassifizierungsbäume abzufragen, kann der folgende Endpunkt verwendet werden:
@@ -23,7 +22,7 @@ _/api/v4/concept_schemes_
 }
 ```
 
-Die gelieferten Daten enthalten neben dem Namen (```skos:prefLabel```) und einige Meta-Daten (z.B. Erstellungs- und Änderungsdatum) auch einen Link, um die zu diesem Klassifizierungsbaum gehörigen Klassifizierungen abzufragen (```dc:hasConcept```).
+Die gelieferten Daten enthalten neben dem Namen (`skos:prefLabel`) und einige Meta-Daten (z.B. Erstellungs- und Änderungsdatum) auch einen Link, um die zu diesem Klassifizierungsbaum gehörigen Klassifizierungen abzufragen (`dc:hasConcept`).
 
 ```json
 {
@@ -67,7 +66,7 @@ _/api/v4/concept_schemes/1364702e-b39f-4c8b-ae2f-6ffd6acd12da/concepts_
 }
 ```
 
-Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizierung selbst auch Informationen über die hierarchische Struktur des Klassifizierungsbaums. Über das Attribute ```skos:broader``` ist die direkt übergeordnete Klassifizierung verfügbar, mit dem Attribut ```skos:ancestors``` kann der komplette Pfad innerhalb des Klassifizierungsbaums erstellt werden.
+Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizierung selbst auch Informationen über die hierarchische Struktur des Klassifizierungsbaums. Über das Attribute `skos:broader` ist die direkt übergeordnete Klassifizierung verfügbar, mit dem Attribut `skos:ancestors` kann der komplette Pfad innerhalb des Klassifizierungsbaums erstellt werden.
 
 ```json
 {
@@ -111,11 +110,11 @@ Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizieru
         }
       ]
     }
-  ],
+  ]
 }
 ```
 
-Über das Attribut ```dc:color``` kann der Farbwert als HEX, mit oder ohne Alpha-Kanal, für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert.
+Über das Attribut `dc:color` kann der Farbwert als HEX, mit oder ohne Alpha-Kanal, für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert.
 
 ```json
 {
@@ -125,7 +124,7 @@ Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizieru
 }
 ```
 
-Über das Attribut ```dc:icon``` kann die URL zu einem Icon für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert.
+Über das Attribut `dc:icon` kann die URL zu einem Icon für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert.
 
 ```json
 {
@@ -134,6 +133,10 @@ Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizieru
   "dc:icon": "https://url.zu.einem.icon"
 }
 ```
+
+## Filtern und Sortieren von Klassifizierungen
+
+Eine detaillierte Auflistung aller möglichen Filter und Sortierungen kann in der [Spezifikation](/docs/api/classifications/specification) nachgelesen werden.
 
 ## Facettensuche
 
@@ -145,7 +148,7 @@ _/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID?token=YOUR
 
 #### HTTP-POST:
 
-_/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID
+\_/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID
 
 ```json
 {
@@ -153,11 +156,11 @@ _/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID
 }
 ```
 
-Dabei wird bei jeder Klassifizierung die Anzahl der indirekt verknüpften Inhalte (Mappings und untergeordnete Klassifizierungen werden berücksichtigt) unter ```dc:thingCountWithSubtree```, sowie die Anzahl der direkt verknüpften Inhalte unter ```dc:thingCountWithoutSubtree``` ausgegeben.
+Dabei wird bei jeder Klassifizierung die Anzahl der indirekt verknüpften Inhalte (Mappings und untergeordnete Klassifizierungen werden berücksichtigt) unter `dc:thingCountWithSubtree`, sowie die Anzahl der direkt verknüpften Inhalte unter `dc:thingCountWithoutSubtree` ausgegeben.
 
-Bei diesem Endpunkt werden verwendete ```filter``` auf die Inhalte direkt angewendet, verwendete ```sort```, ```fields``` und ```includes``` werden auf die Klassifizierungen angewendet.
+Bei diesem Endpunkt werden verwendete `filter` auf die Inhalte direkt angewendet, verwendete `sort`, `fields` und `includes` werden auf die Klassifizierungen angewendet.
 
-Die übergebene ```language``` wird auf Inhalte und Klassifizierungen angewendet.
+Die übergebene `language` wird auf Inhalte und Klassifizierungen angewendet.
 
 ```json
 {
@@ -205,18 +208,41 @@ Die übergebene ```language``` wird auf Inhalte und Klassifizierungen angewendet
       "dc:thingCountWithSubtree": 11,
       "dc:thingCountWithoutSubtree": 0
     }
-  ],
+  ]
 }
 ```
+
+### Einschränkung der Ergebnismenge
+
+Standardmäßig werden alle Klassifizierungen eines Klassifizierungsbaums zurückgegeben, egal welche Filter angewendet werden. Filter haben nur haben nur Einfluss auf die Counts (`dc:thingCountWithSubtree` und `dc:thingCountWithoutSubtree`).
+
+Es gibt jedoch die Möglichkeit, die Ergebnismenge auf Ergebnisse zu beschränken, die eine Mindestanzahl an verknüpften Inhalten aufweisen (mit oder ohne Unterbaum). Das macht besonders bei sehr großen Klassifizierungsbäumen Sinn. Dazu können die Parameter `min_count_with_subtree` und `min_count_without_subtree` verwendet werden. Diese Parameter können auch in Kombination verwendet werden.
+
+#### HTTP-GET:
+
+\_/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID?token=YOUR_ACCESS_TOKEN&min_count_with_subtree=1
+
+#### HTTP-POST:
+
+\_/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "min_count_with_subtree": 1
+}
+```
+
+In diesem Beispiel werden nur Klassifizierungen zurückgegeben, die mindestens einen Inhalt direkt oder indirekt über einen Unterbaum verknüpft haben (with_subtree). Die Klassifizierungen, die keine verknüpften Inhalte haben, werden nicht zurückgegeben. Hinweis: `min_count_with_subtree` wird implizit immer auf den Wert von `min_count_without_subtree` gesetzt, wenn der Parameter nicht explizit gesetzt wird. Auch kann kann `min_count_with_subtree` nicht kleiner als `min_count_without_subtree` sein.
 
 ### Sortierung
 
 Es gibt auch die Möglichkeit über diese beiden Attribute nach der Anzahl der verknüpften Inhalte zu [sortieren](/docs/api/contents#sortieren-von-inhalten):
 
-* ```sort=+dc:thingCountWithSubtree``` (aufsteigend)
-* ```sort=-dc:thingCountWithSubtree``` (absteigend)
-* ```sort=+dc:thingCountWithoutSubtree``` (aufsteigend)
-* ```sort=-dc:thingCountWithoutSubtree``` (absteigend)
+- `sort=+dc:thingCountWithSubtree` (aufsteigend)
+- `sort=-dc:thingCountWithSubtree` (absteigend)
+- `sort=+dc:thingCountWithoutSubtree` (aufsteigend)
+- `sort=-dc:thingCountWithoutSubtree` (absteigend)
 
 <!--
 

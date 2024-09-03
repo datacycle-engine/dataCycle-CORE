@@ -4,7 +4,6 @@ import ObserverHelpers from "../helpers/observer_helpers";
 class ResultCount {
 	constructor(element) {
 		this.countContainer = element;
-		this.countContainer.classList.add("dcjs-result-count");
 		this.form = document.getElementById("search-form");
 		this.url = this.form?.action;
 		this.additionalFormParams =

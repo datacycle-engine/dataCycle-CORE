@@ -3,7 +3,6 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 class DisableUnlessValue {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-disable-unless-value");
 		this.disabled = false;
 		this.dependentOnAttributes = DomElementHelpers.parseDataAttribute(
 			this.element.dataset.disableUnlessValue,

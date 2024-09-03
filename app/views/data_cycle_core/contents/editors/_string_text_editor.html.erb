@@ -5,7 +5,7 @@
 
     <%= attribute_edit_label_tag(**local_assigns.merge(html_classes: 'dc-sticky-bar')) %>
 
-    <%= hidden_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}") %>
+    <%= hidden_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !attribute_editable?(key, definition, options, content)) %>
 
     <% options.merge!({ data: { hidden_field_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", locale: I18n.locale, translate_inline: DataCycleCore::Feature::Translate.allowed_attribute?(contextual_content(local_assigns), key, I18n.locale, current_user) }.merge(definition&.slice('validations', 'warnings')), class: 'quill-editor', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}-editor" }) %>
 

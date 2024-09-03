@@ -4,22 +4,31 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
-        attr_accessor :property_name
+        attr_accessor :property_name, :nested_property
 
         ALLOWED_OVERLAY_TYPES = ['string', 'text', 'number', 'boolean',
-                                 'datetime', 'date', 'geographic', 'slug',
+                                 'datetime', 'date', 'geographic',
                                  'embedded', 'linked', 'classification',
                                  'schedule', 'opening_time'].freeze
+        OVERLAY_KEY_EXCEPTIONS = ['overlay', 'id', 'data_type', 'external_key', 'external_source_id'].freeze
+        # validation in gitlab has no access to database, so we need to define the reserved property names here
+        RESERVED_PROPERTY_NAMES = ['thing_id', 'locale', 'content', 'created_at', 'updated_at', 'metadata', 'template_name', 'external_source_id', 'created_by', 'updated_by', 'deleted_by', 'cache_valid_since', 'deleted_at', 'is_part_of', 'validity_range', 'boost', 'content_type', 'representation_of_id', 'version_name', 'last_updated_locale', 'write_history', 'geom_simple', 'aggregate_type'].freeze
 
         schema do
-          optional(:label) { str? }
+          optional(:label) do
+            str? | (hash? & hash do
+                              optional(:key) { str? }
+                              optional(:key_prefix) { str? }
+                              optional(:key_suffix) { str? }
+                            end)
+          end
           required(:type) do
             str? & included_in?(
               ['key', 'string', 'text', 'number', 'boolean',
                'datetime', 'date', 'geographic', 'slug',
                'object', 'embedded', 'linked', 'classification',
                'asset', 'schedule', 'opening_time',
-               'timeseries', 'collection']
+               'timeseries', 'collection', 'table', 'oembed']
             )
           end
           optional(:storage_location) do
@@ -166,7 +175,11 @@ module DataCycleCore
         end
 
         rule(:overlay, :type) do
-          key.failure(:invalid_overlay_type) if key? && ALLOWED_OVERLAY_TYPES.exclude?(values[:type])
+          key.failure(:invalid_overlay_type) if key? && (ALLOWED_OVERLAY_TYPES.exclude?(values[:type]) || OVERLAY_KEY_EXCEPTIONS.include?(property_name.to_s))
+        end
+
+        rule do
+          base.failure(:reserved_property_name) if !nested_property && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
         end
       end
     end

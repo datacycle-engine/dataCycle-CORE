@@ -2,13 +2,17 @@
 
   <%= hidden_field_tag key, value_to_geojson(value, {'@id': content.id})&.to_json, class: 'location-data', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
   <%= hidden_field_tag key.gsub(key.attribute_name_from_key, 'route_data'), content.try(:route_data) if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
+  <% geometry_type = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type') || 'Point').to_s %>
+  <% geometry_type = "Multi#{geometry_type}" unless geometry_type == 'Point' || geometry_type.start_with?('Multi') %>
+  <% geometry_class = geometry_type&.downcase&.delete_prefix('multi') %>
+
   <% is_line_string = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s.include?('LineString') %>
 
   <div class="edit-type geographic">
     <div id="map_<%= SecureRandom.hex(16) %>"
-          class="geographic-map <%= is_line_string ? 'linestring' : 'point' %><%= ' editor' if can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>"
+          class="geographic-map <%= geometry_class %> <%= 'editor' if attribute_editable?(key, definition, options, content) %>"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-          data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
+          data-type="<%= geometry_type.to_s %>"
           data-value="<%= value_to_geojson(value, {'@id': content.id})&.to_json %>"
           data-additional-values="<%= additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>"
           data-additional-values-overlay="<%= additional_map_values_overlay(content, definition, options)&.to_json %>"
@@ -32,13 +36,13 @@
     <% end %>
   </div>
 
-  <div class="map-info detail_object <%= 'linestring-info' if is_line_string %>">
+  <div class="map-info detail_object <%= "#{geometry_class}-info" unless geometry_type == 'Point' %>">
     <div class="content-object-item geo-info-container">
       <span class="embedded-header">
         <%= attribute_edit_label_tag(**local_assigns) %>
       </span>
 
-      <% if !is_line_string %>
+      <% if geometry_type == 'Point' %>
         <div class="form-element longitude number">
           <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}" do %>
             <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>

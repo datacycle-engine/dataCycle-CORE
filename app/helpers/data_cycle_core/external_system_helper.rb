@@ -25,13 +25,15 @@ module DataCycleCore
           external_key: content.external_key || content.id,
           external_detail_url: content.external_source.external_detail_url(content),
           external_edit_url: content.external_source.external_url(content),
-          title: "#{t('common.external_key', locale: active_ui_locale)}: #{content.external_key || content.id}"
+          title: "#{t('common.external_key', locale: active_ui_locale)}: #{content.external_key || content.id}",
+          external_system_id: content.external_source.id
         }]
       end
 
       content.external_system_syncs.includes(:external_system).find_each do |sync|
         (syncs[sync.external_system.name] ||= []).push({
           id: sync.id,
+          external_system_id: sync.external_system.id,
           status: sync.status,
           sync_type: sync.sync_type,
           date: sync.last_successful_sync_at,

@@ -3,17 +3,20 @@ import StoredFilterForm from "../components/stored_filter_form";
 import StoredSearchesFilter from "../components/stored_searches_filter";
 
 export default function () {
-	DataCycle.initNewElements(
-		".stored-searches-list:not(.dcjs-stored-filter)",
+	DataCycle.registerAddCallback(
+		".stored-searches-list",
+		"stored-filter",
 		(e) => new StoredFilter(e),
 	);
-	DataCycle.initNewElements(
-		".update-stored-search-form:not(.dcjs-stored-filter-form)",
+	DataCycle.registerAddCallback(
+		".update-stored-search-form",
+		"stored-filter-form",
 		(e) => new StoredFilterForm(e),
 	);
 
-	DataCycle.initNewElements(
-		"#search-favorites-fulltext-filter:not(.dcjs-stored-searches-filter)",
+	DataCycle.registerAddCallback(
+		"#search-favorites-fulltext-filter",
+		"stored-searches-filter",
 		(e) => new StoredSearchesFilter(e),
 	);
 }

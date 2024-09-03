@@ -40,19 +40,54 @@ de:
     Accommodation: Zimmer / Apartment
     TouristAttraction: POI
     Trail: Tour
+    GtfsStop: Haltestelle
+    BodyOfWater: Badesee
+    MountainArea: Skigebiet
+    MountainAreaDescription: Skigebiets-Beschreibung
+    Recipe: Rezept
+    SkiSlope: Skipiste
+    SnowReportLocation: Schneehöhe - Messpunkt
+    Snowpark: Schneepark
+    TouristDestination: Touristische Destination
+    ContentPage: Inhaltsseite
+    # embedded
+    ContentBlockTextImage: Text mit Bild
+    ContentBlockAccordion: Akkordion
+    ContentBlockAccordionItem: Akkordion - Inhalt
+    ContentBlockButton: Button
+    ContentBlockExternalContent: Externer Inhalt
+    ContentBlockHeadline: Überschrift
+    ContentBlockInfobox: Infobox
+    ContentBlockLeadtext: Leadtext
+    ContentBlockMedia: Medien
+    ContentBlockPromoTeaser: Promo-Teaser
+    ContentBlockQuotation: Zitat
+    ContentBlockTable: Tabelle
+    ContentBlockTeaser: Teaser
+    ContentBlockText: Text
 
   attribute_labels:
     additional_information:
       one: Beschreibungsblock
       other: Beschreibungsblöcke
-    aggregate_rating:
-      one: Tourenbewertung
-      other: Tourenbewertungen
+    Tour:
+      aggregate_rating:
+        one: Tourenbewertung
+        other: Tourenbewertungen
+    Trail:
+      aggregate_rating:
+        one: Tourenbewertung
+        other: Tourenbewertungen
     key_figures_container: Kennzahlen
     copyright_holder_or_sd_publisher: Rechteinhaber
     universal_classifications: Klassifizierungen
     copyright_attributes_group: Copyright
     content_classifications_group: Klassifizierungen
+    belongs_to_aggregate: mit Aggregat verknüpft
+    aggregate_for: Aggregats-Basis
+    aggregate_for_override: Aggregats-Basis für
+    overlay_override: (Overlay)
+    overlay_add: (Anhang)
 
   footer_links:
     privacy_policy: Datenschutz
@@ -236,6 +271,7 @@ de:
         draw_line_string_auto: Auto
         draw_line_string_bicycle: Rad
         draw_line_string_pedestrian: Fußgänger
+        draw_polygon: Fläche
       routing:
         error: Fehler beim Berechnen der Route
     remote_render:
@@ -283,6 +319,9 @@ de:
       success_reset: "Bildausschnitt wurde erfolgreich zurückgesetzt"
       error: "Bildausschnitt konnte nicht gesetzt werden"
       hint: "Standardmäßig wird die Option 'smart' verwendet, sofern keine andere Option ausgewählt wurde."
+    oembed:
+      preview:
+        title: oEmbed Vorschau
 
   schedule:
     dtstart: Startzeitpunkt
@@ -345,16 +384,6 @@ de:
       scatter: Punkt
     from: von
     until: bis
-    # chart_labels:
-    #   monday: Montag
-    #   tuesday: Dienstag
-    #   wednesday: Mittwoch
-    #   thursday: Donnerstag
-    #   friday: Freitag
-    #   saturday: Samstag
-    #   sunday: Sonntag
-    # axe_labels:
-    #   hour_of_day: Stunden (h)
 
   opening_time:
     valid_from: Gültigkeit von
@@ -366,6 +395,8 @@ de:
     closes: bis
     closed: geschlossen
     except: ausgenommen
+    closed_from_to: geschlossen von %{from} bis %{to}
+    closed_on: geschlossen am %{date}
 
   collection:
     new: Neue %{data}
@@ -530,9 +561,9 @@ de:
     bulk_edit_locked_html: "<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt."
     bulk_update:
       check_box_labels:
-        override_html: '<span class="attribute-title">%{data}</span> überschreiben'
-        add_html: 'An vorhandene <span class="attribute-title">%{data}</span> anhängen'
-        remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
+        override: überschreiben
+        add: an vorhandene anhängen
+        remove: ausgewählte entfernen
       button:
         limited: Es können maximal %{data} Inhalte gleichzeitig bearbeitet werden.
     watch_list_external_things_locked_html: "<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>"
@@ -764,10 +795,13 @@ de:
         subject: Ein neuer Benutzer wurde erstellt
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer anzeigen
-    overlay:
-      label_postfix:
-        override: (Overlay)
-        add: (Anhang)
+    aggregate:
+      types:
+        default: Alleinstehend
+        aggregate: Aggregat
+        belongs_to_aggregate: mit Aggregat verknüpft
+      check_box_labels:
+        aggregate_for_override: Aggregats-Basis überschreiben
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -806,6 +840,7 @@ de:
         latest_api_access: Letzter API Zugriff
         user_group_names: Benutzergruppen
         api_access: Für API freigegeben
+        user_role: Benutzerrolle
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
@@ -886,6 +921,7 @@ de:
     order: Reihenfolge
     content_size: Dateigröße
     contact_info_email: E-Mail
+    contact_info_url: URL (Kontakt)
     contact_info_telephone: Telefonnummer
     contact_info_fax_number: Faxnummer
     address_postal_code: PLZ
@@ -1001,6 +1037,7 @@ de:
     min_altitude: Minimale Seehöhe (m)
     max_altitude: Maximale Seehöhe (m)
     length: Länge (m)
+    aggregate_filter: Aggregatstyp
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -1024,6 +1061,7 @@ de:
     in_schedule: nach Termin filtern ...
     inactive_things: nach abgelaufenen Inhalten filtern ...
     graph_filter: Über Verknüpften Inhalt filtern...
+    aggregate_filter: nach Aggregaten filter...
 
   sortable:
     default: Standard
@@ -1053,6 +1091,9 @@ de:
       title: Titel
       info: Info
       copyright: Copyright
+    limited_by:
+      filter_warning: Die Anzahl der angezeigten Inhalte wurde durch "Aggregat für" begrenzt
+      create_button_warning: Neue Inhalte können nur beim "Aggregat für" erstellt werden
 
   terms:
     valid: gültig
@@ -1225,6 +1266,15 @@ de:
       boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
       string: "%{label} ist kein String, sondern %{template}."
+      table: "%{label} ist keine Tabelle (Array of Arrays), sondern %{template}."
+      table_row_wrong_size: "Die Anzahl der Spalten in der Zeile %{row} ist falsch."
+      table_cell_wrong_type: "Der Wert in der Zelle %{cell} kann nicht in JSON umgewandelt werden."
+      oembed: "%{label} ist keine oembed URL, sondern %{template}"
+      oembed_unsupported_format: "Format %{oembed_format} nicht unterstützt"
+      oembed_no_url: "Url-Parameter fehlt!"
+      oembed_unsupported_url: "%{oembed_url} ist keine valide URL."
+      oembed_no_provider: "Oembed-Provider für URL %{oembed_url} konnte nicht gefunden werden."
+      oembed_too_many_providers: "Kein eindeutiger Oembed-Provider für URL %{oembed_url}gefunden werden. Mögliche Provider: %{oembed_found}."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
       geo_no_linestring: "Für diesen Typ müssen mindestens zwei Punkte angegeben werden"
       schedule:
@@ -1706,11 +1756,14 @@ de:
       classifications: Klassifizierungen
       api:
         root: Datenschnittstelle
-        classifications: Klassifizierungen
+        classifications:
+          root: Klassifizierungen
+          specification: Spezifikation
         contents:
           root: Inhalte
           specification: Spezifikation
           elevation_profile: Höhenprofil
+          suggest: Autovervollständigung
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
@@ -1798,6 +1851,9 @@ de:
     hrs:
       text: Beschreibung
       description: Kurzbeschreibung
+    regiondo:
+      text: Beschreibung
+      description: Kurzbeschreibung
     outdoor_active:
       place:
         directions: Anfahrt
@@ -1845,6 +1901,8 @@ de:
         instructions: Wegbeschreibung
         directions_public_transport: Öffentliche Verkehrsmittel
         parking: Parken
+        route_start: Start
+        route_end: Ziel
       ratings:
         difficulty_rating: Schwierigkeit
         priority_rating: Priorität
@@ -1868,7 +1926,7 @@ de:
     gem2go:
       description: Beschreibung
     timm4:
-      intro: Beschribung
+      intro: Beschreibung
       description: Detailbeschreibung
       positionDescription: Lage
       pricesDescription: Preisinformation
@@ -1952,7 +2010,7 @@ de:
       biersorten: Biersorten
     venus:
       accessibilityDescription: Barrierefreiheit
-      arrivalDescription: Ankunft
+      arrivalDescription: Anfahrt
       shortDescription: Kurzbeschreibung
       description: Beschreibung
       specialDescription: Zusatzbeschreibung

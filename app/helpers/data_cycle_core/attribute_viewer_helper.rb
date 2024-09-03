@@ -2,99 +2,6 @@
 
 module DataCycleCore
   module AttributeViewerHelper
-    RENDER_VIEWER_ARGUMENTS = {
-      key: nil,
-      definition: nil,
-      value: nil,
-      parameters: { options: {} },
-      content: nil,
-      scope: :show,
-      prefix: nil,
-      locale: nil
-    }.freeze
-
-    RenderMethodOptions = Struct.new(*RENDER_VIEWER_ARGUMENTS.keys.push(:defaults), keyword_init: true) do
-      def initialize(**args)
-        args.reverse_merge!(args[:defaults])
-        args[:parameters].deep_merge!(args[:defaults][:parameters]) { |_k, v1, _v2| v1 }
-        args[:parameters][:options] = (args[:parameters][:options] || {})
-          .dc_deep_dup
-          .with_indifferent_access
-          .merge!(args[:definition]&.dig('ui', args[:scope].to_s, 'options') || {})
-
-        super(**args)
-      end
-
-      def type?(attribute_type)
-        definition&.[]('type') == attribute_type
-      end
-
-      def render_params
-        parameters.merge(to_h.slice(:key, :definition, :value, :content))
-      end
-
-      def overlay_attribute?
-        definition.dig('features', 'overlay', 'overlay_for').present? &&
-          MasterData::Templates::Extensions::Overlay.overlay_attribute?(key&.attribute_name_from_key)
-      end
-
-      def specific_scope
-        parameters&.dig(:options, :edit_scope)&.to_s
-      end
-
-      def render_overlay_attribute?
-        content.external? && specific_scope == 'edit'
-      end
-
-      def add_overlay_properties!
-        css_class = parameters.dig(:options, :class).to_s.split
-
-        if DataHashService.present?(value)
-          css_class.push('dc-overlay-visible')
-        else
-          css_class.delete('dc-overlay-visible')
-        end
-
-        parameters[:options][:class] = css_class.uniq.join(' ') if css_class.present?
-      end
-
-      def add_has_overlay_options!
-        css_class = parameters.dig(:options, :class).to_s.split
-        css_class << 'dc-has-overlay'
-
-        parameters[:options][:class] = css_class.uniq.join(' ')
-        parameters[:options][:additional_attribute_partials] = ['data_cycle_core/contents/overlay/overlay_type_selector']
-      end
-
-      def attribute_has_overlay?
-        render_overlay_attribute? && !!definition&.dig('overlay')
-      end
-    end
-
-    def attribute_viewer_allowed(options)
-      return render('data_cycle_core/contents/viewers/attribute_group', options.render_params) if options.type?('attribute_group')
-
-      return unless can?(:show, DataCycleCore::DataAttribute.new(
-                                  options.key,
-                                  options.definition,
-                                  options.parameters[:options],
-                                  options.content,
-                                  options.scope
-                                )) &&
-                    (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
-
-      return if options.type?('classification') &&
-                !options.definition['universal'] &&
-                !DataCycleCore::ClassificationService.visible_classification_tree?(
-                  options.definition['tree_label'],
-                  options.parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(options.scope.to_s) } : options.scope.to_s
-                )
-
-      return if options.type?('slug') && options.parameters[:parent]&.embedded?
-
-      true
-    end
-
     def render_specific_translatable_title_attribute_viewer(locale:, content:, key:, **args)
       I18n.with_locale(locale) do
         label_html = ActionView::OutputBuffer.new
@@ -107,10 +14,10 @@ module DataCycleCore
     end
 
     def render_attribute_viewer(**)
-      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
+      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
 
-      allowed = attribute_viewer_allowed(options)
-      return allowed unless allowed.is_a?(TrueClass)
+      return unless options.attribute_allowed?
+      return render(*options.attribute_group_params) if options.attribute_group?
 
       if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) ||
          object_has_translatable_attributes?(options.content, options.definition)
@@ -125,7 +32,7 @@ module DataCycleCore
     end
 
     def render_specific_translatable_attribute_viewer(**)
-      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
+      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
 
       I18n.with_locale(options.locale) do
         options.value ||= if options.parameters[:parent].nil?
@@ -134,8 +41,8 @@ module DataCycleCore
                             options.parameters[:parent]&.try(options.key.attribute_name_from_key)
                           end
 
-        allowed = attribute_viewer_allowed(options)
-        return allowed unless allowed.is_a?(TrueClass)
+        return unless options.attribute_allowed?
+        return render(*options.attribute_group_params) if options.attribute_group?
 
         render_untranslatable_attribute_viewer(options)
       end
@@ -163,8 +70,9 @@ module DataCycleCore
     end
 
     def render_attribute_history_viewer(**)
-      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
-      options.scope = :history
+      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer, scope: :history)
+
+      return unless options.attribute_allowed?
 
       partials = [
         options.key.attribute_name_from_key,

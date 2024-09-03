@@ -7,7 +7,6 @@ import uniqWith from "lodash/uniqWith";
 class SplitView {
 	constructor(container = document) {
 		this.container = container;
-		this.container.classList.add("dcjs-split-view");
 		this.leftContainer = this.container.closest(
 			".split-content.detail-content",
 		);
@@ -59,7 +58,6 @@ class SplitView {
 	}
 	setup() {
 		this.observeForNewFields();
-		this.setupButtons(this.container);
 	}
 	buttonContainerSelectors(scope, selector = "") {
 		let selectors = [
@@ -95,35 +93,35 @@ class SplitView {
 			.value;
 	}
 	addSubcriberNoticeHandler() {
-		const notice = this.container
-			.closest(".split-content")
-			.querySelector(".close-subscribe-notice");
-
-		if (notice)
-			notice.addEventListener("click", this.dismissSubscribeNotice.bind(this));
+		DataCycle.registerAddCallback(
+			".split-content .close-subscribe-notice",
+			"close-subscribe-notice",
+			(e) => {
+				e.addEventListener("click", this.dismissSubscribeNotice.bind(this));
+			},
+		);
 	}
 	addSingleClickHandler() {
-		DataCycle.htmlObserver.addCallbacks.push([
-			"a.copy:not(.dcjs-copy-split), a.translate:not(.dcjs-translate-split)",
-			(e) => {
-				if (e.classList.contains("copy")) e.classList.add("dcjs-copy-split");
-				if (e.classList.contains("translate"))
-					e.classList.add("dcjs-translate-split");
-				e.addEventListener("click", this.handleButtonClick.bind(this));
-			},
-		]);
+		DataCycle.registerAddCallback("a.copy", "copy-split", (e) => {
+			e.addEventListener("click", this.handleButtonClick.bind(this));
+		});
+		DataCycle.registerAddCallback("a.translate", "translate-split", (e) => {
+			e.addEventListener("click", this.handleButtonClick.bind(this));
+		});
 	}
 	addAllClickHandler() {
-		DataCycle.htmlObserver.addCallbacks.push([
-			"a.copy-all:not(.dcjs-copy-all-split), a.translate-all:not(.dcjs-translate-all-split)",
+		DataCycle.registerAddCallback(
+			"a.copy-all",
+			"copy-all-split",
 			this.addAllClickEventHandler.bind(this),
-		]);
+		);
+		DataCycle.registerAddCallback(
+			"a.translate-all",
+			"translate-all-split",
+			this.addAllClickEventHandler.bind(this),
+		);
 	}
 	addAllClickEventHandler(e) {
-		if (e.classList.contains("copy-all"))
-			e.classList.add("dcjs-copy-all-split");
-		if (e.classList.contains("translate-all"))
-			e.classList.add("dcjs-translate-all-split");
 		e.addEventListener("click", this.triggerAllButtons.bind(this));
 		const parent = e.closest(this.allButtonParentSelector);
 
@@ -139,51 +137,55 @@ class SplitView {
 			this.translateAllButton = e;
 	}
 	observeForNewFields() {
-		DataCycle.htmlObserver.addCallbacks.push([
-			"[data-editor]:not(.dc-copyable-field):not(.dcjs-split-show-buttons)",
+		DataCycle.registerAddCallback(
+			"[data-editor]:not(.dc-copyable-field)",
+			"split-show-buttons",
 			this.checkNewShowButtons.bind(this),
-		]);
-		DataCycle.htmlObserver.addCallbacks.push([
-			".form-element[data-key]:not(.dcjs-split-edit-buttons)",
+		);
+		DataCycle.registerAddCallback(
+			".form-element[data-key]",
+			"split-edit-buttons",
 			this.checkNewEditButtons.bind(this),
-		]);
-		DataCycle.htmlObserver.addCallbacks.push([
-			'.dc-copyable-field[data-editor="object_browser"] > ul > .copy-single:not(.dcjs-copy-single), .dc-copyable-field[data-editor="embedded_object"] > .copy-single:not(.dcjs-copy-single)',
+		);
+		DataCycle.registerAddCallback(
+			'.dc-copyable-field[data-editor="object_browser"] > ul > .copy-single, .dc-copyable-field[data-editor="embedded_object"] > .copy-single',
+			"copy-single",
 			this.addCopySingleButton.bind(this),
-		]);
+		);
 
 		this.addSingleClickHandler();
 		this.addAllClickHandler();
 		this.addSubcriberNoticeHandler();
 	}
 	checkNewShowButtons(element) {
-		element.classList.add("dcjs-split-show-buttons");
-
 		if (element.closest(".detail-type.embedded:not(:scope)")) return;
 
 		this.setupButtons(element);
 	}
 	checkNewEditButtons(element) {
-		element.classList.add("dcjs-split-edit-buttons");
-
 		if (element.closest(".form-element.embedded:not(:scope)")) return;
 
 		this.addButtonsForEditFields(element);
 	}
 	setupButtons(container) {
+		if (container.classList.contains("dcjs-split-view-buttons")) return;
+
+		container.classList.add("dcjs-split-view-buttons");
+
 		const availableEditors = this.availableEditors(
 			container,
 			this.copyableTypes,
 		);
 
-		for (let i = 0; i < availableEditors.length; ++i) {
-			this.addButtons(availableEditors[i]);
+		for (const editor of availableEditors) {
+			this.addButtons(editor);
 		}
 
 		const availableLinkedEditors = this.availableEditors(container, [
 			"object_browser",
 			"embedded_object",
 		]);
+
 		for (const editor of availableLinkedEditors) {
 			this.addButtons(editor, true);
 		}
@@ -195,8 +197,8 @@ class SplitView {
 		);
 		const viewFields = this.findFieldsByKey(targetKey, this.leftContainer);
 
-		for (let i = 0; i < viewFields.length; ++i) {
-			this.setupButtons(viewFields[i]);
+		for (const field of viewFields) {
+			this.setupButtons(field);
 		}
 	}
 	findFieldsByKey(
@@ -214,7 +216,8 @@ class SplitView {
 
 		if (visibleOnly)
 			return fields.filter(DomElementHelpers.isVisible.bind(this));
-		else return fields;
+
+		return fields;
 	}
 	findRemoteRenderFieldByKey(key, container) {
 		return container.querySelector(
@@ -292,11 +295,11 @@ class SplitView {
 	async addElementClasses(element) {
 		if (this.isTranslatable(element)) {
 			await this.addAllButton(element, "translate");
-			element.classList.add(this.buttonMappings["translate"].class);
+			element.classList.add(this.buttonMappings.translate.class);
 		}
 
 		await this.addAllButton(element, "copy");
-		element.classList.add(this.buttonMappings["copy"].class);
+		element.classList.add(this.buttonMappings.copy.class);
 	}
 	isTranslatable(element) {
 		const elem = element.closest("[data-editor]");

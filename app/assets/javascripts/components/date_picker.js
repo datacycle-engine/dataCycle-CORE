@@ -4,11 +4,11 @@ import { english } from "flatpickr/dist/l10n/default";
 import DomElementHelpers from "../helpers/dom_element_helpers";
 import castArray from "lodash/castArray";
 import LocalStorageCache from "./local_storage_cache";
+import ObserverHelpers from "../helpers/observer_helpers";
 
 class DatePicker {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-date-picker");
 		this.elementName = this.element.getAttribute("name");
 		this.calType = "single";
 		this.sibling;
@@ -77,6 +77,7 @@ class DatePicker {
 		this.cacheNamespace = "dcDatepickerCache";
 		this.isDateTime = this.elementIsDateTime(this.element);
 		this.element.dataset.isDateTime = this.isDateTime;
+		this.changeObserver = new MutationObserver(this.#checkIfEnabled.bind(this));
 
 		this.setup();
 	}
@@ -89,7 +90,24 @@ class DatePicker {
 	setup() {
 		this.setCalType();
 		this.findSibling();
-		this.initCalInstance();
+
+		if (this.element.readOnly || this.element.disabled)
+			this.changeObserver.observe(
+				this.element,
+				ObserverHelpers.changedAttributeConfig(["disabled", "readonly"]),
+			);
+		else this.initCalInstance();
+	}
+	#checkIfEnabled(mutations, observer) {
+		if (
+			mutations.some(
+				(m) =>
+					m.type === "attributes" && !m.target.disabled && !m.target.readOnly,
+			)
+		) {
+			observer.disconnect();
+			this.initCalInstance();
+		}
 	}
 	initEvents() {
 		if (this.calInstance.hourElement)

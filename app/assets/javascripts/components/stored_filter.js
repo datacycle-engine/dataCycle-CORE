@@ -3,7 +3,6 @@ import loadingIcon from "../templates/loadingIcon";
 class StoredFilter {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-stored-filter");
 		this.loadMoreButton = this.element.querySelector(
 			".stored-searches-load-more-button",
 		);
@@ -39,21 +38,21 @@ class StoredFilter {
 			);
 		}
 
-		DataCycle.htmlObserver.addCallbacks.push([
-			".stored-searches-load-more-button:not(.dc-stored-filter-load-more)",
+		DataCycle.registerAddCallback(
+			".stored-searches-load-more-button",
+			"dc-stored-filter-load-more",
 			(e) => {
-				e.classList.add("dc-stored-filter-load-more");
 				e.addEventListener("click", this.loadMore.bind(this));
 			},
-		]);
+		);
 
-		DataCycle.htmlObserver.addCallbacks.push([
-			".stored-searches-load-all-button:not(.dc-stored-filter-load-all)",
+		DataCycle.registerAddCallback(
+			".stored-searches-load-all-button",
+			"dc-stored-filter-load-all",
 			(e) => {
-				e.classList.add("dc-stored-filter-load-all");
 				e.addEventListener("click", this.loadMore.bind(this));
 			},
-		]);
+		);
 
 		window.addEventListener("popstate", this.reloadState.bind(this));
 	}
@@ -111,7 +110,7 @@ class StoredFilter {
 		history.pushState({ search: this.search }, "", url);
 	}
 	reloadState(event) {
-		if (history.state?.hasOwnProperty("search")) {
+		if (history.state && Object.hasOwn(history.state, "search")) {
 			this.fullTextSearchField.value = history.state.search;
 			this.filterSearches(event, false);
 		}
@@ -135,11 +134,14 @@ class StoredFilter {
 			},
 		})
 			.then((data) => {
-				if (data.hasOwnProperty("count"))
+				if (Object.hasOwn(data, "count")) {
 					I18n.translate("data_cycle_core.stored_searches.count_html", {
 						count: data.count,
 						count_string: data.count_string,
-					}).then((html) => (this.count.innerHTML = html));
+					}).then((html) => {
+						this.count.innerHTML = html;
+					});
+				}
 
 				this.list.innerHTML = data.html;
 			})

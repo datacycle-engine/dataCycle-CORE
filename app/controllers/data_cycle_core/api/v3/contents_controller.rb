@@ -23,9 +23,13 @@ module DataCycleCore
         end
 
         def show
-          @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
-            .find(permitted_params[:id])
+          puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
+          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+            @content = DataCycleCore::Thing
+              .includes({ classifications: [], translations: [] })
+              .find(permitted_params[:id])
+            render 'show'
+          end
         end
 
         def search

@@ -1,0 +1,4 @@
+# source: https://oembed.com/providers.json
+# use a json to yml converter, then past the result down
+
+base_json: https://oembed.com/providers.json

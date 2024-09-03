@@ -3,7 +3,6 @@ import ConfirmationModal from "../confirmation_modal";
 class ClassificationDestroyButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-classification-destroy-button");
 
 		this.setup();
 	}

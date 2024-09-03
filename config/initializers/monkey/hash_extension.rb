@@ -46,6 +46,22 @@ module DataCycleCore
       end
     end
 
+    def deep_compact
+      deep_reject { |_, v| v.nil? }
+    end
+
+    def deep_compact!
+      deep_reject! { |_, v| v.nil? }
+    end
+
+    def deep_compact_blank
+      deep_reject { |_, v| v.blank? }
+    end
+
+    def deep_compact_blank!
+      deep_reject! { |_, v| v.blank? }
+    end
+
     def deep_freeze
       each_value do |v|
         v.deep_freeze if v.respond_to?(:deep_freeze)

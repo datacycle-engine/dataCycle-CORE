@@ -1,0 +1,24 @@
+<%
+  random_id = SecureRandom.hex(10)
+  new_key = "#{key_prefix}#{key.delete_prefix('thing')}"
+  check_box_types = instance_exec(definition, &check_box_types) if check_box_types.is_a?(Proc)
+%>
+<%= tag.div(
+  class: "dc-additional-attribute-partial dc-#{key_prefix}-type",
+  data: {
+    attribute_key: key,
+    context: key_prefix
+  }.merge(local_assigns[:data_attributes] || {})
+) do %>
+  <%= collection_check_boxes nil, new_key, check_box_types, :value, :text, { include_hidden: false } do |cb| %>
+    <% for_attribute_key = additional_attribute_partial_type_key(content, "#{key.attribute_name_from_key}_#{cb.value}") %>
+    <% if attribute_editable?(for_attribute_key, nil, options.slice('edit_scope'), content) %>
+      <div class="checkbox-group dc-checkbox <%= "dc-additional-attribute-partial-#{cb.value}" %>">
+        <%= cb.check_box(id: sanitize_to_id("#{new_key}[#{cb.value}][#{random_id}]"), disabled: true, data: { for_attribute_key: for_attribute_key }) %>
+        <%= cb.label(for: sanitize_to_id("#{new_key}[#{cb.value}][#{random_id}]"), data: { dc_tooltip: cb.text }) do %>
+          <%= tag.span(cb.text, class: 'attribute-title') %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

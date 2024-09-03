@@ -59,6 +59,7 @@ en:
       content_created_by_user?: User is creator of the content
       attribute_value_present?: Attribute is filled in
       attribute_value_blank?: Attribute is not filled in
+      attribute_content_not_external_source?: Content not imported from %{data}
     model_names:
       backend: Dashboard
       view_mode: Display mode for lists
@@ -159,6 +160,7 @@ en:
       bulk_edit: Edit in bulk
       bulk_delete: Delete in bulk
       download_user_info_activity: "Download user information and API activity"
+      copy_to_clipboard: Copy to clipboard
     restrictions:
       advanced_filter_except_type: "Filter not: %{except}"
       asset_by_user_and_no_content:
@@ -205,6 +207,7 @@ en:
         - Imported
         - "Data type: %{template_names}"
       thing_by_template_name: "Data type: %{template_names}"
+      thing_by_classification_tree_path: "Classifications: %{concept_paths}"
       thing_by_user_and_template_name:
         - User is %{attribute_name}
         - "Data type: %{template_names}"

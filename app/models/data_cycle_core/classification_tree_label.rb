@@ -8,6 +8,7 @@ module DataCycleCore
 
     after_update :add_things_cache_invalidation_job_update, if: :trigger_things_cache_invalidation?
     after_update :add_things_webhooks_job_update, if: :trigger_things_webhooks?
+    after_destroy :clean_stored_filters
 
     acts_as_paranoid
 
@@ -21,11 +22,12 @@ module DataCycleCore
     end
 
     has_one :concept_scheme, foreign_key: :id, dependent: nil, inverse_of: :classification_tree_label
+    has_many :concepts, through: :concept_scheme
 
     has_many :classification_aliases_with_deleted, -> { with_deleted }, through: :classification_trees, source: :sub_classification_alias
 
     has_many :classifications, through: :classification_aliases
-    has_many :things, -> { unscope(:order).distinct }, through: :classifications
+    has_many :things, -> { unscope(:order).distinct }, through: :concepts
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
@@ -112,6 +114,9 @@ module DataCycleCore
     end
 
     def upsert_all_external_classifications(attributes)
+      raise ArgumentError, 'attributes must be an array' unless attributes.is_a?(Array)
+      raise ArgumentError, 'a concept cannot be its own parent (external_key == parent_external_key)' if attributes.any? { |a| a[:external_key] == a[:parent_external_key] }
+
       sql_values = attributes.compact_blank.map { |row|
         next if row[:name].blank?
 
@@ -155,9 +160,9 @@ module DataCycleCore
               updated_at = NOW()
           RETURNING *
         ), inserted_cg AS (
-          INSERT INTO classification_groups (classification_id, classification_alias_id)
+          INSERT INTO classification_groups (classification_id, classification_alias_id, external_source_id)
           (
-            SELECT inserted_c.id, inserted_ca.id
+            SELECT inserted_c.id, inserted_ca.id, inserted_c.external_source_id
             FROM inserted_c
             JOIN inserted_ca ON inserted_c.external_source_id = inserted_ca.external_source_id
               AND inserted_c.external_key = inserted_ca.external_key
@@ -179,14 +184,14 @@ module DataCycleCore
               data.parent_external_key = inserted_ca.external_key
         ), classification_trees_data AS (
           SELECT
-            classification_tree_label_id, parent_ca.id parent_classification_alias_id, inserted_ca.id classification_alias_id,
+            classification_tree_label_id, parent_ca.id parent_classification_alias_id, inserted_ca.id classification_alias_id, inserted_ca.external_source_id external_source_id,
             NOW() created_at, NOW() updated_at
           FROM inserted_ca
           JOIN data ON data.external_system_id = inserted_ca.external_source_id AND data.external_key = inserted_ca.external_key
           LEFT OUTER JOIN parent_ca ON data.external_system_id = parent_ca.external_source_id AND
             data.parent_external_key = parent_ca.external_key
         ), inserted_ct AS (
-          INSERT INTO classification_trees(classification_tree_label_id, parent_classification_alias_id, classification_alias_id, created_at, updated_at)
+          INSERT INTO classification_trees(classification_tree_label_id, parent_classification_alias_id, classification_alias_id, external_source_id, created_at, updated_at)
           (
             SELECT classification_trees_data.*
             FROM classification_trees_data
@@ -194,6 +199,7 @@ module DataCycleCore
           ON CONFLICT (classification_alias_id) WHERE deleted_at IS NULL
             DO UPDATE SET parent_classification_alias_id = EXCLUDED.parent_classification_alias_id,
               classification_tree_label_id = EXCLUDED.classification_tree_label_id,
+              external_source_id = EXCLUDED.external_source_id,
               updated_at = NOW()
         )
         SELECT * FROM classification_trees_data;
@@ -510,6 +516,30 @@ module DataCycleCore
 
     def invalidate_things_cache
       things.invalidate_all
+    end
+
+    def clean_stored_filters
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        WITH subquery AS
+        (
+            SELECT
+              id,
+              jsonb_agg( CASE
+                WHEN jsonb_typeof( elem -> 'v' ) = 'array'
+                THEN jsonb_set( elem,'{v}',( ( elem -> 'v' ) - '#{id}' ) )
+                ELSE elem
+            END ) AS new_parameters
+            FROM
+              collections ,
+              jsonb_array_elements( parameters ) elem
+            WHERE parameters::TEXT ILIKE '%#{id}%'
+            GROUP BY id
+        )
+        UPDATE collections
+        SET
+          parameters = subquery.new_parameters FROM subquery
+        WHERE collections.id = subquery.id
+      SQL
     end
   end
 end

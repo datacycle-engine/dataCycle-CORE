@@ -68,6 +68,7 @@
         display: flex;
         margin-right: 3px;
         max-width: 29%;
+        border-radius: var(--small-radius);
       }
     }
   }
@@ -1562,7 +1563,7 @@ span.single_error.object-browser-error {
         font-size: 0.9rem;
         border: none;
         background: transparent;
-        color: $dark-gray;
+        color: var(--attribute-label-color);
         transition: $global-transition;
         padding-right: 2.5rem;
         white-space: nowrap;
@@ -1637,7 +1638,7 @@ span.single_error.object-browser-error {
       }
 
       .embedded-header {
-        color: $dark-gray;
+        color: var(--attribute-label-color);
         font-size: 0.9rem;
         line-height: 1rem;
         font-weight: normal;
@@ -1874,6 +1875,7 @@ ul.list {
         img {
           height: 2.6rem;
           vertical-align: top;
+          border-radius: var(--small-radius);
         }
       }
     }

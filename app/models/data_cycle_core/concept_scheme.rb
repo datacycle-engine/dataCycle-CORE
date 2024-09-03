@@ -9,7 +9,9 @@ module DataCycleCore
     has_many :concepts, dependent: :delete_all
     belongs_to :classification_tree_label, foreign_key: :id, inverse_of: :concept_scheme
 
-    scope :by_external_systems_and_keys, ->(values) { where(Array.new(values.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *values.pluck(:external_system_id, :external_key).flatten) }
+    has_many :things, -> { unscope(:order).distinct }, through: :concepts
+
+    scope :by_external_systems_and_keys, -> { where(Array.new(_1.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *_1.pluck(:external_system_id, :external_key).flatten) }
 
     delegate :insert_all_classifications_by_path, to: :classification_tree_label
     delegate :upsert_all_external_classifications, to: :classification_tree_label

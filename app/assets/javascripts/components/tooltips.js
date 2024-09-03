@@ -44,13 +44,13 @@ class Tooltips {
 		this.tooltip = tooltip;
 	}
 	initNewTooltips() {
-		DataCycle.initNewElements(
-			"[data-dc-tooltip]:not(.dcjs-tooltip)",
+		DataCycle.registerAddCallback(
+			"[data-dc-tooltip]",
+			"tooltip",
 			this.addEventsForTooltip.bind(this),
 		);
 	}
 	addEventsForTooltip(element) {
-		element.classList.add("dcjs-tooltip");
 		element.dataset.dcTooltipId = domElementHelpers.randomId();
 		element.addEventListener("mouseenter", this.showTooltipDelayed.bind(this));
 		element.addEventListener("mouseleave", this.hideTooltip.bind(this));
@@ -85,7 +85,6 @@ class Tooltips {
 			this.addAutoUpdate();
 		await this.updatePosition();
 	}
-
 	hideTooltip(_event) {
 		Object.assign(this.tooltip.style, {
 			left: "",
@@ -142,7 +141,7 @@ class Tooltips {
 			this.referenceElement,
 			this.tooltip,
 			{
-				placement: this.referenceElement.dataset.dcTooltipPlacement || "bottom",
+				placement: this.referenceElement.dataset.dcTooltipPlacement || "top",
 				strategy: "fixed",
 				middleware: [
 					offset(6),

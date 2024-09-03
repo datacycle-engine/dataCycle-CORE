@@ -1,0 +1,24 @@
+---
+- :data:
+    :name: Entity-Mixin-Set-1-Creative-Work-1
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :test_mixin1:
+        :type: mixin
+        :name: test_mixin_1
+      :text_mixin2:
+        :type: mixin
+        :name: test_mixin_2
+      :mixed_in_name2: ~

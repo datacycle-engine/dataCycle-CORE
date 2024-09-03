@@ -1,5 +1,6 @@
 import domElementHelpers from "../helpers/dom_element_helpers";
 import AccordionToggleChildren from "../components/accordion/accordion_toggle_children";
+import OffCanvasClickHandler from "../components/offcanvas/offcanvas_click_handler";
 
 import { Foundation } from "foundation-sites/js/foundation.core";
 import { Reveal } from "foundation-sites/js/foundation.reveal";
@@ -28,8 +29,6 @@ function initReveal(element) {
 	)
 		return;
 
-	element.classList.add("dcjs-foundation-reveal");
-
 	if (
 		element.hasAttribute("data-delayed-init") &&
 		element.dataset.initialState !== "open"
@@ -56,8 +55,6 @@ function initReveal(element) {
 }
 
 function monitorSizeChanges(element) {
-	element.classList.add("dcjs-fd-reveal-updater");
-
 	const resizeObserver = new ResizeObserver((_) => {
 		if (domElementHelpers.isVisible(element))
 			$(element).foundation("_updatePosition");
@@ -83,69 +80,70 @@ export default function () {
 	Foundation.Dropdown.defaults.hover = true;
 	Foundation.Dropdown.defaults.hoverPane = true;
 
-	DataCycle.htmlObserver.removeCallbacks.push([
-		"[data-open]",
-		(e) => removeFoundationOverlays(e, "open"),
-	]);
-	DataCycle.htmlObserver.removeCallbacks.push([
-		"[data-toggle]",
-		(e) => removeFoundationOverlays(e, "toggle"),
-	]);
+	DataCycle.registerRemoveCallback("[data-open]", (e) =>
+		removeFoundationOverlays(e, "open"),
+	);
+
+	DataCycle.registerRemoveCallback("[data-toggle]", (e) =>
+		removeFoundationOverlays(e, "toggle"),
+	);
 
 	// Close Button
-	DataCycle.initNewElements(
-		"[data-close]:not(.dcjs-fd-close-button)",
+	DataCycle.registerAddCallback(
+		"[data-close]",
+		"fd-close-button",
 		(e) => new CloseButton(e),
 	);
 
 	// Foundation Slider
-	DataCycle.initNewElements(".slider:not(.dcjs-fd-slider)", (e) => {
-		e.classList.add("dcjs-fd-slider");
+	DataCycle.registerAddCallback(".slider", "fd-slider", (e) => {
 		new Foundation.Slider($(e));
 	});
 
 	// Foundation Accordion
-	DataCycle.initNewElements("[data-accordion]:not(.dcjs-fd-accordion)", (e) => {
+	DataCycle.registerAddCallback("[data-accordion]", "fd-accordion", (e) => {
 		new Foundation.Accordion($(e));
-		e.classList.add("dcjs-fd-accordion");
 	});
-	DataCycle.initNewElements(
-		"[data-accordion].dcjs-fd-accordion .accordion-item:not(.dcjs-fd-accordion-item)",
+
+	DataCycle.registerAddCallback(
+		"[data-accordion].dcjs-fd-accordion .accordion-item",
+		"fd-accordion-item",
 		(e) => {
-			e.classList.add("dcjs-fd-accordion-item");
 			Foundation.reInit($(e.closest("[data-accordion]")));
 		},
 	);
 
 	// Foundation Dropdown
-	DataCycle.initNewElements("[data-dropdown]:not(.dcjs-fd-dropdown)", (e) => {
-		e.classList.add("dcjs-fd-dropdown");
+	DataCycle.registerAddCallback("[data-dropdown]", "fd-dropdown", (e) => {
 		new Foundation.Dropdown($(e));
 	});
 
 	// Foundation OffCanvas
-	DataCycle.initNewElements(
-		"[data-off-canvas]:not(.dcjs-fd-offcanvas)",
+	DataCycle.registerAddCallback("[data-off-canvas]", "fd-offcanvas", (e) => {
+		new Foundation.OffCanvas($(e));
+	});
+	DataCycle.registerAddCallback(
+		"#settings-off-canvas",
+		"offcanvas-click-handler",
 		(e) => {
-			e.classList.add("dcjs-fd-offcanvas");
-			new Foundation.OffCanvas($(e));
+			new OffCanvasClickHandler(e);
 		},
 	);
 
 	// Foundation Reveal
-	DataCycle.initNewElements("[data-reveal]:not(.dcjs-foundation-reveal)", (e) =>
+	DataCycle.registerAddCallback("[data-reveal]", "foundation-reveal", (e) =>
 		initReveal(e),
 	);
 
 	// Foundation Reveal Position Updater
-	DataCycle.initNewElements(
-		'.reveal:not(.full)[data-v-offset="auto"]:not(.dcjs-fd-reveal-updater), .reveal:not(.full):not([data-v-offset]):not(.dcjs-fd-reveal-updater)',
+	DataCycle.registerAddCallback(
+		'.reveal:not(.full)[data-v-offset="auto"], .reveal:not(.full):not([data-v-offset])',
+		"fd-reveal-updater",
 		(e) => monitorSizeChanges(e),
 	);
 
 	// Foundation Tabs
-	DataCycle.initNewElements("[data-tabs]:not(.dcjs-fd-tabs)", (e) => {
-		e.classList.add("dcjs-fd-tabs");
+	DataCycle.registerAddCallback("[data-tabs]", "fd-tabs", (e) => {
 		new Foundation.Tabs($(e));
 	});
 
@@ -196,8 +194,9 @@ export default function () {
 			);
 	});
 
-	DataCycle.initNewElements(
-		".accordion-close-all:not(.dcjs-accordion-toggle-children), .accordion-close-children:not(.dcjs-accordion-toggle-children), .accordion-open-all:not(.dcjs-accordion-toggle-children), .accordion-open-children:not(.dcjs-accordion-toggle-children)",
+	DataCycle.registerAddCallback(
+		".accordion-close-all, .accordion-close-children, .accordion-open-all, .accordion-open-children",
+		"accordion-toggle-children",
 		(e) => new AccordionToggleChildren(e),
 	);
 }

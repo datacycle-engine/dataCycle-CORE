@@ -1,0 +1,7 @@
+---
+- :data:
+    :extends: TestOverlay
+    :properties:
+      :name:
+        :api:
+          :name: dc:title

@@ -7,6 +7,10 @@ module DataCycleCore
     attribute :type, :string, default: -> { name }
     belongs_to :creator, class_name: 'DataCycleCore::User'
 
+    attr_accessor :binary_file_blob, :base64_file_blob
+    before_validation :load_file_from_binary_file_blob, if: -> { binary_file_blob.present? }
+    before_validation :load_file_from_base64_encoded_binary_file_blob, if: -> { base64_file_blob.present? }
+
     before_create :update_asset_attributes
 
     validates :file, presence: true
@@ -16,7 +20,7 @@ module DataCycleCore
     include AssetHelpers
 
     has_one :asset_content, dependent: :destroy
-    has_one :thing, through: :asset_content, source: 'content_data'
+    has_one :thing, through: :asset_content
 
     # @todo: disable default for audio and pdf assets
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
@@ -55,7 +59,7 @@ module DataCycleCore
 
     def duplicate
       new_asset = dup
-      new_asset.file.attach(io: File.open(file.service.path_for(file.key)), filename: file.filename)
+      new_asset.file.attach(io: File.open(file.service.path_for(file.key)), filename: file.filename, content_type: file.content_type, identify: false)
       new_asset.save
       new_asset.persisted? ? new_asset : nil
     end
@@ -69,18 +73,22 @@ module DataCycleCore
     end
 
     def file_extension_validation
-      extension = nil
       if file.present?
-        extension = MiniMime.lookup_by_content_type(file.content_type)&.extension
-        extension = 'bmp' if file.content_type == 'image/bmp'
+        extension = MiniMime.lookup_by_content_type(file.content_type.to_s)&.extension
+        return if self.class.content_type_white_list.include?(extension)
+
+        specific_mime_type = file.content_type&.then { |mt| [model_name.element, mt.split('/').last].join('/') }
+        extension = MiniMime.lookup_by_content_type(specific_mime_type.to_s)&.extension
+        return if self.class.content_type_white_list.include?(extension)
+
+        extension = MiniMime.lookup_by_filename(file.record&.name.to_s)&.extension
+        return if self.class.content_type_white_list.include?(extension)
       end
-      return if file.present? && self.class.content_type_white_list.include?(extension)
+
       errors.add :file,
                  path: 'uploader.validation.format_not_supported',
                  substitutions: {
-                   data: {
-                     value: file.content_type
-                   }
+                   data: file.content_type
                  }
     end
 
@@ -155,6 +163,28 @@ module DataCycleCore
         sleep 5
         retry
       end
+    end
+
+    def load_file_from_binary_file_blob
+      return if binary_file_blob.blank? || name.blank?
+
+      tmp_file = Tempfile.new(name)
+      File.binwrite(tmp_file, [binary_file_blob].pack('H*'))
+
+      file.attach(io: tmp_file, filename: name)
+    end
+
+    def load_file_from_base64_encoded_binary_file_blob
+      return if base64_file_blob.blank? || name.blank?
+
+      base64_encoded = base64_file_blob.start_with?('data:') ? base64_file_blob.split(',')[1] : base64_file_blob
+
+      decoded_data = Base64.decode64(base64_encoded)
+
+      tmp_file = Tempfile.new(name)
+      File.binwrite(tmp_file, decoded_data)
+
+      file.attach(io: tmp_file, filename: name)
     end
   end
 end

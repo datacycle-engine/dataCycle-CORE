@@ -89,4 +89,19 @@ describe 'DataCycleCore::Generic::Common::Trasnformations::TransformationUtiliti
     assert_nil(subject.resolve_attribute_path(data, ['level_1', 'level_2', 'level_3']))
     assert_nil(subject.resolve_attribute_path(data, ['level_a', 'level_b', 'level_c']))
   end
+
+  it 'should handle non traversable values' do
+    data = {
+      'level_1' => 'value',
+      'level_a' => 1
+    }
+
+    data2 = 'string'
+    data3 = 1
+
+    assert_nil(subject.resolve_attribute_path(data, ['level_1', 'level_2', 'level_3']))
+    assert_nil(subject.resolve_attribute_path(data, ['level_a', 'level_b', 'level_c']))
+    assert_nil(subject.resolve_attribute_path(data2, ['level_a', 'level_b', 'level_c']))
+    assert_nil(subject.resolve_attribute_path(data3, ['level_a', 'level_b', 'level_c']))
+  end
 end

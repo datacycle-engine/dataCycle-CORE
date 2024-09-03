@@ -5,35 +5,37 @@ module DataCycleCore
     module Templates
       module Extensions
         module Position
+          # Adds sorting to the properties of a template
+          # repositions properties based on the position attribute and initial order
           def sort_properties!(properties)
             sortable_props = properties.filter { |_k, prop| prop&.key?(:position) }
 
             return properties if sortable_props.blank?
 
-            ordered_keys = properties.keys
+            ordered_props = properties.to_a
 
             sortable_props.each do |k, prop|
               position = prop.delete(:position)
-              ordered_keys.delete(k)
+              props_to_sort = ordered_props.filter { |(k1, p1)| related_keys(k1, p1, k) }
+              ordered_props.reject! { |(k1, p1)| related_keys(k1, p1, k) }
+              ordered_keys = ordered_props.pluck(0)
+
+              @errors.push("#{@error_path}.properties.#{k} => position must be either 'before' or 'after', not both!") && next if position.key?(:after) && position.key?(:before)
 
               if position.key?(:after)
-                raise TemplateError.new("properties.#{k}"), "attribute '#{position[:after]}' missing for position: { after: #{position[:after]} }" if ordered_keys.exclude?(position[:after])
+                @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:after]}' missing for position: { after: #{position[:after]} }") && next if ordered_keys.exclude?(position[:after])
 
-                if Overlay.overlay_attribute?(k)
-                  new_index = ordered_keys.index(position[:after]) + 1
-                else
-                  new_index = ordered_keys.rindex { |v| Overlay.key_without_overlay_type(v) == position[:after] } + 1
-                end
+                new_index = ordered_props.rindex { |(k1, p1)| related_keys(k1, p1, position[:after]) } + 1
               else
-                raise TemplateError.new("properties.#{k}"), "attribute '#{position[:before]}' missing for position: { before: #{position[:before]} }" if ordered_keys.exclude?(position[:before])
+                @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:before]}' missing for position: { before: #{position[:before]} }") && next if ordered_keys.exclude?(position[:before])
 
-                new_index = ordered_keys.index(position[:before])
+                new_index = ordered_props.index { |(k1, p1)| related_keys(k1, p1, position[:before]) }
               end
 
-              ordered_keys.insert(new_index, k)
+              ordered_props.insert(new_index, *props_to_sort)
             end
 
-            properties.slice!(*ordered_keys)
+            properties.slice!(*ordered_props.pluck(0))
             properties
           end
 
@@ -51,6 +53,10 @@ module DataCycleCore
             end
 
             properties
+          end
+
+          def related_keys(k1, p1, k2)
+            (p1.dig('features', 'overlay', 'overlay_for') || p1.dig('features', 'aggregate', 'aggregate_for') || k1) == k2
           end
         end
       end

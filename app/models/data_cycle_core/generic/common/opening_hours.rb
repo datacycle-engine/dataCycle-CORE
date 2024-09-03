@@ -104,7 +104,8 @@ module DataCycleCore
           end
           until_time = data['DateTo']&.to_datetime&.end_of_day&.utc&.change(usec: 0) || 3.years.from_now.to_datetime.end_of_day.utc&.change(usec: 0) # !! use :to_datetime (until has to be given in UTC of local time)
           days = day_transformation.present? ? day_transformation&.call(data) : data['WeekDays']
-          days = (0...7).to_a if days.blank?
+          # days = (0...7).to_a if days.blank?
+          days = [] if days.blank?
 
           if (data['Holiday'] == true && (0...7).to_a.difference(days).present?) || data['Holiday'] == false
             holidays = Holidays

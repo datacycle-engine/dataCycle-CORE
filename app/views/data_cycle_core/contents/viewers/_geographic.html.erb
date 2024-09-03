@@ -13,26 +13,28 @@
       } do %>
 
   <% value ||= options.dig(:item_diff, 1) %>
-  <% is_line_string = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s.include?('LineString') %>
+  <% geometry_type = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type') || 'Point').to_s %>
+  <% geometry_type = "Multi#{geometry_type}" unless geometry_type == 'Point' || geometry_type.start_with?('Multi') %>
+  <% geometry_class = geometry_type&.downcase&.delete_prefix('multi') %>
 
   <div class="geographic">
-    <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map <%= is_line_string ? 'linestring' : 'point' %> <%= changes_mode(options.dig(:item_diff)) %>"
+    <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map <%= geometry_class %> <%= changes_mode(options.dig(:item_diff)) %>"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
           data-before-position="<%= value_to_geojson(options.dig(:item_diff, 1), { '@id':'beforeValue', name: t('history.active_source', locale: active_ui_locale), color: 'red', width: 6 })&.to_json if options.dig(:item_diff, 0) == '~' %>"
           data-after-position="<%= value_to_geojson(options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2) : options.dig(:item_diff, 1), { '@id':'afterValue', name: t('history.active_target', locale: active_ui_locale), color: 'green' })&.to_json %>"
-          data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
+          data-type="<%= geometry_type.to_s %>"
           data-value="<%= value_to_geojson(value, {'@id': content.id})&.to_json %>"
           data-additional-values="<%= additional_values&.to_json %>"
           data-thing-id="<%= contextual_content(local_assigns)&.id %>"
-          data-has-elevation="<%= is_line_string && content.elevation_data?(key) ? true : false %>"
+          data-has-elevation="<%= geometry_type != 'Point' && content.elevation_data?(key) ? true : false %>"
           >
     </div>
   </div>
 
-  <div class="map-info <%= 'linestring-info' if is_line_string %>">
+  <div class="map-info <%= "#{geometry_class}-info" unless geometry_type == 'Point' %>">
     <%= attribute_viewer_label_tag(**local_assigns) %>
 
-    <% if !is_line_string %>
+    <% if geometry_type == 'Point' %>
       <% case options.dig(:item_diff, 0) %>
       <% when '~' %>
       <% x_html = "<del>#{number_with_precision(options.dig(:item_diff, 1).presence&.x, locale: active_ui_locale, precision: 5)}</del><ins>#{number_with_precision(options.dig(:item_diff, 2).presence&.x, locale: active_ui_locale, precision: 5)}</ins>" %>

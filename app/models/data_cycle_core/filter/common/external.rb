@@ -39,10 +39,10 @@ module DataCycleCore
 
         def external_system(ids = nil, type = 'import')
           return self if ids.blank?
+          return external_source(ids) if type == 'import'
 
-          if type == 'import'
-            external_source(ids)
-          elsif type == 'all'
+          # this query performs well in all possible cases, things.id in (subquery) is worse in some cases with sorting (random)
+          if type == 'all'
             reflect(
               @query.where(
                 external_system_sync.where(
@@ -68,10 +68,10 @@ module DataCycleCore
 
         def not_external_system(ids = nil, type = 'import')
           return self if ids.blank?
+          return not_external_source(ids) if type == 'import'
 
-          if type == 'import'
-            not_external_source(ids)
-          elsif type == 'all'
+          # this query performs well in all possible cases, things.id in (subquery) is worse in some cases with sorting (random)
+          if type == 'all'
             reflect(
               @query.where(
                 external_system_sync.where(

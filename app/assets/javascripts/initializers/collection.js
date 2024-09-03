@@ -4,16 +4,19 @@ import CollectionOrderButton from "../components/collection_order_button";
 
 export default function () {
 	function init() {
-		DataCycle.initNewElements(
-			".dropdown-pane.watch-lists:not(.dcjs-collection-filter)",
+		DataCycle.registerAddCallback(
+			".dropdown-pane.watch-lists",
+			"collection-filter",
 			(e) => new CollectionFilter(e),
 		);
-		DataCycle.initNewElements(
-			".add-items-to-watch-list-form:not(.dcjs-collection-form)",
+		DataCycle.registerAddCallback(
+			".add-items-to-watch-list-form",
+			"collection-form",
 			(e) => new CollectionForm(e),
 		);
-		DataCycle.initNewElements(
-			".manual-order-button:not(.dcjs-collection-order-button)",
+		DataCycle.registerAddCallback(
+			".manual-order-button",
+			"collection-order-button",
 			(e) => new CollectionOrderButton(e),
 		);
 	}

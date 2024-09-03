@@ -5,7 +5,6 @@ import CalloutHelpers from "../helpers/callout_helpers";
 class PublicationFilter {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-publications-list");
 		this.searchForm = document.getElementById("search-form");
 		this.yearList = this.element.querySelector(":scope > .row > ul.accordion");
 		this.loading = false;

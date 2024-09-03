@@ -15,59 +15,70 @@ export default function () {
 	if (document.getElementById("classification-administration")) {
 		new ClassificationUpdateChannel();
 
-		DataCycle.initNewElements(
-			'input[name="classification_tree_label[visibility][]"][value^="show"]:not(.dcjs-classification-visibility-switcher)',
+		DataCycle.registerAddCallback(
+			'input[name="classification_tree_label[visibility][]"][value^="show"]',
+			"classification-visibility-switcher",
 			(e) => new ClassificationVisibilitySwitcher(e),
 		);
 
-		DataCycle.initNewElements(
-			"a.name:not(.dcjs-classification-name-button)",
+		DataCycle.registerAddCallback(
+			"a.name",
+			"classification-name-button",
 			(e) => new ClassificationNameButton(e),
 		);
 
-		DataCycle.initNewElements(
-			".load-more-button:not(.dcjs-classification-load-more-button)",
+		DataCycle.registerAddCallback(
+			".load-more-button",
+			"classification-load-more-button",
 			(e) => new ClassificationLoadMoreButton(e),
 		);
 
-		DataCycle.initNewElements(
-			"a.create:not(.dcjs-classification-edit-button), a.edit:not(.dcjs-classification-edit-button)",
+		DataCycle.registerAddCallback(
+			"a.create, a.edit",
+			"classification-edit-button",
 			(e) => new ClassificationEditButton(e),
 		);
 
-		DataCycle.initNewElements(
-			"form.classification-tree-label-form:not(.dcjs-classification-edit-form), form.classification-alias-form:not(.dcjs-classification-edit-form)",
+		DataCycle.registerAddCallback(
+			"form.classification-tree-label-form, form.classification-alias-form",
+			"classification-edit-form",
 			(e) => new ClassificationEditForm(e),
 		);
 
-		DataCycle.initNewElements(
-			"a.destroy:not(.dcjs-classification-destroy-button)",
+		DataCycle.registerAddCallback(
+			"a.destroy",
+			"classification-destroy-button",
 			(e) => new ClassificationDestroyButton(e),
 		);
 
-		DataCycle.initNewElements(
-			".classification-load-all-children:not(.dcjs-classification-load-all-button)",
+		DataCycle.registerAddCallback(
+			".classification-load-all-children",
+			"classification-load-all-button",
 			(e) => new ClassificationLoadAllButton(e),
 		);
 
-		DataCycle.initNewElements(
-			".classification-close-all-children:not(.dcjs-classification-load-all-button)",
+		DataCycle.registerAddCallback(
+			".classification-close-all-children",
+			"classification-load-all-button",
 			(e) => new ClassificationCloseAllButton(e),
 		);
 
-		DataCycle.initNewElements(
-			".draggable-container:not(.dcjs-classification-drag-and-drop)",
+		DataCycle.registerAddCallback(
+			".draggable-container",
+			"classification-drag-and-drop",
 			(e) => new ClassificationDragAndDrop(e),
 		);
 
-		DataCycle.initNewElements(
-			"li.direct:not(.dcjs-classification-jump-to-parent), li.mapped:not(.dcjs-classification-jump-to-parent), li.new-button:not(.dcjs-classification-jump-to-parent)",
+		DataCycle.registerAddCallback(
+			"li.direct, li.mapped, li.new-button",
+			"classification-jump-to-parent",
 			(e) => new ClassificationJumpToParent(e),
 		);
 	}
 
-	DataCycle.initNewElements(
-		".toggle-details:not(.dcjs-detail-toggler)",
+	DataCycle.registerAddCallback(
+		".toggle-details",
+		"detail-toggler",
 		(e) => new DetailToggler(e),
 	);
 }

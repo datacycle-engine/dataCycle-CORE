@@ -23,6 +23,9 @@ module DataCycleCore
       TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
       ASSET_PROPERTY_TYPES = ['asset'].freeze
       COLLECTION_PROPERTY_TYPES = ['collection'].freeze
+      TABLE_PROPERTY_TYPES = ['table'].freeze
+      OEMBED_PROPERTY_TYPES = ['oembed'].freeze
+      SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
       ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
 
@@ -30,13 +33,10 @@ module DataCycleCore
 
       self.abstract_class = true
 
+      enum aggregate_type: { default: 'default', aggregate: 'aggregate', belongs_to_aggregate: 'belongs_to_aggregate' }, _prefix: :aggregate_type
+
       attr_accessor(*ATTR_ACCESSORS)
       attr_writer(*ATTR_WRITERS)
-
-      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
-        include feature.content_module if feature.enabled? && feature.content_module
-      end
 
       extend  Common::ArelBuilder
       include ContentRelations
@@ -54,6 +54,11 @@ module DataCycleCore
       include Extensions::PropertyPreloader
       prepend Extensions::Translation
       prepend Extensions::Geo
+
+      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
+        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
+        include feature.content_module if feature.enabled? && feature.content_module
+      end
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
       scope :where_not_value, ->(attributes) { where.not(value_condition(attributes), *attributes&.values) }
@@ -94,7 +99,8 @@ module DataCycleCore
       def method_missing(name, *args, &)
         original_name = name.to_s
         root_name = name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
-        property_definition = property_definitions.try(:[], root_name)
+        property_definition = properties_for(root_name)
+
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
@@ -115,8 +121,13 @@ module DataCycleCore
       end
 
       def respond_to?(method_name, include_all = false)
-        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
-          linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
+        root_name = method_name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
+
+        property_names.include?(root_name) || super
+      end
+
+      def property?(property_name)
+        property_definitions.key?(property_name.to_s)
       end
 
       def errors
@@ -210,12 +221,28 @@ module DataCycleCore
         include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name] : property_definitions[property_name]
       end
 
+      def overlay_property_names_for(property_name, include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.dig('features', 'overlay', 'overlay_for') == property_name
+        end
+      end
+
+      def aggregate_property_names_for(property_name, include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.dig('features', 'aggregate', 'aggregate_for') == property_name
+        end
+      end
+
       def translatable_property_names
         return @translatable_property_names if defined? @translatable_property_names
 
         @translatable_property_names = property_definitions.select { |property_name, definition|
           translatable_property?(property_name, definition)
         }.keys
+      end
+
+      def required_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition.dig('validations', 'required') }
       end
 
       def translated_columns
@@ -227,7 +254,7 @@ module DataCycleCore
 
         property_definition&.dig('storage_location') == 'translated_value' ||
           (property_definition&.dig('storage_location') == 'column' && translated_columns.include?(property_name)) ||
-          (property_definition&.dig('type') == 'embedded' && !property_definition&.dig('translated'))
+          (EMBEDDED_PROPERTY_TYPES.include?(property_definition&.dig('type')) && !property_definition&.dig('translated'))
       end
 
       def untranslatable_property_names
@@ -269,8 +296,20 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition['virtual'].present? }
       end
 
+      def table_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| TABLE_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def oembed_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| OEMBED_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
       def linked_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def inverse_linked_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) && definition['link_direction'] == 'inverse' }
       end
 
       def collection_property_names(include_overlay = false)
@@ -282,7 +321,7 @@ module DataCycleCore
       end
 
       def included_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'object' }
+        name_property_selector(include_overlay) { |definition| SIMPLE_OBJECT_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def computed_property_names(include_overlay = false)
@@ -338,12 +377,12 @@ module DataCycleCore
       end
 
       def untranslatable_embedded_property_names
-        name_property_selector { |definition| definition['type'] == 'embedded' && definition.dig('translated') }
+        name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition.dig('translated') }
       end
 
       def searchable_embedded_property_names
         property_definitions.select { |_, definition|
-          definition['type'] == 'embedded' && definition['advanced_search'] == true
+          EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition['advanced_search'] == true
         }.keys
       end
 
@@ -353,7 +392,7 @@ module DataCycleCore
 
       def advanced_included_search_property_names
         property_definitions.select { |_, definition|
-          definition['type'] == 'object' && definition['advanced_search'] == true
+          SIMPLE_OBJECT_PROPERTY_TYPES.include?(definition['type']) && definition['advanced_search'] == true
         }.keys
       end
 
@@ -375,6 +414,10 @@ module DataCycleCore
 
       def search_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition['search'] == true }
+      end
+
+      def new_overlay_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition.dig('features', 'overlay', 'allowed') }
       end
 
       def embedded_title_property_name
@@ -408,7 +451,7 @@ module DataCycleCore
       def attribute_to_h(property_name)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
-        elsif plain_property_names.include?(property_name)
+        elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name) || oembed_property_names.include?(property_name)
           send(property_name)&.as_json
         elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name) || collection_property_names.include?(property_name)
           send(property_name).try(:pluck, :id)
@@ -426,7 +469,7 @@ module DataCycleCore
           schedule_array = schedule_array.map(&:to_h).presence
           schedule_array.blank? ? [] : schedule_array.compact
         elsif timeseries_property_names.include?(property_name)
-          []
+          [] # don't load all timeseries from db
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
         end
@@ -443,13 +486,11 @@ module DataCycleCore
       end
 
       def collect_properties(definition = schema, parents = [])
+        parents = Array.wrap(parents)
         key_paths = []
         definition&.dig('properties')&.each do |k, v|
-          if v&.key?('properties')
-            key_paths << collect_properties(v, parents + [k, 'properties'])
-          else
-            key_paths << (parents.present? ? [parents + [k]] : [k])
-          end
+          key_paths << (parents + [k])
+          key_paths << collect_properties(v, parents + [k, 'properties']) if v&.key?('properties')
         end
         key_paths.flatten(1)
       end
@@ -469,7 +510,7 @@ module DataCycleCore
         (@get_property_value ||= {})[key] =
           if virtual_property_names.include?(property_name)
             load_virtual_attribute(property_name, I18n.locale)
-          elsif plain_property_names.include?(property_name)
+          elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name) || oembed_property_names.include?(property_name)
             load_json_attribute(property_name, property_definition, overlay_flag)
           elsif included_property_names.include?(property_name)
             load_included_data(property_name, property_definition, overlay_flag)
@@ -605,8 +646,7 @@ module DataCycleCore
 
         contents.find_each do |t|
           ordered_properties.select! do |k, v|
-            user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit, :bulk_edit)) &&
-              user.can?(:update, DataCycleCore::DataAttribute.new(k, v, {}, t, :update))
+            user.can_attribute?(key: k, definition: v, content: t, scope: :update, context: :editor, options: { edit_scope: 'bulk_edit' })
           end
         end
 
@@ -647,8 +687,11 @@ module DataCycleCore
             value
           elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base)
             value.first.class.unscoped.by_ordered_values(value.pluck(:id)).tap { |rel| rel.send(:load_records, value) }
-          elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
+          elsif linked_property_names.include?(key)
             DataCycleCore::Thing.by_ordered_values(value)
+          elsif embedded_property_names.include?(key)
+            # TODO: allow initialization of thing without persisting it, to correctly initialize default_values for embedded objects
+            value.blank? || (value.is_a?(::Array) && value.all?(::String) && value.all?(&:uuid?)) ? DataCycleCore::Thing.by_ordered_values(value) : DataCycleCore::Thing.none
           elsif classification_property_names.include?(key)
             DataCycleCore::Classification.by_ordered_values(value)
           elsif asset_property_names.include?(key)
@@ -668,10 +711,22 @@ module DataCycleCore
         thing_template.nil?
       end
 
-      def require_template!
-        raise ActiveRecord::RecordNotFound if template_missing?
+      def template_name_missing?
+        template_name.blank?
+      end
 
-        self
+      def require_template!
+        return self unless template_name_missing? || template_missing?
+
+        error = if template_name_missing? && template_missing?
+                  +':template_name or :thing_template is required!' # don't freeze string
+                elsif template_missing?
+                  "template '#{template_name}' does not exist!"
+                else
+                  "template_name is missing for template: #{thing_template.to_json}!"
+                end
+
+        raise ActiveModel::MissingAttributeError, error
       end
 
       def thing_template?
@@ -687,7 +742,7 @@ module DataCycleCore
           self.thing_template ||= DataCycleCore::ThingTemplate.find_by(template_name:)
         end
 
-        raise ActiveModel::MissingAttributeError, ":thing_template or :template_name is required to initialize #{self.class.name}" if template_missing?
+        require_template!
 
         self.boost ||= thing_template.schema&.dig('boost').to_i
         self.content_type ||= thing_template.schema&.dig('content_type')

@@ -50,7 +50,7 @@ module DataCycleCore
             next if a_item.is_a?(::String) && b_item.is_a?(::String)
             a_content = history_a ? load_content(a_item, a) : load_content(a_item, nil)
             b_content = history_b ? load_content(b_item, b) : load_content(b_item, nil)
-            embedded_template = load_template(template)
+            embedded_template = load_template(template, b_content.dig('template_name'))
             if partial_update
               embedded_template.slice!(*b_content&.keys)
               a_content = a_content.slice(*b_content&.keys)
@@ -72,9 +72,11 @@ module DataCycleCore
           nil
         end
 
-        def load_template(def_hash)
+        def load_template(def_hash, b_template_name)
+          template_name = def_hash.dig('template_name')
+          template_name = b_template_name if template_name.is_a?(Array) && b_template_name.present? && template_name.include?(b_template_name)
           DataCycleCore::ThingTemplate
-            .find_by(template_name: def_hash.dig('template_name'))
+            .find_by(template_name:)
             .schema
             .dig('properties')
         end

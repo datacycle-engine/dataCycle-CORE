@@ -21,18 +21,43 @@ en:
 
   template_names:
     skos:Concept: Classification
+    # embedded
+    ContentBlockTextImage: Text with Image
+    ContentBlockAccordion: Accordion
+    ContentBlockAccordionItem: Accordion - content
+    ContentBlockButton: Button
+    ContentBlockExternalContent: External Content
+    ContentBlockHeadline: Headline
+    ContentBlockInfobox: Infobox
+    ContentBlockLeadtext: Leadtext
+    ContentBlockMedia: Media
+    ContentBlockPromoTeaser: Promo teaser
+    ContentBlockQuotation: Quotation
+    ContentBlockTable: Table
+    ContentBlockTeaser: Teaser
+    ContentBlockText: Text
 
   attribute_labels:
     additional_information:
       one: Description block
       other: Description blocks
-    aggregate_rating:
+    Tour:
+      aggregate_rating:
+      one: Tour rating
+      other: Tour ratings
+    Trail:
+      aggregate_rating:
       one: Tour rating
       other: Tour ratings
     key_figures_container: Key figures
     universal_classifications: Classifications
     copyright_attributes_group: Copyright
     content_classifications_group: Classifications
+    belongs_to_aggregate: belongs to Aggregate
+    aggregate_for: Aggregate base
+    aggregate_for_override: Aggregate base for
+    overlay_override: (Overlay)
+    overlay_add: (Appendix)
 
   footer_links:
     privacy_policy: Privacy policy
@@ -213,6 +238,7 @@ en:
         draw_line_string_auto: car
         draw_line_string_bicycle: bike
         draw_line_string_pedestrian: pedestrian
+        draw_polygon: area
       routing:
         error: error calculating route
     remote_render:
@@ -256,11 +282,14 @@ en:
       edit_image: edit image
       unsupported_format: The image will be converted to a supported file format by the image editor.
       save_error: The image could not be saved
-    gravity_edito:
+    gravity_editor:
       success_set: "Gravity was successfully set to %{data}"
       success_reset: "Gravity was successfully reset"
       error: "Gravity could not be set"
       hint: "The 'smart' option is used by default if no other option has been selected."
+    oembed:
+      preview:
+        title: oEmbed preview
 
   schedule:
     dtstart: Start time
@@ -334,6 +363,8 @@ en:
     closes: By
     closed: closed
     except: except
+    closed_from_to: closed from %{from} to %{to}
+    closed_on: closed on %{date}
 
   collection:
     new: new %{data}
@@ -502,9 +533,9 @@ en:
       so bulk editing is blocked."
     bulk_update:
       check_box_labels:
-        override_html: <span class="attribute-title">%{data}</span> overwrite
-        add_html: 'Append to existing <span class="attribute-title">%{data}</span> '
-        remove_html: 'Remove selected <span class="attribute-title">%{data}</span> '
+        override: overwrite
+        add: append to existing
+        remove: remove selected
       button:
         limited: A maximum of %{data} Contents can be edited at the same time.
     watch_list_external_things_locked_html:
@@ -742,10 +773,13 @@ en:
         subject: A new user was created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Show user
-    overlay:
-      label_postfix:
-        override: (Overlay)
-        add: (Appendix)
+    aggregate:
+      types:
+        default: Standalone
+        aggregate: Aggregate
+        belongs_to_aggregate: belongs to aggregate
+      check_box_labels:
+        aggregate_for_override: override Aggregate base
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -784,6 +818,7 @@ en:
         latest_api_access: Last API access
         user_group_names: User groups
         api_access: accessible via API
+        user_role: User role
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
@@ -853,6 +888,7 @@ en:
     order: Order
     content_size: File size
     contact_info_email: Email
+    contact_info_url: url (contact)
     contact_info_telephone: Phone number
     contact_info_fax_number: Fax number
     address_postal_code: POSTCODE
@@ -956,6 +992,7 @@ en:
       not_access_token: no API token present
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
+    aggregate_filter: Aggregate type
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -976,7 +1013,9 @@ en:
     related_to: filter by linked content ...
     in_schedule: filter by date ...
     inactive_things: filter for expired content ...
-    graph_filter: Filter via linked content...
+    graph_filter: filter via linked content...
+    aggregate_filter: filter by aggregates...
+
   sortable:
     default: Standard
     created_at: Creation date
@@ -1004,6 +1043,10 @@ en:
       title: Title
       info: Info
       copyright: Copyright
+    limited_by:
+      filter_warning: The number of displayed contents has been limited by "Aggregat für"
+      create_button_warning: New contents can only be created at "Aggregat für"
+
   terms:
     valid: valid
     from: From
@@ -1170,6 +1213,15 @@ en:
       boolean: "%{data} is not a valid boolean format. (Only 'true' or 'false' allowed)"
       url: "%{data} is not a valid url (valid example: 'https://www.example.com')."
       string: "%{template} is not a string, but %{label}."
+      table: "%{label} is not a table (array of arrays), but %{template}."
+      table_row_wrong_size: "row has wrong number of columns: %{row}"
+      table_cell_wrong_type: "The value in cell %{cell} cannot be converted to JSON."
+      oembed: "%{label} ist not a valid oembed URL, but a %{template}"
+      oembed_unsupported_format: "Format %{oembed_format} not supported"
+      oembed_no_url: "Url parameter missing!"
+      oembed_unsupported_url: "%{oembed_url} is not a valid url."
+      oembed_no_provider: "Could not find an oembed provider for url %{oembed_url}."
+      oembed_too_many_providers: "Could not find unique Oembed-Provider for URL %{oembed_url}. Possible providers: %{oembed_found}."
       geo:
         Incorrect data type specified for %{template} (%{data}). Expect Geometric/Geographical
         type, or a WKT formatted string.
@@ -1818,6 +1870,8 @@ en:
         instructions: Directions
         directions_public_transport: Public transport
         parking: Parking
+        route_start: Start
+        route_end: Destination
       ratings:
         difficulty_rating: Difficulty
         priority_rating: Priority

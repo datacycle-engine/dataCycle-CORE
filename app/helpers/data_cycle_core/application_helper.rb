@@ -221,7 +221,9 @@ module DataCycleCore
     end
 
     def new_dialog_config(template, except = nil, filter = nil)
-      if DataCycleCore.new_dialog.key?(template&.template_name&.underscore_blanks)
+      if Feature::Aggregate.enabled? && Feature::Aggregate.aggregate?(template)
+        { 'name' => [MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME] }
+      elsif DataCycleCore.new_dialog.key?(template&.template_name&.underscore_blanks)
         DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) || {}
       elsif DataCycleCore.new_dialog.key?(template&.schema_type&.underscore_blanks)
         DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) || {}
@@ -340,17 +342,6 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters)
     end
 
-    def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
-      partials = [
-        key.attribute_name_from_key,
-        definition&.dig('template_name')&.underscore_blanks,
-        'thing',
-        'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
-
-      render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
-    end
-
     def render_linked_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
       partials = [
         key.attribute_name_from_key,
@@ -358,7 +349,7 @@ module DataCycleCore
         definition.dig('template_name')&.underscore_blanks,
         'thing',
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/linked/#{p}" }
+      ].compact_blank.map { |p| "data_cycle_core/contents/history/linked/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
     end
@@ -367,7 +358,7 @@ module DataCycleCore
       partials = [
         definition.dig('asset_type')&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}" }
+      ].compact_blank.map { |p| "data_cycle_core/contents/editors/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
     end
 
@@ -376,7 +367,7 @@ module DataCycleCore
       partials = [
         value.try(:type)&.demodulize&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/asset/#{p}" }
+      ].compact_blank.map { |p| "data_cycle_core/contents/viewers/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
     end
 
@@ -387,7 +378,7 @@ module DataCycleCore
         item.try(:content_type)&.underscore_blanks,
         item&.class&.name&.demodulize&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}" }
+      ].compact_blank.map { |p| "data_cycle_core/contents/#{mode}/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ item: }))
     end
@@ -399,26 +390,34 @@ module DataCycleCore
         item.try(:content_type)&.underscore_blanks,
         item&.class&.name&.demodulize&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}_details" }
+      ].compact_blank.map { |p| "data_cycle_core/contents/#{mode}/#{p}_details" }
 
       render_first_existing_partial(partials, parameters.merge({ item: }))
     end
 
     def render_linked_partial(key:, definition:, parameters: {}, content: nil)
+      item = parameters&.dig(:object)
       partials = [
-        definition.dig('template_name')&.underscore_blanks,
-        parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
+        item.try(:template_name)&.underscore_blanks,
+        item.try(:schema_type)&.underscore_blanks,
+        item.try(:content_type)&.underscore_blanks,
+        item&.class&.name&.demodulize&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/grid/compact/#{p}" }
+      ].compact_blank.map { |p| "data_cycle_core/contents/grid/compact/#{p}" }
+
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, content: }))
     end
 
     def render_linked_details(key:, definition:, parameters: {}, content: nil)
+      item = parameters&.dig(:object)
       partials = [
-        definition.dig('template_name')&.underscore_blanks,
-        parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
+        item.try(:template_name)&.underscore_blanks,
+        item.try(:schema_type)&.underscore_blanks,
+        item.try(:content_type)&.underscore_blanks,
+        item&.class&.name&.demodulize&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_detail" }
+      ].compact_blank.map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_detail" }
+
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, content: }))
     end
 
@@ -458,7 +457,7 @@ module DataCycleCore
         template&.template_name&.underscore_blanks,
         template&.schema_type&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}" }
+      ].compact_blank.map { |p| "data_cycle_core/contents/new/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ template: }))
     end

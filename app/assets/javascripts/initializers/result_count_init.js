@@ -1,5 +1,9 @@
-import ResultCount from '../components/result_count';
+import ResultCount from "../components/result_count";
 
 export default function () {
-  DataCycle.initNewElements('.result-count:not(.dcjs-result-count)', e => new ResultCount(e));
+	DataCycle.registerAddCallback(
+		".result-count",
+		"result-count",
+		(e) => new ResultCount(e),
+	);
 }

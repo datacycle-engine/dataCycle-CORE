@@ -1,0 +1,20 @@
+---
+- :data:
+    :name: Simple Linked Entity One
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Thing_SimpleEntityLinkedOne
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :linked_with_template:
+        :label: Simple Linked Entity
+        :type: linked
+        :template_name: Simple Linked Entity Two
+      :linked_with_stored_filter:
+        :label: Simple Linked Entity Based On Stored Filter
+        :type: linked
+        :stored_filter:
+          - :not_existing_filter:

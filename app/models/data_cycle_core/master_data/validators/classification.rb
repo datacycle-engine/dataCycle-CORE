@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Classification < BasicValidator
         def keywords
-          ['min', 'max', 'required']
+          ['min', 'max', 'required', 'soft_required']
         end
 
         def validate(data, template, _strict = false)
@@ -104,6 +104,10 @@ module DataCycleCore
 
         def required(data, value)
           (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
+        end
+
+        def soft_required(data, value)
+          (@error[:warning][@template_key] ||= []) << { path: 'validation.warnings.required' } if value && blank?(data)
         end
       end
     end

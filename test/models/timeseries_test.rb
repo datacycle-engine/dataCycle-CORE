@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   class TimeseriesTest < DataCycleCore::TestCases::ActiveSupportTestCase
-    setup do
+    before(:all) do
       @timeseries = DataCycleCore::TestPreparations.create_content(template_name: 'Timeseries', data_hash: { name: 'Series 1' })
     end
 

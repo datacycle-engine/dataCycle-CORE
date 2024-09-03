@@ -12,14 +12,6 @@ body {
   color: $warning-color;
 }
 
-.off-canvas-wrapper {
-  position: relative;
-  flex: auto;
-  display: flex;
-  flex-flow: column;
-  overflow: unset;
-}
-
 .off-canvas-content {
   flex: auto;
   display: flex;
@@ -392,8 +384,7 @@ body.with-glass {
     background: none;
   }
 
-  header,
-  .off-canvas-wrapper {
+  header {
     display: none;
   }
 
@@ -687,7 +678,7 @@ ul.footer-links {
     }
   }
 
-  &:hover {
+  &.in-visible-transition-state:hover {
     animation-play-state: paused;
 
     .toast-timer-bar {
@@ -786,7 +777,7 @@ ul.footer-links {
   position: relative;
 
   >input {
-    position: absolute;
+    position: absolute !important;
     top: 0.4rem;
     opacity: 0;
     width: 16px;
@@ -814,6 +805,8 @@ ul.footer-links {
       border-radius: $global-radius;
       height: 16px;
       width: 16px;
+      min-height: 16px;
+      min-width: 16px;
       align-items: center;
       justify-content: center;
       font-size: 11px;

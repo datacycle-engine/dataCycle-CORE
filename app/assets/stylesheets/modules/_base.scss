@@ -810,7 +810,7 @@ footer {
     top: 0.2rem;
     left: 1rem;
     z-index: 12;
-    color: $dark-gray;
+    color: var(--attribute-label-color);
     transition: $color-transition;
     white-space: nowrap;
     overflow: hidden;
@@ -845,8 +845,10 @@ footer {
   .form-element.check_box,
   .form-element.asset,
   .form-element.radio_button,
+  .form-element.table,
   .form-element.geographic .geographic,
-  .select2 {
+  .select2,
+  .oembed-preview-wrapper {
     border: 1px solid rgba($dark-gray, 0.5);
     outline: none;
     height: auto;
@@ -896,6 +898,10 @@ footer {
     &.disabled {
       cursor: not-allowed !important;
       background: lighten($light-gray, 5%) !important;
+    }
+
+    &.form-element.dc-has-additional-attribute-partial {
+      margin-top: 3rem;
     }
   }
 
@@ -1060,7 +1066,7 @@ footer {
       label {
         padding-top: 0.5rem;
         opacity: 1;
-        color: $dark-gray;
+        color: var(--attribute-label-color);
       }
 
       [type='checkbox']+label[for],
@@ -1120,7 +1126,9 @@ footer {
     .string:not(.date, .datetime, .text_editor) input,
     input.single_date,
     .single_date input.form-control,
-    .number input {
+    .number input,
+    .oembed input,
+    .oembed-preview-html{
       padding: 2.5rem 1rem 1.2rem 1rem;
       line-height: initial;
     }
@@ -1911,7 +1919,7 @@ body .v-select {
           }
 
           label {
-            color: var(--dark-gray);
+            color: var(--attribute-label-color);
           }
 
           input {

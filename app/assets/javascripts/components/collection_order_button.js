@@ -4,7 +4,6 @@ import { Sortable } from "sortablejs";
 class CollectionOrderButton {
 	constructor(button) {
 		this.item = button;
-		this.item.classList.add("dcjs-collection-order-button");
 		this.itemWrapper = this.item.closest(".collection-manual-order-container ");
 		this.sortableList = document
 			.getElementById("search-results")

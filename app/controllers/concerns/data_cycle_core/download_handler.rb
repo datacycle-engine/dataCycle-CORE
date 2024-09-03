@@ -186,11 +186,12 @@ module DataCycleCore
         response.stream.write(chunk)
       end
 
-      content.activities.create(user: current_user, activity_type: 'download', data: additional_data.merge(
-        referer: request.referer,
-        origin: request.origin,
-        middlewareOrigin: request.headers['X-Dc-Middleware-Origin']
-      ))
+      current_user.log_request_activity(
+        type: 'download',
+        data: additional_data,
+        request:,
+        activitiable: content
+      )
     rescue ActionController::Live::ClientDisconnected
       # ignore client disconnections
       nil
@@ -200,7 +201,8 @@ module DataCycleCore
 
     def serializer_for_content(content, scope = [:content], serialize_format = nil)
       return if content.blank?
-      ('DataCycleCore::Serialize::Serializer::' + serialize_format.to_s.classify).constantize if DataCycleCore::Feature::Download.enabled_serializer_for_download?(content, scope, serialize_format)
+
+      DataCycleCore::Feature::Serialize.serializer_for_content(serialize_format) if DataCycleCore::Feature::Download.enabled_serializer_for_download?(content, scope, serialize_format)
     end
 
     def serializer_method_for_content(content)

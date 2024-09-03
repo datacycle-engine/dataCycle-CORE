@@ -94,9 +94,9 @@ module DataCycleCore
 
           set_default_value('Bild', 'alternative_headline', 'alternative_headline_1', content)
 
-          content.set_data_hash(data_hash: { name: 'Test Bild 2' }, update_search_all: false, prevent_history: true, partial_update: false)
+          content.set_data_hash(data_hash: { name: 'Test Bild 2' }, update_search_all: false, prevent_history: true)
 
-          assert content.alternative_headline.blank?
+          assert_equal 'alternative_headline_2', content.alternative_headline
           assert_equal 'Test Bild 2', content.name
         end
 

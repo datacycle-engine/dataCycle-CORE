@@ -26,16 +26,7 @@ module DataCycleCore
                   .where(
                     (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : schedule[:relation].not_in(DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions))
                     .and(schedule[:thing_id].eq(thing[:id]))
-                    .and(
-                      Arel::Nodes::Exists.new(
-                        Arel::SelectManager.new(schedule_occurrence)
-                          .project(1)
-                          .where(
-                            schedule_occurrence[:schedule_id].eq(schedule[:id])
-                            .and(overlap(tstzrange(from_node, to_node), schedule_occurrence[:occurrence]))
-                          )
-                      )
-                    )
+                    .and(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
                   )
               )
             )

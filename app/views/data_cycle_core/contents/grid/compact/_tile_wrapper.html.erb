@@ -1,6 +1,6 @@
 <% content_for(:tile_header_buttons, tag.span(tag.i(class: 'fa fa-arrows-h'), class: 'inverse-linked has-tip', data: { dc_tooltip: t('common.inverse_linked', locale: active_ui_locale) })) if definition&.dig('link_direction') %>
 
-<% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:options]&.[]('force_tile_buttons') || (local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, local_assigns[:options], content, :update))))) %>
+<% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:options]&.[]('force_tile_buttons') || (local_assigns[:edit_buttons] && attribute_editable?(key, definition, local_assigns[:options], content)))) %>
 
 <% content_for(:tile_header_buttons, link_to(tag.i(class: 'fa fa-info'), '#', class: 'show-sidebar-details', data: { dc_tooltip: t('object_browser.details.button', locale: active_ui_locale) })) %>
 
@@ -25,7 +25,7 @@ data: {
   <div class="content-link">
     <i class="fa fa-check object-browser-tile-checkbox" aria-hidden="true"></i>
 
-    <%= hidden_field_tag key, object.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" if local_assigns[:edit_buttons] %>
+    <%= hidden_field_tag key, object.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !attribute_editable?(key, definition, local_assigns[:options], content) if local_assigns[:edit_buttons] %>
 
     <%= tag.div(yield_content!(:tile_header_buttons), class: 'buttons') if content_for?(:tile_header_buttons) %>
 

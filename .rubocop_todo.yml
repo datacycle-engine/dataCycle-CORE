@@ -363,6 +363,7 @@ Performance/StringIdentifierArgument:
     - "app/models/data_cycle_core/serialize/serializer/gpx.rb"
     - "app/views/data_cycle_core/api/v2/api_base/_content_header.json.jbuilder"
     - "app/views/data_cycle_core/api/v3/api_base/_content_header.jb"
+    - "config/initializers/monkey/core_rake_prefix_extension.rb" # Module.const_defined?(:'Rake::Task') is not suppoerted
 
 # Offense count: 17
 # Cop supports --auto-correct.

@@ -119,10 +119,20 @@ namespace :dc do
       puts "DONE: #{es.name} is now primary System for all Things provided."
     end
 
-    desc 'download external assets into dataCycle for things with external_system_id'
-    task :download_external_assets, [:external_system_id] => :environment do |_, args|
+    desc 'download external assets into dataCycle for things with external_system_id or collection_id'
+    task :download_external_assets, [:external_system_id, :collection_id] => :environment do |_, args|
+      collection_id = args[:collection_id]
       logger = Logger.new('log/download_assets.log')
       logger.info('Started Downloading...')
+      if args[:external_system_id].blank? && collection_id.blank?
+        error = 'external_system_id or collection_id not given'
+        logger.error(error) && abort(error)
+      end
+      collection = DataCycleCore::Collection.find_by(id: collection_id)
+      if collection_id.present? && collection.blank?
+        error = "collection with id #{collection_id} not found"
+        logger.error(error) && abort(error)
+      end
 
       external_system_id = args[:external_system_id]
       allowed_template_names = DataCycleCore::ThingTemplate.where("thing_templates.schema -> 'properties' ->> 'asset' IS NOT NULL").pluck(:template_name)
@@ -132,16 +142,30 @@ namespace :dc do
         logger.error(error) && abort(error)
       end
 
+      es = DataCycleCore::ExternalSystem.find_by(id: external_system_id)
+      if external_system_id.present? && es.blank?
+        error = "external_system with id #{external_system_id} not found"
+        logger.error(error) && abort(error)
+      end
+
       asset_sql = <<-SQL.squish
         NOT EXISTS (
           SELECT 1 FROM assets
           INNER JOIN asset_contents
           ON asset_contents.asset_id = assets.id
-          WHERE asset_contents.content_data_id = things.id
+          WHERE asset_contents.thing_id = things.id
         )
       SQL
 
-      contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
+      contents = nil
+
+      if collection_id.present? && external_system_id.present?
+        contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).apply.select(:id)).by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
+      elsif collection_id.present?
+        contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).apply.select(:id)).where(template_name: allowed_template_names).where(asset_sql)
+      else
+        contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
+      end
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
       logger.info("DOWNLOADING: assets for #{contents.size} things...")
@@ -149,14 +173,32 @@ namespace :dc do
       contents.find_each do |content|
         I18n.with_locale(content.first_available_locale) do
           asset_type = content.schema&.dig('properties', 'asset', 'asset_type')
-          logger.warn("missing asset_type for #{content.id}") && next if asset_type.blank?
+          if asset_type.blank?
+            logger.warn("missing asset_type for #{content.id}")
+            progressbar.increment
+            next
+          end
 
           file_url = content.try(:content_url)
-          logger.warn("missing content_url for #{content.id}") && next if file_url.blank?
+          if file_url.blank?
+            logger.warn("missing content_url for #{content.id}")
+            progressbar.increment
+            next
+            # elsif file_url.split('/').last&.starts_with?('.')
+            #   # add dummy filename if missing
+            #   file_url = file_url.split('/').tap { |a| a[-1] = "dummy.#{file_url.split('.').last}" }.join('/')
+          end
 
-          asset = DataCycleCore.asset_objects.find { |a| a == "DataCycleCore::#{asset_type.classify}" }&.safe_constantize&.new(name: content.title, remote_file_url: file_url)
+          asset_model = DataCycleCore.asset_objects
+            .find { |a| a == "DataCycleCore::#{asset_type.classify}" }
+            &.safe_constantize
+          asset = asset_model&.new(name: content.title, remote_file_url: file_url)
 
-          logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}") && next unless asset&.save
+          unless asset&.save
+            logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}")
+            progressbar.increment
+            next
+          end
 
           content.external_source_to_external_system_syncs('import')
 
@@ -176,6 +218,9 @@ namespace :dc do
           end
 
           progressbar.increment
+        rescue DataCycleCore::Error::Asset::RemoteFileDownloadError
+          progressbar.increment
+          logger.error("Error downloading asset for #{content.id} from #{file_url}")
         end
       end
 
@@ -313,20 +358,6 @@ namespace :dc do
         item.save!(touch: false)
         progressbar.increment
       end
-    end
-
-    desc 'rebuild schedule_occurrences'
-    task rebuild_schedule_occurrences: :environment do
-      rebuild_occurrences_sql = <<-SQL
-        TRUNCATE schedule_occurrences;
-
-        SELECT
-          generate_schedule_occurences (ARRAY_AGG(id))
-        FROM
-          schedules;
-      SQL
-
-      ActiveRecord::Base.connection.execute(rebuild_occurrences_sql)
     end
 
     desc 'remove multiple BYYEARDAY in schedules'

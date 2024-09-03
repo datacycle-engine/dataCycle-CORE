@@ -77,12 +77,29 @@ module DataCycleCore
 
           filter_queries = []
           filter_queries.push(data_links.where(item_type: 'DataCycleCore::Thing').select(:item_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
-          filter_queries.push(DataCycleCore::WatchListDataHash.where(watch_list_id: data_links.where(item_type: 'DataCycleCore::WatchList').select(:item_id), hashable_type: 'DataCycleCore::Thing').select(:hashable_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
-          filter_queries.push(DataCycleCore::StoredFilter.where(id: data_links.where(item_type: 'DataCycleCore::StoredFilter').select(:item_id)).map { |f| f.apply(skip_ordering: true).select(:id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql }.join(' UNION '))
+
+          filter_queries.push(DataCycleCore::WatchListDataHash.where(watch_list_id: data_links.where(item_type: ['DataCycleCore::WatchList', 'DataCycleCore::Collection']).select(:item_id), hashable_type: 'DataCycleCore::Thing').select(:hashable_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
+
+          filter_queries.push(DataCycleCore::StoredFilter.where(id: data_links.where(item_type: ['DataCycleCore::StoredFilter', 'DataCycleCore::Collection']).select(:item_id)).map { |f| f.apply(skip_ordering: true).select(:id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql }.join(' UNION '))
 
           reflect(
             @query.where(thing[:id].in(Arel.sql(filter_queries.compact_blank.join(' UNION '))))
           )
+        end
+
+        def shared_by_collection_user_shares(ids = nil)
+          return self if ids.blank?
+
+          users = DataCycleCore::User.where(id: ids)
+          collection_ids = []
+
+          users.each do |user|
+            collection_ids.concat(DataCycleCore::Collection.shared_with_user_by_user(user).pluck(:id))
+          end
+
+          return reflect(@query.where('1 = 0')) if collection_ids.blank?
+
+          union_filter_ids(collection_ids)
         end
 
         def shared_by_watch_list_shares(ids = nil)

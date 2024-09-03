@@ -26,12 +26,11 @@ module DataCycleCore
       assert_equal('Short test description for company object.', organization.description)
     end
 
-    test 'expect an exception when template includes wrong data-type' do
+    test 'expect no changes when template includes wrong data-type' do
       data_set = DataCycleCore::Thing.new(template_name: 'Organization')
       data_set.schema['properties'] = { 'test' => { 'label' => 'test', 'type' => 'test' } }
-      assert_raises StandardError do
-        data_set.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization'), partial_update: false)
-      end
+      data_set.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization'))
+      assert_equal 1, data_set.warnings.count # no changes made
     end
   end
 end

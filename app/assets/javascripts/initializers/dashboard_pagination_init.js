@@ -3,16 +3,19 @@ import DashboardTreeLoader from "../components/dashboard_tree_loader";
 import DashboardContentLink from "../components/dashboard_content_link";
 
 export default function () {
-	DataCycle.initNewElements(
-		"li.grid-item:not(.dcjs-dashboard-content-link), li.list-item:not(.dcjs-dashboard-content-link)",
+	DataCycle.registerAddCallback(
+		"li.grid-item, li.list-item",
+		"dashboard-content-link",
 		(e) => new DashboardContentLink(e),
 	);
-	DataCycle.initNewElements(
-		".pagination-link:not(.dcjs-dashboard-pagination)",
+	DataCycle.registerAddCallback(
+		".pagination-link",
+		"dashboard-pagination",
 		(e) => new DashboardPagination(e),
 	);
-	DataCycle.initNewElements(
-		".tree-link:not(.dcjs-dashboard-tree-loader)",
+	DataCycle.registerAddCallback(
+		".tree-link",
+		"dashboard-tree-loader",
 		(e) => new DashboardTreeLoader(e),
 	);
 }

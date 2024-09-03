@@ -1,5 +1,18 @@
 ---
 fr:
+  opening_time:
+    valid_from: Validité à partir de
+    valid_until: jusqu'à
+    weekday: Jour de la semaine
+    holiday: Jour férié
+    time: Temps
+    opens: ouvert de
+    closes: jusqu'à
+    closed: fermé
+    except: sauf
+    closed_from_to: fermé de %{from} à %{to}
+    closed_on: fermé le %{date}
+
   import:
     generic:
       description: Description
@@ -62,3 +75,34 @@ fr:
       package:
         PackageShortText: Description courte
         Package: Description
+    outdoor_active:
+      place:
+        directions: S'y rendre
+        parking: Se garer
+        hours_available: Heures d’ouverture
+        text: Description
+        price: Prix
+        description: Brève description
+        directions_public_transport: Transports en commun
+      tour:
+        directions: S'y rendre
+        parking: Se garer
+        hours_available: Heures d’ouverture
+        text: Description
+        price: Prix
+        description: Brève description
+        directions_public_transport: Transports en commun
+        instructions: Itinéraire
+        safety_instructions: Consignes de sécurité
+        equipment: S'équiper
+        suggestion: Suggestion
+        additional_information: Complément d’information
+        maps: Bibliographie
+        starting_point_descr: Départ
+        destination: Arrivée
+      ratings:
+        technique_rating: Technicité
+        condition_rating: Condition physique
+        experience_rating: Expérience
+        landscape_rating: Paysage
+        difficulty_rating: Difficulté

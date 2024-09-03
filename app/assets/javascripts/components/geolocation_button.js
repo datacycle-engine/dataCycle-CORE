@@ -3,7 +3,6 @@ import CalloutHelpers from "../helpers/callout_helpers";
 class GeolocationButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-geolocation-button");
 		this.container = this.item.closest(".advanced-filter");
 		this.latitudeField = this.container.querySelector(
 			'.advanced-filter-selector input[name*="lat"]',

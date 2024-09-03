@@ -63,7 +63,7 @@
         :type: linked
         :inverse_of: about
         :link_direction: inverse
-        :template_name: Skigebiets-Beschreibung
+        :template_name: Strukturierter Artikel
       :description:
         :label: Beschreibung
         :type: string
@@ -345,7 +345,7 @@
         :label: Schneehöhe - Messpunkt
         :type: linked
         :inverse_of: snow_resort
-        :template_name: Schneehöhe - Messpunkt Neu
+        :template_name: Schneehöhe - Messpunkt Bergfex
         :api:
           :name: containsPlace
         :advanced_search: true

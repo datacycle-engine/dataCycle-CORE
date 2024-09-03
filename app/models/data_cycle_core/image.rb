@@ -110,7 +110,7 @@ module DataCycleCore
                                            else
                                              DataCycleCore::Image
                                                .joins(thing: [:thing_template])
-                                               .select("(100 - (100 * phash_hamming('#{duplicate_check['phash']}', assets.duplicate_check ->> 'phash') / 255)) AS score, asset_contents.content_data_id AS thing_id")
+                                               .select("(100 - (100 * phash_hamming('#{duplicate_check['phash']}', assets.duplicate_check ->> 'phash') / 255)) AS score, asset_contents.thing_id AS thing_id")
                                                .where("thing_templates.schema -> 'features' -> 'duplicate_candidate' ->> 'method' = ?", 'bild_duplicate')
                                                .where("assets.duplicate_check IS NOT NULL AND assets.duplicate_check ->> 'phash' IS NOT NULL AND assets.duplicate_check ->> 'phash' != '0' AND phash_hamming(?, assets.duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id)
                                                .map { |d| { thing_duplicate_id: d.thing_id, method: 'phash', score: d.score } }
@@ -189,12 +189,16 @@ module DataCycleCore
         tempfile = attachment_changes['file'].attachable
       end
 
-      image = ::MiniMagick::Image.new(tempfile.is_a?(::StringIO) ? tempfile.base_uri : tempfile.path, tempfile)
+      image_path = tempfile.is_a?(::StringIO) ? tempfile.try(:base_uri) : tempfile.path
+
+      raise ActiveStorage::FileNotFoundError, 'Image path not found' if image_path.nil?
+
+      image = ::MiniMagick::Image.new(image_path, tempfile)
       exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: true })
       exif_data = exif_data
         .to_hash
         .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
-      exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip
+      exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip if image.path.present?
 
       tempfile.rewind
 

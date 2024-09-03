@@ -1,26 +1,19 @@
-const Tabulator = () => import('tabulator-tables');
+import ExifViewer from "../components/tabulator_tables/exif_viewer";
+import TableEditor from "../components/tabulator_tables/table_editor";
+import TableViewer from "../components/tabulator_tables/table_viewer";
 
 export default function () {
-  let exifWrapper = document.getElementById('exif-details');
-  if (exifWrapper && exifWrapper.dataset.exif !== undefined) {
-    const objectArray = Object.entries(JSON.parse(exifWrapper.dataset.exif));
-    const transformedTableData = objectArray.map(([key, value]) => {
-      return { name: key, value: value };
-    });
+	DataCycle.registerLazyAddCallback(
+		"#exif-details",
+		"exif-viewer",
+		(e) => new ExifViewer(e),
+	);
 
-    Tabulator().then(({ TabulatorFull }) => {
-      new TabulatorFull(exifWrapper, {
-        data: transformedTableData,
-        layout: 'fitColumns', //fit columns to width of table (optional)
-        columns: [
-          //Define Table Columns
-          { title: 'Name', field: 'name' },
-          { title: 'Wert', field: 'value' }
-        ],
-        initialSort: [
-          { column: 'name', dir: 'asc' } //sort by this first
-        ]
-      });
-    });
-  }
+	DataCycle.registerLazyAddCallback(".table-editor", "table-editor", (e) =>
+		new TableEditor(e).init(),
+	);
+
+	DataCycle.registerLazyAddCallback(".table-viewer", "table-viewer", (e) =>
+		new TableViewer(e).init(),
+	);
 }

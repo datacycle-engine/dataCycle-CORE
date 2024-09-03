@@ -343,8 +343,8 @@ module DataCycleCore
       ]
     end
 
-    def validate_api_params(unpermitted_params, exceptions = [])
-      validator = DataCycleCore::MasterData::Contracts::ApiContract.new
+    def validate_api_params(unpermitted_params, exceptions = [], validate_params_contract = nil)
+      validator = validate_params_contract&.new || DataCycleCore::MasterData::Contracts::ApiContract.new
       linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
 
       validation_params = unpermitted_params&.deep_symbolize_keys&.except(*exceptions.map(&:to_sym))
@@ -434,10 +434,13 @@ module DataCycleCore
     end
 
     def self.order_key_with_value(sort)
-      return sort[1..-1], 'DESC' if sort.starts_with?('-')
-      return sort[1..-1], 'ASC' if sort.starts_with?('+')
-      return 'random', sort.match(/random\((.+)\)/i)&.captures&.first&.to_f if sort.starts_with?('random')
-      return sort, 'ASC'
+      match_data = sort.match(/([+-]?)([\w:.]+)(?:\(([^)]*)\))?/)
+
+      order = match_data[1] == '-' ? 'DESC' : 'ASC'
+      key = match_data[2] || sort
+      order_value = match_data[3] || nil
+
+      return key, order, order_value
     end
 
     def self.allowed_thread_count

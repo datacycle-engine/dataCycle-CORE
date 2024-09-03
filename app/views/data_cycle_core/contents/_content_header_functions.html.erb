@@ -61,6 +61,11 @@
       </li>
     <% end %>
     <li class="buttons">
+      <%= button_tag(type: 'button', class: 'link copy-to-clipboard', data: { value: content.id, dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: 'ID') }) do %>
+        <%= tag.i(class: 'fa fa-hashtag') %>
+      <% end %>
+    </li>
+    <li class="buttons">
       <%= link_to previous_authorized_crumb.url, class: 'has-content close-show-button' do %>
         <i aria-hidden="true" class="fa fa-times"></i>
       <% end if previous_authorized_crumb.present? %>

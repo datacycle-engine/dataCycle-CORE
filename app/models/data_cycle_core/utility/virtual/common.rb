@@ -34,11 +34,8 @@ module DataCycleCore
               if !content_part.respond_to?(params['attribute'])
                 nil
               elsif params['name']
-                content_part
-                  &.send(params['attribute'])
-                  &.find do |c|
-                    c.name == I18n.t(params['name'], default: params['name'])
-                  end
+                content_part&.send(params['attribute'])&.find { |c| c.name == I18n.t(params['name'], default: params['name']) } ||
+                  content_part&.send(params['attribute'])&.find { |c| c.name == I18n.t(params['name'], default: params['name']&.split('.')&.last) }
               else
                 content_part&.send(params['attribute'])
               end
@@ -75,7 +72,7 @@ module DataCycleCore
             Array.wrap(virtual_definition.dig('virtual', 'value')).each do |config|
               value = get_value_by_filter(content, config['attribute'].split('.'), config['filter'])
 
-              return value if DataCycleCore::DataHashService.present?(value)
+              return value if DataHashService.present?(value)
             end
 
             nil
@@ -105,25 +102,26 @@ module DataCycleCore
             I18n.with_locale(content.try(:first_available_locale) || I18n.locale) do
               key, *new_path = path
 
-              return content.send(key) if new_path.blank? && DataCycleCore::DataHashService.present?(content.try(key))
+              data = content.try(key)
+              data = filtered_data(data:, filter:, key:) if filter.present?
+
+              return data if new_path.blank? && DataCycleCore::DataHashService.present?(data)
               return unless key.in?(content.embedded_property_names + content.linked_property_names + content.classification_property_names)
 
-              content.try(key)&.each do |item|
-                next if filter.present? && new_path.one? && !content_in_filter?(item, filter)
+              data&.each do |v|
+                value = get_value_by_filter(v, new_path, filter)
 
-                value = get_value_by_filter(item, new_path, filter)
-
-                next if DataCycleCore::DataHashService.blank?(value)
-
-                return value
+                return value if DataHashService.present?(value)
               end
-
-              nil
             end
           end
 
-          def content_in_filter?(content, filter)
+          def content_in_filter?(content, filter, key)
+            return true if key.blank?
+
             Array.wrap(filter).each do |config|
+              next unless config['target'].blank? || key&.in?(Array.wrap(config['target']))
+
               in_filter = case config['type']
                           when 'classification'
                             content.classification_aliases.joins(:classification_alias_path).exists?(classification_alias_path: { full_path_names: config['value'].split('>').map(&:strip).reverse })
@@ -135,6 +133,19 @@ module DataCycleCore
             end
 
             true
+          end
+
+          def filtered_data(data:, filter:, key:)
+            return data if DataCycleCore::DataHashService.blank?(data)
+
+            if data.is_a?(ActiveRecord::Base)
+              content_in_filter?(data, filter, key) ? data : {}
+            elsif (data.is_a?(::Array) && data.first.is_a?(ActiveRecord::Base)) || data.is_a?(ActiveRecord::Relation)
+              value = data.to_a.select { content_in_filter?(_1, filter, key) }
+              DataCycleCore::DataHashService.blank?(value) ? value : value.first.class.unscoped.by_ordered_values(value.pluck(:id)).tap { _1.send(:load_records, value) }
+            else
+              data
+            end
           end
         end
       end

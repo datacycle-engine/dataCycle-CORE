@@ -1,8 +1,9 @@
 import PublicationFilter from "../components/publication_filter";
 
 export default function () {
-	DataCycle.initNewElements(
-		".publications-list:not(.dcjs-publications-list)",
+	DataCycle.registerAddCallback(
+		".publications-list",
+		"publications-list",
 		(e) => new PublicationFilter(e),
 	);
 }

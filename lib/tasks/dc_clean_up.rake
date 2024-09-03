@@ -47,8 +47,8 @@ namespace :dc do
       ShellHelper.progress_bar(items_to_delete, items_to_delete)
 
       if index.positive? && initial_external_contents_count != external_contents.size
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_source_data"].reenable
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_source_data"].invoke(external_source.id)
+        Rake::Task['dc:clean_up:external_source_data'].reenable
+        Rake::Task['dc:clean_up:external_source_data'].invoke(external_source.id)
       end
 
       # find classifications for extenal_source

@@ -125,7 +125,7 @@ module DataCycleCore
         end
 
         def soft_required(data, value)
-          (@error[:warning][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
+          (@error[:warning][@template_key] ||= []) << { path: 'validation.warnings.required' } if value && blank?(data)
         end
       end
     end

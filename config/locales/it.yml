@@ -284,3 +284,15 @@ it:
       long: "%d %B %Y %H:%M"
       short: "%d %b %H:%M"
     pm: pm
+  opening_time:
+    valid_from: Valido da
+    valid_until: fino a
+    weekday: Giorno della settimana
+    holiday: Giorno festivo
+    time: Tempo
+    opens: aperto dalle
+    closes: fino alle
+    closed: chiuso
+    except: eccetto
+    closed_from_to: chiuso da %{from} a %{to}
+    closed_on: chiuso il %{date}

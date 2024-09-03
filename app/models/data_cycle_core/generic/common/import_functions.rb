@@ -18,6 +18,8 @@ module DataCycleCore
         end
 
         def self.import_sequential(utility_object:, iterator:, data_processor:, options:)
+          last_err = nil
+          last_ext_key = nil
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               importer_name = options.dig(:import, :name)
@@ -29,9 +31,10 @@ module DataCycleCore
                 total = 0
                 begin
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
-                  source_filter = options&.dig(:import, :source_filter) || {}
+                  source_filter = (options&.dig(:import, :source_filter) || {}).with_indifferent_access
                   source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
                   source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
+
                   if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
                     source_filter = source_filter.merge({
                       '$or' => [{
@@ -89,6 +92,7 @@ module DataCycleCore
                             break if options[:max_count].present? && item_count >= options[:max_count]
                             item_count += 1
                             next if options[:min_count].present? && item_count < options[:min_count]
+                            last_ext_key = content[:external_id]
 
                             data_processor.call(
                               utility_object:,
@@ -98,26 +102,42 @@ module DataCycleCore
                             )
                           end
                         rescue StandardError => e
-                          logging.info("E: #{e.message}")
+                          full_message = +e.message # unfreeze the string
+                          full_message << " occured at '#{e.backtrace&.first}" if e.backtrace.present?
+                          full_message << " while trying to import ext. key '#{last_ext_key}'" if last_ext_key.present?
+
+                          last_err = e.exception(full_message)
+
+                          logging.info("E: #{full_message}")
+
                           e.backtrace.each do |line|
                             logging.info("E: #{line}")
                           end
-                          raise e.exception
+
+                          utility_object.external_source.handle_import_error_notification(last_err)
+                          raise last_err
                         ensure
-                          Marshal.dump({ count: item_count, timestamp: Time.current }, write)
+                          Marshal.dump({ count: item_count, timestamp: Time.current, last_err: last_err&.message}, write)
                           write.close
                         end
                         write.close
                         result = read.read
                         Process.waitpid(pid)
                         read.close
+
                         if result.size.positive?
                           data = Marshal.load(result) # rubocop:disable Security/MarshalLoad
                           item_count = data[:count]
                           times << data[:timestamp]
-                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                          last_err = data[:last_err]
+                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)} ")
                         end
-                        raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total}" if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
+
+                        if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
+                          error_msg = "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total} #{last_err.present? ? '| Last Error: ' + last_err.to_s : ''}"
+                          utility_object.external_source.handle_import_error_notification(error_msg)
+                          raise DataCycleCore::Generic::Common::Error::ImporterError, error_msg
+                        end
                       end
                     end
                   end
@@ -126,7 +146,7 @@ module DataCycleCore
                     logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count.to_s)
                   else
                     logging.info("#{importer_name}(#{phase_name}) #{locale} (#{item_count} items) aborted")
-                    raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total}" unless Rails.env.test?
+                    raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total} #{last_err.present? ? '| Last Error: ' + last_err.to_s : ''}" unless Rails.env.test?
                   end
                 end
               end

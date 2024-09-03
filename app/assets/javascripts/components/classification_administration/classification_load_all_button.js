@@ -3,7 +3,6 @@ import ObserverHelpers from "../../helpers/observer_helpers";
 class ClassificationLoadAllButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-classification-load-all-button");
 
 		this.setup();
 	}

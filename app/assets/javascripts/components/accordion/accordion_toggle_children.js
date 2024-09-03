@@ -1,7 +1,6 @@
 class AccordionToggleChildren {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-accordion-toggle-children");
 		this.containerSelector =
 			"[data-accordion], .form-element.embedded_object, .inner-container";
 

@@ -5,20 +5,18 @@ module DataCycleCore
     def initialize(key, definition, options, content, scope, specific_scope = nil)
       if options.is_a?(ActionController::Parameters)
         options = options.permit!.to_h
-      elsif options.is_a?(Hash)
-        options = options.with_indifferent_access
-      elsif options.nil?
+      elsif options.is_a?(::Hash)
+        options = options.dc_deep_dup.with_indifferent_access
+      else
         options = {}
       end
 
       if definition.is_a?(ActionController::Parameters)
         definition = definition.permit!.to_h
-      elsif definition.is_a?(Hash)
-        definition = definition.with_indifferent_access
-      elsif options.nil?
-        definition = {}
+      elsif definition.is_a?(::Hash)
+        definition = definition.dc_deep_dup.with_indifferent_access
       else
-        definition = definition.deep_dup
+        definition = {}
       end
 
       specific_scope ||= scope

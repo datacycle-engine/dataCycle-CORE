@@ -12,8 +12,6 @@ class DashboardContentLink {
 		this.setup();
 	}
 	setup() {
-		this.container.classList.add("dcjs-dashboard-content-link");
-
 		if (!this.page || !this.contentLink) return;
 
 		this.contentLink.addEventListener("click", this.pushState.bind(this));

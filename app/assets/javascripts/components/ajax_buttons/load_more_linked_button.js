@@ -4,7 +4,6 @@ import CalloutHelpers from "../../helpers/callout_helpers";
 class LoadMoreLinkedButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-load-more-linked");
 		this.parent = this.item.parentElement.classList.contains("clear-both")
 			? this.item.parentElement
 			: this.item;

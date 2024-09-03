@@ -10,7 +10,7 @@
     new_key = embedded_key_prefix(key, index)
     time_key = "#{new_key}[time]"
     time_objects = local_assigns[:object]
-    time_definition = opening_time_time_definition
+    time_definition = opening_time_time_definition(readonly:)
   %>
 
   <span class="embedded-header">

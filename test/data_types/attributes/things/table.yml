@@ -1,0 +1,22 @@
+---
+- :data:
+    :name: Table
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+      - Dataset
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :table_data:
+        :label: Daten
+        :type: table
+        :storage_location: value

@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: test_mixin_2
+    :type: mixin
+    :properties:
+      :mixed_in_name2:
+        :label: mixin 1 property
+        :type: string
+        :storage_location: translated_value
+      :mixed_in_text2:
+        :label: mixin 2 text
+        :type: string
+        :storage_location: translated_value

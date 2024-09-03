@@ -46,6 +46,7 @@ de:
       content_created_by_user?: Benutzer ist Ersteller des Inhalts
       attribute_value_present?: Attribut ist ausgefüllt
       attribute_value_blank?: Attribut ist nicht ausgefüllt
+      attribute_content_not_external_source?: Inhalt nicht importiert von %{data}
     model_names:
       backend: Dashboard
       view_mode: Anzeigemodus für Listen
@@ -141,6 +142,7 @@ de:
       bulk_edit: im Bulk bearbeiten
       bulk_delete: im Bulk löschen
       download_user_info_activity: "Nutzerinformationen und API-Aktivität herunterladen"
+      copy_to_clipboard: in die Zwischenablage kopieren
     restrictions:
       advanced_filter_except_type: "nicht: %{except}"
       asset_by_user_and_no_content:
@@ -185,6 +187,7 @@ de:
         - importiert
         - "Datentyp: %{template_names}"
       thing_by_template_name: "Datentyp: %{template_names}"
+      thing_by_classification_tree_path: "Klassifizierungen: %{concept_paths}"
       thing_by_user_and_template_name:
         - "Benutzer ist %{attribute_name}"
         - "Datentyp: %{template_names}"

@@ -1,0 +1,23 @@
+<%
+  oembed_input_id = "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}"
+  oembed_preview_data = local_assigns[:content].get_data_hash.merge({'template_name' => local_assigns[:content].template_name})
+%>
+
+
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
+
+  <%= attribute_edit_label_tag(**local_assigns) %>
+  <%= text_field_tag key, value, options.merge({ class: 'form-control validation-container oembed-input',
+                                                 data: definition&.slice('validations', 'warnings'),
+                                                 id: oembed_input_id,
+                                                 disabled: !attribute_editable?(key, definition, options, content),
+                                                 # onblur: "validate_oembed(this, '#{local_assigns[:content].get_data_hash.to_json}', '#{local_assigns[:content].template_name}')"
+                                                 # onblur: "$(this).trigger('dc:oembed:update_preview')",
+                                                 oembed_preview: "#{oembed_preview_data.to_json}"
+                                               }) %>
+
+<% end %>
+
+
+
+<%= render 'data_cycle_core/contents/oembed_preview', local_assigns.merge({ viewer: 'edit'}) %>

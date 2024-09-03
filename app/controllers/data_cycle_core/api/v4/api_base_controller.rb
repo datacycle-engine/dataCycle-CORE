@@ -31,6 +31,8 @@ module DataCycleCore
           links: 1
         }.freeze
 
+        VALIDATE_PARAMS_CONTRACT = nil
+
         after_action :log_activity, unless: -> { params[:sl] }
         before_action :set_default_response_format
 
@@ -38,12 +40,12 @@ module DataCycleCore
           return @permitted_params if defined? @permitted_params
 
           permitted = params.permit(*permitted_parameter_keys)
-          validate_api_params(permitted.to_h, validate_params_exceptions)
+          validate_api_params(permitted.to_h, validate_params_exceptions, self.class::VALIDATE_PARAMS_CONTRACT)
           @permitted_params = permitted
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: []]
+          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, :min_count_with_subtree, :min_count_without_subtree, section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: []]
         end
 
         def validate_params_exceptions
@@ -94,14 +96,12 @@ module DataCycleCore
         end
 
         def log_activity
-          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(
-            controller: params.dig('controller'),
-            action: params.dig('action'),
-            format: request.format.to_sym,
-            referer: request.referer,
-            origin: request.origin,
-            middlewareOrigin: request.headers['X-Dc-Middleware-Origin']
-          ))
+          current_user.log_request_activity(
+            type: "api_v#{@api_version}",
+            data: permitted_params.to_h,
+            request:,
+            activitiable: @collection || @content
+          )
         end
 
         def prepare_url_parameters

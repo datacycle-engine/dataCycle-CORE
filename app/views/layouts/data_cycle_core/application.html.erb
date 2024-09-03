@@ -8,33 +8,29 @@
 
     <%= render 'header' %>
 
-    <div class="off-canvas-wrapper">
+    <%= render 'user_settings' if user_signed_in? %>
 
-      <%= render 'user_settings' if user_signed_in? %>
+    <div class="off-canvas-content" data-off-canvas-content>
 
-      <div class="off-canvas-content" data-off-canvas-content>
+      <%= render 'breadcrumb' %>
 
-        <%= render 'breadcrumb' %>
+      <%= yield :new_button %>
 
-        <%= yield :new_button %>
+      <div class="inner-container">
 
-        <div class="inner-container">
+        <%= yield :top_content %>
 
-          <%= yield :top_content %>
-
-          <div class="expanded row">
-            <div class="column">
-              <%= yield %>
-            </div>
+        <div class="expanded row">
+          <div class="column">
+            <%= yield %>
           </div>
-
-          <%= yield :admin_panel if can? :show_admin_panel, @content %>
-
         </div>
 
-        <%= render 'footer' if @split_source.nil? %>
+        <%= yield :admin_panel if can? :show_admin_panel, @content %>
 
       </div>
+
+      <%= render 'footer' if @split_source.nil? %>
 
     </div>
 

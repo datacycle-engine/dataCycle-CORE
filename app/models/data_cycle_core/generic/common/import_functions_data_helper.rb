@@ -5,9 +5,11 @@ module DataCycleCore
     module Common
       module ImportFunctionsDataHelper
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
+          return if DataCycleCore::DataHashService.deep_blank?(raw_data)
+
           template = load_template(config&.dig(:template) || default.dig(:template))
 
-          raw_data = pre_process_data(raw_data:, config:)
+          raw_data = pre_process_data(raw_data:, config:, utility_object:)
 
           data = merge_default_values(
             config,
@@ -15,7 +17,9 @@ module DataCycleCore
             utility_object
           ).with_indifferent_access
 
-          data = post_process_data(data:, config:).slice(*template.properties, 'external_system_data')
+          return if DataCycleCore::DataHashService.deep_blank?(data) || data.dig('external_key').blank?
+
+          data = post_process_data(data:, config:, utility_object:).slice(*template.properties, 'external_system_data')
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
           external_key = data.dig('external_key')
           external_source_id = utility_object.external_source.id
@@ -38,7 +42,7 @@ module DataCycleCore
           content
         end
 
-        def create_or_update_content(utility_object:, template:, data:, local: false, config: {})
+        def create_or_update_content(utility_object:, template:, data:, local: false, **)
           return nil if data.except('external_key', 'locale').blank?
 
           if local
@@ -100,51 +104,20 @@ module DataCycleCore
             created = true
             content.save!
           elsif content.template_name != template.template_name
-            raise DataCycleCore::Error::Import::TemplateMismatchError.new(template_name: content.template_name, expected_template_name: template.template_name)
+            raise DataCycleCore::Error::Import::TemplateMismatchError.new(template_name: content.template_name, expected_template_name: template.template_name, external_source: utility_object&.external_source, external_key: content.external_key)
           end
 
-          global_data = data.except(*content.local_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content))
+          global_data = data.except(*content.local_property_names, 'overlay')
           global_data.except!('external_key') unless created
-
-          if config&.dig(:asset_type).present?
-            if utility_object.asset_download
-              content.asset.try(:remove_file!)
-              if data.dig('binary_file_blob').present? && data.dig('binary_file_name').present?
-                full_file_path = Rails.root.join('tmp', data.dig('binary_file_name'))
-                File.binwrite(full_file_path.to_s, [data.dig('binary_file_blob')].pack('H*'))
-                asset = config
-                  .dig(:asset_type)
-                  .constantize
-                  .new(name: data.dig('binary_file_name'))
-                asset.file.attach(io: File.open(full_file_path), filename: data.dig('binary_file_name'))
-                # full_file_path.delete
-              elsif data.dig('binary_file').present? && data.dig('binary_file_name').present?
-                tempfile = File.new(Rails.root.join('tmp', data.dig('binary_file_name')), 'w')
-                tempfile.binmode
-                tempfile.write(data.dig('binary_file'))
-                tempfile.close
-                asset = config.dig(:asset_type).constantize.new(file: Pathname.new(Rails.root.join('tmp', data.dig('binary_file_name'))).open)
-                Rails.root.join('tmp', data.dig('binary_file_name')).delete
-              else
-                asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
-              end
-              asset.save
-              global_data['asset'] = asset.id
-            else
-              global_data['asset'] = content&.asset&.id
-            end
-          end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
-          partial_update_improved = utility_object.external_source.default_options&.fetch('partial_update_improved', DataCycleCore.partial_update_improved) && !created
 
           valid = content.set_data_hash(
             data_hash: global_data,
             prevent_history: !utility_object.history,
             update_search_all: true,
             current_user:,
-            partial_update_improved:,
             new_content: created,
             invalidate_related_cache:
           )
@@ -162,7 +135,10 @@ module DataCycleCore
               template_name: content.template_name
             }
 
-            utility_object.logging&.error('Validating import data', data['external_key'], data, content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
+            errors = content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', ')
+
+            utility_object.logging&.error('Validating import data', data['external_key'], data, errors)
+            utility_object.external_source&.handle_import_error_notification(errors)
 
             content.destroy_content(save_history: false) if created
             return
@@ -187,6 +163,7 @@ module DataCycleCore
             exception: e,
             namespace: 'importer'
           }
+          utility_object&.external_source&.handle_import_error_notification(e)
           # puts 'Error: Template mismatch, expected: ' + e.expected_template_name + ', got: ' + e.template_name
         end
 
@@ -201,10 +178,8 @@ module DataCycleCore
 
         def load_template(template_name)
           I18n.with_locale(:de) do
-            DataCycleCore::Thing.new(template_name:).require_template!
+            DataCycleCore::Thing.new(template_name:)
           end
-        rescue ActiveRecord::RecordNotFound
-          raise "Missing template #{template_name}"
         end
 
         def default_classification(value:, tree_label:)
@@ -237,7 +212,7 @@ module DataCycleCore
           data_hash['external_system_data'].each { |d| d['identifier'] = transformation_config['module'].safe_constantize.send(transformation_config['method'], d['identifier']) }
         end
 
-        def pre_process_data(raw_data:, config:)
+        def pre_process_data(raw_data:, config:, utility_object:)
           return raw_data unless config&.key?(:before)
 
           whitelist = config.dig(:before, :whitelist)
@@ -253,14 +228,14 @@ module DataCycleCore
             Array.wrap(processor[:method]).each do |method_name|
               next unless class_name.respond_to?(method_name)
 
-              raw_data = class_name.send(method_name, raw_data)
+              raw_data = class_name.send(method_name, raw_data, utility_object)
             end
           end
 
           raw_data
         end
 
-        def post_process_data(data:, config:)
+        def post_process_data(data:, config:, utility_object:)
           return data unless config&.key?(:after)
 
           whitelist = config.dig(:after, :whitelist)
@@ -276,7 +251,7 @@ module DataCycleCore
             Array.wrap(processor[:method]).each do |method_name|
               next unless class_name.respond_to?(method_name)
 
-              data = class_name.send(method_name, data)
+              data = class_name.send(method_name, data, utility_object)
             end
           end
 

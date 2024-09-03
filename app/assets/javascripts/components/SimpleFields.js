@@ -9,22 +9,20 @@ class SimpleFields {
 	setup() {
 		this.watchForNewField(
 			"string",
-			'.form-element.string:not(.text_editor) > input[type="text"]:not(.dc-import-data)',
+			'.form-element.string:not(.text_editor) > input[type="text"]',
 		);
 		this.watchForNewField(
 			"number",
-			'.form-element.number > input[type="number"]:not(.dc-import-data)',
+			'.form-element.number > input[type="number"]',
 		);
 		this.watchForNewField(
 			"checkbox",
-			'.form-element.boolean input[type="checkbox"]:not(.dc-import-data)',
+			'.form-element.boolean input[type="checkbox"]',
 		);
 	}
 	watchForNewField(type, selector) {
-		DataCycle.initNewElements(selector, (e) => {
-			$(e)
-				.on("dc:import:data", this[`${type}EventHandler`].bind(this))
-				.addClass("dc-import-data");
+		DataCycle.registerAddCallback(selector, "dc-import-data", (e) => {
+			$(e).on("dc:import:data", this[`${type}EventHandler`].bind(this));
 
 			e.addEventListener("clear", this[`${type}ClearHandler`].bind(this));
 		});

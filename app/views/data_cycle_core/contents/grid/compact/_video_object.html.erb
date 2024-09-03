@@ -15,7 +15,7 @@
             <%= object.title %> (<%= I18n.locale.to_s %>)
           </div>
         <% end %>
-        <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>
+        <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && attribute_editable?(key, definition, options, content) %>
         <%= render_linked_content_warnings(content, { content: object, locale: render_locale }) %>
       </div>
 

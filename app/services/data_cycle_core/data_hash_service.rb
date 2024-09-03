@@ -90,7 +90,7 @@ module DataCycleCore
       elsif template.is_a?(::String)
         new_params[:template_name] = template
       end
-      object = DataCycleCore::Thing.new(new_params).require_template!
+      object = DataCycleCore::Thing.new(new_params)
       object_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, object.schema)
       object_hash[:translations]&.deep_reject! { |_, v| v.blank? && !v.is_a?(FalseClass) }
       locale = object_hash[:translations]&.keys&.first || I18n.locale
@@ -102,6 +102,7 @@ module DataCycleCore
           object.created_at = save_time
           object.updated_at = save_time
           object.created_by = current_user&.id
+          object.last_updated_locale = locale
           object.save(touch: false)
         end
 
@@ -124,6 +125,8 @@ module DataCycleCore
       allowed_params = []
 
       template_hash['properties'].each do |key, value|
+        next if value.key?('compute') || value.key?('virtual')
+
         if value['type'] == 'schedule'
           parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [:day_of_week, :day_of_month, day: [], day_of_month: [], day_of_week: {}]]]] }
         elsif value['type'] == 'opening_time'
@@ -189,11 +192,11 @@ module DataCycleCore
       end
     end
 
-    def self.parse_translated_hash(datahash)
+    def self.parse_translated_hash(datahash, allowed_locales = [])
       return {} unless datahash.is_a?(::Hash)
 
       neutral_hash = datahash.key?(:datahash) ? datahash[:datahash].to_h : datahash.except(:translations, :version_name).to_h
-      keep_locales = find_locales_recursive(neutral_hash)
+      keep_locales = (find_locales_recursive(neutral_hash) + allowed_locales.map(&:to_s)).uniq
       translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
 
       translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
@@ -271,6 +274,10 @@ module DataCycleCore
             value = value.blank? ? nil : value.to_f
           elsif type == 'number'
             value = value.blank? ? nil : value.to_i
+          elsif type == 'boolean'
+            value = blank?(value) ? nil : value == 'true'
+          elsif type == 'table'
+            value = JSON.parse(value) rescue nil # rubocop:disable Style/RescueModifier
           elsif type == 'geographic'
             if value.blank?
               value = nil

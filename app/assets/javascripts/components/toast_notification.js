@@ -10,7 +10,6 @@ const showTimeMapping = {
 class ToastNotification {
 	constructor(notificationContainer) {
 		this.notificationContainer = notificationContainer;
-		this.notificationContainer.classList.add("dcjs-toast-notification");
 		this.setUp();
 	}
 
@@ -102,8 +101,18 @@ export function showToast(text, type = "", closeable = true) {
 	container?.appendChild(toast);
 
 	toast.addEventListener("animationend", (event) => {
+		if (event.animationName === "slideIn") {
+			toast.classList.add("in-visible-transition-state");
+		}
+
 		if (event.animationName === "slideOut") {
 			toast.remove();
+		}
+	});
+
+	toast.addEventListener("animationstart", (event) => {
+		if (event.animationName === "slideOut") {
+			toast.classList.remove("in-visible-transition-state");
 		}
 	});
 }

@@ -21,12 +21,12 @@ module DataCycleCore
             if content.schema_ancestors.present?
               content.schema_ancestors.each do |path|
                 schema_types.concat(
-                  find_classification(transform_path(path, content), property_definition['tree_label'])
+                  find_classification(transform_path(path, content, property_definition['tree_label']))
                 )
               end
             elsif content.schema_type.present?
               schema_types.concat(
-                find_classification(transform_path([content.schema_type], content), property_definition['tree_label'])
+                find_classification(transform_path([content.schema_type], content, property_definition['tree_label']))
               )
             end
 
@@ -67,24 +67,29 @@ module DataCycleCore
             query.pluck(:id)
           end
 
-          private
+          def by_name_and_external_source(property_definition:, content:, **_additional_args)
+            mapping = property_definition.dig('default_value', 'value')
 
-          def transform_path(path, content)
-            path.push("dcls:#{content.template_name}") if path.last != content.template_name
+            return [] if mapping.blank?
 
-            path
+            value = mapping['default']
+            value = mapping[content.external_source.name] || mapping[content.external_source.identifier] if content&.external_source.present?
+
+            Array.wrap(DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), value))
           end
 
-          def find_classification(path, tree_label_name)
-            return [] if path.blank? || tree_label_name.blank?
+          private
 
-            DataCycleCore::ClassificationAlias
-              .for_tree(tree_label_name)
-              .includes(:classification_alias_path)
-              .where(classification_alias_paths: { full_path_names: path.reverse + [tree_label_name] })
-              .primary_classifications
-              .limit(1)
-              .pluck(:id)
+          def transform_path(path, content, tree_label)
+            path.push("dcls:#{content.template_name}") if path.last != content.template_name
+
+            ([tree_label] + path).join(' > ')
+          end
+
+          def find_classification(path)
+            return [] if path.blank?
+
+            DataCycleCore::Concept.by_full_paths(path).limit(1).pluck(:classification_id).compact
           end
         end
       end

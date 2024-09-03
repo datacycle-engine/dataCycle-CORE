@@ -102,7 +102,8 @@ module DataCycleCore
 
       def self.iterate_tree_hash(trees_hash, allow_duplicates = true)
         trees_hash.each do |k, v|
-          walk_tree_hash(v, nil, get_label(k).id, allow_duplicates)
+          tree_label = get_label(k)
+          walk_tree_hash(v, nil, tree_label.id, allow_duplicates) if tree_label.external_source_id.blank?
         end
       end
 

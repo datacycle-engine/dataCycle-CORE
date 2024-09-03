@@ -2,21 +2,11 @@
 
 module DataCycleCore
   class AssetContent < ApplicationRecord
-    belongs_to :content_data, class_name: 'DataCycleCore::Thing'
-    belongs_to :asset, dependent: :destroy
+    belongs_to :thing
+    belongs_to :asset, dependent: :destroy # destroy asset when asset_content is destroyed
 
-    class << self
-      def with_content(content_id, content_type)
-        where(content_data_id: content_id, content_data_type: content_type)
-      end
-
-      def with_assets(ids, type)
-        where(asset_id: ids, asset_type: type)
-      end
-
-      def with_relation(relation_name)
-        where(relation: relation_name)
-      end
-    end
+    scope :with_content, ->(content_id) { where(thing_id: content_id) }
+    scope :with_assets, ->(ids, type) { where(asset_id: ids, asset_type: type) }
+    scope :with_relation, ->(relation_name) { where(relation: relation_name) }
   end
 end

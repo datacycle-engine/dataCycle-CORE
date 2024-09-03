@@ -3,18 +3,20 @@
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
-      include DataCycleCore::Filter::Common::Advanced
-      include DataCycleCore::Filter::Common::Classification
-      include DataCycleCore::Filter::Common::Date
-      include DataCycleCore::Filter::Common::External
-      include DataCycleCore::Filter::Common::Id
-      include DataCycleCore::Filter::Common::Fulltext
-      include DataCycleCore::Filter::Common::Typeahead
-      include DataCycleCore::Filter::Common::Geo
-      include DataCycleCore::Filter::Common::Union
-      include DataCycleCore::Filter::Common::User
-      include DataCycleCore::Filter::Common::Graph
-      include DataCycleCore::Filter::Sortable
+      include Common::Advanced
+      include Common::Classification
+      include Common::Date
+      include Common::External
+      include Common::Id
+      include Common::Fulltext
+      include Common::Typeahead
+      include Common::Geo
+      include Common::Union
+      include Common::User
+      include Common::Graph
+      include Common::Aggregate
+      include Sortable
+      include DataCycleCore::Common::TsQueryHelpers
 
       def initialize(locale = ['de'], query = nil, include_embedded = false)
         @locale = locale
@@ -333,7 +335,7 @@ module DataCycleCore
       private
 
       def related_to_query(filter, name = nil, inverse = false)
-        if filter.is_a?(DataCycleCore::Filter::Search)
+        if filter.is_a?(Search)
           filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
           filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)

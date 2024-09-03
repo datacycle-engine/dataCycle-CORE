@@ -33,9 +33,12 @@ namespace :dc do
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
       contents = query.query.page(1).per(query.query.size)
 
+      logger = Logger.new("log/dc_export_#{endpoint.id}_jsonld.log")
+
       dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
+      File.write(dir.join("#{endpoint.id}.jsonld.tmp"), '')
 
       renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -76,11 +79,17 @@ namespace :dc do
       size = contents.total_count
       queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
       progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
-      json_data = []
 
-      contents.find_each do |item|
+      logger.info("[EXPORTING] #{size} things in endpoint: #{endpoint.id}")
+      puts "Exporting #{size} things in endpoint: #{endpoint.id}"
+
+      file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
+      file << result.delete_suffix(']}')
+
+      contents.each do |item|
         queue.append do
           data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
+            retries = 1
             I18n.with_locale(item.first_available_locale(locales)) do
               JSON.parse(renderer.render_to_string(
                            template: 'data_cycle_core/api/v4/api_base/_content_details',
@@ -107,17 +116,31 @@ namespace :dc do
                              options: { languages: locales }
                            }
                          ))
+            rescue SystemStackError
+              raise unless retries < 5
+
+              logger.error("[RETRYING] for thing: #{item.id} (retry: #{retries})")
+              retries += 1
+              retry
             end
           end
 
-          json_data.push(data.to_json)
+          file << data.to_json + ','
+
           progress.increment
         end
       end
 
       queue.wait!
 
-      File.write(dir.join("#{endpoint.id}.jsonld"), result.delete_suffix(']}') + json_data.join(',') + ']}')
+      file.truncate(file.size - 1)
+      file << ']}'
+      file.close
+
+      FileUtils.rm_f(dir.join("#{endpoint.id}.jsonld"))
+      File.rename(dir.join("#{endpoint.id}.jsonld.tmp"), dir.join("#{endpoint.id}.jsonld"))
+
+      logger.info("[FINISHED EXPORT] for things in endpoint: #{endpoint.id}")
     end
   end
 end

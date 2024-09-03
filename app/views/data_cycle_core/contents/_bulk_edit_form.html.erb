@@ -43,7 +43,7 @@
 
 <%= form_with url: bulk_update_watch_list_path(watch_list), method: :patch, local: false, class: 'validation-form edit-content-form bulk-edit-form' do |f| %>
   <%= hidden_field_tag :uuid, watch_list.id %>
-  <%= hidden_field_tag :table, watch_list.class.table_name %>
+  <%= hidden_field_tag :table, watch_list.class.model_name.route_key %>
   <%= hidden_field_tag :locale, @locale %>
   <%= hidden_field_tag :content_template, to_query_params(thing_template: content.thing_template).to_json %>
 
@@ -60,8 +60,16 @@
                                         value: nil,
                                         parameters: {
                                           options: {
-                                            additional_attribute_partials: ['data_cycle_core/contents/bulk_update_type_selector'],
-                                            edit_scope: 'bulk_edit'
+                                            additional_attribute_partials: [{
+                                              partial: 'data_cycle_core/contents/additional_attribute_partials/additional_attribute_partial_selector',
+                                              locals: {
+                                                key_prefix: 'bulk_update',
+                                                check_box_types: -> { bulk_update_types(_1) },
+                                                data_attributes: { update_on_change: true }
+                                              }
+                                            }],
+                                            edit_scope: 'bulk_edit',
+                                            class: 'dc-has-additional-attribute-partial dc-has-bulk-update-type'
                                           }
                                         },
                                         content: content %>

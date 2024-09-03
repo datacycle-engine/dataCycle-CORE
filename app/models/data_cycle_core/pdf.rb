@@ -63,7 +63,7 @@ module DataCycleCore
     end
 
     def enqueue_extract_text_content_job
-      DataCycleCore::ExtractPdfTextContentJob.perform_later(id)
+      DataCycleCore::ExtractPdfTextContentJob.perform_later(id) if file_size&.positive?
     end
 
     def metadata_from_reader(reader)

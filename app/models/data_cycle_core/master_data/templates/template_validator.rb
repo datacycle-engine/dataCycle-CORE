@@ -13,6 +13,7 @@ module DataCycleCore
           @template_header_contract = TemplateHeaderContract.new
           @template_property_contract = TemplatePropertyContract.new
           @all_templates = @templates.values.flatten
+          @existing_template_names = @all_templates.pluck(:name)
           @overlay_key = DataCycleCore.features.dig('overlay', 'attribute_keys')&.first
           @errors = []
         end
@@ -42,7 +43,7 @@ module DataCycleCore
 
         def merge_errors!(contract, prefix)
           contract.errors.each do |error|
-            @errors.push("#{[*prefix, *error.path].join('.')} => #{error}")
+            @errors.push("#{[*prefix, *error.path].compact.join('.')} => #{error}")
           end
         end
 
@@ -93,9 +94,23 @@ module DataCycleCore
             result_property = @template_property_contract.call(definition)
             merge_errors!(result_property, prefix + [:properties, key])
 
-            validate_properties!(definition, prefix + [:properties, key]) if definition.key?(:properties)
+            if definition.key?(:properties)
+              @template_property_contract.nested_property = true
+              validate_properties!(definition, prefix + [:properties, key]) if definition.key?(:properties)
+              @template_property_contract.nested_property = false
+            end
+
+            validate_linked_template!(definition, prefix + [:properties, key]) if definition.key?(:template_name)
 
             @errors.push("#{[*prefix, :properties, key].join('.')} => must be underscored string") if key.to_s != key.to_s.underscore
+          end
+        end
+
+        def validate_linked_template!(definition, prefix)
+          Array.wrap(definition[:template_name]).each do |key|
+            next if @existing_template_names.include?(key)
+
+            @errors.push("#{[*prefix, :template_name].join('.')} => template for '#{key}' missing!")
           end
         end
 
@@ -107,7 +122,7 @@ module DataCycleCore
           root_keys = properties.keys
           return unless root_keys.intersect?(sub_keys)
 
-          @errors.push("#{[*prefix, :property_names].join('.')} => Simple Objects Error: keys #{root_keys & sub_keys} are not unique!")
+          @errors.push("#{[*prefix, :property_names].join('.')} => Simple Objects Error: Keys (#{(root_keys & sub_keys).join(', ')}) are not unique!")
         end
       end
     end

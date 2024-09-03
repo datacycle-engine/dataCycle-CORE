@@ -107,19 +107,16 @@ module DataCycleCore
 
           return config[:hidden_filter].concat(selected) if advanced_filter.blank?
 
-          advanced_filter[:filters] = selected
+          allowed_filters = allowed_advanced_filters(user, config[:view_type], selected, c)
+          advanced_filter[:filters] = configs_intersection(selected, allowed_filters)
+          config[:hidden_filter].concat(configs_difference(selected, allowed_filters))
+
           visible_filters = DataCycleCore::Feature::AdvancedFilter.available_visible_filters(user, config[:view_type], advanced_filter[:config])
 
-          visible_filters.each do |filter|
-            filter_hash = {
-              'c' => c,
-              't' => filter[1],
-              'n' => filter.dig(2, :data, :name),
-              'q' => filter.dig(2, :data, :advancedType),
-              'identifier' => SecureRandom.hex(10)
-            }
+          visible_filters.each do |_k, v, data|
+            filter_hash = transform_advanced_filter(data, c, v)
 
-            existing_index = advanced_filter[:filters].index { |f| filter_hash.except('identifier').reject { |_, v| v.blank? } == f.slice('c', 't', 'n', 'q').reject { |_, v| v.blank? } }
+            existing_index = advanced_filter[:filters].index { |f| configs_equal?(filter_hash, f) }
 
             advanced_filter[:filters].prepend(existing_index ? advanced_filter[:filters].delete_at(existing_index) : filter_hash)
           end
@@ -200,6 +197,45 @@ module DataCycleCore
             .sort
             .group_by { |f| f[1] }
             .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
+        end
+
+        private
+
+        def transform_advanced_filter(data, c = nil, t = nil)
+          return if data.blank?
+
+          {
+            'c' => c,
+            't' => t,
+            'n' => data.dig(:data, :name),
+            'q' => data.dig(:data, :advancedType),
+            'identifier' => SecureRandom.hex(10)
+          }
+        end
+
+        def configs_intersection(configs1, configs2)
+          configs1.select { |config1| configs2.any? { |config2| configs_equal?(config1, config2) } }
+        end
+
+        def configs_difference(configs1, configs2)
+          configs1.reject { |config1| configs2.any? { |config2| configs_equal?(config1, config2) } }
+        end
+
+        def configs_equal?(config1, config2)
+          comparable_key = ['c', 't']
+          comparable_key << 'q' if config1['t']&.in?(AdvancedFilter.all_filters_with_advanced_type)
+          comparable_key << 'n' if AdvancedFilter.filter_requires_n_for_comparison?(config1)
+          comparable_key.all? { |k| config1[k].presence == config2[k].presence }
+        end
+
+        def allowed_advanced_filters(user, view_type, selected, c = 'a')
+          return [] if selected.blank?
+
+          filter_proc = ->(_, v, data) { selected.any? { |f| configs_equal?(transform_advanced_filter(data, c, v), f) } }
+
+          DataCycleCore::Feature::AdvancedFilter
+            .all_available_filters(user, view_type, filter_proc)
+            .map { |_k, v, data| transform_advanced_filter(data, c, v) }
         end
       end
     end

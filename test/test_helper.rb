@@ -94,3 +94,4 @@ DataCycleCore::TestPreparations.load_dummy_data(
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_users
 DataCycleCore::TestPreparations.create_user_group
+DataCycleCore::PgDictMapping.upsert_missing

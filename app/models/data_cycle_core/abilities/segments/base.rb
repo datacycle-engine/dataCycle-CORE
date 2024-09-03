@@ -6,7 +6,8 @@ module DataCycleCore
       class Base
         # dynamic scopes or permissions have to be implemented as instance methods, as user and session are nil during initialization (can't be used in initialize method)
 
-        attr_reader :user, :session
+        attr_accessor :ability
+        delegate :user, :session, to: :ability
 
         MODEL_NAME_MAPPINGS = {
           users: User,

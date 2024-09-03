@@ -67,15 +67,16 @@
 @import 'modules/components/chart';
 @import 'modules/components/transitions';
 @import 'modules/components/permissions';
-@import 'modules/components/overlay';
+@import 'modules/components/additional_attribute_partials';
 
 @import '@simonwep/pickr/dist/themes/nano.min';
 @import 'modules/components/color_picker';
 
-@import 'tabulator-tables/dist/css/tabulator.min';
+@import 'tabulator-tables/dist/css/tabulator.min.css';
 
 @import 'video.js/dist/video-js';
 @import 'modules/components/_video_player';
 
 @import 'modules/components/_gravity_ui_editor';
 @import 'modules/external_systems';
+@import 'modules/components/table_editor'

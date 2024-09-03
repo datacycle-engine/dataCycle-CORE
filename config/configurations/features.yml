@@ -194,8 +194,9 @@
 :advanced_filter:
   :enabled: true
   :boolean:
-    #   - duplicate_candidates
-    #   - with_geom
+    - with_geom
+    - duplicate_candidates:
+        depends_on: DataCycleCore::Feature::DuplicateCandidate
     - with_external_source
   :config:
     :visible: false
@@ -225,6 +226,8 @@
     :geo_radius: false
     :geo_within_classification: false
     :geo_type: false
+  :aggregate_filter:
+    :depends_on: DataCycleCore::Feature::Aggregate
   # :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
@@ -283,9 +286,9 @@
   #     :attribute_keys:
   #       - live_date_from
   #       - live_date_until
-#  :graph_filter:
-#    :items_linked_to: true
-#    :linked_items_in: true
+  #  :graph_filter:
+  #    :items_linked_to: true
+  #    :linked_items_in: true
 
 :sortable:
   :enabled: false
@@ -395,6 +398,9 @@
 :translatable:
   :enabled: true
   :only_config: true
+
+:user_confirmation:
+  :enabled: false
 
 :user_registration:
   :enabled: false
@@ -596,3 +602,12 @@
   :enabled: false
   :attribute_keys:
     - gravity
+
+:ts_query_fulltext_search:
+  :enabled: false
+
+:aggregate:
+  :enabled: false
+
+:custom_asset_previewer:
+  :enabled: false

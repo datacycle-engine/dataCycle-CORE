@@ -4,36 +4,21 @@ namespace :dc do
   namespace :update do
     desc 'import and update all classifications, external_sources, external_systems and templates'
     task configs: :environment do
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].reenable
+      Rake::Task['dc:templates:import'].invoke
+      Rake::Task['dc:templates:import'].reenable
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].reenable
+      Rake::Task['data_cycle_core:update:import_classifications'].invoke
+      Rake::Task['data_cycle_core:update:import_classifications'].reenable
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:import"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:import"].reenable
+      Rake::Task['dc:external_systems:import'].invoke
+      Rake::Task['dc:external_systems:import'].reenable
     end
 
     namespace :search do
       desc 'rebuild the searches table'
       task :rebuild, [:template_names] => :environment do |_, args|
-        temp_time = Time.zone.now
-        template_names = args.template_names&.split('|')&.map(&:squish)
-        puts 'UPDATING SEARCH ENTRIES'
-
-        query = DataCycleCore::ThingTemplate.where.not(content_type: 'embedded')
-        query = query.where(template_name: template_names) if template_names.present?
-
-        query.find_each do |thing_template|
-          strategy = DataCycleCore::Update::UpdateSearch
-          DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: DataCycleCore::Thing.new(thing_template:), strategy:, transformation: nil)
-        end
-
-        clean_up_query = DataCycleCore::Search.where('searches.updated_at < ?', temp_time)
-        clean_up_query = clean_up_query.where(data_type: template_names) if template_names.present?
-        clean_up_count = clean_up_query.delete_all
-
-        puts "REMOVED #{clean_up_count} orphaned entries."
+        Rake::Task['dc:search:rebuild'].invoke(args.template_names)
+        Rake::Task['dc:search:rebuild'].reenable
       end
     end
 
@@ -112,13 +97,13 @@ namespace :dc do
 
   desc 'run migrations, update all configs and run data_migrations'
   task update: :environment do
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate:check"].invoke
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate:check"].reenable
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].reenable
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs"].invoke
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs"].reenable
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate:with_data"].invoke
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate:with_data"].reenable
+    Rake::Task['db:migrate:check'].invoke
+    Rake::Task['db:migrate:check'].reenable
+    Rake::Task['db:migrate'].invoke
+    Rake::Task['db:migrate'].reenable
+    Rake::Task['dc:update:configs'].invoke
+    Rake::Task['dc:update:configs'].reenable
+    Rake::Task['db:migrate:with_data'].invoke
+    Rake::Task['db:migrate:with_data'].reenable
   end
 end

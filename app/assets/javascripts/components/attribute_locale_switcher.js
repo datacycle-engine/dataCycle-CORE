@@ -2,7 +2,6 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 
 class AttributeLocaleSwitcher {
 	constructor(localeSwitch) {
-		localeSwitch.classList.add("dcjs-attribute-locale-switcher");
 		this.$localeSwitch = $(localeSwitch);
 		this.$container = this.$localeSwitch
 			.closest(".reveal, #edit-form, .inner-container, .split-content")

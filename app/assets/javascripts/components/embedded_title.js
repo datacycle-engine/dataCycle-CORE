@@ -9,8 +9,6 @@ class EmbeddedTitle {
 		this.init();
 	}
 	init() {
-		this.$element[0].classList.add("dcjs-embedded-title");
-
 		this.updateEmbeddedTitle();
 
 		this.$element.on(
@@ -35,7 +33,7 @@ class EmbeddedTitle {
 	updateEmbeddedTitle(_event) {
 		if (!this.$targetField.length) return;
 
-		let value = this.getSourceValue();
+		const value = this.getSourceValue();
 
 		this.$targetField.text(value);
 		this.$targetField.attr("title", value);

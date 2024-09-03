@@ -56,7 +56,6 @@ class DashboardFilter {
 		this.$searchForm[0].dataset.initialFormData = JSON.stringify(
 			Array.from(new FormData(this.$searchForm[0])),
 		);
-		this.$searchForm[0].classList.add("dcjs-dashboard-filter");
 	}
 	initDefaultFilters() {
 		if (!this.$defaultFilterContainer.length) return;
@@ -181,10 +180,10 @@ class DashboardFilter {
 		const childList = $(event.currentTarget).find("ul").first();
 		if (
 			childList.length &&
-			Math.round($(".off-canvas-wrapper").outerHeight()) <
+			Math.round($(".off-canvas-content").outerHeight()) <
 				Math.round(childList.outerHeight() + childList.offset().top + 150)
 		) {
-			$(".off-canvas-wrapper").css(
+			$(".off-canvas-content").css(
 				"height",
 				childList.outerHeight() + childList.offset().top + 150,
 			);

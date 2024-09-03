@@ -46,6 +46,8 @@ module DataCycleCore
       end
 
       def configuration(content = nil, attribute_key = nil)
+        remove_instance_variable(:@configuration) if instance_variable_defined?(:@configuration)
+
         @configuration ||= Hash.new do |h, key|
           config = ActiveSupport::HashWithIndifferentAccess.new
           config.merge!(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})

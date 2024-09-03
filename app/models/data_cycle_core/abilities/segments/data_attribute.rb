@@ -20,6 +20,14 @@ module DataCycleCore
           ->(*args) { include?(*args) }
         end
 
+        def attribute_aggregate_override?(attribute)
+          attribute.definition.dig('features', 'aggregate', 'aggregate_for').present?
+        end
+
+        def attribute_not_aggregate_override?(attribute)
+          !attribute_aggregate_override?(attribute)
+        end
+
         def attribute_content_not_external?(attribute)
           !attribute.content.external?
         end
@@ -44,7 +52,7 @@ module DataCycleCore
 
         def overlay_attribute_visible?(attribute)
           return true unless DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
-          return true if attribute.content&.external? && DataCycleCore::Feature::Overlay.allowed?(attribute.content)
+          return true if (attribute.content&.external? || attribute.content&.aggregate_type_aggregate?) && DataCycleCore::Feature::Overlay.allowed?(attribute.content)
 
           false
         end
@@ -74,7 +82,7 @@ module DataCycleCore
           return true if attribute.definition.dig('local')
           return true if attribute.definition.dig('tree_label').blank? # only for classification type attributes
 
-          tree_label_external_id = DataCycleCore::ClassificationTreeLabel.find_by(name: attribute.definition['tree_label'])&.external_source_id
+          tree_label_external_id = ability.concept_scheme(attribute.definition['tree_label'])&.external_source_id
 
           return true if tree_label_external_id.blank?
 
@@ -94,7 +102,7 @@ module DataCycleCore
         end
 
         def attribute_whitelisted?(attribute, attribute_names = [])
-          Array.wrap(attribute_names).any? { |a| Array.wrap(a).all? { |v| attribute.key.attribute_path_from_key.include?(v) } }
+          Array.wrap(attribute_names).any? { |a| Array.wrap(a) == attribute.key.attribute_path_from_key }
         end
 
         def attribute_not_blacklisted?(attribute, attribute_names = [])
@@ -129,6 +137,13 @@ module DataCycleCore
           !attribute_value_present?(attribute)
         end
 
+        def attribute_content_not_external_source?(attribute, external_source_names = [])
+          !(
+            attribute.content.try(:external_source)&.name&.in?(Array.wrap(external_source_names)) ||
+            attribute.content.try(:external_source)&.identifier&.in?(Array.wrap(external_source_names))
+          )
+        end
+
         def to_restrictions(**)
           Array.wrap(method_names).map do |m|
             params = case m.first.to_s
@@ -144,6 +159,8 @@ module DataCycleCore
                        { data: translated_attribute_types(m.last) }
                      when 'attribute_not_releasable?'
                        next releasable_attribute_labels(m.first)
+                     when 'attribute_content_not_external_source?'
+                       { data: ExternalSystem.by_names_or_identifiers(m.last).pluck(:name).join(', ') }
                      else {}
                      end
 
@@ -158,7 +175,7 @@ module DataCycleCore
         end
 
         def translated_attribute_labels_with_template_name(translation_key, keys)
-          keys.map do |k, v|
+          Array.wrap(keys).map do |k, v|
             AttributeTranslation.new(Array.wrap(v), k.to_s, ->(data, template_name) { I18n.t("abilities.data_attribute_method_names.#{translation_key}", locale:, data:, template_name:) })
           end
         end

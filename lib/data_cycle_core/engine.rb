@@ -195,6 +195,9 @@ module DataCycleCore
   mattr_accessor :content_warnings
   self.content_warnings = {}
 
+  mattr_accessor :oembed_providers
+  self.oembed_providers = {}
+
   mattr_accessor :classification_visibilities
   self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view', 'classification_overview', 'classification_administration']
 
@@ -208,7 +211,7 @@ module DataCycleCore
   self.holidays_country_code = :at
 
   mattr_accessor :partial_update_improved
-  self.partial_update_improved = false
+  self.partial_update_improved = true
 
   mattr_accessor :persistent_activities
   self.persistent_activities = ['downloads']
@@ -239,6 +242,12 @@ module DataCycleCore
     search_update: 3,
     mailers: 1,
     webhooks: 1
+  }
+
+  mattr_accessor :schedule_occurrences_range
+  self.schedule_occurrences_range = {
+    start: -> { 1.year.ago },
+    end: -> { 5.years.from_now }
   }
 
   def self.setup
@@ -288,7 +297,7 @@ module DataCycleCore
 
       next unless respond_to?(config_name)
 
-      new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, permitted_classes: [Symbol])
+      new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, permitted_classes: [Symbol], aliases: true)
       value = try(config_name)
 
       next unless new_value.present? || new_value.is_a?(FalseClass)
@@ -366,8 +375,6 @@ module DataCycleCore
     end
 
     config.autoload_once_paths << "#{root}/app/middlewares"
-    config.autoload_paths += Dir['vendor/gems/datacycle-*/lib']
-    config.eager_load_paths += Dir['vendor/gems/datacycle-*/lib']
 
     if Rails.env.development? # needed for reloading yml configurations in development context
       config.eager_load_paths += Dir['config/configurations/**/*.yml']

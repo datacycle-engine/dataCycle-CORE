@@ -1,0 +1,23 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+  local_assigns.merge(data_attributes: {
+    editor: 'table',
+    value: value
+  }) do %>
+
+  <span class="detail-content table">
+    <%
+      if options.dig(:item_diff, 0) == '-'
+        value = nil
+      elsif options.dig(:item_diff, 0) == '+'
+        value = options.dig(:item_diff, 1).presence
+      elsif options.dig(:item_diff, 0) == '~'
+        value = options.dig(:item_diff, 2).presence
+      end
+    %>
+
+    <div class="table-viewer-wrapper">
+      <div class="table-viewer" data-key="<%= key %>" data-value="<%= value.to_json %>"></div>
+    </div>
+  </span>
+
+<% end %>

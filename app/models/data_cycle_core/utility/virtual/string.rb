@@ -6,6 +6,10 @@ module DataCycleCore
       module String
         extend DataCycleCore::ContentHelper
 
+        EXTERNAL_SYSTEM_MAPPING = {
+          'outdooractive' => 'outdoor_active'
+        }.freeze
+
         class << self
           def concat(virtual_parameters:, **args)
             virtual_parameters.map { |item|
@@ -24,6 +28,21 @@ module DataCycleCore
             else
               raise 'Unknown type for string transformation'
             end
+          end
+
+          def translation_by_imported_key(content:, virtual_parameters:, **_args)
+            base_content = content.template_name == 'Übersetzung' ? content.try(:about)&.first : content
+            return if base_content.nil?
+
+            virtual_parameters.each do |item|
+              external_system_key = base_content.external_source&.identifier
+              external_system_key = EXTERNAL_SYSTEM_MAPPING[external_system_key] if EXTERNAL_SYSTEM_MAPPING.key?(external_system_key)
+              key = content.try(item)
+
+              return I18n.t("import.#{external_system_key}.#{base_content.template_name.downcase}.#{key}") if I18n.exists?("import.#{external_system_key}.#{base_content.template_name.downcase}.#{key}")
+            end
+
+            content.try(virtual_parameters.first)
           end
 
           def license_uri(content:, **_args)

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/db_helper'
+
 namespace :db do
   namespace :migrate do
     desc 'run data migrations'
@@ -12,11 +14,19 @@ namespace :db do
       Rails.application.config.paths['db/migrate'].concat(data_paths)
       ActiveRecord::Migrator.migrations_paths.concat(data_paths)
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
+      Rake::Task['db:migrate'].invoke
     end
 
     desc 'check before migrations'
     task check: :environment do
+      # check for unsupported PostgreSQL versions (Multi-Range Types)
+      pg_version = ActiveRecord::Base.connection.select_value('SELECT VERSION()').match(/[0-9]{1,2}([,.][0-9]{1,2})?/)[0]&.to_f
+      abort("PostgreSQL version #{pg_version} is not supported!") if pg_version < 14.0
+
+      # check for missing pg_dict_mappings
+      # missing_pg_dict_mappings = DataCycleCore::PgDictMapping.check_missing
+      # abort("missing pg_dict_mappings (#{missing_pg_dict_mappings.join(', ')})!") if missing_pg_dict_mappings.present?
+
       result = ActiveRecord::Base.connection.execute <<-SQL.squish
         WITH duplicate_external_classification AS (
           SELECT classifications.external_source_id,
@@ -58,46 +68,46 @@ namespace :db do
       Rails.application.config.paths['db/migrate'].concat(data_paths)
       ActiveRecord::Migrator.migrations_paths.concat(data_paths)
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:rollback"].invoke
+      Rake::Task['db:rollback'].invoke
     end
   end
 
   namespace :maintenance do
     desc 'run VACUUM (FULL) on DB, full(false|true)'
-    task :vacuum, [:full, :reindex, :table_names] => [:environment] do |_, args|
-      full = args.fetch(:full, false)
-      reindex = args.fetch(:reindex, false)
-      table_names = args.fetch(:table_names, nil).to_s.split('|')
+    task :vacuum, [:full, :table_names] => [:environment] do |_, args|
+      full = args.fetch(:full, 'false').to_s == 'true'
+      table_names = args.fetch(:table_names, nil).to_s.split('|').join(', ')
 
       options = []
-      options << 'FULL' if full.to_s == 'true'
+      options << 'FULL' if full
       options << 'ANALYZE'
-      sql = "VACUUM (#{options.join(', ')}) #{table_names.join(', ')}"
+      sql = "VACUUM (#{options.join(', ')}) #{table_names}".squish + ';'
+      visibility_sql = "VACUUM (ANALYZE) #{table_names}".squish + ';'
 
-      ActiveRecord::Base.connection.execute("#{sql.squish};")
-      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE);') if full.to_s == 'true' # fix visibility tables
+      ActiveRecord::Base.connection.execute(sql)
+      ActiveRecord::Base.connection.execute(visibility_sql) if full # fix visibility tables
+    end
 
-      next if full.to_s == 'true' || reindex.to_s != 'true'
-
-      DbHelper.with_config do |_host, _port, db, _user, _password|
-        ActiveRecord::Base.connection.execute("REINDEX DATABASE \"#{db}\";")
-      end
+    desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
+    task :activities, [:include_downloads, :max_age] => [:environment] do |_, args|
+      Rake::Task['data_cycle_core:clear:activities'].invoke(*args)
+      Rake::Task['data_cycle_core:clear:activities'].reenable
     end
   end
 
   namespace :configure do
     desc 'rebuild all tables concerning transitive classifications'
     task rebuild_transitive_tables: :environment do
-      function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'upsert_ca_paths_transitive' : 'generate_classification_alias_paths'
+      function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'upsert_ca_paths_transitive' : 'upsert_ca_paths'
 
       ActiveRecord::Base.connection.execute <<-SQL.squish
-        SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM classification_aliases;
+        SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM concepts;
       SQL
 
       next if Rails.env.test?
 
-      ActiveRecord::Base.connection.execute('VACUUM (FULL, ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;')
-      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;')
+      Rake::Task['db:maintenance:vacuum'].invoke(true, 'classification_alias_paths|classification_alias_paths_transitive|collected_classification_contents')
+      Rake::Task['db:maintenance:vacuum'].reenable
     end
 
     desc 'rebuild content_content_links'
@@ -108,9 +118,31 @@ namespace :db do
 
       next if Rails.env.test?
 
-      ActiveRecord::Base.connection.execute('VACUUM (FULL, ANALYZE) content_content_links;')
-      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) content_content_links;')
+      Rake::Task['db:maintenance:vacuum'].invoke(true, 'content_content_links')
+      Rake::Task['db:maintenance:vacuum'].reenable
     end
+
+    desc 'rebuild schedule occurrences'
+    task rebuild_schedule_occurrences: :environment do
+      puts 'Rebuilding schedule occurrences...'
+      tmp = Time.zone.now
+      DataCycleCore::Schedule.rebuild_occurrences
+      puts "Rebuilding schedule occurrences...done (#{(Time.zone.now - tmp).round}s)"
+
+      tmp = Time.zone.now
+      puts 'VACUUM FULL schedules...'
+      Rake::Task['db:maintenance:vacuum'].invoke(true, 'schedules')
+      Rake::Task['db:maintenance:vacuum'].reenable
+      puts "VACUUM FULL schedules...done (#{(Time.zone.now - tmp).round}s)"
+    end
+  end
+
+  desc 'Show the existing database backups'
+  task dumps: :environment do
+    backup_dir = DbHelper.backup_directory(Rails.env)
+    puts backup_dir
+
+    puts 'backup dir does not exists' unless system "cd #{backup_dir} && du -hs --time *"
   end
 
   desc 'Dumps the database to backups (mode = review|activities|full)'
@@ -158,7 +190,7 @@ namespace :db do
 
       DbHelper.with_config do |host, port, db, user, password|
         backup_dir = DbHelper.backup_directory
-        files      = Dir.glob("#{backup_dir}/**/*#{pattern}*")
+        files      = Dir.glob("#{backup_dir}/**/#{pattern}")
 
         case files.size
         when 0
@@ -184,13 +216,13 @@ namespace :db do
       end
       unless cmd.nil?
         ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:clear_connections"].invoke
+        Rake::Task['db:clear_connections'].invoke
         Rake::Task['db:drop'].invoke
         Rake::Task['db:create'].invoke
         puts cmd
         system cmd
-        ActiveRecord::Base.connection.execute('VACUUM;')
-        ActiveRecord::Base.connection.execute('ANALYZE;')
+        Rake::Task['db:maintenance:vacuum'].invoke
+        Rake::Task['db:maintenance:vacuum'].reenable
         puts ''
         puts "Restored from file: #{file}"
         puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"

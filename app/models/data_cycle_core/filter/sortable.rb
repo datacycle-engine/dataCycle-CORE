@@ -39,13 +39,13 @@ module DataCycleCore
         )
       end
 
-      def sort_random(ordering)
-        unless ordering.nil?
+      def sort_random(_ordering = nil, seed = nil)
+        unless seed.nil?
           random_seed_sql = <<-SQL.squish
             CROSS JOIN (SELECT :seed_value AS seed_value from setseed(:seed_value)) seed_values
           SQL
 
-          random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, seed_value: ordering])
+          random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, seed_value: seed])
         end
 
         # TODO: fix random sorting with moving active query into exists subquery
@@ -151,10 +151,13 @@ module DataCycleCore
 
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-          	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
-          	FROM schedule_occurrences
-          	WHERE things.id = schedule_occurrences.thing_id AND schedule_occurrences.occurrence && TSTZRANGE(?, ?)
-          	GROUP BY thing_id
+            SELECT schedules.thing_id,
+              MIN(LOWER(so.occurrence)) AS "min_start_date"
+            FROM schedules,
+              UNNEST(schedules.occurrences) so(occurrence)
+            WHERE things.id = schedules.thing_id
+              AND so.occurrence && TSTZRANGE(?, ?)
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -188,6 +191,10 @@ module DataCycleCore
         )
       end
 
+      def sort_proximity_geographic_with(ordering = '', value = [])
+        sort_proximity_geographic(ordering, value)
+      end
+
       def sort_proximity_occurrence_with_distance(ordering = '', value = [])
         proximity_occurrence_with_distance(ordering, value)
       end
@@ -197,7 +204,86 @@ module DataCycleCore
       end
 
       def sort_proximity_in_occurrence(ordering = '', value = {})
-        proximity_in_occurrence(ordering, value, false)
+        proximity_in_occurrence(ordering, value, true)
+      end
+
+      def sort_proximity_in_occurrence_pia(ordering = '', value = {})
+        proximity_in_occurrence_pia(ordering, value, true)
+      end
+
+      def sort_proximity_occurrence_with_distance_pia(ordering = '', value = [])
+        proximity_occurrence_with_distance_pia(ordering, value, true)
+      end
+
+      def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
+        return self if !value.is_a?(::Array) || value.first.blank?
+        geo = value.first
+        schedule = value.second
+        return self if geo&.first.blank? || geo&.second.blank?
+
+        if use_spheroid
+          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
+        else
+          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
+        end
+
+        if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
+          start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
+        else
+          start_date = Time.zone.now
+          end_date = (Time.zone.now + 1.week).end_of_week
+        end
+
+        if sort_by_date
+          min_start_date = 'MIN(LOWER(so.occurrence))'
+        else
+          min_start_date = '1'
+        end
+
+        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN (
+            SELECT
+              a.thing_id,
+              1 AS "occurrence_exists",
+              #{min_start_date} as "min_start_date"
+            FROM
+              schedules a,
+              UNNEST(a.occurrences) so(occurrence)
+            WHERE so.occurrence && TSTZRANGE(?, ?)
+            GROUP BY
+              a.thing_id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
+
+        join_tabel_name2 = "opening_hours_description_closed_#{SecureRandom.hex(10)}"
+        order_parameter_join2 = <<-SQL.squish
+          LEFT OUTER JOIN (
+            SELECT 1 AS "closed_description_exists", cc.content_a_id
+            FROM content_contents cc
+            LEFT OUTER JOIN classification_contents clc ON clc.content_data_id = cc.content_b_id
+            LEFT OUTER JOIN concepts c ON c.id = clc.classification_id  AND c.internal_name = 'geschlossen'
+            LEFT OUTER JOIN concept_schemes cs ON cs.id = c.concept_scheme_id  AND cs.name = 'Öffnungszeiten'
+            LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
+            WHERE cc.relation_a = 'opening_hours_description'
+            AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
+          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
+        SQL
+
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join2]))
+            .reorder(nil)
+            .order(
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
+              sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
+              sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
+            )
+        )
       end
 
       def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
@@ -220,7 +306,7 @@ module DataCycleCore
         end
 
         if sort_by_date
-          min_start_date = 'MIN(LOWER(schedule_occurrences.occurrence))'
+          min_start_date = 'MIN(LOWER(so.occurrence))'
         else
           min_start_date = '1'
         end
@@ -228,27 +314,13 @@ module DataCycleCore
         joined_table_name = "schedules_#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT
-              a.thing_id,
+            SELECT a.thing_id,
               1 AS "occurrence_exists",
-              t.min_start_date
-            FROM
-              schedules a
-            LEFT OUTER JOIN (
-              SELECT
-                thing_id,
-                #{min_start_date} as "min_start_date"
-              FROM
-                schedule_occurrences
-              WHERE
-                schedule_occurrences.occurrence && TSTZRANGE(?, ?)
-              GROUP BY
-                thing_id
-            ) as t on t.thing_id = a.thing_id
-            WHERE
-              things.id = a.thing_id
-            GROUP BY
-              a.thing_id, t.min_start_date
+              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+            FROM schedules a
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
+            WHERE things.id = a.thing_id
+            GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -266,6 +338,64 @@ module DataCycleCore
         )
       end
 
+      def proximity_in_occurrence_pia(ordering = '', value = {}, sort_by_date = true)
+        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
+
+        if start_date.nil? && end_date.nil?
+          start_date = Time.zone.now
+          end_date = (Time.zone.now + 1.week).end_of_week
+        end
+        if sort_by_date
+          min_start_date = 'MIN(LOWER(so.occurrence))'
+        else
+          min_start_date = '1'
+        end
+
+        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN (
+            SELECT
+              a.thing_id,
+              1 AS "occurrence_exists",
+              #{min_start_date} as "min_start_date"
+            FROM
+              schedules a,
+              UNNEST(a.occurrences) so(occurrence)
+            WHERE so.occurrence && TSTZRANGE(?, ?)
+            GROUP BY
+              a.thing_id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
+
+        join_tabel_name2 = "opening_hours_description_closed_#{SecureRandom.hex(10)}"
+        order_parameter_join2 = <<-SQL.squish
+          LEFT OUTER JOIN (
+            SELECT 1 AS "closed_description_exists", cc.content_a_id
+            FROM content_contents cc
+            LEFT OUTER JOIN classification_contents clc ON clc.content_data_id = cc.content_b_id
+            LEFT OUTER JOIN concepts c ON c.id = clc.classification_id  AND c.internal_name = 'geschlossen'
+            LEFT OUTER JOIN concept_schemes cs ON cs.id = c.concept_scheme_id  AND cs.name = 'Öffnungszeiten'
+            LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
+            WHERE cc.relation_a = 'opening_hours_description'
+            AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
+          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
+        SQL
+
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join2]))
+            .reorder(nil)
+            .order(
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
+              sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
+            )
+        )
+      end
+
       def proximity_in_occurrence(ordering = '', value = {}, sort_by_date = true)
         start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
 
@@ -274,7 +404,7 @@ module DataCycleCore
           end_date = Time.zone.now.end_of_day
         end
         if sort_by_date
-          min_start_date = 'MIN(LOWER(schedule_occurrences.occurrence))'
+          min_start_date = 'MIN(LOWER(so.occurrence))'
         else
           min_start_date = '1'
         end
@@ -282,27 +412,13 @@ module DataCycleCore
         joined_table_name = "schedules_#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT
-              a.thing_id,
+            SELECT a.thing_id,
               1 AS "occurrence_exists",
-              t.min_start_date
-            FROM
-              schedules a
-            LEFT OUTER JOIN (
-              SELECT
-                thing_id,
-                #{min_start_date} as "min_start_date"
-              FROM
-                schedule_occurrences
-              WHERE
-                schedule_occurrences.occurrence && TSTZRANGE(?, ?)
-              GROUP BY
-                thing_id
-            ) as t on t.thing_id = a.thing_id
-            WHERE
-              things.id = a.thing_id
-            GROUP BY
-              a.thing_id, t.min_start_date
+              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+            FROM schedules a
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
+            WHERE things.id = a.thing_id
+            GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -331,7 +447,7 @@ module DataCycleCore
               "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery(COALESCE(pg_dict_mappings.dict, 'pg_catalog.simple')::regconfig, :search),16) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery(pg_dict_mappings.dict, :search),16) +
               1 * similarity(searches.full_text, :search_string))"
             ),
             search_string: "%#{search_string}%",
@@ -350,19 +466,26 @@ module DataCycleCore
         )
       end
 
-      alias sort_similarity sort_fulltext_search
+      def sort_ts_rank_fulltext_search(ordering, value)
+        return self if value.blank?
 
-      def sort_fulltext_search_with_cte(ordering)
+        q = text_to_websearch_tsquery(value)
+        locale = @locale&.first || I18n.available_locales.first.to_s
+
         reflect(
           @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
             .reorder(nil)
             .order(
-              sanitized_order_string('fulltext_boost', ordering, true),
+              sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, ?), 5)'), q]), ordering, true),
               sanitized_order_string('things.updated_at', 'DESC'),
               sanitized_order_string('things.id', 'DESC')
             )
         )
       end
+
+      alias sort_fulltext_search sort_ts_rank_fulltext_search if Feature::TsQueryFulltextSearch.enabled?
+      alias sort_similarity sort_fulltext_search
 
       def sanitized_order_string(order_string, order, nulls_last = false)
         raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for ordering: #{order}" unless ['ASC', 'DESC'].include?(order)

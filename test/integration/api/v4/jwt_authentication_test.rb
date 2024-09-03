@@ -251,6 +251,36 @@ module DataCycleCore
 
           assert @new_user.reload.reset_password_period_valid?
         end
+
+        test '/api/v4/auth/check_credentials - login with token in header' do
+          get api_v4_authentication_check_credentials_path, headers: {
+            Authorization: "Bearer #{@current_user.access_token}"
+          }, params: {}
+
+          assert_response :success
+        end
+
+        test '/api/v4/auth/check_credentials - login with token in params' do
+          get api_v4_authentication_check_credentials_path, params: {
+            token: @current_user.access_token
+          }
+
+          assert_response :success
+        end
+
+        test '/api/v4/auth/check_credentials - invalid token' do
+          get api_v4_authentication_check_credentials_path, headers: {
+            Authorization: 'Bearer oklushdfio78wsz3hrijbslkd'
+          }, params: {}
+
+          assert_response :unauthorized
+        end
+
+        test '/api/v4/auth/check_credentials - missing token' do
+          get api_v4_authentication_check_credentials_path, params: {}
+
+          assert_response :unauthorized
+        end
       end
     end
   end

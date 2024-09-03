@@ -5,10 +5,10 @@
   <% ordered_validation_properties(validation: definition, scope: :edit).each do |o_key, o_definition| %>
     <%= render_attribute_editor key: o_key,
                                 prefix: key,
-                                definition: o_definition,
+                                definition: nested_definition(o_definition, options),
                                 value: value.try(:[], o_key),
                                 parameters: {
-                                  options: options || {}
+                                  options: nested_options(o_definition, options)
                                 },
                                 content: content %>
   <% end %>

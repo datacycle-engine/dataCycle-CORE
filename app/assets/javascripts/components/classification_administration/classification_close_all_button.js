@@ -1,7 +1,6 @@
 class ClassificationCloseAllButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-classification-close-all-button");
 
 		this.setup();
 	}

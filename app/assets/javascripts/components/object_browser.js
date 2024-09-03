@@ -13,7 +13,6 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 class ObjectBrowser {
 	constructor(selector) {
 		this.element = selector;
-		this.element.classList.add("dcjs-object-browser");
 		this.$element = $(this.element);
 		this.objectListElement = this.element.querySelector(
 			":scope > .media-thumbs > .object-thumbs",
@@ -37,7 +36,8 @@ class ObjectBrowser {
 		this.template = this.$element.data("template");
 		this.max = this.$element.data("max");
 		this.min = this.$element.data("min");
-		this.limitedBy = this.$element.data("limited-by");
+		this.limitedByAttribute = this.$element.data("limited-by");
+		this.limitedBy;
 		this.index = this.per;
 		this.editable = this.$element.data("editable");
 		this.page = 1;
@@ -108,23 +108,24 @@ class ObjectBrowser {
 		this.$element.closest("form").on("reset", this.reset.bind(this));
 		this.$element.on("clear", this.reset.bind(this));
 
-		if (this.limitedBy === Object(this.limitedBy)) {
-			let filterItem = this.$element.get(0);
-
-			for (let i = 0; i < this.limitedBy.length; ++i) {
-				if (!filterItem) continue;
-
-				filterItem = filterItem[this.limitedBy[i][0]](this.limitedBy[i][1]);
-			}
-
-			this.limitedBy = $(filterItem);
-
-			this.limitedBy.on("change", this.removeDeletedItem.bind(this));
-			if (!this.$element.closest(".split-content.edit-content").length)
-				this.removeDeletedItem();
-		} else this.limitedBy = undefined;
+		if (this.limitedByAttribute) this._addHandlersForLimitedBy();
 
 		window.addEventListener("focus", this.highlightItems.bind(this));
+	}
+	_addHandlersForLimitedBy() {
+		const container = this.$element.get(0).closest("form");
+		this.limitedBy = $(
+			container.querySelector(
+				`.form-element.linked[data-key*=${this.limitedByAttribute}]`,
+			),
+		);
+
+		if (!this.limitedBy.length) return;
+
+		this.limitedBy.on("change", this.removeDeletedItem.bind(this));
+
+		if (!this.$element.closest(".split-content.edit-content").length)
+			this.removeDeletedItem();
 	}
 	_checkForChangedFormData(mutations) {
 		for (const mutation of mutations) {
@@ -639,11 +640,22 @@ class ObjectBrowser {
 		if (this.chosen.length === 0) {
 			this.renderHiddenField();
 		} else {
+			const itemsToClone = this.$overlay.find(".chosen-items-container li.item");
+			const clonedItems = this.cloneHtml(itemsToClone);
+
+			clonedItems.each((item) => {
+				const elem = clonedItems[item];
+				// remove the disabled attribute from the input fields
+				elem.querySelectorAll("input[type='hidden']").forEach((input) => {
+					input.removeAttribute("disabled");
+				});
+			});
+
 			this.$element
 				.children(".media-thumbs")
 				.children(".object-thumbs")
 				.html(
-					this.cloneHtml(this.$overlay.find(".chosen-items-container li.item")),
+					this.cloneHtml(clonedItems),
 				);
 		}
 
@@ -948,7 +960,7 @@ class ObjectBrowser {
 		}
 	}
 	filteredIds() {
-		if (this.limitedBy === undefined) return [];
+		if (!this.limitedBy?.length) return [];
 
 		return this.limitedBy
 			.find("> .object-browser input:hidden")

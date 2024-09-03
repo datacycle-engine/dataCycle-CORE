@@ -6,12 +6,13 @@ module DataCycleCore
     include DataCycleCore::UserExtensions::Filters
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable, :omniauthable, omniauth_providers: Devise.omniauth_configs.keys
-    devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
+    devise :registerable if Feature::UserRegistration.enabled?
+    devise :confirmable if Feature::UserConfirmation.enabled?
 
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
     attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, *WEBHOOK_ACCESSORS
-    attr_writer :user_api_feature
+    attr_writer :user_api_feature, :ability
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
       'email',
@@ -30,7 +31,7 @@ module DataCycleCore
     has_many :watch_lists, dependent: :destroy
     has_one :my_selection, -> { where(my_selection: true) }, class_name: 'DataCycleCore::WatchList'
     has_many :api_accessible_watch_lists, ->(user) { unscope(where: :user_id).accessible_by(user.send(:ability)).without_my_selection }, class_name: 'DataCycleCore::WatchList'
-    has_many :api_accessible_stored_filters, ->(user) { unscope(where: :user_id).accessible_by(user.send(:ability), :api).named.by_api_user(user) }, class_name: 'DataCycleCore::StoredFilter'
+    has_many :api_accessible_stored_filters, ->(user) { unscope(where: :user_id).accessible_by(user.send(:ability), :api).named }, class_name: 'DataCycleCore::StoredFilter'
     has_many :subscriptions, dependent: :destroy
     has_many :things_subscribed, through: :subscriptions, source: :subscribable, source_type: 'DataCycleCore::Thing'
     belongs_to :role
@@ -69,13 +70,25 @@ module DataCycleCore
     before_save :reset_ui_locale, unless: :ui_locale_allowed?
     before_create :set_default_role
 
-    delegate :can?, :cannot?, to: :ability
+    delegate :can?, :cannot?, :can_attribute?, to: :ability
 
     after_create :execute_create_webhooks, unless: :skip_callbacks
     after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && u.saved_changes.keys.intersect?(u.allowed_webhook_attributes) }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     default_scope { where(deleted_at: nil) }
+
+    CONTROLLER_CONTEXT_SCHEMA = Dry::Schema.Params do
+      optional(:controller).filled(:string)
+      optional(:action).filled(:string)
+    end
+
+    CUSTOM_TRACKING_HEADERS = {
+      middlewareOrigin: 'X-Dc-Middleware-Origin',
+      widgetIdentifier: 'X-Dc-Widget-Identifier',
+      widgetType: 'X-Dc-Widget-Type',
+      widgetVersion: 'X-Dc-Widget-Version'
+    }.freeze
 
     def user_api_feature
       @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
@@ -263,13 +276,24 @@ module DataCycleCore
       ].compact, ' ')
     end
 
-    def log_activity(type:, data:)
+    def log_request_activity(type:, data: {}, request: nil, activitiable: nil)
+      data ||= {}
+      data = data.with_indifferent_access
+      data = data.merge(CONTROLLER_CONTEXT_SCHEMA.call(request&.params).to_h)
+      data[:format] = request&.format&.to_sym
+      data[:referer] = request&.referer
+      data[:origin] = request&.origin
+
+      CUSTOM_TRACKING_HEADERS.each do |key, header|
+        data[key] = request&.headers&.[](header)
+      end
+
       transaction(joinable: true) do
-        # disable cleanup for now, as performance is seriously impacted
-        # activities.where('activities.activity_type = ? AND activities.created_at < ?', type, 3.months.ago).delete_all
-        activities.create(activity_type: type, data:)
+        activities.create(activity_type: type, data:, activitiable:)
       end
     end
+
+    alias log_activity log_request_activity
 
     def deleted?
       deleted_at.present?

@@ -1,0 +1,169 @@
+.detail-header.editor .additional-attribute-partials,
+.additional-attribute-partials {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  height: 1.8rem;
+  position: absolute;
+  top: -1.8rem;
+  left: 0.5rem;
+  max-width: calc(100% - 1rem);
+
+  .dc-additional-attribute-partial {
+    text-align: left;
+    display: flex;
+    flex-flow: row nowrap;
+    overflow: hidden;
+    border-top: 1px solid rgba($dark-gray, 0.5);
+    border-left: 1px solid rgba($dark-gray, 0.5);
+    border-right: 1px solid rgba($dark-gray, 0.5);
+    border-top-left-radius: var(--global-radius);
+    border-top-right-radius: var(--global-radius);
+    overflow: hidden;
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow: hidden;
+
+      input[type='checkbox'] {
+        min-width: 0;
+        cursor: pointer;
+      }
+
+      input[type='checkbox']+label[for] {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin: 0;
+        padding: 0.2rem 0.4rem;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: unset;
+        display: flex;
+        flex-flow: row nowrap;
+        transition: color 0.25s ease-out, background 0.25s ease-out;
+        color: var(--dark-gray);
+
+        .attribute-title {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin: 0;
+        }
+      }
+
+      input[type='checkbox']:checked+label[for] {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--white);
+
+        &::before {
+          background-color: inherit;
+          border-color: inherit;
+        }
+      }
+
+      &.dc-additional-attribute-partial-add {
+        input[type='checkbox']:checked+label[for] {
+          background: var(--success-color);
+          border-color: var(--success-color);
+        }
+      }
+
+      &.dc-additional-attribute-partial-remove {
+        input[type='checkbox']:checked+label[for] {
+          background: var(--alert-color);
+          border-color: var(--alert-color);
+        }
+      }
+    }
+
+    &.hidden {
+      display: none;
+    }
+  }
+}
+
+.form-element.dc-has-additional-attribute-partial {
+  margin-top: 3rem;
+}
+
+.form-element {
+
+  &.dc-has-additional-attribute-partial.dc-has-bulk-update-type,
+  &.dc-overlay {
+
+    &.dcjs-additional-attribute-partial-add,
+    &.dcjs-additional-attribute-partial-remove,
+    &.dc-overlay-add,
+    &.dc-overlay-remove {
+      &.classification {
+        .select2-selection__rendered::before {
+          content: '...';
+          background: var(--dark-gray);
+          color: var(--white);
+          height: auto;
+          float: left;
+          margin: 0.1rem;
+          border-radius: var(--global-radius);
+          font-size: 0.8rem;
+          padding: 0.03rem 0.4rem;
+          line-height: 1.5;
+        }
+      }
+    }
+
+    &.dcjs-additional-attribute-partial-add,
+    &.dc-overlay-add {
+      &.classification {
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+          background-color: rgba($success-color, 0.8);
+
+          &::before {
+            content: '\002B';
+            padding-right: 0.1rem;
+          }
+        }
+      }
+    }
+
+    &.dcjs-additional-attribute-partial-remove,
+    &.dc-overlay-remove {
+      &.classification {
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+          background-color: rgba($alert-color, 0.8);
+
+          &::before {
+            content: '\2212';
+            padding-right: 0.1rem;
+          }
+        }
+      }
+    }
+  }
+
+}
+
+.attribute-group-content-element .form-element.dc-has-additional-attribute-partial {
+  margin-top: 2rem;
+}
+
+.form-element.dc-overlay,
+.form-element.dc-aggregate {
+  &:not(.dc-overlay-visible):not(.dc-aggregate-visible) {
+    display: none;
+  }
+}
+
+input[type="date"],
+input[type="datetime-local"],
+input[data-type="datepicker"],
+input[data-type="timepicker"] {
+
+  &[value=""]:disabled,
+  &:not([value]):disabled,
+  &[value=""]:read-only,
+  &:not([value]):read-only {
+    color: transparent;
+  }
+}

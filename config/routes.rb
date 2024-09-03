@@ -55,6 +55,7 @@ DataCycleCore::Engine.routes.draw do
   get '/schema/:id', to: 'schema#show', as: :schema_details
   get '/info', to: 'frontend#info', as: :info
   get '/i18n/translate', to: 'application#translate'
+  # get '/export', to: 'nothing' # this route is reserved for jsonld file exports via rake task
 
   authenticate do
     get :clear_all_caches, controller: :application
@@ -240,6 +241,8 @@ DataCycleCore::Engine.routes.draw do
       end
     end
 
+    get '/oembed', action: :fetch, controller: :oembed, defaults: { format: :json }
+
     get '/reports', to: 'reports#index'
     match '/download_reports', to: 'reports#download_report', via: [:get, :post]
 
@@ -358,6 +361,7 @@ DataCycleCore::Engine.routes.draw do
 
                 match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
+                match 'endpoints/:id/suggest_by_title', to: 'contents#typeahead_by_title', as: 'typeahead_by_title', via: [:get, :post]
                 match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'download_endpoint', via: [:get, :post]
                 match 'endpoints/:id/facets/:classification_tree_label_id(/:classification_id)', to: 'classification_trees#facets', as: 'facets', via: [:get, :post]
                 get 'endpoints/:id/statistics/:attribute(/:format)', to: 'contents#statistics', as: 'statistics'
@@ -378,6 +382,7 @@ DataCycleCore::Engine.routes.draw do
                 namespace :authentication, path: :auth do
                   post :login, defaults: { warden_strategy: 'email_password' }
                   post :renew_login
+                  get :check_credentials, defaults: { sl: '1' }
                   post :logout
                 end
 

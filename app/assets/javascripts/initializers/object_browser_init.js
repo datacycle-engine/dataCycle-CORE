@@ -1,5 +1,9 @@
-import ObjectBrowser from './../components/object_browser';
+import ObjectBrowser from "./../components/object_browser";
 
 export default function () {
-  DataCycle.initNewElements('.object-browser:not(.dcjs-object-browser)', e => new ObjectBrowser(e));
+	DataCycle.registerAddCallback(
+		".object-browser",
+		"object-browser",
+		(e) => new ObjectBrowser(e),
+	);
 }

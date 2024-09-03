@@ -1,0 +1,14 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <%= render 'data_cycle_core/shared/icon', icon_type: title&.underscore_blanks, icon_class: 'aggregate_filter' %>
+    <span><%= t("filter.#{key}", default: title, locale: active_ui_locale) %></span>
+  </span>
+
+  <span class="tags-container">
+    <% DataCycleCore::Feature::Aggregate.aggregate_type_values(value:, locale: active_ui_locale).each do |v| %>
+      <span class="tag"><%= v %></span>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+</span>

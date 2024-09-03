@@ -12,32 +12,34 @@ export default function () {
 		if (searchField) searchField.focus();
 	});
 
-	DataCycle.initNewElements(
-		".classification-checkbox-list:not(.dcjs-check-box-selector)",
+	DataCycle.registerAddCallback(
+		".classification-checkbox-list",
+		"check-box-selector",
 		(e) => new CheckBoxSelector(e).init(),
 	);
 
-	DataCycle.initNewElements(
-		".classification-radiobutton-list:not(.dcjs-radio-button-selector)",
+	DataCycle.registerAddCallback(
+		".classification-radiobutton-list",
+		"radio-button-selector",
 		(e) => new RadioButtonSelector(e).init(),
 	);
 
-	DataCycle.initNewElements(
-		".auto-tagging-button:not(.dcjs-auto-tagging)",
+	DataCycle.registerAddCallback(
+		".auto-tagging-button",
+		"auto-tagging",
 		initAutoTagging.bind(this),
 	);
-	DataCycle.initNewElements(".async-select:not(.dcjs-select2)", (e) =>
+	DataCycle.registerAddCallback(".async-select", "select2", (e) =>
 		new AsyncSelect2(e).init(),
 	);
-	DataCycle.initNewElements(
-		".single-select:not(.dcjs-select2), .multi-select:not(.dcjs-select2)",
+	DataCycle.registerAddCallback(
+		".single-select, .multi-select",
+		"select2",
 		(e) => new SimpleSelect2(e).init(),
 	);
 }
 
 function initAutoTagging(element) {
-	element.classList.add("dcjs-auto-tagging");
-
 	$(element).on("click", (event) => {
 		$(event.target)
 			.closest(".form-element")

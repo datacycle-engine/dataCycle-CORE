@@ -34,6 +34,11 @@ class MaplibreDrawControl {
 				action: this.drawModeControl.bind(this, "draw_line_string_pedestrian"),
 				class: "mapbox-gl-draw_line_pedestrian",
 			},
+			{
+				key: "draw_polygon",
+				action: this.drawModeControl.bind(this, "draw_polygon"),
+				class: "mapbox-gl-draw_polygon",
+			},
 		];
 		this.controls = this.availableControls.filter((v) =>
 			opts.controls.includes(v.key),
@@ -92,6 +97,7 @@ class MaplibreDrawControl {
 		e.preventDefault();
 		e.stopPropagation();
 		this.editor.draw.trash();
+		this.editor.changeDrawMode();
 	}
 	drawModeControl(m, e) {
 		e.preventDefault();

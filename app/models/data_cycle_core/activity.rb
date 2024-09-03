@@ -68,11 +68,33 @@ module DataCycleCore
         'activities.data->>\'id\' as request_id',
         'activities.data->>\'referer\' as request_referer',
         'activities.data->>\'origin\' as request_origin',
-        'activities.data->>\'middlewareOrigin\' as request_middleware_origin'
+        'activities.data->>\'middlewareOrigin\' as request_middleware_origin',
+        'activities.data->>\'widgetIdentifier\' as request_widget_identifier',
+        'activities.data->>\'widgetType\' as request_widget_type',
+        'activities.data->>\'widgetVersion\' as request_widget_version'
       )
         .where({ created_at: from..to })
         .joins(:user)
-        .group('request_controller', 'request_action', 'request_type', 'request_include', 'request_fields', 'request_filter', 'request_page', 'request_mode', 'request_id', 'request_referer', 'request_origin', 'request_middleware_origin', :user_id, :email, :activity_type)
+        .group(
+          'request_controller',
+          'request_action',
+          'request_type',
+          'request_include',
+          'request_fields',
+          'request_filter',
+          'request_page',
+          'request_mode',
+          'request_id',
+          'request_referer',
+          'request_origin',
+          'request_middleware_origin',
+          'request_widget_identifier',
+          'request_widget_type',
+          'request_widget_version',
+          :user_id,
+          :email,
+          :activity_type
+        )
         .order('data_count DESC')
     end
   end

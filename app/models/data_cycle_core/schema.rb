@@ -26,21 +26,6 @@ module DataCycleCore
         @schema = schema
       end
 
-      def self.load_template(path, template_index = 0)
-        template = YAML.safe_load(File.open(path), permitted_classes: [Symbol])[template_index]
-
-        transformer = DataCycleCore::MasterData::Templates::TemplateTransformer.new(template: template[:data].dup, content_set: DEFAULT_CONTENT_TABLE, mixins: nil)
-        template[:data] = transformer.transform
-        template[:path] = path
-
-        validator = DataCycleCore::MasterData::Templates::TemplateValidator.new(templates: { DEFAULT_CONTENT_TABLE => [template] }.with_indifferent_access)
-        validator.validate
-
-        raise Error.new("'#{path}' contains invalid content template", validator.errors) unless validator.valid?
-
-        new(template[:data].as_json)
-      end
-
       def clone_with_schema(schema = nil)
         clone.tap { |t| t.schema = schema }
       end

@@ -157,9 +157,9 @@ module DataCycleCore
           if data.is_a?(ExternalReference)
             external_reference_mapping_table.dig(data.reference_type, data.external_source_id, data.external_key&.to_s)
           elsif data.is_a?(ClassificationNameReference)
-            classification_mapping_table[data.classification_path]
+            classification_mapping_table[data.classification_path&.map(&:to_s)]
           elsif data.is_a?(ClassificationUriReference)
-            classification_mapping_table[data.uri]
+            classification_mapping_table[data.uri&.to_s]
           elsif data.is_a?(Hash)
             data.transform_values { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }
           elsif data.is_a?(Array)
@@ -183,10 +183,10 @@ module DataCycleCore
         end
 
         def self.load_things(external_source_id, external_key)
+          # Order is important, prioritize imported things over external_system_syncs, as to_h overwrites duplicate keys
           (
-            DataCycleCore::Thing.where(external_source_id:, external_key:).pluck(:external_key, :id) +
-            DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key:)
-                                             .pluck(:external_key, :syncable_id)
+            DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key:).pluck(:external_key, :syncable_id) +
+            DataCycleCore::Thing.where(external_source_id:, external_key:).pluck(:external_key, :id)
           ).uniq.to_h
         end
 

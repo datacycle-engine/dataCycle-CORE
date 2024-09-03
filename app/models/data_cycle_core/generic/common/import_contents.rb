@@ -18,7 +18,7 @@ module DataCycleCore
 
         def self.load_contents(mongo_item, locale, source_filter)
           mongo_item.where(
-            I18n.with_locale(locale) { source_filter.with_evaluated_values }
+            I18n.with_locale(locale) { source_filter.with_evaluated_values&.with_indifferent_access }
               .merge(
                 "dump.#{locale}": { '$exists': true },
                 "dump.#{locale}.deleted_at": { '$exists': false }

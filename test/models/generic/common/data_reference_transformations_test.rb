@@ -544,6 +544,32 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     end
   end
 
+  it 'should resolve classification name references with non-string names' do
+    raw_data = {
+      'type_of_membership' => [122, 123]
+    }
+
+    transformed_data = subject.add_classification_name_references(
+      raw_data, 'classifications', 'Mitgliedschaftsarten',
+      ->(data) { data['type_of_membership'] }
+    )
+
+    load_classifications_by_path_stub = lambda do |_classification_paths|
+      {
+        ['Mitgliedschaftsarten', '122'] => '00000000-0000-0000-0000-000000000001',
+        ['Mitgliedschaftsarten', '123'] => '00000000-0000-0000-0000-000000000002'
+      }
+    end
+
+    subject.stub :load_classifications_by_path, load_classifications_by_path_stub do
+      transformed_data = subject.resolve_references(transformed_data)
+
+      assert_equal(2, transformed_data['classifications'].size)
+      assert_includes(transformed_data['classifications'], '00000000-0000-0000-0000-000000000001')
+      assert_includes(transformed_data['classifications'], '00000000-0000-0000-0000-000000000002')
+    end
+  end
+
   it 'should resolve classification uri references' do
     raw_data = {
       'weekdays' => ['https://schema.org/Monday', 'https://schema.org/Tuesday']
@@ -558,6 +584,32 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
       {
         ['Wochentage', 'https://schema.org/Monday'] => '00000000-0000-0000-0000-000000000001',
         ['Wochentage', 'https://schema.org/Tuesday'] => '00000000-0000-0000-0000-000000000002'
+      }
+    end
+
+    subject.stub :load_classifications_by_uri, load_classifications_uri_stub do
+      transformed_data = subject.resolve_references(transformed_data)
+
+      assert_equal(2, transformed_data['classifications'].size)
+      assert_includes(transformed_data['classifications'], '00000000-0000-0000-0000-000000000001')
+      assert_includes(transformed_data['classifications'], '00000000-0000-0000-0000-000000000002')
+    end
+  end
+
+  it 'should resolve classification uri references with non-strings' do
+    raw_data = {
+      'icons' => [123, 124]
+    }
+
+    transformed_data = subject.add_classification_name_references(
+      raw_data, 'classifications', 'Icons',
+      ->(data) { data['icons'] }
+    )
+
+    load_classifications_uri_stub = lambda do |_classification_identifiers|
+      {
+        ['Icons', '123'] => '00000000-0000-0000-0000-000000000001',
+        ['Icons', '124'] => '00000000-0000-0000-0000-000000000002'
       }
     end
 

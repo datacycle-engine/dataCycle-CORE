@@ -8,7 +8,6 @@ class ScheduleEditor {
 			":scope select.rrule-type-selector",
 		);
 		this.$editor = $(this.editor);
-		this.$editor.addClass("dcjs-schedule-editor");
 		this.minInput = this.$editor.find(
 			'.daterange .form-element.start input.flatpickr-input[type="hidden"]',
 		);

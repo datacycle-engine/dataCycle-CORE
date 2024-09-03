@@ -105,8 +105,6 @@ class Validator {
 		$(event.target).closest(".single_warning").remove();
 	}
 	validateSingle(event, data) {
-		event.stopPropagation();
-
 		if (data && data.type === "reset") return;
 
 		this.requests = [this.validateItem(event.currentTarget)];
@@ -463,14 +461,60 @@ class Validator {
 
 		this.form.querySelector("a.button.show-duplicate-search-result")?.remove();
 	}
+	addSearchParamValue(searchParams, key, value) {
+		if (Array.isArray(value)) {
+			for (const v of value) searchParams.push([`${key}[]`, v]);
+		} else searchParams.push([key, value]);
+	}
+	searchParamsFromFilterParams(filterParams) {
+		const searchParams = [];
+
+		if (filterParams) {
+			for (const params of filterParams) {
+				const identifier = params.identifier;
+
+				for (const [key, value] of Object.entries(params)) {
+					if (key === "identifier") continue;
+
+					this.addSearchParamValue(
+						searchParams,
+						`f[${identifier}][${key}]`,
+						value,
+					);
+				}
+			}
+		}
+
+		return searchParams;
+	}
 	async renderDuplicateSearchWarning(data) {
-		const buttonHtml = `<a class="button show-duplicate-search-result" target="_blank" href="/?stored_filter=${
-			data.duplicate_search?.filter_id
-		}">${await I18n.t("duplicate_search.show")}</a>`;
+		const searchParams = this.searchParamsFromFilterParams(
+			data.duplicate_search?.filter_params,
+		);
+
+		const buttonHtml = `<a class="button show-duplicate-search-result" target="_blank" data-search-params='${JSON.stringify(
+			searchParams,
+		)}'>${await I18n.t("duplicate_search.show")}</a>`;
 
 		this.form
 			.querySelector(":scope > div.buttons")
 			?.insertAdjacentHTML("afterbegin", buttonHtml);
+
+		this.form
+			.querySelector("a.show-duplicate-search-result")
+			.addEventListener(
+				"click",
+				this.clickShowDuplicateSearchResult.bind(this),
+			);
+	}
+	clickShowDuplicateSearchResult(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		const formData = DomElementHelpers.parseDataAttribute(
+			event.currentTarget.dataset.searchParams,
+		);
+		DomElementHelpers.submitFormData("/", "POST", formData, "_blank");
 	}
 	async showErrors(data, validationContainer, translationLocale) {
 		this.$form.trigger("dc:form:validationError", {
@@ -516,7 +560,7 @@ class Validator {
 		this.requests = [];
 
 		$(event.target)
-			.find(".validation-container")
+			.find(".validation-container:not(.disabled)")
 			.add(this.$agbsCheck)
 			.each((_i, elem) => {
 				this.requests.push(this.validateItem(elem, true));

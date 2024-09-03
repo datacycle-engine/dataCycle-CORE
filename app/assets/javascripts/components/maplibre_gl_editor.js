@@ -145,10 +145,20 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			.addClass("dc-import-data");
 		this.$latitudeField.on("change", this.updateMapMarker.bind(this));
 		this.$longitudeField.on("change", this.updateMapMarker.bind(this));
+
 		if (this.$geoCodeButton)
 			this.$geoCodeButton.on("click", this.geoCodeAddress.bind(this));
-	}
 
+		this.container.addEventListener("clear", this.clear.bind(this));
+	}
+	clear(event) {
+		event.preventDefault();
+
+		if (this.draw) {
+			this.draw.trash();
+			this.changeDrawMode();
+		}
+	}
 	async initAdditionalControls() {
 		await this.initDrawControl();
 		if (this.uploadable)
@@ -175,6 +185,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
 			return options;
 		}
+		if (this.isPolygon()) return ["trash", "draw_polygon"];
 	}
 	async initDrawControl() {
 		const MapboxDraw = await MapboxDrawLoader().catch(console.error);
@@ -234,11 +245,14 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			const feature = this.draw?.getAll()?.features[0];
 			modeConfig.mode = "simple_select";
 			if (feature?.id) modeConfig.options.featureIds = [feature.id];
-		} else if (this.feature && this.isLineString()) {
+		} else if (this.feature && (this.isLineString() || this.isPolygon())) {
 			const feature = this.draw?.getAll()?.features[0];
 			if (!modeConfig.mode) modeConfig.mode = "simple_select";
 
-			if (modeConfig.mode !== "simple_select" && feature?.id) {
+			if (modeConfig.mode === "draw_polygon" && feature?.id) {
+				modeConfig.mode = "simple_select";
+				modeConfig.options.featureIds = [feature.id];
+			} else if (modeConfig.mode !== "simple_select" && feature?.id) {
 				const coordinates = feature?.geometry?.coordinates || [];
 				modeConfig.options.featureId = feature.id;
 				modeConfig.options.from = coordinates[coordinates.length - 1].slice(
@@ -252,15 +266,17 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			modeConfig.mode = "draw_point";
 		else if (this.isLineString() && !modeConfig.mode)
 			modeConfig.mode = "draw_line_string";
+		else if (this.isPolygon() && !modeConfig.mode)
+			modeConfig.mode = "draw_polygon";
 
 		modeConfig.options.mode = modeConfig.mode;
 
 		return modeConfig;
 	}
 	getMapDrawStyle() {
-		return this.isPoint()
-			? this._getDrawPointStyle()
-			: this._getDrawLineStyle();
+		if (this.isPoint()) return this._getDrawPointStyle();
+		if (this.isLineString()) return this._getDrawLineStyle();
+		if (this.isPolygon()) return this._getDrawPolygonStyle();
 	}
 	initEditFeature() {
 		this.draw.deleteAll();
@@ -517,6 +533,70 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 					["==", "$type", "LineString"],
 					["!=", "mode", "static"],
 				],
+				layout: {
+					"line-cap": "round",
+					"line-join": "round",
+				},
+				paint: {
+					"line-color": this.definedColors.default,
+					"line-dasharray": [0.2, 2],
+					"line-width": 5,
+				},
+			},
+			{
+				id: "gl-draw-polygon-midpoint-halo",
+				type: "circle",
+				filter: ["all", ["==", "$type", "Point"], ["==", "meta", "midpoint"]],
+				paint: {
+					"circle-radius": 5,
+					"circle-color": this.definedColors.white,
+				},
+			},
+			{
+				id: "gl-draw-polygon-midpoint",
+				type: "circle",
+				filter: ["all", ["==", "$type", "Point"], ["==", "meta", "midpoint"]],
+				paint: {
+					"circle-radius": 3,
+					"circle-color": this.definedColors.default,
+				},
+			},
+			{
+				id: "gl-draw-polygon-and-line-vertex-halo-active",
+				type: "circle",
+				filter: [
+					"all",
+					["==", "meta", "vertex"],
+					["==", "$type", "Point"],
+					["!=", "mode", "static"],
+				],
+				paint: {
+					"circle-radius": 7,
+					"circle-color": this.definedColors.white,
+				},
+			},
+			{
+				id: "gl-draw-polygon-and-line-vertex-active",
+				type: "circle",
+				filter: [
+					"all",
+					["==", "meta", "vertex"],
+					["==", "$type", "Point"],
+					["!=", "mode", "static"],
+				],
+				paint: {
+					"circle-radius": 5,
+					"circle-color": this.definedColors.default,
+				},
+			},
+		];
+	}
+	_getDrawPolygonStyle() {
+		return [
+			{
+				id: "gl-draw-polygon",
+				type: "line",
+				filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
 				layout: {
 					"line-cap": "round",
 					"line-join": "round",
