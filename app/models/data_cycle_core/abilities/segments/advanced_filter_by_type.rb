@@ -11,12 +11,12 @@ module DataCycleCore
           @subject = Array.wrap(subject).map(&:to_sym)
         end
 
-        def include?(_view, _name = nil, type = nil, *args)
+        def include?(_view, _name = nil, type = nil, data = {}, *args)
           return true if type.nil?
 
           return false unless allowed_types.key?(type.to_s)
 
-          respond_to?("#{type}_type", true) ? send("#{type}_type", *args) : default_type(type, *args)
+          respond_to?("#{type}_type", true) ? send("#{type}_type", data, *args) : default_type(type, data, *args)
         end
 
         def to_proc
