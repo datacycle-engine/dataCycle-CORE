@@ -20,6 +20,7 @@ module DataCycleCore
       EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
       CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
       SCHEDULE_PROPERTY_TYPES = ['schedule', 'opening_time'].freeze
+      OPENING_TIME_PROPERTY_TYPES = ['opening_time'].freeze
       TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
       ASSET_PROPERTY_TYPES = ['asset'].freeze
       COLLECTION_PROPERTY_TYPES = ['collection'].freeze
@@ -358,6 +359,10 @@ module DataCycleCore
 
       def schedule_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| SCHEDULE_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def opening_time_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| OPENING_TIME_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def timeseries_property_names(include_overlay = false)
