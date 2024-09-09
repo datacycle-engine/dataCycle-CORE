@@ -454,7 +454,7 @@ module DataCycleCore
     end
 
     def load_more_linked_objects
-      @content = DataCycleCore::Thing.find(linked_object_params[:content_id]) if linked_object_params[:content_type].present?
+      @content = DataCycleCore::Thing.find(linked_object_params[:content_id]) if linked_object_params[:content_id].present?
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
@@ -757,7 +757,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.transform_keys(&:underscore).permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, :hide_embedded, definition: {}, load_more_except: [], options: {})
+      params.transform_keys(&:underscore).permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :hide_embedded, definition: {}, load_more_except: [], options: {})
     end
 
     def life_cycle_params

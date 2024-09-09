@@ -10,6 +10,7 @@ module DataCycleCore
       authorize! :show, :object_browser
 
       @content = content_by_id_or_template
+      @parent = DataCycleCore::Thing.find(permitted_params[:parent_id]) if permitted_params[:parent_id].present?
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.dig(:definition)
@@ -53,6 +54,7 @@ module DataCycleCore
       return if permitted_params[:ids].blank?
 
       @content = content_by_id_or_template
+      @parent = DataCycleCore::Thing.find(permitted_params[:parent_id]) if permitted_params[:parent_id].present?
 
       I18n.with_locale(permitted_params[:locale]) do
         if permitted_params[:external]
@@ -99,7 +101,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :external, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
+      [:per, :page, :id, :locale, :external, :parent_id, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
     end
 
     def count_only_params
