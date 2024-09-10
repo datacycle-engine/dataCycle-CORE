@@ -502,7 +502,7 @@ module DataCycleCore
 
     def render_first_existing_partial(partials, parameters)
       partials.each do |partial|
-        logger.debug("  Try partial #{partial} ... [NOT FOUND]") && next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+        next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
 
         logger.debug "  Rendered #{partial}"
         return render(partial, parameters)

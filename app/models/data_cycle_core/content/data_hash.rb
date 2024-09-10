@@ -27,7 +27,7 @@ module DataCycleCore
         add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if default_value_property_names.present?
 
         # add computed values
-        add_computed_values(data_hash: options.data_hash) if computed_property_names.present? && options.update_computed
+        add_computed_values(**options.to_h.slice(:data_hash, :current_user)) if computed_property_names.present? && options.update_computed
       end
 
       def after_save_data_hash(options)
@@ -131,7 +131,11 @@ module DataCycleCore
             i18n_warnings.each_value { |w| w.delete(no_changes_key) } unless translations.keys.push(locale).all? { |l| i18n_warnings[l]&.include?(no_changes_key) }
           end
 
-          add_update_translated_computed_properties_job(available_locales.map(&:to_s) - translations.keys - [locale]) if computed_property_names.intersect?(translatable_property_names)
+          if computed_property_names.intersect?(translatable_property_names)
+            add_update_translated_computed_properties_job(
+              available_locales.map(&:to_s) - translations.keys - [locale]
+            )
+          end
         end
 
         i18n_valid?

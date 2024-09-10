@@ -5,7 +5,7 @@ module DataCycleCore
     module Compute
       module Base
         class << self
-          def compute_values(key, data_hash, content, force = false)
+          def compute_values(key, data_hash, content, current_user = nil, force = false)
             return if data_hash.key?(key)
 
             properties = content.properties_for(key)&.with_indifferent_access
@@ -16,7 +16,7 @@ module DataCycleCore
             computed_parameters = parameter_keys(content, properties)
             computed_value_hash = data_hash.dc_deep_dup
 
-            return if skip_compute_value?(key, computed_value_hash, content, computed_parameters, false, force)
+            return if skip_compute_value?(key, computed_value_hash, content, computed_parameters, false, current_user, force)
 
             method_name = DataCycleCore::ModuleService
               .load_module(properties.dig('compute', 'module').classify, 'Utility::Compute')
@@ -27,7 +27,8 @@ module DataCycleCore
               key:,
               data_hash: computed_value_hash,
               content:,
-              computed_definition: properties
+              computed_definition: properties,
+              current_user:
             )
 
             # keep fallback for imported computed values
@@ -62,6 +63,10 @@ module DataCycleCore
                       I18n.send(definition['name'])
                     when 'content'
                       definition['name']&.split('.')&.inject(content, &:try)
+                    when 'current_user'
+                      allowed_methods = ['present?', 'nil?']
+                      raise 'unknown method for current_user' unless allowed_methods.include?(definition['method'])
+                      current_user.try(definition['method'])
                     else
                       raise 'Unknown type for validation'
                     end
@@ -69,17 +74,17 @@ module DataCycleCore
             send(definition['method'], value, expected_value)
           end
 
-          def load_missing_values(missing_keys, content, datahash)
+          def load_missing_values(missing_keys, content, datahash, current_user = nil)
             missing_keys.each do |missing_key|
               if content.computed_property_names.include?(missing_key)
-                compute_values(missing_key, datahash, content, true)
+                compute_values(missing_key, datahash, content, current_user, true)
               else
                 datahash[missing_key] = content.attribute_to_h(missing_key)
               end
             end
           end
 
-          def skip_compute_value?(key, datahash, content, computed_parameters, checked = false, force = false)
+          def skip_compute_value?(key, datahash, content, computed_parameters, checked = false, current_user = nil, force = false)
             return false if computed_parameters.blank?
 
             missing_keys = computed_parameters.difference(datahash.slice(*computed_parameters).keys)
@@ -88,9 +93,9 @@ module DataCycleCore
             return true if checked && missing_keys.present?
             return true if !force && datahash.keys.intersection(content.resolved_computed_dependencies(key, datahash)).none?
 
-            load_missing_values(missing_keys, content, datahash)
+            load_missing_values(missing_keys, content, datahash, current_user)
 
-            skip_compute_value?(key, datahash, content, computed_parameters, true)
+            skip_compute_value?(key, datahash, content, computed_parameters, true, current_user)
           end
 
           def equals?(value_a, value_b)

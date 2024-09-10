@@ -90,6 +90,7 @@ module DataCycleCore
 
             tlocales.each do |target_locale|
               next if target_locale == source_locale
+
               I18n.with_locale(target_locale) do
                 if content.translation_type.present?
                   next if content.translation_type != 'automatic'
