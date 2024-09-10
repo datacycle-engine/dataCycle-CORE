@@ -12,7 +12,7 @@ module DataCycleCore
           before(:all) do
             @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @article = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
-            @article.set_data_hash(partial_update: true, prevent_history: true, data_hash: { about: [@content.id] })
+            @article.set_data_hash(prevent_history: true, data_hash: { about: [@content.id] })
             @content.reload
           end
 

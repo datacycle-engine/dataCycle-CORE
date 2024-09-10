@@ -36,7 +36,7 @@ module DataCycleCore
           test 'api/v4/things schedule attribute with schedule without occurrences' do # rubocop:disable Minitest/MultipleAssertions
             @event_b = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             schedule_b = DataCycleCore::TestPreparations.generate_schedule('2023-05-25T15:00'.in_time_zone, '2023-05-30'.in_time_zone, 1.5.hours, frequency: 'weekly', week_days: [3]).serialize_schedule_object
-            @event_b.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [schedule_b.schedule_object.to_hash] })
+            @event_b.set_data_hash(prevent_history: true, data_hash: { event_schedule: [schedule_b.schedule_object.to_hash] })
 
             post api_v4_thing_path(id: @event_b.id), params: { include: 'eventSchedule', fields: 'eventSchedule' }
             json_data = response.parsed_body

@@ -6,7 +6,7 @@
     <% unless value.try(:start_date).nil? %>
       <%= t('terms.from', locale: active_ui_locale) %>
       <span class="date">
-        <% if value.start_date.to_s(:time) == '00:00' || value.try(:event_schedule)&.length&.>(1) || value.try(:event_schedule)&.first&.to_event_dates&.length&.>(1) %>
+        <% if value.start_date.to_s(:time) == '00:00' || value.try(:event_schedule)&.many? || value.try(:event_schedule)&.first.try(:schedule_object)&.first(2)&.many? %>
           <strong><%= l(value.start_date.to_date, format: :full, locale: active_ui_locale) %></strong>
         <% else %>
           <strong><%= l(value.start_date.to_datetime, locale: active_ui_locale) %></strong>
@@ -17,7 +17,7 @@
     <% unless value.try(:end_date).nil? %>
       <%= t('terms.until', locale: active_ui_locale) %>
       <span class="date">
-        <% if value.end_date.to_s(:time) == '00:00' || value.try(:event_schedule)&.length&.>(1) || value.try(:event_schedule)&.first&.to_event_dates&.length&.>(1) %>
+        <% if value.end_date.to_s(:time) == '00:00' || value.try(:event_schedule)&.many? || value.try(:event_schedule)&.first.try(:schedule_object)&.first(2)&.many? %>
           <strong><%= l(value.end_date.to_date, format: :full, locale: active_ui_locale) %></strong>
         <% else %>
           <strong><%= l(value.end_date.to_datetime, locale: active_ui_locale) %></strong>

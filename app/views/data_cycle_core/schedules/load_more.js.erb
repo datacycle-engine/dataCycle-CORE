@@ -1,25 +1,46 @@
 <% content_for :rendered_items do %>
   <%= link_to t('schedule.prev', locale: active_ui_locale),
-    load_more_schedule_path(@schedule, direction: :previous, target: @target, from_time: @occurrences.first, class_name: @schedule.class.name),
+    load_more_schedule_path(
+      @schedule,
+      direction: :previous,
+      target: @target,
+      from_time: @occurrences.first,
+      class_name: @schedule.class.name
+    ),
     type: 'button',
     class: 'button load-prev',
     id: @target,
     remote: true,
     data: {
       disable_with: "#{t('schedule.prev', locale: active_ui_locale)} <i class='fa fa-spinner fa-fw fa-spin'></i>"
-    } if @direction == 'previous' && (!@schedule.try(:schedule_object)&.terminating? || @occurrences&.exclude?(@schedule.try(:schedule_object)&.first)) %>
+    } if @direction == 'previous' && (
+      !@schedule.try(:schedule_object)&.terminating? ||
+        !@schedule.try(:schedule_object)&.previous_occurrence(@occurrences.first).nil?
+    ) %>
 
-  <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: @occurrences, as: :date, locals: { object: @schedule } %>
+  <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf',
+             collection: @occurrences,
+             as: :date,
+             locals: { object: @schedule } %>
 
   <%= link_to t('schedule.next', locale: active_ui_locale),
-    load_more_schedule_path(@schedule, direction: :next, target: @target, from_time: @occurrences.last, class_name: @schedule.class.name),
+    load_more_schedule_path(
+      @schedule,
+      direction: :next,
+      target: @target,
+      from_time: @occurrences.last,
+      class_name: @schedule.class.name
+    ),
     type: 'button',
     class: 'button load-next',
     id: @target,
     remote: true,
     data: {
       disable_with: "#{t('schedule.next', locale: active_ui_locale)} <i class='fa fa-spinner fa-fw fa-spin'></i>"
-    } if @direction == 'next' && (!@schedule.try(:schedule_object)&.terminating? || (@occurrences&.exclude?(@schedule.try(:schedule_object)&.last) && @schedule.try(:schedule_object)&.last > Time.zone.now)) %>
+    } if @direction == 'next' && (
+      !@schedule.try(:schedule_object)&.terminating? ||
+        !@schedule.try(:schedule_object)&.next_occurrence(@occurrences.last).nil?
+    ) %>
 <% end %>
 
 $('<%= j yield :rendered_items %>').replaceAll('#<%= @target %>');
