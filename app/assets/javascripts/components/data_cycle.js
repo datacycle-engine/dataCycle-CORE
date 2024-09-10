@@ -123,9 +123,10 @@ class DataCycle {
 		}
 	}
 	_generateSelector(selector, identifier) {
-		const identifierFull = identifier.startsWith("dcjs-")
-			? identifier
-			: `dcjs-${identifier}`;
+		const identifierFull =
+			identifier.startsWith("dcjs-") || identifier.startsWith("dc-")
+				? identifier
+				: `dcjs-${identifier}`;
 
 		return [
 			identifierFull,
