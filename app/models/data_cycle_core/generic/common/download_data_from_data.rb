@@ -20,7 +20,9 @@ module DataCycleCore
 
         def self.load_data_from_mongo(options:, lang:, source_filter:)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
-          read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
+          read_type = Mongoid::PersistenceContext.new(
+            DataCycleCore::Generic::Collection, collection: options[:download][:read_type]
+          )
 
           data_name = options.dig(:download, :data_name_path) || nil
           data_id = options.dig(:download, :data_id_path) || data_name
@@ -34,10 +36,9 @@ module DataCycleCore
           source_filter_stage = { full_data_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
-          # @todo: why do we need this stage
           post_unwind_source_filter_stage = source_filter_stage
             .deep_stringify_keys
-            .reject { |k, _| k.exclude?(full_data_path) }
+            .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(full_data_path) }
             .deep_transform_keys { |k| k.gsub(full_data_path, 'data') }
 
           project_filter_stage = {
@@ -47,7 +48,11 @@ module DataCycleCore
             project_filter_stage[attr[:name]] = ['$dump', lang, attr[:path]].compact_blank.join('.')
           end
 
-          id_fallback_fields = [['$data', data_id_path].compact_blank.join('.'), ['$data', data_name_path].compact_blank.join('.')] + additional_data_paths.map { |attr| "$data.#{attr[:path]}" }
+          id_fallback_fields = [
+            ['$data', data_id_path].compact_blank.join('.'),
+            ['$data', data_name_path].compact_blank.join('.')
+          ] + additional_data_paths.map { |attr| "$data.#{attr[:path]}" }
+
           add_fields_stage = {
             'data.id' => { '$ifNull' => id_fallback_fields},
             'data.name' => ['$data', data_name_path].compact_blank.join('.')
