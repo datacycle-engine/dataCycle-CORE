@@ -157,7 +157,7 @@ namespace :dc do
       desc 'create distinct classification tree with mappings'
       task :create_distinct_tree, [:from_tree_label, :to_tree_label] => [:environment] do |_, args|
         from_tree_label_name = args.from_tree_label.strip
-        to_tree_label_name = args.to_tree_label.strip
+        to_tree_label_name = args.to_tree_label&.strip.presence || "#{from_tree_label_name} (Distinct)"
 
         abort('missing from_tree_label!') if from_tree_label_name.blank?
         abort('missing to_tree_label!') if to_tree_label_name.blank?
