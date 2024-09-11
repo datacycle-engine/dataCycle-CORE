@@ -297,12 +297,12 @@ module DataCycleCore
 
       {
         import: external_systems.filter { |v| v.import_module? || v.webhook_module? }
-          .as_json(only: [:id, :name])
+          .as_json(only: [:id, :name, :identifier])
           .map { |es| es.with_indifferent_access.merge(additional_properties&.dig(es['id']) || { webhook_only: true }) }
           .sort_by { |v| [v[:deactivated] ? 1 : 0, v[:webhook_only] ? 1 : 0, v[:name].downcase] },
-        export: external_systems.filter(&:export_module?).as_json(only: [:id, :name]),
-        service: external_systems.filter(&:service_module?).as_json(only: [:id, :name]),
-        foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name])
+        export: external_systems.filter(&:export_module?).as_json(only: [:id, :name, :identifier]),
+        service: external_systems.filter(&:service_module?).as_json(only: [:id, :name, :identifier]),
+        foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name, :identifier])
       }.with_indifferent_access
     end
   end

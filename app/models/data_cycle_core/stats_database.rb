@@ -153,7 +153,8 @@ module DataCycleCore
           deactivated: external_source.deactivated || false,
           downloadable: external_source.download_config.present?,
           importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
-          name: external_source.name
+          name: external_source.name,
+          identifier: external_source.identifier
         }.merge(last_download_and_import(external_source))
       end
     end
