@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Schedule < BasicValidator
         def keywords
-          ['valid_dates', 'soft_valid_dates', 'closed_range', 'soft_max_duration', 'required']
+          ['valid_dates', 'soft_valid_dates', 'closed_range', 'soft_max_duration', 'required', 'soft_max_date']
         end
 
         def validate(data, template, _strict = false)
@@ -232,6 +232,37 @@ module DataCycleCore
 
         def required(data, value)
           (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
+        end
+
+        def soft_max_date(data, value)
+          max_value = ERB.new(value.to_s).result(binding).in_time_zone.to_date
+
+          data.each do |data_item|
+            validation_hash = data_item.with_indifferent_access
+
+            next if validation_hash.dig('rrules', 0, 'until').blank? ||
+                    validation_hash.dig('rrules', 0, 'until').in_time_zone <= max_value
+
+            (@error[:warning][@template_key] ||= []) << {
+              path: 'validation.errors.schedule.until_too_far',
+              substitutions: {
+                data: {
+                  method: 'l',
+                  value: validation_hash.dig('start_time', 'time')&.in_time_zone,
+                  substitutions: {
+                    format: :edit
+                  }
+                },
+                max: {
+                  method: 'l',
+                  value: max_value,
+                  substitutions: {
+                    format: :edit
+                  }
+                }
+              }
+            }
+          end
         end
       end
     end

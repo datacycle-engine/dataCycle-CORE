@@ -1243,6 +1243,7 @@ en:
         until_missing:
           An end time must be specified for the entry with start time
           %{data}.
+        until_too_far: "The end time for the entry with start time %{data} is too far in the future, this could create performance problems on save (max: %{max})."
       number: "%{template} is not a numeric value, but %{class} (value: %{data})."
       no_data: No data given.
       no_validation: No validation data specified.

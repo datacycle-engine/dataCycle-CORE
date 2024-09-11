@@ -580,7 +580,6 @@ class Validator {
 		if (confirmations.warnings !== undefined) {
 			this.$form
 				.find(".form-element .warning.counter")
-				// .find(".form-element.has-warning")
 				.closest(".form-element")
 				.addClass("has-warning");
 
@@ -588,8 +587,16 @@ class Validator {
 				text: await I18n.translate("frontend.validate.ignore_warnings", {
 					data: confirmations.warnings
 						.closest(".form-element")
-						.map((_i, elem) => $(elem).data("label"))
 						.get()
+						.map((elem) => {
+							const tooltip = Array.from(
+								elem.querySelectorAll(".single_warning"),
+							)
+								.map((v) => v.textContent)
+								.join(", ");
+
+							return `<b data-dc-tooltip='${tooltip}'>${elem.dataset.label}</b>`;
+						})
 						.join(", "),
 				}),
 				confirmationClass: "warning",

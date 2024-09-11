@@ -1286,6 +1286,7 @@ de:
         relation: "relation ist ein Pflichtfeld."
         invalid: "Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine"
         until_missing: "Für den Eintrag mit Startzeitpunkt %{data} muss ein Endzeitpunkt angegeben werden"
+        until_too_far: "Endzeit für den Eintrag mit Startzeitpunkt %{data} liegt zu weit in der Zukunft, das könnte zu Problemen beim Speichern führen (Max: %{max})"
       number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
       no_data: "Keine Daten angegeben."
       no_validation: "Keine Validierungs-Daten angegeben."
