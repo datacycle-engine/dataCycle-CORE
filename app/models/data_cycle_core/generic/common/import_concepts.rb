@@ -158,11 +158,20 @@ module DataCycleCore
           end
 
           def mappings_for_existing_concepts(concept_mappings:)
-            existing_concepts = DataCycleCore::Concept.by_external_sources_and_keys(concept_mappings.pluck(:parent, :child).flatten).index_by { |co| [co.external_system_id, co.external_key] }
+            full_paths = concept_mappings.map { |cm| cm.dig(:child, :full_path) }.uniq
+            concepts_by_path = DataCycleCore::Concept.by_full_paths(full_paths).index_by(&:full_path)
+            filtered_mappings = concept_mappings
+              .filter { |cm| cm.dig(:child, :external_key).present? }
+              .pluck(:parent, :child)
+              .flatten
+
+            existing_concepts = DataCycleCore::Concept
+              .by_external_sources_and_keys(filtered_mappings)
+              .index_by { |co| [co.external_system_id, co.external_key] }
 
             concept_mappings.map { |cm|
               parent = existing_concepts[[cm[:parent][:external_source_id], cm[:parent][:external_key]]]
-              child = existing_concepts[[cm[:child][:external_source_id], cm[:child][:external_key]]]
+              child = concepts_by_path[cm[:child][:full_path]] || existing_concepts[[cm[:child][:external_source_id], cm[:child][:external_key]]]
 
               next if parent.blank? || child.blank?
 
@@ -189,7 +198,8 @@ module DataCycleCore
                     child: {
                       external_key: mc[:external_key],
                       external_source_id: utility_object.external_source.id,
-                      external_system_identifier: mc[:external_system_identifier]
+                      external_system_identifier: mc[:external_system_identifier],
+                      full_path: mc[:full_path]
                     }
                   }
                 end
@@ -201,7 +211,8 @@ module DataCycleCore
                   },
                   child: {
                     external_key: mc[:id],
-                    external_source_id: utility_object.external_source.id
+                    external_source_id: utility_object.external_source.id,
+                    full_path: mc[:full_path]
                   }
                 }
               end
