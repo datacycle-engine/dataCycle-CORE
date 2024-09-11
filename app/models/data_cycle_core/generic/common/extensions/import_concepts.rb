@@ -84,7 +84,7 @@ module DataCycleCore
                           logging.info("Imported   #{upserted.count.to_s.rjust(7)} items (#{concept_scheme.name}) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 0, 3)}")
                         end
 
-                        concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:)
+                        concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:, options:)
                         mapped = DataCycleCore::ConceptLink.insert_all(concept_mappings, unique_by: :index_concept_links_on_parent_id_and_child_id, returning: :id)
                         mapping_count += mapped.count
 

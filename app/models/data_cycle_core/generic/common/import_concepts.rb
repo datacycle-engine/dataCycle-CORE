@@ -71,7 +71,10 @@ module DataCycleCore
           end
 
           def transform_data_array(data_array:, options:)
-            data_array = external_system_identifiers_to_ids!(data_array:, import_external_systems: options.dig(:import, :import_external_systems))
+            data_array = external_system_identifiers_to_ids!(
+              data_array:,
+              **options.dig(:import)&.slice(:import_external_systems, :external_systems_mapping)
+            )
 
             transform_concept_scheme_identifiers(data_array:)
           end
@@ -112,13 +115,15 @@ module DataCycleCore
             .compact_blank
           end
 
-          def external_system_identifiers_to_ids!(data_array:, import_external_systems: false)
+          def external_system_identifiers_to_ids!(data_array:, import_external_systems: false, external_systems_mapping: nil)
             external_system_identifiers = data_array.pluck(:external_system_identifier).compact.uniq
+            es_mapping = external_systems_mapping.to_h.stringify_keys
 
             if external_system_identifiers.present?
-              external_systems = DataCycleCore::ExternalSystem.by_names_or_identifiers(external_system_identifiers).select(:id, :name, :identifier).as_json
+              mapped_es_identifiers = external_system_identifiers.map { |esi| es_mapping[esi] || esi }.uniq
+              external_systems = DataCycleCore::ExternalSystem.by_names_or_identifiers(mapped_es_identifiers).select(:id, :name, :identifier).as_json
               external_system_slugs = external_systems.pluck('name', 'identifier').flatten
-              missing_systems = external_system_identifiers.filter { |esi| external_system_slugs.exclude?(esi) }
+              missing_systems = mapped_es_identifiers.filter { |esi| external_system_slugs.exclude?(esi) }
 
               if missing_systems.present? && import_external_systems
                 now = Time.zone.now
@@ -127,7 +132,11 @@ module DataCycleCore
               end
 
               data_array.filter { |da| da[:external_system_identifier].present? }.each do |da|
-                es_id = external_systems.find { |es| es['identifier'] == da[:external_system_identifier] || es['name'] == da[:external_system_identifier] }&.dig('id')
+                es_identifier = es_mapping[da[:external_system_identifier]] || da[:external_system_identifier]
+                es_id = external_systems.find { |es|
+                  es['identifier'] == es_identifier ||
+                    es['name'] == es_identifier
+                }&.dig('id')
                 da[:external_source_id] = es_id if es_id.present?
                 da.delete(:external_system_identifier)
               end
@@ -136,9 +145,14 @@ module DataCycleCore
             data_array
           end
 
-          def transform_concept_mappings(data_array:, utility_object:)
+          def transform_concept_mappings(data_array:, utility_object:, options:)
             concept_mappings = map_concept_mappings(data_array:, utility_object:)
-            external_system_identifiers_to_ids!(data_array: concept_mappings.pluck(:child))
+
+            external_system_identifiers_to_ids!(
+              data_array: concept_mappings.pluck(:child),
+              import_external_systems: false,
+              external_systems_mapping: options.dig(:import, :external_systems_mapping)
+            )
 
             mappings_for_existing_concepts(concept_mappings:)
           end
