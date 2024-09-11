@@ -86,6 +86,7 @@ module DataCycleCore
       end
 
       errors.add :file,
+                 :invalid,
                  path: 'uploader.validation.format_not_supported',
                  substitutions: {
                    data: file.content_type
@@ -95,6 +96,7 @@ module DataCycleCore
     def file_size_validation(options)
       return unless file.blob.byte_size > options.dig(:max).to_i
       errors.add :file,
+                 :invalid,
                  path: 'uploader.validation.file_size.max',
                  substitutions: {
                    data: {
