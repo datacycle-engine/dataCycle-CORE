@@ -15,6 +15,11 @@ module DataCycleCore
 
     has_many :classification_groups, dependent: :destroy
     has_many :classification_aliases, through: :classification_groups
+
+    has_many :additional_classification_groups, lambda {
+      where.not('EXISTS (SELECT 1 FROM primary_classification_groups WHERE primary_classification_groups.id = classification_groups.id)')
+    }, class_name: 'DataCycleCore::ClassificationGroup'
+
     has_one :concept
     has_one :primary_classification_alias, through: :concept, source: :classification_alias, class_name: 'ClassificationAlias'
     has_many :additional_classification_aliases, through: :concept, source: :mapped_classification_aliases, class_name: 'ClassificationAlias'
