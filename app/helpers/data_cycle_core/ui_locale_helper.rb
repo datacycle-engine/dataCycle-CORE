@@ -8,6 +8,10 @@ module DataCycleCore
       DataCycleCore.ui_locales.first
     end
 
+    def i18n_digest
+      I18n.backend.version_digest(active_ui_locale)
+    end
+
     def available_locales_with_names
       @available_locales_with_names ||= Hash.new do |h, key|
         h[key] = I18n

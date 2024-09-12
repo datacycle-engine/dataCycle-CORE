@@ -5,14 +5,19 @@ import LocalStorageCache from "./local_storage_cache";
 const I18n = {
 	config: {
 		namespace: "dcI18nCache",
+		version: document.documentElement.dataset.i18nDigest,
 	},
 	countMapping(count) {
 		if (count === 0) return "zero";
-		else if (count === 1) return "one";
-		else return "other";
+		if (count === 1) return "one";
+		return "other";
 	},
 	async translate(path, substitutions = {}) {
-		let text = LocalStorageCache.get(this.config.namespace, path);
+		let text = LocalStorageCache.get(
+			this.config.namespace,
+			path,
+			this.config.version,
+		);
 		if (text && typeof text.then === "function") text = await text;
 
 		const promiseKey = `${this.config.namespace}/${path}`;
@@ -20,19 +25,25 @@ const I18n = {
 			const result = DataCycle.globalPromises[promiseKey]
 				? await DataCycle.globalPromises[promiseKey]
 				: await this._loadTranslation(path);
-			if (result && !result.error && result.hasOwnProperty("text"))
-				text = LocalStorageCache.set(this.config.namespace, path, result.text);
+			if (result && !result.error && Object.hasOwn(result, "text"))
+				text = LocalStorageCache.set(
+					this.config.namespace,
+					path,
+					result.text,
+					this.config.version,
+				);
 			else if (
-				result.hasOwnProperty("error") &&
-				substitutions.hasOwnProperty("default")
+				Object.hasOwn(result, "error") &&
+				Object.hasOwn(substitutions, "default")
 			)
 				text = LocalStorageCache.set(
 					this.config.namespace,
 					path,
 					substitutions.default,
+					this.config.version,
 				);
 			else
-				text = result.hasOwnProperty("error")
+				text = Object.hasOwn(result, "error")
 					? result.error
 					: this._errorObject(path).error;
 		}
@@ -40,7 +51,7 @@ const I18n = {
 		if (
 			text &&
 			typeof text === "object" &&
-			substitutions.hasOwnProperty("count")
+			Object.hasOwn(substitutions, "count")
 		)
 			text = text[this.countMapping(substitutions.count)];
 

@@ -1,32 +1,32 @@
-import DomElementHelpers from '../helpers/dom_element_helpers';
+import DomElementHelpers from "../helpers/dom_element_helpers";
 
 const LocalStorageCache = {
-  config: {
-    ttl: 24 * 3600 * 1000
-  },
-  set(namespace, key, value, ttl = this.config.ttl) {
-    const now = new Date();
-    const cache = DomElementHelpers.parseDataAttribute(localStorage.getItem(namespace)) || {};
+	cachedNamespace(namespace) {
+		return DomElementHelpers.parseDataAttribute(
+			localStorage.getItem(namespace),
+		);
+	},
+	set(namespace, key, value, version = 0) {
+		const cache = this.cachedNamespace(namespace) || {};
 
-    cache[key] = { expires: now.getTime() + ttl, value: value };
-    localStorage.setItem(namespace, JSON.stringify(cache));
+		cache[key] = { version: version, value: value };
+		localStorage.setItem(namespace, JSON.stringify(cache));
 
-    return cache[key].value;
-  },
-  get(namespace, key) {
-    const cache = DomElementHelpers.parseDataAttribute(localStorage.getItem(namespace));
+		return cache[key].value;
+	},
+	get(namespace, key, version = 0) {
+		const cache = this.cachedNamespace(namespace);
 
-    if (!cache || !cache.hasOwnProperty(key)) return null;
+		if (!cache || !Object.hasOwn(cache, key)) return null;
 
-    const now = new Date();
-    if (cache && cache[key] && now.getTime() > cache[key].expires) {
-      delete cache[key];
-      localStorage.setItem(namespace, JSON.stringify(cache));
-      return null;
-    }
+		if (cache?.[key] && cache[key].version !== version) {
+			delete cache[key];
+			localStorage.setItem(namespace, JSON.stringify(cache));
+			return null;
+		}
 
-    return cache[key].value;
-  }
+		return cache[key].value;
+	},
 };
 
 Object.freeze(LocalStorageCache);

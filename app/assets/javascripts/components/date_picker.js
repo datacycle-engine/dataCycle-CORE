@@ -78,6 +78,7 @@ class DatePicker {
 		this.isDateTime = this.elementIsDateTime(this.element);
 		this.element.dataset.isDateTime = this.isDateTime;
 		this.changeObserver = new MutationObserver(this.#checkIfEnabled.bind(this));
+		this.holidaysVersion = document.documentElement.dataset.holidaysCountryCode;
 
 		this.setup();
 	}
@@ -292,7 +293,12 @@ class DatePicker {
 
 		const holidays = (await promise) || [];
 
-		LocalStorageCache.set(this.cacheNamespace, year, holidays);
+		LocalStorageCache.set(
+			this.cacheNamespace,
+			year,
+			holidays,
+			this.holidaysVersion,
+		);
 		DataCycle.globalPromises[promiseKey] = undefined;
 
 		return holidays;
@@ -305,7 +311,11 @@ class DatePicker {
 	}
 	async markHoliday(dayElem, year) {
 		const promiseKey = `${this.cacheNamespace}/${year}`;
-		let holidays = LocalStorageCache.get(this.cacheNamespace, year);
+		let holidays = LocalStorageCache.get(
+			this.cacheNamespace,
+			year,
+			this.holidaysVersion,
+		);
 		if (!holidays && DataCycle.globalPromises[promiseKey])
 			holidays = await DataCycle.globalPromises[promiseKey];
 		else if (!holidays) holidays = await this.loadHolidays(year);
