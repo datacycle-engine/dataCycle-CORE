@@ -31,18 +31,26 @@ module DataCycleCore
           def process_content(utility_object:, raw_data:, locale:, options:)
             return if raw_data.blank?
             return if options&.blank? || options.dig(:import).blank?
-            allowed_locales = (options.dig(:import, :locales) || utility_object.external_source.try(:default_options)&.symbolize_keys&.dig(:locales) || [locale]).map(&:to_s)
+            allowed_locales = (
+              options.dig(:import, :locales) ||
+              utility_object.external_source.try(:default_options)&.symbolize_keys&.dig(:locales) ||
+              [locale]
+            ).map(&:to_s)
 
             return unless allowed_locales.include?(locale.to_s)
 
             I18n.with_locale(locale) do
               external_id = extract_property(raw_data, options, 'id')
               name = extract_property(raw_data, options, 'name')
-              external_id_prefix = options.dig(:import, :external_id_prefix) || extract_property(raw_data, options, 'external_id_prefix')
-              concept_scheme_external_id_prefix = options.dig(:import, :concept_scheme_external_id_prefix) || extract_property(raw_data, options, 'concept_scheme_external_id_prefix')
+              external_id_prefix = options.dig(:import, :external_id_prefix) ||
+                                   extract_property(raw_data, options, 'external_id_prefix')
+              concept_scheme_external_id_prefix = options.dig(:import, :concept_scheme_external_id_prefix) ||
+                                                  extract_property(raw_data, options, 'concept_scheme_external_id_prefix')
               parent_id = extract_property(raw_data, options, 'parent_id')
+              external_system_identifier = extract_property(raw_data, options, 'external_system_identifier')
 
               return if external_id.blank? || name.blank?
+              return if external_system_identifier.in?(Array.wrap(options[:current_instance_identifiers]))
 
               parent_id = nil if parent_id == external_id # concept cannot be its own parent
 
@@ -51,7 +59,7 @@ module DataCycleCore
                 external_source_id: utility_object.external_source.id,
                 name:,
                 parent_external_key: parent_id.presence&.then { |pid| [external_id_prefix, pid].compact_blank.join },
-                external_system_identifier: extract_property(raw_data, options, 'external_system_identifier'),
+                external_system_identifier:,
                 description: extract_property(raw_data, options, 'description'),
                 uri: extract_property(raw_data, options, 'uri'),
                 order_a: extract_property(raw_data, options, 'order_a'),
@@ -59,7 +67,8 @@ module DataCycleCore
                   concept_scheme_external_id_prefix,
                   extract_property(raw_data, options, 'concept_scheme_external_key')
                 ].compact_blank.join,
-                concept_scheme_name: extract_property(raw_data, options, 'concept_scheme_name').presence || options.dig(:import, :concept_scheme).presence,
+                concept_scheme_name: extract_property(raw_data, options, 'concept_scheme_name').presence ||
+                  options.dig(:import, :concept_scheme).presence,
                 mapped_concepts: extract_property(raw_data, options, 'mapped_concepts')
               }.compact
             end
@@ -76,13 +85,18 @@ module DataCycleCore
               **options.dig(:import)&.slice(:import_external_systems, :external_systems_mapping)
             )
 
-            transform_concept_scheme_identifiers(data_array:)
+            transform_concept_scheme_identifiers(data_array:, options:)
           end
 
-          def transform_concept_scheme_identifiers(data_array:)
+          def transform_concept_scheme_identifiers(data_array:, options:)
             concept_scheme_external_keys = data_array
               .filter { |da| da[:concept_scheme_external_key].present? }
-              .map { |da| { external_system_id: da[:external_source_id], external_key: da[:concept_scheme_external_key] } }
+              .map { |da|
+                {
+                  external_system_id: da[:external_source_id],
+                  external_key: da[:concept_scheme_external_key]
+                }
+              }
               .uniq
 
             if concept_scheme_external_keys.present?
@@ -93,9 +107,12 @@ module DataCycleCore
 
             concept_scheme_names = data_array.pluck(:concept_scheme_name).compact_blank.uniq
             if concept_scheme_names.present?
+              concept_scheme_name_mapping = options.dig(:import, :concept_scheme_name_mapping)&.stringify_keys
+              csn_mapping_inverted = concept_scheme_name_mapping&.invert
+              concept_scheme_names.map! { |csn| concept_scheme_name_mapping&.dig(csn) || csn }
               concept_schemes_by_name = DataCycleCore::ConceptScheme
                 .where(name: concept_scheme_names)
-                .index_by(&:name)
+                .index_by { |cs| csn_mapping_inverted&.dig(cs.name) || cs.name }
             end
             concept_schemes = concept_schemes_by_key.to_h.merge(concept_schemes_by_name.to_h)
 

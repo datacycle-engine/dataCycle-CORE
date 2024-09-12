@@ -47,6 +47,9 @@ module DataCycleCore
               concept_scheme_name_mapping = options.dig(:import, :concept_scheme_name_mapping)&.stringify_keys
               name = concept_scheme_name_mapping&.dig(name) || name
               external_system_identifier = extract_property(raw_data, options, 'external_system_identifier')
+
+              return if external_system_identifier.in?(Array.wrap(options[:current_instance_identifiers]))
+
               external_key = extract_property(raw_data, options, 'external_key') if external_system_identifier.present?
               external_key = [external_id_prefix, external_id].compact_blank.join if external_key.blank?
 
