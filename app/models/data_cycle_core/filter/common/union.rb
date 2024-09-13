@@ -117,7 +117,7 @@ module DataCycleCore
         def watch_list_ids_query(ids)
           return if ids.blank?
 
-          DataCycleCore::WatchList.where(id: ids).watch_list_data_hashes.select(:hashable_id).distinct.except(*UNION_FILTER_EXCEPTS).to_sql
+          DataCycleCore::WatchListDataHash.where(watch_list_id: ids).select(:hashable_id).distinct.except(*UNION_FILTER_EXCEPTS).to_sql
         end
 
         def filter_ids_query(ids)

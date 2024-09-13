@@ -117,27 +117,29 @@ module DataCycleCore
         private
 
         def sub_query_for_classification_alias_ids(ids, direct = false)
+          table_alias = "ccc_#{SecureRandom.hex(6)}"
           raw_query = <<-SQL.squish
             SELECT 1
-          	FROM collected_classification_contents
-            WHERE collected_classification_contents.thing_id = things.id
-              AND collected_classification_contents.classification_alias_id IN (?)
+          	FROM "collected_classification_contents" "#{table_alias}"
+            WHERE "#{table_alias}"."thing_id" = "things"."id"
+              AND "#{table_alias}"."classification_alias_id" IN (?)
           SQL
 
-          raw_query << ' AND collected_classification_contents.direct = TRUE' if direct
+          raw_query << " AND \"#{table_alias}\".\"direct\" = TRUE" if direct
 
           Arel::Nodes::Exists.new(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, ids])))
         end
 
         def sub_query_for_tree_label_ids(ids, direct = false)
+          table_alias = "ccc_#{SecureRandom.hex(6)}"
           raw_query = <<-SQL.squish
             SELECT 1
-          	FROM collected_classification_contents
-            WHERE collected_classification_contents.thing_id = things.id
-              AND collected_classification_contents.classification_tree_label_id IN (?)
+          	FROM collected_classification_contents "#{table_alias}"
+            WHERE "#{table_alias}"."thing_id" = "things"."id"
+              AND "#{table_alias}"."classification_tree_label_id" IN (?)
           SQL
 
-          raw_query << ' AND collected_classification_contents.direct = TRUE' if direct
+          raw_query << " AND \"#{table_alias}\".\"direct\" = TRUE" if direct
 
           Arel::Nodes::Exists.new(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, ids])))
         end
