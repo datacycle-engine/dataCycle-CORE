@@ -49,6 +49,8 @@ namespace :dc do
           end
         end
 
+        abort('no mappings found!') if to_insert.blank?
+
         puts "\nstart inserting ... (#{to_insert.size})"
         inserted = DataCycleCore::ClassificationGroup.insert_all(to_insert.uniq, unique_by: :classification_groups_ca_id_c_id_uq_idx).pluck('id')
 
