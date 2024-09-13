@@ -110,13 +110,18 @@ module DataCycleCore
       @dtend = if (schedule_object_changed? || duration_changed?) && schedule_object&.terminating?
                  end_date = schedule_object.last
                  if end_date.blank?
-                   until_date = schedule_object.recurrence_rules.first.to_hash.dig(:until)
-                   until_date = until_date[:time] if until_date.is_a?(::Hash)
-                   end_date = until_date.to_date.in_time_zone.change(
-                     hour: schedule_object.start_time.hour,
-                     min: schedule_object.start_time.min,
-                     sec: schedule_object.start_time.sec
-                   )
+                   until_date = schedule_object.recurrence_rules.first&.to_hash&.dig(:until)
+
+                   if until_date.present?
+                     until_date = until_date[:time] if until_date.is_a?(::Hash)
+                     end_date = until_date.to_date.in_time_zone.change(
+                       hour: schedule_object.start_time.hour,
+                       min: schedule_object.start_time.min,
+                       sec: schedule_object.start_time.sec
+                     )
+                   else
+                     end_date = schedule_object.start_time
+                   end
                  end
 
                  end_date + (duration || 0)
