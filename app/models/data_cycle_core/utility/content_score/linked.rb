@@ -33,8 +33,28 @@ module DataCycleCore
             linked_item.try(:internal_content_score).to_f / 100
           end
 
+          def by_linked_score_and_weights(definition:, parameters:, key:, **_args)
+            DataCycleCore::Utility::ContentScore::Base.load_linked(parameters, key)
+
+            count = parameters[key].count { |l| l.try(:internal_content_score).to_i >= definition.dig('content_score', 'min_score').to_i }
+
+            if definition.dig('content_score', 'weight_matrix')&.key?(count.to_s)
+              definition.dig('content_score', 'weight_matrix', count.to_s).to_r
+            elsif count.positive? && definition.dig('content_score', 'weight_matrix')&.key?('many')
+              definition.dig('content_score', 'weight_matrix', 'many').to_r
+            else
+              0
+            end
+          end
+
           def to_tooltip(_content, definition, locale)
-            tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale:)]
+            tooltip = [
+              tooltip_base_string(
+                definition.dig('content_score', 'method'),
+                locale:,
+                score: definition.dig('content_score', 'min_score')
+              )
+            ]
 
             if definition.dig('content_score', 'weight_matrix').present?
               subtips = ['<ul>']

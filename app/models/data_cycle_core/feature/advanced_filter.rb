@@ -262,13 +262,16 @@ module DataCycleCore
 
         def advanced_attributes(locale, value)
           return [] unless value
-          value.map do |k, v|
+
+          value.map { |k, v|
+            next if v.is_a?(::Hash) && v[:depends_on].present? && !v[:depends_on].safe_constantize&.enabled?
+
             [
               I18n.t("filter.advanced_attributes.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k, locale:), locale:),
               'advanced_attributes',
               data: { name: k, advancedType: v.dig('type') }
             ]
-          end
+          }.compact
         end
 
         def inactive_things(locale, value)

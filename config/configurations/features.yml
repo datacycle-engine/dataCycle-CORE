@@ -228,6 +228,10 @@
     :geo_type: false
   :aggregate_filter:
     :depends_on: DataCycleCore::Feature::Aggregate
+  :advanced_attributes:
+    :internal_content_score:
+      :type: numeric
+      :depends_on: DataCycleCore::Feature::ContentScore
   # :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
