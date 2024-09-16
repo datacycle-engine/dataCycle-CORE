@@ -25,6 +25,7 @@ module DataCycleCore
           concept_name = options.dig(:download, :concept_name_path)
           concept_id = options.dig(:download, :concept_id_path) || concept_name
           concept_parent_id = options.dig(:download, :concept_parent_id_path) || 'parent_id'
+          priority = options.dig(:download, :priority) || 5
 
           concept_path = options.dig(:download, :concept_path) || ''
           concept_id_path = [concept_path, concept_id].compact_blank.join('.')
@@ -33,27 +34,30 @@ module DataCycleCore
           match_path = ['dump', lang, concept_id_path].compact_blank.join('.')
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
-            mongo.collection.aggregate([
-                                         {
-                                           '$match' => { match_path => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
-                                         },
-                                         {
-                                           '$unwind' => ['$dump', lang, concept_path].compact_blank.join('.')
-                                         }, {
-                                           '$project' => {
-                                             'id' => ['$dump', lang, concept_id_path].compact_blank.join('.'),
-                                             'name' => ['$dump', lang, concept_name_path].compact_blank.join('.'),
-                                             'parent_id' => ['$dump', lang, concept_parent_id_path].compact_blank.join('.')
-                                           }
-                                         }, {
-                                           '$group' => {
-                                             '_id' => '$id',
-                                             'id' => { '$first' => '$id' },
-                                             'name' => { '$first' => '$name' },
-                                             'parent_id' => { '$first' => '$parent_id' }
-                                           }
-                                         }
-                                       ]).to_a
+            mongo.collection.aggregate(
+              [
+                {
+                  '$match' => { match_path => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
+                },
+                {
+                  '$unwind' => ['$dump', lang, concept_path].compact_blank.join('.')
+                }, {
+                  '$project' => {
+                    'data.id' => ['$dump', lang, concept_id_path].compact_blank.join('.'),
+                    'data.name' => ['$dump', lang, concept_name_path].compact_blank.join('.'),
+                    'data.parent_id' => ['$dump', lang, concept_parent_id_path].compact_blank.join('.'),
+                    'data.priority' => priority
+                  }
+                }, {
+                  '$group' => {
+                    '_id' => '$data.id',
+                    'data' => { '$first' => '$data' }
+                  }
+                }, {
+                  '$replaceRoot' => { 'newRoot' => '$data' }
+                }
+              ]
+            ).to_a
           end
         end
 

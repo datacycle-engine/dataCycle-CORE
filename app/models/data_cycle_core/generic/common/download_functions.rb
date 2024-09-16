@@ -906,6 +906,13 @@ module DataCycleCore
                             item.dump ||= {}
                             local_item = item.dump[locale]
 
+                            if options.dig(:download, :priority).present?
+                              step_priority = options.dig(:download, :priority)
+
+                              # don't override item with lower priority
+                              next if local_item&.dig(:priority)&.<(step_priority)
+                            end
+
                             if options.dig(:download, :restorable).present? && local_item.present?
                               local_item.delete('deleted_at')
                               local_item.delete('delete_reason')
@@ -1030,8 +1037,9 @@ module DataCycleCore
 
                     items = Enumerator.new do |yielder|
                       iterator.call(options:, lang: locale, source_filter:).each do |item|
-                        item[:tree_label] = options.dig(:download, :tree_label)
-                        item[:external_id_prefix] = options.dig(:download, :external_id_prefix)
+                        item['tree_label'] = options.dig(:download, :tree_label)
+                        item['external_id_prefix'] = options.dig(:download, :external_id_prefix)
+                        item['priority'] = options.dig(:download, :priority)
                         yielder << item
                       end
                     end
@@ -1057,6 +1065,13 @@ module DataCycleCore
                             item = mongo_items.dig(item_id) || mongo_item_parallel.new('external_id': item_id)
                             item.dump ||= {}
                             local_item = item.dump[locale]
+
+                            if options.dig(:download, :priority).present?
+                              step_priority = options.dig(:download, :priority)
+
+                              # don't override item with lower priority
+                              next if local_item&.dig(:priority)&.<(step_priority)
+                            end
 
                             if options.dig(:download, :restorable).present? && local_item.present?
                               local_item.delete('deleted_at')

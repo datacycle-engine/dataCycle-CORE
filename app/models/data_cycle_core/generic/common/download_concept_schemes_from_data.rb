@@ -28,15 +28,16 @@ module DataCycleCore
                                            '$match' => { "dump.#{lang}.tree_label" => { '$exists' => true } }
                                          }, {
                                            '$project' => {
-                                             'id' => "$dump.#{lang}.tree_label",
-                                             'name' => "$dump.#{lang}.tree_label"
+                                             'data.id' => "$dump.#{lang}.tree_label",
+                                             'data.name' => "$dump.#{lang}.tree_label"
                                            }
                                          }, {
                                            '$group' => {
-                                             '_id' => '$id',
-                                             'id' => { '$first' => '$id' },
-                                             'name' => { '$first' => '$name' }
+                                             '_id' => '$data.id',
+                                             'data' => { '$first' => '$data' }
                                            }
+                                         }, {
+                                           '$replaceRoot' => { 'newRoot' => '$data' }
                                          }
                                        ]).to_a
           end
