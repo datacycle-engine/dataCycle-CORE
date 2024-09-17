@@ -40,6 +40,7 @@ module DataCycleCore
           transform_aggregate_features!
           transform_aggregate_properties!
           transform_override_properties!
+          transform_inverse_properties!
           add_aggregate_property!
 
           @aggregate
@@ -55,7 +56,6 @@ module DataCycleCore
 
         def self.key_allowed_for_aggregate?(key:, prop:)
           PROPS_WITHOUT_AGGREGATE.exclude?(key) &&
-            !(prop[:type] == 'linked' && prop[:link_direction] == 'inverse') &&
             !prop.key?(:virtual) &&
             !prop.key?(:compute) &&
             !prop.dig(:features, :overlay, :allowed)
@@ -93,6 +93,14 @@ module DataCycleCore
           end
 
           @aggregate[:properties] = props.to_h
+        end
+
+        def transform_inverse_properties!
+          @aggregate[:properties].each do |_key, prop|
+            next unless prop[:type] == 'linked' && prop[:link_direction] == 'inverse'
+            # next if ['subject_of', 'additional_description'].include? key
+            prop.except!(:inverse_of, :link_direction)
+          end
         end
 
         def slug_definition(key:, prop:)
