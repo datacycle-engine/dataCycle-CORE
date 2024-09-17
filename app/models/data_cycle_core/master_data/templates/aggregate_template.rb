@@ -96,9 +96,8 @@ module DataCycleCore
         end
 
         def transform_inverse_properties!
-          @aggregate[:properties].each do |_key, prop|
+          @aggregate[:properties].each_value do |prop|
             next unless prop[:type] == 'linked' && prop[:link_direction] == 'inverse'
-            # next if ['subject_of', 'additional_description'].include? key
             prop.except!(:inverse_of, :link_direction)
           end
         end
