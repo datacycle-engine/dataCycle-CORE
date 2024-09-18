@@ -191,15 +191,29 @@ module DataCycleCore
 
       if attribute_overlay_allowed?
         css_class << 'dc-has-overlay'
-        additional_attribute_partials << { partial: 'data_cycle_core/contents/additional_attribute_partials/additional_attribute_partial_selector', locals: { key_prefix: 'overlay', check_box_types: -> { overlay_types(_1) } } }
+        additional_attribute_partials << {
+          partial: 'data_cycle_core/contents/additional_attribute_partials/additional_attribute_partial_selector',
+          parent_html_classes: 'dc-has-additional-attribute-partial dc-has-overlay',
+          locals: {
+            key_prefix: 'overlay',
+            check_box_types: -> { overlay_types(_1) }
+          }
+        }
       end
 
       if attribute_aggregate_allowed?
         css_class << 'dc-has-aggregate'
-        additional_attribute_partials << { partial: 'data_cycle_core/contents/additional_attribute_partials/additional_attribute_partial_selector', locals: { key_prefix: 'aggregate', check_box_types: -> { aggregate_types(_1) } } }
+        additional_attribute_partials << {
+          partial: 'data_cycle_core/contents/additional_attribute_partials/additional_attribute_partial_selector',
+          parent_html_classes: 'dc-has-additional-attribute-partial dc-has-aggregate',
+          locals: {
+            key_prefix: 'aggregate',
+            check_box_types: -> { aggregate_types(_1) }
+          }
+        }
       end
 
-      parameters[:options][:class] = css_class.uniq.join(' ')
+      # parameters[:options][:class] = css_class.uniq.join(' ')
       parameters[:options][:additional_attribute_partials] = additional_attribute_partials
     end
 

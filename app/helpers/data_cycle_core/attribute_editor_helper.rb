@@ -105,15 +105,14 @@ module DataCycleCore
       new_options
     end
 
-    def attribute_editor_html_classes(key:, definition:, options:, content: nil, parent: nil, **_args)
-      html_classes = [
-        'clearfix',
-        'form-element',
-        key.attribute_name_from_key,
-        definition['type']&.underscore,
-        definition.dig('ui', 'edit', 'options', 'class')&.underscore,
-        options&.dig('class')
-      ]
+    def attribute_editor_html_classes(key:, definition:, options:, content: nil, parent: nil, html_classes: nil, **_args)
+      html_classes = Array.wrap(html_classes)
+      html_classes.push('clearfix')
+      html_classes.push('form-element')
+      html_classes.push(key.attribute_name_from_key)
+      html_classes.push(definition['type']&.underscore)
+      html_classes.push(definition.dig('ui', 'edit', 'options', 'class')&.underscore)
+      html_classes.push(options&.dig('class'))
 
       html_classes.push('disabled') unless attribute_editable?(key, definition, options, content)
       html_classes.push('validation-container') if definition.key?('validations')
