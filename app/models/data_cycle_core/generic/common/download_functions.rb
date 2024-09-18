@@ -870,6 +870,7 @@ module DataCycleCore
                   source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
                   last_download = download_object.external_source.last_successful_download
                   source_filter[:updated_at] = { '$gte': last_download } if last_download.present? && ['full', 'reset'].exclude?(options[:mode])
+                  source_filter[:deleted_at] = { '$exists': false }
                 end
 
                 begin
@@ -881,6 +882,8 @@ module DataCycleCore
 
                     items = Enumerator.new do |yielder|
                       iterator.call(options:, lang: locale, source_filter:).each do |item|
+                        item['priority'] = options.dig(:download, :priority)
+                        item['external_id_prefix'] = options.dig(:download, :external_id_prefix)
                         yielder << item
                       end
                     end
@@ -891,7 +894,7 @@ module DataCycleCore
                       init_mongo_db(database_name) do
                         download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
                           mongo_items = mongo_item_parallel
-                            .where(external_id: { '$in' => item_data_slice.map { |item_data| data_id.call(item_data) }})
+                            .where(external_id: { '$in' => item_data_slice.map { |item_data| data_id.call(item_data).to_s }})
                             .index_by(&:external_id)
 
                           seen_at = []
@@ -899,7 +902,7 @@ module DataCycleCore
                             item_count += 1
                             next if item_data.nil?
 
-                            item_id = data_id.call(item_data) || nil
+                            item_id = data_id.call(item_data).to_s || nil
                             item_name = data_name.call(item_data) || nil
 
                             item = mongo_items.dig(item_id) || mongo_item_parallel.new('external_id': item_id)
@@ -1050,7 +1053,7 @@ module DataCycleCore
                       init_mongo_db(database_name) do
                         download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
                           mongo_items = mongo_item_parallel
-                            .where(external_id: { '$in' => item_data_slice.map { |item_data| data_id.call(item_data) }})
+                            .where(external_id: { '$in' => item_data_slice.map { |item_data| data_id.call(item_data).to_s }})
                             .index_by(&:external_id)
 
                           seen_at = []
@@ -1058,7 +1061,7 @@ module DataCycleCore
                             item_count += 1
                             next if item_data.nil?
 
-                            item_id = data_id.call(item_data) || nil
+                            item_id = data_id.call(item_data).to_s || nil
                             item_data['id'] = item_id if item_data['id'] != item_id
                             item_name = data_name.call(item_data) || nil
 
