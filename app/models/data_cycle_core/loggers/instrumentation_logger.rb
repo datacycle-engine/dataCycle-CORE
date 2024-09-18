@@ -17,7 +17,7 @@ module DataCycleCore
         elsif message_or_data.is_a?(Hash)
           message = message_or_data.dig(:logging_options, :logging_message) ||
                     message_or_data.dig(:message) ||
-                    ([:error].include?(severity) ? "#{@type} #{message_or_data.dig(:external_system)&.name} failed" : nil)
+                    ([:error].include?(severity) ? "#{@type} #{message_or_data.dig(:external_system)&.name} failed (#{message_or_data.dig(:exception)&.to_s})" : nil)
         elsif message_or_data.is_a?(String)
           message = message_or_data
         else

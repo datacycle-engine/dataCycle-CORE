@@ -161,7 +161,8 @@ module DataCycleCore
         rescue DataCycleCore::Error::Import::TemplateMismatchError => e
           ActiveSupport::Notifications.instrument 'object_import_failed_template.datacycle', {
             exception: e,
-            namespace: 'importer'
+            namespace: 'importer',
+            external_system: utility_object&.external_source
           }
           utility_object&.external_source&.handle_import_error_notification(e)
           # puts 'Error: Template mismatch, expected: ' + e.expected_template_name + ', got: ' + e.template_name
