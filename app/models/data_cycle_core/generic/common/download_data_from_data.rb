@@ -33,7 +33,8 @@ module DataCycleCore
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
 
           full_data_path = ["dump.#{lang}", data_path].compact_blank.join('.')
-          source_filter_stage = { full_data_path => { '$exists' => true } }.with_indifferent_access
+          full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
+          source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
           post_unwind_source_filter_stage = source_filter_stage
@@ -64,6 +65,7 @@ module DataCycleCore
           group_stage = {
             '_id' => '$data.id', 'data' => { '$first' => '$data'}
           }
+
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
                                          {
@@ -92,7 +94,7 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data.dig('id')
+          data.dig('id').to_s
         end
 
         def self.data_name(data)
