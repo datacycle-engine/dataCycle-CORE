@@ -5,7 +5,7 @@ module DataCycleCore
     module Serializer
       class Gpx < Base
         class << self
-          include DataCycleCore::Engine.routes.url_helpers
+          include DataCycleCore::Common::Routing
 
           def translatable?
             false
@@ -17,10 +17,6 @@ module DataCycleCore
 
           def file_name_prefix(content)
             "#{content.id}_"
-          end
-
-          def default_url_options
-            Rails.application.config.action_mailer.default_url_options
           end
 
           def serialize_thing(content:, language:, **_options)

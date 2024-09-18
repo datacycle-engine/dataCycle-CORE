@@ -21,6 +21,7 @@
         <% end %>
 
         <div class="image-data">
+          <%= render 'data_cycle_core/assets/file_links', asset: content.asset if content.try(:asset).present? %>
           <h5>Details</h5>
           <dl>
             <% ['caption', 'description', 'transcript'].each do |property_name| %>

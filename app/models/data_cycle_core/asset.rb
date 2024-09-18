@@ -18,6 +18,7 @@ module DataCycleCore
     validate :file_extension_validation
 
     include AssetHelpers
+    include DataCycleCore::Common::Routing
 
     has_one :asset_content, dependent: :destroy
     has_one :thing, through: :asset_content
@@ -72,10 +73,29 @@ module DataCycleCore
       extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
     end
 
+    def filename
+      filename = (thing&.title || name.presence || file.filename.to_s).to_slug
+      filename.delete_suffix!("-#{file_extension}")
+      filename += ".#{file_extension}"
+
+      filename
+    end
+
+    def content_url
+      return unless file.attached?
+
+      local_blob_url(id: file.blob.id, file: filename)
+    end
+
+    def file_extension
+      return if file.blank?
+
+      MiniMime.lookup_by_content_type(file.content_type.to_s)&.extension
+    end
+
     def file_extension_validation
       if file.present?
-        extension = MiniMime.lookup_by_content_type(file.content_type.to_s)&.extension
-        return if self.class.content_type_white_list.include?(extension)
+        return if self.class.content_type_white_list.include?(file_extension)
 
         specific_mime_type = file.content_type&.then { |mt| [model_name.element, mt.split('/').last].join('/') }
         extension = MiniMime.lookup_by_content_type(specific_mime_type.to_s)&.extension

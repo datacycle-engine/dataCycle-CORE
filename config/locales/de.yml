@@ -1648,6 +1648,7 @@ de:
         name: Name
         file: Datei
         creator_id: Ersteller
+        content_url: Datei-URL
       data_cycle_core/external_source:
         name: Name
       data_cycle_core/external_system_sync:

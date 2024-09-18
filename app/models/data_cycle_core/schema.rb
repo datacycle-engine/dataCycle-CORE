@@ -17,7 +17,7 @@ module DataCycleCore
         end
       end
 
-      include Rails.application.routes.url_helpers
+      include DataCycleCore::Common::Routing
 
       DEFAULT_CONTENT_TABLE = 'things'
 

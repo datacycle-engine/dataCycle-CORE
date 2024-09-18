@@ -46,6 +46,9 @@ DataCycleCore::Engine.routes.draw do
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
     file: /.*/
   }
+  get '/assets/:id(/:file)', to: 'missing_asset#show_blob', as: 'local_blob', constraints: {
+    file: /.*/
+  }
   get '/processed/:klass/:id(/:file)', to: 'missing_asset#processed', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/

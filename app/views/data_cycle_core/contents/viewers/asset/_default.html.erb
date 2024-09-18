@@ -2,11 +2,7 @@
 
 <% unless asset.nil? %>
   <div class="inner">
-    <span class="asset-file-link">
-      <a href="<%= asset.file.url %>" class="asset-file-link-tag" target="_blank" title="<%= t('actions.open_asset', locale: active_ui_locale) %>">
-        <i class="fa fa-external-link" aria-hidden="true"></i>
-      </a>
-    </span>
+    <%= render 'data_cycle_core/assets/file_links', asset: asset %>
     <span class="asset-type" title="<%= asset.content_type %>">
       <i class="fa fa-check asset-checkbox" aria-hidden="true"></i>
       <%= render 'data_cycle_core/shared/icon', icon_class: asset.try(:icon_class) || asset.class.name.demodulize.underscore_blanks %>

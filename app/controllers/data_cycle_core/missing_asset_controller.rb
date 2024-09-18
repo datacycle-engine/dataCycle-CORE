@@ -1,12 +1,19 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class MissingAssetController < ApplicationController
+  class MissingAssetController < ActiveStorage::BaseController
     include DataCycleCore::ErrorHandler
+    include DataCycleCore::ActiveStorageStreaming
+    include ActiveStorage::SetHeaders
+    include ActiveStorage::DisableSession
+
     protect_from_forgery with: :exception
 
     def show
-      @asset = "data_cycle_core/#{permitted_params[:klass]}".classify.constantize.find(permitted_params[:id])
+      asset_class = "data_cycle_core/#{permitted_params[:klass]}".classify.safe_constantize
+      raise ActiveRecord::RecordNotFound if asset_class.nil?
+
+      @asset = asset_class.find(permitted_params[:id])
       filename = nil
       content_type = nil
 
@@ -40,6 +47,21 @@ module DataCycleCore
       not_found(e)
     end
 
+    def show_blob
+      @blob = ActiveStorage::Blob.find(permitted_params[:id])
+
+      raise ActiveRecord::RecordNotFound if @blob.nil?
+
+      if request.headers['Range'].present?
+        send_blob_byte_range_data @blob, request.headers['Range']
+      else
+        http_cache_forever public: true do
+          set_content_headers_from @blob
+          stream @blob
+        end
+      end
+    end
+
     def processed
       id = permitted_params[:id]
       processed_asset_path = Rails.root.join('public/uploads' + request.path)
@@ -59,7 +81,7 @@ module DataCycleCore
     private
 
     def permitted_params
-      params.permit(:klass, :id, :version, transformation: [:format, :width, :height])
+      params.permit(:klass, :klass_namespace, :id, :version, :file, transformation: [:format, :width, :height])
     end
   end
 end

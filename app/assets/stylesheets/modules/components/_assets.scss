@@ -208,11 +208,6 @@ ul.asset-list {
         font-weight: 200;
       }
 
-      &.asset-file-link {
-        float: right;
-        margin-left: 0.5rem;
-      }
-
       &.asset-duplicate-warning {
         display: none;
       }
@@ -284,6 +279,16 @@ ul.asset-list {
       }
     }
   }
+}
+
+.image-data .asset-file-links,
+ul.asset-list>li .inner span.asset-file-links {
+  float: right;
+  margin-left: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
 }
 
 // File Upload Reveal

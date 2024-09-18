@@ -1602,6 +1602,7 @@ en:
         name: Name
         file: File
         creator_id: Creator
+        content_url: File-URL
       data_cycle_core/external_source:
         name: Name
       data_cycle_core/external_system_sync:
