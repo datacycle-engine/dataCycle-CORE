@@ -51,7 +51,7 @@ module DataCycleCore
     end
 
     def add_things_from_query(contents_query)
-      ids = ActiveRecord::Base.connection.execute <<-SQL.squish
+      result = ActiveRecord::Base.connection.exec_query <<-SQL.squish
         INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type)
         #{contents_query.select("'#{id}', things.id, 'DataCycleCore::Thing'").to_sql}
         ON CONFLICT DO NOTHING
@@ -60,11 +60,11 @@ module DataCycleCore
 
       update_column(:updated_at, Time.zone.now)
 
-      ids.pluck('hashable_id')
+      result.pluck('hashable_id')
     end
 
     def delete_all_watch_list_data_hashes
-      ids = ActiveRecord::Base.connection.execute <<-SQL.squish
+      result = ActiveRecord::Base.connection.exec_query <<-SQL.squish
         DELETE FROM watch_list_data_hashes
         WHERE watch_list_data_hashes.watch_list_id = '#{id}'
         RETURNING hashable_id;
@@ -72,7 +72,7 @@ module DataCycleCore
 
       update_column(:updated_at, Time.zone.now)
 
-      ids.pluck('hashable_id')
+      result.pluck('hashable_id')
     end
 
     def update_order_by_array(order_array)

@@ -39,13 +39,13 @@ module DataCycleCore
           pg_total_relation_size(relid) DESC;
       SQL
 
-      stats_res = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [stats_sql, EXCLUDED_TABLES]))
+      stats_res = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [stats_sql, EXCLUDED_TABLES]))
       stats_res.each do |stat_res|
         pg_tables[stat_res['tablename']] = stat_res.except('tablename')
       end
 
       count_sql = pg_tables.keys.map { |t_name| "SELECT '#{t_name}' AS tablename, count(*) AS count FROM #{t_name}" }.join(' UNION ')
-      count_res = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, count_sql))
+      count_res = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, count_sql))
       count_res.each do |count_r|
         pg_tables[count_r['tablename']]['count'] = count_r['count']
       end
@@ -108,7 +108,7 @@ module DataCycleCore
 
       @pg_name = ActiveRecord::Base.connection.current_database
       sql = ActiveRecord::Base.send(:sanitize_sql_for_conditions, "SELECT pg_database_size('#{@pg_name}');")
-      @pg_size = ActiveRecord::Base.connection.execute(sql).first['pg_database_size']
+      @pg_size = ActiveRecord::Base.connection.select_all(sql).first['pg_database_size']
     end
 
     def last_download_and_import(external_source)

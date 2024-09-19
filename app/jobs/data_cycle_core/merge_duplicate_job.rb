@@ -99,7 +99,7 @@ module DataCycleCore
         ON CONFLICT DO NOTHING
       SQL
 
-      ActiveRecord::Base.connection.execute(
+      ActiveRecord::Base.connection.exec_query(
         ActiveRecord::Base.send(:sanitize_sql_array, [
                                   insert_sql,
                                   duplicate_id:,

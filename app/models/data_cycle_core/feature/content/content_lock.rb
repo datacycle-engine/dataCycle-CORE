@@ -26,7 +26,7 @@ module DataCycleCore
           def create_locks(user:)
             content_query = all.select("'DataCycleCore::Thing', things.id, '#{user.id}', 'content_lock', NOW(), NOW()")
 
-            ActiveRecord::Base.connection.execute <<-SQL.squish
+            ActiveRecord::Base.connection.exec_query <<-SQL.squish
               INSERT INTO activities (activitiable_type, activitiable_id, user_id, activity_type, created_at, updated_at)
               #{content_query.to_sql}
               ON CONFLICT DO NOTHING

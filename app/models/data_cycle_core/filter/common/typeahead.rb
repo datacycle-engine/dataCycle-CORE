@@ -24,7 +24,7 @@ module DataCycleCore
             LIMIT :limit
           SQL
 
-          ActiveRecord::Base.connection.execute(
+          ActiveRecord::Base.connection.select_all(
             ActiveRecord::Base.send(:sanitize_sql_array, [typeahead_query, word: normalized_search, limit:])
           )
         end
@@ -50,7 +50,7 @@ module DataCycleCore
             ORDER BY s2.rank DESC NULLS LAST
           SQL
 
-          ActiveRecord::Base.connection.execute(
+          ActiveRecord::Base.connection.select_all(
             ActiveRecord::Base.send(:sanitize_sql_array, [
                                       typeahead_query,
                                       search: "#{normalized_name}%",
@@ -97,7 +97,7 @@ module DataCycleCore
             ORDER BY s2.rank DESC NULLS LAST
           SQL
 
-          ActiveRecord::Base.connection.execute(
+          ActiveRecord::Base.connection.select_all(
             ActiveRecord::Base.send(:sanitize_sql_array, [
                                       typeahead_query,
                                       tsquery_value: normalized_name,

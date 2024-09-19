@@ -15,7 +15,7 @@ module DataCycleCore
       SQL
       query = reorder(nil).except(:limit, :offset).select(select_sql).to_sql
 
-      ActiveRecord::Base.connection.execute(
+      ActiveRecord::Base.connection.select_all(
         Arel.sql(query)
       ).first&.values&.first
     end
@@ -44,7 +44,7 @@ module DataCycleCore
       SQL
 
       ActiveRecord::Base.connection.unescape_bytea(
-        ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.connection.select_all(
           Arel.sql(query)
         ).first&.values&.first
       )

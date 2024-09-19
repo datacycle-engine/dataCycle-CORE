@@ -205,7 +205,7 @@ module DataCycleCore
         SELECT * FROM classification_trees_data;
       SQL
 
-      ActiveRecord::Base.connection.execute(
+      ActiveRecord::Base.connection.exec_query(
         ActiveRecord::Base.send(:sanitize_sql_array, [sql, *sql_values.flatten(1)])
       )
     end
@@ -310,7 +310,7 @@ module DataCycleCore
         WHERE deleted_at IS NULL DO NOTHING;
       SQL
 
-      ActiveRecord::Base.connection.execute(
+      ActiveRecord::Base.connection.exec_query(
         ActiveRecord::Base.send(:sanitize_sql_array, [sql, *sql_values.flatten(1)])
       )
     end
@@ -435,7 +435,7 @@ module DataCycleCore
         WHERE w.id = classification_aliases.id;
       SQL
 
-      ActiveRecord::Base.connection.execute(
+      ActiveRecord::Base.connection.exec_query(
         ActiveRecord::Base.send(
           :sanitize_sql_array,
           [
@@ -519,7 +519,7 @@ module DataCycleCore
     end
 
     def clean_stored_filters
-      ActiveRecord::Base.connection.execute <<-SQL.squish
+      ActiveRecord::Base.connection.exec_query <<-SQL.squish
         WITH subquery AS
         (
             SELECT

@@ -53,7 +53,7 @@ module DataCycleCore
             SQL
             query = all.except(:order, :limit, :offset).select(select_sql).to_sql
 
-            ActiveRecord::Base.connection.execute(Arel.sql(query)).first&.values&.first
+            ActiveRecord::Base.connection.select_all(Arel.sql(query)).first&.values&.first
           end
         end
       end

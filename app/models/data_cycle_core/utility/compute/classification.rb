@@ -104,7 +104,7 @@ module DataCycleCore
               ORDER BY filtered_classifications.classification_id
             SQL
 
-            ActiveRecord::Base.connection.execute(
+            ActiveRecord::Base.connection.select_all(
               ActiveRecord::Base.send(:sanitize_sql_array, [
                                         query_sql,
                                         tree_label:,

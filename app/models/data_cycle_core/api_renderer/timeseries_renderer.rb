@@ -55,7 +55,7 @@ module DataCycleCore
       def transform_data(data_format)
         group_and_filter_query
 
-        ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.connection.select_all(
           Arel.sql(
             sql_for_data_format("#{data_format}_#{@data_format}")
           )

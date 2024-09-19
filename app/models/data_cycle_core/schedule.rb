@@ -892,7 +892,7 @@ module DataCycleCore
       range_start = range_start.to_date
       range_end = range_end.to_date
 
-      ActiveRecord::Base.connection.execute(schedule_occurrences_sql(range_start:, range_end:))
+      ActiveRecord::Base.connection.exec_query(schedule_occurrences_sql(range_start:, range_end:))
     end
 
     def self.schedule_occurrences_sql(range_start:, range_end:)

@@ -13,7 +13,7 @@ module DataCycleCore
       end
 
       def render
-        ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.connection.select_all(
           Arel.sql(main_sql)
         ).first&.values&.first
       end
