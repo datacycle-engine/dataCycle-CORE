@@ -163,9 +163,9 @@
 :user_group_permissions:
   :default_role: guest
   :abilities:
-    thing_actions_merge_duplicate:
+    test_permission:
       actions:
-        - merge_duplicates
+        - view_life_cycle
       segment: ThingsInCollections
       parameters: '<COLLECTION>'
 

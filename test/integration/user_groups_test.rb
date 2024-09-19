@@ -77,14 +77,6 @@ module DataCycleCore
       @dummy_poi = DataCycleCore::Thing.create(template_name: 'POI', name: 'test poi')
       test_collection.add_things_from_query(DataCycleCore::Thing.where(id: @dummy_poi.id))
 
-      DataCycleCore.features[:user_group_permission][:enabled] = true
-      DataCycleCore.features[:user_group_permission][:abilities][:test_permission] = {
-        'actions' => ['view_life_cycle'],
-        'segment' => 'ThingsInCollections',
-        'parameters' => [test_collection.id]
-      }
-      DataCycleCore::Feature::UserGroupPermission.reload
-
       role_id = DataCycleCore::Role.find_by(name: 'standard').id
 
       group_name = "permissions_test_group_#{Time.now.getutc.to_i}"
