@@ -71,5 +71,47 @@ module DataCycleCore
       follow_redirect!
       assert_select 'li.grid-item > .inner > .title', { count: 0, text: 'TestUserGroup' }
     end
+
+    test 'user_group permissions' do
+      test_collection = DataCycleCore::WatchList.create(full_path: 'user_group testsammlung')
+      @dummy_poi = DataCycleCore::Thing.create(template_name: 'POI', name: 'test poi')
+      test_collection.add_things_from_query(DataCycleCore::Thing.where(id: @dummy_poi.id))
+
+      DataCycleCore.features[:user_group_permission][:enabled] = true
+      DataCycleCore.features[:user_group_permission][:abilities][:test_permission] = {
+        'actions' => ['view_life_cycle'],
+        'segment' => 'ThingsInCollections',
+        'parameters' => [test_collection.id]
+      }
+      DataCycleCore::Feature::UserGroupPermission.reload
+
+      role_id = DataCycleCore::Role.find_by(name: 'standard').id
+
+      group_name = "permissions_test_group_#{Time.now.getutc.to_i}"
+
+      user = DataCycleCore::User.create!(
+        given_name: 'Test',
+        family_name: 'TEST',
+        email: "#{SecureRandom.base64(12)}@pixelpoint.at",
+        password: 'password',
+        role_id:
+      )
+
+      user_group = DataCycleCore::UserGroup.create(name: group_name)
+
+      patch user_group_path(user_group), params: { user_group: {
+        name: group_name,
+        user_ids: [
+          user&.id
+        ],
+        permissions: ['test_permission'],
+        shared_collection_ids: [test_collection.id]
+      } }, headers: {
+        referer: edit_user_group_path(user_group)
+      }
+
+      assert_equal true, user.cannot?(:merge_duplicates, @dummy_poi)
+      assert_equal true, user.can?(:view_life_cycle, @dummy_poi)
+    end
   end
 end

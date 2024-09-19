@@ -160,6 +160,15 @@
   :terms_condition_url: "https://datacycle.info/de/allgemeine-geschaeftsbedingungen/"
   :privacy_policy_url: "https://open.datacycle.cloud/de/datenschutzerklaerung/"
 
+:user_group_permissions:
+  :default_role: guest
+  :abilities:
+    thing_actions_merge_duplicate:
+      actions:
+        - merge_duplicates
+      segment: ThingsInCollections
+      parameters: '<COLLECTION>'
+
 :preview:
   :enabled: true
   :widgets:

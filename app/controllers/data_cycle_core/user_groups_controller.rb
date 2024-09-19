@@ -61,6 +61,9 @@ module DataCycleCore
 
     def update
       if @user_group.update(user_group_params)
+
+        DataCycleCore::Abilities::PermissionsList.reload
+
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
 
         if Rails.env.development?
@@ -90,7 +93,7 @@ module DataCycleCore
     end
 
     def user_group_params
-      params.require(:user_group).permit(:name, user_ids: [], classification_ids: [])
+      params.require(:user_group).permit(:name, user_ids: [], classification_ids: [], shared_collection_ids: [], permissions: [])
     end
 
     def set_user_group

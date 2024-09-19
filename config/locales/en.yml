@@ -1533,6 +1533,8 @@ en:
       data_cycle_core/user_group:
         name: Name
         user_ids: User
+        shared_collection_ids: "%{collection} or %{stored_filter}"
+        permissions: Permissions
         classification_ids_markets: Markets
         classification_ids_output_channels: Output channels
       data_cycle_core/user:

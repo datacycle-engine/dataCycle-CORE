@@ -1577,6 +1577,8 @@ de:
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
+        shared_collection_ids: "%{collection} oder %{stored_filter}"
+        permissions: Berechtigungen
         classification_ids_markets: Märkte
         classification_ids_output_channels: Ausgabekanäle
       data_cycle_core/user:

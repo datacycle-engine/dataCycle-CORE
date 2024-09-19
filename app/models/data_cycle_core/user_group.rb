@@ -6,9 +6,10 @@ module DataCycleCore
 
     has_many :user_group_users, dependent: :destroy
     has_many :users, through: :user_group_users
+    attribute :permissions, :jsonb, default: -> { [] }
 
     has_many :collection_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
-    has_many :shared_collections, through: :collection_shares
+    has_many :shared_collections, through: :collection_shares, source: :collection
 
     has_many :classification_user_groups, dependent: :destroy
     has_many :classifications, through: :classification_user_groups

@@ -96,6 +96,67 @@
             </div>
           </div>
         <% end %>
+
+        <% if DataCycleCore::Feature::UserGroupSharedCollection.enabled? %>
+          <div class="form-element">
+            <%= f.label "user_group_shared_collection_ids", DataCycleCore::UserGroup.human_attribute_name(
+              "shared_collection_ids",
+              collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+              stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+              locale: active_ui_locale
+            ) %>
+            <div class="v-select">
+              <% collections = DataCycleCore::Feature::UserGroupSharedCollection.whitelist
+              %>
+              <%= hidden_field_tag 'user_group[shared_collection_ids][]' %>
+              <%=
+                select_tag('user_group[shared_collection_ids][]',
+                options_from_collection_for_select(collections, "id", "name", content.shared_collection_ids),
+                {
+                  multiple: config.key?('multiple') ? config['multiple'] : true,
+                  include_blank: true,
+                  class: 'multi-select',
+                  data: {
+                    initial_focus: true,
+                    max: 20
+                  }
+                }
+              )
+              %>
+            </div>
+          </div>
+        <% end %>
+
+        <% # ToDo: Auswahlmöglichkeit ähnlich wie Inhaltstypen-Filter, Permissions "zusammenklicken"
+         if DataCycleCore::Feature::UserGroupPermission.enabled? %>
+          <div class="form-element">
+            <%= f.label "user_group_permissions", DataCycleCore::UserGroup.human_attribute_name(
+              "permissions",
+              collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+              stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+              locale: active_ui_locale
+            ) %>
+            <div class="v-select">
+              <% abilities = DataCycleCore::Feature::UserGroupPermission.abilities(content, self)
+              %>
+              <%= hidden_field_tag 'user_group[permissions][]' %>
+              <%= select_tag('user_group[permissions][]',
+                             options_from_collection_for_select(abilities, "second", "first", content.permissions),
+                             {
+                               multiple: config.key?('multiple') ? config['multiple'] : true,
+                               include_blank: true,
+                               class: 'multi-select',
+                               data: {
+                                 initial_focus: true,
+                                 max: 20
+                               }
+                             }
+                  )
+              %>
+            </div>
+          </div>
+        <% end %>
+
       </div>
     </div>
   </div>

@@ -10,6 +10,7 @@ module DataCycleCore
       include Permissions::Roles::Standard
       include Permissions::Roles::Admin
       include Permissions::Roles::SuperAdmin
+      include Permissions::Roles::UserGroups
 
       def self.list
         unless defined? @list
@@ -40,6 +41,7 @@ module DataCycleCore
         load_standard_permissions
         load_admin_permissions
         load_super_admin_permissions
+        load_permissions_for_user_groups if DataCycleCore::Feature::UserGroupPermission.enabled?
       end
 
       def permit(condition, *actions, definition)
@@ -120,6 +122,10 @@ module DataCycleCore
             )
           end
         end
+      end
+
+      def self.parse_parameters_from_yaml(parameters)
+        new.parse_parameters_from_yaml(parameters)
       end
 
       def parse_parameters_from_yaml(parameters)

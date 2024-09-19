@@ -211,6 +211,8 @@ en:
       thing_by_user_and_template_name:
         - User is %{attribute_name}
         - "Data type: %{template_names}"
+      things_in_collections:
+        - "Contained in %{collection_type}: %{collection_names_or_ids}"
       tree_label_by_visibility: "Visibility: %{visibilities}"
       users_by_email_domain: "E-mail domain: %{domain}"
       users_by_role: "Role: %{roles}"
