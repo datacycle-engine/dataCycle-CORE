@@ -110,7 +110,7 @@ module DataCycleCore
                                         tree_label:,
                                         geo: geometry
                                       ])
-            ).values.flatten
+            ).rows.flatten
           end
 
           private
