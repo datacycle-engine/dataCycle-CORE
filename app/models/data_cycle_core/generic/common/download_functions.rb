@@ -870,7 +870,7 @@ module DataCycleCore
                   source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
                   last_download = download_object.external_source.last_successful_download
                   source_filter[:updated_at] = { '$gte': last_download } if last_download.present? && ['full', 'reset'].exclude?(options[:mode])
-                  source_filter[:deleted_at] = { '$exists': false }
+                  source_filter.deep_merge!({ "dump.#{locale}.deleted_at" => { '$exists': false } })
                 end
 
                 begin
