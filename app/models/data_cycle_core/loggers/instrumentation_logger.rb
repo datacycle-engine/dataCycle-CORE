@@ -3,25 +3,32 @@
 module DataCycleCore
   module Loggers
     class InstrumentationLogger < Logger
+      SEVERITIES = [:debug, :info, :warn, :error, :fatal].freeze
+
       def initialize(type:)
         log_file = "./log/#{type}.log"
-        @type = type
+        @type = type&.to_s&.capitalize
         super(log_file)
       end
 
-      def dc_log(severity, message_or_data)
-        severity = :info unless [:debug, :info, :warn, :error, :fatal].include?(severity)
+      def dc_log(severity, data)
+        severity = :info unless SEVERITIES.include?(severity)
 
-        if message_or_data.is_a?(Array)
-          message = message_or_data.join("\n")
-        elsif message_or_data.is_a?(Hash)
-          message = message_or_data.dig(:logging_options, :logging_message) ||
-                    message_or_data.dig(:message) ||
-                    ([:error].include?(severity) ? "#{@type} #{message_or_data.dig(:external_system)&.name} failed (#{message_or_data.dig(:exception)&.to_s})" : nil)
-        elsif message_or_data.is_a?(String)
-          message = message_or_data
+        case data
+        when ::Array
+          message = data.join("\n")
+        when ::Hash
+          message = data.dig(:message)
+
+          if severity == :error && message.blank?
+            message = "#{@type.ljust(11)}#{data.dig(:external_system)&.name} failed"
+            message += " (Exception: #{data[:exception]}, Backtrace: #{data[:exception].backtrace.first})" if data.dig(:exception).present?
+            message += " (Item-ID: #{data[:item_id]})" if data.dig(:item_id).present?
+          end
+        when ::String
+          message = data
         else
-          message = message_or_data.to_json
+          message = data.to_json
         end
 
         send(severity, message) if message.present?

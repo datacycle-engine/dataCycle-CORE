@@ -7,6 +7,8 @@ module DataCycleCore
   module Generic
     module Common
       module DownloadFunctions
+        extend Extensions::DownloadContentFunctions
+
         def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)
@@ -15,9 +17,10 @@ module DataCycleCore
 
         def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, cleanup_data: nil, credential: nil, options:)
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
-              is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -48,44 +51,10 @@ module DataCycleCore
                   GC.start
                   logging.info("Single download item: #{item_name}", item_id)
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         print_logs: is_instrumentation_log,
-                                         logging_message: logging.error_detailed({
-                                           exception: e,
-                                           execution_step: 'single download',
-                                           external_system: download_object.external_source.name.to_s,
-                                           item: {title: item_name, id: item_id, data: item, mongo_item:}
-                                         })
-                                       }
-                                     end
-                  }
+                  logging.step_failed(e, download_object.external_source, step_label)
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                  exception: e,
-                  namespace: 'background',
-                  logging_options: if !is_instrumentation_log
-                                     nil
-                                   else
-                                     {
-                                       print_logs: is_instrumentation_log,
-                                       logging_message: logging.error_detailed({
-                                         exception: e,
-                                         execution_step: 'single download',
-                                         external_system: download_object.external_source.name.to_s
-                                       })
-                                     }
-                                   end
-                }
-                download_object.external_source.handle_download_error_notification(e)
-
-                logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                logging.step_failed(e, download_object.external_source, step_label)
               end
             end
           end
@@ -101,9 +70,10 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
-                is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
                 locale = options[:locales].first
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
@@ -113,8 +83,7 @@ module DataCycleCore
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |_mongo_item|
-                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
-                    logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
+                    logging.phase_started(step_label, options.dig(:max_count))
                     GC.start
                     times = [Time.current]
 
@@ -176,25 +145,7 @@ module DataCycleCore
                           end
                           logging.item_processed(item_name, item_id, item_count, max_string)
                         rescue StandardError => e
-                          ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                            exception: e,
-                            namespace: 'background',
-                            logging_options: if !is_instrumentation_log
-                                               nil
-                                             else
-                                               {
-                                                 print_logs: is_instrumentation_log,
-                                                 logging_message: logging.error_detailed({
-                                                   exception: e,
-                                                   execution_step: "#{endpoint_method} [#{locale}]",
-                                                   external_system: download_object.external_source.name.to_s,
-                                                   item: {title: item_name.presence, id: item_id.presence, data: item_data.presence, raw_data: item.presence}
-                                                 })
-                                               }
-                                             end
-                          }
-
-                          logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                          logging.step_failed(e, download_object.external_source, step_label)
                           success = false
                         end
                       end
@@ -209,30 +160,11 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         print_logs: is_instrumentation_log,
-                                         logging_message: logging.error_detailed({
-                                           exception: e,
-                                           external_system: download_object.external_source.name.to_s,
-                                           execution_step: "#{endpoint_method} [#{locale}]",
-                                           item: {raw_data: item.presence}
-                                         })
-                                       }
-                                     end
-                  }
+                  logging.step_failed(e, download_object.external_source, step_label)
 
-                  download_object.external_source.handle_download_error_notification(e)
-
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
                   success = false
                 ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -250,9 +182,10 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
-                is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
                 locale = options[:locales].first
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
@@ -262,8 +195,7 @@ module DataCycleCore
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |_mongo_item|
-                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
-                    logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
+                    logging.phase_started(step_label, options.dig(:max_count))
                     GC.start
                     times = [Time.current]
 
@@ -364,30 +296,10 @@ module DataCycleCore
                     GC.start
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         logging_message: logging.error_detailed({
-                                           exception: e,
-                                           external_system: download_object.external_source.name.to_s,
-                                           execution_step: "#{endpoint_method} [#{locale}]",
-                                           item: { raw_data: item.presence }
-                                         }),
-                                         print_logs: is_instrumentation_log
-                                       }
-                                     end
-                  }
-
-                  download_object.external_source.handle_download_error_notification(e)
-
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                  logging.step_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -400,12 +312,11 @@ module DataCycleCore
           delta = 100
 
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
-              is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
-
-              lang = nil
 
               logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name}")
               item_count = 0
@@ -415,8 +326,7 @@ module DataCycleCore
                   endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
                   items = download_object.endpoint.send(endpoint_method)
 
-                  max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
-                  logging.phase_started(download_object.source_type.collection_name.to_s, max_string)
+                  logging.phase_started(step_label, options.dig(:max_count))
 
                   GC.start
 
@@ -455,27 +365,7 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                        exception: e,
-                        namespace: 'background',
-                        logging_options: if !is_instrumentation_log
-                                           nil
-                                         else
-                                           {
-                                             print_logs: is_instrumentation_log,
-                                             logging_message: logging.error_detailed({
-                                               exception: e,
-                                               external_system: download_object.external_source.name.to_s,
-                                               execution_step: "#{endpoint_method} [#{lang || locales}]",
-                                               item: {title: item_name.presence, id: item_id.presence, data: item_data.presence, raw_data: item.presence}
-                                             })
-                                           }
-                                         end
-                      }
-
-                      download_object.external_source.handle_download_error_notification(e)
-
-                      logging.error(item_name, item_id, item_data, e) unless is_instrumentation_log
+                      logging.step_failed(e, download_object.external_source, step_label)
                       success = false
                     end
 
@@ -489,31 +379,10 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                  exception: e,
-                  namespace: 'background',
-                  logging_options: if !is_instrumentation_log
-                                     nil
-                                   else
-                                     {
-                                       print_logs: is_instrumentation_log,
-                                       logging_message: logging.error_detailed({
-                                         exception: e,
-                                         external_system: download_object.external_source.name.to_s,
-                                         execution_step: download_object.source_type.to_s,
-                                         print_logs: is_instrumentation_log
-                                       })
-                                     }
-                                   end
-
-                }
-
-                download_object.external_source.handle_download_error_notification(e)
-
-                logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                logging.step_failed(e, download_object.external_source, step_label)
                 success = false
               ensure
-                logging.phase_finished(download_object.source_type.collection_name.to_s, item_count)
+                logging.phase_finished(step_label, item_count)
               end
             end
           end
@@ -525,9 +394,10 @@ module DataCycleCore
           delta = 100
 
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
-              is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
 
               endpoint_method = nil
@@ -541,8 +411,7 @@ module DataCycleCore
                   endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
                   items = download_object.endpoint.send(endpoint_method)
 
-                  max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
-                  logging.phase_started(download_object.source_type.collection_name.to_s, max_string)
+                  logging.phase_started(step_label, options.dig(:max_count))
 
                   GC.start
 
@@ -585,28 +454,7 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                        exception: e,
-                        namespace: 'background',
-                        logging_options: if !is_instrumentation_log
-                                           nil
-                                         else
-                                           {
-                                             print_logs: is_instrumentation_log,
-                                             logging_message: logging.error_detailed({
-                                               exception: e,
-                                               external_system: download_object.external_source.name.to_s,
-                                               execution_step: "#{endpoint_method} [#{locales}]",
-                                               item: {title: item_name.presence, id: item_id.presence, data: item_data.presence, raw_data: item.presence}
-                                             })
-                                           }
-                                         end
-
-                      }
-
-                      download_object.external_source.handle_download_error_notification(e)
-
-                      logging.error(item_name, item_id, item_data, e) unless is_instrumentation_log
+                      logging.step_failed(e, download_object.external_source, step_label)
                       success = false
                     end
 
@@ -620,29 +468,10 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                  exception: e,
-                  namespace: 'background',
-                  logging_options: if !is_instrumentation_log
-                                     nil
-                                   else
-                                     {
-                                       print_logs: is_instrumentation_log,
-                                       logging_message: logging.error_detailed({
-                                         exception: e,
-                                         external_system: download_object.external_source.name.to_s,
-                                         execution_step: "#{endpoint_method} [#{locales}]"
-                                       })
-                                     }
-                                   end
-                }
-
-                download_object.external_source.handle_download_error_notification(e)
-
-                logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                logging.step_failed(e, download_object.external_source, step_label)
                 success = false
               ensure
-                logging.phase_finished(download_object.source_type.collection_name.to_s, item_count)
+                logging.phase_finished(step_label, item_count)
               end
             end
           end
@@ -653,7 +482,6 @@ module DataCycleCore
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
-              is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 item_id = data_id.call(raw_data.first[1])
                 item_name = data_name.call(raw_data.first[1])
@@ -663,24 +491,7 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', {
-                  exception: e,
-                  namespace: 'background',
-                  logging_options: if !is_instrumentation_log
-                                     nil
-                                   else
-                                     {
-                                       print_logs: is_instrumentation_log,
-                                       logging_message: logging.error_detailed({
-                                         exception: e,
-                                         external_system: download_object.external_source.name.to_s,
-                                         execution_step: 'dump', item: {title: item_name.presence, id: item_id.presence, raw_data: item.presence}
-                                       })
-                                     }
-                                   end
-                }
-
-                logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                logging.step_failed(e, download_object.external_source, step_label)
               end
             end
           end
@@ -691,7 +502,6 @@ module DataCycleCore
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
-              is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 locale = options.dig(:download, :locales)&.first || :de
                 item_id = data_id.call(raw_data)
@@ -702,23 +512,7 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', {
-                  exception: e,
-                  namespace: 'background',
-                  logging_options: if !is_instrumentation_log
-                                     nil
-                                   else
-                                     { logging_message: logging.error_detailed({
-                                       external_system: download_object.external_source.name.to_s,
-                                       execution_step: 'dump',
-                                       exception: e,
-                                       item: { title: item_name.presence, id: item_id.presence, raw_data: item.presence }
-                                     }),
-                                       print_logs: is_instrumentation_log }
-                                   end
-                }
-
-                logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                logging.step_failed(e, download_object.external_source, step_label)
               end
             end
           end
@@ -736,9 +530,10 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
-                is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
                 locale = options[:locales].first
                 logging.preparing_phase("Mark deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
@@ -748,8 +543,7 @@ module DataCycleCore
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
                     items = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from:)
 
-                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
-                    logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
+                    logging.phase_started(step_label, options.dig(:max_count))
 
                     GC.start
 
@@ -778,24 +572,7 @@ module DataCycleCore
                         item.save!
                         logging.item_processed('delete', item_id, item_count, max_string)
                       rescue StandardError => e
-                        ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
-                          exception: e,
-                          namespace: 'background',
-                          logging_options: if !is_instrumentation_log
-                                             nil
-                                           else
-                                             {
-                                               print_logs: is_instrumentation_log,
-                                               logging_message: logging.error_detailed({
-                                                 external_system: download_object.external_source.name.to_s,
-                                                 execution_step: 'mark_deleted', exception: e,
-                                                 item: {id: item_id.presence, data: item_data.presence, raw_data: item.presence}
-                                               })
-                                             }
-                                           end
-                        }
-
-                        logging.error('delete', item_id, item_data, e) unless is_instrumentation_log
+                        logging.step_failed(e, download_object.external_source, step_label)
                         success = false
                       end
 
@@ -809,27 +586,10 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         print_logs: is_instrumentation_log,
-                                         logging_message: logging.error_detailed({
-                                           external_system: download_object.external_source.name.to_s,
-                                           exception: e,
-                                           execution_step: 'mark_deleted'
-                                         })
-                                       }
-                                     end
-                  }
-
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                  logging.step_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -857,9 +617,10 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
-                is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
                 locale = options[:locales].first
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale} from #{read_type}")
                 item_count = 0
@@ -875,13 +636,12 @@ module DataCycleCore
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |_mongo_item|
-                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
-                    logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
+                    logging.phase_started(step_label, options.dig(:max_count))
                     GC.start
                     times = [Time.current]
 
                     items = Enumerator.new do |yielder|
-                      iterator.call(options:, lang: locale, source_filter:).each do |item|
+                      iterator.call(options:, locale:, source_filter:).each do |item|
                         item['priority'] = options.dig(:download, :priority)
                         item['external_id_prefix'] = options.dig(:download, :external_id_prefix)
                         yielder << item
@@ -973,28 +733,10 @@ module DataCycleCore
                     GC.start
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         logging_message: logging.error_detailed({
-                                           exception: e,
-                                           external_system: download_object.external_source.name.to_s,
-                                           execution_step: "#{endpoint_method} [#{locale}]",
-                                           item: { raw_data: item.presence }
-                                         }),
-                                         print_logs: is_instrumentation_log
-                                       }
-                                     end
-                  }
-
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                  logging.step_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -1018,9 +760,10 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
-                is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
                 locale = options[:locales].first
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
@@ -1033,13 +776,12 @@ module DataCycleCore
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |_mongo_item|
-                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
-                    logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
+                    logging.phase_started(step_label, options.dig(:max_count))
                     GC.start
                     times = [Time.current]
 
                     items = Enumerator.new do |yielder|
-                      iterator.call(options:, lang: locale, source_filter:).each do |item|
+                      iterator.call(options:, locale:, source_filter:).each do |item|
                         item['tree_label'] = options.dig(:download, :tree_label)
                         item['external_id_prefix'] = options.dig(:download, :external_id_prefix)
                         item['priority'] = options.dig(:download, :priority)
@@ -1133,28 +875,10 @@ module DataCycleCore
                     GC.start
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         logging_message: logging.error_detailed({
-                                           exception: e,
-                                           external_system: download_object.external_source.name.to_s,
-                                           execution_step: "#{endpoint_method} [#{locale}]",
-                                           item: { raw_data: item.presence }
-                                         }),
-                                         print_logs: is_instrumentation_log
-                                       }
-                                     end
-                  }
-
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                  logging.step_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -1178,22 +902,22 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
-                is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
                 locale = options[:locales].first
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |_mongo_item|
-                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
-                    logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
+                    logging.phase_started(step_label, options.dig(:max_count))
                     GC.start
                     times = [Time.current]
 
                     items = Enumerator.new do |yielder|
-                      iterator.call(options:, lang: locale).each do |item|
+                      iterator.call(options:, locale:).each do |item|
                         yielder << item
                       end
                     end
@@ -1276,28 +1000,10 @@ module DataCycleCore
                     GC.start
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         logging_message: logging.error_detailed({
-                                           exception: e,
-                                           external_system: download_object.external_source.name.to_s,
-                                           execution_step: "#{endpoint_method} [#{locale}]",
-                                           item: { raw_data: item.presence }
-                                         }),
-                                         print_logs: is_instrumentation_log
-                                       }
-                                     end
-                  }
-
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                  logging.step_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -1318,7 +1024,6 @@ module DataCycleCore
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
-                is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
                 locale = options[:locales].first
                 logging.preparing_phase("Mark deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
@@ -1375,24 +1080,10 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       { logging_message: logging.error_detailed({
-                                         external_system: download_object.external_source.name.to_s, exception: e,
-                                         execution_step: 'mark_deleted'
-                                       }),
-                                         print_logs: is_instrumentation_log }
-                                     end
-                  }
-
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                  logging.step_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -1408,9 +1099,10 @@ module DataCycleCore
           deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
 
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
-              is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
               logging.preparing_phase("Mark Updated: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locales}")
               item_count = 0
 
@@ -1431,15 +1123,13 @@ module DataCycleCore
                     iterate = iterator.call(mongo_item, locales, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                   end
 
-                  max_string = options.dig(:download, :max_count).to_s
-                  logging.phase_started("#{download_object.source_type.collection_name} #{locales}", max_string)
+                  logging.phase_started(step_label, options.dig(:max_count))
 
                   GC.start
 
                   times = [Time.current]
 
                   iterate.each do |item|
-                    affected = false
                     item.dump.each_key do |locale|
                       next unless locales.include?(locale)
                       next if item.nil? || item.dump[locale].blank?
@@ -1454,7 +1144,6 @@ module DataCycleCore
                       item.save!
                       logging.item_processed('mark_update', item.external_id, item_count, max_string)
 
-                      affected = true
                       item_count += 1
                       logging.info("modified(#{locale}) #{download_object.source_type.collection_name}: #{item.external_id} -> #{affected_keys[locale] & embedded_keys}")
                       next unless (item_count % delta).zero?
@@ -1462,152 +1151,15 @@ module DataCycleCore
                       times << Time.current
                       logging.info("Marked #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     rescue StandardError => e
-                      ActiveSupport::Notifications.instrument 'mark_updated_failed.datacycle', {
-                        exception: e,
-                        namespace: 'background',
-                        logging_options: if !is_instrumentation_log
-                                           nil
-                                         else
-                                           { logging_message: logging.error_detailed({
-                                             exception: e, external_system: download_object.external_source.name.to_s,
-                                             execution_step: 'mark_updated',
-                                             item: { raw_data: item.presence }
-                                           }),
-                                             print_logs: is_instrumentation_log }
-                                         end
-                      }
-
-                      logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                      logging.step_failed(e, download_object.external_source, step_label)
                       success = false
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_updated_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         logging_message: logging.error_detailed({
-                                           exception: e,
-                                           external_system: download_object.external_source.name.to_s,
-                                           execution_step: 'mark_updated'
-                                         }),
-                                         print_logs: is_instrumentation_log
-                                       }
-                                     end
-                  }
-
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                  logging.step_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name} #{locales}", item_count)
-                end
-              end
-            end
-          end
-          success
-        end
-
-        def self.bulk_touch_items(download_object:, iterator:, options:)
-          success = true
-          locale = I18n.available_locales.first.to_s
-          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-          init_mongo_db(database_name) do
-            init_logging(download_object) do |logging|
-              is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
-              logging.preparing_phase("Touch: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
-              endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
-              external_keys = download_object.endpoint.send(endpoint_method, lang: locale)
-              source_filter = options&.dig(:download, :source_filter) || {}
-              source_filter = source_filter.with_evaluated_values
-
-              begin
-                download_object.source_object.with(download_object.source_type) do |mongo_item|
-                  collection = iterator.call(mongo_item, locale, source_filter, external_keys)
-
-                  result = collection.update_all(
-                    '$set' => { 'seen_at' => Time.zone.now },
-                    '$unset' => {
-                      "dump.#{locale}.deleted_at" => true,
-                      "dump.#{locale}.last_seen_before_delete" => true,
-                      "dump.#{locale}.delete_reason" => true
-                    }
-                  )
-
-                  item_count = result.documents.pluck('nModified').sum
-                rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'touch_items_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       { logging_message: {
-                                           exception: e, external_system: download_object.external_source.name.to_s,
-                                           execution_step: 'touch_items',
-                                           item: { mongo_item: mongo_item.presence }
-                                         },
-                                         print_logs: is_instrumentation_log }
-                                     end
-                  }
-                  success = false
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
-                ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name} #{locale}", item_count)
-                end
-              end
-            end
-          end
-          success
-        end
-
-        def self.bulk_mark_deleted_from_data(download_object:, iterator:, options:)
-          success = true
-          locale = I18n.available_locales.first.to_s
-          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-          init_mongo_db(database_name) do
-            init_logging(download_object) do |logging|
-              is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
-              logging.preparing_phase("Mark Deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
-
-              source_filter = options&.dig(:download, :source_filter) || {}
-              source_filter = source_filter.with_evaluated_values(binding)
-
-              begin
-                download_object.source_object.with(download_object.source_type) do |mongo_item|
-                  collection = iterator.call(mongo_item, locale, source_filter)
-
-                  item_count = collection.count
-                  delete_props = {
-                    "dump.#{locale}.deleted_at" => Time.zone.now,
-                    "dump.#{locale}.last_seen_before_delete" => '$seen_at'
-                  }
-                  delete_props["dump.#{locale}.delete_reason"] = options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
-
-                  result = collection.update_all(delete_props)
-                  item_count = result.documents.pluck('nModified').sum
-                rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'bulk_mark_deleted_failed.datacycle', {
-                    exception: e,
-                    namespace: 'background',
-                    logging_options: if !is_instrumentation_log
-                                       nil
-                                     else
-                                       {
-                                         logging_message: logging.error_detailed({
-                                           exception: e, external_system: download_object.external_source.name.to_s,
-                                           execution_step: 'bulk_mark_deleted', item: {mongo_item: mongo_item.presence}
-                                         }),
-                                         print_logs: is_instrumentation_log
-                                       }
-                                     end
-                  }
-                  success = false
-                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
-                ensure
-                  logging.phase_finished("#{download_object.source_type.collection_name} #{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end

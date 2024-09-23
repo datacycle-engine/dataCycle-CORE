@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     class DownloadObject < GenericObject
-      attr_reader :external_source, :options, :endpoint, :source_object, :source_type, :credentials
+      attr_reader :external_source, :options, :endpoint, :source_object, :source_type, :credentials, :database_name
 
       def initialize(**options)
         raise "Missing source_type for #{self.class}, options given: #{options}"       if options&.dig(:download, :source_type).blank?
@@ -13,6 +13,7 @@ module DataCycleCore
         @external_source = options[:external_source]
         @source_object = DataCycleCore::Generic::Collection
         @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options.dig(:download, :source_type))
+        @database_name = "#{@source_type.database_name}_#{@external_source.id}"
         @credentials = options.dig(:credentials) || options[:external_source].credentials
         changed_from = external_source.last_successful_download
         changed_from = nil if options.dig(:mode)&.in?(['full', 'reset'])
@@ -29,6 +30,10 @@ module DataCycleCore
           .merge(read_type)
           .merge(options: options.dig(:download).merge(params: endpoint_options_params))
         @endpoint = options.dig(:download, :endpoint).constantize.new(**endpoint_params)
+      end
+
+      def logger
+        @logger ||= init_logging(:download)
       end
     end
   end

@@ -18,7 +18,7 @@ module DataCycleCore
           false
         end
 
-        def self.load_concepts_from_mongo(options:, lang:, source_filter:)
+        def self.load_concepts_from_mongo(options:, locale:, source_filter:, **_keyword_args)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
@@ -31,7 +31,7 @@ module DataCycleCore
           concept_id_path = [concept_path, concept_id].compact_blank.join('.')
           concept_name_path = [concept_path, concept_name].compact_blank.join('.')
           concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
-          match_path = ['dump', lang, concept_id_path].compact_blank.join('.')
+          match_path = ['dump', locale, concept_id_path].compact_blank.join('.')
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
@@ -40,12 +40,12 @@ module DataCycleCore
                   '$match' => { match_path => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
                 },
                 {
-                  '$unwind' => ['$dump', lang, concept_path].compact_blank.join('.')
+                  '$unwind' => ['$dump', locale, concept_path].compact_blank.join('.')
                 }, {
                   '$project' => {
-                    'data.id' => ['$dump', lang, concept_id_path].compact_blank.join('.'),
-                    'data.name' => ['$dump', lang, concept_name_path].compact_blank.join('.'),
-                    'data.parent_id' => ['$dump', lang, concept_parent_id_path].compact_blank.join('.'),
+                    'data.id' => ['$dump', locale, concept_id_path].compact_blank.join('.'),
+                    'data.name' => ['$dump', locale, concept_name_path].compact_blank.join('.'),
+                    'data.parent_id' => ['$dump', locale, concept_parent_id_path].compact_blank.join('.'),
                     'data.priority' => priority
                   }
                 }, {

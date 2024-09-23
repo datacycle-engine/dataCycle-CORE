@@ -1981,7 +1981,8 @@ CREATE TABLE public.user_groups (
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    permissions jsonb
 );
 
 
@@ -5071,6 +5072,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240802065842'),
 ('20240808124224'),
 ('20240808131247'),
-('20240910113418');
+('20240910113418'),
+('20240918082045');
 
 

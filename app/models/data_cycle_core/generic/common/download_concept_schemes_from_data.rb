@@ -18,28 +18,30 @@ module DataCycleCore
           false
         end
 
-        def self.load_concept_schemes_from_mongo(options:, lang:)
+        def self.load_concept_schemes_from_mongo(options:, locale:, **_keyword_args)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
-            mongo.collection.aggregate([
-                                         {
-                                           '$match' => { "dump.#{lang}.tree_label" => { '$exists' => true } }
-                                         }, {
-                                           '$project' => {
-                                             'data.id' => "$dump.#{lang}.tree_label",
-                                             'data.name' => "$dump.#{lang}.tree_label"
-                                           }
-                                         }, {
-                                           '$group' => {
-                                             '_id' => '$data.id',
-                                             'data' => { '$first' => '$data' }
-                                           }
-                                         }, {
-                                           '$replaceRoot' => { 'newRoot' => '$data' }
-                                         }
-                                       ]).to_a
+            mongo.collection.aggregate(
+              [
+                {
+                  '$match' => { "dump.#{locale}.tree_label" => { '$exists' => true } }
+                }, {
+                  '$project' => {
+                    'data.id' => "$dump.#{locale}.tree_label",
+                    'data.name' => "$dump.#{locale}.tree_label"
+                  }
+                }, {
+                  '$group' => {
+                    '_id' => '$data.id',
+                    'data' => { '$first' => '$data' }
+                  }
+                }, {
+                  '$replaceRoot' => { 'newRoot' => '$data' }
+                }
+              ]
+            ).to_a
           end
         end
 

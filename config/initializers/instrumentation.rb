@@ -17,8 +17,6 @@ ActiveSupport::Notifications.subscribe(/(download|import)_failed_repeatedly.data
   end
 end
 
-# BEGIN: Logging Instrumentation Handling
-
 ActiveSupport::Notifications.subscribe('instrumentation_logging.datacycle') do |_name, _started, _finished, _unique_id, data|
   log_methods = {
     'error' => :error,
@@ -29,12 +27,6 @@ ActiveSupport::Notifications.subscribe('instrumentation_logging.datacycle') do |
 
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: data[:type]) do |logger|
     logger.dc_log(log_methods[data[:severity]], data)
-  end
-
-  if data[:trigger_appsignal]
-    Appsignal.send_error(data[:exception] || data[:message]) do |transaction|
-      transaction.set_namespace("#{data[:type]} job failed - #{data[:external_system]}")
-    end
   end
 end
 
