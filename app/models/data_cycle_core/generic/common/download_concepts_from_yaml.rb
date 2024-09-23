@@ -18,7 +18,7 @@ module DataCycleCore
           false
         end
 
-        def self.load_concepts_from_yaml(options:, lang:, **_keyword_args)
+        def self.load_concepts_from_yaml(options:, locale:, **_keyword_args)
           raise ArgumentError, 'missing file path!' if options.dig(:download, :file).nil?
 
           path = Rails.root.join(options.dig(:download, :file))
@@ -28,7 +28,7 @@ module DataCycleCore
           data.map do |key, value|
             {
               'id' => key,
-              'name' => value.is_a?(::Hash) ? value.dig(lang) : value,
+              'name' => value.is_a?(::Hash) ? value.dig(locale) : value,
               'modifiedAt' => file.mtime.iso8601
             }.compact
           end
