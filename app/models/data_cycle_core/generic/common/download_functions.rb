@@ -51,10 +51,10 @@ module DataCycleCore
                   GC.start
                   logging.info("Single download item: #{item_name}", item_id)
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
                 end
               rescue StandardError => e
-                logging.step_failed(e, download_object.external_source, step_label)
+                logging.phase_failed(e, download_object.external_source, step_label)
               end
             end
           end
@@ -145,7 +145,7 @@ module DataCycleCore
                           end
                           logging.item_processed(item_name, item_id, item_count, max_string)
                         rescue StandardError => e
-                          logging.step_failed(e, download_object.external_source, step_label)
+                          logging.phase_failed(e, download_object.external_source, step_label)
                           success = false
                         end
                       end
@@ -160,7 +160,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
 
                   success = false
                 ensure
@@ -296,7 +296,7 @@ module DataCycleCore
                     GC.start
                   end
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
                   logging.phase_finished(step_label, item_count)
@@ -344,7 +344,6 @@ module DataCycleCore
                       item.dump ||= {}
 
                       item_data.each do |language, data_hash|
-                        lang = language
                         next unless locales.include?(language.to_sym)
                         if delete.present? && delete.call(data_hash, language)
                           data_hash[:deleted_at] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
@@ -365,7 +364,7 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      logging.step_failed(e, download_object.external_source, step_label)
+                      logging.phase_failed(e, download_object.external_source, step_label)
                       success = false
                     end
 
@@ -379,7 +378,7 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                logging.step_failed(e, download_object.external_source, step_label)
+                logging.phase_failed(e, download_object.external_source, step_label)
                 success = false
               ensure
                 logging.phase_finished(step_label, item_count)
@@ -454,7 +453,7 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      logging.step_failed(e, download_object.external_source, step_label)
+                      logging.phase_failed(e, download_object.external_source, step_label)
                       success = false
                     end
 
@@ -468,7 +467,7 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                logging.step_failed(e, download_object.external_source, step_label)
+                logging.phase_failed(e, download_object.external_source, step_label)
                 success = false
               ensure
                 logging.phase_finished(step_label, item_count)
@@ -491,7 +490,7 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                logging.step_failed(e, download_object.external_source, step_label)
+                logging.phase_failed(e, download_object.external_source, step_label)
               end
             end
           end
@@ -512,7 +511,7 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                logging.step_failed(e, download_object.external_source, step_label)
+                logging.phase_failed(e, download_object.external_source, step_label)
               end
             end
           end
@@ -572,7 +571,7 @@ module DataCycleCore
                         item.save!
                         logging.item_processed('delete', item_id, item_count, max_string)
                       rescue StandardError => e
-                        logging.step_failed(e, download_object.external_source, step_label)
+                        logging.phase_failed(e, download_object.external_source, step_label)
                         success = false
                       end
 
@@ -586,7 +585,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
                   logging.phase_finished(step_label, item_count)
@@ -733,7 +732,7 @@ module DataCycleCore
                     GC.start
                   end
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
                   logging.phase_finished(step_label, item_count)
@@ -875,7 +874,7 @@ module DataCycleCore
                     GC.start
                   end
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
                   logging.phase_finished(step_label, item_count)
@@ -1000,7 +999,7 @@ module DataCycleCore
                     GC.start
                   end
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
                   logging.phase_finished(step_label, item_count)
@@ -1080,7 +1079,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
                   logging.phase_finished(step_label, item_count)
@@ -1151,12 +1150,12 @@ module DataCycleCore
                       times << Time.current
                       logging.info("Marked #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     rescue StandardError => e
-                      logging.step_failed(e, download_object.external_source, step_label)
+                      logging.phase_failed(e, download_object.external_source, step_label)
                       success = false
                     end
                   end
                 rescue StandardError => e
-                  logging.step_failed(e, download_object.external_source, step_label)
+                  logging.phase_failed(e, download_object.external_source, step_label)
                   success = false
                 ensure
                   logging.phase_finished(step_label, item_count)

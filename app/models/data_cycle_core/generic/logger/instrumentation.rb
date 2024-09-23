@@ -33,7 +33,7 @@ module DataCycleCore
           # @log.info " -> \"#{title} (\##{id})\" #{@kind}ed (#{num} of #{total || '?'})"
         end
 
-        def step_failed(exception, external_system, step_label, channel = 'download_failed.datacycle')
+        def phase_failed(exception, external_system, step_label, channel = 'download_failed.datacycle')
           error_instrument(exception:, external_system:, step_label:, channel:, namespace: 'background')
         end
 
@@ -72,8 +72,8 @@ module DataCycleCore
           debug_instrument(message: "#{title} | #{id} | #{JSON.pretty_generate(data).gsub("\n", "\n  ")}")
         end
 
-        def phase_finished(label, total)
-          message = "#{(@kind.capitalize + 'ed').ljust(11)}#{label} ... [DONE] (#{total.to_i} items)"
+        def phase_finished(label, total = nil)
+          message = "#{(@kind.capitalize + 'ed').ljust(11)}#{label} ... [FINISHED] (#{total.to_i} items)"
 
           info_instrument(message:)
         end

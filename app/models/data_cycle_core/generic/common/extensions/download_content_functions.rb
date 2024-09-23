@@ -213,7 +213,7 @@ module DataCycleCore
 
                 item_count = yield locale if block_given?
               rescue StandardError => e
-                download_object.logger.step_failed(e, download_object.external_source, step_label)
+                download_object.logger.phase_failed(e, download_object.external_source, step_label)
                 success = false
               ensure
                 download_object.logger.phase_finished(step_label, item_count)

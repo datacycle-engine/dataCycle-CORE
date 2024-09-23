@@ -23,14 +23,14 @@ module DataCycleCore
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               importer_name = options.dig(:import, :name)
-              phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
 
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
                 total = 0
+                step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [#{locale}]"
+
                 begin
-                  logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+                  logging.phase_started(step_label)
                   source_filter = (options&.dig(:import, :source_filter) || {}).with_indifferent_access
                   source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
                   source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
@@ -143,9 +143,9 @@ module DataCycleCore
                   end
                 ensure
                   if $CHILD_STATUS.present? && $CHILD_STATUS.exitstatus&.zero? || total.zero?
-                    logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count.to_s)
+                    logging.phase_finished(step_label, item_count.to_s)
                   else
-                    logging.info("#{importer_name}(#{phase_name}) #{locale} (#{item_count} items) aborted")
+                    logging.info("#{step_label} (#{item_count} items) aborted")
                     raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total} #{last_err.present? ? '| Last Error: ' + last_err.to_s : ''}" unless Rails.env.test?
                   end
                 end
@@ -157,13 +157,11 @@ module DataCycleCore
         def self.import_all(utility_object:, iterator:, data_processor:, options:)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              importer_name = options.dig(:import, :name)
-              phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+              step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [all]"
 
               item_count = 0
               begin
-                logging.phase_started("#{importer_name}(#{phase_name})")
+                logging.phase_started(step_label)
                 source_filter = options&.dig(:import, :source_filter) || {}
                 source_filter = source_filter.with_evaluated_values
                 source_filter = source_filter.merge({ 'dump.deleted_at' => { '$exists' => false } })
@@ -200,7 +198,7 @@ module DataCycleCore
                     logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                   end
                 ensure
-                  logging.phase_finished("#{importer_name}(#{phase_name})", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -210,14 +208,12 @@ module DataCycleCore
         def self.aggregate_to_collection(utility_object:, iterator:, options:)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              importer_name = options.dig(:import, :name)
-              phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+              step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)}"
               output_collection = options.dig(:import, :output_collection)
 
               item_count = 0
               begin
-                logging.phase_started("#{importer_name}(#{phase_name})")
+                logging.phase_started(step_label)
 
                 GC.start
 
@@ -230,7 +226,7 @@ module DataCycleCore
                   end
                 end
               ensure
-                logging.phase_finished("#{importer_name}(#{phase_name})", item_count)
+                logging.phase_finished(step_label, item_count)
               end
             end
           end
@@ -241,14 +237,15 @@ module DataCycleCore
             init_mongo_db(utility_object) do
               download_name = options.dig(:download, :name)
               phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{download_name}")
-              logging.phase_started("#{download_name}(#{phase_name})")
+              step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)}"
+
+              logging.phase_started(step_label)
               utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                 aggregation_function.call(mongo_item, logging, utility_object, options.merge({ download_name:, phase_name: })).to_a
               end
-              logging.phase_finished("#{download_name}(#{phase_name})", 0)
+              logging.phase_finished(step_label, 0)
             ensure
-              logging.phase_finished("#{download_name}(#{phase_name})", 0)
+              logging.phase_finished(step_label, 0)
             end
           end
         end
@@ -256,14 +253,11 @@ module DataCycleCore
         def self.import_paging(utility_object:, iterator:, data_processor:, options:)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              importer_name = options.dig(:import, :name)
-              phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
-
               each_locale(utility_object.locales) do |locale|
+                step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [#{locale}]"
                 item_count = 0
                 begin
-                  logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+                  logging.phase_started(step_label)
                   source_filter = options&.dig(:import, :source_filter) || {}
                   source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
                   source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
@@ -319,7 +313,7 @@ module DataCycleCore
                     end
                   end
                 ensure
-                  logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
+                  logging.phase_finished(step_label, item_count)
                 end
               end
             end
@@ -327,14 +321,14 @@ module DataCycleCore
         end
 
         def self.logging_without_mongo(utility_object:, data_processor:, options:)
-          importer_name = options.dig(:import, :name)
           init_logging(utility_object) do |logging|
-            logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
             items_count = 0
+            step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)}"
             begin
+              logging.phase_started(step_label)
               items_count = data_processor.call(utility_object, options)
             ensure
-              logging.phase_finished(importer_name, items_count)
+              logging.phase_finished(step_label, items_count)
             end
           end
         end
