@@ -273,9 +273,6 @@ GEM
       ffi (~> 1.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
-    google-protobuf (3.24.4)
-    google-protobuf (3.24.4-x86_64-darwin)
-    google-protobuf (3.24.4-x86_64-linux)
     gretel (4.5.0)
       actionview (>= 5.1, < 7.1)
       railties (>= 5.1, < 7.1)
@@ -404,8 +401,6 @@ GEM
       ttfunk
     pdfkit (0.8.7.3)
     pg (1.5.4)
-    pg_query (4.2.3)
-      google-protobuf (>= 3.22.3)
     premailer (1.21.0)
       addressable
       css_parser (>= 1.12.0)
@@ -614,7 +609,6 @@ DEPENDENCIES
   minitest-hooks
   omniauth-azure-activedirectory-v2
   omniauth-rails_csrf_protection (>= 1.0.1)
-  pg_query
   prosopite
   pry
   pry-byebug

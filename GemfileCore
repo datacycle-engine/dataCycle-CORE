@@ -50,7 +50,7 @@ group :development do
   gem 'awesome_print'
 
   gem 'prosopite'
-  gem 'pg_query'
+  # gem 'pg_query'
 end
 
 group :development, :test, :review do
