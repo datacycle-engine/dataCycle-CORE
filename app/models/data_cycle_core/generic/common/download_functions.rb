@@ -142,7 +142,7 @@ module DataCycleCore
                           else
                             item.set('seen_at' => Time.zone.now)
                           end
-                          logging.item_processed(item_name, item_id, item_count, max_string)
+                          logging.item_processed(item_name, item_id, item_count)
                         rescue StandardError => e
                           logging.phase_failed(e, download_object.external_source, step_label)
                           success = false
@@ -275,7 +275,7 @@ module DataCycleCore
                             else
                               seen_at << item.external_id
                             end
-                            logging.item_processed(item_name, item_id, item_count, max_string)
+                            logging.item_processed(item_name, item_id, item_count)
                           end
                           # if update_items.present?
                           #   mongo_item_parallel.collection.delete_many(external_id: { '$in' => update_items.map(&:external_id) })
@@ -355,7 +355,7 @@ module DataCycleCore
                         data_hash = cleanup_data.call(data_hash) if cleanup_data.present?
                         item.data_has_changed = diff?(item.dump[language].as_json, data_hash.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                         item.dump[language] = data_hash
-                        logging.item_processed(item_name, item_id, item_count, max_string)
+                        logging.item_processed(item_name, item_id, item_count)
                       end
                       item.save!
                     rescue StandardError => e
@@ -443,7 +443,7 @@ module DataCycleCore
                         else
                           next
                         end
-                        logging.item_processed(item_name, item_id, item_count, max_string)
+                        logging.item_processed(item_name, item_id, item_count)
                       end
                       item.save!
                     rescue StandardError => e
@@ -562,7 +562,7 @@ module DataCycleCore
                         item.dump[locale]['last_seen_before_delete'] ||= item.seen_at
                         item.dump[locale]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
                         item.save!
-                        logging.item_processed('delete', item_id, item_count, max_string)
+                        logging.item_processed('delete', item_id, item_count)
                       rescue StandardError => e
                         logging.phase_failed(e, download_object.external_source, step_label)
                         success = false
@@ -705,7 +705,7 @@ module DataCycleCore
                             else
                               seen_at << item.external_id
                             end
-                            logging.item_processed(item_name, item_id, item_count, max_string)
+                            logging.item_processed(item_name, item_id, item_count)
                           end
                           # if update_items.present?
                           #   mongo_item_parallel.collection.delete_many(external_id: { '$in' => update_items.map(&:external_id) })
@@ -846,7 +846,7 @@ module DataCycleCore
                             else
                               seen_at << item.external_id
                             end
-                            logging.item_processed(item_name, item_id, item_count, max_string)
+                            logging.item_processed(item_name, item_id, item_count)
                           end
                           # if update_items.present?
                           #   mongo_item_parallel.collection.delete_many(external_id: { '$in' => update_items.map(&:external_id) })
@@ -970,7 +970,7 @@ module DataCycleCore
                             else
                               seen_at << item.external_id
                             end
-                            logging.item_processed(item_name, item_id, item_count, max_string)
+                            logging.item_processed(item_name, item_id, item_count)
                           end
                           # if update_items.present?
                           #   mongo_item_parallel.collection.delete_many(external_id: { '$in' => update_items.map(&:external_id) })
@@ -1129,7 +1129,7 @@ module DataCycleCore
 
                       item.dump[locale]['mark_for_update'] = Time.zone.now
                       item.save!
-                      logging.item_processed('mark_update', item.external_id, item_count, max_string)
+                      logging.item_processed('mark_update', item.external_id, item_count)
 
                       item_count += 1
                       logging.info("modified(#{locale}) #{download_object.source_type.collection_name}: #{item.external_id} -> #{affected_keys[locale] & embedded_keys}")
