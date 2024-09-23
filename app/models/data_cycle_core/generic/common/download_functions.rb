@@ -17,11 +17,11 @@ module DataCycleCore
 
         def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, cleanup_data: nil, credential: nil, options:)
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
+              step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locales.join(', ')}]"
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
                   _credentials = credential.call(download_object.credentials) if credential.present?
@@ -70,13 +70,12 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
+                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
                 endpoint_method = 'unknown'
                 item = nil
@@ -182,12 +181,11 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
+                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
                 item_count = 0
 
                 endpoint_method = 'unknown'
@@ -310,15 +308,12 @@ module DataCycleCore
         def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
           success = true
           delta = 100
-
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
-
-              logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name}")
+              step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locales.join(', ')}]"
               item_count = 0
 
               begin
@@ -393,15 +388,14 @@ module DataCycleCore
           delta = 100
 
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
+              step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locales.join(', ')}]"
 
               endpoint_method = nil
 
-              logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name}")
               item_count = 0
 
               begin
@@ -529,13 +523,12 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                logging.preparing_phase("Mark deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
+                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -616,13 +609,12 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale} from #{read_type}")
                 item_count = 0
+                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
                 source_filter = nil
                 I18n.with_locale(locale) do
@@ -759,13 +751,12 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
+                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
                 source_filter = nil
                 I18n.with_locale(locale) do
@@ -901,13 +892,12 @@ module DataCycleCore
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-            step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
+                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |_mongo_item|
@@ -1024,7 +1014,6 @@ module DataCycleCore
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                logging.preparing_phase("Mark deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
 
                 source_filter = nil
@@ -1098,11 +1087,10 @@ module DataCycleCore
           deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
 
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locales.join(', ')}]"
 
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
-              logging.preparing_phase("Mark Updated: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locales}")
               item_count = 0
 
               affected_keys = {}
