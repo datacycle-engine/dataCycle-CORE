@@ -1014,6 +1014,7 @@ module DataCycleCore
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
+                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
                 item_count = 0
 
                 source_filter = nil
