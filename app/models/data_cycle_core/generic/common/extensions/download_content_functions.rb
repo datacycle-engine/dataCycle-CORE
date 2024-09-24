@@ -73,7 +73,7 @@ module DataCycleCore
 
             iterate_data(download_object:, iterator:, options:) do |locale|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
-                external_keys = items(iterator:, download_object:, options:, locale:)
+                external_keys = items(iterator:, download_object:, options:, locale:).to_a
                 dump_path = "dump.#{locale}".to_sym
 
                 result = mongo_item.where({
@@ -98,7 +98,7 @@ module DataCycleCore
 
             iterate_data(download_object:, iterator:, options:) do |locale|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
-                external_keys = items(iterator:, download_object:, options:, locale:)
+                external_keys = items(iterator:, download_object:, options:, locale:).to_a
 
                 delete_props = {
                   "dump.#{locale}.deleted_at" => Time.zone.now,
