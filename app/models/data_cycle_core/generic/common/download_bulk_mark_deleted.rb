@@ -16,16 +16,8 @@ module DataCycleCore
           false
         end
 
-        def self.load_contents(locale:, source_filter:, options:, download_object:, **_keyword_args)
-          read_type = options.dig(:download, :read_type)&.then do |rt|
-            Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection2, collection: rt)
-          end || download_object.source_type
-
-          DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
-            mongo.where(source_filter.merge({ "dump.#{locale}" => { '$ne' => nil } }))
-              .to_a
-              .pluck('external_id')
-          end
+        def self.load_contents(**)
+          DataCycleCore::Generic::Common::DownloadDataFromData.load_data_from_mongo(**).pluck('id')
         end
       end
     end

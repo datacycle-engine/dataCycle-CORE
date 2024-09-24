@@ -16,19 +16,8 @@ module DataCycleCore
           false
         end
 
-        def self.load_contents(locale:, source_filter:, options:, **_keyword_args)
-          read_type_name = options.dig(:download, :read_type)
-          raise ArgumentError, 'missing read_type for loading location ranges' if read_type_name.nil?
-          read_type = Mongoid::PersistenceContext.new(
-            DataCycleCore::Generic::Collection, collection: read_type_name
-          )
-
-          DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
-            mongo
-              .where(source_filter.merge({ "dump.#{locale}" => { '$ne' => nil } }))
-              .to_a
-              .pluck('external_id')
-          end
+        def self.load_contents(**)
+          DataCycleCore::Generic::Common::DownloadDataFromData.load_data_from_mongo(**).pluck('id')
         end
       end
     end

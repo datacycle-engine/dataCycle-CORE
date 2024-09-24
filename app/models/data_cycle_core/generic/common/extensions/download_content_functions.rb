@@ -10,14 +10,15 @@ module DataCycleCore
           CONFIG_PROPS = [:tree_label, :external_id_prefix, :priority].freeze
 
           def download_content(download_object:, options:, cleanup_data: nil, credential: nil, iterator: nil, data_id: nil, **keyword_args)
-            iterate_data(**keyword_args, options:, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |locale|
+            iterate_data(**keyword_args, options:, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |opts|
+              locale = opts[:locales].first
               item_count = 0
               start_time = Time.current
               current_time = start_time
               credentials = credential.call(download_object.credentials) if credential.present?
-              items = items(iterator:, download_object:, options:, locale:)
+              items = items(iterator:, download_object:, options: opts, locale:)
               items.each_slice(DELTA) do |item_data_slice|
-                break if options[:max_count] && item_count >= options[:max_count]
+                break if opts[:max_count] && item_count >= opts[:max_count]
 
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
                   mongo_ids = item_data_slice.map { |item_data| data_id.call(item_data)&.to_s }.compact_blank
@@ -33,7 +34,7 @@ module DataCycleCore
                     item.dump ||= {}
                     local_item = item.dump[locale]
 
-                    next unless item_allowed?(local_item:, options:)
+                    next unless item_allowed?(local_item:, options: opts)
 
                     add_credentials!(item:, download_object:, credentials:) if credentials.present?
 
@@ -71,9 +72,10 @@ module DataCycleCore
           def bulk_touch_items(download_object:, options:, iterator: nil, **_keyword_args)
             options[:mode] = 'full' # alwas full mode for touch
 
-            iterate_data(download_object:, iterator:, options:) do |locale|
+            iterate_data(download_object:, iterator:, options:) do |opts|
+              locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
-                external_keys = items(iterator:, download_object:, options:, locale:).to_a
+                external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
                 dump_path = "dump.#{locale}".to_sym
 
                 result = mongo_item.where({
@@ -88,7 +90,7 @@ module DataCycleCore
                   }
                 )
 
-                result.documents.pluck('nModified').sum
+                result.modified_count
               end
             end
           end
@@ -96,15 +98,16 @@ module DataCycleCore
           def bulk_mark_deleted(download_object:, options:, iterator: nil, **_keyword_args)
             options[:mode] = 'full' # alwas full mode for delete
 
-            iterate_data(download_object:, iterator:, options:) do |locale|
+            iterate_data(download_object:, iterator:, options:) do |opts|
+              locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
-                external_keys = items(iterator:, download_object:, options:, locale:).to_a
+                external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
 
                 delete_props = {
                   "dump.#{locale}.deleted_at" => Time.zone.now,
                   "dump.#{locale}.last_seen_before_delete" => '$seen_at'
                 }
-                delete_reason = options.dig(:download, :delete_reason)
+                delete_reason = opts.dig(:download, :delete_reason)
                 delete_props["dump.#{locale}.delete_reason"] = delete_reason if delete_reason.present?
                 dump_path = "dump.#{locale}".to_sym
 
@@ -113,7 +116,7 @@ module DataCycleCore
                   external_id: { '$in' => external_keys }
                 }).update_all(delete_props)
 
-                result.documents.pluck('nModified').sum
+                result.modified_count
               end
             end
           end
@@ -154,7 +157,8 @@ module DataCycleCore
             else
               Enumerator.new do |yielder|
                 iterator_items(iterator:, download_object:, options:, locale:).each do |item|
-                  yielder << item.merge(props_from_config(options:))
+                  item.merge!(props_from_config(options:)) if item.is_a?(Hash)
+                  yielder << item
                 end
               end
             end
@@ -187,7 +191,8 @@ module DataCycleCore
           def iterate_data(
             download_object:,
             options:,
-            **keyword_args
+            **keyword_args,
+            &block
           )
             options[:locales] ||= I18n.available_locales
             read_type = options.dig(:download, :read_type)
@@ -195,12 +200,12 @@ module DataCycleCore
             if read_type.is_a?(::Array)
               read_type.all? do |type|
                 options = options.deep_merge({ download: { read_type: type } })
-                iterate_data(**keyword_args, options:, download_object:)
+                iterate_data(**keyword_args, options:, download_object:, &block)
               end
             elsif options[:locales].many?
               options[:locales].all? do |language|
                 options = options.merge({ locales: [language] })
-                iterate_data(**keyword_args, options:, download_object:)
+                iterate_data(**keyword_args, options:, download_object:, &block)
               end
             else
               success = true
@@ -211,7 +216,7 @@ module DataCycleCore
               init_mongo_db(download_object.database_name) do
                 download_object.logger.phase_started(step_label, options.dig(:max_count))
 
-                item_count = yield locale if block_given?
+                item_count = yield options if block
               rescue StandardError => e
                 download_object.logger.phase_failed(e, download_object.external_source, step_label)
                 success = false
