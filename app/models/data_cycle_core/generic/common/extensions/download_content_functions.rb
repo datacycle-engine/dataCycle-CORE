@@ -70,7 +70,7 @@ module DataCycleCore
           end
 
           def bulk_touch_items(download_object:, options:, iterator: nil, **_keyword_args)
-            options[:mode] ||= 'full' # alwas full mode for touch
+            options[:mode] = 'full' # alwas full mode for touch
 
             iterate_data(download_object:, iterator:, options:) do |locale|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -95,7 +95,7 @@ module DataCycleCore
           end
 
           def bulk_mark_deleted(download_object:, options:, iterator: nil, **_keyword_args)
-            options[:mode] ||= 'full' # alwas full mode for touch
+            options[:mode] = 'full' # alwas full mode for delete
 
             iterate_data(download_object:, iterator:, options:) do |locale|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
