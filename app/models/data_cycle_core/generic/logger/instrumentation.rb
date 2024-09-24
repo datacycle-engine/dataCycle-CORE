@@ -72,8 +72,11 @@ module DataCycleCore
           debug_instrument(message: "#{title} | #{id} | #{JSON.pretty_generate(data).gsub("\n", "\n  ")}")
         end
 
-        def phase_finished(label, total = nil)
-          message = "#{(@kind.capitalize + 'ed').ljust(11)}#{label} ... [FINISHED] (#{total.to_i} items)"
+        def phase_finished(label, total = nil, duration = nil)
+          message = "#{(@kind.capitalize + 'ed').ljust(11)}#{label} ... [FINISHED]"
+          additional_message = "#{total.to_i} #{total.to_i == 1 ? 'item' : 'items'}"
+          additional_message += ", #{duration.to_f.round(3)}s" if duration
+          message += " (#{additional_message})"
 
           info_instrument(message:)
         end

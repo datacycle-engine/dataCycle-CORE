@@ -32,7 +32,7 @@ module DataCycleCore
                         item_count += upserted.count
                         times << Time.current
 
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
                       end
                     rescue StandardError => e
                       logging.phase_failed(e, utility_object.external_source, step_label)
@@ -75,7 +75,7 @@ module DataCycleCore
                           item_count += upserted.count
                           times << Time.current
 
-                          logging.info("Imported   #{upserted.count.to_s.rjust(7)} items (#{concept_scheme.name}) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 0, 3)}")
+                          logging.info("Imported   #{upserted.count.to_s.rjust(7)} items (#{concept_scheme.name}) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 0, 3)}s")
                         end
 
                         concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:, options:)
@@ -84,7 +84,7 @@ module DataCycleCore
 
                         times << Time.current
 
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items (#{mapping_count} new mappings) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds")
+                        logging.info("Imported   #{item_count.to_s.rjust(7)} items (#{mapping_count} new mappings) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)}s")
                       end
                     rescue StandardError => e
                       logging.phase_failed(e, utility_object.external_source, step_label)

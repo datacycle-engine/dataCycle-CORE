@@ -82,7 +82,7 @@ module DataCycleCore
                           )
                         end
                         times << Time.current
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
                       else
                         read, write = IO.pipe
                         pid = Process.fork do
@@ -130,7 +130,7 @@ module DataCycleCore
                           item_count = data[:count]
                           times << data[:timestamp]
                           last_err = data[:last_err]
-                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)} ")
+                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
                         end
 
                         if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
@@ -195,7 +195,7 @@ module DataCycleCore
 
                     times << Time.current
 
-                    logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                    logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
                   end
                 ensure
                   logging.phase_finished(step_label, item_count)
@@ -306,7 +306,7 @@ module DataCycleCore
 
                       times << Time.current
 
-                      logging.info("Imported    #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)} | #{external_id}")
+                      logging.info("Imported    #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s | #{external_id}")
 
                       next unless (item_count % 10).zero?
                       GC.start

@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module DownloadConceptSchemesFromData
         def self.download_content(utility_object:, options:)
-          DataCycleCore::Generic::Common::DownloadFunctions.download_concept_schemes_from_data(
+          DataCycleCore::Generic::Common::DownloadFunctions.download_content(
             download_object: utility_object,
             iterator: method(:load_concept_schemes_from_mongo).to_proc,
             data_id: method(:data_id).to_proc,

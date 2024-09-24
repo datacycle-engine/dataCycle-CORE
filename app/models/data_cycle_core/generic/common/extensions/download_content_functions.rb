@@ -29,7 +29,6 @@ module DataCycleCore
 
                     item_count += 1
                     item_id = data_id.call(item_data)&.to_s
-                    item_data['id'] = item_id if item_data['id'] != item_id
                     item = mongo_items.dig(item_id) || mongo_item.new('external_id': item_id)
                     item.dump ||= {}
                     local_item = item.dump[locale]
@@ -207,6 +206,7 @@ module DataCycleCore
               success = true
               locale = options[:locales].first
               step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+              tstart = Time.current
 
               init_mongo_db(download_object.database_name) do
                 download_object.logger.phase_started(step_label, options.dig(:max_count))
@@ -216,7 +216,7 @@ module DataCycleCore
                 download_object.logger.phase_failed(e, download_object.external_source, step_label)
                 success = false
               ensure
-                download_object.logger.phase_finished(step_label, item_count)
+                download_object.logger.phase_finished(step_label, item_count, Time.current - tstart)
               end
 
               GC.start
