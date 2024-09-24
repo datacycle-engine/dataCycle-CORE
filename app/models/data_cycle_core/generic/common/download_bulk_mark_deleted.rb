@@ -16,8 +16,10 @@ module DataCycleCore
           false
         end
 
-        def self.load_contents(**)
-          DataCycleCore::Generic::Common::DownloadDataFromData.load_data_from_mongo(**).pluck('id')
+        def self.load_contents(options:, **)
+          options[:download][:read_type] = options.dig(:download, :source_type) if options.dig(:download, :read_type).blank?
+
+          DataCycleCore::Generic::Common::DownloadDataFromData.load_data_from_mongo(options:, **).pluck('id')
         end
       end
     end

@@ -19,7 +19,7 @@ module DataCycleCore
         end
 
         def self.load_data_from_mongo(options:, locale:, source_filter:, **_keyword_args)
-          raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
+          raise ArgumentError, "missing read_type for #{options.dig(:download, :name)}" if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(
             DataCycleCore::Generic::Collection2, collection: options[:download][:read_type]
           )
