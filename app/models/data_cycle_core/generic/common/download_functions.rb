@@ -615,7 +615,7 @@ module DataCycleCore
                 source_filter = nil
                 I18n.with_locale(locale) do
                   source_filter = options&.dig(:download, :source_filter) || {}
-                  source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
+                  source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values(binding) }
                 end
 
                 GC.start
