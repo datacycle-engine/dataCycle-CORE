@@ -9,16 +9,16 @@ module DataCycleCore
           FULL_MODES = ['full', 'reset'].freeze
           CONFIG_PROPS = [:tree_label, :external_id_prefix, :priority].freeze
 
-          def download_content(download_object:, options:, cleanup_data: nil, credential: nil, iterator: nil, data_id: nil, **keyword_args)
-            iterate_data(**keyword_args, options:, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |opts|
-              locale = opts[:locales].first
+          def download_content(download_object:, cleanup_data: nil, credential: nil, iterator: nil, data_id: nil, **keyword_args)
+            with_logging(**keyword_args, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |options|
+              locale = options[:locales].first
               item_count = 0
               start_time = Time.current
               current_time = start_time
               credentials = credential.call(download_object.credentials) if credential.present?
-              items = items(iterator:, download_object:, options: opts, locale:)
+              items = items(iterator:, download_object:, options:, locale:)
               items.each_slice(DELTA) do |item_data_slice|
-                break if opts[:max_count] && item_count >= opts[:max_count]
+                break if options[:max_count] && item_count >= options[:max_count]
 
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
                   mongo_ids = item_data_slice.map { |item_data| data_id.call(item_data)&.to_s }.compact_blank
@@ -34,7 +34,7 @@ module DataCycleCore
                     item.dump ||= {}
                     local_item = item.dump[locale]
 
-                    next unless item_allowed?(local_item:, options: opts)
+                    next unless item_allowed?(local_item:, options:)
 
                     add_credentials!(item:, download_object:, credentials:) if credentials.present?
 
@@ -72,7 +72,7 @@ module DataCycleCore
           def bulk_touch_items(download_object:, options:, iterator: nil, **_keyword_args)
             options[:mode] = 'full' # alwas full mode for touch
 
-            iterate_data(download_object:, iterator:, options:) do |opts|
+            with_logging(download_object:, iterator:, options:) do |opts|
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
@@ -98,7 +98,7 @@ module DataCycleCore
           def bulk_mark_deleted(download_object:, options:, iterator: nil, **_keyword_args)
             options[:mode] = 'full' # alwas full mode for delete
 
-            iterate_data(download_object:, iterator:, options:) do |opts|
+            with_logging(download_object:, iterator:, options:) do |opts|
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
@@ -188,7 +188,7 @@ module DataCycleCore
             item.external_system_has_changed = true
           end
 
-          def iterate_data(
+          def with_logging(
             download_object:,
             options:,
             **keyword_args,
@@ -200,12 +200,12 @@ module DataCycleCore
             if read_type.is_a?(::Array)
               read_type.all? do |type|
                 options = options.deep_merge({ download: { read_type: type } })
-                iterate_data(**keyword_args, options:, download_object:, &block)
+                with_logging(**keyword_args, options:, download_object:, &block)
               end
             elsif options[:locales].many?
               options[:locales].all? do |language|
                 options = options.merge({ locales: [language] })
-                iterate_data(**keyword_args, options:, download_object:, &block)
+                with_logging(**keyword_args, options:, download_object:, &block)
               end
             else
               success = true
