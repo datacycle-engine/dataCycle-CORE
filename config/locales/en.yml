@@ -1222,6 +1222,7 @@ en:
       oembed_unsupported_url: "%{oembed_url} is not a valid url."
       oembed_no_provider: "Could not find an oembed provider for url %{oembed_url}."
       oembed_too_many_providers: "Could not find unique Oembed-Provider for URL %{oembed_url}. Possible providers: %{oembed_found}."
+      oembed_thing_not_found: "Could not display dataCycle thing as oembed: Either thing id is invalid/does not support oembed or thing was not found."
       geo:
         Incorrect data type specified for %{template} (%{data}). Expect Geometric/Geographical
         type, or a WKT formatted string.

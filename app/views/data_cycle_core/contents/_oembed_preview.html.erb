@@ -8,10 +8,19 @@
   html = ""
   if oembed[:oembed_url].present? && viewer == 'view'
     oembed_uri = URI(oembed[:oembed_url])
-    response = Rails.cache.fetch(oembed[:oembed_url], expires_in: 1.hour) do
-      Net::HTTP.get_response(oembed_uri)
+
+    thing_id = CGI.parse(oembed_uri.query).dig('thing_id')&.first
+
+    if oembed[:oembed_url].include?(Rails.application.config.action_mailer.default_url_options.dig(:host)) && thing_id.present?
+      oembed_response = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_from_thing_id(thing_id)
+      response_body = oembed_response[:oembed].to_json
+    else
+      response = Rails.cache.fetch(oembed[:oembed_url], expires_in: 1.hour) do
+        Net::HTTP.get_response(oembed_uri)
+      end
+      response_body = response.body
     end
-    html = JSON.parse(response.body).dig('html')
+    html = JSON.parse(response_body)&.dig('html')
   end
 %>
 
@@ -25,7 +34,8 @@
       </span>
     </span>
     <div id="<%= "#{oembed_id_base}_oembed_preview" %>" class="oembed-preview-html oembed-default-padding columns small-12 detail-content">
-      <%= html.html_safe %>
+      <%=
+        html&.html_safe %>
     </div>
   <% else %>
     <div class="columns small-12">

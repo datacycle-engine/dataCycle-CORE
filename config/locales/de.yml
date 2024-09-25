@@ -1275,6 +1275,7 @@ de:
       oembed_unsupported_url: "%{oembed_url} ist keine valide URL."
       oembed_no_provider: "Oembed-Provider für URL %{oembed_url} konnte nicht gefunden werden."
       oembed_too_many_providers: "Kein eindeutiger Oembed-Provider für URL %{oembed_url}gefunden werden. Mögliche Provider: %{oembed_found}."
+      oembed_thing_not_found: "Konnte dataCycle-Thing nicht als oembed darstellen: Thing-ID ungültig oder unterstützt kein oembed, oder Thing nicht gefunden."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
       geo_no_linestring: "Für diesen Typ müssen mindestens zwei Punkte angegeben werden"
       schedule:

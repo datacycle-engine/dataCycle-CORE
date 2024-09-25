@@ -106,11 +106,88 @@ module DataCycleCore
             }
           else
             success = true
-            oembed_url = "#{selected.first['oembed_url'].sub('{format}', 'json')}?url=#{data}#{maxwidth.present? ? "&maxwidth=#{maxwidth}" : ''}#{maxheight.present? ? "&maxheight=#{maxheight}" : ''}"
-            @error = { error: {}, warning: {}, result: {} }
+            host = Rails.application.config.action_mailer.default_url_options.dig(:host)
+            protocol = Rails.application.config.action_mailer.default_url_options.dig(:protocol)
+            dc_thing_oembed_url = "#{protocol}://#{host}"
+
+            if selected.first['oembed_url'].include? '{dcThingOembed}'
+              thing_id = data.split('/things/')&.last&.split('?')&.first
+              if thing_id.blank? || DataCycleCore::Thing.where(id: thing_id).blank?
+                success = false
+
+                (@error[:error][@template_key] ||= []) << {
+                  path: 'validation.errors.oembed_thing_not_found'
+                }
+                oembed_url = nil
+              else
+                oembed_url = "#{selected.first['oembed_url'].sub('{format}', 'json').sub('{dcThingOembed}', "#{dc_thing_oembed_url}/oembed")}?thing_id=#{thing_id}#{maxwidth.present? ? "&maxwidth=#{maxwidth}" : ''}#{maxheight.present? ? "&maxheight=#{maxheight}" : ''}"
+              end
+
+            else
+              oembed_url = "#{selected.first['oembed_url'].sub('{format}', 'json')}?url=#{data}#{maxwidth.present? ? "&maxwidth=#{maxwidth}" : ''}#{maxheight.present? ? "&maxheight=#{maxheight}" : ''}"
+            end
+
+            @error = { error: {}, warning: {}, result: {} } if success
           end
 
           {error: @error, success:, oembed_url:}
+        end
+
+        def self.valid_oembed_from_thing_id(thing_id)
+          success = false
+          error_path = ''
+
+          @error ||= { error: {}, warning: {}, result: {} }
+          thing = DataCycleCore::Thing.where(id: thing_id).first
+          thing_template = DataCycleCore::ThingTemplate.find_by(template_name: thing.template_name) if thing.present?
+          oembed_feature = thing_template.schema.dig('features', 'oembed') if thing_template.present?
+          oembed_output = oembed_feature.dig('output') if oembed_feature.present?
+
+          error_path = 'validation.errors.oembed_thing_not_found' if thing_id.blank? || thing.blank? || oembed_feature.blank? || oembed_feature.dig('allowed') != true
+
+          if oembed_feature.present? && oembed_output.present? && oembed_output.dig('type').present? && oembed_output.dig('version').present?
+
+            oembed = {
+              provider_name: 'dataCycle',
+              provider_url: "#{Rails.application.config.action_mailer.default_url_options.dig(:protocol)}://#{Rails.application.config.action_mailer.default_url_options.dig(:host)}"
+            }
+
+            oembed_output.each do |k, v|
+              replaced_value = v.gsub(/\{([^}]+)}/) do
+                s = ::Regexp.last_match(1).split('|').map(&:strip).find do |key|
+                  thing.present? ? thing.respond_to?(key) && thing.send(key).present? : false
+                end
+                if thing.present? && s.present? && thing.respond_to?(s)
+                  received = thing.send(s)
+                  result = ''
+
+                  if received.is_a?(Array) && received.size.positive?
+                    received.first.is_a?(Hash) ? result = received.map(&:name).concat(', ') : received.map(&:to_s).concat(', ')
+                  elsif received.is_a?(Hash)
+                    result = received.respond_to?(:name) ? received.name : received.id
+                  else
+                    result = received.to_s
+                  end
+                  result
+                end
+              end
+              oembed[k.to_sym] = replaced_value if replaced_value.present?
+            end
+            oembed = oembed.compact
+            success = true
+          else
+            error_path = 'validation.errors.oembed_thing_not_found'
+          end
+
+          if success == true
+            @error = { error: {}, warning: {}, result: {} }
+            {error: @error, success:, oembed:}
+          else
+            (@error[:error][@template_key] ||= []) << {
+              path: error_path
+            }
+            { error: @error, success:, oembed_url: nil, requested_thing_id: thing_id }
+          end
         end
 
         private
