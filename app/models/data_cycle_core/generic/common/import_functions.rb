@@ -82,7 +82,7 @@ module DataCycleCore
                           )
                         end
                         times << Time.current
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                        logging.phase_partial(step_label, item_count, times)
                       else
                         read, write = IO.pipe
                         pid = Process.fork do
@@ -108,10 +108,10 @@ module DataCycleCore
 
                           last_err = e.exception(full_message)
 
-                          logging.info("E: #{full_message}")
+                          logging.info(step_label, "E: #{full_message}")
 
                           e.backtrace.each do |line|
-                            logging.info("E: #{line}")
+                            logging.info(step_label, "E: #{line}")
                           end
 
                           utility_object.external_source.handle_import_error_notification(last_err)
@@ -130,7 +130,7 @@ module DataCycleCore
                           item_count = data[:count]
                           times << data[:timestamp]
                           last_err = data[:last_err]
-                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                          logging.phase_partial(step_label, item_count, times)
                         end
 
                         if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
@@ -145,7 +145,7 @@ module DataCycleCore
                   if $CHILD_STATUS.present? && $CHILD_STATUS.exitstatus&.zero? || total.zero?
                     logging.phase_finished(step_label, item_count.to_s)
                   else
-                    logging.info("#{step_label} (#{item_count} items) aborted")
+                    logging.phase_failed(last_err, utility_object.external_source, step_label)
                     raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total} #{last_err.present? ? '| Last Error: ' + last_err.to_s : ''}" unless Rails.env.test?
                   end
                 end
@@ -194,8 +194,7 @@ module DataCycleCore
                     GC.start
 
                     times << Time.current
-
-                    logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                    logging.phase_partial(step_label, item_count, times)
                   end
                 ensure
                   logging.phase_finished(step_label, item_count)
@@ -222,7 +221,7 @@ module DataCycleCore
                     iterate = iterator.call(mongo_item, utility_object.locales, output_collection).to_a
                     item_count += 1
 
-                    logging.info("Aggregate collection \"#{output_collection}\" created for languages #{utility_object.locales}, #{iterate}")
+                    logging.info(step_label, "Aggregate collection \"#{output_collection}\" created for languages #{utility_object.locales}, #{iterate}")
                   end
                 end
               ensure
@@ -305,8 +304,7 @@ module DataCycleCore
                       )
 
                       times << Time.current
-
-                      logging.info("Imported    #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s | #{external_id}")
+                      logging.phase_partial(step_label, item_count, times, external_id)
 
                       next unless (item_count % 10).zero?
                       GC.start

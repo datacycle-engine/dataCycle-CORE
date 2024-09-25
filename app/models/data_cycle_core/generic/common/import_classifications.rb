@@ -67,14 +67,14 @@ module DataCycleCore
 
                         if (item_count % 100).zero?
                           times << Time.current
-                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                          logging.phase_partial(step_label, item_count, times)
                         end
 
                         break if options[:max_count] && item_count >= options[:max_count]
                       end
 
                       times << Time.current
-                      logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                      logging.phase_partial(step_label, item_count, times)
                     end
                   ensure
                     logging.phase_finished(step_label, item_count)

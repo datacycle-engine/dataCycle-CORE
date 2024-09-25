@@ -31,8 +31,7 @@ module DataCycleCore
 
                         item_count += upserted.count
                         times << Time.current
-
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                        logging.phase_partial(step_label, item_count, times)
                       end
                     rescue StandardError => e
                       logging.phase_failed(e, utility_object.external_source, step_label)
@@ -75,7 +74,7 @@ module DataCycleCore
                           item_count += upserted.count
                           times << Time.current
 
-                          logging.info("Imported   #{upserted.count.to_s.rjust(7)} items (#{concept_scheme.name}) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 0, 3)}s")
+                          logging.phase_partial(step_label, upserted.count, times, concept_scheme.name)
                         end
 
                         concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:, options:)
@@ -83,8 +82,9 @@ module DataCycleCore
                         mapping_count += mapped.count
 
                         times << Time.current
+                        new_mappings_text = "#{mapping_count} new mappings" if mapping_count.positive?
 
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items (#{mapping_count} new mappings) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)}s")
+                        logging.phase_partial(step_label, item_count, times, new_mappings_text)
                       end
                     rescue StandardError => e
                       logging.phase_failed(e, utility_object.external_source, step_label)

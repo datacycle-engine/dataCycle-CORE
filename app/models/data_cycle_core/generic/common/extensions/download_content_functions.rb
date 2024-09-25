@@ -9,12 +9,16 @@ module DataCycleCore
           FULL_MODES = ['full', 'reset'].freeze
           CONFIG_PROPS = [:tree_label, :external_id_prefix, :priority].freeze
 
+          def step_label(download_object:, options:, locale:)
+            locale_string = locale.is_a?(::Array) ? locale.join(', ') : locale
+            "#{download_object.external_source.name}: #{options.dig(:download, :name)} [#{locale_string}]"
+          end
+
           def download_content(download_object:, cleanup_data: nil, credential: nil, iterator: nil, data_id: nil, **keyword_args)
-            with_logging(**keyword_args, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |options|
+            with_logging(**keyword_args, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |options, step_label|
               locale = options[:locales].first
               item_count = 0
-              start_time = Time.current
-              current_time = start_time
+              times = [Time.current]
               credentials = credential.call(download_object.credentials) if credential.present?
               items = items(iterator:, download_object:, options:, locale:)
               items.each_slice(DELTA) do |item_data_slice|
@@ -59,10 +63,8 @@ module DataCycleCore
                   end
                 end
 
-                prev_time = current_time
-                current_time = Time.current
-
-                download_object.logger.batch_downloaded(item_count, start_time, current_time, prev_time)
+                times << Time.current
+                download_object.logger.phase_partial(step_label, item_count, times)
               end
 
               item_count
@@ -210,13 +212,13 @@ module DataCycleCore
             else
               success = true
               locale = options[:locales].first
-              step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+              step_label = step_label(download_object:, options:, locale:)
               tstart = Time.current
 
               init_mongo_db(download_object.database_name) do
                 download_object.logger.phase_started(step_label, options.dig(:max_count))
 
-                item_count = yield options if block
+                item_count = yield options, step_label if block
               rescue StandardError => e
                 download_object.logger.phase_failed(e, download_object.external_source, step_label)
                 success = false

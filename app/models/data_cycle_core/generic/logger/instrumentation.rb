@@ -6,6 +6,7 @@ module DataCycleCore
       class Instrumentation
         def initialize(kind)
           @kind = kind
+          @kind_short = "[#{kind.to_s[0].upcase}]"
         end
 
         def preparing_phase(label)
@@ -13,17 +14,44 @@ module DataCycleCore
         end
 
         def phase_started(label, total = nil)
-          message = [@kind.capitalize.ljust(11), label.to_s]
-          message.push(" (#{total} items)") if total
-          message.push(' ... [STARTED]')
+          message = [@kind_short, label.to_s]
+          message.push("(#{total} items)") if total
+          message.push('... [STARTED]')
 
-          info_instrument(message: message.join)
+          info_instrument(message: message.join(' '))
         end
 
-        def batch_downloaded(count, start_time, current_time, prev_time)
-          step_time = DataCycleCore::Generic::GenericObject.format_float((current_time - start_time), 6, 3)
-          step_delta = DataCycleCore::Generic::GenericObject.format_float((current_time - prev_time), 6, 3)
-          message = "Downloaded #{count.to_s.rjust(7)} items in #{step_time}s, ðt: #{step_delta}s"
+        def phase_partial(label, count, times = nil, id = nil)
+          message = [
+            @kind_short,
+            label.to_s,
+            count.to_s.prepend(' ').rjust(7, '.'),
+            'items'
+          ].join(' ')
+
+          if times.present?
+            step_time = DataCycleCore::Generic::GenericObject.format_float((times[-1] - times[0]), 6, 3)
+            step_delta = DataCycleCore::Generic::GenericObject.format_float((times[-1] - times[-2]), 6, 3)
+            message += " in #{step_time}s, ðt: #{step_delta}s"
+          end
+
+          message += " | #{id}" if id
+
+          info_instrument(message:)
+        end
+
+        def info(label, text, id = nil)
+          message = [@kind_short, label.to_s, text.to_s].join(' ')
+          message += " | #{id}" if id
+
+          info_instrument(message:)
+        end
+
+        def phase_finished(label, total = nil, duration = nil)
+          message = [@kind_short, label.to_s, '... [FINISHED]'].join(' ')
+          additional_message = "#{total.to_i} #{total.to_i == 1 ? 'item' : 'items'}"
+          additional_message += " in #{duration.to_f.round(3)}s" if duration
+          message += " (#{additional_message})"
 
           info_instrument(message:)
         end
@@ -61,24 +89,8 @@ module DataCycleCore
           error_instrument(message: error.full_message) if error.respond_to?(:full_message)
         end
 
-        def info(title, id = nil)
-          message = title
-          message += " | #{id}" if id
-
-          info_instrument(message:)
-        end
-
         def debug(title, id, data)
           debug_instrument(message: "#{title} | #{id} | #{JSON.pretty_generate(data).gsub("\n", "\n  ")}")
-        end
-
-        def phase_finished(label, total = nil, duration = nil)
-          message = "#{(@kind.capitalize + 'ed').ljust(11)}#{label} ... [FINISHED]"
-          additional_message = "#{total.to_i} #{total.to_i == 1 ? 'item' : 'items'}"
-          additional_message += ", #{duration.to_f.round(3)}s" if duration
-          message += " (#{additional_message})"
-
-          info_instrument(message:)
         end
 
         private

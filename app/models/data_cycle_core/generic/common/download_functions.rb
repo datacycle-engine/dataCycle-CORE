@@ -21,7 +21,8 @@ module DataCycleCore
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
-              step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locales.join(', ')}]"
+              step_label = step_label(download_object:, options:, locale: locales)
+
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
                   _credentials = credential.call(download_object.credentials) if credential.present?
@@ -49,7 +50,7 @@ module DataCycleCore
                   item.updated_at = modified.call(raw_data.first[1]) if modified.present?
                   item.save!
                   GC.start
-                  logging.info("Single download item: #{item_name}", item_id)
+                  logging.info(step_label, "Single download item: #{item_name}", item_id)
                 rescue StandardError => e
                   logging.phase_failed(e, download_object.external_source, step_label)
                 end
@@ -75,8 +76,7 @@ module DataCycleCore
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
                 item_count = 0
-                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
-
+                step_label = step_label(download_object:, options:, locale:)
                 endpoint_method = 'unknown'
                 item = nil
 
@@ -154,8 +154,7 @@ module DataCycleCore
                       GC.start
 
                       times << Time.current
-
-                      logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                      logging.phase_partial(step_label, item_count, times)
                     end
                   end
                 rescue StandardError => e
@@ -185,7 +184,7 @@ module DataCycleCore
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+                step_label = step_label(download_object:, options:, locale:)
                 item_count = 0
 
                 endpoint_method = 'unknown'
@@ -288,8 +287,7 @@ module DataCycleCore
                       next unless (item_count % delta).zero?
 
                       times << Time.current
-
-                      logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                      logging.phase_partial(step_label, item_count, times)
                     end
                     GC.start
                   end
@@ -313,7 +311,7 @@ module DataCycleCore
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
-              step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locales.join(', ')}]"
+              step_label = step_label(download_object:, options:, locale: locales)
               item_count = 0
 
               begin
@@ -368,8 +366,7 @@ module DataCycleCore
                     GC.start
 
                     times << Time.current
-
-                    logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                    logging.phase_partial(step_label, item_count, times)
                   end
                 end
               rescue StandardError => e
@@ -392,10 +389,8 @@ module DataCycleCore
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
-              step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locales.join(', ')}]"
-
+              step_label = step_label(download_object:, options:, locale: locales)
               endpoint_method = nil
-
               item_count = 0
 
               begin
@@ -456,8 +451,7 @@ module DataCycleCore
                     GC.start
 
                     times << Time.current
-
-                    logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                    logging.phase_partial(step_label, item_count, times)
                   end
                 end
               rescue StandardError => e
@@ -473,6 +467,8 @@ module DataCycleCore
 
         def self.dump_test_data(download_object:, data_id:, data_name:, raw_data:)
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          step_label = step_label(download_object:, options: {}, locale: 'de')
+
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -482,7 +478,7 @@ module DataCycleCore
                 item.dump = raw_data
                 item.save!
                 GC.start
-                logging.info("Single download_all item #{item_name}", item_id)
+                logging.info(step_label, "Single download_all item #{item_name}", item_id)
               rescue StandardError => e
                 logging.phase_failed(e, download_object.external_source, step_label)
               end
@@ -493,6 +489,8 @@ module DataCycleCore
 
         def self.dump_raw_data(download_object:, data_id:, data_name:, raw_data:, options:)
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          step_label = step_label(download_object:, options:, locale: 'de')
+
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -503,7 +501,7 @@ module DataCycleCore
                 item.dump = { locale => raw_data }
                 item.save!
                 GC.start
-                logging.info("Single download_all item #{item_name}", item_id)
+                logging.info(step_label, "Single download_all item #{item_name}", item_id)
               rescue StandardError => e
                 logging.phase_failed(e, download_object.external_source, step_label)
               end
@@ -528,7 +526,7 @@ module DataCycleCore
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
                 item_count = 0
-                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+                step_label = step_label(download_object:, options:, locale:)
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -573,8 +571,7 @@ module DataCycleCore
                       GC.start
 
                       times << Time.current
-
-                      logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                      logging.phase_partial(step_label, item_count, times)
                     end
                   end
                 rescue StandardError => e
@@ -607,7 +604,7 @@ module DataCycleCore
             init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
-                step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locale}]"
+                step_label = step_label(download_object:, options:, locale:)
                 item_count = 0
 
                 logging.phase_started(step_label, options.dig(:max_count))
@@ -658,8 +655,7 @@ module DataCycleCore
 
                         GC.start
                         times << Time.current
-
-                        logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                        logging.phase_partial(step_label, item_count, times)
                       end
                     end
                   end
@@ -681,9 +677,8 @@ module DataCycleCore
           fixnum_max = (2**(0.size * 4 - 2) - 1)
           locales = (options[:locales] || I18n.available_locales).map(&:to_s)
           deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
-
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
-          step_label = "#{download_object.external_source.name} #{options.dig(:download, :name)} [#{locales.join(', ')}]"
+          step_label = step_label(download_object:, options:, locale: locales)
 
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
@@ -728,11 +723,11 @@ module DataCycleCore
                       logging.item_processed('mark_update', item.external_id, item_count)
 
                       item_count += 1
-                      logging.info("modified(#{locale}) #{download_object.source_type.collection_name}: #{item.external_id} -> #{affected_keys[locale] & embedded_keys}")
+                      logging.info(step_label, "modified: #{item.external_id} -> #{affected_keys[locale] & embedded_keys}")
                       next unless (item_count % delta).zero?
                       GC.start
                       times << Time.current
-                      logging.info("Marked #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)}s", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}s")
+                      logging.phase_partial(step_label, item_count, times)
                     rescue StandardError => e
                       logging.phase_failed(e, download_object.external_source, step_label)
                       success = false

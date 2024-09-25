@@ -11,7 +11,7 @@ module DataCycleCore
 
       def self.format_float(number, n, m)
         parts = number.round(m).to_s.split('.')
-        parts[0].rjust(n) + '.' + parts[1].ljust(m, '0')
+        parts[0].prepend(' ').rjust(n, '.') + '.' + parts[1].ljust(m, '0')
       end
     end
   end
