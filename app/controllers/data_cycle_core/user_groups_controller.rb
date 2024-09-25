@@ -56,6 +56,7 @@ module DataCycleCore
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
       end
+      DataCycleCore::Abilities::PermissionsList.reload
       redirect_back(fallback_location: root_path)
     end
 

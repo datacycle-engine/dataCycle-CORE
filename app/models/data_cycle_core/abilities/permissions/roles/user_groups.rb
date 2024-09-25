@@ -17,10 +17,16 @@ module DataCycleCore
               feature_abilities.each_value do |v|
                 actions = Array.wrap(v[:actions]).map(&:to_sym)
                 segment = v[:segment]
-                parameters = Array.wrap(v[:parameters]).map { |p|
+
+                collections = v[:parameters].size.positive? ? Array.wrap(v[:parameters][0]) : []
+                template_names = v[:parameters].size > 1 ? Array.wrap(v[:parameters][1]) : []
+
+                collections = collections.map { |p|
                   return Array.wrap(p) unless p == '<COLLECTION>'
                   user_group.shared_collection_ids
                 }.flatten
+
+                parameters = [collections, template_names]
 
                 permit_user_group(user_group.name, role, *actions, {segment.to_sym => parameters})
               end

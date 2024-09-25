@@ -160,14 +160,30 @@
   :terms_condition_url: "https://datacycle.info/de/allgemeine-geschaeftsbedingungen/"
   :privacy_policy_url: "https://open.datacycle.cloud/de/datenschutzerklaerung/"
 
-:user_group_permissions:
+:user_group_permission:
+  :enabled: true
   :default_role: guest
   :abilities:
-    test_permission:
+    test_permission_1:
       actions:
         - view_life_cycle
       segment: ThingsInCollections
-      parameters: '<COLLECTION>'
+      parameters:
+        - - '<COLLECTION>'
+    test_permission_2:
+      actions:
+        - view_life_cycle
+      segment: ThingsInCollections
+      parameters:
+        - - '<COLLECTION>'
+        - - 'POI'
+    test_permission_3:
+      actions:
+        - view_life_cycle
+      segment: ThingsInCollections
+      parameters:
+        - []
+        - - 'POI'
 
 :preview:
   :enabled: true

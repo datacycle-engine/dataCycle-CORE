@@ -27,9 +27,15 @@ module DataCycleCore
 
           actions = details['actions']
           segment = details['segment']
+          templates = details['parameters'].present? && details['parameters'].size > 1 ? Array.wrap(details['parameters'][1]) : []
           param_segment = DataCycleCore::Abilities::Segments.const_get(segment).new
 
-          display_name = "#{param_segment.to_h[:@subject].model_name.human(count: 1, locale: active_ui_locale)} > #{actions.map { |action| I18n.t('abilities.actions.' + action.to_s, locale: active_ui_locale) }.join(', ')}"
+          subject_name = param_segment.to_h[:@subject].model_name.human(count: 1, locale: active_ui_locale)
+          template_names = templates.present? ? "(#{templates.join(', ')})" : ''
+          action_names = actions.map { |action| I18n.t("abilities.actions.#{action}", locale: active_ui_locale) }.join(', ')
+
+          display_name = "#{subject_name} #{template_names} > #{action_names}"
+
           identifier = resource
           [display_name, identifier]
         end
