@@ -5,11 +5,15 @@ body {
 }
 
 .alert-color {
-  color: $alert-color;
+  color: var(--alert-color);
 }
 
 .warning-color {
-  color: $warning-color;
+  color: var(--warning-color);
+}
+
+.success-color {
+  color: var(--success-color);
 }
 
 .off-canvas-content {

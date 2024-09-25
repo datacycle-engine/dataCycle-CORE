@@ -19,6 +19,8 @@ class Validator {
 			.siblings(".edit-header")
 			.add(this.$form.find(".edit-header"))
 			.first();
+		this.duplicateId = this.form.dataset.duplicateId;
+		this.thingId = this.form.querySelector('input[name="uuid"]')?.value;
 		this.$submitButton = this.$editHeader.find(".submit-edit-form").first();
 		this.$saveButton = this.$editHeader.find(".save-content-button").first();
 		this.$languageMenu = this.$editHeader.find("#locales-menu").first();
@@ -143,11 +145,13 @@ class Validator {
 		this.initialFormData = this.sortedFormData();
 
 		$(window).on("beforeunload", this.eventHandlers.beforeunload);
+
 		if (this.$languageMenu.length) {
 			this.$languageMenu.on("click", ".list-items > li > a", async (event) => {
 				this.updateSubmitFormData();
 				if (this.formDataChanged()) {
 					event.preventDefault();
+
 					new ConfirmationModal({
 						text: await I18n.translate(
 							"frontend.validate.save_and_change_language",
@@ -212,10 +216,23 @@ class Validator {
 				.addClass("has-error");
 			error.valid = false;
 			error.errors.agbs = [errorMessage];
+			error.element = $(validationContainer)[0];
 		} else {
 			this.removeSubmitButtonErrors(validationContainer);
 		}
 		return Promise.resolve(error);
+	}
+	async validateDuplicateItem() {
+		const url = `/things/${this.thingId}/validate_duplicate/${this.duplicateId}`;
+		const validation = (await DataCycle.httpRequest(url)) || { valid: true };
+		validation.element = this.form;
+		if (validation.warnings && Object.keys(validation.warnings).length) {
+			validation.label = await I18n.translate("duplicate.merge_content");
+
+			this.$submitButton.addClass("warning");
+		}
+
+		return Promise.resolve(validation);
 	}
 	disable() {
 		DataCycle.disableElement(this.$submitButton);
@@ -240,16 +257,11 @@ class Validator {
 			`<span class="single_${type}" data-attribute-key="${key}"><i class="fa fa-times close-${type}" aria-hidden="true"></i></span></span>`,
 		);
 	}
-	async renderErrorMessage(
-		data,
-		validationContainer,
-		type = "error",
-		itemClass = "alert",
-	) {
-		const $itemLabel = $(validationContainer).find("label").first();
+	async renderErrorMessage(data, element, type = "error", itemClass = "alert") {
+		const $itemLabel = $(element).find("label");
 		const labelFor = $itemLabel.attr("for");
-		const labelText = $itemLabel.text().replace(/\s+/g, " ").trim();
-		const completeKey = $(validationContainer).data("key");
+		const labelText = $(element).data("label");
+		const completeKey = $(element).data("key");
 		const $activeTooltipHtml = $(
 			`<div>${this.$submitButton.attr("data-dc-tooltip")}</div>`,
 		);
@@ -349,7 +361,7 @@ class Validator {
 			key.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1]
 		);
 	}
-	formFieldChanged(fieldData, translationLocale, submitFormaDataUpToDate) {
+	formFieldChanged(fieldData, translationLocale, submitFormDataUpToDate) {
 		if (
 			!translationLocale ||
 			translationLocale === this.locale() ||
@@ -363,7 +375,7 @@ class Validator {
 		if (key)
 			oldFieldData = this.initialFormData.filter((v) => v[0].includes(key));
 
-		if (!submitFormaDataUpToDate) this.updateSubmitFormData();
+		if (!submitFormDataUpToDate) this.updateSubmitFormData();
 
 		return (
 			!isEqual(oldFieldData, newFieldData) ||
@@ -383,31 +395,30 @@ class Validator {
 				formData.set(embeddedTemplate.name, embeddedTemplate.value);
 		}
 	}
-	validateItem(validationContainer, submitFormaDataUpToDate = false) {
-		this.resetField(validationContainer);
+	async validateItem(element, submitFormDataUpToDate = false) {
+		this.resetField(element);
 
-		if ($(validationContainer).hasClass("agbs"))
-			return this.validateAgbs(validationContainer);
+		if ($(element).hasClass("agbs")) return this.validateAgbs(element);
 
-		const formData = DomElementHelpers.getFormData(validationContainer);
+		const formData = DomElementHelpers.getFormData(element);
 
-		if (!Array.from(formData).length) return Promise.resolve({ valid: true });
+		if (!Array.from(formData).length)
+			return Promise.resolve({ valid: true, element: element });
 
-		const translationLocale = this.attributeLocale(validationContainer);
+		const tLocale = this.attributeLocale(element);
 
 		if (
 			!this.formFieldChanged(
 				Array.from(formData),
-				translationLocale,
-				submitFormaDataUpToDate,
+				tLocale,
+				submitFormDataUpToDate,
 			)
 		)
-			return Promise.resolve({ valid: true });
+			return Promise.resolve({ valid: true, element: element });
 
-		const uuid = this.$form.find(':input[name="uuid"]').val();
-		const locale = translationLocale || this.locale();
+		const locale = tLocale || this.locale();
 		const table = this.$form.find(':input[name="table"]').val() || "things";
-		const url = `/${table}${uuid ? `/${uuid}` : ""}/validate`;
+		const url = `/${table}${this.thingId ? `/${this.thingId}` : ""}/validate`;
 		const template = this.$form.find(':input[name="template"]').val();
 
 		if (template) formData.set("template", template);
@@ -415,36 +426,37 @@ class Validator {
 		if (this.contentTemplate)
 			formData.set("content_template", this.contentTemplate);
 
-		this.addParentEmbeddedTemplates(formData, validationContainer);
+		this.addParentEmbeddedTemplates(formData, element);
 
-		const duplicateSearchAllowed = this.duplicateSearchAllowed(formData);
+		const dSearch = this.duplicateSearchAllowed(formData);
 
-		if (duplicateSearchAllowed)
-			formData.set("duplicate_search", this.primaryAttributeKey);
+		if (dSearch) formData.set("duplicate_search", this.primaryAttributeKey);
 
-		const promise = DataCycle.httpRequest(url, {
+		const result = await DataCycle.httpRequest(url, {
 			method: "POST",
 			body: formData,
 		});
 
-		promise.then(async (data) => {
-			if (data) {
-				if (!data.valid && data.errors && Object.keys(data.errors).length > 0)
-					await this.showErrors(data, validationContainer, translationLocale);
+		return this.transformValidationResult(result, element, locale, dSearch);
+	}
+	async transformValidationResult(result, element, locale, dSearch) {
+		let data = result;
+		if (!data) data = { valid: true };
+		data.element = element;
 
-				if (duplicateSearchAllowed) this.cleanDuplicateSearch();
+		if (!data.valid && data.errors && Object.keys(data.errors).length)
+			await this.showMessage(data, element, locale);
 
-				if (data.warnings && Object.keys(data.warnings).length > 0)
-					this.showWarnings(
-						data,
-						validationContainer,
-						translationLocale,
-						duplicateSearchAllowed,
-					);
-			}
-		});
+		if (dSearch) this.cleanDuplicateSearch();
 
-		return promise;
+		if (data.warnings && Object.keys(data.warnings).length) {
+			if (dSearch && data.duplicate_search)
+				await this.renderDuplicateSearchWarning(data);
+
+			await this.showMessage(data, element, locale, "warning", "warning");
+		}
+
+		return data;
 	}
 	duplicateSearchAllowed(formData) {
 		if (!this.duplicateSearch || !this.primaryAttributeKey) return false;
@@ -516,39 +528,14 @@ class Validator {
 		);
 		DomElementHelpers.submitFormData("/", "POST", formData, "_blank");
 	}
-	async showErrors(data, validationContainer, translationLocale) {
+	async showMessage(data, element, locale, type = "error", bClass = "alert") {
 		this.$form.trigger("dc:form:validationError", {
-			locale: translationLocale,
-			type: "error",
+			locale: locale,
+			type: type,
 		});
-		$(validationContainer)
-			.append(await this.renderErrorMessage(data, validationContainer))
-			.addClass("has-error");
-	}
-	async showWarnings(
-		data,
-		validationContainer,
-		translationLocale,
-		duplicateSearchAllowed = false,
-	) {
-		if (duplicateSearchAllowed && data.duplicate_search)
-			this.renderDuplicateSearchWarning(data);
-
-		this.$form.trigger("dc:form:validationError", {
-			locale: translationLocale,
-			type: "warning",
-		});
-		$(validationContainer)
-			.append(
-				await this.renderErrorMessage(
-					data,
-					validationContainer,
-					"warning",
-					"warning",
-				),
-			)
-			.addClass("has-warning")
-			.addClass("warning");
+		$(element)
+			.append(await this.renderErrorMessage(data, element, type, bClass))
+			.addClass(`has-${type}`);
 	}
 	validateForm(event, data) {
 		if (event.detail?.dcFormSubmitted) return;
@@ -559,6 +546,8 @@ class Validator {
 		this.disable();
 		this.requests = [];
 
+		if (data?.mergeConfirm) this.requests.push(this.validateDuplicateItem());
+
 		$(event.target)
 			.find(".validation-container:not(.disabled)")
 			.add(this.$agbsCheck)
@@ -567,6 +556,60 @@ class Validator {
 			});
 
 		this.resolveRequests($(event.target).is(this.$form), data);
+	}
+	async confirmWarnings(confirmations) {
+		const messages = [];
+		for (const warning of confirmations.warnings) {
+			const label = warning.label || warning.element.dataset.label;
+			const tooltip = Object.values(warning.warnings).join(", ");
+			messages.push(`<b data-dc-tooltip='${tooltip}'>${label}</b>`);
+		}
+
+		return new ConfirmationModal({
+			text: await I18n.translate("frontend.validate.ignore_warnings", {
+				data: messages,
+			}),
+			confirmationClass: "warning",
+			cancelable: true,
+			confirmationCallback: () => {
+				confirmations.warnings = undefined;
+				this.submitForm(confirmations);
+			},
+			cancelCallback: () => this.enable(),
+		});
+	}
+	async confirmFinalize(confirmations, checked) {
+		let text;
+		if (checked) text = await I18n.translate("frontend.validate.final_save");
+		else {
+			const finalizeText = this.$form.find('label[for="finalize"]').text();
+			text = await I18n.translate("frontend.validate.final_save_warning", {
+				text: finalizeText,
+			});
+		}
+
+		return new ConfirmationModal({
+			text: text,
+			confirmationClass: checked ? "success" : "warning",
+			cancelable: true,
+			confirmationCallback: () => {
+				confirmations.finalize = false;
+				this.submitForm(confirmations);
+			},
+			cancelCallback: () => this.enable(),
+		});
+	}
+	async confirmCustomCofirmation(confirmations, text) {
+		return new ConfirmationModal({
+			text: text,
+			confirmationClass: "alert",
+			cancelable: true,
+			confirmationCallback: () => {
+				confirmations.confirm = false;
+				this.submitForm(confirmations);
+			},
+			cancelCallback: () => this.enable(),
+		});
 	}
 	async submitForm(
 		confirmations = {
@@ -577,91 +620,18 @@ class Validator {
 			saveAndClose: false,
 		},
 	) {
-		if (confirmations.warnings !== undefined) {
-			this.$form
-				.find(".form-element .warning.counter")
-				.closest(".form-element")
-				.addClass("has-warning");
+		if (confirmations.warnings) return this.confirmWarnings(confirmations);
 
-			return new ConfirmationModal({
-				text: await I18n.translate("frontend.validate.ignore_warnings", {
-					data: confirmations.warnings
-						.closest(".form-element")
-						.get()
-						.map((elem) => {
-							const tooltip = Array.from(
-								elem.querySelectorAll(".single_warning"),
-							)
-								.map((v) => v.textContent)
-								.join(", ");
-
-							return `<b data-dc-tooltip='${tooltip}'>${elem.dataset.label}</b>`;
-						})
-						.join(", "),
-				}),
-				confirmationClass: "warning",
-				cancelable: true,
-				confirmationCallback: () => {
-					confirmations.warnings = undefined;
-					this.submitForm(confirmations);
-				},
-				cancelCallback: () => this.enable(),
-			});
+		if (confirmations.finalize) {
+			const checkbox = this.$form.find(':input[name="finalize"]')[0];
+			if (checkbox)
+				return this.confirmFinalize(confirmations, checkbox.checked);
 		}
 
-		if (
-			confirmations.finalize &&
-			this.$form.find(':input[name="finalize"]:checked').length
-		) {
-			return new ConfirmationModal({
-				text: await I18n.translate("frontend.validate.final_save"),
-				confirmationClass: "success",
-				cancelable: true,
-				confirmationCallback: () => {
-					confirmations.finalize = false;
-					this.submitForm(confirmations);
-				},
-				cancelCallback: () => this.enable(),
-			});
-		}
-
-		if (
-			confirmations.finalize &&
-			this.$form.find(':input[name="finalize"]').length
-		) {
-			const finalizeText = this.$form.find('label[for="finalize"]').text();
-			this.$form
-				.find(".form-element.finalize-button-container")
-				.addClass("has-warning");
-
-			return new ConfirmationModal({
-				text: await I18n.translate("frontend.validate.final_save_warning", {
-					text: finalizeText,
-				}),
-				confirmationClass: "warning",
-				cancelable: true,
-				confirmationCallback: () => {
-					confirmations.finalize = false;
-					this.submitForm(confirmations);
-				},
-				cancelCallback: () => this.enable(),
-			});
-		}
-
-		if (
-			confirmations.confirm &&
-			this.$submitButton.data("confirm") !== undefined
-		) {
-			return new ConfirmationModal({
-				text: this.$submitButton.data("confirm"),
-				confirmationClass: "alert",
-				cancelable: true,
-				confirmationCallback: () => {
-					confirmations.confirm = false;
-					this.submitForm(confirmations);
-				},
-				cancelCallback: () => this.enable(),
-			});
+		if (confirmations.confirm) {
+			const confirmationText = this.$submitButton.data("confirm");
+			if (confirmationText)
+				return this.confirmCustomCofirmation(confirmations, confirmationText);
 		}
 
 		this.triggerFormSubmit(confirmations);
@@ -679,6 +649,7 @@ class Validator {
 			this.$form.append(
 				'<input type="hidden" name="save_and_close" value="1">',
 			);
+
 		if (confirmations?.mergeConfirm)
 			this.$form.append(
 				`<input id="duplicate_id" type="hidden" name="duplicate_id" value="${this.$form.data(
@@ -703,34 +674,25 @@ class Validator {
 		Promise.all(requests).then(
 			(values) => {
 				this.queryCount--;
-				this.valid = true;
-
-				const error = this.$form.find(".single_error").first();
-				for (const validation of values.filter(Boolean)) {
-					if (!validation.valid) this.valid = false;
-				}
+				this.valid = values.filter(Boolean).every((v) => v.valid);
+				const error = values.filter(Boolean).find((v) => !v.valid)?.element;
 
 				if (this.valid && submitForm) {
 					this.queryCount = 0;
-					// const warnings = this.$form.find(".form-element .warning.counter");
-
-					const warnings = this.$form.find(".form-element.has-warning");
-
 					data = Object.assign({}, data || {}, {
 						finalize: true,
 						confirm: true,
 					});
 
+					const warnings = values
+						.filter(Boolean)
+						.filter((v) => Object.keys(v.warnings).length);
 					if (warnings.length) Object.assign(data, { warnings: warnings });
 
 					this.submitForm(data);
 				} else if (!this.valid && submitForm) {
-					if (
-						this.$form.hasClass("edit-content-form") &&
-						error !== undefined &&
-						error[0] !== undefined
-					) {
-						error[0].scrollIntoView({ behavior: "smooth", block: "center" });
+					if (this.$form.hasClass("edit-content-form") && error) {
+						error.scrollIntoView({ behavior: "smooth", block: "center" });
 					}
 				}
 				if (!(this.valid && submitForm)) this.enable();
@@ -752,7 +714,7 @@ class Validator {
 				if (
 					!this.valid &&
 					this.$form.hasClass("multi-step") &&
-					error.is(":hidden")
+					DomElementHelpers.isHidden(error)
 				) {
 					this.$form.trigger(
 						"dc:multistep:goto",

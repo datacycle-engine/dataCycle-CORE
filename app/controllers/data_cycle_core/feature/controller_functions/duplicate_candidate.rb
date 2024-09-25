@@ -11,6 +11,7 @@ module DataCycleCore
             scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
               get '/things/:id/merge_with_duplicate(/:source_id)', action: :merge_with_duplicate, controller: 'things', as: 'merge_with_duplicate_thing' unless has_named_route?(:merge_with_duplicate_thing)
               post '/things/:id/false_positive_duplicate/:source_id', action: :false_positive_duplicate, controller: 'things', as: 'false_positive_duplicate_thing' unless has_named_route?(:false_positive_duplicate_thing)
+              get '/things/:id/validate_duplicate/:source_id', action: :validate_duplicate, controller: 'things', as: 'validate_duplicate_thing' unless has_named_route?(:validate_duplicate_thing)
             end
           end
           Rails.application.reload_routes!
@@ -55,6 +56,18 @@ module DataCycleCore
 
           @content.merge_with_duplicate(@duplicate)
           flash[:success] = I18n.t('controllers.success.merged_with_duplicate', locale: helpers.active_ui_locale)
+        end
+
+        def validate_duplicate
+          @content = DataCycleCore::Thing.find(merge_params[:id])
+          @duplicate = DataCycleCore::Thing.find(merge_params[:source_id])
+          authorize!(:edit, @content)
+
+          valid = { valid: true }
+
+          valid[:warnings] = { duplicate_candidates: I18n.t('duplicate.merge_warning_html', locale: helpers.active_ui_locale) } if @content.external_source_id.present? && @duplicate.external_source_id.blank?
+
+          render json: valid
         end
 
         private

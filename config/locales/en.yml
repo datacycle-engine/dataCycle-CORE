@@ -671,6 +671,10 @@ en:
     switch: Swap original and duplicate
     duplicate: Duplicate
     original: Original
+    merge_warning_html: 'The <span class="alert-color">duplicate</span> (created manually) will be deleted,<br>the <span class="success-color">original</span> (imported) will remain.<br>Continue?'
+    duplicate_tooltip: This content is the duplicate and will be deleted when merging
+    original_tooltip: This content is the original and will remain when merging
+
   tile_links:
     details: to the detailed view
     full_size: open full-size

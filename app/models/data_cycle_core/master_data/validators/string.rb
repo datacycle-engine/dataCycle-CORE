@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class String < BasicValidator
         def string_keywords
-          ['min', 'max', 'format', 'pattern', 'required', 'soft_required']
+          ['min', 'max', 'format', 'pattern', 'required', 'soft_required', 'soft_max', 'soft_min']
         end
 
         def string_formats
@@ -56,12 +56,12 @@ module DataCycleCore
 
         private
 
-        def min(data, value)
+        def min_for_type(data, value, type = :error)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
 
           return unless data.present? && text_length < value.to_i
 
-          (@error[:error][@template_key] ||= []) << {
+          (@error[type][@template_key] ||= []) << {
             path: 'validation.errors.min',
             substitutions: {
               data: nil,
@@ -71,12 +71,20 @@ module DataCycleCore
           }
         end
 
-        def max(data, value)
+        def min(data, value)
+          min_for_type(data, value, :error)
+        end
+
+        def soft_min(data, value)
+          min_for_type(data, value, :warning)
+        end
+
+        def max_for_type(data, value, type = :error)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
 
           return unless data.present? && text_length.to_i > value.to_i
 
-          (@error[:error][@template_key] ||= []) << {
+          (@error[type][@template_key] ||= []) << {
             path: 'validation.errors.max',
             substitutions: {
               data: nil,
@@ -84,6 +92,14 @@ module DataCycleCore
               length: text_length
             }
           }
+        end
+
+        def max(data, value)
+          max_for_type(data, value, :error)
+        end
+
+        def soft_max(data, value)
+          max_for_type(data, value, :warning)
         end
 
         def pattern(data, expression)

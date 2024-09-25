@@ -685,6 +685,9 @@ de:
     switch: Original und Duplikat vertauschen
     duplicate: Duplikat
     original: Original
+    merge_warning_html: 'Das <span class="alert-color">Duplikat</span> (händisch erstellt) wird gelöscht,<br>das <span class="success-color">Original</span> (importiert) bleibt bestehen.<br>Fortfahren?'
+    duplicate_tooltip: Dieser Inhalt ist das Duplikat und wird beim Zusammenführen gelöscht
+    original_tooltip: Dieser Inhalt ist das Original und bleibt beim Zusammenführen bestehen
 
   tile_links:
     details: zur Detailansicht

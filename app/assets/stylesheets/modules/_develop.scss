@@ -691,8 +691,6 @@ select {
     text-align: left;
     display: flex;
     max-width: 100%;
-    opacity: 0.7;
-    transition: $opacity-transition;
     align-items: center;
 
     >* {
@@ -4131,6 +4129,6 @@ form {
   }
 }
 
-.oembed-preview-spinner{
+.oembed-preview-spinner {
   min-height: 30px;
 }
