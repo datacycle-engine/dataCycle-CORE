@@ -25,7 +25,7 @@ module DataCycleCore
 
         (values[key_prefix][:features]).push(feature) unless feature.nil?
       end
-
+      values.reject! { |_, v| v[:features].blank? }
       values
     end
 
