@@ -72,10 +72,12 @@ module DataCycleCore
 
             return [] if mapping.blank?
 
-            value = mapping['default']
             value = mapping[content.external_source.name] || mapping[content.external_source.identifier] if content&.external_source.present?
+            value = mapping['default'] if value.blank?
 
-            Array.wrap(DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), value))
+            return [] if value.blank?
+
+            DataCycleCore::Concept.for_tree(property_definition&.dig('tree_label')).with_internal_name(value).pluck(:classification_id)
           end
 
           private
