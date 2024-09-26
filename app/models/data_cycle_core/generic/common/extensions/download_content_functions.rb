@@ -197,6 +197,7 @@ module DataCycleCore
             &block
           )
             options[:locales] ||= I18n.available_locales
+            options[:locales] = options.dig(:download, :locales) if options.dig(:download, :locales).present?
             read_type = options.dig(:download, :read_type)
 
             if read_type.is_a?(::Array)
