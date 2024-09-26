@@ -31,10 +31,10 @@ namespace :dc do
          Delayed::Job.exists?(queue: 'importers', delayed_reference_type: "import_#{args[:download_names]}", delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil)
         # do nothing
       else
-        args[:download_names].presence.split(',').each do |download_name|
+        (args[:download_names].presence&.split(',') || []).each do |download_name|
           DataCycleCore::DownloadPartialJob.perform_later(external_source.id, download_name.squish.to_sym, args.fetch(:mode, nil))
         end
-        args[:import_names].presence.split(',').each do |import_name|
+        (args[:import_names].presence&.split(',') || []).each do |import_name|
           DataCycleCore::ImportPartialJob.perform_later(external_source.id, import_name.squish.to_sym, args.fetch(:mode, nil))
         end
       end

@@ -136,7 +136,7 @@ module DataCycleCore
           additional_options = { credentials: {} }
         elsif type == :download
           cred = Array.wrap(credentials || {})
-          cred = cred[full_options[:credentials_index]] if full_options[:credentials_index].present?
+          cred = Array.wrap(cred[full_options[:credentials_index]]) if full_options[:credentials_index].present?
           additional_options = cred.map { |credential| { credentials: credential } }
         end
 
