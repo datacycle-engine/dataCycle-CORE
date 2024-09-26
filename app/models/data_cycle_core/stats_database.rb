@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class StatsDatabase
+    include ActionView::Helpers::NumberHelper
+
     attr_accessor(
       :stat_update, :pg_name, :pg_size, :pg_overlays,
       :pg_content_history, :mongo_categories,
@@ -54,36 +56,65 @@ module DataCycleCore
     end
 
     def load_mongo_stats(external_system_id)
+      mongo_host = ENV['MONGODB_HOST']
+      mongo_port = ENV['PUBLIC_MONGODB_PORT']
       external_source = DataCycleCore::ExternalSystem.find(external_system_id)
 
-      mongo_dbs = Generic::Collection.mongo_client.list_databases
-      Mongoid.override_database(nil)
-      mongo_database = "#{Generic::Collection.database_name}_#{external_source.id}"
-      Mongoid.override_database(mongo_database)
-      mongo_dbs_index = mongo_dbs.find_index { |db| db['name'] == mongo_database }
-      mongo_dbsize = mongo_dbs_index&.then { |i| mongo_dbs.dig(i, 'sizeOnDisk') } || 0
+      mongo_connection_string = "mongodb://#{mongo_host}:#{mongo_port}"
+      client = Mongo::Client.new(mongo_connection_string)
 
-      Mongoid.clients[external_source.id] = {
-        'database' => mongo_database,
-        'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
-        'options' => nil
-      }
-      mongo_data = Mongoid
-          .client(external_source.id)
-          .collections
-          .to_h { |item|
-            deleted = item.find('dump.de.deleted_at' => { '$exists' => true }).count
-            archived = item.find('dump.de.archived_at' => { '$exists' => true }).count
-            info = []
-            if deleted.positive? || archived.positive?
-              info = ['(']
-              info += ["D:#{deleted}"] if deleted.positive?
-              info += [', '] if deleted.positive? && archived.positive?
-              info += ["A:#{archived}"] if archived.positive?
-              info += [')']
-            end
-            [item.name.humanize, [item.count, info.join]]
-          }.presence || { 'no collections found': ['', ''] }
+      mongo_dbs = client.database_names
+      mongo_database = "#{Generic::Collection.database_name}_#{external_source.id}"
+
+      mongo_dbsize = 0
+      if mongo_dbs.include?(mongo_database)
+        db_stats = client.use(mongo_database).database.command(dbStats: 1).first
+        mongo_dbsize = db_stats['dataSize']
+      end
+
+      db_client = Mongo::Client.new(mongo_connection_string, database: mongo_database)
+
+      # Get collections and their stats in parallel
+      collection_stats = Concurrent::Array.new
+      threads = []
+
+      db_client.collections.each do |collection|
+        threads << Thread.new do
+          pipeline = [
+            {
+              '$facet' => {
+                'deleted' => [
+                  { '$match' => { 'dump.de.deleted_at' => { '$exists' => true } } },
+                  { '$count' => 'count' }
+                ],
+                'archived' => [
+                  { '$match' => { 'dump.de.archived_at' => { '$exists' => true } } },
+                  { '$count' => 'count' }
+                ],
+                'total' => [
+                  { '$count' => 'count' }
+                ]
+              }
+            }
+          ]
+          result = collection.aggregate(pipeline).first
+          deleted = result['deleted'].first&.fetch('count', 0) || 0
+          archived = result['archived'].first&.fetch('count', 0) || 0
+          total = result['total'].first&.fetch('count', 0) || 0
+
+          info = []
+          if deleted.positive? || archived.positive?
+            info << "D: #{number_with_delimiter(deleted)}" if deleted.positive?
+            info << "A: #{number_with_delimiter(archived)}" if archived.positive?
+            info = "(#{info.join(', ')})"
+          end
+          collection_stats << [collection.name.humanize, [number_with_delimiter(total), info.presence || '']]
+        end
+      end
+
+      threads.each(&:join)
+
+      mongo_data = collection_stats.to_h.presence || { 'no collections found': ['', ''] }
 
       data = {
         uuid: external_source.id,
@@ -96,7 +127,8 @@ module DataCycleCore
         tables: mongo_data
       }.merge(last_download_and_import(external_source))
 
-      Mongoid.override_database(nil)
+      client.close
+      db_client.close
 
       data
     end
