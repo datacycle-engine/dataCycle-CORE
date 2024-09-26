@@ -1926,6 +1926,7 @@ en:
       currentInformation: Current information
       additionalLocationInformation: Additional location information
       additionalHostInformation: Additional host information
+      additionalMeetingPointInformation: Additional meeting point information
       directions: Directions
       publicTransit: Public transit
       parking: Parking
