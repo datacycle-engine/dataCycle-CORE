@@ -3,14 +3,21 @@
 <div class="card-section">
   <div class="mongo-db-name copy-to-clipboard" data-value="<%= data[:database] %>" title="<%= data[:database] %>"><%= data[:database] %></div>
   <ul>
-    <%= content_tag(:li, "size: #{number_to_human_size(data[:db_size])}")%>
+    <%= content_tag(:li, "size: #{data[:db_size]}")%>
+    <%= content_tag(:li, "languages: #{data[:languages].join(', ')}")%>
+    <%= content_tag(:li, "credentials: #{data[:credentials]}")%>
+    <%= content_tag(:li, "updated: #{data[:updated_at]}")%>
   </ul>
 </div>
 <div class="card-section">
   Collections: <br />
   <ul>
-    <% data[:tables].each do |key, value| %>
-      <%= content_tag(:li, "#{key}: #{value[0]} #{value[1]}") %>
+    <% if data[:tables].blank? %>
+      <%= content_tag(:li, "no collections found") %>
+    <% else %>
+      <% data[:tables].each do |key, value| %>
+        <%= content_tag(:li, "#{key}: #{value[0]} #{value[1]}") %>
+      <% end %>
     <% end %>
   </ul>
 </div>

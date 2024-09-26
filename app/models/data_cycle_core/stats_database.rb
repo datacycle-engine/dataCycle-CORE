@@ -114,7 +114,7 @@ module DataCycleCore
 
       threads.each(&:join)
 
-      mongo_data = collection_stats.to_h.presence || { 'no collections found': ['', ''] }
+      mongo_data = collection_stats.to_h.presence
 
       data = {
         uuid: external_source.id,
@@ -123,8 +123,11 @@ module DataCycleCore
         importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
         name: external_source.name,
         database: mongo_database,
-        db_size: mongo_dbsize,
-        tables: mongo_data
+        db_size: number_to_human_size(mongo_dbsize),
+        tables: mongo_data,
+        languages: external_source.default_options['locales'],
+        credentials: external_source.credentials.is_a?(::Array) ? number_with_delimiter(external_source.credentials.size) : 1,
+        updated_at: external_source.updated_at.to_s(:long)
       }.merge(last_download_and_import(external_source))
 
       client.close
