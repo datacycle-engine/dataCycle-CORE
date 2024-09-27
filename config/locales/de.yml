@@ -1188,6 +1188,9 @@ de:
     finalize: Bearbeitung final abschließen
     finalize_agbs_text: AGBs
     finalize_combined_html: "%{finalize} und %{agbs} akzeptieren"
+    open_data: "%{data} öffnen"
+    copy: kopieren
+    copy_data: "%{data} kopieren"
     copy_to_clipboard: In die Zwischenablage kopieren
     copy_to_clipboard_data: "%{data} in die Zwischenablage kopieren"
     copy_webdav_to_clipboard: WebDAV Link in die Zwischenablage kopieren

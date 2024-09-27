@@ -21,7 +21,6 @@
         <% end %>
 
         <div class="image-data">
-          <%= render 'data_cycle_core/assets/file_links', asset: content.asset if content.try(:asset).present? %>
           <h5>Details</h5>
           <dl>
             <% ['caption', 'description', 'transcript'].each do |property_name| %>
@@ -100,7 +99,6 @@
             <dd>
 
               <% if content.try(:url).present? %>
-
                 <a class="button button-small" href="<%= content.url %>" target="_blank">
                   <i class="fa fa-external-link" aria-hidden="true"></i>
 
@@ -109,7 +107,6 @@
               <% end %>
 
               <% if content.try(:youtube_url).present? %>
-
                 <a class="button button-small" href="<%= content.youtube_url %>" target="_blank">
                   <i class="fa fa-external-link" aria-hidden="true"></i>
 
@@ -117,14 +114,11 @@
                 </a>
               <% end %>
 
-              <% if content.try(:content_url).present? %>
-
-                <a class="button button-small" href="<%= content.content_url %>" target="_blank">
-                  <i class="fa fa-external-link" aria-hidden="true"></i>
-
-                  <%= t('details.video.open_content_url', locale: active_ui_locale) %>
-                </a>
-              <% end %>
+              <%= render_attribute_viewer key: 'content_url',
+                                          definition: content.properties_for('content_url'),
+                                          value: content.try(:content_url),
+                                          parameters: { options: {} },
+                                          content: content %>
 
             </dd>
           </dl>

@@ -26,7 +26,6 @@
           </div>
         <% end %>
         <div class="image-data">
-          <%= render 'data_cycle_core/assets/file_links', asset: content.asset if content.try(:asset).present? %>
           <h5>Details</h5>
           <dl>
             <% ['alternative_headline', 'caption', 'description'].each do |property_name| %>
@@ -115,7 +114,6 @@
             <% end %>
 
             <% if content.try(:url).present? %>
-
               <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
               <dd>
                 <a class="button button-small" href="<%= content.url %>" target="_blank">
@@ -197,7 +195,7 @@
                       'copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer',
                       'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines',
                       'licensing_agreement', 'attribution_url', 'width', 'height', 'content_size', 'file_format',
-                      'date_created', 'date_modified', 'upload_date', 'mandatory_license'].include?(key) %>
+                      'date_created', 'date_modified', 'upload_date', 'mandatory_license', 'content_url'].include?(key) %>
 
         <% next if prop.dig('ui', 'show', 'disabled') || prop.dig('type') == 'attribute_group' %>
 

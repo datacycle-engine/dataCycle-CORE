@@ -1134,6 +1134,9 @@ en:
     finalize: Finalize editing
     finalize_agbs_text: Terms & Conditions
     finalize_combined_html: "%{finalize} and accept %{agbs}"
+    open_data: "open %{data}"
+    copy: copy
+    copy_data: "copy %{data}"
     copy_to_clipboard: Copy to clipboard
     copy_to_clipboard_data: "Copy %{data} to clipboard"
     copy_classification_alias_id_to_clipboard: Copy Classification-Alias-ID to clipboard
