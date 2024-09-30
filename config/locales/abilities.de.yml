@@ -143,6 +143,7 @@ de:
       bulk_delete: im Bulk löschen
       download_user_info_activity: "Nutzerinformationen und API-Aktivität herunterladen"
       copy_to_clipboard: in die Zwischenablage kopieren
+      api_translate_text: Texte per API übersetzen
     restrictions:
       advanced_filter_except_type: "nicht: %{except}"
       asset_by_user_and_no_content:

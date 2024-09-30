@@ -161,6 +161,7 @@ en:
       bulk_delete: Delete in bulk
       download_user_info_activity: "Download user information and API activity"
       copy_to_clipboard: Copy to clipboard
+      api_translate_text: Translate text via API
     restrictions:
       advanced_filter_except_type: "Filter not: %{except}"
       asset_by_user_and_no_content:

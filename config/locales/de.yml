@@ -1564,6 +1564,9 @@ de:
       data_cycle_core/collection:
         one: Inhaltssammlung/gespeicherte Suche
         other: Inhaltssammlungen/gespeicherte Suchen
+      data_cycle_core/feature/translate:
+        one: Übersetzung
+        other: Übersetzungen
     attributes:
       data_cycle_core/watch_list:
         manual_order: Manuelle Sortierung als Standard-Sortierung verwenden

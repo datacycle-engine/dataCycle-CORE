@@ -1521,6 +1521,9 @@ en:
       data_cycle_core/permission:
         one: Permission
         other: Permissions
+      data_cycle_core/feature/translate:
+        one: Translation
+        other: Translations
     attributes:
       data_cycle_core/watch_list:
         manual_order: Use manual order as default order
