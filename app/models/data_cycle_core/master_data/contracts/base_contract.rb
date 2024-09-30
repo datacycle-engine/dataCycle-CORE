@@ -182,6 +182,12 @@ module DataCycleCore
           end
           optional(:schedule).hash(ATTRIBUTE_FILTER)
         end
+
+        TRANSLATE = Dry::Schema.Params do
+          optional(:source_locale).filled(:string)
+          required(:target_locale).filled(:string)
+          required(:text).filled(:string)
+        end
       end
     end
   end

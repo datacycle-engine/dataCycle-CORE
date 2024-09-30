@@ -426,6 +426,12 @@ DataCycleCore::Engine.routes.draw do
               match '/', action: :index, on: :collection, via: [:get, :post]
             end
           end
+          if DataCycleCore::Feature::Translate.enabled?
+            namespace :translate do
+              match '/text', to: 'translate#translate_text', via: [:get, :post]
+              # match '/thing/:id', to: 'translate#translate_thing', via: [:get, :post]
+            end
+          end
         end
       end
 
