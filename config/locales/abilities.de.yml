@@ -200,6 +200,9 @@ de:
       users_by_user_group:
         - "Benutzergruppe: %{group}"
         - "Rolle: %{roles}"
+      users_by_user_group_permission:
+        - "Benutzergruppe: %{group}"
+        - "Role: %{roles}"
       users_by_user_group_and_api_token:
         - "Benutzergruppe: %{group}"
         - "Rolle: %{roles}"

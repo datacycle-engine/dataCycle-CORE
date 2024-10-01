@@ -137,7 +137,7 @@
               locale: active_ui_locale
             ) %>
             <div class="v-select">
-              <% abilities = DataCycleCore::Feature::UserGroupPermission.abilities(content, self)
+              <% abilities = DataCycleCore::Feature::UserGroupPermission.ability_selection(self)
               %>
               <%= hidden_field_tag 'user_group[permissions][]' %>
               <%= select_tag('user_group[permissions][]',

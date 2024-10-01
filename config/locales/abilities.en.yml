@@ -220,6 +220,9 @@ en:
       users_by_user_group:
         - "User group: %{group}"
         - "Role: %{roles}"
+      users_by_user_group_permission:
+        - "User group: %{group}"
+        - "Role: %{roles}"
       users_by_user_group_and_api_token:
         - "User group: %{group}"
         - "Role: %{roles}"

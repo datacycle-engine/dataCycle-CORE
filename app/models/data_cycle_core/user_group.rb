@@ -45,6 +45,11 @@ module DataCycleCore
       DataCycleCore::User.where(id: joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').select('user_group_users_user_groups.user_id'))
     end
 
+    def self.user_groups_with_permission(permission_key)
+      return [] if permission_key.blank?
+      self.select { |ug| ug&.permissions&.include?(permission_key) }
+    end
+
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
         id,

@@ -161,29 +161,22 @@
   :privacy_policy_url: "https://open.datacycle.cloud/de/datenschutzerklaerung/"
 
 :user_group_permission:
-  :enabled: true
-  :default_role: guest
+  :enabled: false
+  :default_role: 'all'
   :abilities:
     test_permission_1:
       actions:
-        - view_life_cycle
-      segment: ThingsInCollections
-      parameters:
-        - - '<COLLECTION>'
+        - set_life_cycle
     test_permission_2:
       actions:
-        - view_life_cycle
-      segment: ThingsInCollections
+        - set_life_cycle
       parameters:
-        - - '<COLLECTION>'
-        - - 'POI'
+        - POI
     test_permission_3:
       actions:
-        - view_life_cycle
-      segment: ThingsInCollections
+        - set_life_cycle
       parameters:
-        - []
-        - - 'POI'
+        - POI
 
 :preview:
   :enabled: true

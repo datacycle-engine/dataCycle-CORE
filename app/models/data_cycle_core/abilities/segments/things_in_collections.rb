@@ -4,27 +4,38 @@ module DataCycleCore
   module Abilities
     module Segments
       class ThingsInCollections < Base
-        attr_reader :subject, :conditions, :collection_ids, :template_names
+        attr_reader :subject, :template_names
 
-        def initialize(collection_ids = [], template_names = [])
-          @collection_ids = Array.wrap(collection_ids)
+        def initialize(permission_key, template_names = [])
+          @permission_key = permission_key
           @template_names = Array.wrap(template_names)
-          things = DataCycleCore::Filter::Search.new(nil).union_filter_ids(@collection_ids).query.select(:id)
           @subject = DataCycleCore::Thing
-          @conditions =
-            if @collection_ids.any? && @template_names.empty?
-              { id: things.ids }
-            elsif @template_names.any? && @collection_ids.empty?
-              { template_name: @template_names }
-            elsif @template_names.present? && @collection_ids.any?
-              { id: things.ids, template_name: @template_names }
-            end
+        end
+
+        def conditions
+          collections = collection_ids
+          thing_ids = DataCycleCore::Filter::Search.new(nil).union_filter_ids(collections).query.pluck(:id)
+
+          if collection_ids.any? && @template_names.empty?
+            condition = { id: thing_ids }
+          elsif @template_names.any? && collections.empty?
+            condition = { template_name: @template_names }
+          elsif @template_names.present? && collections.any?
+            condition = { id: thing_ids, template_name: @template_names }
+          end
+          condition
         end
 
         private
 
+        def collection_ids(permission_key = @permission_key)
+          user_group_w_keys = DataCycleCore::UserGroup.user_groups_with_permission(permission_key)
+          return [] if user_group_w_keys.blank?
+          user_group_w_keys.flat_map(&:shared_collection_ids) || []
+        end
+
         def to_restrictions(**)
-          collections = DataCycleCore::Collection.where(id: @collection_ids).group_by(&:type)
+          collections = DataCycleCore::UserGroup.user_groups_with_permission(@permission_key).flat_map(&:shared_collections).group_by(&:type)
 
           collections.flat_map do |k, v|
             template_names = I18n.t('common.contents.other', locale:)
