@@ -21,6 +21,10 @@ module DataCycleCore
           Rake::Task[rake_task].invoke(*rake_args)
           Rake::Task[rake_task].reenable
         end
+
+        def self.source_type?
+          false
+        end
       end
     end
   end

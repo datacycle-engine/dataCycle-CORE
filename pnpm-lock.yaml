@@ -51,8 +51,8 @@ dependencies:
     specifier: ^4.7.0
     version: 4.7.0
   foundation-sites:
-    specifier: ^6.8.1
-    version: 6.8.1(jquery@3.7.1)(motion-ui@2.0.5)(what-input@5.2.12)
+    specifier: 6.8.1
+    version: 6.8.1(jquery@3.7.1)(what-input@5.2.12)
   htmldiff:
     specifier: ^0.0.4
     version: 0.0.4
@@ -83,9 +83,6 @@ dependencies:
   mime:
     specifier: ^3.0.0
     version: 3.0.0
-  motion-ui:
-    specifier: ^2.0.5
-    version: 2.0.5(jquery@3.7.1)
   path:
     specifier: ^0.12.7
     version: 0.12.7
@@ -1487,7 +1484,7 @@ packages:
     dev: false
     optional: true
 
-  /foundation-sites@6.8.1(jquery@3.7.1)(motion-ui@2.0.5)(what-input@5.2.12):
+  /foundation-sites@6.8.1(jquery@3.7.1)(what-input@5.2.12):
     resolution: {integrity: sha512-9JAuLqVgzf7EIRUqVKeYN68dU/SGe0aNJPgnejdfJKSWnBFdQLF3Zvy9WEQ1gE/gnyvwG3Ia3LkkEd9774n0bQ==}
     engines: {node: '>=16.0'}
     peerDependencies:
@@ -1496,7 +1493,6 @@ packages:
       what-input: '>=5.2.10'
     dependencies:
       jquery: 3.7.1
-      motion-ui: 2.0.5(jquery@3.7.1)
       what-input: 5.2.12
     dev: false
 
@@ -2171,14 +2167,6 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
-
-  /motion-ui@2.0.5(jquery@3.7.1):
-    resolution: {integrity: sha512-MJs4dS7/bSnJ92X5IB4bTIif6SwqwEDbX1F/eiUGSzIVhVTl4UqD8xr8ygg01dXZrpPrDjjUNoVkB8vT+PaY/g==}
-    peerDependencies:
-      jquery: '>=3.6.0'
-    dependencies:
-      jquery: 3.7.1
-    dev: false
 
   /mpd-parser@0.22.1:
     resolution: {integrity: sha512-fwBebvpyPUU8bOzvhX0VQZgSohncbgYwUyJJoTSNpmy7ccD2ryiCvM7oRkn/xQH5cv73/xU7rJSNCLjdGFor0Q==}

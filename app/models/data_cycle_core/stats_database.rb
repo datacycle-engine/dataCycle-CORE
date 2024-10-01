@@ -125,9 +125,9 @@ module DataCycleCore
         database: mongo_database,
         db_size: number_to_human_size(mongo_dbsize),
         tables: mongo_data,
-        languages: external_source.default_options['locales'],
+        languages: external_source.default_options&.dig('locales'),
         credentials: external_source.credentials.is_a?(::Array) ? number_with_delimiter(external_source.credentials.size) : 1,
-        updated_at: external_source.updated_at.to_s(:long)
+        updated_at: external_source.updated_at
       }.merge(last_download_and_import(external_source))
 
       client.close

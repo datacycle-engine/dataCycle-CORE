@@ -170,7 +170,7 @@ module DataCycleCore
         schema do
           optional(:read_type) { str? | (array? & each { str? }) }
           optional(:sorting) { int? & gt?(0) }
-          required(:source_type) { str? }
+          optional(:source_type) { str? }
           optional(:endpoint) { str? }
           optional(:import_strategy) { str? }
           optional(:download_strategy) { str? }
@@ -192,6 +192,8 @@ module DataCycleCore
         rule do
           base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)
         end
+
+        rule(:source_type).validate(:source_type_required)
       end
     end
   end

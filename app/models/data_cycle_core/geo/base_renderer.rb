@@ -94,6 +94,12 @@ module DataCycleCore
 
         config
       end
+
+      private
+
+      def cache_key
+        @cache_key ||= Digest::SHA1.hexdigest(main_sql)
+      end
     end
   end
 end

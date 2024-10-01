@@ -250,6 +250,9 @@ module DataCycleCore
     end: -> { 5.years.from_now }
   }
 
+  mattr_accessor :cache_warmup
+  self.cache_warmup = {}
+
   def self.setup
     yield self
   end

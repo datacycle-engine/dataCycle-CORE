@@ -3,20 +3,20 @@
 <div class="card-section">
   <div class="mongo-db-name copy-to-clipboard" data-value="<%= data[:database] %>" title="<%= data[:database] %>"><%= data[:database] %></div>
   <ul>
-    <%= content_tag(:li, "size: #{data[:db_size]}")%>
-    <%= content_tag(:li, "languages: #{data[:languages].join(', ')}")%>
-    <%= content_tag(:li, "credentials: #{data[:credentials]}")%>
-    <%= content_tag(:li, "updated: #{data[:updated_at]}")%>
+    <%= tag.li("size: #{data[:db_size]}") %>
+    <%= tag.li("languages: #{data[:languages].join(', ')}") if data[:languages].present? %>
+    <%= tag.li("credentials: #{data[:credentials]}") %>
+    <%= tag.li("updated: #{data[:updated_at]&.then { |t| t.is_a?(Time) ? l(t, locale: active_ui_locale, format: :edit) : t }}") %>
   </ul>
 </div>
 <div class="card-section">
   Collections: <br />
   <ul>
     <% if data[:tables].blank? %>
-      <%= content_tag(:li, "no collections found") %>
+      <%= tag.li("no collections found") %>
     <% else %>
       <% data[:tables].each do |key, value| %>
-        <%= content_tag(:li, "#{key}: #{value[0]} #{value[1]}") %>
+        <%= tag.li("#{key}: #{value[0]} #{value[1]}") %>
       <% end %>
     <% end %>
   </ul>

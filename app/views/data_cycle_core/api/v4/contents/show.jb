@@ -13,4 +13,5 @@ unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
     end
   end
 end
+
 json
