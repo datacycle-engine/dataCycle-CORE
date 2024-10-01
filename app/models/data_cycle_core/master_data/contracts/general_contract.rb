@@ -30,7 +30,7 @@ module DataCycleCore
         end
 
         register_macro(:source_type_required) do
-          strategy = (values.dig(:import_strategy) || values.dig(:download_strategy)).safe_constantize
+          strategy = (values.dig(:import_strategy) || values.dig(:download_strategy))&.safe_constantize
 
           key.failure('is missing') unless key? || strategy.try(:source_type?).is_a?(FalseClass)
         end
