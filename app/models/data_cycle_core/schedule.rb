@@ -893,6 +893,7 @@ module DataCycleCore
       range_end = range_end.to_date
 
       ActiveRecord::Base.connection.exec_query(schedule_occurrences_sql(range_start:, range_end:))
+      unscoped.where.not(rrule: nil).update_all('rrule = rrule')
     end
 
     def self.schedule_occurrences_sql(range_start:, range_end:)
@@ -974,10 +975,6 @@ module DataCycleCore
         END;
 
         $$;
-
-        UPDATE schedules
-        SET rrule = rrule
-        WHERE rrule IS NOT NULL;
       SQL
 
       ActiveRecord::Base.send(:sanitize_sql_array, [
