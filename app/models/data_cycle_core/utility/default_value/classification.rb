@@ -34,23 +34,31 @@ module DataCycleCore
           end
 
           def by_user_and_name(property_definition:, current_user:, **_additional_args)
-            Array.wrap(
-              DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(
-                property_definition&.dig('tree_label'),
-                property_definition&.dig('default_value', 'value', current_user&.role&.name) || property_definition&.dig('default_value', 'value', 'all')
-              )
-            )
+            name = property_definition&.dig('default_value', 'value', current_user&.role&.name) ||
+                   property_definition&.dig('default_value', 'value', 'all')
+
+            DataCycleCore::Concept
+              .for_tree(property_definition&.dig('tree_label'))
+              .with_internal_name(name)
+              .pluck(:classification_id)
+          end
+
+          def by_user_and_concept_id(property_definition:, current_user:, **_additional_args)
+            concept_id = property_definition&.dig('default_value', 'value', current_user&.role&.name) ||
+                         property_definition&.dig('default_value', 'value', 'all')
+
+            DataCycleCore::Concept.where(id: concept_id).pluck(:classification_id)
           end
 
           def by_user_or_group_and_name(property_definition:, current_user:, **_additional_args)
-            Array.wrap(
-              DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(
-                property_definition&.dig('tree_label'),
-                property_definition&.dig('default_value', 'value', current_user&.role&.name) ||
-                property_definition&.dig('default_value', 'value')&.values_at(*current_user&.user_groups&.pluck(:name)&.compact)&.first ||
-                property_definition&.dig('default_value', 'value', 'all')
-              )
-            )
+            name = property_definition&.dig('default_value', 'value', current_user&.role&.name) ||
+                   property_definition&.dig('default_value', 'value')&.values_at(*current_user&.user_groups&.pluck(:name)&.compact)&.first ||
+                   property_definition&.dig('default_value', 'value', 'all')
+
+            DataCycleCore::Concept
+             .for_tree(property_definition&.dig('tree_label'))
+             .with_internal_name(name)
+             .pluck(:classification_id)
           end
 
           def copy_from_string(property_definition:, data_hash:, **_additional_args)
