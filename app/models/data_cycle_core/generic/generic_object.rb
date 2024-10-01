@@ -26,11 +26,13 @@ module DataCycleCore
         @logger = init_logging(type)
       end
 
-      def init_logging(type)
+      def self.init_logging(type)
         return if type.blank?
 
         DataCycleCore::Generic::Logger::Instrumentation.new(type.to_s)
       end
+
+      delegate :init_logging, to: :class
 
       def self.format_float(number, n, m)
         parts = number.round(m).to_s.split('.')

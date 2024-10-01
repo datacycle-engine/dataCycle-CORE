@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# this file is only required for tests, it is duplicated in datacycle-connector-legacy
+
 module DataCycleCore
   module Generic
     module ExternalLink
@@ -74,7 +76,7 @@ module DataCycleCore
         end
 
         def init_logging
-          logging = DataCycleCore::Generic::GenericObject.new.init_logging(:exozet_external_system)
+          logging = DataCycleCore::Generic::GenericObject.init_logging(:exozet_external_system)
           yield(logging)
         ensure
           logging.close if logging.respond_to?(:close)
