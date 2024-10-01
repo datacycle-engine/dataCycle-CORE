@@ -21,7 +21,9 @@ module DataCycleCore
         :full_text_search,
         :permitted_params,
         :watch_list,
-        :stored_filter
+        :stored_filter,
+        :collection,
+        :linked_stored_filter
       ].freeze
 
       def initialize(contents:, single_item: false, **params)
