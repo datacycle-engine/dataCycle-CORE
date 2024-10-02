@@ -85,7 +85,7 @@ module DataCycleCore
             init_mongo_db(utility_object) do
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
-                step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [#{locale}]"
+                step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                 begin
                   logging.phase_started(step_label)
@@ -117,14 +117,15 @@ module DataCycleCore
                         locale:,
                         options:
                       )
-                    rescue StandardError => e
-                      logging.phase_failed(e, utility_object.external_source, step_label)
                     end
                     times << Time.current
                     logging.phase_partial(step_label, item_count, times)
                   end
-                ensure
-                  logging.phase_finished(step_label, item_count.to_s)
+
+                  logging.phase_finished(step_label, item_count)
+                rescue StandardError => e
+                  logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
+                  raise
                 end
               end
             end

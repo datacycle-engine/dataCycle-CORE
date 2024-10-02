@@ -106,46 +106,46 @@ module DataCycleCore
                                .merge({ name: name.to_s })
         )
         step_options.deep_merge!(options.deep_symbolize_keys)
-        step_options[:locales] = step_options.dig(:import, :locales) ||
-                                 step_options[:locales] ||
-                                 I18n.available_locales
+
+        add_locales_for_step!(options, type)
+        add_credentials_for_step!(step_options) if type == :download
 
         step_options
       end
 
-      def utility_object_for_step(type, options = {}, additional_options = {})
+      def add_locales_for_step!(options, type)
+        options[:locales] = options.dig(type, :locales) ||
+                            options[:locales] ||
+                            I18n.available_locales
+      end
+
+      def add_credentials_for_step!(options)
+        return if options.key?(:credentials)
+
+        creds = Array.wrap(credentials || {})
+        creds = Array.wrap(creds[options[:credentials_index]]) if options[:credentials_index].present?
+
+        options[:credentials] = creds
+      end
+
+      def utility_object_for_step(type, options = {})
         "data_cycle_core/generic/#{type}_object".classify.safe_constantize.new(
           external_source: self,
-          **options,
-          **additional_options
+          **options
         )
       end
 
       def import_step(name, options = {}, config = {})
         raise "missing config for name: #{name}" if config.blank?
 
-        success = true
         type = config.key?('import_strategy') ? :import : :download
         full_options = options_for_step(name, options, config, type)
         strategy = full_options.dig(type, :"#{type}_strategy")&.safe_constantize
+        raise "Missing strategy for #{name}, options given: #{full_options}" if strategy.nil?
+
         strategy_method = strategy.respond_to?(:import_data) ? :import_data : :download_content
-        additional_options = {}
-        raise "Missing strategy for #{name}, options given: #{options}" if strategy.nil?
-
-        if type == :download && strategy.respond_to?(:credentials?) && !strategy.credentials?
-          additional_options = { credentials: {} }
-        elsif type == :download
-          cred = Array.wrap(credentials || {})
-          cred = Array.wrap(cred[full_options[:credentials_index]]) if full_options[:credentials_index].present?
-          additional_options = cred.map { |credential| { credentials: credential } }
-        end
-
-        Array.wrap(additional_options).each do |add_option|
-          utility_object = utility_object_for_step(type, full_options, add_option)
-          success &&= strategy.send(strategy_method, utility_object:, options: full_options)
-        end
-
-        success
+        utility_object = utility_object_for_step(type, full_options)
+        strategy.send(strategy_method, utility_object:, options: full_options)
       end
 
       def import_one(name, external_key, options = {}, mode = 'full')

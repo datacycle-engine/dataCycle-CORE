@@ -18,7 +18,7 @@ module DataCycleCore
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
                   item_count = 0
-                  step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [#{locale}]"
+                  step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                   begin
                     logging.phase_started(step_label)
@@ -98,7 +98,7 @@ module DataCycleCore
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
                   item_count = 0
-                  step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [#{locale}]"
+                  step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                   begin
                     logging.phase_started(step_label)
@@ -166,7 +166,7 @@ module DataCycleCore
 
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
-                  step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [#{locale}]"
+                  step_label = utility_object.step_label(options.merge({ locales: [locale] }))
                   logging.phase_started(step_label)
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     classification_processing.call(mongo_item, logging, utility_object, locale, tree_name, options.merge({ importer_name:, phase_name: }))

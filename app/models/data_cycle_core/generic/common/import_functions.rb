@@ -18,8 +18,8 @@ module DataCycleCore
         end
 
         def self.import_sequential(utility_object:, iterator:, data_processor:, options:)
-          last_err = nil
           last_ext_key = nil
+
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               importer_name = options.dig(:import, :name)
@@ -27,7 +27,7 @@ module DataCycleCore
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
                 total = 0
-                step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [#{locale}]"
+                step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                 begin
                   logging.phase_started(step_label)
@@ -64,62 +64,59 @@ module DataCycleCore
                       page_to = (to - 1) / per
                     end
 
+                    iterator_proc = lambda { |page|
+                      item_count = page * per
+                      iterate = iterate.limit(per).offset(page * per) unless aggregate
+
+                      iterate.each do |content|
+                        break if options[:max_count].present? && item_count >= options[:max_count]
+                        item_count += 1
+                        next if options[:min_count].present? && item_count < options[:min_count]
+                        last_ext_key = content[:external_id]
+
+                        data_processor.call(
+                          utility_object:,
+                          raw_data: content[:dump][locale],
+                          locale:,
+                          options:
+                        )
+                      end
+                    }
+
                     times = [Time.current]
                     (page_from..page_to).each do |page|
                       item_count = page * per
                       if Rails.env.test?
-                        iterate = iterate.limit(per).offset(page * per) unless aggregate
-                        iterate.each do |content|
-                          break if options[:max_count].present? && item_count >= options[:max_count]
-                          item_count += 1
-                          next if options[:min_count].present? && item_count < options[:min_count]
-
-                          data_processor.call(
-                            utility_object:,
-                            raw_data: content[:dump][locale],
-                            locale:,
-                            options:
-                          )
-                        end
+                        iterator_proc.call(page)
                         times << Time.current
                         logging.phase_partial(step_label, item_count, times)
                       else
                         read, write = IO.pipe
                         pid = Process.fork do
                           read.close
-                          iterate = iterate.limit(per).offset(page * per) unless aggregate
-                          iterate.each do |content|
-                            break if options[:max_count].present? && item_count >= options[:max_count]
-                            item_count += 1
-                            next if options[:min_count].present? && item_count < options[:min_count]
-                            last_ext_key = content[:external_id]
-
-                            data_processor.call(
-                              utility_object:,
-                              raw_data: content[:dump][locale],
-                              locale:,
-                              options:
-                            )
-                          end
+                          iterator_proc.call(page)
                         rescue StandardError => e
                           full_message = +e.message # unfreeze the string
                           full_message << " occured at '#{e.backtrace&.first}" if e.backtrace.present?
                           full_message << " while trying to import ext. key '#{last_ext_key}'" if last_ext_key.present?
 
-                          last_err = e.exception(full_message)
+                          error = e.exception(full_message)
 
-                          logging.info(step_label, "E: #{full_message}")
-
-                          e.backtrace.each do |line|
-                            logging.info(step_label, "E: #{line}")
-                          end
-
-                          utility_object.external_source.handle_import_error_notification(last_err)
-                          raise last_err
+                          raise error
                         ensure
-                          Marshal.dump({ count: item_count, timestamp: Time.current, last_err: last_err&.message}, write)
+                          Marshal.dump(
+                            {
+                              count: item_count,
+                              timestamp: Time.current,
+                              error_message: error&.message,
+                              error_class: error&.class,
+                              error_backtrace: error&.backtrace
+                            },
+                            write
+                          )
                           write.close
                         end
+
                         write.close
                         result = read.read
                         Process.waitpid(pid)
@@ -129,25 +126,26 @@ module DataCycleCore
                           data = Marshal.load(result) # rubocop:disable Security/MarshalLoad
                           item_count = data[:count]
                           times << data[:timestamp]
-                          last_err = data[:last_err]
                           logging.phase_partial(step_label, item_count, times)
+
+                          error = data[:error_class].new(data[:error_message]) if data[:error_class].present?
+                          error.set_backtrace(data[:error_backtrace]) if data[:error_backtrace].present?
                         end
 
                         if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
-                          error_msg = "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total} #{last_err.present? ? '| Last Error: ' + last_err.to_s : ''}"
-                          utility_object.external_source.handle_import_error_notification(error_msg)
+                          raise error if error.present?
+
+                          error_msg = "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total}"
                           raise DataCycleCore::Generic::Common::Error::ImporterError, error_msg
                         end
                       end
                     end
                   end
-                ensure
-                  if $CHILD_STATUS.present? && $CHILD_STATUS.exitstatus&.zero? || total.zero?
-                    logging.phase_finished(step_label, item_count.to_s)
-                  else
-                    logging.phase_failed(last_err, utility_object.external_source, step_label)
-                    raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total} #{last_err.present? ? '| Last Error: ' + last_err.to_s : ''}" unless Rails.env.test?
-                  end
+
+                  logging.phase_finished(step_label, item_count.to_s)
+                rescue StandardError => e
+                  logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
+                  raise
                 end
               end
             end
@@ -157,9 +155,9 @@ module DataCycleCore
         def self.import_all(utility_object:, iterator:, data_processor:, options:)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [all]"
-
+              step_label = utility_object.step_label(options.merge({ locales: ['all'] }))
               item_count = 0
+
               begin
                 logging.phase_started(step_label)
                 source_filter = options&.dig(:import, :source_filter) || {}
@@ -172,8 +170,6 @@ module DataCycleCore
                     }]
                   })
                 end
-
-                GC.start
 
                 times = [Time.current]
                 utility_object.source_object.with(utility_object.source_type) do |mongo_item|
@@ -207,14 +203,12 @@ module DataCycleCore
         def self.aggregate_to_collection(utility_object:, iterator:, options:)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)}"
+              step_label = utility_object.step_label(options)
               output_collection = options.dig(:import, :output_collection)
 
               item_count = 0
               begin
                 logging.phase_started(step_label)
-
-                GC.start
 
                 utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                   mongo_item.with_session do |_session|
@@ -226,6 +220,7 @@ module DataCycleCore
                 end
               ensure
                 logging.phase_finished(step_label, item_count)
+                GC.start
               end
             end
           end
@@ -236,15 +231,15 @@ module DataCycleCore
             init_mongo_db(utility_object) do
               download_name = options.dig(:download, :name)
               phase_name = utility_object.source_type.collection_name
-              step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)}"
+              step_label = utility_object.step_label(options)
 
               logging.phase_started(step_label)
               utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                 aggregation_function.call(mongo_item, logging, utility_object, options.merge({ download_name:, phase_name: })).to_a
               end
-              logging.phase_finished(step_label, 0)
             ensure
               logging.phase_finished(step_label, 0)
+              GC.start
             end
           end
         end
@@ -253,8 +248,9 @@ module DataCycleCore
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               each_locale(utility_object.locales) do |locale|
-                step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)} [#{locale}]"
+                step_label = utility_object.step_label(options.merge({ locales: [locale] }))
                 item_count = 0
+
                 begin
                   logging.phase_started(step_label)
                   source_filter = options&.dig(:import, :source_filter) || {}
@@ -269,8 +265,6 @@ module DataCycleCore
                       }]
                     })
                   end
-
-                  GC.start
 
                   times = [Time.current]
 
@@ -321,7 +315,8 @@ module DataCycleCore
         def self.logging_without_mongo(utility_object:, data_processor:, options:)
           init_logging(utility_object) do |logging|
             items_count = 0
-            step_label = "#{utility_object.external_source.name} #{options.dig(:import, :name)}"
+            step_label = utility_object.step_label(options)
+
             begin
               logging.phase_started(step_label)
               items_count = data_processor.call(utility_object, options)

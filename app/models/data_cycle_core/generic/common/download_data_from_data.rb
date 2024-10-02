@@ -10,12 +10,9 @@ module DataCycleCore
             iterator: method(:load_data_from_mongo).to_proc,
             data_id: method(:data_id).to_proc,
             data_name: method(:data_name).to_proc,
-            options:
+            options:,
+            iterate_credentials: false
           )
-        end
-
-        def self.credentials?
-          false
         end
 
         def self.load_data_from_mongo(options:, locale:, source_filter:, **_keyword_args)

@@ -8,12 +8,9 @@ module DataCycleCore
           DataCycleCore::Generic::Common::DownloadFunctions.bulk_touch_items(
             download_object: utility_object,
             iterator: method(:load_contents).to_proc,
-            options:
+            options:,
+            iterate_credentials: false
           )
-        end
-
-        def self.credentials?
-          false
         end
 
         def self.load_contents(**)

@@ -9,12 +9,13 @@ ActiveSupport::Notifications.subscribe('faraday_error.datacycle') do |_name, _st
 end
 
 ActiveSupport::Notifications.subscribe(/(download|import)_failed_repeatedly.datacycle/) do |_name, _started, _finished, _unique_id, data|
-  trigger = data[:trigger].present? ? data[:trigger].to_s : 'unknown process'
-  if Rails.env.development? || data[:mailing_list].blank?
-    Rails.logger.warn "#{trigger.to_s.capitalize} failed repeatedly: #{data.to_json} - received mailing list: #{data[:mailing_list]}"
-  else
-    DataCycleCore::ExternalSystemNotificationMailer.error_notify(data[:mailing_list], trigger, data[:external_source_info], data[:exception]).deliver_now
-  end
+  DataCycleCore::ExternalSystemNotificationMailer.error_notify(
+    data[:mailing_list],
+    data[:type],
+    data[:external_system],
+    data[:exception]&.message,
+    data[:exception]&.backtrace&.first(20)
+  ).deliver_later
 end
 
 ActiveSupport::Notifications.subscribe('instrumentation_logging.datacycle') do |_name, _started, _finished, _unique_id, data|
@@ -50,6 +51,14 @@ end
 
 ActiveSupport::Notifications.subscribe(/(download|dump|mark_deleted)_failed.datacycle/) do |_name, _started, _finished, _unique_id, data|
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'download') do |logger|
+    data[:external_system]&.check_for_repeated_failure('download', data[:exception])
+    logger.dc_log(:error, data)
+  end
+end
+
+ActiveSupport::Notifications.subscribe('import_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'import') do |logger|
+    data[:external_system]&.check_for_repeated_failure('import', data[:exception])
     logger.dc_log(:error, data)
   end
 end

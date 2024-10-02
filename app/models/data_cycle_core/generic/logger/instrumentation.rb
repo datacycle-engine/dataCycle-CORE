@@ -48,10 +48,11 @@ module DataCycleCore
         end
 
         def phase_finished(label, total = nil, duration = nil)
-          message = [@kind_short, label.to_s, '... [FINISHED]'].join(' ')
-          additional_message = "#{total.to_i} #{total.to_i == 1 ? 'item' : 'items'}"
-          additional_message += " in #{duration.to_f.round(3)}s" if duration
-          message += " (#{additional_message})"
+          message = [@kind_short, label.to_s, '...', '[FINISHED]'].join(' ')
+          additional_message = []
+          additional_message.push("#{total.to_i} #{total.to_i == 1 ? 'item' : 'items'}") if total.respond_to?(:to_i)
+          additional_message.push("in #{duration.to_f.round(3)}s") if duration.respond_to?(:to_f)
+          message += " (#{additional_message.join(' ')})" if additional_message.present?
 
           info_instrument(message:)
         end

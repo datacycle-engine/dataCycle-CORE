@@ -108,8 +108,6 @@ module DataCycleCore
 
         # Regex for matching if a string can be interpreted as a valid ActiveSupport::Duration
         # Should match things like 1.day, 2.hours, 3.months, 5.year, ...
-        duration_regex = /\d+\.(?:#{Regexp.union(ActiveSupport::Duration::PARTS.map(&:to_s).flat_map { |unit| [unit, unit.chomp('s')] })})$/
-
         schema do
           required(:name) { str? }
           optional(:identifier) { str? }
@@ -118,7 +116,7 @@ module DataCycleCore
             optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
             optional(:error_notification).hash do
               optional(:emails).each { str? & format?(Devise.email_regexp) }
-              optional(:grace_period) { format?(duration_regex) }
+              optional(:grace_period) { str? }
             end
           end
           optional(:config).hash do

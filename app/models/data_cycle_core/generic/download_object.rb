@@ -3,32 +3,28 @@
 module DataCycleCore
   module Generic
     class DownloadObject < GenericObject
-      attr_reader :endpoint, :credentials
+      TYPE = :download
 
-      def initialize(**options)
-        super(type: :download, **options)
+      def read_type(opts = {})
+        return if opts&.dig(:download, :read_type).blank?
 
-        @credentials = @options.dig(:credentials) || @external_source.credentials
+        Mongoid::PersistenceContext.new(
+          DataCycleCore::Generic::Collection,
+          collection: opts.dig(:download, :read_type)
+        )
+      end
+
+      def endpoint(opts = {})
+        return if opts&.dig(:download, :endpoint).blank?
+
         changed_from = external_source.last_successful_download
-        changed_from = nil if @mode&.in?(['full', 'reset'])
+        changed_from = nil if mode&.in?(['full', 'reset'])
+        endpoint_options_params = opts.except(:download, :credentials, :external_source).merge({ changed_from: })
+        endpoint_params = opts.dig(:credentials).symbolize_keys
+          .merge(read_type: read_type(opts) || {})
+          .merge(options: opts.dig(:download).merge(params: endpoint_options_params))
 
-        if options&.dig(:download, :read_type).present?
-          read_type = {
-            read_type: Mongoid::PersistenceContext.new(
-              DataCycleCore::Generic::Collection, collection: options[:download][:read_type]
-            )
-          }
-        else
-          read_type = {}
-        end
-
-        return if options&.dig(:download, :endpoint).blank? # for mark_deleted_from_data tasks
-
-        endpoint_options_params = options.except(:download, :credentials, :external_source).merge({ changed_from: })
-        endpoint_params = @credentials.symbolize_keys
-          .merge(read_type)
-          .merge(options: options.dig(:download).merge(params: endpoint_options_params))
-        @endpoint = options.dig(:download, :endpoint).constantize.new(**endpoint_params)
+        opts.dig(:download, :endpoint).constantize.new(**endpoint_params)
       end
     end
   end

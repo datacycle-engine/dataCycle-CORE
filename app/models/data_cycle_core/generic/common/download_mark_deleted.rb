@@ -8,12 +8,9 @@ module DataCycleCore
           DataCycleCore::Generic::Common::DownloadFunctions.mark_deleted_from_data(
             download_object: utility_object,
             iterator: method(:load_contents).to_proc,
-            options:
+            options:,
+            iterate_credentials: false
           )
-        end
-
-        def self.credentials?
-          false
         end
 
         def self.load_contents(mongo_item, locale, source_filter)

@@ -28,6 +28,9 @@ module DataCycleCore
     module Download
       class InvalidSerializationFormatError < StandardError
       end
+
+      class RepeatedFailureError < StandardError
+      end
     end
 
     module Import
@@ -42,6 +45,9 @@ module DataCycleCore
 
           super("Template mismatch: #{template_name} != #{expected_template_name} (#{@external_source&.name} -> #{@external_key})")
         end
+      end
+
+      class RepeatedFailureError < StandardError
       end
     end
 

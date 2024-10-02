@@ -42,7 +42,7 @@
     <% if data.dig(:last_import) != data.dig(:last_successful_import) %>
       <li class="last-successful-import <%= 'check-icon' if data.dig(:last_successful_import) != 'never' %>">
         <%= import_data_time(data.dig(:last_successful_import)) %>
-        <% if data.dig(:last_imlast_successful_import_timeport_time).present? %>
+        <% if data.dig(:last_successful_import_time).present? %>
           (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + data.dig(:last_successful_import_time), locale: active_ui_locale)%>)
         <% end %>
       </li>

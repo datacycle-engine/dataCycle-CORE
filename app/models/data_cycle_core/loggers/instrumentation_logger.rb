@@ -7,7 +7,7 @@ module DataCycleCore
 
       def initialize(type:)
         log_file = "./log/#{type}.log"
-        @type = type&.to_s&.capitalize
+        @kind_short = "[#{type.to_s[0].upcase}]"
         super(log_file)
       end
 
@@ -21,9 +21,17 @@ module DataCycleCore
           message = data.dig(:message)
 
           if severity == :error && message.blank?
-            message = "#{@type.ljust(11)}#{data.dig(:external_system)&.name} failed"
-            message += " (Exception: #{data[:exception]}, Backtrace: #{data[:exception].backtrace.first})" if data.dig(:exception).present?
-            message += " (Item-ID: #{data[:item_id]})" if data.dig(:item_id).present?
+            message = [@kind_short]
+
+            if data.dig(:step_label).present?
+              message.push(data.dig(:step_label), '...', '[FAILED]')
+            else
+              message.push(data.dig(:external_system)&.name, '...', '[FAILED]')
+            end
+
+            message.push("(Exception: #{data[:exception]}, Backtrace: #{data[:exception].backtrace.first})") if data.dig(:exception).present?
+            message.push("(Item-ID: #{data[:item_id]})") if data.dig(:item_id).present?
+            message = message.join(' ')
           end
         when ::String
           message = data

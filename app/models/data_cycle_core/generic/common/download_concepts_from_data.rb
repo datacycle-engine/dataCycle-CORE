@@ -10,12 +10,9 @@ module DataCycleCore
             iterator: method(:load_concepts_from_mongo).to_proc,
             data_id: method(:data_id).to_proc.curry[options.dig(:download, :external_id_hash_method)],
             data_name: method(:data_name).to_proc,
-            options:
+            options:,
+            iterate_credentials: false
           )
-        end
-
-        def self.credentials?
-          false
         end
 
         def self.load_concepts_from_mongo(options:, locale:, source_filter:, **_keyword_args)

@@ -9,11 +9,6 @@ module DataCycleCore
           FULL_MODES = ['full', 'reset'].freeze
           CONFIG_PROPS = [:tree_label, :external_id_prefix, :priority].freeze
 
-          def step_label(download_object:, options:, locale:)
-            locale_string = locale.is_a?(::Array) ? locale.join(', ') : locale
-            "#{download_object.external_source.name}: #{options.dig(:download, :name)} [#{locale_string}]"
-          end
-
           def download_content(download_object:, cleanup_data: nil, credential: nil, iterator: nil, data_id: nil, **keyword_args)
             with_logging(**keyword_args, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |options, step_label|
               locale = options[:locales].first
@@ -71,10 +66,10 @@ module DataCycleCore
             end
           end
 
-          def bulk_touch_items(download_object:, options:, iterator: nil, **_keyword_args)
+          def bulk_touch_items(download_object:, options:, iterator: nil, **keyword_args)
             options[:mode] = 'full' # alwas full mode for touch
 
-            with_logging(download_object:, iterator:, options:) do |opts|
+            with_logging(download_object:, iterator:, options:, **keyword_args) do |opts|
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
@@ -97,10 +92,10 @@ module DataCycleCore
             end
           end
 
-          def bulk_mark_deleted(download_object:, options:, iterator: nil, **_keyword_args)
+          def bulk_mark_deleted(download_object:, options:, iterator: nil, **keyword_args)
             options[:mode] = 'full' # alwas full mode for delete
 
-            with_logging(download_object:, iterator:, options:) do |opts|
+            with_logging(download_object:, iterator:, options:, **keyword_args) do |opts|
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
@@ -190,45 +185,70 @@ module DataCycleCore
             item.external_system_has_changed = true
           end
 
-          def with_logging(
-            download_object:,
-            options:,
-            **keyword_args,
-            &block
-          )
-            options[:locales] ||= I18n.available_locales
-            options[:locales] = options.dig(:download, :locales) if options.dig(:download, :locales).present?
-            read_type = options.dig(:download, :read_type)
+          def iterate_credentials(options:, **keyword_args, &block)
+            success = true
 
-            if read_type.is_a?(::Array)
-              read_type.all? do |type|
-                options = options.deep_merge({ download: { read_type: type } })
-                with_logging(**keyword_args, options:, download_object:, &block)
-              end
-            elsif options[:locales].many?
-              options[:locales].all? do |language|
-                options = options.merge({ locales: [language] })
-                with_logging(**keyword_args, options:, download_object:, &block)
-              end
+            options[:credentials].each_with_index do |credentials, index|
+              options = options.merge(credentials_index: index) unless options.key?(:credentials_index) ||
+                                                                       options[:credentials].one?
+              options = options.merge(credentials:)
+
+              success &&= with_logging(**keyword_args, options:, &block)
+            end
+
+            success
+          end
+
+          def iterate_read_types(options:, **keyword_args, &block)
+            success = true
+
+            options.dig(:download, :read_type).each do |read_type|
+              options = options.deep_merge(download: { read_type: })
+
+              success &&= with_logging(**keyword_args, options:, &block)
+            end
+
+            success
+          end
+
+          def iterate_locales(options:, **keyword_args, &block)
+            success = true
+
+            Array.wrap(options[:locales]).each do |language|
+              options = options.merge(locales: [language])
+
+              success &&= with_logging(**keyword_args, options:, &block)
+            end
+
+            success
+          end
+
+          def with_logging(download_object:, options:, iterate_read_types: true, iterate_locales: true, iterate_credentials: true, **keyword_args, &block)
+            if options[:credentials].is_a?(::Array) && iterate_credentials
+              iterate_credentials(download_object:, options:, iterate_read_types:, iterate_locales:, iterate_credentials:, **keyword_args, &block)
+            elsif options.dig(:download, :read_type).is_a?(::Array) && iterate_read_types
+              iterate_read_types(download_object:, options:, iterate_read_types:, iterate_locales:, iterate_credentials:, **keyword_args, &block)
+            elsif Array.wrap(options[:locales]).many? && iterate_locales
+              iterate_locales(download_object:, options:, iterate_read_types:, iterate_locales:, iterate_credentials:, **keyword_args, &block)
             else
-              success = true
-              locale = options[:locales].first
-              step_label = step_label(download_object:, options:, locale:)
+              step_label = download_object.step_label(options)
               tstart = Time.current
 
               init_mongo_db(download_object.database_name) do
                 download_object.logger.phase_started(step_label, options.dig(:max_count))
 
                 item_count = yield options, step_label if block
+
+                download_object.logger.phase_finished(step_label, item_count, Time.current - tstart)
+
+                return true
               rescue StandardError => e
                 download_object.logger.phase_failed(e, download_object.external_source, step_label)
-                success = false
-              ensure
-                download_object.logger.phase_finished(step_label, item_count, Time.current - tstart)
-              end
 
-              GC.start
-              success
+                return false
+              ensure
+                GC.start
+              end
             end
           end
         end

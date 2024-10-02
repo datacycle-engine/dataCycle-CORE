@@ -10,12 +10,9 @@ module DataCycleCore
             iterator: method(:load_concept_schemes_from_config).to_proc,
             data_id: method(:data_id).to_proc,
             data_name: method(:data_name).to_proc,
-            options:
+            options:,
+            iterate_credentials: false
           )
-        end
-
-        def self.credentials?
-          false
         end
 
         def self.load_concept_schemes_from_config(options:, **)

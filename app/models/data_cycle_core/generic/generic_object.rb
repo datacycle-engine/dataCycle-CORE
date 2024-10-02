@@ -4,10 +4,11 @@ module DataCycleCore
   module Generic
     class GenericObject
       attr_accessor :mode
-      attr_reader :external_source, :options, :source_type, :source_object, :database_name, :logger, :strategy
+      attr_reader :external_source, :options, :source_type, :source_object, :database_name, :logger, :strategy, :locales, :locale, :type
 
-      def initialize(type:, **options)
+      def initialize(**options)
         @options = options.with_indifferent_access
+        @type = self.class::TYPE
 
         raise "Missing external_source for #{self.class}, options given: #{@options}" if @options[:external_source].blank?
 
@@ -24,6 +25,7 @@ module DataCycleCore
 
         @mode = options.dig(type, :mode)&.to_sym || options.dig(:mode)&.to_sym || :incremental
         @logger = init_logging(type)
+        @locales = Array.wrap(@options[:locales]).map(&:to_sym)
       end
 
       def self.init_logging(type)
@@ -37,6 +39,18 @@ module DataCycleCore
       def self.format_float(number, n, m)
         parts = number.round(m).to_s.split('.')
         parts[0].prepend(' ').rjust(n, '.') + '.' + parts[1].ljust(m, '0')
+      end
+
+      def step_label(opts = {})
+        label = []
+        label.push(external_source&.name) if external_source&.name.present?
+        label.push(opts.dig(type, :name)) if opts.dig(type, :name).present?
+        step_options = []
+        step_options.push("[#{opts[:credentials_index]}]") if opts[:credentials_index].present?
+        step_options.push("[#{Array.wrap(opts&.dig(:download, :read_type)).join(', ')}]") if opts&.dig(:download, :read_type).present?
+        step_options.push("[#{Array.wrap(opts[:locales]).join(', ')}]") if opts[:locales].present?
+        label.push(step_options.join) if step_options.present?
+        label.join(' ')
       end
     end
   end
