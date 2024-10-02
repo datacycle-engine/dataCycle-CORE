@@ -71,10 +71,18 @@ module DataCycleCore
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
+          transform_opts = []
+          if transformation.parameters.dig(0, 1).to_s.end_with?('_id')
+            transform_opts << utility_object.external_source.id
+          else
+            transform_opts << utility_object.external_source
+          end
+          transform_opts << config if transformation.parameters.dig(1, 1).in? [:options, :config]
+
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object:,
             raw_data:,
-            transformation: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source),
+            transformation: transformation.call(*transform_opts),
             default: { template: template_name },
             config:
           )
