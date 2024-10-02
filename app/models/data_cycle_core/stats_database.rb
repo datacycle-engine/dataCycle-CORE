@@ -57,10 +57,9 @@ module DataCycleCore
 
     def load_mongo_stats(external_system_id)
       mongo_host = ENV['MONGODB_HOST']
-      mongo_port = ENV['PUBLIC_MONGODB_PORT']
       external_source = DataCycleCore::ExternalSystem.find(external_system_id)
 
-      mongo_connection_string = "mongodb://#{mongo_host}:#{mongo_port}"
+      mongo_connection_string = "mongodb://#{mongo_host}:27017"
       client = Mongo::Client.new(mongo_connection_string)
 
       mongo_dbs = client.database_names
