@@ -296,7 +296,7 @@ module DataCycleCore
           end
         end
 
-        def self.download_all(download_object:, data_id:, modified: nil, delete: nil, cleanup_data: nil, credential: nil, **_keyword_args)
+        def self.download_all(download_object:, data_id:, modified: nil, delete: nil, cleanup_data: nil, credential: nil, **keyword_args)
           with_logging(download_object:, data_id:, modified:, delete:, cleanup_data:, credential:, iterate_locales: false, **keyword_args) do |options, step_label|
             locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
             endpoint_method = nil
