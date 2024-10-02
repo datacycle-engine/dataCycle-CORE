@@ -39,7 +39,9 @@ module DataCycleCore
         end
 
         def allowed_languages
-          Array.wrap(configuration[:allowed_languages])
+          configured_languages = Array.wrap(configuration[:allowed_languages]).map(&:to_s)
+          available_locales = I18n.available_locales.map(&:to_s)
+          configured_languages & available_locales
         end
       end
     end

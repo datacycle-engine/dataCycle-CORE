@@ -12,6 +12,8 @@ module DataCycleCore
 
           translate_params = permitted_params.slice(*TRANSLATE_PARAMS)
 
+          [:source_locale, :target_locale].each { |key| translate_params[key].downcase! if translate_params[key].present? }
+
           errors = check_params translate_params
 
           render json: { error: errors }, status: :bad_request and return if errors.present?
@@ -36,8 +38,8 @@ module DataCycleCore
         def check_params(translate_params)
           errors = []
           errors << 'Source and target locale should be different' if translate_params[:source_locale] == translate_params[:target_locale] && [translate_params[:source_locale], translate_params[:target_locale]].all?(&:present?)
-          errors << 'Source locale not found in available locales' if translate_params[:source_locale].present? && I18n.available_locales.exclude?(translate_params[:source_locale].to_sym) && DataCycleCore::Feature::Translate.allowed_languages.exclude?(translate_params[:source_locale])
-          errors << 'Target locale not found in available locales' if translate_params[:target_locale].present? && I18n.available_locales.exclude?(translate_params[:target_locale].to_sym) && DataCycleCore::Feature::Translate.allowed_languages.exclude?(translate_params[:target_locale])
+          errors << 'Source locale not found in available locales' if translate_params[:source_locale].present? && DataCycleCore::Feature::Translate.allowed_languages.exclude?(translate_params[:source_locale])
+          errors << 'Target locale not found in available locales' if translate_params[:target_locale].present? && DataCycleCore::Feature::Translate.allowed_languages.exclude?(translate_params[:target_locale])
           errors
         end
       end
