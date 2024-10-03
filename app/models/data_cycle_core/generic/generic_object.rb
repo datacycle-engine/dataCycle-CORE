@@ -4,11 +4,12 @@ module DataCycleCore
   module Generic
     class GenericObject
       attr_accessor :mode
-      attr_reader :external_source, :options, :source_type, :source_object, :database_name, :logger, :strategy, :locales, :locale, :type
+      attr_reader :external_source, :options, :source_type, :source_object, :database_name, :logger, :strategy, :locales, :locale, :type, :step_name
 
       def initialize(**options)
         @options = options.with_indifferent_access
         @type = self.class::TYPE
+        @step_name = options.dig(type, :name)
 
         raise "Missing external_source for #{self.class}, options given: #{@options}" if @options[:external_source].blank?
 

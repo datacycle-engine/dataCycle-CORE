@@ -125,13 +125,13 @@ module DataCycleCore
           if valid
             ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle', {
               external_system: utility_object.external_source,
-              external_type: utility_object.source_type.collection_name,
+              step_name: utility_object.step_name,
               template_name: content.template_name
             }
           else
             ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', {
               external_system: utility_object.external_source,
-              external_type: utility_object.source_type.collection_name,
+              step_name: utility_object.step_name,
               template_name: content.template_name
             }
 
