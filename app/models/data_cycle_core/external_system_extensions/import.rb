@@ -107,7 +107,7 @@ module DataCycleCore
         )
         step_options.deep_merge!(options.deep_symbolize_keys)
 
-        add_locales_for_step!(options, type)
+        add_locales_for_step!(step_options, type)
         add_credentials_for_step!(step_options) if type == :download
 
         step_options
