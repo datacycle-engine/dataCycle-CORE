@@ -45,7 +45,7 @@ module DataCycleCore
       def step_label(opts = {})
         label = []
         label.push(external_source&.name) if external_source&.name.present?
-        label.push(opts.dig(type, :name)) if opts.dig(type, :name).present?
+        label.push(options.dig(type, :name)) if options.dig(type, :name).present?
         step_options = []
         step_options.push("[#{opts[:credentials_index]}]") if opts[:credentials_index].present?
         step_options.push("[#{Array.wrap(opts&.dig(:download, :read_type)).join(', ')}]") if opts&.dig(:download, :read_type).present?

@@ -136,8 +136,9 @@ module DataCycleCore
             }
 
             errors = content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', ')
+            step_label = utility_object.step_label({ locales: [I18n.locale] })
 
-            utility_object.logging&.error('Validating import data', data['external_key'], data, errors)
+            utility_object.logger.validation_error(step_label, global_data, errors)
 
             content.destroy_content(save_history: false) if created
             return

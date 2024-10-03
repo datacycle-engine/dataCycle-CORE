@@ -47,6 +47,13 @@ module DataCycleCore
           info_instrument(message:)
         end
 
+        def warning(label, text, id = nil)
+          message = [@kind_short, label.to_s, text.to_s].join(' ')
+          message += " | #{id}" if id
+
+          warning_instrument(message:)
+        end
+
         def phase_finished(label, total = nil, duration = nil)
           message = [@kind_short, label.to_s, '...', '[FINISHED]'].join(' ')
           additional_message = []
@@ -64,6 +71,21 @@ module DataCycleCore
 
         def phase_failed(exception, external_system, step_label, channel = 'download_failed.datacycle')
           error_instrument(exception:, external_system:, step_label:, channel:, namespace: 'background')
+        end
+
+        def validation_error(label, data, error_text)
+          text = [@kind_short, label.to_s]
+          text.push(error_text.to_s) if error_text.present?
+
+          if data.present?
+            data_string = JSON.pretty_generate(data).split("\n")
+            data_string_size = data_string.size
+            data_string = data_string.first(20)
+            data_string += ["... MORE: + #{data_string_size - 20} lines \n"] if data_string_size > 20
+            text.push("| DATA: #{data_string.join("\n#{' ' * 50}")}")
+          end
+
+          error_instrument(message: text.join(' '))
         end
 
         def error(title, id, data, error)
