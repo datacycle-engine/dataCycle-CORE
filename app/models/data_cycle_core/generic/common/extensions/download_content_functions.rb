@@ -139,7 +139,7 @@ module DataCycleCore
             endpoint_method = options.dig(:download, :endpoint_method) ||
                               download_object.source_type.collection_name.to_s
 
-            download_object.endpoint.send(endpoint_method, lang: locale)
+            download_object.endpoint(options).send(endpoint_method, lang: locale)
           end
 
           def iterator_items(iterator:, download_object:, options:, locale:, **keyword_args)
