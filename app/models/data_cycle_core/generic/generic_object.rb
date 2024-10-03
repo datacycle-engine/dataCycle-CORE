@@ -42,10 +42,11 @@ module DataCycleCore
         parts[0].prepend(' ').rjust(n, '.') + '.' + parts[1].ljust(m, '0')
       end
 
-      def step_label(opts = {})
+      def step_label(override_opts = {})
+        opts = options.deep_merge(override_opts)
         label = []
         label.push(external_source&.name) if external_source&.name.present?
-        label.push(options.dig(type, :name)) if options.dig(type, :name).present?
+        label.push(opts.dig(type, :name)) if opts.dig(type, :name).present?
         step_options = []
         step_options.push("[#{opts[:credentials_index]}]") if opts[:credentials_index].present?
         step_options.push("[#{Array.wrap(opts&.dig(:download, :read_type)).join(', ')}]") if opts&.dig(:download, :read_type).present?

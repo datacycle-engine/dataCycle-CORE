@@ -10,7 +10,7 @@ module DataCycleCore
         extend Extensions::DownloadContentFunctions
 
         DELTA = Extensions::DownloadContentFunctions::DELTA
-        FULL_MODES = Extensions::DownloadContentFunctions::FULL_MODES
+        FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
 
         def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential

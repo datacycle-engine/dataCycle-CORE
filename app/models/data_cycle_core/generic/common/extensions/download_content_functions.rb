@@ -6,7 +6,7 @@ module DataCycleCore
       module Extensions
         module DownloadContentFunctions
           DELTA = 100
-          FULL_MODES = ['full', 'reset'].freeze
+          FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
           CONFIG_PROPS = [:tree_label, :external_id_prefix, :priority].freeze
 
           def download_content(download_object:, cleanup_data: nil, credential: nil, iterator: nil, data_id: nil, **keyword_args)
