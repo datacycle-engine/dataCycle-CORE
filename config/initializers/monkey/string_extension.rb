@@ -47,7 +47,7 @@ module DataCycleCore
 
       ENCODING_GUESSES.each do |guess|
         force_encoding(guess)
-        return encode!(Encoding::UTF_8) if valid_encoding?
+        return encode!(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: '') if valid_encoding?
       end
 
       raise Encoding::UndefinedConversionError 'could not guess encoding!'

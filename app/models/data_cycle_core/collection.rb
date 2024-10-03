@@ -37,10 +37,13 @@ module DataCycleCore
                             uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
                             slugs = Array.wrap(value).map { |v| v.to_s.strip }
                             queries = []
-                            queries.push(default_scoped.where(id: uuids).without_my_selection.select(:id).to_sql) if uuids.present?
-                            queries.push(default_scoped.where(slug: slugs).without_my_selection.select(:id).to_sql) if slugs.present?
+                            queries.push(default_scoped.where(id: uuids).without_my_selection.select(:id)) if uuids.present?
+                            queries.push(default_scoped.where(slug: slugs).without_my_selection.select(:id)) if slugs.present?
 
-                            where("collections.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
+                            query = queries.pop.arel
+                            query = query.union(queries.pop.arel) if queries.present?
+
+                            where(arel_table[:id].in(query))
                           }
 
     scope :by_id_or_name, lambda { |value|
@@ -52,7 +55,10 @@ module DataCycleCore
                             queries.push(default_scoped.where(id: uuids).without_my_selection.select(:id).to_sql) if uuids.present?
                             queries.push(default_scoped.where(name: names).without_my_selection.select(:id).to_sql) if names.present?
 
-                            where("collections.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
+                            query = queries.pop.arel
+                            query = query.union(queries.pop.arel) if queries.present?
+
+                            where(arel_table[:id].in(query))
                           }
 
     scope :shared_with_user_by_user, ->(user) { joins(:shared_users).where(shared_users: { id: user.id }) }
