@@ -148,8 +148,8 @@ module DataCycleCore
           if oembed_feature.present? && oembed_output.present? && oembed_output.dig('type').present? && oembed_output.dig('version').present?
 
             oembed = {
-              provider_name: 'dataCycle',
-              provider_url: "#{Rails.application.config.action_mailer.default_url_options.dig(:protocol)}://#{Rails.application.config.action_mailer.default_url_options.dig(:host)}"
+              provider_name: thing.external_source.presence&.name || Rails.application.config.session_options[:key].sub(/^_/, '').sub('_session', '') || 'dataCycle',
+              provider_url: thing.external_source.present? ? '{url}' : "#{Rails.application.config.action_mailer.default_url_options.dig(:protocol)}://#{Rails.application.config.action_mailer.default_url_options.dig(:host)}"
             }
 
             oembed_output.each do |k, v|
@@ -160,10 +160,23 @@ module DataCycleCore
                 if thing.present? && s.present? && thing.respond_to?(s)
                   received = thing.send(s)
                   result = ''
-
-                  if received.is_a?(Array) && received.size.positive?
-                    received.first.is_a?(Hash) ? result = received.map(&:name).concat(', ') : received.map(&:to_s).concat(', ')
-                  elsif received.is_a?(Hash)
+                  if (received.is_a?(Array) || received.is_a?(ActiveRecord::Relation)) && received.size.positive?
+                    if received.first.is_a?(Hash) || received.first.is_a?(DataCycleCore::Thing)
+                      result = received.map do |r|
+                        if k == 'thumbnail_url' && s == 'video'
+                          r&.preview_url || r&.name
+                        elsif ['video', 'image'].include?(s)
+                          r&.content_url || r&.name
+                        else
+                          r.name
+                        end
+                      end
+                      result = result.first if ['html', 'url'].include?(k)
+                      result = result.is_a?(Array) ? result.join(', ') : result.to_s
+                    else
+                      result = received.map(&:to_s).join(', ')
+                    end
+                  elsif received.is_a?(Hash) || received.is_a?(DataCycleCore::Thing)
                     result = received.respond_to?(:name) ? received.name : received.id
                   else
                     result = received.to_s
@@ -174,6 +187,14 @@ module DataCycleCore
               oembed[k.to_sym] = replaced_value if replaced_value.present?
             end
             oembed = oembed.compact
+
+            if oembed[:provider_url] == '{url}'
+              provider_uri = URI.parse(oembed[:url])
+              oembed[:provider_url] = "#{provider_uri.scheme}://#{provider_uri.host}"
+            end
+
+            oembed[:html] = oembed[:html].gsub(/\s+\w+='\s*'/, '') if oembed[:html].present?
+
             success = true
           else
             error_path = 'validation.errors.oembed_thing_not_found'
