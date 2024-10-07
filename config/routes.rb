@@ -86,7 +86,7 @@ DataCycleCore::Engine.routes.draw do
     end
 
     scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-      resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
+      resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things, except: :show) do
         post :import, on: :collection
         get 'history/:history_id', action: :history, on: :member, as: :history
         post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
@@ -117,7 +117,7 @@ DataCycleCore::Engine.routes.draw do
         post :create_external_connection, on: :member
         post :elevation_profile, on: :member
         delete :remove_external_connection, on: :member
-        post '/', on: :member, action: :show
+        match '/', on: :member, action: :show, via: [:get, :post],  constraints: { id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ }
       end
     end
   end
