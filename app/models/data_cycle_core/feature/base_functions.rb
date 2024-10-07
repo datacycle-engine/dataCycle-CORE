@@ -99,11 +99,11 @@ module DataCycleCore
       end
 
       def model_name
-        DataAttributeModel.new(self)
+        FeatureModel.new(self)
       end
     end
 
-    DataAttributeModel = Struct.new(:klass) do
+    FeatureModel = Struct.new(:klass) do
       def human(**)
         I18n.t("activerecord.models.#{klass.name.underscore}", **)
       end
