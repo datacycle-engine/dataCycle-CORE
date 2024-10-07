@@ -155,11 +155,13 @@ module DataCycleCore
             oembed_output.each do |k, v|
               replaced_value = v.gsub(/\{([^}]+)}/) do
                 s = ::Regexp.last_match(1).split('|').map(&:strip).find do |key|
-                  thing.present? ? thing.respond_to?(key) && thing.send(key).present? : false
+                  thing.present? ? ((thing.respond_to?(key) && thing.send(key).present?) || key.match(/^val:/)) : false
                 end
-                if thing.present? && s.present? && thing.respond_to?(s)
+                if s.present? && s.match(/^val:/)
+                  s.sub('val:', '').strip
+                elsif thing.present? && s.present? && thing.respond_to?(s)
                   received = thing.send(s)
-                  result = ''
+                  return null if received.blank?
                   if (received.is_a?(Array) || received.is_a?(ActiveRecord::Relation)) && received.size.positive?
                     if received.first.is_a?(Hash) || received.first.is_a?(DataCycleCore::Thing)
                       result = received.map do |r|
