@@ -117,7 +117,7 @@ DataCycleCore::Engine.routes.draw do
         post :create_external_connection, on: :member
         post :elevation_profile, on: :member
         delete :remove_external_connection, on: :member
-        match '/', on: :member, action: :show, via: [:get, :post],  constraints: { id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ }
+        match '/', on: :member, action: :show, via: [:get, :post], constraints: { id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ }
       end
     end
   end
