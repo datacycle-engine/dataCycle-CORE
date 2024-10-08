@@ -40,6 +40,22 @@ module DataCycleCore
             location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['longitude'].present? && data_hash['latitude'].present? && !(data_hash['longitude'].zero? && data_hash['latitude'].zero?)
             data_hash.nil? ? { 'location' => location.presence } : data_hash.merge({ 'location' => location.presence })
           end
+
+          def self.geom_from_binary(data_hash)
+            return data_hash if data_hash&.dig('geom').blank?
+
+            geom = data_hash['geom']
+            geom = geom.data if geom.is_a?(BSON::Binary)
+            factory = RGeo::Geographic.simple_mercator_factory(
+              uses_lenient_assertions: true,
+              srid: 4326,
+              has_z_coordinate: true,
+              wkt_parser: { support_wkt12: true },
+              wkt_generator: { convert_case: :upper, tag_format: :wkt12 }
+            )
+
+            data_hash.merge({ 'geom' => RGeo::WKRep::WKBParser.new(factory).parse(geom) })
+          end
         end
       end
     end
