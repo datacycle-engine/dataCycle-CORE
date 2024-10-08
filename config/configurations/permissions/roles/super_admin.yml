@@ -283,4 +283,3 @@ translate_feature_api:
   segment: SubjectByConditions
   parameters:
     - - DataCycleCore::Feature::Translate
-      - Datacycle::Feature::Translate::Base
