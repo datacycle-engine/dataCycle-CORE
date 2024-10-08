@@ -6,6 +6,7 @@ Appsignal.configure do |config|
     'DataCycleCore::Error::Api::InvalidArgumentError',
     'ActionController::BadRequest',
     'ActiveRecord::RecordNotFound',
-    'ActionController::RoutingError'
+    'ActionController::RoutingError',
+    'Rack::QueryParser::InvalidParameterError'
   ]).uniq
 end
