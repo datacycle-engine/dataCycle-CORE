@@ -119,15 +119,6 @@ module DataCycleCore
       end
     end
 
-    def self.[](key)
-      key = key.classify
-
-      return Module.const_get("Datacycle::Feature::#{key}::Base") if Module.const_defined?("Datacycle::Feature::#{key}::Base")
-      return Module.const_get("DataCycleCore::Feature::#{key}") if Module.const_defined?("DataCycleCore::Feature::#{key}")
-
-      nil # feature (gem) not included
-    end
-
     FeatureBaseModel = Struct.new(:klass) do
       def human(**)
         I18n.t("activerecord.models.#{klass.feature_path}", **)
