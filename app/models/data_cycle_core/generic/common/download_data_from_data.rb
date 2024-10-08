@@ -42,21 +42,32 @@ module DataCycleCore
           project_filter_stage = {
             'data' => ['$dump', locale, data_path].compact_blank.join('.')
           }
-          additional_data_paths.each do |attr|
-            project_filter_stage[attr[:name]] = ['$dump', locale, attr[:path]].compact_blank.join('.')
+
+          additional_paths = {}
+
+          if additional_data_paths.is_a?(Array)
+            additional_data_paths.each do |attr|
+              additional_paths[attr[:name].to_s] = ['$dump', locale, attr[:path]].compact_blank.join('.')
+            end
+          elsif additional_data_paths.is_a?(Hash)
+            additional_data_paths.each do |name, path|
+              additional_paths[name.to_s] = ['$dump', locale, path].compact_blank.join('.')
+            end
           end
+
+          project_filter_stage.merge!(additional_paths)
 
           id_fallback_fields = [
             ['$data', data_id_path].compact_blank.join('.'),
             ['$data', data_name_path].compact_blank.join('.')
-          ] + additional_data_paths.map { |attr| "$data.#{attr[:path]}" }
+          ] + additional_paths.values
 
           add_fields_stage = {
             'data.id' => { '$ifNull' => id_fallback_fields},
             'data.name' => ['$data', data_name_path].compact_blank.join('.')
           }
-          additional_data_paths.each do |attr|
-            add_fields_stage["data.#{attr[:name]}"] = "$#{attr[:name]}"
+          additional_paths.each_key do |name|
+            add_fields_stage["data.#{name}"] = "$#{name}"
           end
 
           group_stage = {
