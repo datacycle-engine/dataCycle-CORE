@@ -386,7 +386,6 @@
 
 :copy_embedded_locale:
   :enabled: false
-  :only_config: true
 
 :view_mode:
   :enabled: true
@@ -401,7 +400,6 @@
 
 :translatable:
   :enabled: true
-  :only_config: true
 
 :user_confirmation:
   :enabled: false
@@ -420,7 +418,6 @@
 
 :tile_border_color:
   :enabled: false
-  :only_config: true
   # :tree_label: Eyebase - Status
 
 :collection_group:

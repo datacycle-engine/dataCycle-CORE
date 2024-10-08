@@ -20,7 +20,7 @@
           data-id="<%= split_source.id %>"
           data-available-locales="<%= split_source.available_locales.to_json %>"
           data-embed-locale="<%= DataCycleCore.features.dig(:copy_embedded_locale, :enabled) %>"
-          data-enable-translate-buttons="<%= DataCycleCore::Feature::Translate.allowed?(content, @locale, I18n.locale, current_user) %>"
+          data-enable-translate-buttons="<%= DataCycleCore::Feature['Translate']&.allowed?(content, @locale, I18n.locale, current_user) %>"
           data-copy-all-translations="<%= split_source.translatable? && content.translatable? && I18n.available_locales&.many? %>">
           <%= hidden_field_tag 'splitview', true %>
 

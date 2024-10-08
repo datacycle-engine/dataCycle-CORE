@@ -5,9 +5,9 @@ module DataCycleCore
     def embedded_attribute_value(content, object, key, definition, locale, translate)
       return I18n.with_locale(locale) { object.default_value(key.attribute_name_from_key, current_user, {}) } if object.new_record? && !object.generic_template?
 
-      if translate && definition['type'] == 'string' && DataCycleCore::Feature::Translate.allowed?(content, I18n.locale, locale, current_user)
+      if translate && definition['type'] == 'string' && DataCycleCore::Feature['Translate']&.allowed?(content, I18n.locale, locale, current_user)
         source_locale = locale || object.first_available_locale
-        translated_text = DataCycleCore::Feature::Translate.translate_text({
+        translated_text = DataCycleCore::Feature['Translate'].translate_text({
           'text' => I18n.with_locale(source_locale) { object.try(key.to_sym) },
           'source_locale' => source_locale.to_s,
           'target_locale' => I18n.locale.to_s

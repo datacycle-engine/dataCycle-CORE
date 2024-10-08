@@ -281,4 +281,6 @@ download_user_info_activity:
 translate_feature_api:
   actions: api_translate_text
   segment: SubjectByConditions
-  parameters: DataCycleCore::Feature::Translate
+  parameters:
+    - - DataCycleCore::Feature::Translate
+      - Datacycle::Feature::Translate::Base

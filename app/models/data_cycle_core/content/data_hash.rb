@@ -9,9 +9,9 @@ module DataCycleCore
       define_model_callbacks :created_data_hash, only: :after
       define_model_callbacks :destroyed_data_hash, only: :after
 
-      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
-        prepend feature.data_hash_module if feature.enabled? && feature.data_hash_module
+      DataCycleCore.features.each_key do |key|
+        feature = DataCycleCore::Feature[key]
+        prepend feature.data_hash_module if feature&.enabled? && feature&.data_hash_module
       end
 
       include CreateHistory

@@ -56,9 +56,9 @@ module DataCycleCore
       prepend Extensions::Translation
       prepend Extensions::Geo
 
-      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
-        include feature.content_module if feature.enabled? && feature.content_module
+      DataCycleCore.features.each_key do |key|
+        feature = DataCycleCore::Feature[key]
+        include feature.content_module if feature&.enabled? && feature&.content_module
       end
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }

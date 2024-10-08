@@ -8,7 +8,7 @@ module DataCycleCore
         VALIDATE_PARAMS_CONTRACT = DataCycleCore::MasterData::Contracts::ApiTranslationContract
 
         def translate_text
-          authorize! :api_translate_text, DataCycleCore::Feature::Translate
+          authorize! :api_translate_text, DataCycleCore::Feature['Translate']
 
           translate_params = permitted_params.slice(*TRANSLATE_PARAMS)
 
@@ -18,7 +18,7 @@ module DataCycleCore
 
           render json: { error: errors }, status: :bad_request and return if errors.present?
 
-          translated_text = DataCycleCore::Feature::Translate.translate_text(translate_params.to_h)
+          translated_text = DataCycleCore::Feature['Translate'].translate_text(translate_params.to_h)
 
           render json: { error: translated_text.error } and return if translated_text.try(:error).present?
 
@@ -38,8 +38,8 @@ module DataCycleCore
         def check_params(translate_params)
           errors = []
           errors << 'Source and target locale should be different' if translate_params[:source_locale] == translate_params[:target_locale] && [translate_params[:source_locale], translate_params[:target_locale]].all?(&:present?)
-          errors << 'Source locale not found in available locales' if translate_params[:source_locale].present? && DataCycleCore::Feature::Translate.allowed_languages.exclude?(translate_params[:source_locale])
-          errors << 'Target locale not found in available locales' if translate_params[:target_locale].present? && DataCycleCore::Feature::Translate.allowed_languages.exclude?(translate_params[:target_locale])
+          errors << 'Source locale not found in available locales' if translate_params[:source_locale].present? && DataCycleCore::Feature['Translate']&.allowed_languages&.exclude?(translate_params[:source_locale])
+          errors << 'Target locale not found in available locales' if translate_params[:target_locale].present? && DataCycleCore::Feature['Translate']&.allowed_languages&.exclude?(translate_params[:target_locale])
           errors
         end
       end

@@ -9,9 +9,9 @@ module DataCycleCore
     before_action :set_watch_list, except: [:asset]
     before_action :set_return_to, only: [:show, :edit]
 
-    DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-      feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
-      include feature.controller_module if feature.enabled? && feature.controller_module
+    DataCycleCore.features.each_key do |key|
+      feature = DataCycleCore::Feature[key]
+      include feature.controller_module if feature&.enabled? && feature&.controller_module
     end
 
     load_and_authorize_resource only: [:index, :show, :destroy]
