@@ -8,6 +8,7 @@ module DataCycleCore
           @content = content
           @error = { error: {}, warning: {}, result: {} }
           @template_key = template_key || 'oembed'
+          @providers = { }
           validate(data, template, strict)
         end
 
@@ -58,7 +59,7 @@ module DataCycleCore
 
           oembed_url = nil
 
-          providers = Rails.cache.fetch(DataCycleCore.oembed_providers['base_json'], expires_in: 1.week) do
+          base_providers = Rails.cache.fetch(DataCycleCore.oembed_providers['base_json'], expires_in: 1.week) do
             url = URI.parse(DataCycleCore.oembed_providers['base_json'])
 
             begin
@@ -72,22 +73,9 @@ module DataCycleCore
           end
 
           additional_providers = DataCycleCore.oembed_providers['oembed_providers']&.index_by { |provider| provider['provider_url'] } || {}
-          oembed_providers_map = providers.merge(additional_providers)
+          @providers = (@providers || base_providers).merge(additional_providers)
 
-          oembed_providers = oembed_providers_map.values
-          selected = oembed_providers.select do |provider|
-            provider['endpoints'].any? do |endpoint|
-              next false if endpoint.dig('schemes').blank?
-
-              next if endpoint['formats'].present? && endpoint['formats'].exclude?('json')
-
-              hit = endpoint['schemes'].any? do |scheme|
-                Regexp.new('^' + Regexp.escape(scheme).gsub('\\*', '.*') + '$').match?(data)
-              end
-              provider['oembed_url'] = endpoint['url'] if hit
-              hit
-            end
-          end
+          selected = select_provider(@providers.values, data)
 
           if selected.count.zero?
             (@error[:error][@template_key] ||= []) << {
@@ -137,22 +125,25 @@ module DataCycleCore
           success = false
           error_path = ''
 
+          dc_host = "#{Rails.application.config.action_mailer.default_url_options.dig(:protocol)}://#{Rails.application.config.action_mailer.default_url_options.dig(:host)}"
+
           @error ||= { error: {}, warning: {}, result: {} }
           thing = DataCycleCore::Thing.where(id: thing_id).first
-          thing_template = DataCycleCore::ThingTemplate.find_by(template_name: thing.template_name) if thing.present?
-          oembed_feature = thing_template.schema.dig('features', 'oembed') if thing_template.present?
-          oembed_output = oembed_feature.dig('output') if oembed_feature.present?
 
-          error_path = 'validation.errors.oembed_thing_not_found' if thing_id.blank? || thing.blank? || oembed_feature.blank? || oembed_feature.dig('allowed') != true
+          provider = select_provider(@providers.values, "#{dc_host}/things/#{thing_id}")&.first
+          oembed_output = provider.dig('output').select { |o| o['template_names']&.include?(thing.template_name) }&.first if provider.present?
 
-          if oembed_feature.present? && oembed_output.present? && oembed_output.dig('type').present? && oembed_output.dig('version').present?
+          error_path = 'validation.errors.oembed_thing_not_found' if thing_id.blank? || thing.blank? || provider.blank?
+
+          if provider.present? && oembed_output.present? && oembed_output.dig('type').present? && oembed_output.dig('version').present?
 
             oembed = {
-              provider_name: thing.external_source.presence&.name || Rails.application.config.session_options[:key].sub(/^_/, '').sub('_session', '') || 'dataCycle',
-              provider_url: thing.external_source.present? ? '{url}' : "#{Rails.application.config.action_mailer.default_url_options.dig(:protocol)}://#{Rails.application.config.action_mailer.default_url_options.dig(:host)}"
+              provider_name: thing.external_source.presence&.name || provider['provider_name'] || Rails.application.config.session_options[:key].sub(/^_/, '').sub('_session', '') || 'dataCycle',
+              provider_url: thing.external_source.present? ? '{url}' : (provider['provider_url'] || dc_host)
             }
 
             oembed_output.each do |k, v|
+              next if k == 'template_names'
               replaced_value = v.gsub(/\{([^}]+)}/) do
                 s = ::Regexp.last_match(1).split('|').map(&:strip).find do |key|
                   thing.present? ? ((thing.respond_to?(key) && thing.send(key).present?) || key.match(/^val:/)) : false
@@ -210,6 +201,22 @@ module DataCycleCore
               path: error_path
             }
             { error: @error, success:, oembed_url: nil, requested_thing_id: thing_id }
+          end
+        end
+
+        def self.select_provider(oembed_providers, data)
+          oembed_providers.select do |provider|
+            provider['endpoints'].any? do |endpoint|
+              next false if endpoint.dig('schemes').blank?
+
+              next if endpoint['formats'].present? && endpoint['formats'].exclude?('json')
+
+              hit = endpoint['schemes'].any? do |scheme|
+                Regexp.new('^' + Regexp.escape(scheme).gsub('\\*', '.*') + '$').match?(data)
+              end
+              provider['oembed_url'] = endpoint['url'] if hit
+              hit
+            end
           end
         end
 

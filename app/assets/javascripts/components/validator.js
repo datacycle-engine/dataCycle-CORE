@@ -686,7 +686,7 @@ class Validator {
 
 					const warnings = values
 						.filter(Boolean)
-						.filter((v) => Object.keys(v.warnings).length);
+						.filter((v) => v.warnings ? Object.keys(v.warnings).length : 0);
 					if (warnings.length) Object.assign(data, { warnings: warnings });
 
 					this.submitForm(data);
