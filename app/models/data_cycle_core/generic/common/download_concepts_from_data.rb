@@ -23,11 +23,13 @@ module DataCycleCore
           concept_id = options.dig(:download, :concept_id_path) || concept_name
           concept_parent_id = options.dig(:download, :concept_parent_id_path) || 'parent_id'
           priority = options.dig(:download, :priority) || 5
+          concept_uri = options.dig(:download, :concept_uri_path) || 'uri'
 
           concept_path = options.dig(:download, :concept_path) || ''
           concept_id_path = [concept_path, concept_id].compact_blank.join('.')
           concept_name_path = [concept_path, concept_name].compact_blank.join('.')
           concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
+          concept_uri_path = [concept_path, concept_uri].compact_blank.join('.')
           match_path = ['dump', locale, concept_id_path].compact_blank.join('.')
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
@@ -43,6 +45,7 @@ module DataCycleCore
                     'data.id' => ['$dump', locale, concept_id_path].compact_blank.join('.'),
                     'data.name' => ['$dump', locale, concept_name_path].compact_blank.join('.'),
                     'data.parent_id' => ['$dump', locale, concept_parent_id_path].compact_blank.join('.'),
+                    'data.uri' => ['$dump', locale, concept_uri_path].compact_blank.join('.'),
                     'data.priority' => priority
                   }
                 }, {
