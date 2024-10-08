@@ -56,17 +56,5 @@ module DataCycleCore
         type: content_type
       )
     end
-
-    def send_blob_stream(blob, disposition: nil)
-      send_stream(
-        filename: blob.filename.sanitized,
-        disposition: blob.forced_disposition_for_serving || disposition || DEFAULT_BLOB_STREAMING_DISPOSITION,
-        type: blob.content_type_for_serving
-      ) do |stream|
-        blob.download do |chunk|
-          stream.write chunk
-        end
-      end
-    end
   end
 end
