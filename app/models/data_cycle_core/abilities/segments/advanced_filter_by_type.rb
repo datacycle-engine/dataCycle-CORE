@@ -32,12 +32,16 @@ module DataCycleCore
         end
 
         def geo_filter_type(data, *_args)
+          type = __method__
+          allowed_types_transformed = allowed_types.dig(type.to_s).presence || allowed_types.dig(type.to_s.sub('_type', ''))
           case data.dig(:data, :advancedType)
           when 'geo_radius'
-            allowed_types.dig(__method__.to_s, 'geo_radius')
+            allowed_types_transformed.dig('geo_radius')
           when 'geo_within_classification'
-            Array.wrap(allowed_types.dig(__method__.to_s, 'geo_within_classification'))
+            Array.wrap(allowed_types_transformed.dig('geo_within_classification'))
               .include?(data.dig(:data, :name))
+          else
+            false
           end
         end
 
@@ -50,9 +54,9 @@ module DataCycleCore
         end
 
         def default_type(type, data, *_args, key: :advancedType)
-          return true if allowed_types.dig(type.to_s) == 'all' || allowed_types.dig(type.to_s) == true
-
-          Array.wrap(allowed_types.dig(type.to_s)).include?(data.dig(:data, key))
+          allowed_types_transformed = allowed_types.dig(type.to_s).presence || allowed_types.dig(type.to_s.sub('_type', ''))
+          return true if ['all', true].include?(allowed_types_transformed)
+          Array.wrap(allowed_types_transformed).include?(data.dig(:data, key))
         end
       end
     end
