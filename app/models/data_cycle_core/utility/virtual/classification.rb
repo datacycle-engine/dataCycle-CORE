@@ -35,6 +35,12 @@ module DataCycleCore
             aliases&.map { |ca| ca.send(key) || ca.internal_name }
           end
 
+          # example config:
+          # :virtual:
+          #   :module: Classification
+          #   :method: value_by_concept_scheme
+          #   :key: uri
+          #   :concept_scheme: Lizenzen
           def value_by_concept_scheme(content:, virtual_definition:, **_args)
             concept_scheme = virtual_definition.dig('virtual', 'concept_scheme')
             return if concept_scheme.blank?
