@@ -4,6 +4,10 @@ module DataCycleCore
   module FilterConcern
     extend ActiveSupport::Concern
     DEFAULT_PAGE_SIZE = 25
+    PAGE_PARAMS_SCHEMA = Dry::Schema.Params do
+      optional(:page).filled(:integer)
+      optional(:tree_page).filled(:integer)
+    end
 
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       @stored_filter ||= DataCycleCore::StoredFilter.new
@@ -79,7 +83,7 @@ module DataCycleCore
           @contents = get_filtered_results(query:, user_filter:)
             .part_of(@container.id)
           tmp_count = @contents.count
-          @contents = @contents.content_includes.page(params[:page])
+          @contents = @contents.content_includes.page(page_params[:page])
           ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
           @page = @contents.current_page
@@ -92,11 +96,11 @@ module DataCycleCore
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('classification_aliases.order_a')
-            .page(params[:tree_page])
+            .page(page_params[:tree_page])
           @contents = get_filtered_results(query:, user_filter:)
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count
-          @contents = @contents.content_includes.page(params[:page])
+          @contents = @contents.content_includes.page(page_params[:page])
           ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
           @page = @contents.current_page
@@ -110,7 +114,7 @@ module DataCycleCore
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('classification_aliases.order_a')
-            .page(params[:tree_page])
+            .page(page_params[:tree_page])
           get_filtered_results(query:, user_filter:) # set default parameters for filters
         end
 
@@ -119,7 +123,7 @@ module DataCycleCore
       else
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query:, user_filter:, watch_list:)
-        @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
+        @contents = @contents.content_includes.page(page_params[:page]).per(page_size).without_count
         ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
       end
     end
@@ -225,6 +229,10 @@ module DataCycleCore
 
     def load_previous_page
       redirect_to(session.delete(:return_to)) && return
+    end
+
+    def page_params
+      params_for(PAGE_PARAMS_SCHEMA)
     end
   end
 end
