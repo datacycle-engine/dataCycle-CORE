@@ -50,6 +50,21 @@ module DataCycleCore
             content.full_classification_aliases.for_tree(concept_scheme).pick(key)
           end
 
+          # example config:
+          # :virtual:
+          #   :module: Classification
+          #   :method: values_by_concept_scheme
+          #   :key: uri
+          #   :concept_scheme: Lizenzen
+          def values_by_concept_scheme(content:, virtual_definition:, **_args)
+            concept_scheme = virtual_definition.dig('virtual', 'concept_scheme')
+            return if concept_scheme.blank?
+
+            key = virtual_definition.dig(:virtual, :key).presence || 'internal_name'
+
+            content.full_classification_aliases.for_tree(concept_scheme).pluck(key)
+          end
+
           def to_mapped_value(virtual_parameters:, content:, virtual_definition:, **_args)
             values = virtual_parameters&.map { |v| content.try(v)&.pluck(:name) }&.flatten&.map { |v| virtual_definition.dig('virtual', 'mapping', v) }
 
