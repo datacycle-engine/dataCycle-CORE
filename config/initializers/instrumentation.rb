@@ -32,7 +32,7 @@ ActiveSupport::Notifications.subscribe('instrumentation_logging.datacycle') do |
 end
 
 ActiveSupport::Notifications.subscribe(/.*job_failed.datacycle/) do |_name, _started, _finished, _unique_id, data|
-  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'download') do |logger|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: data&.dig(:type) || 'download') do |logger|
     logger.dc_log(:error, data)
   end
 end

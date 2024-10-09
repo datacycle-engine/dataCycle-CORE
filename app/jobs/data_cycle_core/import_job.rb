@@ -41,36 +41,39 @@ module DataCycleCore
 
       pid = Process.fork do
         external_system = ExternalSystem.find(uuid)
+        type = delayed_reference_type.start_with?('download') ? 'download' : 'import'
 
         if block_given?
           yield(external_system)
         else
           if external_system.config.key?('download_config')
+            type = 'download'
             success = external_system.download(options)
           else
             success = true
           end
 
+          type = 'import'
           external_system.import(options) if success
         end
       rescue StandardError => e
         ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", {
           exception: e,
-          external_system:
+          external_system:,
+          type:
         }
         external_system.data ||= {}
         external_system.data["last_#{delayed_reference_type}_failed"] = true
         external_system.data["last_#{delayed_reference_type}_exception"] = {
           'message' => "#{e.message} (#{Time.zone.now})",
           'backtrace' => e.backtrace,
-          'class' => e.class.to_s
+          'class' => e.class.to_s,
+          'type' => type
         }
         external_system.save!
       end
 
       Process.waitpid(pid)
-
-      ActiveRecord::Base.establish_connection
 
       external_system = ExternalSystem.find(uuid)
 
