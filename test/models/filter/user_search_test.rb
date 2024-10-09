@@ -40,6 +40,49 @@ module DataCycleCore
       assert_equal(1, items.count)
     end
 
+    test 'filter contents based on any creator as user' do
+      items = DataCycleCore::Filter::Search.new(:de).exists_user(nil, 'creator')
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).not_exists_user(nil, 'creator')
+      assert_equal(0, items.count)
+    end
+
+    test 'filter contents based on any editor as user' do
+      items = DataCycleCore::Filter::Search.new(:de).exists_user(nil, 'editor')
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).not_exists_user(nil, 'editor')
+      assert_equal(0, items.count)
+    end
+
+    test 'filter contents based on like creator as user' do
+      items = DataCycleCore::Filter::Search.new(:de).like_user({ 'text' => 't1@t.at' }, 'creator')
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).not_like_user({ 'text' => 't1@t.at' }, 'creator')
+      assert_equal(0, items.count)
+    end
+
+    test 'filter contents based on like editor as user' do
+      items = DataCycleCore::Filter::Search.new(:de).like_user({ 'text' => 't1@t.at' }, 'editor')
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).not_like_user({ 'text' => 't1@t.at' }, 'editor')
+      assert_equal(0, items.count)
+    end
+
+    test 'filter contents based on like last_editor as user' do
+      items = DataCycleCore::Filter::Search.new(:de).like_user({ 'text' => 't1@t.at' }, 'last_editor')
+      assert_equal(1, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).like_user({ 'text' => 't.at' }, 'last_editor')
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).not_like_user({ 'text' => 't1@t.at' }, 'last_editor')
+      assert_equal(2, items.count)
+    end
+
     private
 
     def create_content(template_name, data = {})

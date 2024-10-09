@@ -1041,6 +1041,11 @@ de:
     max_altitude: Maximale Seehöhe (m)
     length: Länge (m)
     aggregate_filter: Aggregatstyp
+    user:
+      exists: ist Benutzer
+      not_exists: ist System
+      like: E-Mail enthält
+      not_like: E-Mail enthält nicht
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...

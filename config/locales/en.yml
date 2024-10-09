@@ -872,6 +872,7 @@ en:
     update_subject: Shared content collection has been updated
     notice: Note
     from: "%{from}"
+
   filter:
     add: Add filter
     language: Language
@@ -997,6 +998,11 @@ en:
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
     aggregate_filter: Aggregate type
+    user:
+      exists: is user
+      not_exists: is system
+      like: email contains
+      not_like: email does not contain
 
   filter_groups:
     classification_alias_ids: filter by classifications ...

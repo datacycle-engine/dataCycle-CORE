@@ -4,10 +4,69 @@ module DataCycleCore
   module Filter
     module Common
       module User
+        KEY_MAPPING = {
+          'creator' => :created_by,
+          'last_editor' => :updated_by
+        }.freeze
+
         def user(ids = nil, type = nil)
           return self if type.blank?
 
           send(type, ids)
+        end
+
+        def exists_user(_ids = nil, type = nil)
+          return self if type.blank?
+
+          key = KEY_MAPPING[type.to_s]&.to_sym
+          return exists_editor if key.blank?
+
+          reflect(
+            @query.where(thing[key].not_eq(nil))
+          )
+        end
+
+        def not_exists_user(_ids = nil, type = nil)
+          return self if type.blank?
+
+          key = KEY_MAPPING[type.to_s]&.to_sym
+          return not_exists_editor if key.blank?
+
+          reflect(
+            @query.where(thing[key].eq(nil))
+          )
+        end
+
+        def like_user(value = nil, type = nil)
+          return self if value&.dig('text').blank? || type.blank?
+
+          key = KEY_MAPPING[type.to_s]&.to_sym
+          return like_editor(value) if key.blank?
+
+          sub_query = DataCycleCore::User
+            .select(1)
+            .where(thing[key].eq(user_table[:id]))
+            .where(user_table[:email].matches("%#{value.dig('text')}"))
+            .arel
+            .exists
+
+          reflect(@query.where(sub_query))
+        end
+
+        def not_like_user(value = nil, type = nil)
+          return self if value&.dig('text').blank? || type.blank?
+
+          key = KEY_MAPPING[type.to_s]&.to_sym
+          return not_like_editor(value) if key.blank?
+
+          sub_query = DataCycleCore::User
+            .select(1)
+            .where(thing[key].eq(user_table[:id]))
+            .where(user_table[:email].matches("%#{value.dig('text')}"))
+            .arel
+            .exists
+
+          reflect(@query.where.not(sub_query))
         end
 
         def not_user(ids = nil, type = nil)
@@ -51,22 +110,158 @@ module DataCycleCore
         def editor(ids = nil)
           return self if ids.blank?
 
-          thing_query = DataCycleCore::Thing.where(updated_by: ids).select(:id).arel
-          thing_history_query = DataCycleCore::Thing::History.where(updated_by: ids).select(:thing_id).arel
+          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          thing_query = thing
+            .project(1)
+            .from(thing_alias)
+            .where(thing_alias[:id].eq(thing[:id]))
+            .where(thing_alias[:updated_by].in(ids))
+          thing_history_query = thing_history_table
+            .project(1)
+            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:updated_by].in(ids))
 
           reflect(
-            @query.where(thing[:id].in(Arel::Nodes::UnionAll.new(thing_query, thing_history_query)))
+            @query.where(
+              Arel::Nodes::Exists.new(
+                Arel::Nodes::UnionAll.new(thing_query, thing_history_query)
+              )
+            )
           )
         end
 
         def not_editor(ids = nil)
           return self if ids.blank?
 
-          thing_query = DataCycleCore::Thing.where(updated_by: ids).select(:id).arel
-          thing_history_query = DataCycleCore::Thing::History.where(updated_by: ids).select(:thing_id).arel
+          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          thing_query = thing
+            .project(1)
+            .from(thing_alias)
+            .where(thing_alias[:id].eq(thing[:id]))
+            .where(thing_alias[:updated_by].in(ids))
+          thing_history_query = thing_history_table
+            .project(1)
+            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:updated_by].in(ids))
 
           reflect(
-            @query.where.not(thing[:id].in(Arel::Nodes::UnionAll.new(thing_query, thing_history_query)))
+            @query.where.not(
+              Arel::Nodes::Exists.new(
+                Arel::Nodes::UnionAll.new(thing_query, thing_history_query)
+              )
+            )
+          )
+        end
+
+        def exists_editor
+          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          thing_query = thing
+            .project(1)
+            .from(thing_alias)
+            .where(thing_alias[:id].eq(thing[:id]))
+            .where(thing_alias[:updated_by].not_eq(nil))
+          thing_history_query = thing_history_table
+            .project(1)
+            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:updated_by].not_eq(nil))
+
+          reflect(
+            @query.where(
+              Arel::Nodes::Exists.new(
+                Arel::Nodes::UnionAll.new(thing_query, thing_history_query)
+              )
+            )
+          )
+        end
+
+        def not_exists_editor
+          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          thing_query = thing
+            .project(1)
+            .from(thing_alias)
+            .where(thing_alias[:id].eq(thing[:id]))
+            .where(thing_alias[:updated_by].eq(nil))
+          thing_history_query = thing_history_table
+            .project(1)
+            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:updated_by].eq(nil))
+
+          reflect(
+            @query.where(
+              Arel::Nodes::Exists.new(
+                Arel::Nodes::UnionAll.new(thing_query, thing_history_query)
+              )
+            )
+          )
+        end
+
+        def like_editor(value = nil)
+          return self if value&.dig('text').blank?
+
+          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          thing_query = thing
+            .project(1)
+            .from(thing_alias)
+            .where(thing_alias[:id].eq(thing[:id]))
+            .where(
+              user_table
+                .project(1)
+                .where(thing_alias[:updated_by].eq(user_table[:id]))
+                .where(user_table[:email].matches("%#{value.dig('text')}"))
+                .exists
+            )
+          thing_history_query = thing_history_table
+            .project(1)
+            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(
+              user_table
+                .project(1)
+                .where(thing_history_table[:updated_by].eq(user_table[:id]))
+                .where(user_table[:email].matches("%#{value.dig('text')}"))
+                .exists
+            )
+
+          reflect(
+            @query.where(
+              Arel::Nodes::Exists.new(
+                Arel::Nodes::UnionAll.new(thing_query, thing_history_query)
+              )
+            )
+          )
+        end
+
+        def not_like_editor(value = nil)
+          return self if value&.dig('text').blank?
+
+          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          thing_query = thing
+            .project(1)
+            .from(thing_alias)
+            .where(thing_alias[:id].eq(thing[:id]))
+            .where(
+              user_table
+                .project(1)
+                .where(thing_alias[:updated_by].eq(user_table[:id]))
+                .where(user_table[:email].matches("%#{value.dig('text')}"))
+                .exists
+            )
+          thing_history_query = thing_history_table
+            .project(1)
+            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(
+              user_table
+                .project(1)
+                .where(thing_history_table[:updated_by].eq(user_table[:id]))
+                .where(user_table[:email].matches("%#{value.dig('text')}"))
+                .exists
+            )
+
+          reflect(
+            @query.where.not(
+              Arel::Nodes::Exists.new(
+                Arel::Nodes::UnionAll.new(thing_query, thing_history_query)
+              )
+            )
           )
         end
 

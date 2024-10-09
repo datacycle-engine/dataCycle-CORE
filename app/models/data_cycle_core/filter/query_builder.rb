@@ -301,6 +301,10 @@ module DataCycleCore
         DataCycleCore::Thing.arel_table
       end
 
+      def thing_history_table
+        DataCycleCore::Thing::History.arel_table
+      end
+
       def thing_translations
         DataCycleCore::Thing::Translation.arel_table
       end
@@ -327,6 +331,14 @@ module DataCycleCore
 
       def pg_dict_mapping
         DataCycleCore::PgDictMapping.arel_table
+      end
+
+      def user_table
+        DataCycleCore::User.arel_table
+      end
+
+      def ccc_table
+        DataCycleCore::CollectedClassificationContent.arel_table
       end
 
       def search_exists(query_string, fulltext_search = false)

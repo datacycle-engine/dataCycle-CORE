@@ -1,4 +1,4 @@
-<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+<div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
   <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] || :user %>
   <%= hidden_field_tag "f[#{identifier}][q]", local_assigns[:filter_advanced_type] || filter_title %>
@@ -10,17 +10,26 @@
   </div>
 
   <div class="advanced-filter-mode">
-    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.has", locale: active_ui_locale), 'i'], [t("common.has_not", locale: active_ui_locale), 'e']], filter_method) %>
+    <%= select_tag "f[#{identifier}][m]", options_for_select([
+      [t("common.has", locale: active_ui_locale), 'i'],
+      [t("common.has_not", locale: active_ui_locale), 'e'],
+      [t("filter.user.exists", locale: active_ui_locale), 'p'],
+      [t("filter.user.not_exists", locale: active_ui_locale), 'b'],
+      [t("filter.user.like", locale: active_ui_locale), 's'],
+      [t("filter.user.not_like", locale: active_ui_locale), 'u']
+      ], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{identifier}][v]",
-      options_for_select(DataCycleCore::User.with_deleted.where(id: value).map { |u| u.to_select_option(active_ui_locale, false) }.map(&:to_option_for_select), value),
+      filter_method.in?(['i', 'e']) ? options_for_select(DataCycleCore::User.with_deleted.where(id: value).map { |u| u.to_select_option(active_ui_locale, false) }.map(&:to_option_for_select), value) : nil,
       {
         multiple: true,
         class: 'async-select',
+        disabled: !filter_method.in?(['i', 'e']),
         data: {
-          initial_focus: true,
+          initial_focus: filter_method.in?(['i', 'e']),
+          active_for: ['i', 'e'],
           max: 20,
           placeholder: '',
           search_path: search_users_path,
@@ -29,6 +38,12 @@
           }
         }
       }) %>
+    <%= hidden_field_tag "f[#{identifier}][v][helper]", 'true', disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
+    <%= text_field_tag "f[#{identifier}][v][text]",
+        value.is_a?(Hash) ? value&.dig('text') : nil,
+        class:"filter-text #{'hidden' unless ['s', 'u'].include?(filter_method)}",
+        disabled: ['s', 'u'].exclude?(filter_method),
+        data: { initial_focus: filter_method.in?(['s', 'u']), active_for: ['s', 'u'] } %>
   </div>
 
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>

@@ -124,7 +124,7 @@ module DataCycleCore
 
           query = query.where(direct: true) if direct
 
-          Arel::Nodes::Exists.new(query.arel)
+          query.arel.exists
         end
 
         def sub_query_for_tree_label_ids(ids, direct = false)
@@ -135,7 +135,7 @@ module DataCycleCore
 
           query = query.where(direct: true) if direct
 
-          Arel::Nodes::Exists.new(query.arel)
+          query.arel.exists
         end
       end
     end
