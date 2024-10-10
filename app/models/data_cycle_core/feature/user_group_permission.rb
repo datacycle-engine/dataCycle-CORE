@@ -36,10 +36,8 @@ module DataCycleCore
           return if details.nil? || details['actions'].nil?
 
           actions = details['actions']
-          templates = details['parameters'].present? && details['parameters'].size.positive? ? Array.wrap(details['parameters']) : []
 
           subject_name = DataCycleCore::Thing.model_name.human(count: 1, locale: active_ui_locale)
-          subject_name = "#{subject_name} (#{templates.join(', ')})" if templates.present?
           action_names = actions.map { |action| I18n.t("abilities.actions.#{action}", locale: active_ui_locale) }.join(', ')
 
           display_name = "#{subject_name} > #{action_names}"
