@@ -45,7 +45,7 @@ module DataCycleCore
           if type == 'all'
             reflect(
               @query.where(
-                external_system_sync.where(
+                external_system_sync.project(1).where(
                   external_system_sync[:external_system_id].in(ids)
                     .and(external_system_sync[:syncable_id].eq(thing[:id]))
                 ).exists
@@ -55,7 +55,7 @@ module DataCycleCore
           else
             reflect(
               @query.where(
-                external_system_sync
+                external_system_sync.project(1)
                   .where(
                     external_system_sync[:external_system_id].in(ids)
                       .and(external_system_sync[:syncable_id].eq(thing[:id]))
@@ -74,7 +74,7 @@ module DataCycleCore
           if type == 'all'
             reflect(
               @query.where(
-                external_system_sync.where(
+                external_system_sync.project(1).where(
                   external_system_sync[:external_system_id].in(ids)
                     .and(external_system_sync[:syncable_id].eq(thing[:id]))
                 ).exists.not
@@ -84,7 +84,7 @@ module DataCycleCore
           else
             reflect(
               @query.where(
-                external_system_sync
+                external_system_sync.project(1)
                   .where(
                     external_system_sync[:external_system_id].in(ids)
                     .and(external_system_sync[:syncable_id].eq(thing[:id]))
