@@ -3835,6 +3835,13 @@ CREATE UNIQUE INDEX user_group_users_on_user_id_user_group_id ON public.user_gro
 
 
 --
+-- Name: user_groups_permissions_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX user_groups_permissions_idx ON public.user_groups USING gin (permissions);
+
+
+--
 -- Name: validity_period_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5083,6 +5090,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240808131247'),
 ('20240910113418'),
 ('20240918082045'),
-('20240923094558');
+('20240923094558'),
+('20241010065335');
 
 

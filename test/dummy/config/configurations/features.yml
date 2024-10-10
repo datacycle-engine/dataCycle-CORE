@@ -162,21 +162,14 @@
 
 :user_group_permission:
   :enabled: false
-  :default_role: 'all'
+  :default_role: "all"
   :abilities:
     test_permission_1:
       actions:
         - set_life_cycle
     test_permission_2:
       actions:
-        - set_life_cycle
-      parameters:
-        - POI
-    test_permission_3:
-      actions:
-        - set_life_cycle
-      parameters:
-        - POI
+        - merge_duplicates
 
 :preview:
   :enabled: true

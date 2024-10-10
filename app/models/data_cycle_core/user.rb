@@ -335,6 +335,12 @@ module DataCycleCore
       update(attributes_hash)
     end
 
+    def reload(options = nil)
+      remove_instance_variable(:@ability) if instance_variable_defined?(:@ability)
+
+      super(options)
+    end
+
     private
 
     def set_default_role

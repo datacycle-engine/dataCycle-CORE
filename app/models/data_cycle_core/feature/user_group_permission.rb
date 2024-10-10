@@ -30,6 +30,14 @@ module DataCycleCore
           role.to_sym
         end
 
+        def reload
+          super
+
+          DataCycleCore::Abilities::PermissionsList.reload
+
+          self
+        end
+
         private
 
         def create_permission_option(resource, details, active_ui_locale = 'de')

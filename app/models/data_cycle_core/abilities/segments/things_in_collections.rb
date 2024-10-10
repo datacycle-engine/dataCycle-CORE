@@ -12,14 +12,14 @@ module DataCycleCore
         end
 
         def include?(content, *_args)
-          @include ||= Hash.new do |h, key|
-            h[key] = DataCycleCore::Filter::Search.new(nil)
-              .union_filter_ids(key[1])
-              .query
-              .exists?(id: key[0])
-          end
+          ids = collection_ids
 
-          @include[[content.id, collection_ids]]
+          return false if ids.blank? # no collections with permission
+
+          DataCycleCore::Filter::Search.new(nil)
+            .union_filter_ids(ids)
+            .query
+            .exists?(id: content.id)
         end
 
         def to_proc
@@ -29,9 +29,11 @@ module DataCycleCore
         private
 
         def collection_ids
-          return @collection_ids if defined? @collection_ids
-
-          @collection_ids = DataCycleCore::UserGroup.user_groups_with_permission(@permission_key).shared_collections.pluck(:id)
+          user
+            .user_groups
+            .user_groups_with_permission(@permission_key)
+            .shared_collections
+            .pluck(:id)
         end
 
         def to_restrictions(**)
