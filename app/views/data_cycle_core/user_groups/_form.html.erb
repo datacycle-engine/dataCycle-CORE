@@ -99,7 +99,7 @@
 
         <% if DataCycleCore::Feature::UserGroupSharedCollection.enabled? %>
           <div class="form-element">
-            <%= f.label "user_group_shared_collection_ids", DataCycleCore::UserGroup.human_attribute_name(
+            <%= f.label "user_group_shared_collection_ids_", DataCycleCore::UserGroup.human_attribute_name(
               "shared_collection_ids",
               collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
               stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
@@ -111,7 +111,7 @@
               <%= hidden_field_tag 'user_group[shared_collection_ids][]' %>
               <%=
                 select_tag('user_group[shared_collection_ids][]',
-                options_from_collection_for_select(collections, "id", "name", content.shared_collection_ids),
+                options_for_select(collections.map { |c| c.to_select_option(active_ui_locale) }.map(&:to_option_for_select), content.shared_collection_ids),
                 {
                   multiple: config.key?('multiple') ? config['multiple'] : true,
                   include_blank: true,
@@ -127,10 +127,9 @@
           </div>
         <% end %>
 
-        <% # ToDo: Auswahlmöglichkeit ähnlich wie Inhaltstypen-Filter, Permissions "zusammenklicken"
-         if DataCycleCore::Feature::UserGroupPermission.enabled? %>
+        <% if DataCycleCore::Feature::UserGroupPermission.enabled? %>
           <div class="form-element">
-            <%= f.label "user_group_permissions", DataCycleCore::UserGroup.human_attribute_name(
+            <%= f.label :permissions, DataCycleCore::UserGroup.human_attribute_name(
               "permissions",
               collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
               stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),

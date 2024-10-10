@@ -152,7 +152,11 @@ module DataCycleCore
     end
 
     def has_user_group_permission?(permission_key)
-      user_groups.any? { |ug| ug.permissions&.include?(permission_key) }
+      user_groups_by_permission(permission_key).exists?
+    end
+
+    def user_groups_by_permission(permission_key)
+      user_groups.user_groups_with_permission(permission_key)
     end
 
     def locked?

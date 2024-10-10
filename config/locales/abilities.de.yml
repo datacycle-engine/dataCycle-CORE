@@ -193,7 +193,7 @@ de:
         - "Benutzer ist %{attribute_name}"
         - "Datentyp: %{template_names}"
       things_in_collections:
-        - "Enthaltene %{template_names} in %{collection_type}: %{collection_names_or_ids}"
+        - "Inhalte in %{collection_type}: %{collection_names_or_ids}"
       tree_label_by_visibility: "Sichtbarkeit: %{visibilities}"
       users_by_email_domain: "E-Mail Domain: %{domain}"
       users_by_role: "Rolle: %{roles}"

@@ -56,14 +56,12 @@ module DataCycleCore
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
       end
-      DataCycleCore::Abilities::PermissionsList.reload
+
       redirect_back(fallback_location: root_path)
     end
 
     def update
       if @user_group.update(user_group_params)
-
-        DataCycleCore::Abilities::PermissionsList.reload
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
 
@@ -94,7 +92,14 @@ module DataCycleCore
     end
 
     def user_group_params
-      params.require(:user_group).permit(:name, user_ids: [], classification_ids: [], shared_collection_ids: [], permissions: [])
+      ug_params = params.require(:user_group).permit(:name, user_ids: [], classification_ids: [], shared_collection_ids: [], permissions: [])
+
+      ug_params[:user_ids]&.compact_blank!
+      ug_params[:classification_ids]&.compact_blank!
+      ug_params[:shared_collection_ids]&.compact_blank!
+      ug_params[:permissions]&.compact_blank!
+
+      ug_params
     end
 
     def set_user_group

@@ -21,6 +21,8 @@ module DataCycleCore
                               where(search_term.to_s.split.map { |term| sanitize_sql_for_conditions(["concat_ws(' ', #{search_columns.join(', ')}) ILIKE ?", "%#{term.strip}%"]) }.join(' AND '))
                             }
 
+    scope :user_groups_with_permission, ->(key) { key.blank? ? none : where('permissions ? :key', key:) }
+
     DataCycleCore::Feature::UserGroupClassification.attribute_relations.each do |key, config|
       has_many key.to_sym, -> { for_tree(config['tree_label']) }, through: :classification_groups, source: :classification_alias
 
@@ -35,6 +37,12 @@ module DataCycleCore
       DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: select(:id) })
     end
 
+    def self.shared_collections
+      return DataCycleCore::Collection.none if all.is_a?(ActiveRecord::NullRelation)
+
+      DataCycleCore::Collection.includes(:collection_shares).where(collection_shares: { shareable: all })
+    end
+
     def self.search_columns
       columns.select { |c| c.type == :string }.map(&:name)
     end
@@ -43,11 +51,6 @@ module DataCycleCore
       return DataCycleCore::User.none if all.is_a?(ActiveRecord::NullRelation)
 
       DataCycleCore::User.where(id: joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').select('user_group_users_user_groups.user_id'))
-    end
-
-    def self.user_groups_with_permission(permission_key)
-      return [] if permission_key.blank?
-      self.select { |ug| ug&.permissions&.include?(permission_key) }
     end
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)
