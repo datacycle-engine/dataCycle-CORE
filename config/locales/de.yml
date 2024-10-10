@@ -609,11 +609,11 @@ de:
     available_widgets: Verfügbare Widgets
     widgets:
       event_list: Events - Listenansicht
-      list: Listenansicht
-      map: Kartenansicht
-      events: Events
-      gallery: Bildergalerie
-      statistics: Statistik
+      list: Collection Widget
+      map: Karten Widget
+      events: Event Widget
+      gallery: Galerie Widget
+      statistics: Statistik Widget
     user_registration:
       terms_conditions: 'Ich akzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
@@ -1198,6 +1198,7 @@ de:
     copy_data: "%{data} kopieren"
     copy_to_clipboard: In die Zwischenablage kopieren
     copy_to_clipboard_data: "%{data} in die Zwischenablage kopieren"
+    copy_link_to_x_to_clipboard: Link zu %{data} in die Zwischenablage kopieren
     copy_webdav_to_clipboard: WebDAV Link in die Zwischenablage kopieren
     copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
     copied_to_clipboard: In Zwischenablage kopiert.

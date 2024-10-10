@@ -589,10 +589,11 @@ en:
     available_widgets: Available widgets
     widgets:
       event_list: Events - List view
-      list: List view
-      map: Map view
-      gallery: Gallery view
-      statistics: Statistic
+      list: Collection Widget
+      map: Map Widget
+      events: Event Widget
+      gallery: Gallery Widget
+      statistics: Statistics Widget
     user_registration:
       terms_conditions:
         I accept the <a href="%{url}" target="_blank">general terms
@@ -1145,6 +1146,7 @@ en:
     copy_data: "copy %{data}"
     copy_to_clipboard: Copy to clipboard
     copy_to_clipboard_data: "Copy %{data} to clipboard"
+    copy_link_to_x_to_clipboard: Copy link to %{data} to clipboard
     copy_classification_alias_id_to_clipboard: Copy Classification-Alias-ID to clipboard
     copied_to_clipboard: Copied to clipboard.
     save: Save
