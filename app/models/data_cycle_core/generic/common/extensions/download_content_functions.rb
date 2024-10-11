@@ -125,7 +125,7 @@ module DataCycleCore
               source_filter = (options&.dig(:download, :source_filter) || {}).with_indifferent_access
               source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values(binding) }
               last_download = download_object.external_source.last_successful_download
-              source_filter[:updated_at] = { '$gte': last_download } if last_download.present? && FULL_MODES.exclude?(options[:mode])
+              source_filter[:updated_at] = { '$gte': last_download } if last_download.present? && FULL_MODES.exclude?(options[:mode].to_s)
 
               source_filter.deep_merge({ "dump.#{locale}.deleted_at": { '$exists': false } })
             end

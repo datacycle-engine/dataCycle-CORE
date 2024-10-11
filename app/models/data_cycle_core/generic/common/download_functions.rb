@@ -96,7 +96,7 @@ module DataCycleCore
                     item_data['delete_reason'] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                   end
 
-                  item.data_has_changed = true if FULL_MODES.include?(options[:mode])
+                  item.data_has_changed = true if FULL_MODES.include?(options[:mode].to_s)
                   item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
 
                   if item.data_has_changed.nil?
@@ -183,7 +183,7 @@ module DataCycleCore
                         item_data['delete_reason'] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                       end
 
-                      item.data_has_changed = true if FULL_MODES.include?(options[:mode])
+                      item.data_has_changed = true if FULL_MODES.include?(options[:mode].to_s)
                       item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
 
                       if item.data_has_changed.nil? && modified.present?
