@@ -102,7 +102,7 @@ module DataCycleCore
 
             validate_linked_template!(definition, prefix + [:properties, key]) if definition.key?(:template_name)
 
-            @errors.push("#{[*prefix, :properties, key].join('.')} => must be underscored string") if key.to_s != key.to_s.underscore
+            @errors.push("#{[*prefix, :properties, key].join('.')} => must be underscored") if key.to_s != key.to_s.underscore_blanks
           end
         end
 
