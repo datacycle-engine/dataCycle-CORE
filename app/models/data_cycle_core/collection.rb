@@ -52,8 +52,8 @@ module DataCycleCore
                             uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
                             names = Array.wrap(value).map { |v| v.to_s.strip }
                             queries = []
-                            queries.push(default_scoped.where(id: uuids).without_my_selection.select(:id).to_sql) if uuids.present?
-                            queries.push(default_scoped.where(name: names).without_my_selection.select(:id).to_sql) if names.present?
+                            queries.push(default_scoped.where(id: uuids).without_my_selection.select(:id)) if uuids.present?
+                            queries.push(default_scoped.where(name: names).without_my_selection.select(:id)) if names.present?
 
                             query = queries.pop.arel
                             query = query.union(queries.pop.arel) if queries.present?
