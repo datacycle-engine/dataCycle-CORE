@@ -9,9 +9,9 @@ module DataCycleCore
     devise :registerable if Feature::UserRegistration.enabled?
     devise :confirmable if Feature::UserConfirmation.enabled?
 
-    WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
+    WEBHOOK_ACCESSORS = [:raw_password, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, *WEBHOOK_ACCESSORS
+    attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, :synchronous_webhooks, :webhook_source, *WEBHOOK_ACCESSORS
     attr_writer :user_api_feature, :ability
     WEBHOOKS_ATTRIBUTES = [
       'access_token',

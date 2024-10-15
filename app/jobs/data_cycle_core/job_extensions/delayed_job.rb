@@ -14,16 +14,41 @@ module DataCycleCore
           self.reference_type = block || ref_type
         end
 
-        def find_by_identifiers(reference_id:, reference_type:, queue_name:)
-          delayed_job = Delayed::Job.find_by(queue: queue_name, delayed_reference_id: reference_id, delayed_reference_type: reference_type)
+        def find_by_identifiers(reference_id:, reference_type:, queue_name:, include_locked: false, include_failed: false)
+          delayed_job = Delayed::Job.order(created_at: :asc)
+          delayed_job = delayed_job.where(locked_at: nil) unless include_locked
+          delayed_job = delayed_job.where(failed_at: nil) unless include_failed
+          delayed_job = delayed_job.find_by(
+            queue: queue_name,
+            delayed_reference_id: reference_id,
+            delayed_reference_type: reference_type
+          )
 
           return if delayed_job.nil?
 
-          job = deserialize(YAML.load(delayed_job.handler).job_data, permitted_classes: [Symbol]) # rubocop:disable Security/YAMLLoad
+          job = deserialize(delayed_job.payload_object.job_data)
           job.provider_job_id = delayed_job.id
           job.send(:deserialize_arguments_if_needed)
 
           job
+        end
+
+        def by_identifiers(reference_id:, reference_type:, queue_name:, include_locked: false, include_failed: false)
+          delayed_jobs = Delayed::Job.where(
+            queue: queue_name,
+            delayed_reference_id: reference_id,
+            delayed_reference_type: reference_type
+          ).order(created_at: :asc)
+          delayed_jobs = delayed_jobs.where(locked_at: nil) unless include_locked
+          delayed_jobs = delayed_jobs.where(failed_at: nil) unless include_failed
+
+          delayed_jobs.map do |delayed_job|
+            job = deserialize(delayed_job.payload_object.job_data)
+            job.provider_job_id = delayed_job.id
+            job.send(:deserialize_arguments_if_needed)
+
+            job
+          end
         end
       end
 

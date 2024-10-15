@@ -47,17 +47,22 @@ module DataCycleCore
 
     def export_config
       return @export_config if defined? @export_config
-      @export_config = config&.dig('export_config')&.symbolize_keys
+      @export_config = config&.dig('export_config')&.with_indifferent_access
     end
 
     def refresh_config
       return @refresh_config if defined? @refresh_config
-      @refresh_config = config&.dig('refresh_config')&.symbolize_keys
+      @refresh_config = config&.dig('refresh_config')&.with_indifferent_access
     end
 
     def download_config
       return @download_config if defined? @download_config
-      @download_config = config&.dig('download_config')&.symbolize_keys
+      @download_config = config&.dig('download_config')&.with_indifferent_access
+    end
+
+    def import_config
+      return @import_config if defined? @import_config
+      @import_config = config&.dig('import_config')&.with_indifferent_access
     end
 
     def download_list
@@ -74,11 +79,6 @@ module DataCycleCore
       return @download_pretty_list if defined? @download_pretty_list
       @download_pretty_list = download_list_ranked
         &.map { |sorting, name| "#{sorting.to_s.ljust(4)}:#{name.to_sym}" }
-    end
-
-    def import_config
-      return @import_config if defined? @import_config
-      @import_config = config&.dig('import_config')&.symbolize_keys
     end
 
     def import_list
@@ -157,9 +157,12 @@ module DataCycleCore
     end
 
     def refresh(options = {})
-      raise "Missing refresh_strategy for #{name}, options given: #{options}" if refresh_config.dig(:strategy).blank?
-      utility_object = DataCycleCore::Export::RefreshObject.new(external_system: self)
-      refresh_config.dig(:strategy).constantize.process(utility_object:, options:)
+      raise "Missing refresh_strategy for #{name}, options given: #{options}" if export_config.dig(:refresh, :strategy).blank?
+      utility_object = DataCycleCore::Export::PushObject.new(
+        external_system: self,
+        action: :update
+      )
+      export_config.dig(:refresh, :strategy).safe_constantize.process(utility_object:, options:)
     end
 
     def collections

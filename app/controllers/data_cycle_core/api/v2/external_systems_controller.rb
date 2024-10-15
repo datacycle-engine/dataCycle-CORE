@@ -73,7 +73,11 @@ module DataCycleCore
           end
 
           items.each do |item|
-            utility_object = DataCycleCore::Export::RefreshObject.new(external_system:)
+            utility_object = DataCycleCore::Export::PushObject.new(
+              external_system:,
+              action: :update
+            )
+
             job_id = item.external_system_data(external_system, 'export', nil, false)&.dig('job_id')
 
             init_logging do |logger|

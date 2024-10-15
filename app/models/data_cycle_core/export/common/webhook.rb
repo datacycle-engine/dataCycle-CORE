@@ -35,7 +35,18 @@ module DataCycleCore
         def before(job)
           previous_job = Delayed::Job.where(queue: queue_name, delayed_reference_id: @data.id, delayed_reference_type: reference_type).order(created_at: :desc).find_by('created_at < ?', job.created_at)
 
-          return if previous_job.nil?
+          if previous_job.nil?
+            data = @data
+            @data = DataCycleCore::Thing.find_by(id: @data.try(:id)) || @data
+
+            return unless @data.is_a?(DataCycleCore::Thing)
+
+            @data.webhook_data = data.webhook_data
+            @data.original_id = data.original_id
+            @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(last_sync_at: Time.zone.now)
+
+            return
+          end
 
           begin
             previous_job.invoke_job
