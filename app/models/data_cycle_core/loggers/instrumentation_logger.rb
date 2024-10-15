@@ -29,7 +29,10 @@ module DataCycleCore
               message.push(data.dig(:external_system)&.name, '...', '[FAILED]')
             end
 
-            message.push("(Exception: #{data[:exception]}, Backtrace: #{data[:exception].backtrace.first})") if data.dig(:exception).present?
+            if data.dig(:exception).present?
+              formatted_backtrace = data[:exception].backtrace.filter { |line| line.exclude?('/bundle') }.join("\n")
+              message.push("(Exception: #{data[:exception]}, Backtrace: #{formatted_backtrace})")
+            end
             message.push("(Item-ID: #{data[:item_id]})") if data.dig(:item_id).present?
             message = message.join(' ')
           end
