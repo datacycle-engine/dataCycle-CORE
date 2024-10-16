@@ -7,7 +7,7 @@ module DataCycleCore
         def enqueue(utility_object:, data:)
           external_system = utility_object.external_system
           data_object = { id: data.id, klass: data.class.name }
-          append_thing_data!(data_object, data, external_system) if data.is_a?(DataCycleCore::Thing)
+          append_thing_data!(data_object, data, external_system)
 
           webhook = utility_object.webhook_job_class
           queue_method = synchronous_webhooks?(data, utility_object) ? :perform_now : :perform_later
@@ -44,12 +44,16 @@ module DataCycleCore
         end
 
         def append_thing_data!(data_object, data, external_system)
-          data_object[:template_name] = data.template_name
-          data_object[:webhook_data] = OpenStruct.new( # rubocop:disable Style/OpenStructUse
-            external_keys: data.external_keys_by_system_id(external_system.id),
-            original_external_keys: data.try(:original)&.external_keys_by_system_id(external_system.id)
-          ).to_h
-          data_object[:original_id] = data.original_id
+          data_object[:template_name] = data.template_name if data.respond_to?(:template_name)
+          if data.is_a?(DataCycleCore::Thing)
+            data_object[:webhook_data] = OpenStruct.new( # rubocop:disable Style/OpenStructUse
+              external_keys: data.external_keys_by_system_id(external_system.id),
+              original_external_keys: data.try(:original)&.external_keys_by_system_id(external_system.id)
+            ).to_h
+          end
+
+          data_object[:original_id] = data.original_id if data.respond_to?(:original_id)
+          data_object[:duplicate_id] = data.duplicate_id if data.respond_to?(:duplicate_id)
 
           return unless data.class.const_defined?(:WEBHOOK_ACCESSORS)
 
