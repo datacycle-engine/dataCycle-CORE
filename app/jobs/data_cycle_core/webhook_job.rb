@@ -97,7 +97,7 @@ module DataCycleCore
 
       {
         message: last_error.message.dup.encode_utf8!,
-        text: last_error.try(:response)&.dig(:body)&.dup&.encode_utf8!
+        text: last_error.try(:response)&.dig(:body)&.to_s&.dup&.encode_utf8!
       }
     end
 

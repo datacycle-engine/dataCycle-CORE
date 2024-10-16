@@ -100,7 +100,7 @@ module DataCycleCore
                           external_system.export_config[:endpoint_method]&.to_sym ||
                           :content_request
 
-        I18n.with_locale(locale) do
+        I18n.with_locale(data.try(:first_available_locale, locale) || locale) do
           endpoint.send(endpoint_method, utility_object: self, data:)
         end
       end
