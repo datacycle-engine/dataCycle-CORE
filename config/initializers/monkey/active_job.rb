@@ -15,10 +15,10 @@ end
 
 module ActiveJobDelayedJobAdapterExtension
   def enqueue(job) # :nodoc:
-    last_error = []
+    message = []
     if job.try(:last_error).present?
-      last_error << job.last_error.message
-      last_error << job.last_error.backtrace.join("\n") if job.last_error.backtrace.present?
+      message << job.last_error.message.dup.encode_utf8!
+      message << job.last_error.backtrace.join("\n") if job.last_error.backtrace.present?
     end
 
     delayed_job = Delayed::Job.enqueue(
@@ -27,17 +27,17 @@ module ActiveJobDelayedJobAdapterExtension
       priority: job.priority,
       delayed_reference_id: job.try(:delayed_reference_id),
       delayed_reference_type: job.try(:delayed_reference_type),
-      last_error: last_error.join("\n\n")
+      last_error: message.join("\n\n")
     )
     job.provider_job_id = delayed_job.id
     delayed_job
   end
 
   def enqueue_at(job, timestamp) # :nodoc:
-    last_error = []
+    message = []
     if job.try(:last_error).present?
-      last_error << job.last_error.message
-      last_error << job.last_error.backtrace.join("\n") if job.last_error.backtrace.present?
+      message << job.last_error.message.dup.encode_utf8!
+      message << job.last_error.backtrace.join("\n") if job.last_error.backtrace.present?
     end
 
     delayed_job = Delayed::Job.enqueue(
@@ -47,7 +47,7 @@ module ActiveJobDelayedJobAdapterExtension
       run_at: Time.zone.at(timestamp),
       delayed_reference_id: job.try(:delayed_reference_id),
       delayed_reference_type: job.try(:delayed_reference_type),
-      last_error: last_error.join("\n\n")
+      last_error: message.join("\n\n")
     )
     job.provider_job_id = delayed_job.id
     delayed_job

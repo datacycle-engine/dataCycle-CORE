@@ -104,13 +104,10 @@ module DataCycleCore
     def exception_message
       return if last_error.blank?
 
-      message = last_error.message
-      if last_error.backtrace.present?
-        message << "\n\n" << last_error.backtrace.first(10).join("\n")
-        message << "\n"
-      end
+      message = [last_error.message.dup.encode_utf8!]
+      message << last_error.backtrace.first(10).join("\n") + "\n" if last_error.backtrace.present?
 
-      message
+      message.join("\n\n")
     end
 
     def parse_data_item(data)
