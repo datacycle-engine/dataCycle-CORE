@@ -7,7 +7,7 @@ module DataCycleCore
     class ExternalSystemSyncTest < ActiveSupport::TestCase
       def setup
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' }, prevent_history: true)
-        @external_system = DataCycleCore::ExternalSystem.find_by(identifier: 'Local-Text-File')
+        @external_system = DataCycleCore::ExternalSystem.find_by(identifier: 'local-system')
       end
 
       test 'test external_url in export_config with external_key in external_system_sync' do
