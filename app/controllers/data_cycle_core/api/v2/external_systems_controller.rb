@@ -21,7 +21,7 @@ module DataCycleCore
             logger.info('controller show --> update_items', contents.map(&:id).join(', ')) if contents.map(&:id).size.positive?
           end
 
-          xml_content = DataCycleCore::Export::OutdoorActive::Transformations.to_xml(external_system, contents, deleted_content_ids)
+          xml_content = Datacycle::Connector::OutdooractiveV2::Export::Transformations.to_xml(external_system, contents, deleted_content_ids)
 
           render xml: xml_content
         end
@@ -85,7 +85,7 @@ module DataCycleCore
             end
 
             next if job_id.blank?
-            DataCycleCore::Export::OutdoorActive::JobStatus.process(utility_object:, options: { job_id: })
+            Datacycle::Connector::OutdooractiveV2::Export::JobStatus.process(utility_object:, options: { job_id: })
           end
         end
 
