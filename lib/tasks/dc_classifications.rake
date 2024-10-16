@@ -26,26 +26,30 @@ namespace :dc do
           data = CSV.parse(file.encode_utf8!, skip_blanks: true, col_sep: separator)
           data.select! { |(ca_path, mapped_ca_path)| ca_path.to_s.include?('>') && mapped_ca_path.to_s.include?('>') }
             .map! { |(ca_path, mapped_ca_path)| [ca_path.to_s.strip, mapped_ca_path.to_s.strip] }
-          cas = DataCycleCore::ClassificationAlias.by_full_paths(data.flatten).includes(:primary_classification).index_by(&:full_path)
 
-          data.each do |(ca_path, mapped_ca_path)|
-            ca = cas[ca_path]
-            if ca.nil?
+          cas = DataCycleCore::ClassificationAlias.by_full_paths(data.uniq.flatten).includes(:primary_classification)
+
+          data.uniq.each do |(ca_path, mapped_ca_path)|
+            ca = cas.select { |c_alias| c_alias.full_path == ca_path }
+            if ca.blank?
               errors << "classification_alias not found (#{File.basename(file_path)}: '#{ca_path}' => '#{mapped_ca_path}')"
               print 'x'
               next
             end
 
-            mapped_ca = cas[mapped_ca_path]
-            if mapped_ca.nil? || mapped_ca.primary_classification.nil?
+            mapped_ca = cas.select { |c_alias| c_alias.full_path == mapped_ca_path }
+            if mapped_ca.blank? || mapped_ca.select(&:primary_classification).blank?
               errors << "mapped classification_alias not found (#{File.basename(file_path)}: '#{ca_path}' => '#{mapped_ca_path}')"
               print 'x'
               next
             end
 
-            to_insert.push({ classification_id: mapped_ca.primary_classification.id, classification_alias_id: ca.id, updated_at: })
-
-            print('.')
+            ca.each do |original|
+              mapped_ca.each do |mapped|
+                to_insert.push({ classification_id: mapped.primary_classification.id, classification_alias_id: original.id, updated_at: })
+                print('.')
+              end
+            end
           end
         end
 
