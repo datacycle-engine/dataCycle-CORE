@@ -80,3 +80,10 @@ ActiveSupport::Notifications.subscribe('faraday_error.datacycle') do |_name, _st
     logger.dc_log(:error, data)
   end
 end
+
+ActiveSupport::Notifications.subscribe('export_job_status.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'export') do |logger|
+    severity = data[:severity]&.to_sym || :info
+    logger.dc_log(severity, data)
+  end
+end

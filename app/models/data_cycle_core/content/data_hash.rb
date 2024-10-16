@@ -165,16 +165,7 @@ module DataCycleCore
       def execute_update_webhooks
         return if prevent_webhooks.is_a?(TrueClass)
 
-        if synchronous_webhooks
-          DataCycleCore::Webhook::Update.execute_all(self)
-        else
-          DataCycleCore::WebhooksJob.perform_later(
-            id,
-            self.class.name,
-            'update',
-            WEBHOOK_ACCESSORS.index_with { |a| try(a) }.merge(webhook_data: webhook_data.to_h).compact
-          )
-        end
+        DataCycleCore::Webhook::Update.execute_all(self)
       end
 
       def execute_delete_webhooks

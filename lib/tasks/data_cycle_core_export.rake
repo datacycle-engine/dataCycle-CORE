@@ -23,7 +23,7 @@ namespace :data_cycle_core do
 
       external_system = DataCycleCore::ExternalSystem.find(args[:external_system_id])
 
-      utility_object = DataCycleCore::Export::PushObject.new(external_system:)
+      utility_object = DataCycleCore::Export::PushObject.new(action: :update, external_system:)
 
       contents = DataCycleCore::Thing.where(id: args[:id])
       contents = DataCycleCore::WatchList.where(id: args[:id]).map(&:things).flatten if contents.empty?

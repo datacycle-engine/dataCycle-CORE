@@ -14,7 +14,7 @@ module DataCycleCore
         'column' => 'column',
         'classification' => 'classification'
       }.freeze
-      WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks].freeze
+      WEBHOOK_ACCESSORS = [:webhook_as_of].freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       LINKED_PROPERTY_TYPES = ['linked'].freeze
       EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
@@ -27,7 +27,7 @@ module DataCycleCore
       TABLE_PROPERTY_TYPES = ['table'].freeze
       OEMBED_PROPERTY_TYPES = ['oembed'].freeze
       SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
-      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS].freeze
+      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
 
       after_initialize :add_template_properties, if: :new_record?

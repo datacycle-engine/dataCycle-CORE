@@ -9,9 +9,9 @@ module DataCycleCore
     devise :registerable if Feature::UserRegistration.enabled?
     devise :confirmable if Feature::UserConfirmation.enabled?
 
-    WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
+    WEBHOOK_ACCESSORS = [:raw_password, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, *WEBHOOK_ACCESSORS
+    attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, :synchronous_webhooks, :webhook_source, *WEBHOOK_ACCESSORS
     attr_writer :user_api_feature, :ability
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
@@ -362,29 +362,11 @@ module DataCycleCore
     end
 
     def execute_update_webhooks
-      if synchronous_webhooks
-        DataCycleCore::Webhook::Update.execute_all(self)
-      else
-        DataCycleCore::WebhooksJob.perform_later(
-          id,
-          self.class.name,
-          'update',
-          WEBHOOK_ACCESSORS.index_with { |a| try(a) }.compact
-        )
-      end
+      DataCycleCore::Webhook::Update.execute_all(self)
     end
 
     def execute_create_webhooks
-      if synchronous_webhooks
-        DataCycleCore::Webhook::Create.execute_all(self)
-      else
-        DataCycleCore::WebhooksJob.perform_later(
-          id,
-          self.class.name,
-          'create',
-          WEBHOOK_ACCESSORS.index_with { |a| try(a) }.compact
-        )
-      end
+      DataCycleCore::Webhook::Create.execute_all(self)
     end
 
     def execute_delete_webhooks

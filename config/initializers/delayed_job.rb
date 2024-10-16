@@ -2,7 +2,7 @@
 
 Delayed::Worker.destroy_failed_jobs = false
 Delayed::Worker.max_run_time = 7.days
-Delayed::Worker.max_attempts = 10
+Delayed::Worker.max_attempts = 1 # retries are handled by ActiveJob
 Delayed::Worker.sleep_delay = Rails.env.development? ? 5 : 60
 # to execute all jobs immediately without queue: false
 Delayed::Worker.delay_jobs = ->(job) { !Rails.env.test? && job.queue != 'inline' }

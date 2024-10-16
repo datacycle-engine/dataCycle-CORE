@@ -7,7 +7,7 @@ module DataCycleCore
         def self.process(utility_object:, data:)
           return if data.blank?
 
-          Functions.create(utility_object:, data:)
+          Functions.enqueue(utility_object:, data:)
         end
 
         def self.filter(data, external_system)

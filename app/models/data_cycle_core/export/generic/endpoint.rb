@@ -14,7 +14,10 @@ module DataCycleCore
           @token_type = options.dig(:token_type) || 'body'
         end
 
-        def content_request(path:, transformation:, utility_object:, data:, method: :post)
+        def content_request(utility_object:, data:)
+          method = utility_object.http_method
+          path = utility_object.path(data)
+          transformation = utility_object.transformation
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
           begin
@@ -40,10 +43,6 @@ module DataCycleCore
           end
 
           @response
-        end
-
-        def path_transformation(data, external_system, path_type, type = '', path = nil)
-          format(path.presence || external_system.config.dig('export_config', path_type.to_s, 'path') || external_system.config.dig('export_config', 'path') || path_type.to_s, id: data&.id, type:)
         end
       end
     end
