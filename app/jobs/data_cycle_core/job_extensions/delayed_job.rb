@@ -32,24 +32,6 @@ module DataCycleCore
 
           job
         end
-
-        def by_identifiers(reference_id:, reference_type:, queue_name:, include_locked: false, include_failed: false)
-          delayed_jobs = Delayed::Job.where(
-            queue: queue_name,
-            delayed_reference_id: reference_id,
-            delayed_reference_type: reference_type
-          ).order(created_at: :asc)
-          delayed_jobs = delayed_jobs.where(locked_at: nil) unless include_locked
-          delayed_jobs = delayed_jobs.where(failed_at: nil) unless include_failed
-
-          delayed_jobs.map do |delayed_job|
-            job = deserialize(delayed_job.payload_object.job_data)
-            job.provider_job_id = delayed_job.id
-            job.send(:deserialize_arguments_if_needed)
-
-            job
-          end
-        end
       end
 
       included do

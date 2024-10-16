@@ -1,86 +1,60 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class WebhookJob < ApplicationJob
+  class WebhookJob < UniqueApplicationJob
     queue_as :webhooks
     queue_with_priority 5
 
-    attr_accessor :data, :utility_object, :external_sync, :response
+    ATTEMPTS = 10
+    WAIT = :exponentially_longer
 
-    before_enqueue ->(job) { initialize_context(job) }
-    before_perform ->(job) { initialize_context(job) }
+    attr_accessor :data, :utility_object, :external_sync, :response, :start_time
 
-    retry_on StandardError, attempts: 10, wait: :exponentially_longer do |job, exception|
-      job.failure(exception)
-    end
-
-    def failure(exception)
-      external_sync&.update(
-        status: 'failure',
-        data: {
-          message: exception.message.dup.encode_utf8!,
-          text: exception.try(:response)&.dig(:body)&.dup&.encode_utf8!
-        }
-      )
-    end
-
-    # doesn't work with delayed_job backend
-    # rescue_from StandardError do |exception|
-    #   job.external_sync&.update(
-    #     status: 'error',
-    #     data: {
-    #       message: exception.message.dup.encode_utf8!,
-    #       text: exception.try(:response)&.dig(:body)&.dup&.encode_utf8!
-    #     }
-    #   )
-
-    #   raise exception
-    # end
+    before_perform ->(job) { job.initialize_context }
+    before_perform ->(job) { job.check_filter }
 
     def delayed_reference_id
-      data.id
+      arguments.dig(0, :id)
     end
 
     def delayed_reference_type
-      utility_object.reference_type
-    end
-
-    around_enqueue do |job, block|
-      # remove all previous jobs, that haven't failed yet
-      self.class.by_identifiers(
-        reference_id: job.delayed_reference_id,
-        reference_type: job.delayed_reference_type,
-        queue_name: job.queue_name
-      ).each(&:destroy)
-
-      block.call
-    end
-
-    around_perform do |job, block|
-      # check filter for webhook if it was not checked before
-      return unless job.utility_object.filter_checked? || job.utility_object.allowed?(data)
-
-      job.external_sync = job.data.external_system_sync_by_system(external_system: job.utility_object.external_system) if job.data.is_a?(DataCycleCore::Thing)
-
-      job.external_sync&.update(status: 'pending', last_sync_at: Time.zone.now)
-
-      I18n.with_locale(job.utility_object.locale) do
-        block.call
-      end
-
-      job.external_sync&.update(status: 'success', last_successful_sync_at: job.external_sync.last_sync_at)
+      [
+        arguments[2],
+        arguments[1]&.to_s
+      ].compact_blank.join('_')
     end
 
     def perform(*)
       @response = utility_object.send_request(data)
     end
 
-    private
+    before_perform do
+      @external_sync = data.external_system_sync_by_system(external_system: utility_object.external_system) if data.respond_to?(:external_system_sync_by_system)
 
-    def initialize_context(job)
-      return if job.arguments.blank?
+      @start_time = Time.zone.now
+      external_sync&.update(status: 'pending', last_sync_at: start_time)
+      instrument_status(:info, '[STARTED]')
+    end
 
-      data, action, external_system_id, locale, filter_checked, type, path, endpoint_method = job.arguments
+    after_success do
+      external_sync&.update(status: 'success', last_successful_sync_at: start_time)
+      instrument_status(:info, "[FINISHED] in #{(Time.zone.now - start_time).round(3)}s")
+    end
+
+    after_error do
+      external_sync&.update(status: 'error', data: exception_data)
+      instrument_status(:warn, "[ERROR] | #{exception_message}")
+    end
+
+    after_failure do
+      external_sync&.update(status: 'failure', data: exception_data)
+      instrument_status(:error, "[FAILURE] | #{exception_message}")
+    end
+
+    def initialize_context
+      return if arguments.blank?
+
+      data, action, external_system_id, locale, filter_checked, type, path, endpoint_method = arguments
 
       @data = parse_data_item(data)
       @utility_object = DataCycleCore::Export::PushObject.new(
@@ -92,6 +66,51 @@ module DataCycleCore
         path:,
         endpoint_method:
       )
+    end
+
+    # check filters for the webhook
+    def check_filter
+      throw :abort unless utility_object.filter_checked? || utility_object.allowed?(data)
+    end
+
+    private
+
+    def instrument_status(severity, message_details)
+      message = [
+        '[E]',
+        utility_object.external_system.name,
+        utility_object.action,
+        "[#{utility_object.endpoint_method}][#{executions}][#{data.try(:id)}]",
+        '...',
+        message_details
+      ].join(' ')
+
+      ActiveSupport::Notifications.instrument 'export_job_status.datacycle', {
+        job: self,
+        severity:,
+        message:
+      }
+    end
+
+    def exception_data
+      return {} if last_error.blank?
+
+      {
+        message: last_error.message.dup.encode_utf8!,
+        text: last_error.try(:response)&.dig(:body)&.dup&.encode_utf8!
+      }
+    end
+
+    def exception_message
+      return if last_error.blank?
+
+      message = last_error.message
+      if last_error.backtrace.present?
+        message << "\n\n" << last_error.backtrace.first(10).join("\n")
+        message << "\n"
+      end
+
+      message
     end
 
     def parse_data_item(data)

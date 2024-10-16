@@ -9,7 +9,7 @@ module DataCycleCore
         delete: :delete
       }.freeze
 
-      attr_reader :external_system, :locale, :logging, :filter_checked, :action
+      attr_reader :external_system, :locale, :filter_checked, :action
       attr_accessor :type, :path, :endpoint_method
 
       def initialize(action:, external_system:, locale: I18n.locale, filter_checked: false, type: nil, path: nil, endpoint_method: nil)
@@ -23,7 +23,6 @@ module DataCycleCore
         raise "Missing external_system for #{self.class}" if external_system.blank?
 
         @external_system = external_system
-        @logging = init_logging(:export)
       end
 
       def webhook_valid?(item)
@@ -101,17 +100,9 @@ module DataCycleCore
                           external_system.export_config[:endpoint_method]&.to_sym ||
                           :content_request
 
-        endpoint.send(endpoint_method, utility_object: self, data:)
-      end
-
-      def reference_type
-        [external_system.identifier.underscore_blanks, action.to_s, type.to_s].compact_blank.join('_')
-      end
-
-      def init_logging(type)
-        return if type.blank?
-
-        DataCycleCore::Generic::Logger::LogFile.new(type.to_s)
+        I18n.with_locale(locale) do
+          endpoint.send(endpoint_method, utility_object: self, data:)
+        end
       end
     end
   end

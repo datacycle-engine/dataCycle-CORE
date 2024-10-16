@@ -21,9 +21,6 @@ module DataCycleCore
         # check filter for webhook immediately if it is delete action
         return if utility_object.delete_action? && !utility_object.allowed?(data)
 
-        label = "Webhook: #{utility_object.action} | #{utility_object.external_system.name} | #{utility_object.webhook}"
-
-        utility_object.logging.info(label, data.id)
         utility_object.process(data)
       end
 
@@ -51,13 +48,6 @@ module DataCycleCore
         return unless utility_object.webhook_valid?(data)
 
         utility_object
-      end
-
-      def self.init_logging(utility_object)
-        logging = utility_object.init_logging(:export)
-        yield(logging)
-      ensure
-        logging.close if logging.respond_to?(:close)
       end
     end
   end

@@ -362,29 +362,11 @@ module DataCycleCore
     end
 
     def execute_update_webhooks
-      if synchronous_webhooks
-        DataCycleCore::Webhook::Update.execute_all(self)
-      else
-        DataCycleCore::WebhooksJob.perform_later(
-          id,
-          self.class.name,
-          'update',
-          WEBHOOK_ACCESSORS.index_with { |a| try(a) }.compact
-        )
-      end
+      DataCycleCore::Webhook::Update.execute_all(self)
     end
 
     def execute_create_webhooks
-      if synchronous_webhooks
-        DataCycleCore::Webhook::Create.execute_all(self)
-      else
-        DataCycleCore::WebhooksJob.perform_later(
-          id,
-          self.class.name,
-          'create',
-          WEBHOOK_ACCESSORS.index_with { |a| try(a) }.compact
-        )
-      end
+      DataCycleCore::Webhook::Create.execute_all(self)
     end
 
     def execute_delete_webhooks
