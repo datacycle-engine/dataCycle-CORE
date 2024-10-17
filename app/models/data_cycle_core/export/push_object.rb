@@ -26,8 +26,11 @@ module DataCycleCore
       end
 
       def webhook_valid?(item)
-        Array.wrap(external_system.export_config[:allowed_models] || 'DataCycleCore::Thing')
-          .include?(item.class.name)
+        return false if external_system.export_config.blank?
+
+        allowed_models = Array.wrap(external_system.export_config[:allowed_models] || 'DataCycleCore::Thing')
+
+        allowed_models.include?(item.class.name)
       end
 
       def filter_checked?
