@@ -3,7 +3,7 @@
 Rails.application.reloader.to_prepare do
   Rails.application.configure do
     Dry::Logic::Predicates.predicate(:uuid_v4_or_list_of_uuid_v4?) do |value|
-      value.is_a?(String) && value.split(',').all? { |uuid| uuid_v4?(uuid) }
+      value.is_a?(String) && value.split(',').map(&:strip).all? { |uuid| uuid_v4?(uuid) }
     end
 
     Dry::Logic::Predicates.predicate(:api_sort_parameter?) do |value|
