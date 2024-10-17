@@ -4,7 +4,7 @@ module DataCycleCore
   module FilterConcern
     extend ActiveSupport::Concern
     DEFAULT_PAGE_SIZE = 25
-    PAGE_PARAMS_SCHEMA = Dry::Schema.Params do
+    PAGE_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
       optional(:page).filled(:integer)
       optional(:tree_page).filled(:integer)
     end

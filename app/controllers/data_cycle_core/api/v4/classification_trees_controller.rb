@@ -12,6 +12,7 @@ module DataCycleCore
         ALLOWED_SORT_ATTRIBUTES = { 'dct:created' => 'created_at', 'dct:modified' => 'updated_at' }.freeze
         ALLOWED_FACET_SORT_ATTRIBUTES = { 'dc:thingCountWithSubtree' => 'thing_count_with_subtree', 'dc:thingCountWithoutSubtree' => 'thing_count_without_subtree' }.freeze
         VALIDATE_PARAMS_CONTRACT = MasterData::Contracts::ClassificationContract
+        NULL_REGEX = /^NULL$/i
 
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
@@ -223,16 +224,16 @@ module DataCycleCore
         end
 
         def apply_broader_filter(query, attribute_path, k, v)
-          clean_ids = v.grep_v(MasterData::Contracts::ApiContract::NULL_REGEX)
+          clean_ids = v.grep_v(NULL_REGEX)
           query_strings = []
 
           if k == :in
             query_strings << "classification_trees.#{attribute_path} IN (?)" if clean_ids.present?
-            query_strings << "classification_trees.#{attribute_path} IS NULL" if v.any?(MasterData::Contracts::ApiContract::NULL_REGEX)
+            query_strings << "classification_trees.#{attribute_path} IS NULL" if v.any?(NULL_REGEX)
             where_part = query_strings.join(' OR ')
           elsif k == :notIn
             query_strings << "classification_trees.#{attribute_path} NOT IN (?)" if clean_ids.present?
-            if v.any?(MasterData::Contracts::ApiContract::NULL_REGEX)
+            if v.any?(NULL_REGEX)
               query_strings << "classification_trees.#{attribute_path} IS NOT NULL"
               where_part = query_strings.join(' AND ')
             else

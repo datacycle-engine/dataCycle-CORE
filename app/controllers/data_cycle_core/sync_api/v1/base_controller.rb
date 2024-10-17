@@ -11,6 +11,7 @@ module DataCycleCore
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
         include DataCycleCore::ApiBeforeActions
+        include DryParams
 
         wrap_parameters format: []
 

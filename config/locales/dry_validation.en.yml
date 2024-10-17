@@ -26,3 +26,7 @@ en:
           missing_schema_type_or_ancestors: "schema_type or schema_ancestors have to be defined."
         reserved_property_name: "property name is reserved as database column"
         strategy_required: ":import_strategy or :download_strategy must be defined"
+      uuid_v4_or_list_of_uuid_v4?: "must be a valid UUIDv4 or a list of UUIDv4s separated by commas"
+      api_sort_parameter?: "must be a valid sort parameter"
+      uuid_v4_or_null_string?: "must be a valid UUIDv4 or a 'null' string"
+      api_weight_string?: "must be a valid weight string"

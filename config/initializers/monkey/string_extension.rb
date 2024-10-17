@@ -35,7 +35,7 @@ module DataCycleCore
     end
 
     def uuid?
-      MasterData::Contracts::ApiContract::UUID_REGEX.match?(self)
+      Dry::Logic::Predicates.uuid_v4?(self)
     end
 
     def strip_tags

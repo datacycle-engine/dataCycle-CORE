@@ -5,21 +5,8 @@ module DataCycleCore
     module Contracts
       class BaseContract < Dry::Validation::Contract
         config.validate_keys = true
-
-        UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i
-        UUID_REGEX = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i
-        NULL_REGEX = /^NULL$/i
-        WEIGHT_REGEX = /^[ABCD]{1,4}$/i
-
-        SORTING_VALIDATION = Dry::Types['string'].constructor do |input|
-          next input unless input&.starts_with?('random')
-
-          _key, value = DataCycleCore::ApiService.order_key_with_value(input)
-
-          next unless value.nil? || value.between?(-1, 1)
-
-          input
-        end
+        config.messages.default_locale = :en
+        config.messages.backend = :i18n
 
         BASE = Dry::Schema.Params do
           optional(:format).value(:symbol)
@@ -32,12 +19,12 @@ module DataCycleCore
           optional(:dataFormat).filled(:string)
           optional(:search).value(:string)
           optional(:limit).value(:integer)
-          optional(:weight).filled(:str?, format?: WEIGHT_REGEX)
+          optional(:weight).filled(:api_weight_string?)
         end
 
         EXTERNAL_IDENTITY = Dry::Schema.Params do
           optional(:external_keys).filled(:string)
-          optional(:external_source_id).filled(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
+          optional(:external_source_id).filled(:uuid_v4_or_list_of_uuid_v4?)
         end
 
         CONTENT = Dry::Schema.Params do
@@ -49,15 +36,15 @@ module DataCycleCore
         CLASSIFICATIONS = Dry::Schema.Params do
           optional(:classification_id).filled(:string)
           optional(:classification_ids).filled(:string)
-          optional(:classification_tree_label_id).filled(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
+          optional(:classification_tree_label_id).filled(:uuid_v4_or_list_of_uuid_v4?)
         end
 
         BASE_JSON_API = Dry::Schema.Params do
           optional(:language).filled(:string)
-          optional(:sort).filled(SORTING_VALIDATION)
+          optional(:sort).filled(:api_sort_parameter?)
           optional(:fields).filled(:string)
           optional(:include).filled(:string)
-          optional(:classification_trees) { (str? & format?(UUID_REGEX)) | (array? & each(:str?, format?: UUID_REGEX)) }
+          optional(:classification_trees) { (str? & uuid_v4?) | (array? & each(:uuid_v4?)) }
         end
 
         BASE_MVT_API = Dry::Schema.Params do
@@ -94,8 +81,8 @@ module DataCycleCore
         end
 
         CLASSIFICATIONS_FILTER = Dry::Schema.Params do
-          optional(:withSubtree).value(:array, min_size?: 1).each(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
-          optional(:withoutSubtree).value(:array, min_size?: 1).each(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
+          optional(:withSubtree).value(:array, min_size?: 1).each(:uuid_v4_or_list_of_uuid_v4?)
+          optional(:withoutSubtree).value(:array, min_size?: 1).each(:uuid_v4_or_list_of_uuid_v4?)
         end
 
         GEO_FILTER = Dry::Schema.Params do
@@ -129,13 +116,13 @@ module DataCycleCore
         end
 
         IN_UUID_OR_NULL_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array).each { str? & (format?(UUID_REGEX) | format?(NULL_REGEX)) }
-          optional(:notIn).filled(:array).each { str? & (format?(UUID_REGEX) | format?(NULL_REGEX)) }
+          optional(:in).filled(:array).each(:uuid_v4_or_null_string?)
+          optional(:notIn).filled(:array).each(:uuid_v4_or_null_string?)
         end
 
         IN_UUID_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array).each(:str?, format?: UUID_REGEX)
-          optional(:notIn).filled(:array).each(:str?, format?: UUID_REGEX)
+          optional(:in).filled(:array).each(:uuid_v4?)
+          optional(:notIn).filled(:array).each(:uuid_v4?)
         end
 
         IN_ARRAY_FILTER = Dry::Schema.Params do
