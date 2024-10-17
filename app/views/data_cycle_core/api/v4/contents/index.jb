@@ -22,7 +22,10 @@ end
 queue.append do
   json.merge! render 'pagination_links',
                      objects: @pagination_contents || @contents,
-                     object_url: ->(params) { api_v4_stored_filter_url(id: @watch_list || @stored_filter, **params) }
+                     object_url: lambda { |params|
+                                   id = (@watch_list || @stored_filter)&.id
+                                   id.present? ? api_v4_stored_filter_url(id:, **params) : api_v4_things_url(**params)
+                                 }
 end
 
 queue.wait!
