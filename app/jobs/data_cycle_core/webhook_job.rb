@@ -37,17 +37,17 @@ module DataCycleCore
     end
 
     after_success do
-      external_sync&.update(status: 'success', last_successful_sync_at: start_time)
+      external_sync&.update(status: 'success', last_successful_sync_at: start_time, data: external_sync&.data&.except('exception'))
       instrument_status(:info, "[FINISHED] in #{(Time.zone.now - start_time).round(3)}s")
     end
 
     after_error do
-      external_sync&.update(status: 'error', data: exception_data)
+      external_sync&.update(status: 'error', data: (external_sync&.data || {}).merge(exception_data))
       instrument_status(:warn, "[ERROR] | #{exception_message}")
     end
 
     after_failure do
-      external_sync&.update(status: 'failure', data: exception_data)
+      external_sync&.update(status: 'failure', data: (external_sync&.data || {}).merge(exception_data))
       instrument_status(:error, "[FAILURE] | #{exception_message}")
     end
 
@@ -96,8 +96,11 @@ module DataCycleCore
       return {} if last_error.blank?
 
       {
-        message: last_error.message.dup.encode_utf8!,
-        text: last_error.try(:response)&.dig(:body)&.to_s&.dup&.encode_utf8!
+        exception: {
+          timestamp: Time.zone.now,
+          message: last_error.message.dup.encode_utf8!,
+          text: last_error.try(:response)&.dig(:body)&.to_s&.dup&.encode_utf8!
+        }
       }
     end
 
