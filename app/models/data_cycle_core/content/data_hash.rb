@@ -150,16 +150,7 @@ module DataCycleCore
       def execute_create_webhooks
         return if prevent_webhooks.is_a?(TrueClass)
 
-        if synchronous_webhooks
-          DataCycleCore::Webhook::Create.execute_all(self)
-        else
-          DataCycleCore::WebhooksJob.perform_later(
-            id,
-            self.class.name,
-            'create',
-            WEBHOOK_ACCESSORS.index_with { |a| try(a) }.merge(webhook_data: webhook_data.to_h).compact
-          )
-        end
+        DataCycleCore::Webhook::Create.execute_all(self)
       end
 
       def execute_update_webhooks

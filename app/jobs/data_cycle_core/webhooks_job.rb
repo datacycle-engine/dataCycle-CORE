@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# [TODO] remove this class in about 1 month
 module DataCycleCore
   class WebhooksJob < UniqueApplicationJob
     PRIORITY = 4
