@@ -30,7 +30,7 @@ module DataCycleCore
 
         allowed_models = Array.wrap(external_system.export_config[:allowed_models] || 'DataCycleCore::Thing')
 
-        allowed_models.include?(item.class.name)
+        allowed_models.include?(item.class.name) && !webhook.nil?
       end
 
       def filter_checked?
@@ -39,10 +39,15 @@ module DataCycleCore
 
       def allowed?(data)
         @filter_checked = true
+
+        return false if webhook.nil?
+
         webhook.filter(data, external_system)
       end
 
       def process(data)
+        return if webhook.nil?
+
         webhook.process(data:, utility_object: self)
       end
 
