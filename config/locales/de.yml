@@ -811,6 +811,7 @@ de:
       downloads_content: Alle Downloads dieses Inhalts
       stored_searches_usage: Verwendung Gespeicherte Suchen
       watch_lists_usage: Verwendung Inhaltssammlungen
+      widget_usage: Verwendung Widgets
       headings:
         id: ID
         name: Name
@@ -844,6 +845,8 @@ de:
         user_group_names: Benutzergruppen
         api_access: Für API freigegeben
         user_role: Benutzerrolle
+        access_count: Zugriffe
+        week: Woche
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads

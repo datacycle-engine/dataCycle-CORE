@@ -791,6 +791,7 @@ en:
       downloads_content: All downloads of this content
       stored_searches_usage: Usage of saved Searches
       watch_lists_usage: Usage of content collections
+      widget_usage: Usage of widgets
       headings:
         id: ID
         name: Name
@@ -824,6 +825,8 @@ en:
         user_group_names: User groups
         api_access: accessible via API
         user_role: User role
+        access_count: Number of accesses
+        week: Week
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
