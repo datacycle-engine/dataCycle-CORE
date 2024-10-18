@@ -75,7 +75,7 @@ module DataCycleCore
 
       Process.waitpid(pid)
 
-      external_system = ExternalSystem.find(uuid)
+      external_system = ExternalSystem.find(uuid).reload
 
       return unless external_system.data.dig("last_#{delayed_reference_type}_failed")
 

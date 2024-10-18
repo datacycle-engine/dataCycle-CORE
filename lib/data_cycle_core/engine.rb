@@ -424,7 +424,6 @@ module DataCycleCore
       Devise::ConfirmationsController.layout 'data_cycle_core/devise'
       Devise::UnlocksController.layout 'data_cycle_core/devise'
       Devise::PasswordsController.layout 'data_cycle_core/devise'
-      ActiveStorage::Blob
     end
   end
 end

@@ -11,6 +11,12 @@ module ActiveJobMetricsExtension
     }
     # rubocop:enable Security/YAMLLoad, Style/GuardClause
   end
+
+  def max_attempts
+    job_class = job_data['job_class']&.safe_constantize
+    max_attempts = job_class::ATTEMPTS unless job_class.nil?
+    max_attempts || 1
+  end
 end
 
 module ActiveJobDelayedJobAdapterExtension
@@ -27,7 +33,8 @@ module ActiveJobDelayedJobAdapterExtension
       priority: job.priority,
       delayed_reference_id: job.try(:delayed_reference_id),
       delayed_reference_type: job.try(:delayed_reference_type),
-      last_error: message.join("\n\n")
+      last_error: message.join("\n\n"),
+      attempts: job.try(:executions) || 0
     )
     job.provider_job_id = delayed_job.id
     delayed_job
@@ -47,7 +54,8 @@ module ActiveJobDelayedJobAdapterExtension
       run_at: Time.zone.at(timestamp),
       delayed_reference_id: job.try(:delayed_reference_id),
       delayed_reference_type: job.try(:delayed_reference_type),
-      last_error: message.join("\n\n")
+      last_error: message.join("\n\n"),
+      attempts: job.try(:executions) || 0
     )
     job.provider_job_id = delayed_job.id
     delayed_job

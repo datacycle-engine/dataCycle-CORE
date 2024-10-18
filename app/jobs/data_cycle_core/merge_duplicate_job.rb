@@ -62,7 +62,7 @@ module DataCycleCore
       ActiveRecord::Base.transaction do
         duplicate.original_id = original.id
         duplicate_sync_query(duplicate.id, original.id)
-        duplicate.destroy_content
+        duplicate.destroy
 
         if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
           duplicate_external_key.split(';').reject(&:blank?).each do |d_external_key|
