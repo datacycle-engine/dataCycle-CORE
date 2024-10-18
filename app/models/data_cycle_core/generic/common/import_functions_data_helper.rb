@@ -204,11 +204,23 @@ module DataCycleCore
 
           return if data_hash['external_system_data'].blank?
 
-          transformation_config = utility_object.external_source.default_options&.[]('external_system_identifier_transformation')
+          options = utility_object.external_source.default_options || {}
+
+          if (mapping = options['external_system_identifier_mapping']).present?
+            data_hash['external_system_data'].each do |d|
+              d['identifier'] = mapping[d['identifier']] || d['identifier']
+            end
+          end
+
+          transformation_config = options['external_system_identifier_transformation']
 
           return unless transformation_config&.key?('module') && transformation_config&.key?('method')
 
-          data_hash['external_system_data'].each { |d| d['identifier'] = transformation_config['module'].safe_constantize.send(transformation_config['method'], d['identifier']) }
+          data_hash['external_system_data'].each do |d|
+            t_module = transformation_config['module'].safe_constantize
+            t_method = transformation_config['method']
+            d['identifier'] = t_module.send(t_method, d['identifier'])
+          end
         end
 
         def pre_process_data(raw_data:, config:, utility_object:)
