@@ -16,7 +16,7 @@ module DataCycleCore
 
         def content_request(utility_object:, data:)
           method = utility_object.http_method
-          path = utility_object.path(data)
+          path = utility_object.transformed_path(data)
           transformation = utility_object.transformation
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
