@@ -54,7 +54,7 @@ module DataCycleCore
     def initialize_context
       return if arguments.blank?
 
-      data, action, external_system_id, locale, filter_checked, type, path, endpoint_method = arguments
+      data, action, external_system_id, locale, filter_checked, type, path, endpoint_method, transformation = arguments
 
       @data = parse_data_item(data)
       @utility_object = DataCycleCore::Export::PushObject.new(
@@ -64,7 +64,8 @@ module DataCycleCore
         filter_checked:,
         type:,
         path:,
-        endpoint_method:
+        endpoint_method:,
+        transformation:
       )
     end
 
