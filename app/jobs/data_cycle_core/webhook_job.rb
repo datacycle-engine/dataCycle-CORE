@@ -14,13 +14,13 @@ module DataCycleCore
     before_perform ->(job) { job.check_filter }
 
     def delayed_reference_id
-      arguments.dig(0, :id)
+      arguments.dig(0, :data_object, :id)
     end
 
     def delayed_reference_type
       [
-        arguments[2],
-        arguments[1]&.to_s
+        arguments.dig(0, :external_system_id),
+        arguments.dig(0, :action)&.to_s
       ].compact_blank.join('_')
     end
 
@@ -54,18 +54,9 @@ module DataCycleCore
     def initialize_context
       return if arguments.blank?
 
-      data, action, external_system_id, locale, filter_checked, type, path, endpoint_method, transformation = arguments
-
-      @data = parse_data_item(data)
+      @data = parse_data_item(arguments.dig(0, :data_object))
       @utility_object = DataCycleCore::Export::PushObject.new(
-        action:,
-        external_system: DataCycleCore::ExternalSystem.find(external_system_id),
-        locale:,
-        filter_checked:,
-        type:,
-        path:,
-        endpoint_method:,
-        transformation:
+        **arguments[0].except(:data_object)
       )
     end
 

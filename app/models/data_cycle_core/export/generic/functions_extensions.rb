@@ -15,14 +15,15 @@ module DataCycleCore
 
           webhook.send(
             queue_method,
-            data_object,
-            utility_object.action,
-            external_system.id,
-            I18n.locale,
-            utility_object.filter_checked?,
-            utility_object.type,
-            utility_object.path,
-            utility_object.endpoint_method
+            data_object:,
+            action: utility_object.action,
+            external_system_id: external_system.id,
+            locale: I18n.locale,
+            filter_checked: utility_object.filter_checked?,
+            type: utility_object.type,
+            path: utility_object.path,
+            endpoint_method: utility_object.endpoint_method,
+            transformation: utility_object.transformation
           )
         end
 
