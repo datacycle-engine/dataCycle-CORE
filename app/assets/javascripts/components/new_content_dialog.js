@@ -20,6 +20,7 @@ class NewContentDialog {
 		this.reveal = this.$form.closest(".reveal.new-content-reveal");
 		this.primaryAttributeKey = this.$form.data("primary-attribute-key");
 		this.templateTranslationPlural = this.$form.data("template-translation");
+		this.systemLocales = this.$form.data("system-locales");
 		this.referencedAssetField;
 		this.nextAssetButton;
 		this.prevAssetButton;
@@ -231,13 +232,28 @@ class NewContentDialog {
 			if (v && UuidHelper.isUuid(v.value)) {
 				const promise = DataCycle.httpRequest(`/api/v4/universal/${v.value}`, {
 					method: "POST",
-					body: { fields: "name,skos:prefLabel" },
+					body: {
+						fields: "name,skos:prefLabel",
+						language: this.systemLocales.join(","),
+					},
 				});
 
 				promise.then((data) => {
-					v.text =
-						data?.["@graph"]?.[0] &&
-						(data["@graph"][0]["skos:prefLabel"] || data["@graph"][0].name);
+					let value = ObjectUtilities.get(data, "@graph.0.skos:prefLabel");
+					if (!value) value = ObjectUtilities.get(data, "@graph.0.name");
+
+					if (Array.isArray(value)) {
+						value = value
+							.sort((a, b) => {
+								return (
+									this.systemLocales.indexOf(a["@language"]) -
+									this.systemLocales.indexOf(b["@language"])
+								);
+							})
+							.find((v) => v["@value"])["@value"];
+					}
+
+					v.text = value;
 				});
 
 				requests.push(promise);

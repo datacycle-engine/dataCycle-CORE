@@ -350,11 +350,11 @@
           :name: containsPlace
         :advanced_search: true
       :additional_snow_report:
-        :label: freie Scheehöhenmesspunkte
+        :label: freie Schneehöhenmesspunkte
         :type: linked
         :inverse_of: snow_resort
         :link_direction: inverse
-        :template_name: freie Scheehöhenmesspunkte
+        :template_name: freie Schneehöhenmesspunkte
       :same_as:
         :label: Link
         :type: string

@@ -12,17 +12,22 @@ module DataCycleCore
       attr_reader :external_system, :locale, :filter_checked, :action
       attr_accessor :type, :path, :endpoint_method
 
-      def initialize(action:, external_system:, locale: I18n.locale, filter_checked: false, type: nil, path: nil, endpoint_method: nil)
+      def initialize(action:, **kwargs)
         @action = action.to_sym
-        @locale = locale || I18n.locale
-        @filter_checked = filter_checked
-        @type = type
-        @path = path
-        @endpoint_method = endpoint_method&.to_sym
+        @locale = kwargs[:locale] || I18n.locale
+        @filter_checked = kwargs[:filter_checked] || false
+        @type = kwargs[:type]
+        @path = kwargs[:path]
+        @endpoint_method = kwargs[:endpoint_method]&.to_sym
+        @transformation = kwargs[:transformation] || :json_partial
 
-        raise "Missing external_system for #{self.class}" if external_system.blank?
-
-        @external_system = external_system
+        if kwargs[:external_system].is_a?(DataCycleCore::ExternalSystem)
+          @external_system = kwargs[:external_system]
+        elsif kwargs[:external_system_id].is_a?(String) && kwargs[:external_system_id].uuid?
+          @external_system = DataCycleCore::ExternalSystem.find(kwargs[:external_system_id])
+        else
+          raise "Missing external_system for #{self.class}"
+        end
       end
 
       def webhook_valid?(item)
@@ -73,7 +78,7 @@ module DataCycleCore
       def transformation
         external_system.export_config.dig(action, 'transformation')&.to_sym ||
           external_system.export_config[:transformation]&.to_sym ||
-          :json_partial
+          @transformation
       end
 
       def transformed_path(data)

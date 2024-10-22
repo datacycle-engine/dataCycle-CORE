@@ -119,9 +119,9 @@ module DataCycleCore
   self.excluded_filter_classifications = [
     'Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Zeitleiste-Eintrag',
     'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay',
-    'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt',
+    'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon',
     'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock',
-    'Zusatzangebot', 'Wetterprognose', 'Piste', 'Lift'
+    'Zusatzangebot', 'Wetterprognose'
   ]
 
   mattr_accessor :ui_locales

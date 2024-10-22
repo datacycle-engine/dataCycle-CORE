@@ -16,15 +16,23 @@ module DataCycleCore
 
         def content_request(utility_object:, data:)
           method = utility_object.http_method
-          path = utility_object.path(data)
+          path = utility_object.transformed_path(data)
           transformation = utility_object.transformation
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
           begin
+            if transformation.is_a?(Hash) && transformation.key?(:module) && transformation.key?(:method)
+              transformed_data = transformation[:module].send(transformation[:method], utility_object, data)
+            elsif transformation.is_a?(Proc)
+              transformed_data = transformation.call(utility_object, data)
+            else
+              transformed_data = transformations.try(transformation, utility_object, data)
+            end
+
             @response = Faraday.run_request(
               method,
               File.join(@host, path),
-              transformation.is_a?(Proc) ? transformation.call(utility_object, data) : transformations.try(transformation, utility_object, data),
+              transformed_data,
               { 'Content-Type' => 'application/json' }
             ) do |req|
               req.params['token'] = @token if @token_type == 'url'
