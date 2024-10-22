@@ -15,7 +15,13 @@ class FixTemplateNameSchneehoehenMesspunkt < ActiveRecord::Migration[6.1]
       ca = DataCycleCore::ClassificationAlias.find_by(internal_name: old_name)
       next unless ca
       ca_new = DataCycleCore::ClassificationAlias.find_by(internal_name: new_name)
-      ca.merge_with_children(ca_new)
+
+      if ca_new.nil?
+        ca.update!(internal_name: new_name, name: new_name)
+        ca.primary_classification&.update!(name: new_name)
+      else
+        ca.merge_with_children(ca_new)
+      end
     end
   end
 
