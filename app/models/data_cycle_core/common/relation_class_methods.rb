@@ -22,7 +22,7 @@ module DataCycleCore
           scope.none
         elsif !custom_scope && (query.loaded? || preload.present?)
           preload = [] unless preload.is_a?(::Array) || preload.is_a?(::Hash)
-          ActiveRecord::Associations::Preloader.new.preload(query.to_a, [relation_name => preload], custom_scope ? scope : nil)
+          DataCycleCore::PreloadService.preload(query.to_a, [relation_name => preload], custom_scope ? scope : nil)
           scope.tap { |rel| rel.send(:load_records, query.flat_map(&relation_name).uniq) }
         elsif custom_scope
           preload = [] unless preload.is_a?(::Array) || preload.is_a?(::Hash)

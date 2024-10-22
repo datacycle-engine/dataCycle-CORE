@@ -154,21 +154,17 @@ module DataCycleCore
 
         def filterable_classification_aliases(allowed_labels, excluded = [], include_tree = true)
           query = DataCycleCore::ClassificationAlias
-            .preload(:primary_classification, :classification_alias_path)
+            .preload(:primary_classification, :classification_alias_path, :classification_tree, :sub_classification_trees)
             .includes(:classification_tree_label, :parent_classification_alias)
             .where(classification_tree_labels: { name: allowed_labels })
           query = query.where(classification_trees: { parent_classification_alias: nil }) unless include_tree
           query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
 
-          # preload children and parents with includes
-          ActiveRecord::Associations::Preloader.new.preload(query, :sub_classification_trees, DataCycleCore::ClassificationTree.select(:classification_alias_id, :parent_classification_alias_id, :deleted_at))
-          ActiveRecord::Associations::Preloader.new.preload(query, :classification_tree, DataCycleCore::ClassificationTree.select(:classification_alias_id, :parent_classification_alias_id, :deleted_at))
-
           preloaded = query.index_by(&:id)
 
           query.each do |ca|
             # set preloaded sub_classification_alias
-            records = preloaded.values_at(*ca.sub_classification_trees.pluck(:classification_alias_id)).compact.sort_by(&:order_a)
+            records = preloaded.values_at(*ca.sub_classification_trees.to_a.pluck(:classification_alias_id)).compact.sort_by(&:order_a)
             association = ca.association(:sub_classification_alias)
             association.loaded!
             association.target.concat(records)

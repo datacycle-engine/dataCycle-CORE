@@ -5,7 +5,7 @@ raise 'ActiveRecord::Relation#load is no longer available, check patch!' unless 
 module DataCycleCore
   module ActiveRecordRelationExtension
     def load(&)
-      return super(&) unless is_a?(DataCycleCore::Thing.const_get(:ActiveRecord_Relation))
+      return super unless is_a?(DataCycleCore::Thing.const_get(:ActiveRecord_Relation))
 
       super do |record|
         record.instance_variable_set(:@_current_collection, self)

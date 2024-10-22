@@ -15,10 +15,10 @@ module PostgresCustomTypesExtension
     m.register_type('tsmultirange', ActiveRecord::Type::String.new)
     m.register_type('tstzmultirange', ActiveRecord::Type::String.new)
 
-    super(m)
+    super
   end
 end
 
 ActiveSupport.on_load(:active_record) do
-  ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.prepend PostgresCustomTypesExtension
+  ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.extend PostgresCustomTypesExtension
 end

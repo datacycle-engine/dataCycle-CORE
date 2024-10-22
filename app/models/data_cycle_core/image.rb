@@ -137,7 +137,7 @@ module DataCycleCore
       thumb = nil
       if file&.attached?
         begin
-          thumb = file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format')), colorspace: 'sRGB', background: 'White', flatten: true).processed
+          thumb = file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format')), colourspace: 'srgb', background: 'White', flatten: true).processed
         rescue ActiveStorage::FileNotFoundError
           # add some logging
           return nil
@@ -150,7 +150,7 @@ module DataCycleCore
       web_version = nil
       if file&.attached?
         begin
-          web_version = file.variant(resize_to_limit: [2048, 2048], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+          web_version = file.variant(resize_to_limit: [2048, 2048], colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
         rescue ActiveStorage::FileNotFoundError
           # add some logging
           return nil
@@ -163,7 +163,7 @@ module DataCycleCore
       default_version = nil
       if file&.attached?
         begin
-          default_version = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+          default_version = file.variant(colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
         rescue ActiveStorage::FileNotFoundError
           # add some logging
           return nil
@@ -177,9 +177,9 @@ module DataCycleCore
       if file&.attached?
         begin
           if transformation.dig('width').present? || transformation.dig('height').present?
-            dynamic = file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+            dynamic = file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
           else
-            dynamic = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+            dynamic = file.variant(colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
           end
         rescue ActiveStorage::FileNotFoundError
           # add some logging

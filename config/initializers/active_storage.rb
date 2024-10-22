@@ -8,8 +8,5 @@ Rails.application.reloader.to_prepare do
     ]
 
     ActiveStorage::Blobs::ProxyController.include DataCycleCore::ErrorHandler
-    ActiveStorage::Blobs::ProxyController.prepend DataCycleCore::ActiveStorageProxyControllerExtension
   end
 end
-
-ActiveSupport.on_load(:active_storage_blob) { prepend DataCycleCore::ActiveStorageBlobExtension }
