@@ -21,13 +21,13 @@ Devise.setup do |config|
   config.http_authenticatable = true
 
   if ENV['PIXELPOINT_AAD_V2_CLIENT_ID'].present?
-    require 'omniauth-azure-activedirectory-v2'
+    require 'omniauth-entra-id'
     config.omniauth :pixelpoint_aad_v2, {
       name: 'pixelpoint_aad_v2',
       client_id: ENV['PIXELPOINT_AAD_V2_CLIENT_ID'],
       client_secret: ENV['PIXELPOINT_AAD_V2_CLIENT_SECRET'],
       tenant_id: ENV['PIXELPOINT_AAD_V2_TENANT_ID'],
-      strategy_class: OmniAuth::Strategies::AzureActivedirectoryV2,
+      strategy_class: OmniAuth::Strategies::EntraId,
       default_role: 'super_admin'
     }
   end

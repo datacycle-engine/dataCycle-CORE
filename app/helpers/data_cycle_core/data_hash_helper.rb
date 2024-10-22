@@ -21,6 +21,7 @@ module DataCycleCore
 
     def attribute_group_title(content, key)
       label_html = ActionView::OutputBuffer.new
+      label_html << tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-object")
 
       if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", count: 1, locale: active_ui_locale)
         label_html << tag.span(I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", count: 1, locale: active_ui_locale))
@@ -30,7 +31,6 @@ module DataCycleCore
         return
       end
 
-      label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-object"))
       label_html << render('data_cycle_core/contents/helper_text', key:, content:)
 
       label_html

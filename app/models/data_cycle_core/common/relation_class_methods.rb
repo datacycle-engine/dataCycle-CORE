@@ -18,7 +18,7 @@ module DataCycleCore
           scope = reflection.scope_for(scope) if reflection.scope
         end
 
-        if query.is_a?(ActiveRecord::NullRelation) || (query.loaded? && query.none?)
+        if query.loaded? && query.none?
           scope.none
         elsif !custom_scope && (query.loaded? || preload.present?)
           preload = [] unless preload.is_a?(::Array) || preload.is_a?(::Hash)

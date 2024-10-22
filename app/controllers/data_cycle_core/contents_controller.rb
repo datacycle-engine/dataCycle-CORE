@@ -11,7 +11,7 @@ module DataCycleCore
 
     DataCycleCore.features.each_key do |key|
       feature = DataCycleCore::Feature[key]
-      include feature.controller_module if feature&.enabled? && feature&.controller_module
+      include feature.controller_module if feature&.enabled? && feature.controller_module
     end
 
     load_and_authorize_resource only: [:index, :show, :destroy]
@@ -40,7 +40,7 @@ module DataCycleCore
 
           ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index + 1, items: item_count, error: content.try(:errors).full_messages.join(', '), id: content.id, field_id: thing_params[:uploader_field_id] })
         rescue StandardError => e
-          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index + 1, items: item_count, error: e.message, id: content.id, field_id: thing_params[:uploader_field_id] })
+          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index + 1, items: item_count, error: e.message, id: content&.id, field_id: thing_params[:uploader_field_id] })
         ensure
           index += 1
         end

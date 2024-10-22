@@ -32,15 +32,11 @@ module DataCycleCore
     end
 
     def self.classification_aliases
-      return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: select(:id) })
+      DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: pluck(:id) })
     end
 
     def self.shared_collections
-      return DataCycleCore::Collection.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::Collection.includes(:collection_shares).where(collection_shares: { shareable: all })
+      DataCycleCore::Collection.includes(:collection_shares).where(collection_shares: { shareable_id: pluck(:id) })
     end
 
     def self.search_columns
@@ -48,9 +44,7 @@ module DataCycleCore
     end
 
     def self.users
-      return DataCycleCore::User.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::User.where(id: joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').select('user_group_users_user_groups.user_id'))
+      DataCycleCore::User.where(id: joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').pluck('user_group_users_user_groups.user_id'))
     end
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)

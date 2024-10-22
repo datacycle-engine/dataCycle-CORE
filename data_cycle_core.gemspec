@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 3.2.2'
 
   # rails
-  s.add_dependency 'rails', '~> 7.0.0'
+  s.add_dependency 'rails', '~> 7.1.0'
   # Translations
   s.add_dependency 'mobility'
   # Frontend Asset Handling

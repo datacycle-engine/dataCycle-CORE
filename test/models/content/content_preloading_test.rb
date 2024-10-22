@@ -55,7 +55,7 @@ module DataCycleCore
       #   contents.first.overlay
 
       #   contents.each do |content|
-      #     assert(content.overlay.loaded? || content.overlay.is_a?(ActiveRecord::NullRelation))
+      #     assert(content.overlay.loaded?)
       #   end
 
       #   assert_equal(1, @pois[2].overlay.size)

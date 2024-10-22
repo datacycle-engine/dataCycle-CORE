@@ -149,9 +149,7 @@ module DataCycleCore
     end
 
     def self.classification_polygons
-      return DataCycleCore::ClassificationPolygon.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::ClassificationPolygon.where(classification_alias_id: select(:id))
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: pluck(:id))
     end
 
     def primary_classification_id

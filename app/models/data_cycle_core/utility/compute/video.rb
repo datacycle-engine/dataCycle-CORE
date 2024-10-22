@@ -35,7 +35,7 @@ module DataCycleCore
             thumb_url = nil
 
             if video&.file&.attached?
-              ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+              DataCycleCore::ActiveStorageService.with_current_options do
                 thumb_url = video.file.preview({}).processed.url
               end
             end
@@ -50,7 +50,7 @@ module DataCycleCore
             thumb_url = nil
             if video&.file&.attached?
               begin
-                ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+                DataCycleCore::ActiveStorageService.with_current_options do
                   thumb_url = video.file.preview(resize_to_limit: [300, 300]).processed.url
                 end
               rescue ActiveStorage::FileNotFoundError

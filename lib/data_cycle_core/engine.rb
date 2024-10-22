@@ -361,6 +361,8 @@ module DataCycleCore
     # disable parameter wrapping
     config.action_controller.wrap_parameters_by_default = false
 
+    config.active_support.cache_format_version = 7.1
+
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
@@ -392,7 +394,7 @@ module DataCycleCore
     end
 
     config.before_initialize do |app|
-      app.config.load_defaults 7.0
+      app.config.load_defaults 7.1
       app.config.active_record.belongs_to_required_by_default = false
       ###
       app.config.time_zone = 'Europe/Vienna'

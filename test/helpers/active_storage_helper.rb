@@ -38,7 +38,8 @@ module DataCycleCore
 
     def active_storage_url_for(file)
       return if file.blank?
-      ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+
+      DataCycleCore::ActiveStorageService.with_current_options do
         file.url
       end
     end
