@@ -26,7 +26,7 @@ module DataCycleCore
         elsif kwargs[:external_system_id].is_a?(String) && kwargs[:external_system_id].uuid?
           @external_system = DataCycleCore::ExternalSystem.find(kwargs[:external_system_id])
         else
-          raise "Missing external_system for #{self.class}"
+          raise ActiveModel::MissingAttributeError, "Missing external_system for #{self.class}"
         end
       end
 

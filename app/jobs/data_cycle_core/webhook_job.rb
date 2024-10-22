@@ -52,12 +52,14 @@ module DataCycleCore
     end
 
     def initialize_context
-      return if arguments.blank?
+      throw :abort if arguments.blank?
 
       @data = parse_data_item(arguments.dig(0, :data_object))
       @utility_object = DataCycleCore::Export::PushObject.new(
-        **arguments[0].except(:data_object)
+        **arguments[0].except(:data_object, :external_system_id)
       )
+    rescue ActiveModel::MissingAttributeError
+      throw :abort
     end
 
     # check filters for the webhook
@@ -68,6 +70,8 @@ module DataCycleCore
     private
 
     def instrument_status(severity, message_details)
+      return if utility_object.blank? || utility_object.external_system.blank?
+
       message = [
         '[E]',
         utility_object.external_system.name,
