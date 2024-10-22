@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: freie Scheehöhenmesspunkte
+    :name: freie Schneehöhenmesspunkte
     :type: object
     :content_type: entity
     :boost: 100.0
@@ -37,7 +37,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "freie Scheehöhenmesspunkte"
+        :default_value: "freie Schneehöhenmesspunkte"
       :meta_data:
         :type: mixin
         :name: meta_data
