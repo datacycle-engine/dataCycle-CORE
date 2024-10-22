@@ -352,7 +352,7 @@ module DataCycleCore
     end
 
     def icon
-      icon = DataCycleCore.classification_icons[id] || DataCycleCore.classification_icons[classification_tree_label&.id]
+      icon = DataCycleCore.classification_icons[id] || DataCycleCore.classification_icons[classification_tree_label&.id] || DataCycleCore.classification_icons[external_key]
 
       return if icon.blank?
 
