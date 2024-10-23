@@ -64,7 +64,7 @@ namespace :data_cycle_core do
       temp = Time.zone.now
       backup_dir = DbHelper.backup_directory([Rails.env, 'mongo'], create: true)
       download_dir = DbHelper.backup_directory([Rails.env, 'mongo', 'download'], create: true)
-      date = Time.zone.now.to_s(:compact_datetime)
+      date = Time.zone.now.to_formatted_s(:compact_datetime)
       file_name = nil
 
       external_system = DataCycleCore::ExternalSystem.find(args[:external_system_id])

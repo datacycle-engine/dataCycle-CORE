@@ -75,7 +75,11 @@ class AddThings < ActiveRecord::Migration[5.1]
         say_with_time 'setting default values for searches.schema_type' do
           ['creative_works', 'events', 'persons', 'places', 'organizations'].each do |table_name|
             table_object_name = "DataCycleCore::#{table_name.classify}"
-            DataCycleCore::Search.where(content_data_type: table_object_name).update_all(schema_type: table_name.classify)
+            excute <<-SQL.squish
+              UPDATE searches
+              SET schema_type = '#{table_name.classify}'
+              WHERE content_data_type = '#{table_object_name}';
+            SQL
           end
         end
       end
@@ -96,7 +100,7 @@ class AddThings < ActiveRecord::Migration[5.1]
 
     reversible do |dir|
       dir.up do
-        ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
+        execute('DROP VIEW IF EXISTS content_meta_items')
 
         sql = 'CREATE VIEW content_meta_items AS ' +
               ['creative_works', 'events', 'persons', 'places', 'things'].map { |table|
@@ -115,11 +119,11 @@ class AddThings < ActiveRecord::Migration[5.1]
                   WHERE template IS FALSE
                 SQL
               }.join(' UNION ')
-        ActiveRecord::Base.connection.exec_query(sql)
+        execute(sql)
       end
 
       dir.down do
-        ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
+        execute('DROP VIEW IF EXISTS content_meta_items')
 
         sql = 'CREATE VIEW content_meta_items AS ' +
               ['creative_works', 'events', 'persons', 'places', 'organizations'].map { |table|
@@ -138,7 +142,7 @@ class AddThings < ActiveRecord::Migration[5.1]
                 WHERE template IS FALSE
                 SQL
               }.join(' UNION ')
-        ActiveRecord::Base.connection.exec_query(sql)
+        execute(sql)
       end
     end
   end

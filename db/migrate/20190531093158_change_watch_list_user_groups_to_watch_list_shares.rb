@@ -9,7 +9,5 @@ class ChangeWatchListUserGroupsToWatchListShares < ActiveRecord::Migration[5.1]
 
     remove_index :watch_list_shares, :shareable_id if index_exists?(:watch_list_shares, :shareable_id)
     add_index :watch_list_shares, [:shareable_id, :shareable_type, :watch_list_id], unique: true, name: 'unique_by_shareable'
-
-    DataCycleCore::User.with_deleted.where(type: nil).update(type: 'DataCycleCore::User')
   end
 end

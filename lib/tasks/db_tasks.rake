@@ -238,7 +238,7 @@ namespace :db do
     environments = [Rails.env]
     environments.unshift('test') if Rails.env.development?
 
-    ActiveRecord::Base.configurations.to_h.slice(*environments).each_value do |db|
+    Rails.application.config.database_configuration.slice(*environments).each_value do |db|
       ActiveRecord::Base.establish_connection(db)
       ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{db['database']}' AND pid <> pg_backend_pid();"
     rescue ActiveRecord::NoDatabaseError => e

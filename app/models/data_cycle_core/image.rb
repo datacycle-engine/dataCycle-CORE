@@ -136,7 +136,7 @@ module DataCycleCore
     def thumb_preview(transformation = {})
       return unless file&.attached?
 
-      file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format')), colourspace: 'srgb', background: 'White', flatten: true).processed
+      file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format')), colorspace: 'srgb', background: 'White', flatten: true).processed
     rescue ActiveStorage::FileNotFoundError
       nil
     end
@@ -144,7 +144,7 @@ module DataCycleCore
     def web(transformation = {})
       return unless file&.attached?
 
-      file.variant(resize_to_limit: [2048, 2048], colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
+      file.variant(resize_to_limit: [2048, 2048], colorspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
     rescue ActiveStorage::FileNotFoundError
       nil
     end
@@ -152,7 +152,7 @@ module DataCycleCore
     def default(transformation = {})
       return unless file&.attached?
 
-      file.variant(colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
+      file.variant(colorspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
     rescue ActiveStorage::FileNotFoundError
       nil
     end
@@ -161,9 +161,9 @@ module DataCycleCore
       return unless file&.attached?
 
       if transformation.dig('width').present? || transformation.dig('height').present?
-        file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
+        file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], colorspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
       else
-        file.variant(colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
+        file.variant(colorspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
       end
     rescue ActiveStorage::FileNotFoundError
       nil

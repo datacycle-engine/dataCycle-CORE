@@ -30,8 +30,7 @@ module DataCycleCore
       alias translated_locales available_locales
 
       def self.translated_locales
-        binding.pry
-        DataCycleCore::Thing::History::Translation.where(translated_model: all).distinct.pluck(:locale).map(&:to_sym)
+        DataCycleCore::Thing::History::Translation.where(thing_history_id: pluck(:id)).distinct.pluck(:locale).map(&:to_sym)
       end
     end
 
@@ -107,9 +106,7 @@ module DataCycleCore
     alias translated_locales available_locales
 
     def self.translated_locales
-      binding.pry
-
-      DataCycleCore::Thing::Translation.where(translated_model: all).distinct.pluck(:locale)
+      DataCycleCore::Thing::Translation.where(thing_id: pluck(:id)).distinct.pluck(:locale)
     end
 
     def cache_key

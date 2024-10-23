@@ -145,8 +145,8 @@ module DataCycleCore
 
       event = create_event_with_event_schedule(schedule_hash, nil)
       assert_equal(0, event.overlay.size)
-      assert_equal(dtfrom, event.start_date.to_s(:long_datetime))
-      assert_equal(dtend, event.end_date.to_s(:long_datetime))
+      assert_equal(dtfrom, event.start_date.to_formatted_s(:long_datetime))
+      assert_equal(dtend, event.end_date.to_formatted_s(:long_datetime))
 
       event = create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
       assert_equal(1, event.overlay.size)
@@ -155,12 +155,12 @@ module DataCycleCore
       assert_not_equal(schedule, schedule_overlay)
       assert_equal(schedule_overlay, event.event_schedule_overlay.first.to_h)
 
-      assert_equal(dtfrom, event.start_date.to_s(:long_datetime))
-      assert_equal(dtend, event.end_date.to_s(:long_datetime))
-      assert_equal(odtfrom, event.overlay.first.start_date.to_s(:long_datetime))
-      assert_equal(odtend, event.overlay.first.end_date.to_s(:long_datetime))
-      assert_equal(odtfrom, event.start_date_overlay.to_s(:long_datetime))
-      assert_equal(odtend, event.end_date_overlay.to_s(:long_datetime))
+      assert_equal(dtfrom, event.start_date.to_formatted_s(:long_datetime))
+      assert_equal(dtend, event.end_date.to_formatted_s(:long_datetime))
+      assert_equal(odtfrom, event.overlay.first.start_date.to_formatted_s(:long_datetime))
+      assert_equal(odtend, event.overlay.first.end_date.to_formatted_s(:long_datetime))
+      assert_equal(odtfrom, event.start_date_overlay.to_formatted_s(:long_datetime))
+      assert_equal(odtend, event.end_date_overlay.to_formatted_s(:long_datetime))
     end
   end
 end

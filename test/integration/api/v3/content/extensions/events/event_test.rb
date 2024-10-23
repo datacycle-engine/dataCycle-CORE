@@ -96,8 +96,8 @@ module DataCycleCore
                     '@type' => 'Event',
                     'contentType' => 'SubEvent',
                     'inLanguage' => 'de',
-                    'startDate' => sub_event.event_period.start_date.to_s(:long_msec),
-                    'endDate' => sub_event.event_period.end_date.to_s(:long_msec)
+                    'startDate' => sub_event.event_period.start_date.to_formatted_s(:long_msec),
+                    'endDate' => sub_event.event_period.end_date.to_formatted_s(:long_msec)
                   }
                 end
                 assert_equal(sub_events, event_schedule_hash)
@@ -194,8 +194,8 @@ module DataCycleCore
                     'contentType' => 'SubEvent',
                     'inLanguage' => 'de',
                     'identifier' => sub_event.id,
-                    'startDate' => sub_event.event_period.start_date.to_s(:long_msec),
-                    'endDate' => sub_event.event_period.end_date.to_s(:long_msec)
+                    'startDate' => sub_event.event_period.start_date.to_formatted_s(:long_msec),
+                    'endDate' => sub_event.event_period.end_date.to_formatted_s(:long_msec)
                   }
                 end
                 v2_subevents = v3_subevents.map do |sub_event|
@@ -203,13 +203,13 @@ module DataCycleCore
                 end
                 convert_api_v2_json = api_v2_json
                 convert_api_v2_json['subEvent'].map do |item|
-                  item['startDate'] = item['startDate'].in_time_zone.to_s(:long_msec)
-                  item['endDate'] = item['endDate'].in_time_zone.to_s(:long_msec)
+                  item['startDate'] = item['startDate'].in_time_zone.to_formatted_s(:long_msec)
+                  item['endDate'] = item['endDate'].in_time_zone.to_formatted_s(:long_msec)
                 end
                 convert_api_v3_json = api_v3_json
                 convert_api_v3_json['subEvent'].map do |item|
-                  item['startDate'] = item['startDate'].in_time_zone.to_s(:long_msec)
-                  item['endDate'] = item['endDate'].in_time_zone.to_s(:long_msec)
+                  item['startDate'] = item['startDate'].in_time_zone.to_formatted_s(:long_msec)
+                  item['endDate'] = item['endDate'].in_time_zone.to_formatted_s(:long_msec)
                 end
                 except_sub_event_params = excepted_params + ['identifier', 'name', 'description', 'sameAs']
 

@@ -36,7 +36,7 @@ namespace :data_cycle_core do
         puts 'name'.ljust(30) + ' | ' + 'last_seen'.ljust(38) + ' | ' + 'occurrence'
         puts '-' * 82
         data.each do |key, value|
-          puts "#{key.to_s.ljust(30)} |  #{value[:seen_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(7)}"
+          puts "#{key.to_s.ljust(30)} |  #{value[:seen_at].to_formatted_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(7)}"
         end
       else
         puts("[done] ... looks good (Duration: #{(Time.zone.now - tmp).round} sec)")

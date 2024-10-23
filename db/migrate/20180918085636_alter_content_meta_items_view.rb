@@ -2,7 +2,7 @@
 
 class AlterContentMetaItemsView < ActiveRecord::Migration[5.1]
   def up
-    ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
+    execute('DROP VIEW IF EXISTS content_meta_items')
 
     sql = 'CREATE VIEW content_meta_items AS ' +
           ['creative_works', 'events', 'persons', 'places', 'organizations'].map { |table|
@@ -22,11 +22,11 @@ class AlterContentMetaItemsView < ActiveRecord::Migration[5.1]
             SQL
           }.join(' UNION ')
 
-    ActiveRecord::Base.connection.exec_query(sql)
+    execute(sql)
   end
 
   def down
-    ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
+    execute('DROP VIEW IF EXISTS content_meta_items')
 
     sql = 'CREATE VIEW content_meta_items AS ' +
           ['creative_works', 'events', 'persons', 'places', 'organizations'].map { |table|
@@ -43,6 +43,6 @@ class AlterContentMetaItemsView < ActiveRecord::Migration[5.1]
             SQL
           }.join(' UNION ')
 
-    ActiveRecord::Base.connection.exec_query(sql)
+    execute(sql)
   end
 end
