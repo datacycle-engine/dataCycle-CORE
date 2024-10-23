@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class UpdateIndexesForThingsAndSearch < ActiveRecord::Migration[5.2]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     # remove obsolete columns
     remove_column :searches, :classification_mapping
@@ -32,4 +33,5 @@ class UpdateIndexesForThingsAndSearch < ActiveRecord::Migration[5.2]
     remove_index :searches, :classification_aliases_mapping, using: :gin
     remove_index :searches, :classification_ancestors_mapping, using: :gin
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

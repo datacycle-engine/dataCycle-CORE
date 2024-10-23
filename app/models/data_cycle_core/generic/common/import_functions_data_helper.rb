@@ -214,7 +214,7 @@ module DataCycleCore
 
           transformation_config = options['external_system_identifier_transformation']
 
-          return unless transformation_config&.key?('module') && transformation_config&.key?('method')
+          return unless transformation_config&.key?('module') && transformation_config.key?('method')
 
           data_hash['external_system_data'].each do |d|
             t_module = transformation_config['module'].safe_constantize

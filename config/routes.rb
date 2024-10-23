@@ -349,7 +349,7 @@ DataCycleCore::Engine.routes.draw do
                 match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
                 match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
 
-                match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
+                match 'things', to: 'things#index', via: [:get, :post] if Rails.env.local?
                 match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
                 match 'things/:id/:timeseries(/:format)', to: 'things#timeseries', as: 'thing_timeseries', via: [:get, :post]
 

@@ -37,16 +37,16 @@ module DataCycleCore
         end
       end
 
-      def contents_with_default_scope(query = @contents)
-        query = super(query)
+      def contents_with_default_scope(*)
+        q = super
 
-        query = query.where(
+        q = q.where(
           ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(things.geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
         )
 
-        query = query.select('ST_GeometryType(MAX(things.geom_simple)) AS geometry_type').reorder(id: :desc) if @cluster
+        q = q.select('ST_GeometryType(MAX(things.geom_simple)) AS geometry_type').reorder(id: :desc) if @cluster
 
-        query
+        q
       end
 
       def content_select_sql

@@ -128,44 +128,43 @@ module DataCycleCore
                 end
               end
 
-              if classification_property_names.include?(key) && value.present?
-                value.each do |classification_id|
-                  existing = classifications.detect { |c| c['id'] == classification_id }
-                  c_data = preloaded.dig('classifications', classification_id)
+              next unless classification_property_names.include?(key) && value.present?
+              value.each do |classification_id|
+                existing = classifications.detect { |c| c['id'] == classification_id }
+                c_data = preloaded.dig('classifications', classification_id)
 
-                  next if c_data.blank?
+                next if c_data.blank?
 
-                  if existing.present?
-                    existing['attribute_name'].push(key) unless existing['attribute_name'].include?(key)
-                  else
-                    classifications.unshift(
-                      c_data[:classification_hash]&.merge({
-                        'ancestors' => c_data[:ancestors],
-                        'attribute_name' => [key]
-                      })
-                    )
-                  end
-
-                  mapped_ids = c_data[:classification].additional_classification_aliases.map(&:id)
-
-                  preloaded['classifications']
-                    .each_value do |v|
-                      next unless mapped_ids.include?(v[:classification_alias_id])
-
-                      existing = classifications.detect { |c| c['id'] == v.dig(:classification_hash, 'id') }
-
-                      if existing.present?
-                        existing['attribute_name'].push('universal_classifications') unless existing['attribute_name'].include?('universal_classifications')
-                      else
-                        classifications.unshift(
-                          v[:classification_hash]&.merge({
-                            'ancestors' => v[:ancestors],
-                            'attribute_name' => ['universal_classifications']
-                          })
-                        )
-                      end
-                    end
+                if existing.present?
+                  existing['attribute_name'].push(key) unless existing['attribute_name'].include?(key)
+                else
+                  classifications.unshift(
+                    c_data[:classification_hash]&.merge({
+                      'ancestors' => c_data[:ancestors],
+                      'attribute_name' => [key]
+                    })
+                  )
                 end
+
+                mapped_ids = c_data[:classification].additional_classification_aliases.map(&:id)
+
+                preloaded['classifications']
+                  .each_value do |v|
+                    next unless mapped_ids.include?(v[:classification_alias_id])
+
+                    existing = classifications.detect { |c| c['id'] == v.dig(:classification_hash, 'id') }
+
+                    if existing.present?
+                      existing['attribute_name'].push('universal_classifications') unless existing['attribute_name'].include?('universal_classifications')
+                    else
+                      classifications.unshift(
+                        v[:classification_hash]&.merge({
+                          'ancestors' => v[:ancestors],
+                          'attribute_name' => ['universal_classifications']
+                        })
+                      )
+                    end
+                  end
               end
             end
           end

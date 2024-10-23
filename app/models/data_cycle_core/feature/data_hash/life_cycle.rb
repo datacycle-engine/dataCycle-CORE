@@ -47,7 +47,7 @@ module DataCycleCore
         def inherit_life_cycle_attributes(data_hash:)
           I18n.with_locale(parent.first_available_locale) do
             key = DataCycleCore::Feature::LifeCycle.attribute_keys(self).first
-            value = parent.try(DataCycleCore::Feature::LifeCycle.attribute_keys(parent).first)&.ids
+            value = parent.try(DataCycleCore::Feature::LifeCycle.attribute_keys(parent).first)&.pluck(:id)
 
             data_hash[key] = value if key.present? && value.present?
           end

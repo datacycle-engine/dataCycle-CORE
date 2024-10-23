@@ -53,7 +53,7 @@ module DataCycleCore
       args[:force_render] = args.dig(:parameters, :options, :force_render)
       args[:readonly] = args.dig(:parameters, :options, :readonly)
 
-      super(**args)
+      super
     end
 
     def hash

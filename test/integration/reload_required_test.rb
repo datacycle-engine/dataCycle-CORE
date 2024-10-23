@@ -23,7 +23,7 @@ module DataCycleCore
         referer: edit_thing_path(@content)
       }
 
-      assert_response 204
+      assert_response :no_content
     end
 
     test 'reload_required after logout' do

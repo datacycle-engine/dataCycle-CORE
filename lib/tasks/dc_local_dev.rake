@@ -34,7 +34,7 @@ namespace :dc do
       new_locale = args.new_locale
       file_names = Regexp.new(args.file_names, 'i') if args.file_names.present?
       file_paths = Dir[DataCycleCore::Engine.root.join('config', 'locales', '{*.de,de}.yml')]
-      file_paths.concat(Dir[Rails.root.join('config', 'locales', '{*.de,de}.yml')])
+      file_paths.concat(Rails.root.glob('config/locales/{*.de,de}.yml'))
       file_paths.select! { |p| file_names.match?(File.basename(p)) } if file_names.present?
 
       puts 'AUTOMATIC I18N TRANSLATION STARTED...'

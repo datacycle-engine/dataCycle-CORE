@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddPlaceAttributesToThings < ActiveRecord::Migration[5.1]
+  # rubocop:disable Rails/BulkChangeTable
   def change
     add_column :things, :longitude, :float
     add_column :things, :latitude, :float
@@ -77,4 +78,5 @@ class AddPlaceAttributesToThings < ActiveRecord::Migration[5.1]
       end
     end
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

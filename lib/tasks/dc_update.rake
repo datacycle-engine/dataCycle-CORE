@@ -63,7 +63,7 @@ namespace :dc do
 
     desc 'create all dictionaries in postgresql'
     task dictionaries: :environment do
-      present_dictionaries = Dir[Rails.root.join('config', 'configurations', 'ts_search', '*.ths')]
+      present_dictionaries = Rails.root.glob('config/configurations/ts_search/*.ths')
       file_names = present_dictionaries.map { |f| f.split('/').last.split('.').first }
 
       file_names.each do |dict|

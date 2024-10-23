@@ -20,5 +20,5 @@ module PostgresCustomTypesExtension
 end
 
 ActiveSupport.on_load(:active_record) do
-  ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.extend PostgresCustomTypesExtension
+  ActiveSupport.on_load(:active_record_postgresqladapter) { extend PostgresCustomTypesExtension }
 end

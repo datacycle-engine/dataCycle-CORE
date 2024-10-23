@@ -134,7 +134,7 @@ module DataCycleCore
           if mode == 'absolute'
             from_date = date_from_single_value(min)
             to_date = date_from_single_value(max)
-            to_date = to_date.end_of_day if to_date&.to_formatted_s(:only_time) == '00:00'
+            to_date = to_date.end_of_day if to_date&.to_fs(:only_time) == '00:00'
           else
             from_date = relative_to_absolute_date(min)
             to_date = relative_to_absolute_date(max)

@@ -34,7 +34,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      enum aggregate_type: { default: 'default', aggregate: 'aggregate', belongs_to_aggregate: 'belongs_to_aggregate' }, _prefix: :aggregate_type
+      enum :aggregate_type, { default: 'default', aggregate: 'aggregate', belongs_to_aggregate: 'belongs_to_aggregate' }, prefix: :aggregate_type
 
       attr_accessor(*ATTR_ACCESSORS)
       attr_writer(*ATTR_WRITERS)
@@ -58,7 +58,7 @@ module DataCycleCore
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
-        include feature.content_module if feature&.enabled? && feature&.content_module
+        include feature.content_module if feature&.enabled? && feature.content_module
       end
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
@@ -84,7 +84,7 @@ module DataCycleCore
       def reload(options = nil)
         reload_memoized
 
-        super(options)
+        super
       end
 
       def generic_template?

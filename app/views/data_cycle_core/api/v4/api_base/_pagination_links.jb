@@ -7,7 +7,6 @@ unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
       total: objects.limit(nil).offset(nil).count
     }
   else
-    # objects.instance_variable_set(:@total_count, @count.value)
     json['meta'] = {
       total: objects.total_count,
       pages: objects.total_pages

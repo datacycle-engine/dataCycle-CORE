@@ -129,7 +129,7 @@ module DataCycleCore
         referer: root_url
       }
 
-      assert_response 200
+      assert_response :ok
 
       get add_item_watch_list_path(watch_list), xhr: true, params: {
         hashable_id: watch_list_content.id,
@@ -138,7 +138,7 @@ module DataCycleCore
         referer: root_url
       }
 
-      assert_response 200
+      assert_response :ok
 
       logout
 

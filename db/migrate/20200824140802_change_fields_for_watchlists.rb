@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class ChangeFieldsForWatchlists < ActiveRecord::Migration[5.2]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     add_column :watch_lists, :full_path, :string
     add_column :watch_lists, :full_path_names, :string, array: true
@@ -25,4 +26,5 @@ class ChangeFieldsForWatchlists < ActiveRecord::Migration[5.2]
     remove_index :watch_lists, :full_path, name: 'full_path_idx' if index_exists?(:watch_lists, :full_path, name: 'full_path_idx')
     remove_column :watch_lists, :full_path_names
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

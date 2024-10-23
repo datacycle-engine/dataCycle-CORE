@@ -62,7 +62,6 @@ module DataCycleCore
           })
         end
       rescue StandardError => e
-        binding.pry
         render(json: { error: I18n.t('validation.errors.asset_convert', locale: helpers.active_ui_locale), errorDetail: e.message }, status: :unprocessable_entity)
       end
     end

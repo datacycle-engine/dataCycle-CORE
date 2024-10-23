@@ -26,8 +26,8 @@ module DataCycleCore
 
             assert_equal 8.days.ago.midday.to_date.iso8601, schedule['startDate']
             assert_equal 5.days.ago.to_date.iso8601, schedule['endDate']
-            assert_equal 8.days.ago.midday.to_formatted_s(:only_time), schedule['startTime']
-            assert_equal (8.days.ago.midday + 1.hour).to_formatted_s(:only_time), schedule['endTime']
+            assert_equal 8.days.ago.midday.to_fs(:only_time), schedule['startTime']
+            assert_equal (8.days.ago.midday + 1.hour).to_fs(:only_time), schedule['endTime']
             assert_equal 1.hour.iso8601, schedule['duration']
             assert_equal 'P1D', schedule['repeatFrequency']
             assert_equal 'Europe/Vienna', schedule['scheduleTimezone']

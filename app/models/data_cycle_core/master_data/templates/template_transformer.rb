@@ -120,8 +120,8 @@ module DataCycleCore
 
         def allowed_mixin?(condition, key_path)
           condition.all? do |key, value|
-            if respond_to?("condition_#{key}", true)
-              send("condition_#{key}", value)
+            if respond_to?(:"condition_#{key}", true)
+              send(:"condition_#{key}", value)
             else
               @errors.push("#{@error_path}.properties.#{key_path.join('.')}.condition.#{key} => method not found!")
             end

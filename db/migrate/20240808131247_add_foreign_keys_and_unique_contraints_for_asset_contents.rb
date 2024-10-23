@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddForeignKeysAndUniqueContraintsForAssetContents < ActiveRecord::Migration[6.1]
+  # rubocop:disable Rails/BulkChangeTable
   def change
     remove_index :asset_contents, :asset_id, name: 'index_asset_contents_on_asset_id', if_exists: true
     remove_index :asset_contents, :content_data_id, name: 'index_asset_contents_on_content_data_id', if_exists: true
@@ -18,4 +19,5 @@ class AddForeignKeysAndUniqueContraintsForAssetContents < ActiveRecord::Migratio
     add_index :asset_contents, [:thing_id, :relation], unique: true, if_not_exists: true
     add_index :asset_contents, :asset_id, unique: true, if_not_exists: true
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

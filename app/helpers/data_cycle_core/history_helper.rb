@@ -220,7 +220,7 @@ module DataCycleCore
     def add_translations_history_entries(content, history_entries)
       created_locales = content
         .translations
-        .where('thing_translations.created_at <= ?', content.created_at&.+(10.seconds))
+        .where(thing_translations: { created_at: ..content.created_at&.+(10.seconds) })
         .pluck(:locale)
 
       content.translations.where.not(locale: content.histories.translated_locales + created_locales + [content.last_updated_locale]).find_each do |created_translation|

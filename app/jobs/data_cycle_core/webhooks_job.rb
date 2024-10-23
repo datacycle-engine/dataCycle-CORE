@@ -30,7 +30,7 @@ module DataCycleCore
       return if content.nil?
 
       additional_attributes&.slice(*content.class::WEBHOOK_ACCESSORS)&.each do |key, value|
-        content.send("#{key}=", value)
+        content.send(:"#{key}=", value)
       end
 
       content.webhook_data = OpenStruct.new(additional_attributes[:webhook_data]) if additional_attributes[:webhook_data].present?

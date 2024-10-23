@@ -30,7 +30,7 @@
       data-template-name="<%= content.thing_template.persisted? ? content.template_name : nil %>"
       data-template="<%= to_query_params(thing_template: content.thing_template).to_json %>"
       data-per="<%= DataCycleCore.linked_objects_page_size %>"
-      data-objects="<%= value&.ids %>"
+      data-objects="<%= value&.pluck(:id) %>"
       data-content-id="<%= content.id %>"
       data-max="<%= definition.dig('validations', 'max') || 0 %>"
       data-min="<%= definition.dig('validations', 'min') || 0 %>"
@@ -42,7 +42,7 @@
             <%= render_linked_partial(key: "#{key}[]", definition: definition, parameters: { object: object, prefix: local_assigns.dig(:options, :prefix), options: options, edit_buttons: true }, content: content) %>
           <% end %>
 
-          <% value&.ids&.reject { |v| objects&.ids&.include?(v) }&.each do |id| %>
+          <% value&.pluck(:id)&.reject { |v| objects&.pluck(:id)&.include?(v) }&.each do |id| %>
             <%= hidden_field_tag "#{key}[]", id, disabled: !attribute_editable %>
           <% end %>
         <% else %>

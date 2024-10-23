@@ -118,7 +118,7 @@ module DataCycleCore
       return item unless item.class.const_defined?(:WEBHOOK_ACCESSORS)
 
       item.class::WEBHOOK_ACCESSORS.each do |accessor|
-        item.send("#{accessor}=", data[accessor.to_sym])
+        item.send(:"#{accessor}=", data[accessor.to_sym])
       end
 
       item

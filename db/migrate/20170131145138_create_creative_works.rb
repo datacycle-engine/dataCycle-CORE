@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class CreateCreativeWorks < ActiveRecord::Migration[5.0]
+  # rubocop:disable Rails/BulkChangeTable
+
   def up
     create_table :place_translations do |t|
       t.uuid :place_id, null: false
@@ -72,4 +74,6 @@ class CreateCreativeWorks < ActiveRecord::Migration[5.0]
     add_column :places, :url, :string
     add_column :places, :hoursAvailable, :string
   end
+
+  # rubocop:enable Rails/BulkChangeTable
 end

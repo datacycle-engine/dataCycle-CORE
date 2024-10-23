@@ -135,7 +135,7 @@ module DataCycleCore
         include_file = true
       end
 
-      hash = super(options)
+      hash = super
 
       hash['file'] = { 'url' => Rails.application.routes.url_helpers.rails_storage_proxy_url(file, host: Rails.application.config.asset_host) } if include_file.present? && !file&.attachment&.blob.nil?
 

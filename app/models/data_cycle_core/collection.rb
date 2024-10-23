@@ -10,9 +10,8 @@ module DataCycleCore
     scope :without_my_selection, -> { unscope(where: :my_selection).where(my_selection: false) }
 
     scope :accessible_by_subclass, lambda { |current_ability|
-                                     sub_queries = []
-                                     DataCycleCore::Collection.descendants.each do |descendant|
-                                       sub_queries << descendant.accessible_by(current_ability).select(:id).reorder(nil).to_sql
+                                     sub_queries = DataCycleCore::Collection.descendants.map do |descendant|
+                                       descendant.accessible_by(current_ability).select(:id).reorder(nil).to_sql
                                      end
 
                                      where("collections.id IN (#{send(:sanitize_sql_array, [sub_queries.join(' UNION ')])})")

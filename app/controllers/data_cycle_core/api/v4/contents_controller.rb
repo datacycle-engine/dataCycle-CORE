@@ -12,9 +12,6 @@ module DataCycleCore
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
 
-          # ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql_for_conditions(['SET LOCAL statement_timeout = ?', puma_max_timeout * 1000]))
-
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
             query = build_search_query
 
@@ -39,7 +36,6 @@ module DataCycleCore
               render json: renderer.render(:json)
             end
           end
-          # end
         end
 
         def show
@@ -86,20 +82,16 @@ module DataCycleCore
         def elevation_profile
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
 
-          ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-            ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql_for_conditions(['SET LOCAL statement_timeout = ?', puma_max_timeout * 1000]))
+          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+            query = build_search_query
+            content = query.query.find(timeseries_params[:content_id])
 
-            Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-              query = build_search_query
-              content = query.query.find(timeseries_params[:content_id])
+            @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:, **timeseries_params.slice(:data_format).to_h.deep_symbolize_keys)
 
-              @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:, **timeseries_params.slice(:data_format).to_h.deep_symbolize_keys)
-
-              begin
-                render json: @renderer.render
-              rescue DataCycleCore::ApiRenderer::Error::RendererError => e
-                render json: { error: e.message }, status: e.status_code
-              end
+            begin
+              render json: @renderer.render
+            rescue DataCycleCore::ApiRenderer::Error::RendererError => e
+              render json: { error: e.message }, status: e.status_code
             end
           end
         end

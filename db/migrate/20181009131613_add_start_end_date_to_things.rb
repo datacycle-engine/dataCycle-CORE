@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddStartEndDateToThings < ActiveRecord::Migration[5.1]
+  # rubocop:disable Rails/BulkChangeTable
   def change
     add_column :things, :start_date, :datetime
     add_column :things, :end_date, :datetime
@@ -55,4 +56,5 @@ class AddStartEndDateToThings < ActiveRecord::Migration[5.1]
       end
     end
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

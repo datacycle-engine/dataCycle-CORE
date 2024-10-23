@@ -362,7 +362,7 @@ module DataCycleCore
 
     # configure executor for asnyc queries
     config.active_record.async_query_executor = :global_thread_pool
-    config.active_record.global_executor_concurrency = 4
+    config.active_record.global_executor_concurrency = ENV['PUMA_MAX_THREADS']&.to_i || 5
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|

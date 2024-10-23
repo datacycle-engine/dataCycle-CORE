@@ -11,7 +11,7 @@
     data-definition="<%= definition.to_json %>"
     data-options="<%= options.to_json %>"
     data-total="<%= value.presence&.size %>"
-    data-ids="<%= value.presence&.ids %>"
+    data-ids="<%= value.presence&.pluck(:id) %>"
     data-max="<%= definition.dig('validations', 'max') || 0 %>"
     data-min="<%= definition.dig('validations', 'min') || 0 %>"
     data-content-id="<%= content.id %>"
@@ -41,7 +41,7 @@
         ) %>
       <% end %>
 
-      <% value.presence&.ids&.reject {|v| objects.presence&.ids&.include?(v)}&.each_with_index do |id, index| %>
+      <% value.presence&.pluck(:id)&.reject {|v| objects.presence&.pluck(:id)&.include?(v)}&.each_with_index do |id, index| %>
         <%= hidden_field_tag "#{key}[#{index + objects.size}][id]", id %>
       <% end %>
     <% else %>

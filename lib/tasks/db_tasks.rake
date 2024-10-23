@@ -84,8 +84,10 @@ namespace :db do
       sql = "VACUUM (#{options.join(', ')}) #{table_names}".squish + ';'
       visibility_sql = "VACUUM (ANALYZE) #{table_names}".squish + ';'
 
-      ActiveRecord::Base.connection.execute(sql)
-      ActiveRecord::Base.connection.execute(visibility_sql) if full # fix visibility tables
+      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 0;')
+      ActiveRecord::Base.connection.exec_query(sql)
+      ActiveRecord::Base.connection.exec_query(visibility_sql) if full # fix visibility tables
+      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 60000;')
     end
 
     desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'

@@ -28,12 +28,11 @@ module DataCycleCore
             content
               &.classification_aliases
               &.map do |ca|
-                if ca.classification_alias_path&.full_path_names&.last == configuration[:tree_label]
-                  ca.classification_alias_path
-                    .full_path_names.values_at(-1, 0)
-                    .join('_')
-                    .underscore_blanks
-                end
+                next unless ca.classification_alias_path&.full_path_names&.last == configuration[:tree_label]
+                ca.classification_alias_path
+                  .full_path_names.values_at(-1, 0)
+                  .join('_')
+                  .underscore_blanks
               end
           else
             content

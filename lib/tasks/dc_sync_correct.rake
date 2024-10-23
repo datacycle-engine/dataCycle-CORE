@@ -18,8 +18,8 @@ namespace :dc do
           .first
           .id
         main_classification_alias_id = DataCycleCore::Classification.find(main_classification_id).primary_classification_alias.id
-        unwanted_classification_ids = DataCycleCore::Classification.where(name: day).where.not(id: main_classification_id).ids
-        unwanted_classification_alias_ids = DataCycleCore::ClassificationAlias.where(internal_name: day).where.not(id: main_classification_alias_id).ids
+        unwanted_classification_ids = DataCycleCore::Classification.where(name: day).where.not(id: main_classification_id).pluck(:id)
+        unwanted_classification_alias_ids = DataCycleCore::ClassificationAlias.where(internal_name: day).where.not(id: main_classification_alias_id).pluck(:id)
 
         # move all thing relations to the appropriate classification
         DataCycleCore::ClassificationContent.where(classification_id: unwanted_classification_ids).update_all(classification_id: main_classification_id)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddDeviseConfirmableToUsers < ActiveRecord::Migration[5.2]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     add_column :users, :confirmation_token, :string
     add_column :users, :confirmed_at, :datetime
@@ -9,4 +10,5 @@ class AddDeviseConfirmableToUsers < ActiveRecord::Migration[5.2]
 
     execute 'UPDATE users SET confirmed_at = created_at WHERE confirmed_at IS NULL'
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

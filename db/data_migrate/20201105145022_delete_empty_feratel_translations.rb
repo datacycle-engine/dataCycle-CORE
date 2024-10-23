@@ -6,7 +6,7 @@ class DeleteEmptyFeratelTranslations < ActiveRecord::Migration[5.2]
     return if external.blank?
     [:accommodations, :infrastructure_items, :events].each do |collection_name|
       external.query(collection_name) do |mongo_collection|
-        mongo_collection.where({ "dump.de.deleted_at": { '$exists' => false } }).find_all do |item|
+        mongo_collection.where({ 'dump.de.deleted_at': { '$exists' => false } }).find_all do |item|
           item.dump.each_key do |locale|
             next if locale == 'de'
             next if item.dump[locale].blank?

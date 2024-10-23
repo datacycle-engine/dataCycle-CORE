@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class ChangeDataLinks < ActiveRecord::Migration[5.0]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     execute 'DELETE FROM data_links'
     add_column :data_links, :receiver_id, :uuid
@@ -15,4 +16,5 @@ class ChangeDataLinks < ActiveRecord::Migration[5.0]
     remove_column :data_links, :valid_from
     remove_column :data_links, :valid_until
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

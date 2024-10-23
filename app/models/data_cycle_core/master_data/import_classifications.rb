@@ -200,7 +200,7 @@ module DataCycleCore
 
       def self.updated_classification_statistics(timestamp = Time.zone.now)
         classifications = {}
-        DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(classification_aliases: { seen_at: ...timestamp.utc.to_formatted_s(:long_usec) })
+        DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(classification_aliases: { seen_at: ...timestamp.utc.to_fs(:long_usec) })
           .where(internal: true).where.not(seen_at: nil).find_each do |classification|
             classifications[classification.internal_name] = {
               seen_at: classification.seen_at,

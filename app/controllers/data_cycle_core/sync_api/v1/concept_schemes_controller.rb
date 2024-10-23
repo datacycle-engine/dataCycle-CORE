@@ -10,7 +10,7 @@ module DataCycleCore
           raise ActionController::BadRequest if permitted_params[:ids].blank?
 
           @concept_schemes = DataCycleCore::ConceptScheme.where(id: permitted_params[:ids].split(',').map(&:strip))
-          @concept_schemes = @concept_schemes.where('concept_schemes.updated_at >= ?', permitted_params[:updated_since].in_time_zone) if permitted_params[:updated_since].present?
+          @concept_schemes = @concept_schemes.where(concept_schemes: { updated_at: permitted_params[:updated_since].in_time_zone.. }) if permitted_params[:updated_since].present?
           @concept_schemes = apply_paging(@concept_schemes).without_count
 
           render json: sync_api_format(@concept_schemes).to_json
@@ -25,7 +25,7 @@ module DataCycleCore
         def concepts
           @concept_scheme = DataCycleCore::ConceptScheme.find(permitted_params[:id])
           @concepts = @concept_scheme.concepts
-          @concepts = @concepts.where('concepts.updated_at >= ?', permitted_params[:updated_since].in_time_zone) if permitted_params[:updated_since].present?
+          @concepts = @concepts.where(concepts: { updated_at: permitted_params[:updated_since].in_time_zone.. }) if permitted_params[:updated_since].present?
           @concepts = apply_paging(@concepts).without_count
           @language = permitted_params[:language].presence || I18n.available_locales.first.to_s
 

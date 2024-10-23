@@ -20,14 +20,14 @@ module DataCycleCore
         'name' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'period' => {
-          'created_at' => '2017-06-01'.to_datetime.to_s(:db),
-          'updated_at' => '2017-07-01'.to_datetime.to_s(:db)
+          'created_at' => '2017-06-01'.to_datetime.to_fs(:db),
+          'updated_at' => '2017-07-01'.to_datetime.to_fs(:db)
         }
       }
       returned_data_hash['period'].each do |key, value|
-        returned_data_hash['period'][key] = value.to_datetime.to_s(:db)
+        returned_data_hash['period'][key] = value.to_datetime.to_fs(:db)
       end
-      returned_data_hash['period']['updated_at'] = '2017-07-01'.to_datetime.to_s(:db)
+      returned_data_hash['period']['updated_at'] = '2017-07-01'.to_datetime.to_fs(:db)
       assert_equal(expected_hash, returned_data_hash.except('id'))
     end
 
@@ -50,8 +50,8 @@ module DataCycleCore
       expected_hash = {
         'name' => 'Dies ist ein Test!',
         'period' => {
-          'created_at' => '2017-06-01'.to_datetime.to_s(:db),
-          'updated_at' => '2017-07-01'.to_datetime.to_s(:db),
+          'created_at' => '2017-06-01'.to_datetime.to_fs(:db),
+          'updated_at' => '2017-07-01'.to_datetime.to_fs(:db),
           'description' => 'wtf is going on???',
           'validity_period' => {
             'valid_from' => '2017-06-01'.in_time_zone,
@@ -60,7 +60,7 @@ module DataCycleCore
         }
       }
       returned_data_hash['period']['updated_at'] = expected_hash['period']['updated_at']
-      returned_data_hash['period']['created_at'] = returned_data_hash['period']['created_at'].to_datetime.to_s(:db)
+      returned_data_hash['period']['created_at'] = returned_data_hash['period']['created_at'].to_datetime.to_fs(:db)
       assert_equal(expected_hash, returned_data_hash.except('id'))
       assert_equal(0, data_set.errors.messages.size)
     end

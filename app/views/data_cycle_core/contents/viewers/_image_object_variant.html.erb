@@ -36,7 +36,7 @@
             <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
           </span>
 
-          <%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale, hide_embedded: true, anchor: object.related_contents(embedded: true).ids.reverse.except(content.id).push(object.id).join('+')), class: 'edit-content-link', title: t('actions.edit', locale: active_ui_locale) if can?(:edit, content) %>
+          <%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale, hide_embedded: true, anchor: object.related_contents(embedded: true).pluck(:id).reverse.except(content.id).push(object.id).join('+')), class: 'edit-content-link', title: t('actions.edit', locale: active_ui_locale) if can?(:edit, content) %>
         </div>
 
         <div class="accordion-content remote-render" data-tab-content

@@ -8,7 +8,7 @@ module DataCycleCore
       attr_reader :logging, :history, :asset_download, :mode, :partial_update, :normalizer
 
       def initialize(**options)
-        super(**options)
+        super
 
         @logging = @logger
         @history = @options.dig(:history) || false

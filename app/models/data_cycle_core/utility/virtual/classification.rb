@@ -6,10 +6,8 @@ module DataCycleCore
       module Classification
         class << self
           def concat(virtual_parameters:, content:, virtual_definition:, **_args)
-            values = []
-
-            virtual_parameters.each do |param|
-              values << classifcation_alias_value(content.send(param), virtual_definition.dig(:virtual, :key))
+            values = virtual_parameters.map do |param|
+              classifcation_alias_value(content.send(param), virtual_definition.dig(:virtual, :key))
             end
 
             values.compact_blank!

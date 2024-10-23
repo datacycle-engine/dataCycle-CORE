@@ -29,7 +29,7 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -47,8 +47,8 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
+                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -64,7 +64,7 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -80,7 +80,7 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -95,8 +95,8 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
+                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -112,10 +112,10 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 15.days).to_s(:iso8601)
+                      max: (Time.zone.now - 15.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -141,7 +141,7 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -159,8 +159,8 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
+                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -176,7 +176,7 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -192,7 +192,7 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -207,8 +207,8 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
+                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -224,10 +224,10 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 15.days).to_s(:iso8601)
+                      max: (Time.zone.now - 15.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -253,12 +253,12 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
                     }
                   },
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now + 1.day).to_s(:iso8601)
+                      max: (Time.zone.now + 1.day).to_fs(:iso8601)
                     }
                   }
                 }
@@ -290,7 +290,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: Time.zone.now.to_s(:iso8601)
+                      min: Time.zone.now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -315,7 +315,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: (Time.zone.now - 5.days).to_s(:iso8601)
+                      min: (Time.zone.now - 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -329,7 +329,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      max: (Time.zone.now + 5.days).to_s(:iso8601)
+                      max: (Time.zone.now + 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -343,7 +343,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -357,8 +357,8 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: (Time.zone.now - 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: (Time.zone.now - 5.days).to_fs(:iso8601),
+                      max: (Time.zone.now + 5.days).to_fs(:iso8601)
                     }
                   }
                 }
@@ -372,10 +372,10 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: (Time.zone.now - 5.days).to_s(:iso8601)
+                      min: (Time.zone.now - 5.days).to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
                     }
                   }
                 }

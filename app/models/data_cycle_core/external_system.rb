@@ -104,7 +104,7 @@ module DataCycleCore
     def full_options(name, type = 'import', options = {})
       (default_options(type) || {})
         .deep_symbolize_keys
-        .deep_merge({ type.to_sym => send("#{type}_config").dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) })
+        .deep_merge({ type.to_sym => send(:"#{type}_config").dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) })
         .deep_merge(options.deep_symbolize_keys)
     end
 
@@ -131,7 +131,7 @@ module DataCycleCore
 
     def check_for_repeated_failure(type, exception = nil)
       options = default_options(type.to_sym)
-      last_success = send("last_successful_#{type}")
+      last_success = send(:"last_successful_#{type}")
 
       return if options.blank? || last_success.blank?
       return if options['error_notification'].blank?

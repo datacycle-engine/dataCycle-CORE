@@ -32,7 +32,7 @@ module DataCycleCore
         test '/api/v4/auth/login - login without email returns 404' do
           post api_v4_authentication_login_path, params: {}, headers: {}
 
-          assert_response 401
+          assert_response :unauthorized
         end
 
         test '/api/v4/auth/login - login with token' do

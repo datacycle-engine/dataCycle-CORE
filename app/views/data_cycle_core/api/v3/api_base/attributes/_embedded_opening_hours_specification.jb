@@ -2,11 +2,11 @@
 
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 
-opening_hours = value.presence&.includes(:translations, :classifications)&.map { |specification|
+opening_hours = value.presence&.includes(:translations, :classifications)&.sum { |specification|
   specification.time.map do |time|
     [specification, time]
   end
-}&.reduce(&:+)&.map do |specification_with_time|
+}&.map do |specification_with_time|
   I18n.with_locale(specification_with_time.first.first_available_locale) do
     if specification_with_time.first.schema.present?
       item_res = {}

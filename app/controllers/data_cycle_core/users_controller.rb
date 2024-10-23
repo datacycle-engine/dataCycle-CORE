@@ -217,7 +217,7 @@ module DataCycleCore
 
       @filters&.each do |filter|
         filter_method = (filter['c'] == 'd' ? filter['n'] : filter['t']).dup
-        filter_method = +"#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?("#{filter['t']}_#{filter['n']}")
+        filter_method = "#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?(:"#{filter['t']}_#{filter['n']}")
         filter_method.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
 
         next unless query.respond_to?(filter_method)
