@@ -27,13 +27,15 @@ module DataCycleCore
       ].freeze
 
       def initialize(contents:, single_item: false, **params)
-        @contents = contents
+        @contents = contents.load_async
+        # @count = contents.except(:limit, :offset).async_count
+        # @contents.instance_variable_set(:@total_count, contents.except(:limit, :offset).async_count.value)
         @single_item = single_item
         @params = params
       end
 
       def render(render_format = :json)
-        send("render_#{render_format}")
+        send(:"render_#{render_format}")
       end
 
       def json_template
@@ -48,6 +50,7 @@ module DataCycleCore
         else
           params[:contents] = @contents
           params[:pagination_contents] = @contents
+          params[:count] = @count
         end
 
         params

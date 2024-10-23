@@ -517,8 +517,8 @@ module DataCycleCore
           s['rrules'][0]['validations'] ||= {}
           s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
-          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
-          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_formatted_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_formatted_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
 
           case s.dig('rrules', 0, 'rule_type')
           when 'IceCube::WeeklyRule'
@@ -579,7 +579,7 @@ module DataCycleCore
             if s['valid_until'].present? && ((s['holiday'] == 'true' && (0...7).to_a.difference(days).present?) || s['holiday'] == 'false')
               holidays = Holidays
                 .between(start_time, s['valid_until'].in_time_zone.end_of_day, Array.wrap(DataCycleCore.holidays_country_code))
-                .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+                .map { |d| { time: "#{d[:date]} #{start_time.to_formatted_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
             end
 
             transform_data_for_data_hash({

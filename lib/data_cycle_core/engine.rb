@@ -50,9 +50,6 @@ require 'faraday_middleware'
 # Breadcrumbs
 require 'gretel'
 
-# support for forms
-require 'simple_form'
-
 # rendering json responses
 require 'jbuilder'
 
@@ -362,6 +359,10 @@ module DataCycleCore
     config.action_controller.wrap_parameters_by_default = false
 
     config.active_support.cache_format_version = 7.1
+
+    # configure executor for asnyc queries
+    config.active_record.async_query_executor = :global_thread_pool
+    config.active_record.global_executor_concurrency = 4
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|

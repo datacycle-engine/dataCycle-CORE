@@ -3,32 +3,32 @@
 json = {}
 json.merge! render 'context', languages: @language
 
-queue = DataCycleCore::WorkerPool.new(@permitted_params.dig(:section, :meta)&.to_i&.zero? ? 1 : DataCycleCore::ApiService.allowed_thread_count)
+# queue = DataCycleCore::WorkerPool.new(@permitted_params.dig(:section, :meta)&.to_i&.zero? ? 1 : DataCycleCore::ApiService.allowed_thread_count)
 
 unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
   json['@graph'] = []
 
-  queue.append do
-    @contents.each do |item|
-      json['@graph'] << Rails.cache.fetch(api_v4_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters), expires_in: 1.year + Random.rand(7.days)) do
-        I18n.with_locale(item.first_available_locale(@language)) do
-          render('content_details', content: item, options: { languages: @language })
-        end
+  # queue.append do
+  @contents.each do |item|
+    json['@graph'] << Rails.cache.fetch(api_v4_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters), expires_in: 1.year + Random.rand(7.days)) do
+      I18n.with_locale(item.first_available_locale(@language)) do
+        render('content_details', content: item, options: { languages: @language })
       end
     end
   end
+  # end
 end
 
-queue.append do
-  json.merge! render 'pagination_links',
-                     objects: @pagination_contents || @contents,
-                     object_url: lambda { |params|
-                                   id = (@watch_list || @stored_filter)&.id
-                                   id.present? ? api_v4_stored_filter_url(id:, **params) : api_v4_things_url(**params)
-                                 }
-end
+# queue.append do
+json.merge! render 'pagination_links',
+                   objects: @pagination_contents || @contents,
+                   object_url: lambda { |params|
+                                 id = (@watch_list || @stored_filter)&.id
+                                 id.present? ? api_v4_stored_filter_url(id:, **params) : api_v4_things_url(**params)
+                               }
+# end
 
-queue.wait!
+# queue.wait!
 
 json.merge! render 'live_data'
 

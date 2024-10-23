@@ -8,6 +8,14 @@ module DataCycleCore
       optional(:page).filled(:integer)
       optional(:tree_page).filled(:integer)
     end
+    SORT_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
+      optional(:s).hash do
+        optional(:v).hash do
+          optional(:o).filled(:string, included_in?: ['DESC', 'ASC'])
+          optional(:m).maybe(:string)
+        end
+      end
+    end
 
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       @stored_filter ||= DataCycleCore::StoredFilter.new
@@ -61,11 +69,22 @@ module DataCycleCore
     end
 
     def pre_filters
-      @pre_filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
+      params
+        .to_unsafe_hash
+        .dig(:f)
+        .presence
+        &.values
+        &.reject do |f|
+          if f['v'].is_a?(Hash)
+            f['v'].all? { |_, v| v.blank? }
+          else
+            f['v'].blank?
+          end
+        end || []
     end
 
     def sort_params
-      @sort_params ||= params[:s].presence&.values&.reject { |s| s.is_a?(Hash) ? s.any? { |_, v| v.blank? } : s.blank? } || []
+      Array.wrap(params_for(SORT_PARAMS_SCHEMA).dig(:s, :v)&.compact_blank.presence)
     end
 
     def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)

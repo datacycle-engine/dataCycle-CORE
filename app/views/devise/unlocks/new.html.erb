@@ -1,11 +1,16 @@
 <h2>Resend unlock instructions</h2>
 
-<%= simple_form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post }) do |f| %>
-  <%= f.error_notification %>
-  <%= f.full_error :unlock_token %>
+<%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post }) do |f| %>
+  <% if resource.errors.any? %>
+    <ul class="errors">
+      <% resource.errors.messages.values.flatten.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  <% end %>
 
   <div class="form-inputs">
-    <%= f.input :email, required: true, autofocus: true %>
+    <%= f.email_field :email, required: true, autofocus: true %>
   </div>
 
   <div class="form-actions">

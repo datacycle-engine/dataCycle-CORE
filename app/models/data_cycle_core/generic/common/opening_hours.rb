@@ -110,7 +110,7 @@ module DataCycleCore
           if (data['Holiday'] == true && (0...7).to_a.difference(days).present?) || data['Holiday'] == false
             holidays = Holidays
               .between(start_time, until_time, Array.wrap(DataCycleCore.holidays_country_code))
-              .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+              .map { |d| { time: "#{d[:date]} #{start_time.to_formatted_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
           end
 
           DataCycleCore::Schedule.transform_data_for_data_hash({

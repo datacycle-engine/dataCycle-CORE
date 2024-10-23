@@ -45,7 +45,7 @@ module DataCycleCore
                 assert_equal('de', xml_data.dig('inLanguage'))
 
                 # startDate / endDate
-                assert_equal(@content.start_date.to_s, xml_data.dig('startDate'))
+                assert_equal(@content.start_date.to_formatted_s, xml_data.dig('startDate'))
                 assert_equal(@content.end_date.to_s, xml_data.dig('endDate'))
 
                 # content data
