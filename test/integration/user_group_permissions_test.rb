@@ -24,8 +24,8 @@ module DataCycleCore
       DataCycleCore.features[:user_group_permission][:enabled] = true
       DataCycleCore::Feature::UserGroupPermission.reload
 
-      @dummy_poi1 = DataCycleCore::Thing.create!(template_name: 'POI', name: 'test poi 1')
-      @dummy_event = DataCycleCore::Thing.create!(template_name: 'Event', name: 'test event')
+      @dummy_poi1 = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { name: 'test poi 1' })
+      @dummy_event = DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: { name: 'test event' })
 
       @test_collection1 = permission_group_base_watchlist_create([@dummy_poi1])
       @test_collection2 = permission_group_base_watchlist_create([@dummy_poi1, @dummy_event])

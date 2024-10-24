@@ -10,7 +10,8 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.enable_reloading = true
 
-  config.active_job.queue_adapter = :test
+  # config.active_job.queue_adapter = :test # problems with backtrace in test failures
+  config.active_job.queue_adapter = :delayed_job
   # config.action_view.cache_template_loading = true
 
   # Do not eager load code on boot. This avoids loading your whole application

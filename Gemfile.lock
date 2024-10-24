@@ -585,10 +585,6 @@ GEM
     snaky_hash (2.0.1)
       hashie
       version_gem (~> 1.1, >= 1.1.1)
-    spring (4.2.1)
-    spring-watcher-listen (2.1.0)
-      listen (>= 2.7, < 4.0)
-      spring (>= 4)
     streamio-ffmpeg (3.0.2)
       multi_json (~> 1.8)
     stringio (3.1.1)
@@ -663,8 +659,6 @@ DEPENDENCIES
   rubocop-rake
   seed_dump
   simplecov
-  spring
-  spring-watcher-listen
   tzinfo-data
   web-console
 

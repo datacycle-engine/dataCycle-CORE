@@ -7,8 +7,8 @@ require 'mini_exiftool_vendored'
 
 module DataCycleCore
   class Image < Asset
-    after_create_commit :set_duplicate_hash
     has_one_attached :file
+    after_create_commit :set_duplicate_hash
 
     cattr_reader :versions, default: { original: {}, thumb_preview: {}, web: {}, default: {} }
     attr_accessor :remote_file_url
@@ -136,7 +136,7 @@ module DataCycleCore
     def thumb_preview(transformation = {})
       return unless file&.attached?
 
-      file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format'))).processed
+      file.variant(resize_to_fit: [300, 300], colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
     rescue ActiveStorage::FileNotFoundError
       nil
     end

@@ -32,10 +32,10 @@ Rails.application.configure do
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
 
-    if Rails.application.secrets.dig(:redis_server).present?
+    if ENV["REDIS_SERVER"].present?
       config.cache_store = :redis_cache_store, {
-        url: "redis://#{Rails.application.secrets.redis_server}:#{Rails.application.secrets.redis_port}/#{Rails.application.secrets.redis_cache_database}",
-        namespace: Rails.application.secrets.redis_cache_namespace
+        url: "redis://#{ENV["REDIS_SERVER"]}:#{ENV["REDIS_PORT"]}/#{ENV["REDIS_CACHE_DATABASE"]}",
+        namespace: ENV["REDIS_CACHE_NAMESPACE"]
       }
     else
       config.cache_store = :memory_store

@@ -31,8 +31,7 @@ require File.expand_path('../test/dummy/config/environment.rb', __dir__)
 # ActiveRecord::Migrator.migrations_paths << File.expand_path('../../db/migrate', __FILE__)
 
 # Rails 7.0
-# ActiveRecord.maintain_test_schema = false
-ActiveRecord::Base.maintain_test_schema = false
+ActiveRecord.maintain_test_schema = false
 
 require 'rails/test_help'
 require 'test_cases/active_support_test_case'

@@ -21,11 +21,11 @@ module DataCycleCore
       diff = content_data.diff(data_hash)
       diff_hash_if_defaults_are_not_considered = {
         'slug' => ['-', content_data.slug],
-        'data_type' => [['-', content_data.data_type.ids]],
-        'data_pool' => [['-', content_data.data_pool.ids]],
+        'data_type' => [['-', content_data.data_type.pluck(:id)]],
+        'data_pool' => [['-', content_data.data_pool.pluck(:id)]],
         'upload_date' => ['-', content_data.upload_date],
         'mandatory_license' => ['-', false],
-        'schema_types' => [['-', content_data.schema_types.ids]]
+        'schema_types' => [['-', content_data.schema_types.pluck(:id)]]
       }
       assert_equal(diff_hash_if_defaults_are_not_considered, diff)
 
@@ -112,7 +112,7 @@ module DataCycleCore
     #
     #   diff = content_data.diff(expected_hash)
     #   _diff_hash_if_defaults_are_not_considered = {
-    #     'data_type' => [['-', content_data.data_type.ids]]
+    #     'data_type' => [['-', content_data.data_type.pluck(:id)]]
     #   }
     #   assert_equal({}, diff)
     #   assert_equal(false, content_data.diff?(expected_hash))
@@ -139,8 +139,8 @@ module DataCycleCore
     #     'content_location' => [{
     #       'id' => content_hash.dig('content_location', 0, 'id')
     #     }],
-    #     'data_pool' => content_data.data_pool.ids,
-    #     'data_type' => content_data.data_type.ids
+    #     'data_pool' => content_data.data_pool.pluck(:id),
+    #     'data_type' => content_data.data_type.pluck(:id)
     #   }
     #   diff_hash = {
     #     'headline' =>    ['~', 'Dies ist ein Test!', 'change headline'],

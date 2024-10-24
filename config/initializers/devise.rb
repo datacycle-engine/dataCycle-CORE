@@ -19,6 +19,7 @@ Devise.setup do |config|
   config.lock_strategy = :none
   config.unlock_strategy = :none
   config.http_authenticatable = true
+  config.secret_key = ENV['SECRET_KEY_BASE']
 
   if ENV['PIXELPOINT_AAD_V2_CLIENT_ID'].present?
     require 'omniauth-entra-id'
