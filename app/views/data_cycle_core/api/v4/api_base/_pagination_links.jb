@@ -4,7 +4,7 @@ json = {}
 unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
   if @permitted_params.dig(:page, :limit)&.to_i&.positive?
     json['meta'] = {
-      total: objects.limit(nil).offset(nil).count
+      total: objects.total_count
     }
   else
     json['meta'] = {

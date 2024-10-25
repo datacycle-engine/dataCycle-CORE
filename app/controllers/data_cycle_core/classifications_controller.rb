@@ -201,7 +201,18 @@ module DataCycleCore
         @object.save!
       end
 
-      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update', locals: { :@queue_classification_mappings => Delayed::Job.exists?(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: @object.id) ? [@object.id] : [] }).strip }.merge(flash.discard.to_h)
+      queued_job = Delayed::Job.exists?(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: @object.id)
+
+      render json: {
+        html: render_to_string(
+          formats: [:html],
+          layout: false,
+          action: 'update',
+          assigns: {
+            queue_classification_mappings: queued_job ? [@object.id] : []
+          }
+        ).strip
+      }.merge(flash.discard.to_h)
     rescue ActiveRecord::RecordInvalid
       render json: { error: I18n.with_locale(helpers.active_ui_locale) { @object.errors.full_messages.join(', ') } }
     end

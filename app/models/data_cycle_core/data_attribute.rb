@@ -34,10 +34,4 @@ module DataCycleCore
       DataAttributeModel.new(self)
     end
   end
-
-  DataAttributeModel = Struct.new(:klass) do
-    def human(**)
-      I18n.t("activerecord.models.#{klass.name.underscore}", **)
-    end
-  end
 end

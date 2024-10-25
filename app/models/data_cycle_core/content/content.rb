@@ -668,7 +668,7 @@ module DataCycleCore
       def set_property_value(property_name, property_definition, value)
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
 
-        ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
+        ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}, caller: #{caller.join("\n")}") unless Rails.env.test?
 
         send(
           NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',

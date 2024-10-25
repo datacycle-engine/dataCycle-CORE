@@ -501,11 +501,17 @@ module DataCycleCore
     private
 
     def render_first_existing_partial(partials, parameters)
-      partials.each do |partial|
-        next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+      partials.each do |partial_name|
+        partial = lookup_context.find_all(
+          partial_name,
+          partial_name.start_with?('data_cycle_core') ? [] : lookup_context.prefixes,
+          true
+        ).first
 
-        logger.debug "  Rendered #{partial}"
-        return render(partial, parameters)
+        next if partial.nil?
+
+        logger.debug "  Rendered #{partial.virtual_path}"
+        return render(partial_name, parameters)
       end
 
       nil
@@ -519,7 +525,7 @@ module DataCycleCore
 
       if value.is_a?(::String)
         options[:data][:text] = value
-      elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)
+      elsif value.is_a?(::Hash)
         options[:data][:text] = value.map { |k, v| "#{k.to_s.titleize}: #{v.join(', ')}" }.join('<br>')
       elsif value.is_a?(::Array)
         options[:data][:text] = value.join('<br>')

@@ -78,7 +78,7 @@ module DataCycleCore
       I18n.with_locale(params[:locale]) do
         render json: {
           html: render_to_string('data_cycle_core/contents/create', formats: [:html], layout: false).strip,
-          detail_html: render_to_string(formats: [:html], layout: false, action: 'details', locals: { :@object => @objects.first }).strip,
+          detail_html: render_to_string(formats: [:html], layout: false, action: 'details', assigns: { object: @objects.first }).strip,
           ids: @objects.pluck(:id)
         }
       end

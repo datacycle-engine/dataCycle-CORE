@@ -12,6 +12,21 @@ module DataCycleCore
         yield record if block_given?
       end
     end
+
+    def async_total_count(column_name = :all)
+      return total_count(column_name) if (defined?(@total_count) && @total_count) || loaded?
+
+      c = except(:offset, :limit, :order)
+      c = c.except(:includes, :eager_load, :preload) unless references_eager_loaded_tables?
+
+      @total_count = c.async_count(column_name)
+    end
+
+    def total_count(column_name = :all)
+      return @total_count.value if @total_count.is_a?(ActiveRecord::Promise)
+
+      count(column_name)
+    end
   end
 end
 

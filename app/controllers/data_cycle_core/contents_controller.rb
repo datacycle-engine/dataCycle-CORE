@@ -204,8 +204,8 @@ module DataCycleCore
 
           format.json do
             render json: {
-              html: @content.present? ? render_to_string(formats: [:html], layout: false, locals: { :@objects => Array.wrap(@content) }).strip : nil,
-              detail_html: @content.present? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).strip : nil,
+              html: @content.present? ? render_to_string(formats: [:html], layout: false, assigns: { objects: Array.wrap(@content) }).strip : nil,
+              detail_html: @content.present? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, assigns: { object: @content }).strip : nil,
               ids: Array.wrap(@content&.id),
               **flash.discard.to_h
             }
@@ -398,8 +398,8 @@ module DataCycleCore
         render js: "document.location = '#{thing_path(@content)}'"
       else
         render json: {
-          html: render_to_string(formats: [:html], layout: false, action: 'create', locals: { :@objects => Array.wrap(@content) }).strip,
-          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).strip,
+          html: render_to_string(formats: [:html], layout: false, action: 'create', assigns: { objects: Array.wrap(@content) }).strip,
+          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, assigns: { object: @content }).strip,
           ids: Array.wrap(@content&.id),
           **flash.discard.to_h
         }

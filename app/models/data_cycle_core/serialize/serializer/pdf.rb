@@ -30,7 +30,7 @@ module DataCycleCore
                       ).render_to_string(
                         formats: [:html],
                         layout: 'data_cycle_core/pdf',
-                        locals: { :@content => content },
+                        assigns: { content: content },
                         template: 'data_cycle_core/pdf/contents/show'
                       ).squish
                     end,

@@ -69,7 +69,8 @@ module DataCycleCore
     end
 
     def pre_filters
-      params
+      # @pre_filters is used to override pre_filters
+      @pre_filters ||= params
         .to_unsafe_hash
         .dig(:f)
         .presence
@@ -84,7 +85,8 @@ module DataCycleCore
     end
 
     def sort_params
-      Array.wrap(params_for(SORT_PARAMS_SCHEMA).dig(:s, :v)&.compact_blank.presence)
+      # @sort_params is used to override sort_params
+      @sort_params ||= Array.wrap(params_for(SORT_PARAMS_SCHEMA).dig(:s, :v)&.compact_blank.presence)
     end
 
     def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
