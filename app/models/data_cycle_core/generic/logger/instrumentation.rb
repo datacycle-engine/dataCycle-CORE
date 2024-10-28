@@ -78,7 +78,7 @@ module DataCycleCore
           text.push(error_text.to_s) if error_text.present?
 
           if data.present?
-            data_string = JSON.pretty_generate(data).split("\n")
+            data_string = JSON.pretty_generate(data.as_json).split("\n")
             data_string_size = data_string.size
             data_string = data_string.first(20)
             data_string += ["... MORE: + #{data_string_size - 20} lines \n"] if data_string_size > 20
@@ -102,7 +102,7 @@ module DataCycleCore
           error_instrument(message: err)
 
           if data
-            data_string = JSON.pretty_generate(data).split("\n")
+            data_string = JSON.pretty_generate(data.as_json).split("\n")
             data_string_size = data_string.size
             data_string = data_string.first(20)
             data_string += ["... MORE: + #{data_string_size - 20} lines \n"] if data_string_size > 20
@@ -113,7 +113,7 @@ module DataCycleCore
         end
 
         def debug(title, id, data)
-          debug_instrument(message: "#{title} | #{id} | #{JSON.pretty_generate(data).gsub("\n", "\n  ")}")
+          debug_instrument(message: "#{title} | #{id} | #{JSON.pretty_generate(data.as_json).gsub("\n", "\n  ")}")
         end
 
         private
