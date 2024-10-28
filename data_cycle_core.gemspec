@@ -77,7 +77,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_magick', '>= 4.13.2'
   s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
-  s.add_dependency 'taglib-ruby'
+  s.add_dependency 'taglib-ruby', '~> 1.1.3' # taglib-ruby 2.0 requires taglib 2.x
 
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # rufus scheduler
