@@ -25,7 +25,8 @@ Gem::Specification.new do |s|
   # Translations
   s.add_dependency 'mobility'
   # Frontend Asset Handling
-  s.add_dependency 'vite_rails', '>= 3.0.12'
+  s.add_dependency 'vite_rails', '3.0.15' # lock version, as newer version have problems with finding assets
+  s.add_dependency 'vite_ruby', '3.3.4' # lock version, as newer version have problems with finding assets
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
