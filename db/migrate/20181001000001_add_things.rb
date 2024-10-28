@@ -75,7 +75,7 @@ class AddThings < ActiveRecord::Migration[5.1]
         say_with_time 'setting default values for searches.schema_type' do
           ['creative_works', 'events', 'persons', 'places', 'organizations'].each do |table_name|
             table_object_name = "DataCycleCore::#{table_name.classify}"
-            excute <<-SQL.squish
+            execute <<-SQL.squish
               UPDATE searches
               SET schema_type = '#{table_name.classify}'
               WHERE content_data_type = '#{table_object_name}';
