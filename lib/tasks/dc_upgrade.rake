@@ -31,21 +31,12 @@ namespace :dc do
       puts 'migrate files ...'
       manual_action_required = []
       # migrate files
-      Rails.root.glob('**/*.{rb,erb,rake}').each do |f|
+      Rails.root.glob('**/*.{rb,erb,rake,yml}').each do |f|
         next if f.to_s.include?('vendor')
 
         if File.foreach(f).grep(Regexp.new('.ids')).present?
           text = File.read(f)
           new_text = text.gsub('.ids', '.pluck(:id)')
-          File.write(f, new_text)
-        end
-
-        if File.foreach(f).grep(Regexp.new('ActiveRecord::Associations::Preloader.new.preload')).present?
-          text = File.read(f)
-          new_text = text.gsub(
-            'ActiveRecord::Associations::Preloader.new.preload',
-            'DataCycleCore::PreloadService.preload'
-          )
           File.write(f, new_text)
         end
 
@@ -68,6 +59,8 @@ namespace :dc do
         end
 
         manual_action_required.push "[MANUALLY] please replace simple_form_for with form_for and replace all f.input with corresponding field helpers (#{f})" if File.foreach(f).grep(Regexp.new('simple_form_for')).present?
+
+        manual_action_required.push "[MANUALLY] please migrate azure_activedirectory_v2 to entra_id, Migration: https://github.com/RIPAGlobal/omniauth-entra-id/blob/master/UPGRADING.md (#{f})" if File.foreach(f).grep(Regexp.new('azure_activedirectory_v2')).present?
       end
 
       if manual_action_required.present?
