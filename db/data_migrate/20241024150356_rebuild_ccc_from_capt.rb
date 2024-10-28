@@ -8,6 +8,8 @@ class RebuildCccFromCapt < ActiveRecord::Migration[6.1]
     return unless DataCycleCore::Feature::TransitiveClassificationPath.enabled?
 
     execute <<-SQL.squish
+      SET statement_timeout = 0;
+
       SELECT public.generate_ccc_from_ca_ids_transitive (array_agg(concepts.id))
       FROM concepts;
     SQL
