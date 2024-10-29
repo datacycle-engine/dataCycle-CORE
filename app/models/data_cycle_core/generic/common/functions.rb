@@ -132,14 +132,14 @@ module DataCycleCore
           data_hash.merge(attributes.deep_stringify_keys)
         end
 
-        def self.add_external_system_data(data, name, key)
+        def self.add_external_system_data(data, name, key, prefix = '')
           return data if (external_name = data.dig(*Array.wrap(name))).nil? || (external_key = data.dig(*Array.wrap(key))).nil?
 
           data['external_system_data'] ||= []
           data['external_system_data'].push(
             {
               'identifier' => external_name,
-              'external_key' => external_key,
+              'external_key' => prefix + external_key,
               'sync_type' => 'duplicate'
             }
           )
