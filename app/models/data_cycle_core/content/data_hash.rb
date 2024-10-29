@@ -370,6 +370,8 @@ module DataCycleCore
         item_ids_before_update = send(field_name).pluck(:id)
         item_ids_after_update = parse_linked_ids(input_data)
 
+        raise ArgumentError, 'linked id cannot be the same as the id of the content' if item_ids_after_update.include?(id)
+
         if DataCycleCore::DataHashService.present?(item_ids_after_update)
           content_content_a.upsert_all(
             item_ids_after_update
