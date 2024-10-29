@@ -60,7 +60,7 @@ namespace :dc do
 
         manual_action_required.push "[MANUALLY] please replace Rails.application.secrets with corresponding ENV[...] (#{f})" if File.foreach(f).grep(Regexp.new('Rails.application.secrets')).present?
 
-        manual_action_required.push "[MANUALLY] please replace simple_form_for with form_for and replace all f.input with corresponding field helpers (#{f})" if File.foreach(f).grep(Regexp.new('simple_form_for')).present?
+        manual_action_required.push "[MANUALLY] please replace simple_form_for with form_for and replace all f.input with corresponding field helpers (email_field, password_field, text_field) (#{f})" if File.foreach(f).grep(Regexp.new('simple_form_for')).present?
 
         manual_action_required.push "[MANUALLY] please migrate azure_activedirectory_v2 to entra_id, Migration: https://github.com/RIPAGlobal/omniauth-entra-id/blob/master/UPGRADING.md (#{f})" if File.foreach(f).grep(Regexp.new('azure_activedirectory_v2')).present?
       end
