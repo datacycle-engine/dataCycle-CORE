@@ -56,7 +56,7 @@ module DataCycleCore
 
       @data = parse_data_item(arguments.dig(0, :data_object))
       @utility_object = DataCycleCore::Export::PushObject.new(
-        **arguments[0].except(:data_object, :external_system_id)
+        **arguments[0].except(:data_object)
       )
     rescue ActiveModel::MissingAttributeError
       throw :abort
