@@ -7,6 +7,15 @@ module DataCycleCore
   module Content
     module Extensions
       module SyncApi
+        RESERVED_KEYS = [
+          'external_source_id',
+          'external_source',
+          'last_sync_at',
+          'last_successful_sync_at',
+          'status',
+          'external_system_syncs'
+        ].freeze
+
         extend ActiveSupport::Concern
 
         def to_sync_data(locales: nil, translated: false, preloaded: {}, ancestor_ids: [], included: [], classifications: [], attribute_name: nil, linked_stored_filter: nil)
@@ -104,6 +113,8 @@ module DataCycleCore
         def add_sync_included_data(data:, preloaded:, ancestor_ids:, included:, classifications:, locales:, linked_stored_filter: nil)
           data&.each_value do |translation|
             translation&.each do |key, value|
+              next if RESERVED_KEYS.include?(key)
+
               if embedded_property_names.include?(key) && value.present?
                 value.each do |v|
                   embedded_id = v&.values&.first&.dig('id')
