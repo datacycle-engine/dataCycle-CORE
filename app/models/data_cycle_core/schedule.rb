@@ -615,16 +615,16 @@ module DataCycleCore
       # for time only
       def time_to_duration(start_time, end_time)
         return 0 if start_time.blank? || end_time.blank?
-        start_time = start_time.to_datetime
+        start_time = start_time.in_time_zone
         if end_time > '24:00:00'
           et = end_time.split(':')
           et[0] = (et[0].to_i - 24).to_s
           end_time = et.join(':')
         end
-        end_time = end_time.to_datetime
+        end_time = end_time.in_time_zone
         end_time += 1.day if end_time < start_time
 
-        ((end_time - start_time) * 24 * 60 * 60)
+        end_time - start_time
       end
 
       def parts_to_iso8601_duration(duration_hash)
@@ -716,7 +716,7 @@ module DataCycleCore
           duration = parts_to_iso8601_duration(data)
           duration.zero? ? nil : duration.iso8601
         elsif data.is_a?(Numeric) && data.positive?
-          ActiveSupport::Duration.build(data).iso8601
+          ActiveSupport::Duration.build(data.to_i).iso8601
         elsif data.is_a?(String) && data != 'PT0S'
           duration = ActiveSupport::Duration.parse(data)
           duration.zero? ? nil : duration.iso8601
