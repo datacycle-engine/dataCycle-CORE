@@ -129,6 +129,7 @@ module DataCycleCore
               end
 
               next unless classification_property_names.include?(key) && value.present?
+
               value.each do |classification_id|
                 existing = classifications.detect { |c| c['id'] == classification_id }
                 c_data = preloaded.dig('classifications', classification_id)
