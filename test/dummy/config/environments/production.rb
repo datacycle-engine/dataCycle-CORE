@@ -67,7 +67,7 @@ Rails.application.configure do
 
   config.action_mailer.perform_caching = false
 
-    # Don't log any deprecations.
+  # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
   # Use a different cache store in production.
