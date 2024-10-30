@@ -11,7 +11,7 @@ module DataCycleCore
         end
 
         def include?(classification_tree_label, *_args)
-          classification_tree_label.external_source_id.nil? && !classification_tree_label.internal && classification_tree_label.classification_aliases&.none?(&:internal) && classification_tree_label.classification_aliases&.none?(&:external_source_id)
+          classification_tree_label.external_source_id.nil? && !classification_tree_label.internal && classification_tree_label.classification_aliases&.none?(&:internal) && classification_tree_label.classification_aliases.none?(&:external_source_id)
         end
 
         def to_proc

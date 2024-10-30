@@ -67,7 +67,7 @@ module DataCycleCore
                   handlers: [:axlsx],
                   formats: [:xlsx],
                   layout: false,
-                  locals: { :@contents => contents, :@txt_write => txt_write },
+                  assigns: { contents: contents, txt_write: txt_write },
                   template: 'data_cycle_core/contents/content_score'
                 )
 

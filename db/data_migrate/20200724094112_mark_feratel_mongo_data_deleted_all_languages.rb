@@ -6,7 +6,7 @@ class MarkFeratelMongoDataDeletedAllLanguages < ActiveRecord::Migration[5.2]
     return if external.blank?
     [:accommodations, :infrastructure_items, :events].each do |collection_name|
       external.query(collection_name) do |mongo_collection|
-        mongo_collection.where({ "dump.de.deleted_at": { '$exists' => true }, "dump.en.deleted_at": { '$exists' => false } }).find_all do |item|
+        mongo_collection.where({ 'dump.de.deleted_at': { '$exists' => true }, 'dump.en.deleted_at': { '$exists' => false } }).find_all do |item|
           item.dump.each_key do |locale|
             next if locale == 'de'
             next if item.dump['de']['deleted_at'].blank?
@@ -17,7 +17,7 @@ class MarkFeratelMongoDataDeletedAllLanguages < ActiveRecord::Migration[5.2]
           item.data_has_changed = false
           item.save!
         end
-        mongo_collection.where({ "dump.de.deleted_at": { '$exists' => false }, "dump.en.deleted_at": { '$exists' => false } }).find_all do |item|
+        mongo_collection.where({ 'dump.de.deleted_at': { '$exists' => false }, 'dump.en.deleted_at': { '$exists' => false } }).find_all do |item|
           item.dump.each_key do |locale|
             next if locale == 'de'
             next if item.dump[locale]['Descriptions'].present?

@@ -42,9 +42,9 @@ module ActiveRecord
               to = type_cast_single_for_database(value.end)
               [
                 '[',
-                from.is_a?(Time) ? from.to_s(:long_usec) : from,
+                from.is_a?(Time) ? from.to_fs(:long_usec) : from,
                 ',',
-                to.is_a?(Time) ? to.to_s(:long_usec) : to,
+                to.is_a?(Time) ? to.to_fs(:long_usec) : to,
                 value.exclude_end? ? ')' : ']'
               ].join('')
             else

@@ -33,7 +33,7 @@ module DataCycleCore
       end
 
       def render(render_format = :json)
-        send("render_#{render_format}")
+        send(:"render_#{render_format}")
       end
 
       def json_template
@@ -48,6 +48,7 @@ module DataCycleCore
         else
           params[:contents] = @contents
           params[:pagination_contents] = @contents
+          params[:count] = @count
         end
 
         params

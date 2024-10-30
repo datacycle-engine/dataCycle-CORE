@@ -9,33 +9,29 @@ module DataCycleCore
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
 
-          ActiveRecord::Base.transaction do
-            ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql_for_conditions(['SET LOCAL statement_timeout = ?', puma_max_timeout * 1000]))
+          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+            query = build_search_query
 
-            Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-              query = build_search_query
+            render(json: query.query.to_bbox) && return if permitted_params[:bbox]
 
-              render(json: query.query.to_bbox) && return if permitted_params[:bbox]
-
-              I18n.with_locale(@language.first || I18n.locale) do
-                render(
-                  plain: query.query.to_mvt(
-                    @x,
-                    @y,
-                    @z,
-                    layer_name: permitted_params[:layerName],
-                    cluster_layer_name: permitted_params[:clusterLayerName],
-                    include_parameters: @include_parameters,
-                    fields_parameters: @fields_parameters,
-                    classification_trees_parameters: @classification_trees_parameters,
-                    cache: permitted_params[:cache].to_s != 'false',
-                    cluster: permitted_params[:cluster].to_s == 'true',
-                    cluster_lines: permitted_params[:clusterLines].to_s == 'true',
-                    cluster_items: permitted_params[:clusterItems].to_s == 'true'
-                  ),
-                  content_type: request.format
-                )
-              end
+            I18n.with_locale(@language.first || I18n.locale) do
+              render(
+                plain: query.query.to_mvt(
+                  @x,
+                  @y,
+                  @z,
+                  layer_name: permitted_params[:layerName],
+                  cluster_layer_name: permitted_params[:clusterLayerName],
+                  include_parameters: @include_parameters,
+                  fields_parameters: @fields_parameters,
+                  classification_trees_parameters: @classification_trees_parameters,
+                  cache: permitted_params[:cache].to_s != 'false',
+                  cluster: permitted_params[:cluster].to_s == 'true',
+                  cluster_lines: permitted_params[:clusterLines].to_s == 'true',
+                  cluster_items: permitted_params[:clusterItems].to_s == 'true'
+                ),
+                content_type: request.format
+              )
             end
           end
         end

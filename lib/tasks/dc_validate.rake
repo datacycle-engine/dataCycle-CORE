@@ -2,7 +2,7 @@
 
 namespace :dc do
   desc 'run all validations for code and templates, add | seperated list of additional CVEs to ignore'
-  task :validate, [:ignore_cve] => :environment do |_, _args|
+  task :validate, [:verbose] => :environment do |_, args|
     Rake::Task['dc:code:validate:bundle_audit'].invoke
     Rake::Task['dc:code:validate:bundle_audit'].reenable
 
@@ -18,7 +18,7 @@ namespace :dc do
     Rake::Task['dc:external_systems:validate'].invoke
     Rake::Task['dc:external_systems:validate'].reenable
 
-    Rake::Task['dc:templates:validate'].invoke
+    Rake::Task['dc:templates:validate'].invoke(args.verbose)
     Rake::Task['dc:templates:validate'].reenable
 
     Rake::Task['zeitwerk:check'].invoke

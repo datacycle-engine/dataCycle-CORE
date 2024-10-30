@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddHistoryTables < ActiveRecord::Migration[5.0]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     # creative_works
     create_table :creative_work_histories, id: :uuid do |t|
@@ -195,4 +196,5 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     drop_table :creative_work_history_translations
     drop_table :creative_work_histories
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

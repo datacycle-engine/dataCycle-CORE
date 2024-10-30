@@ -38,14 +38,14 @@ module DataCycleCore
       end
 
       def group_and_filter_query
-        @query = query.where('timestamp >= ?', @from) if @from.present?
-        @query = query.where('timestamp <= ?', @to) if @to.present?
+        @query = query.where(timestamp: @from..) if @from.present?
+        @query = query.where(timestamp: ..@to) if @to.present?
 
         @query = send(@group_by)
       end
 
       def sql_for_data_format(combined_format)
-        return send("#{combined_format}_#{@group_by}") if @group_by.present? && respond_to?("#{combined_format}_#{@group_by}")
+        return send(:"#{combined_format}_#{@group_by}") if @group_by.present? && respond_to?(:"#{combined_format}_#{@group_by}")
 
         return send(combined_format) if respond_to?(combined_format)
 
@@ -102,7 +102,7 @@ module DataCycleCore
 
       DEFAULT_AGGREGATE_FUNCTIONS.each do |aggregate_function|
         DEFAULT_GROUPS.each do |group|
-          define_method("#{aggregate_function.underscore}_#{group.underscore}") do
+          define_method(:"#{aggregate_function.underscore}_#{group.underscore}") do
             group_by_function(group, aggregate_function)
           end
         end

@@ -9,21 +9,21 @@ module DataCycleCore
       @tree_label2 = DataCycleCore::ClassificationTreeLabel.create!(name: 'CLASSIFICATION TREE 2')
 
       [@tree_label1, @tree_label2].each.with_index do |tree_label, index|
-        instance_variable_set("@alias#{index}0", tree_label.create_classification_alias('A'))
-        instance_variable_set("@alias#{index}1", tree_label.create_classification_alias('A', '1'))
-        instance_variable_set("@alias#{index}2", tree_label.create_classification_alias('A', '2'))
-        instance_variable_set("@alias#{index}3", tree_label.create_classification_alias('A', '3'))
-        instance_variable_set("@alias#{index}4", tree_label.create_classification_alias('A', '3', '11'))
-        instance_variable_set("@alias#{index}5", tree_label.create_classification_alias('A', '3', '22'))
-        instance_variable_set("@alias#{index}6", tree_label.create_classification_alias('A', '3', '33'))
+        instance_variable_set(:"@alias#{index}0", tree_label.create_classification_alias('A'))
+        instance_variable_set(:"@alias#{index}1", tree_label.create_classification_alias('A', '1'))
+        instance_variable_set(:"@alias#{index}2", tree_label.create_classification_alias('A', '2'))
+        instance_variable_set(:"@alias#{index}3", tree_label.create_classification_alias('A', '3'))
+        instance_variable_set(:"@alias#{index}4", tree_label.create_classification_alias('A', '3', '11'))
+        instance_variable_set(:"@alias#{index}5", tree_label.create_classification_alias('A', '3', '22'))
+        instance_variable_set(:"@alias#{index}6", tree_label.create_classification_alias('A', '3', '33'))
 
-        instance_variable_set("@alias#{index}7", tree_label.create_classification_alias('B'))
-        instance_variable_set("@alias#{index}8", tree_label.create_classification_alias('B', '1'))
-        instance_variable_set("@alias#{index}9", tree_label.create_classification_alias('B', '2'))
-        instance_variable_set("@alias#{index}10", tree_label.create_classification_alias('B', '3'))
-        instance_variable_set("@alias#{index}11", tree_label.create_classification_alias('B', '3', '11'))
-        instance_variable_set("@alias#{index}12", tree_label.create_classification_alias('B', '3', '22'))
-        instance_variable_set("@alias#{index}13", tree_label.create_classification_alias('B', '3', '33'))
+        instance_variable_set(:"@alias#{index}7", tree_label.create_classification_alias('B'))
+        instance_variable_set(:"@alias#{index}8", tree_label.create_classification_alias('B', '1'))
+        instance_variable_set(:"@alias#{index}9", tree_label.create_classification_alias('B', '2'))
+        instance_variable_set(:"@alias#{index}10", tree_label.create_classification_alias('B', '3'))
+        instance_variable_set(:"@alias#{index}11", tree_label.create_classification_alias('B', '3', '11'))
+        instance_variable_set(:"@alias#{index}12", tree_label.create_classification_alias('B', '3', '22'))
+        instance_variable_set(:"@alias#{index}13", tree_label.create_classification_alias('B', '3', '33'))
       end
     end
 

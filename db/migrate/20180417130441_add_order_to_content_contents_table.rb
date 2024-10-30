@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddOrderToContentContentsTable < ActiveRecord::Migration[5.0]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     add_column :content_contents, :order_a, :integer
     add_column :content_contents, :order_b, :integer
@@ -20,4 +21,5 @@ class AddOrderToContentContentsTable < ActiveRecord::Migration[5.0]
     remove_column :content_content_histories, :order_b, :integer
     add_column :content_content_histories, :external_source_id, :uuid
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

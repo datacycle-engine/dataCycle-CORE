@@ -50,9 +50,6 @@ require 'faraday_middleware'
 # Breadcrumbs
 require 'gretel'
 
-# support for forms
-require 'simple_form'
-
 # rendering json responses
 require 'jbuilder'
 
@@ -276,7 +273,7 @@ module DataCycleCore
     Dir.glob(configuration_paths.map { |p| File.join(p, file_name) }).map { |p| File.basename(p, '.*') }.uniq.each do |config_name|
       next unless respond_to?(config_name)
 
-      send("#{config_name}=", {})
+      send(:"#{config_name}=", {})
     end
   end
 
@@ -310,7 +307,7 @@ module DataCycleCore
         new_value = value.deep_merge(new_value) { |_k, v1, _v2| v1 }.with_indifferent_access
       end
 
-      send("#{config_name}=", new_value).freeze
+      send(:"#{config_name}=", new_value).freeze
     end
   end
 
@@ -355,6 +352,18 @@ module DataCycleCore
     # active storage default options
     config.active_storage.resolve_model_to_route = :rails_storage_proxy
 
+    # disable messages in log file for unpermitted parameters
+    config.action_controller.action_on_unpermitted_parameters = false
+
+    # disable parameter wrapping
+    config.action_controller.wrap_parameters_by_default = false
+
+    config.active_support.cache_format_version = 7.1
+
+    # configure executor for asnyc queries
+    config.active_record.async_query_executor = :global_thread_pool
+    config.active_record.global_executor_concurrency = ENV['PUMA_MAX_THREADS']&.to_i || 5
+
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
@@ -386,9 +395,7 @@ module DataCycleCore
     end
 
     config.before_initialize do |app|
-      ### used for backward compatibility (Rails < 5.0)
-      app.config.load_defaults 6.1
-      app.config.autoloader = :zeitwerk
+      app.config.load_defaults 7.1
       app.config.active_record.belongs_to_required_by_default = false
       ###
       app.config.time_zone = 'Europe/Vienna'

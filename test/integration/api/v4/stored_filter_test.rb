@@ -48,7 +48,7 @@ module DataCycleCore
               'm' => 'i',
               'n' => 'Inhaltstypen',
               't' => 'classification_alias_ids',
-              'v' => DataCycleCore::ClassificationAlias.where(name: 'POI').ids
+              'v' => DataCycleCore::ClassificationAlias.where(name: 'POI').pluck(:id)
             }, {
               'c' => 'a',
               'm' => 'i',

@@ -88,8 +88,8 @@ module DataCycleCore
                     '@context' => 'http://schema.org',
                     '@type' => 'Event',
                     'contentType' => 'SubEvent',
-                    'startDate' => sub_event.event_period.start_date.to_s(:long_msec),
-                    'endDate' => sub_event.event_period.end_date.to_s(:long_msec),
+                    'startDate' => sub_event.event_period.start_date.to_fs(:long_msec),
+                    'endDate' => sub_event.event_period.end_date.to_fs(:long_msec),
                     'sameAs' => @content.url
                   }
                 end

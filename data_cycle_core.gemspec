@@ -21,12 +21,12 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 3.2.2'
 
   # rails
-  s.add_dependency 'rails', '~> 6.1'
-  s.add_dependency 'rake'
+  s.add_dependency 'rails', '~> 7.1.0'
   # Translations
   s.add_dependency 'mobility'
   # Frontend Asset Handling
-  s.add_dependency 'vite_rails', '>= 3.0.12'
+  s.add_dependency 'vite_rails', '3.0.15' # lock version, as newer version have problems with finding assets
+  s.add_dependency 'vite_ruby', '3.3.4' # lock version, as newer version have problems with finding assets
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
@@ -59,8 +59,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'delayed_job_active_record'
   # deamon for delayed_job
   s.add_dependency 'daemons'
-  # simple forms
-  s.add_dependency 'simple_form'
   # Breadcrumbs
   s.add_dependency 'gretel'
 
@@ -80,7 +78,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_magick', '>= 4.13.2'
   s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
-  s.add_dependency 'taglib-ruby'
+  s.add_dependency 'taglib-ruby', '~> 1.1.3' # taglib-ruby 2.0 requires taglib 2.x
 
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # rufus scheduler
@@ -133,5 +131,4 @@ Gem::Specification.new do |s|
   s.add_dependency 'net-smtp'
 
   s.add_dependency 'jsonpath'
-  s.add_dependency 'rexml'
 end

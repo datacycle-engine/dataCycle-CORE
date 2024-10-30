@@ -6,7 +6,7 @@
       content: local_assigns[:content],
       parent: local_assigns[:parent],
       data_attributes: {
-        id: (value&.except(:limit, :offset)&.ids || [] ),
+        id: (value&.except(:limit, :offset)&.pluck(:id) || [] ),
         editor: "object_browser"
       } do %>
 

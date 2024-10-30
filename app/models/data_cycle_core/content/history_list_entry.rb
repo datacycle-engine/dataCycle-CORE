@@ -43,7 +43,7 @@ module DataCycleCore
           end
         end
 
-        super(**args)
+        super
       end
 
       def path_id

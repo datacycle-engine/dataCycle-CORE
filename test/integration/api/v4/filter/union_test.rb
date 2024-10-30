@@ -964,7 +964,7 @@ module DataCycleCore
                   attribute: {
                     'dct:modified': {
                       in: {
-                        max: (Time.zone.now - 5.days).to_s(:iso8601)
+                        max: (Time.zone.now - 5.days).to_fs(:iso8601)
                       }
                     }
                   }
@@ -998,7 +998,7 @@ module DataCycleCore
                     attribute: {
                       'dct:modified': {
                         in: {
-                          max: (Time.zone.now - 5.days).to_s(:iso8601)
+                          max: (Time.zone.now - 5.days).to_fs(:iso8601)
                         }
                       }
                     }
@@ -1035,7 +1035,7 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
                     }
                   }
                 }

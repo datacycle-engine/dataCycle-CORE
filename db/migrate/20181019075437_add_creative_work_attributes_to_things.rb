@@ -7,7 +7,7 @@ class AddCreativeWorkAttributesToThings < ActiveRecord::Migration[5.1]
 
     reversible do |dir|
       dir.up do
-        ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
+        execute('DROP VIEW IF EXISTS content_meta_items')
 
         sql = <<-SQL
           CREATE VIEW content_meta_items AS
@@ -24,11 +24,11 @@ class AddCreativeWorkAttributesToThings < ActiveRecord::Migration[5.1]
             FROM things
             WHERE template IS FALSE
         SQL
-        ActiveRecord::Base.connection.exec_query(sql)
+        execute(sql)
       end
 
       dir.down do
-        ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
+        execute('DROP VIEW IF EXISTS content_meta_items')
 
         sql = 'CREATE VIEW content_meta_items AS ' +
               ['creative_works', 'things'].map { |table|
@@ -47,7 +47,7 @@ class AddCreativeWorkAttributesToThings < ActiveRecord::Migration[5.1]
                 WHERE template IS FALSE
                 SQL
               }.join(' UNION ')
-        ActiveRecord::Base.connection.exec_query(sql)
+        execute(sql)
       end
     end
   end

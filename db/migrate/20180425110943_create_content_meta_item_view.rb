@@ -17,10 +17,10 @@ class CreateContentMetaItemView < ActiveRecord::Migration[5.0]
               SQL
             }.join(' UNION ')
 
-    ActiveRecord::Base.connection.exec_query(query)
+    execute(query)
   end
 
   def down
-    ActiveRecord::Base.connection.exec_query('DROP VIEW content_meta_items')
+    execute('DROP VIEW content_meta_items')
   end
 end

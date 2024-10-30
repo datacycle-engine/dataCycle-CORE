@@ -10,7 +10,7 @@
     <main class="columns">
       <h1><%= t('devise.confirmations.new.resend_confirmation_instructions', locale: active_ui_locale) %></h1>
 
-      <%= simple_form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post }) do |f| %>
+      <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post }) do |f| %>
 
         <% if resource.errors.any? %>
           <ul class="errors">
@@ -27,7 +27,7 @@
             </label>
           </div>
           <div class="small-8 columns end">
-            <%= f.input :email, required: true, autofocus: true, label: false %>
+            <%= f.email_field :email, required: true, autofocus: true %>
           </div>
         </div>
         <div class="row">

@@ -25,7 +25,7 @@ module DataCycleCore
     def get_content_value(key, template_hash, content)
       case template_hash.dig('properties', key, 'type')
       when 'classification'
-        content.try(key)&.ids || []
+        content.try(key)&.pluck(:id) || []
       else
         content.try(key)
       end

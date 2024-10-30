@@ -80,7 +80,7 @@ module DataCycleCore
               end
             }.compact || []
           elsif a.is_a?(ActiveRecord::Relation)
-            a.ids
+            a.pluck(:id)
           else
             raise ArgumentError, 'Error parsing uuids. Expected data to be an Array or an ActiveRecord::Relation.'
           end

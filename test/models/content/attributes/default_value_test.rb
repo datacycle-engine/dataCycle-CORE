@@ -15,6 +15,7 @@ module DataCycleCore
             template.schema['properties'][key]['default_value'] = value
           end
 
+          template.define_singleton_method(:readonly?) { false }
           template.update_column(:schema, template.schema) if template.is_a?(DataCycleCore::ThingTemplate)
           template.remove_instance_variable(:@default_value_property_names) if template.instance_variable_defined?(:@default_value_property_names)
 
@@ -34,6 +35,7 @@ module DataCycleCore
         test 'set data property (stored as root translated_value) with default_value does not overwrite original value' do
           template = set_default_value('Bild', 'upload_date', Date.current.to_s)
           template.schema['properties']['upload_date']['storage_location'] = 'translated_value'
+          template.define_singleton_method(:readonly?) { false }
           template.update_column(:schema, template.schema)
 
           data = { 'name' => 'Testbild', 'upload_date' => 2.days.ago.to_date }
@@ -46,6 +48,7 @@ module DataCycleCore
         test 'set data property (stored as object in value) with default_value, does not overwrite original value' do
           template = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel')
           template.schema['properties']['validity_period']['properties']['valid_from']['default_value'] = Date.current.to_s
+          template.define_singleton_method(:readonly?) { false }
           template.update_column(:schema, template.schema)
 
           data = { 'name' => 'TestArtikel', 'validity_period' => { 'valid_from' => 2.days.ago.to_date } }
@@ -61,6 +64,7 @@ module DataCycleCore
           template.schema['properties']['validity_period']['storage_location'] = 'translated_value'
           template.schema['properties']['validity_period']['properties']['valid_from']['storage_location'] = 'translated_value'
           template.schema['properties']['validity_period']['properties']['valid_until']['storage_location'] = 'translated_value'
+          template.define_singleton_method(:readonly?) { false }
           template.update_column(:schema, template.schema)
 
           data = { 'name' => 'TestArtikel', 'validity_period' => { 'valid_from' => 2.days.ago.to_date } }

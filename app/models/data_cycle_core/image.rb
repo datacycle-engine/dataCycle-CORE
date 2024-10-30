@@ -7,8 +7,8 @@ require 'mini_exiftool_vendored'
 
 module DataCycleCore
   class Image < Asset
-    after_create_commit :set_duplicate_hash
     has_one_attached :file
+    after_create_commit :set_duplicate_hash
 
     cattr_reader :versions, default: { original: {}, thumb_preview: {}, web: {}, default: {} }
     attr_accessor :remote_file_url
@@ -134,59 +134,39 @@ module DataCycleCore
     end
 
     def thumb_preview(transformation = {})
-      thumb = nil
-      if file&.attached?
-        begin
-          thumb = file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format')), colorspace: 'sRGB', background: 'White', flatten: true).processed
-        rescue ActiveStorage::FileNotFoundError
-          # add some logging
-          return nil
-        end
-      end
-      thumb
+      return unless file&.attached?
+
+      file.variant(resize_to_fit: [300, 300], colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
+    rescue ActiveStorage::FileNotFoundError
+      nil
     end
 
     def web(transformation = {})
-      web_version = nil
-      if file&.attached?
-        begin
-          web_version = file.variant(resize_to_limit: [2048, 2048], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
-        rescue ActiveStorage::FileNotFoundError
-          # add some logging
-          return nil
-        end
-      end
-      web_version
+      return unless file&.attached?
+
+      file.variant(resize_to_limit: [2048, 2048], format: format_for_transformation(transformation.dig('format'))).processed
+    rescue ActiveStorage::FileNotFoundError
+      nil
     end
 
     def default(transformation = {})
-      default_version = nil
-      if file&.attached?
-        begin
-          default_version = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
-        rescue ActiveStorage::FileNotFoundError
-          # add some logging
-          return nil
-        end
-      end
-      default_version
+      return unless file&.attached?
+
+      file.variant(format: format_for_transformation(transformation.dig('format'))).processed
+    rescue ActiveStorage::FileNotFoundError
+      nil
     end
 
     def dynamic(transformation = {})
-      dynamic = nil
-      if file&.attached?
-        begin
-          if transformation.dig('width').present? || transformation.dig('height').present?
-            dynamic = file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
-          else
-            dynamic = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
-          end
-        rescue ActiveStorage::FileNotFoundError
-          # add some logging
-          return nil
-        end
+      return unless file&.attached?
+
+      if transformation.dig('width').present? || transformation.dig('height').present?
+        file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], format: format_for_transformation(transformation.dig('format'))).processed
+      else
+        file.variant(format: format_for_transformation(transformation.dig('format'))).processed
       end
-      dynamic
+    rescue ActiveStorage::FileNotFoundError
+      nil
     end
 
     private
@@ -223,7 +203,12 @@ module DataCycleCore
 
     def set_duplicate_hash
       return if duplicate_check&.dig('phash').present? && duplicate_check&.dig('phash')&.positive?
-      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview({ 'format' => 'jpeg' }).key)).try(:compute_phash).try(:data) })
+
+      key = thumb_preview({ 'format' => 'jpeg' })&.key
+
+      return if key.blank?
+
+      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(key)).try(:compute_phash).try(:data) })
     end
   end
 end

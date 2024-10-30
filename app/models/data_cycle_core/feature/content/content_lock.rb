@@ -7,7 +7,7 @@ module DataCycleCore
         extend ActiveSupport::Concern
 
         included do
-          has_one :lock, -> { where(activity_type: 'content_lock').where('activities.updated_at >= ?', DataCycleCore::Feature::ContentLock.lock_length.seconds.ago) }, class_name: 'DataCycleCore::ContentLock', as: :activitiable, inverse_of: :activitiable
+          has_one :lock, -> { where(activity_type: 'content_lock').where(activities: { updated_at: DataCycleCore::Feature::ContentLock.lock_length.seconds.ago.. }) }, class_name: 'DataCycleCore::ContentLock', as: :activitiable, inverse_of: :activitiable
         end
 
         def locked_until
@@ -20,7 +20,7 @@ module DataCycleCore
 
         class_methods do
           def locks
-            DataCycleCore::ContentLock.where(activity_type: 'content_lock', activitiable: all).where('activities.updated_at >= ?', DataCycleCore::Feature::ContentLock.lock_length.seconds.ago).order(:updated_at)
+            DataCycleCore::ContentLock.where(activity_type: 'content_lock', activitiable: all).where(activities: { updated_at: DataCycleCore::Feature::ContentLock.lock_length.seconds.ago.. }).order(:updated_at)
           end
 
           def create_locks(user:)

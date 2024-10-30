@@ -137,8 +137,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -193,8 +193,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -214,8 +214,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -270,8 +270,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -291,8 +291,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }

@@ -4,7 +4,7 @@ module DataCycleCore
   module ExternalSystemExtensions
     module Import
       def sorted_steps(type = :import, range = nil)
-        steps = send("#{type}_config")
+        steps = send(:"#{type}_config")
         return [] if steps.blank?
 
         steps = steps.filter { |_, v| v['depends_on'].blank? }

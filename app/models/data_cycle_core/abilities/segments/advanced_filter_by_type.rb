@@ -16,7 +16,7 @@ module DataCycleCore
 
           return false unless allowed_types.key?(type.to_s)
 
-          respond_to?("#{type}_type", true) ? send("#{type}_type", data, *args) : default_type(type, data, *args)
+          respond_to?(:"#{type}_type", true) ? send(:"#{type}_type", data, *args) : default_type(type, data, *args)
         end
 
         def to_proc

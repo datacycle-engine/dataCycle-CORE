@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class CreateRoles < ActiveRecord::Migration[5.0]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     create_table :roles, id: :uuid do |t|
       t.string :name
@@ -18,4 +19,5 @@ class CreateRoles < ActiveRecord::Migration[5.0]
     add_column :users, :role, :string, default: 'user'
     remove_column :users, :role_id
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

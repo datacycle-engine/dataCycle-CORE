@@ -11,7 +11,7 @@ module DataCycleCore
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
-        prepend feature.data_hash_module if feature&.enabled? && feature&.data_hash_module
+        prepend feature.data_hash_module if feature&.enabled? && feature.data_hash_module
       end
 
       include CreateHistory
@@ -393,7 +393,7 @@ module DataCycleCore
       def parse_linked_ids(a)
         return [] if is_blank?(a)
         data = a.is_a?(::String) ? [a] : a
-        data = a&.ids if data.is_a?(ActiveRecord::Relation)
+        data = a&.pluck(:id) if data.is_a?(ActiveRecord::Relation)
         raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
         data
       end
@@ -421,7 +421,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name, translated, options)
         updated_item_keys = []
-        available_update_item_keys = load_embedded_objects(field_name, nil, !translated).ids.uniq
+        available_update_item_keys = load_embedded_objects(field_name, nil, !translated).pluck(:id).uniq
         data = input_data || []
 
         data.each_index do |index|
@@ -524,7 +524,7 @@ module DataCycleCore
       def set_asset_id(asset_id, relation_name, asset_type)
         asset_id = asset_id.first.id if asset_id.is_a?(ActiveRecord::Relation) || asset_id.is_a?(::Array)
         asset_id = asset_id.id if asset_id.is_a?(DataCycleCore::Asset)
-        old_ids = load_asset_relation(relation_name).ids
+        old_ids = load_asset_relation(relation_name).pluck(:id)
         to_delete = old_ids - Array.wrap(asset_id)
 
         if to_delete.present?
@@ -546,7 +546,7 @@ module DataCycleCore
 
       def set_schedule(input_data, relation_name)
         updated_item_keys = []
-        available_items = load_schedule(relation_name).ids
+        available_items = load_schedule(relation_name).pluck(:id)
         data = input_data || []
 
         data.each do |item|

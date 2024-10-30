@@ -293,7 +293,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 },
@@ -338,7 +338,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: 2.days.from_now.to_s(:iso8601)
+                      min: 2.days.from_now.to_fs(:iso8601)
                     }
                   }
                 },
@@ -386,7 +386,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: 15.days.ago.to_s(:iso8601)
+                      min: 15.days.ago.to_fs(:iso8601)
                     }
                   }
                 },
@@ -402,7 +402,7 @@ module DataCycleCore
                     attribute: {
                       'dct:modified': {
                         in: {
-                          min: (Time.zone.now + 5.days).to_s(:iso8601)
+                          min: (Time.zone.now + 5.days).to_fs(:iso8601)
                         }
                       }
                     }

@@ -5,7 +5,7 @@ module DataCycleCore
     def params_for(schema)
       result = schema.call(params.to_unsafe_hash)
       raise ActionController::BadRequest unless result.success?
-      result.to_h
+      result.to_h.with_indifferent_access
     end
 
     private

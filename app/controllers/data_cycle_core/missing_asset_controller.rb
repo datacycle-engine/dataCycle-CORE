@@ -3,8 +3,7 @@
 module DataCycleCore
   class MissingAssetController < ActiveStorage::BaseController
     include DataCycleCore::ErrorHandler
-    include DataCycleCore::ActiveStorageStreaming
-    include ActiveStorage::SetHeaders
+    include ActiveStorage::Streaming
     include ActiveStorage::DisableSession
 
     protect_from_forgery with: :exception
@@ -56,8 +55,10 @@ module DataCycleCore
         send_blob_byte_range_data @blob, request.headers['Range']
       else
         http_cache_forever public: true do
-          set_content_headers_from @blob
-          stream @blob
+          response.headers['Accept-Ranges'] = 'bytes'
+          response.headers['Content-Length'] = @blob.byte_size.to_s
+
+          send_blob_stream @blob, disposition: params[:disposition]
         end
       end
     end

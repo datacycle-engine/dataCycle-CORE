@@ -44,11 +44,9 @@ class DbHelper
     end
 
     def with_config
-      yield ActiveRecord::Base.connection_config[:host],
-        ActiveRecord::Base.connection_config[:port],
-        ActiveRecord::Base.connection_config[:database],
-        ActiveRecord::Base.connection_config[:username],
-        ActiveRecord::Base.connection_config[:password]
+      config = Rails.application.config.database_configuration[Rails.env]
+
+      yield config.values_at('host', 'port', 'database', 'username', 'password')
     end
 
     def status_relation(data, data_class, linked_class)

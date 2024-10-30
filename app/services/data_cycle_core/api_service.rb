@@ -48,7 +48,7 @@ module DataCycleCore
 
       return search if search.none? || query.content_ids(parameters[:content_id]).query.exists?
 
-      related_content_ids = search.first.cached_related_contents.ids
+      related_content_ids = search.first.cached_related_contents.pluck(:id)
 
       return new_thing_search(@language, nil) if related_content_ids.blank?
 
@@ -87,7 +87,7 @@ module DataCycleCore
         filter_prefix = operator == :notIn ? 'not_' : ''
         filter&.each do |k, v|
           param_to_classifications(v).each do |classifications|
-            query = query.send("#{filter_prefix}classification_alias_ids_#{k.to_s.underscore}", classifications)
+            query = query.send(:"#{filter_prefix}classification_alias_ids_#{k.to_s.underscore}", classifications)
           end
         end
       end
@@ -444,7 +444,7 @@ module DataCycleCore
     end
 
     def self.allowed_thread_count
-      (ActiveRecord::Base.connection_pool.size / (Rails.application.secrets.dig(:puma_max_threads) || 5)).to_i
+      (ActiveRecord::Base.connection_pool.size / (ENV['PUMA_MAX_THREADS'] || 5)).to_i
     end
 
     private

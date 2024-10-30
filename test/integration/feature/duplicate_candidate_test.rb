@@ -33,7 +33,7 @@ module DataCycleCore
           referer: thing_path(@content1)
         }
 
-        assert_response 302
+        assert_response :found
         assert_equal I18n.t(:type_mismatch, scope: [:controllers, :error, :duplicate], locale: DataCycleCore.ui_locales.first), flash[:alert]
       end
 
@@ -53,7 +53,7 @@ module DataCycleCore
           referer: thing_path(@content1)
         }
 
-        assert_response 302
+        assert_response :found
         assert_equal I18n.t(:duplicate_false_positive, scope: [:controllers, :success], locale: DataCycleCore.ui_locales.first, data: @content2.try(:title)), flash[:notice]
       end
 
@@ -74,7 +74,7 @@ module DataCycleCore
           referer: merge_with_duplicate_thing_path(@content1, @content)
         }
 
-        assert_response 302
+        assert_response :found
         assert_equal I18n.t(:merged_with_duplicate, scope: [:controllers, :success], locale: DataCycleCore.ui_locales.first), flash[:success]
       end
     end

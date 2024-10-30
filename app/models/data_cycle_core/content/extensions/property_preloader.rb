@@ -96,7 +96,7 @@ module DataCycleCore
             .where(id: content_ids + ids_to_preload)
           @_current_recursive_collection.send(:load_records, (current_contents + values_to_preload).uniq)
 
-          ActiveRecord::Associations::Preloader.new.preload(@_current_rc_with_leafs.values, :translations)
+          DataCycleCore::PreloadService.preload(@_current_rc_with_leafs.values, :translations)
 
           leaf_contents.each do |content|
             content.remove_instance_variable(:@_current_collection)

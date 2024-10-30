@@ -49,21 +49,15 @@ module DataCycleCore
     end
 
     def self.things
-      return DataCycleCore::Thing.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: select(:id) })
+      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: pluck(:id) })
     end
 
     def self.classification_aliases
-      return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: select(:id) })
+      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: pluck(:id) })
     end
 
     def self.primary_classification_aliases
-      return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: select(:id) })
+      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: pluck(:id) })
     end
 
     def ancestors

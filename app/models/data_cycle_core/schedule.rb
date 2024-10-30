@@ -202,7 +202,7 @@ module DataCycleCore
     end
 
     def to_s
-      "#{schedule_object} (#{dtstart&.to_s(:only_date)} - #{dtend&.to_s(:only_date)} // #{dtstart&.to_s(:only_time)} - #{(dtstart + (duration || 0))&.to_s(:only_time)})"
+      "#{schedule_object} (#{dtstart&.to_fs(:only_date)} - #{dtend&.to_fs(:only_date)} // #{dtstart&.to_fs(:only_time)} - #{(dtstart + (duration || 0))&.to_fs(:only_time)})"
     end
 
     def dow(day)
@@ -243,8 +243,8 @@ module DataCycleCore
         '@type' => 'OpeningHoursSpecification',
         'validFrom' => r_hash[:dtstart]&.in_time_zone&.beginning_of_day&.to_date&.iso8601,
         'validThrough' => r_hash.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day&.to_date&.iso8601,
-        'opens' => r_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_time),
-        'closes' => r_hash.dig(:end_time, :time)&.in_time_zone&.to_s(:only_time),
+        'opens' => r_hash.dig(:start_time, :time)&.in_time_zone&.to_fs(:only_time),
+        'closes' => r_hash.dig(:end_time, :time)&.in_time_zone&.to_fs(:only_time),
         'dayOfWeek' => days.map { |day| dow(day) }.presence
       }.compact
     end
@@ -258,8 +258,8 @@ module DataCycleCore
 
     def to_schedule_schema_org
       # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
-      start_date = dtstart&.to_s(:only_date)
-      start_time = dtstart&.to_s(:only_time)
+      start_date = dtstart&.to_fs(:only_date)
+      start_time = dtstart&.to_fs(:only_time)
       end_date = nil
       end_time = nil
       repeat_count = nil
@@ -272,8 +272,8 @@ module DataCycleCore
       if schedule_object&.recurrence_rules&.first.present?
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = dtend&.to_s(:only_date) if schedule_object.terminating?
-        end_time = schedule_object&.end_time&.to_s(:only_time) if schedule_object.terminating?
+        end_date = dtend&.to_fs(:only_date) if schedule_object.terminating?
+        end_time = schedule_object&.end_time&.to_fs(:only_time) if schedule_object.terminating?
         end_time = start_time if end_date.present? && end_time.blank?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
@@ -286,8 +286,8 @@ module DataCycleCore
         end
       else
         end_timestamp = dtstart&.+(duration.presence || 0)
-        end_date = end_timestamp&.to_s(:only_date)
-        end_time = end_timestamp&.to_s(:only_time)
+        end_date = end_timestamp&.to_fs(:only_date)
+        end_time = end_timestamp&.to_fs(:only_time)
       end
 
       {
@@ -315,8 +315,8 @@ module DataCycleCore
     def to_schedule_schema_org_api_v3
       return {} unless schedule_object.terminating?
       return {} unless schedule_object.all_occurrences.size.positive?
-      start_date = dtstart&.beginning_of_day&.to_s(:long_msec)
-      start_time = dtstart&.to_s(:only_time)
+      start_date = dtstart&.beginning_of_day&.to_fs(:long_msec)
+      start_time = dtstart&.to_fs(:only_time)
       end_date = nil
       end_time = nil
       repeat_count = nil
@@ -328,8 +328,8 @@ module DataCycleCore
         rule = schedule_object&.recurrence_rules&.first
         rule_ical = rule.to_ical
         rule_hash = rule.to_hash
-        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_fs(:long_msec) if end_date.blank? && schedule_object.terminating?
+        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_fs(:only_time) if end_time.blank? && schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = /FREQ=(.+?);/.match(rule_ical).try(:send, '[]', 1)&.downcase&.presence
         by_day = rule_hash.dig(:validations, :day)
@@ -362,8 +362,8 @@ module DataCycleCore
     def to_schedule_schema_org_api_v2
       return {} unless schedule_object.terminating?
       return {} unless schedule_object.all_occurrences.size.positive?
-      start_date = dtstart&.beginning_of_day&.to_s(:long_msec)
-      start_time = dtstart&.to_s(:only_time)
+      start_date = dtstart&.beginning_of_day&.to_fs(:long_msec)
+      start_time = dtstart&.to_fs(:only_time)
       end_date = nil
       end_time = nil
       repeat_count = nil
@@ -374,8 +374,8 @@ module DataCycleCore
       if schedule_object&.recurrence_rules&.first.present?
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_fs(:long_msec) if end_date.blank? && schedule_object.terminating?
+        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_fs(:only_time) if end_time.blank? && schedule_object.terminating?
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
@@ -407,8 +407,8 @@ module DataCycleCore
           '@context' => 'http://schema.org',
           '@type' => 'Event',
           'contentType' => 'SubEvent',
-          'startDate' => occurrence.start_time&.to_s(:long_msec),
-          'endDate' => occurrence.end_time&.to_s(:long_msec)
+          'startDate' => occurrence.start_time&.to_fs(:long_msec),
+          'endDate' => occurrence.end_time&.to_fs(:long_msec)
         }
       end
     end
@@ -427,8 +427,8 @@ module DataCycleCore
           '@type' => 'Event',
           'contentType' => 'SubEvent',
           'inLanguage' => I18n.locale.to_s,
-          'startDate' => occurrence.start_time.to_s(:long_msec),
-          'endDate' => occurrence.end_time.to_s(:long_msec)
+          'startDate' => occurrence.start_time.to_fs(:long_msec),
+          'endDate' => occurrence.end_time.to_fs(:long_msec)
         }
         sub_event_hash.merge({ 'identifier' => generate_uuid(sub_event_hash) })
       end
@@ -438,9 +438,9 @@ module DataCycleCore
       return [] if schedule_object.blank?
 
       if schedule_object.terminating?
-        schedule_object.all_occurrences.to_a.map { |o| o.start_time.to_s(:long_msec) }
+        schedule_object.all_occurrences.to_a.map { |o| o.start_time.to_fs(:long_msec) }
       else
-        schedule_object.next_occurrences(10).to_a.map { |o| o.start_time.to_s(:long_msec) }
+        schedule_object.next_occurrences(10).to_a.map { |o| o.start_time.to_fs(:long_msec) }
       end
     end
 
@@ -517,8 +517,8 @@ module DataCycleCore
           s['rrules'][0]['validations'] ||= {}
           s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
-          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
-          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_fs(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_fs(:time)}".in_time_zone, zone: start_time.time_zone.name } }
 
           case s.dig('rrules', 0, 'rule_type')
           when 'IceCube::WeeklyRule'
@@ -579,7 +579,7 @@ module DataCycleCore
             if s['valid_until'].present? && ((s['holiday'] == 'true' && (0...7).to_a.difference(days).present?) || s['holiday'] == 'false')
               holidays = Holidays
                 .between(start_time, s['valid_until'].in_time_zone.end_of_day, Array.wrap(DataCycleCore.holidays_country_code))
-                .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+                .map { |d| { time: "#{d[:date]} #{start_time.to_fs(:time)}".in_time_zone, zone: start_time.time_zone.name } }
             end
 
             transform_data_for_data_hash({

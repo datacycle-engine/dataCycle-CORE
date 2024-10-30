@@ -33,7 +33,7 @@ module DataCycleCore
 
       if ViteRuby.instance.dev_server_running?
         return send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}") unless File.file?(ViteRuby.config.vite_root_dir.join(asset_path))
-      elsif ViteRuby.instance.manifest.send(:lookup, asset_path)&.dig('file').blank?
+      elsif vite_manifest.send(:lookup, asset_path)&.dig('file').blank?
         return send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}")
       end
 

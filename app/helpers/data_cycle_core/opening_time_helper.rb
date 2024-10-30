@@ -20,7 +20,7 @@ module DataCycleCore
 
     def opening_time_ex_dates(opening_times)
       extimes = opening_times
-        .map { |o| o[:extimes]&.map { |e| e[:time] } }
+        .map { |o| o[:extimes]&.pluck(:time) }
         .flatten
         .compact
         .uniq

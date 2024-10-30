@@ -173,7 +173,7 @@ module DataCycleCore
         end
 
         def secret_key
-          Rails.application.secrets.secret_key_base.to_s
+          ENV['SECRET_KEY_BASE'].to_s
         end
 
         def secret_for_issuer(iss)

@@ -19,7 +19,8 @@ module DataCycleCore
 
         def asset_web_url
           return unless try(:asset)&.versions&.key?(:web)
-          ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+
+          DataCycleCore::ActiveStorageService.with_current_options do
             asset&.web&.url
           end
         end

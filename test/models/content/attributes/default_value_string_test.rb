@@ -15,6 +15,7 @@ module DataCycleCore
             template.schema['properties'][key]['default_value'] = value
           end
 
+          template.define_singleton_method(:readonly?) { false }
           template.update_column(:schema, template.schema) if template.is_a?(DataCycleCore::ThingTemplate)
           template.remove_instance_variable(:@default_value_property_names) if template.instance_variable_defined?(:@default_value_property_names)
         end

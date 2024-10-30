@@ -239,7 +239,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Filter::Search.new(:de).like_relation_filter([image.id], 'image').count) # find the article
       assert_equal(article.id, DataCycleCore::Filter::Search.new(:de).like_relation_filter([image.id], 'image').query.first.id) # find the article
       assert_equal(11, DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').count) # find all except article
-      assert DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').query.ids.exclude?(article.id) # find all except article
+      assert DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').query.pluck(:id).exclude?(article.id) # find all except article
     end
 
     test 'test typeahead, specific language' do

@@ -3,8 +3,8 @@
 namespace :dc do
   namespace :update do
     desc 'import and update all classifications, external_sources, external_systems and templates'
-    task configs: :environment do
-      Rake::Task['dc:templates:import'].invoke
+    task :configs, [:verbose] => :environment do |_, args|
+      Rake::Task['dc:templates:import'].invoke(args.verbose)
       Rake::Task['dc:templates:import'].reenable
 
       Rake::Task['data_cycle_core:update:import_classifications'].invoke
@@ -63,7 +63,7 @@ namespace :dc do
 
     desc 'create all dictionaries in postgresql'
     task dictionaries: :environment do
-      present_dictionaries = Dir[Rails.root.join('config', 'configurations', 'ts_search', '*.ths')]
+      present_dictionaries = Rails.root.glob('config/configurations/ts_search/*.ths')
       file_names = present_dictionaries.map { |f| f.split('/').last.split('.').first }
 
       file_names.each do |dict|
@@ -96,12 +96,12 @@ namespace :dc do
   end
 
   desc 'run migrations, update all configs and run data_migrations'
-  task update: :environment do
+  task :update, [:verbose] => :environment do |_, args|
     Rake::Task['db:migrate:check'].invoke
     Rake::Task['db:migrate:check'].reenable
     Rake::Task['db:migrate'].invoke
     Rake::Task['db:migrate'].reenable
-    Rake::Task['dc:update:configs'].invoke
+    Rake::Task['dc:update:configs'].invoke(args.verbose)
     Rake::Task['dc:update:configs'].reenable
     Rake::Task['db:migrate:with_data'].invoke
     Rake::Task['db:migrate:with_data'].reenable

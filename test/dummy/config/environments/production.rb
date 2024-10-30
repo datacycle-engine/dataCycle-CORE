@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/integer/time"
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
-  config.cache_classes = true
+  config.enable_reloading = false
 
   # Eager load code on boot. This eager loads most of Rails and
   # your application in memory, allowing both threaded web servers
@@ -24,6 +26,17 @@ Rails.application.configure do
   # Apache or NGINX already handles this.
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
+  # Enable serving of images, stylesheets, and JavaScripts from an asset server.
+  # config.action_controller.asset_host = 'http://assets.example.com'
+
+  # Specifies the header that your server uses for sending files.
+  # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
+  # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
+
+  # Store uploaded files on the local file system (see config/storage.yml for options)
+  config.active_storage.service = :local
+  config.active_storage.resolve_model_to_route = :rails_storage_proxy
+
   # Compress JavaScripts and CSS.
   # config.assets.js_compressor = :uglifier
   # config.assets.css_compressor = :sass
@@ -37,17 +50,6 @@ Rails.application.configure do
 
   # `config.assets.precompile` and `config.assets.version` have moved to config/initializers/assets.rb
 
-  # Enable serving of images, stylesheets, and JavaScripts from an asset server.
-  # config.action_controller.asset_host = 'http://assets.example.com'
-
-  # Specifies the header that your server uses for sending files.
-  # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
-  # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
-
-  # Store uploaded files on the local file system (see config/storage.yml for options)
-  config.active_storage.service = :local
-  config.active_storage.resolve_model_to_route = :rails_storage_proxy
-
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
   # config.action_cable.url = 'wss://example.com/cable'
@@ -58,33 +60,31 @@ Rails.application.configure do
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
-  config.log_level = :info
+  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 
   # Prepend all log lines with the following tags.
   config.log_tags = [:request_id]
 
-  # Raise exceptions for disallowed deprecations.
-  config.active_support.disallowed_deprecation = :raise
+  config.action_mailer.perform_caching = false
 
-  # Tell Active Support which deprecation messages to disallow.
-  config.active_support.disallowed_deprecation_warnings = []
+    # Don't log any deprecations.
+  config.active_support.report_deprecations = false
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   #
 
   # config.cache_store = :memory_store
-  if Rails.application.secrets.dig(:redis_server).present?
+  if ENV["REDIS_SERVER"].present?
     config.cache_store = :redis_cache_store, {
-      url: "redis://#{Rails.application.secrets.redis_server}:#{Rails.application.secrets.redis_port}/#{Rails.application.secrets.redis_cache_database}",
-      namespace: Rails.application.secrets.redis_cache_namespace
+      url: "redis://#{ENV["REDIS_SERVER"]}:#{ENV["REDIS_PORT"]}/#{ENV["REDIS_CACHE_DATABASE"]}",
+      namespace: ENV["REDIS_CACHE_NAMESPACE"]
     }
   end
 
   # Use a real queuing backend for Active Job (and separate queues per environment)
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "data-cycle-kw_#{Rails.env}"
-  config.action_mailer.perform_caching = false
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
@@ -98,14 +98,14 @@ Rails.application.configure do
   config.active_support.deprecation = :notify
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = Logger::Formatter.new
+  config.log_formatter = ::Logger::Formatter.new
 
   # Use a different logger for distributed setups.
   # require 'syslog/logger'
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
   if ENV['RAILS_LOG_TO_STDOUT'].present?
-    logger = ActiveSupport::Logger.new($stdout)
+    logger = ActiveSupport::Logger.new(STDOUT)
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end

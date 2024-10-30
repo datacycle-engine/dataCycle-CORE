@@ -12,10 +12,8 @@ module DataCycleCore
           return [] if view.nil?
 
           relations = configuration.dig('abilities')
-          permission_list = []
-
-          relations.each do |resource, details|
-            permission_list << create_permission_option(resource, details, view.active_ui_locale)
+          permission_list = relations.map do |resource, details|
+            create_permission_option(resource, details, view.active_ui_locale)
           end
           permission_list.sort_by { |a| a[0] }
         end

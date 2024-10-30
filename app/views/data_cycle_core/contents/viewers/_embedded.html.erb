@@ -43,7 +43,7 @@
                           watch_list_id: @watch_list,
                           locale: I18n.locale,
                           hide_embedded: true,
-                          anchor: object.related_contents(embedded: true).ids.reverse.except(content.id).push(object.id).join('+')
+                          anchor: object.related_contents(embedded: true).pluck(:id).reverse.except(content.id).push(object.id).join('+')
                         ),
                         class: 'edit-content-link',
                         title: t('actions.edit', locale: active_ui_locale) if can?(:edit, object.embedded? ? content : object) %>

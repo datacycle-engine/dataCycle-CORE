@@ -103,7 +103,7 @@ namespace :dc do
       items.find_each do |item|
         next if dry_run
 
-        duplicates = (item.duplicate_candidates.where('score >= ?', score).duplicates + [item]).sort_by { |v| [v.try(:width), v.try(:updated_at)] }
+        duplicates = (item.duplicate_candidates.where(score: score..).duplicates + [item]).sort_by { |v| [v.try(:width), v.try(:updated_at)] }
         original = duplicates.pop
 
         duplicates.each do |duplicate|
@@ -140,7 +140,7 @@ namespace :dc do
       items.find_each do |item|
         next if dry_run
 
-        duplicates_query = item.duplicate_candidates.where('score >= ?', score).duplicates
+        duplicates_query = item.duplicate_candidates.where(score: score..).duplicates
         duplicates_query = duplicates_query.where(id: query_sf.select(:id)) if filter_duplicates
 
         duplicates = (duplicates_query + [item]).sort_by { |v| v.try(:updated_at) }

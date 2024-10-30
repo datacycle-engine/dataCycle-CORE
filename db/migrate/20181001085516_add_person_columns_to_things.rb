@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddPersonColumnsToThings < ActiveRecord::Migration[5.1]
+  # rubocop:disable Rails/BulkChangeTable
   def change
     add_column :things, :given_name, :string
     add_column :things, :family_name, :string
@@ -9,7 +10,7 @@ class AddPersonColumnsToThings < ActiveRecord::Migration[5.1]
 
     reversible do |dir|
       dir.up do
-        ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
+        execute('DROP VIEW IF EXISTS content_meta_items')
 
         sql = 'CREATE VIEW content_meta_items AS ' +
               ['creative_works', 'events', 'places', 'things'].map { |table|
@@ -28,11 +29,11 @@ class AddPersonColumnsToThings < ActiveRecord::Migration[5.1]
                   WHERE template IS FALSE
                 SQL
               }.join(' UNION ')
-        ActiveRecord::Base.connection.exec_query(sql)
+        execute(sql)
       end
 
       dir.down do
-        ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
+        execute('DROP VIEW IF EXISTS content_meta_items')
 
         sql = 'CREATE VIEW content_meta_items AS ' +
               ['creative_works', 'events', 'persons', 'places', 'things'].map { |table|
@@ -51,8 +52,9 @@ class AddPersonColumnsToThings < ActiveRecord::Migration[5.1]
                 WHERE template IS FALSE
                 SQL
               }.join(' UNION ')
-        ActiveRecord::Base.connection.exec_query(sql)
+        execute(sql)
       end
     end
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

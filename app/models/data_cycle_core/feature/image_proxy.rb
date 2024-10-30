@@ -100,10 +100,10 @@ module DataCycleCore
         end
 
         def imgproxy_signature(content, processing, format)
-          raise 'Insufficient imgproxy credentials! Validate imgproxy_key and imgproxy_salt secrets!' unless Rails.application.secrets.imgproxy_key.present? && Rails.application.secrets.imgproxy_salt.present?
+          raise 'Insufficient imgproxy credentials! Validate imgproxy_key and imgproxy_salt secrets!' unless ENV['IMGPROXY_KEY'].present? && ENV['IMGPROXY_SALT'].present?
 
-          key = [Rails.application.secrets.imgproxy_key].pack('H*')
-          salt = [Rails.application.secrets.imgproxy_salt].pack('H*')
+          key = [ENV['IMGPROXY_KEY']].pack('H*')
+          salt = [ENV['IMGPROXY_SALT']].pack('H*')
 
           application_url = Addressable::URI.parse(Rails.application.config.asset_host)
 

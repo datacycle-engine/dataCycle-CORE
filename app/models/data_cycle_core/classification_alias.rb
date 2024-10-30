@@ -149,9 +149,7 @@ module DataCycleCore
     end
 
     def self.classification_polygons
-      return DataCycleCore::ClassificationPolygon.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::ClassificationPolygon.where(classification_alias_id: select(:id))
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: pluck(:id))
     end
 
     def primary_classification_id
@@ -414,8 +412,8 @@ module DataCycleCore
 
     def classifications_removed(classification = nil)
       unless classification.nil?
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.ids)
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.ids) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.pluck(:id))
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.pluck(:id)) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
       end
 
       @classifications_changed = true
@@ -424,7 +422,7 @@ module DataCycleCore
     def add_things_webhooks_job_destroy
       return unless classification_tree_label&.change_behaviour&.include?('trigger_webhooks') && classifications.things.exists?
 
-      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classifications.things.ids)
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classifications.things.pluck(:id))
     end
 
     def add_things_webhooks_job_update
@@ -455,7 +453,7 @@ module DataCycleCore
         self.class.name,
         id,
         'invalidate_things_cache',
-        classifications.things.ids
+        classifications.things.pluck(:id)
       )
     end
 

@@ -168,7 +168,7 @@ module DataCycleCore
     end
 
     def include_groups_user_ids
-      user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
+      user_groups.map { |ug| ug.users.pluck(:id) }.flatten.uniq << id
     end
 
     def send_notification(content_ids)
@@ -338,7 +338,7 @@ module DataCycleCore
     def reload(options = nil)
       remove_instance_variable(:@ability) if instance_variable_defined?(:@ability)
 
-      super(options)
+      super
     end
 
     private

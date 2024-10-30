@@ -72,7 +72,7 @@ module DataCycleCore
         def not_user(ids = nil, type = nil)
           return self if type.blank?
 
-          send("not_#{type}", ids)
+          send(:"not_#{type}", ids)
         end
 
         def creator(ids = nil)

@@ -13,7 +13,7 @@ module I18n
           end
         end
 
-        super(locale, key, scope, options)
+        super
       end
     end
 

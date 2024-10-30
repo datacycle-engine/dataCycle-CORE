@@ -47,7 +47,7 @@ module DataCycleCore
       test 'manual default order for search' do
         assert_equal(
           [@content.id, @content2.id, @content3.id, @content4.id, @content5.id],
-          DataCycleCore::Filter::Search.new.watch_list_id(@collection.id).sort_collection_manual_order('ASC', @collection.id).query.ids
+          DataCycleCore::Filter::Search.new.watch_list_id(@collection.id).sort_collection_manual_order('ASC', @collection.id).query.pluck(:id)
         )
       end
 
@@ -56,7 +56,7 @@ module DataCycleCore
 
         assert_equal(
           [@content3.id, @content2.id, @content.id, @content4.id, @content5.id],
-          DataCycleCore::Filter::Search.new.watch_list_id(@collection.id).sort_collection_manual_order('ASC', @collection.id).query.ids
+          DataCycleCore::Filter::Search.new.watch_list_id(@collection.id).sort_collection_manual_order('ASC', @collection.id).query.pluck(:id)
         )
       end
     end

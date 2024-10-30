@@ -18,7 +18,7 @@ module DataCycleCore
           referer: thing_path(@content)
         }
 
-        assert_response 302
+        assert_response :found
         duplicate = DataCycleCore::Thing.where_translated_value(name: "DUPLICATE: #{@content.name}").first
         assert duplicate.present?
         assert_not_equal @content.id, duplicate.id

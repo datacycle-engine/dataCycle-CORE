@@ -17,11 +17,11 @@ module DataCycleCore
           end
           Rails.application.reload_routes!
 
-          before_action :check_lock_state, only: [:edit, :split_view, :merge_with_duplicate], if: -> { is_a?(DataCycleCore::ContentsController) } # rubocop:disable Lint/UnneededCopDisableDirective, Rails/LexicallyScopedActionFilter
-          before_action :update_lock_state, only: :update, if: -> { is_a?(DataCycleCore::ContentsController) } # rubocop:disable Lint/UnneededCopDisableDirective, Rails/LexicallyScopedActionFilter
+          before_action :check_lock_state, only: [:edit, :split_view, :merge_with_duplicate] if self <= DataCycleCore::ContentsController # rubocop:disable Rails/LexicallyScopedActionFilter
+          before_action :update_lock_state, only: :update if self <= DataCycleCore::ContentsController # rubocop:disable Rails/LexicallyScopedActionFilter
 
-          before_action :check_lock_states, only: :bulk_edit, if: -> { is_a?(DataCycleCore::WatchListsController) } # rubocop:disable Lint/UnneededCopDisableDirective, Rails/LexicallyScopedActionFilter
-          before_action :update_lock_states, only: :bulk_update, if: -> { is_a?(DataCycleCore::WatchListsController) } # rubocop:disable Lint/UnneededCopDisableDirective, Rails/LexicallyScopedActionFilter
+          before_action :check_lock_states, only: :bulk_edit if self <= DataCycleCore::WatchListsController # rubocop:disable Rails/LexicallyScopedActionFilter
+          before_action :update_lock_states, only: :bulk_update if self <= DataCycleCore::WatchListsController # rubocop:disable Rails/LexicallyScopedActionFilter
         end
 
         def check_lock_thing

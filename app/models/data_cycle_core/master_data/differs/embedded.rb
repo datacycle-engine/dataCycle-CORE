@@ -102,7 +102,7 @@ module DataCycleCore
 
         def get_relation_ids(a)
           history = a.klass.to_s.split('::').include?('History')
-          history ? [a.pluck(:thing_id), history] : [a.ids, history]
+          history ? [a.pluck(:thing_id), history] : [a.pluck(:id), history]
         end
       end
     end

@@ -33,7 +33,7 @@ module DataCycleCore
         def parse_uuids(a)
           return [] if a.blank?
           data = a.is_a?(::String) ? [a] : a
-          data = a&.ids if data.is_a?(ActiveRecord::Relation)
+          data = a&.pluck(:id) if data.is_a?(ActiveRecord::Relation)
           raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
           data
         end

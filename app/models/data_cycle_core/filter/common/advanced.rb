@@ -360,9 +360,9 @@ module DataCycleCore
           when :not_equal
             query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = ?))', attribute_path, search_value])
           when :like
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?)', attribute_path, "%#{search_value&.split(' ')&.join('%')}%"])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?)', attribute_path, "%#{search_value&.split&.join('%')}%"])
           when :not_like
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?))', attribute_path, "%#{search_value&.split(' ')&.join('%')}%"])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?))', attribute_path, "%#{search_value&.split&.join('%')}%"])
           else
             return self
           end

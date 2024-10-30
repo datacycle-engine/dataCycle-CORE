@@ -43,7 +43,7 @@ module DataCycleCore
 
         def convert_data(data, template)
           converted_data = data.deep_dup
-          converted_data = converted_data.ids if data.first.is_a?(ActiveRecord::Base)
+          converted_data = converted_data.pluck(:id) if data.first.is_a?(ActiveRecord::Base)
 
           unless converted_data.all? { |d| d.is_a?(::String) && d.uuid? }
             (@error[:error][@template_key] ||= []) << {

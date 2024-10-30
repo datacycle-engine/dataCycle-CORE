@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-# The test environment is used exclusively to run your application's
-# test suite. You never need to work with it otherwise. Remember that
-# your test database is "scratch space" for the test suite and is wiped
-# and recreated between test runs. Don't rely on the data there!
+require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -11,9 +8,10 @@ Rails.application.configure do
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
-  config.cache_classes = true
+  config.enable_reloading = false
 
-  config.active_job.queue_adapter = :inline
+  # config.active_job.queue_adapter = :test # problems with backtrace in test failures
+  config.active_job.queue_adapter = :delayed_job
   # config.action_view.cache_template_loading = true
 
   # Do not eager load code on boot. This avoids loading your whole application
@@ -38,7 +36,7 @@ Rails.application.configure do
   config.cache_store = :null_store
 
   # Raise exceptions instead of rendering exception templates.
-  config.action_dispatch.show_exceptions = false
+  config.action_dispatch.show_exceptions = :rescuable
 
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
@@ -47,10 +45,6 @@ Rails.application.configure do
   config.active_storage.service = :test
   config.active_storage.resolve_model_to_route = :rails_storage_proxy
 
-  # Raise an error on page load if there are pending migrations.
-  config.active_record.migration_error = :page_load
-
-  config.action_mailer.raise_delivery_errors = false
   config.action_mailer.perform_caching = false
 
   # Tell Action Mailer not to deliver emails to the real world.
@@ -60,13 +54,16 @@ Rails.application.configure do
   config.action_mailer.default_options = { from: 'test@datacyle.info' }
 
   # Print deprecation notices to the stderr.
-  config.active_support.deprecation = :silence
+  config.active_support.deprecation = :stderr
 
   # Raise exceptions for disallowed deprecations.
   config.active_support.disallowed_deprecation = :raise
 
   # Tell Active Support which deprecation messages to disallow.
   config.active_support.disallowed_deprecation_warnings = []
+
+  # Raise error when a before_action's only/except options reference missing actions
+  config.action_controller.raise_on_missing_callback_actions = true
 
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true

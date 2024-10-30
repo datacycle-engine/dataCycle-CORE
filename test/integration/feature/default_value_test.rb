@@ -23,6 +23,7 @@ module DataCycleCore
           template.schema['properties'][key][type_name] = value
         end
 
+        template.define_singleton_method(:readonly?) { false }
         template.update_column(:schema, template.schema) if template.is_a?(DataCycleCore::ThingTemplate)
       end
 

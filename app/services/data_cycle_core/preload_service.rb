@@ -4,11 +4,11 @@ module DataCycleCore
   class PreloadService
     class << self
       def preload(resource, relations, scope = nil)
-        ActiveRecord::Associations::Preloader.new.preload(
-          resource,
-          relations,
-          scope
-        )
+        ActiveRecord::Associations::Preloader.new(
+          records: resource,
+          associations: relations,
+          scope: scope
+        ).tap(&:call)
       end
     end
   end

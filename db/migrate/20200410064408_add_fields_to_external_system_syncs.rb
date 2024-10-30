@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddFieldsToExternalSystemSyncs < ActiveRecord::Migration[5.2]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     add_column :external_system_syncs, :last_push_at, :datetime
     add_column :external_system_syncs, :last_successful_push_at, :datetime
@@ -16,4 +17,5 @@ class AddFieldsToExternalSystemSyncs < ActiveRecord::Migration[5.2]
     remove_column :external_system_syncs, :last_push_at
     remove_column :external_system_syncs, :last_successful_push_at
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

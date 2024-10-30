@@ -41,8 +41,6 @@ module DataCycleCore
     end
 
     def self.valid_stored_filters
-      return DataCycleCore::StoredFilter.none if all.is_a?(ActiveRecord::NullRelation)
-
       DataCycleCore::StoredFilter.where(id: where(item_type: 'DataCycleCore::Collection').valid.pluck(:item_id))
     end
 
@@ -64,13 +62,13 @@ module DataCycleCore
 
       release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
-      if item.is_a?(DataCycleCore::Thing) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id&.ids&.include?(release_partner_stage_id)
+      if item.is_a?(DataCycleCore::Thing) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id&.pluck(:id)&.include?(release_partner_stage_id)
         I18n.with_locale(item.first_available_locale) do
           item.set_data_hash(data_hash: { DataCycleCore::Feature::Releasable.allowed_attribute_keys(item).first => [release_partner_stage_id] }, current_user: creator)
         end
       elsif item.is_a?(DataCycleCore::WatchList) && release_partner_stage_id.present?
         item.things.includes(:classification_aliases, :translations).find_each do |content|
-          next unless DataCycleCore::Feature::Releasable.allowed?(content) && !content.release_status_id&.ids&.include?(release_partner_stage_id)
+          next unless DataCycleCore::Feature::Releasable.allowed?(content) && !content.release_status_id&.pluck(:id)&.include?(release_partner_stage_id)
 
           I18n.with_locale(content.first_available_locale) do
             content.set_data_hash(data_hash: { DataCycleCore::Feature::Releasable.allowed_attribute_keys(content).first => [release_partner_stage_id] }, current_user: creator)

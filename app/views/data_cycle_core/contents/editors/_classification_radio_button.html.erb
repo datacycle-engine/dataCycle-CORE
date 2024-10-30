@@ -14,7 +14,7 @@
     <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
       <li class="radiobutton-wrap" data-label="<%= rb.text %>">
         <%= rb.radio_button value: rb.value,
-                            checked: (value&.ids&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))),
+                            checked: (value&.pluck(:id)&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))),
                             disabled: !rb.object.assignable || !attribute_editable?(key, definition, options, content)  %>
         <%= rb.label data: { dc_tooltip: classification_tooltip(rb.object) } do %>
           <%= rb.text %> <%= tag.i(class: 'fa fa-info-circle') if rb.object.try(:description).present? %>
