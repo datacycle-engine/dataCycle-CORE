@@ -7,7 +7,7 @@ if defined?(BetterErrors)
   BetterErrors::Middleware.allow_ip! '192.168.0.0/16'
 end
 
-require "active_support/core_ext/integer/time"
+require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -28,21 +28,21 @@ Rails.application.configure do
 
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
-  if Rails.root.join("tmp/caching-dev.txt").exist?
+  if Rails.root.join('tmp/caching-dev.txt').exist?
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
 
-    if ENV["REDIS_SERVER"].present?
+    if ENV['REDIS_SERVER'].present?
       config.cache_store = :redis_cache_store, {
-        url: "redis://#{ENV["REDIS_SERVER"]}:#{ENV["REDIS_PORT"]}/#{ENV["REDIS_CACHE_DATABASE"]}",
-        namespace: ENV["REDIS_CACHE_NAMESPACE"]
+        url: "redis://#{ENV['REDIS_SERVER']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_CACHE_DATABASE']}",
+        namespace: ENV['REDIS_CACHE_NAMESPACE']
       }
     else
       config.cache_store = :memory_store
     end
 
     config.public_file_server.headers = {
-      "Cache-Control" => "public, max-age=#{2.days.to_i}"
+      'Cache-Control' => "public, max-age=#{2.days.to_i}"
     }
   else
     config.action_controller.perform_caching = false

@@ -28,6 +28,10 @@ namespace :dc do
         File.write(test_helper, new_text)
       end
 
+      puts 'remove config/secrets.yml ...'
+      secrets = Rails.root.join('config', 'secrets.yml')
+      FileUtils.rm_f(secrets)
+
       puts 'migrate files ...'
       manual_action_required = []
       # migrate files

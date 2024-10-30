@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/integer/time"
+require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -60,7 +60,7 @@ Rails.application.configure do
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
-  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'info')
 
   # Prepend all log lines with the following tags.
   config.log_tags = [:request_id]
@@ -75,10 +75,10 @@ Rails.application.configure do
   #
 
   # config.cache_store = :memory_store
-  if ENV["REDIS_SERVER"].present?
+  if ENV['REDIS_SERVER'].present?
     config.cache_store = :redis_cache_store, {
-      url: "redis://#{ENV["REDIS_SERVER"]}:#{ENV["REDIS_PORT"]}/#{ENV["REDIS_CACHE_DATABASE"]}",
-      namespace: ENV["REDIS_CACHE_NAMESPACE"]
+      url: "redis://#{ENV['REDIS_SERVER']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_CACHE_DATABASE']}",
+      namespace: ENV['REDIS_CACHE_NAMESPACE']
     }
   end
 
@@ -98,14 +98,14 @@ Rails.application.configure do
   config.active_support.deprecation = :notify
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
+  config.log_formatter = Logger::Formatter.new
 
   # Use a different logger for distributed setups.
   # require 'syslog/logger'
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
   if ENV['RAILS_LOG_TO_STDOUT'].present?
-    logger = ActiveSupport::Logger.new(STDOUT)
+    logger = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
