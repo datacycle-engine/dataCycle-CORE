@@ -8,6 +8,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::GeoKeyFigure
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::GeoKeyFigure
+        end
+
         def local(content)
           configuration(content)['local']
         end

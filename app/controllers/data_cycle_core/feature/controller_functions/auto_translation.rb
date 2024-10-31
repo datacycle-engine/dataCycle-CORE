@@ -6,14 +6,6 @@ module DataCycleCore
       module AutoTranslation
         extend ActiveSupport::Concern
 
-        included do
-          DataCycleCore::Engine.routes.prepend do
-            post '/things/:id/create_auto_translations', action: :create_auto_translations, controller: 'things', as: 'create_auto_translations_thing' unless has_named_route?(:create_auto_translations_thing)
-            post '/things/:id/auto_translations', action: :auto_translations, controller: 'things', as: 'auto_translations_thing' unless has_named_route?(:auto_translations_thing)
-          end
-          Rails.application.reload_routes!
-        end
-
         def auto_translations
           @content = DataCycleCore::Thing.find_by(id: params[:id])
           source_locale = param_source_locale || DataCycleCore::Feature::AutoTranslation.configuration['source_lang'] || I18n.locale

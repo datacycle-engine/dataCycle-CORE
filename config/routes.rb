@@ -17,6 +17,12 @@ DataCycleCore::Engine.routes.draw do
     root 'backend#index', as: :authenticated_root
   end
 
+  # feature routes
+  DataCycleCore.features.each_key do |key|
+    feature = DataCycleCore::Feature[key]
+    feature.routes_module.extend(self) if feature&.enabled? && feature.routes_module
+  end
+
   authenticate do
     post '/', to: 'backend#index'
     get  '/settings', to: 'backend#settings'

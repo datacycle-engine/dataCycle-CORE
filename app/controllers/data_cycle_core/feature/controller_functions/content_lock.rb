@@ -11,12 +11,6 @@ module DataCycleCore
         include ActionView::Helpers::OutputSafetyHelper
 
         included do
-          DataCycleCore::Engine.routes.prepend do
-            get '/things/:id/check_lock', action: :check_lock_thing, controller: 'things', as: 'check_lock_thing' unless has_named_route?(:check_lock_thing)
-            get '/watch_lists/:id/check_lock', action: :check_lock_watch_list, controller: 'watch_lists', as: 'check_lock_watch_list' unless has_named_route?(:check_lock_watch_list)
-          end
-          Rails.application.reload_routes!
-
           before_action :check_lock_state, only: [:edit, :split_view, :merge_with_duplicate] if self <= DataCycleCore::ContentsController # rubocop:disable Rails/LexicallyScopedActionFilter
           before_action :update_lock_state, only: :update if self <= DataCycleCore::ContentsController # rubocop:disable Rails/LexicallyScopedActionFilter
 

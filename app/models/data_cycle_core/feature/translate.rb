@@ -8,6 +8,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::Translate
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::Translate
+        end
+
         def text_source(content)
           attribute_keys(content).first
         end

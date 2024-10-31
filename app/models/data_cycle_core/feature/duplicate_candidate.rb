@@ -21,6 +21,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::DuplicateCandidate
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::DuplicateCandidate
+        end
+
         def find_duplicates(content)
           duplicate_methods = duplicate_method(content)
           return if duplicate_methods.blank?

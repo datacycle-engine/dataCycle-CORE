@@ -12,6 +12,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::NamedVersion
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::NamedVersion
+        end
+
         def ability_class
           DataCycleCore::Feature::Abilities::NamedVersion
         end

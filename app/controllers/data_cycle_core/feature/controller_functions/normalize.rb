@@ -6,13 +6,6 @@ module DataCycleCore
       module Normalize
         extend ActiveSupport::Concern
 
-        included do
-          DataCycleCore::Engine.routes.prepend do
-            post '/things/:id/normalize', action: :normalize, controller: 'things', as: 'normalize_thing' unless has_named_route?(:normalize_thing)
-          end
-          Rails.application.reload_routes!
-        end
-
         def normalize
           @content = DataCycleCore::Thing.find_by(id: params[:id])
           external_source = DataCycleCore::ExternalSystem.find_by(name: DataCycleCore.features.dig(:normalize, :external_source))

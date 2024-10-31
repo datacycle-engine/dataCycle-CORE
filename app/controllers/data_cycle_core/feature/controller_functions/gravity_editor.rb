@@ -6,15 +6,6 @@ module DataCycleCore
       module GravityEditor
         extend ActiveSupport::Concern
 
-        included do
-          DataCycleCore::Engine.routes.prepend do
-            authenticate do
-              patch '/things/:id/update_gravity', action: :update_gravity, controller: 'things', as: 'update_gravity_thing' unless has_named_route?(:update_gravity_thing)
-            end
-          end
-          Rails.application.reload_routes!
-        end
-
         def update_gravity
           content = DataCycleCore::Thing.find(params[:id])
           authorize! :edit, content

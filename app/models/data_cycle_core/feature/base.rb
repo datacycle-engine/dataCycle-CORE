@@ -93,6 +93,10 @@ module DataCycleCore
           false
         end
 
+        def routes_module
+          false
+        end
+
         def reload
           remove_instance_variable(:@configuration) if instance_variable_defined?(:@configuration)
           remove_instance_variable(:@enabled) if instance_variable_defined?(:@enabled)

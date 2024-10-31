@@ -6,13 +6,6 @@ module DataCycleCore
       module Translate
         extend ActiveSupport::Concern
 
-        included do
-          DataCycleCore::Engine.routes.prepend do
-            post '/things/translate_text', action: :translate_text, controller: 'things', as: 'translate_text_thing' unless has_named_route?(:translate_text_thing)
-          end
-          Rails.application.reload_routes!
-        end
-
         def translate_text
           render(plain: { error: I18n.t('validation.warnings.no_data', data: 'Übersetzung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if translate_params.blank? || translate_params.values.all?(&:blank?)
 

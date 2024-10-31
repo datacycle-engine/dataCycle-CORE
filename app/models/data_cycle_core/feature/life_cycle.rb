@@ -16,6 +16,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::LifeCycle
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::LifeCycle
+        end
+
         def ordered_classifications(content = nil)
           @ordered_classifications ||= Hash.new do |h, k|
             h[k] = DataCycleCore::ClassificationAlias

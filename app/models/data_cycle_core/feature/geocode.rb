@@ -8,6 +8,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::Geocode
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::Geocode
+        end
+
         def address_source(content = nil)
           attribute_keys(content).first
         end

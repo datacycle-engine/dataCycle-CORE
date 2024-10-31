@@ -6,17 +6,6 @@ module DataCycleCore
       module DuplicateCandidate
         extend ActiveSupport::Concern
 
-        included do
-          DataCycleCore::Engine.routes.append do
-            scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-              get '/things/:id/merge_with_duplicate(/:source_id)', action: :merge_with_duplicate, controller: 'things', as: 'merge_with_duplicate_thing' unless has_named_route?(:merge_with_duplicate_thing)
-              post '/things/:id/false_positive_duplicate/:source_id', action: :false_positive_duplicate, controller: 'things', as: 'false_positive_duplicate_thing' unless has_named_route?(:false_positive_duplicate_thing)
-              get '/things/:id/validate_duplicate/:source_id', action: :validate_duplicate, controller: 'things', as: 'validate_duplicate_thing' unless has_named_route?(:validate_duplicate_thing)
-            end
-          end
-          Rails.application.reload_routes!
-        end
-
         def merge_with_duplicate
           @content = DataCycleCore::Thing.find(merge_params[:id])
           @split_source = DataCycleCore::Thing.find(Array.wrap(merge_params[:source_id]).first)
