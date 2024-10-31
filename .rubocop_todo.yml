@@ -149,13 +149,6 @@ Style/OpenStructUse:
 Style/OptionalBooleanParameter:
   Enabled: false
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: SafeForConstants.
-Style/RedundantFetchBlock:
-  Exclude:
-    - "app/controllers/data_cycle_core/api/v1/contents_controller.rb"
-
 # Offense count: 4
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantRegexpEscape:
