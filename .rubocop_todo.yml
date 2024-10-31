@@ -75,14 +75,6 @@ Performance/CollectionLiteralInLoop:
     - "lib/tasks/dc_migrate.rake"
     - "test/models/master_data/data_converter_test.rb"
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/ActiveRecordCallbacksOrder:
-  Exclude:
-    - "app/models/data_cycle_core/classification_alias.rb"
-
 # Offense count: 38
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Rails/CompactBlank:

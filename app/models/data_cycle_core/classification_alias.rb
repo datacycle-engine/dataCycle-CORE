@@ -19,12 +19,12 @@ module DataCycleCore
     default_scope { i18n }
     default_scope { order(order_a: :asc, id: :asc) }
     before_save :set_internal_data
-    after_destroy :clean_stored_filters
-    before_destroy :add_things_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
     after_update :update_primary_classification
     after_update :add_things_cache_invalidation_job, if: :cached_attributes_changed?
     after_update :add_things_search_update_job, if: :search_attributes_changed?
     after_update :add_things_webhooks_job_update, if: :webhook_attributes_changed?
+    before_destroy :add_things_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
+    after_destroy :clean_stored_filters
 
     attr_accessor :content_template, :prevent_webhooks
 
