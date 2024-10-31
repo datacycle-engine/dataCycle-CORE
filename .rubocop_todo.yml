@@ -44,9 +44,9 @@ Lint/RedundantCopDisableDirective:
   Enabled: false
 
 # Offense count: 2
-Lint/SelfAssignment:
-  Exclude:
-    - "test/models/schedule_test.rb"
+# Lint/SelfAssignment:
+#   Exclude:
+#     - "test/models/schedule_test.rb"
 
 # Offense count: 194
 # This cop supports safe autocorrection (--autocorrect).

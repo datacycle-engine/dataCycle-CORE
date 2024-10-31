@@ -18,8 +18,6 @@ module DataCycleCore
 
     def create_schedule(dtstart, dtend, duration)
       schedule = DataCycleCore::Schedule.new
-      dtstart = dtstart
-      dtend = dtend
       schedule.schedule_object = IceCube::Schedule.new(dtstart, { duration: duration.to_i }) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(dtend))
       end
