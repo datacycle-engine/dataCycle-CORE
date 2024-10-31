@@ -17,6 +17,8 @@ AllCops:
     - "tmp/**/*"
     - "cache/**/*"
     - "bash/**/*"
+    - "*/**/transformations.rb"
+
     # - "test/dummy/db/migrate_6_1/**/*"
     # - "test/dummy/db/migrate_7_0/**/*"
 
