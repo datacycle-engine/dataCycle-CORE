@@ -120,13 +120,6 @@ Rails/OutputSafety:
 Rails/SquishedSQLHeredocs:
   Enabled: false
 
-# Offense count: 6
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/WhereEquals:
-  Exclude:
-    - "app/models/data_cycle_core/filter/common/typeahead.rb"
-    - "lib/tasks/data_cycle_core_db_consistency.rake"
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.

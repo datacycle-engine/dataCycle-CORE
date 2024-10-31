@@ -15,7 +15,7 @@ module DataCycleCore
                 @query
                   .except(:order)
                   .joins(:searches)
-                  .where('searches.locale = ?', locale)
+                  .where(searches: { locale: locale })
                   .select('searches.words_typeahead')
                   .to_sql
               }
