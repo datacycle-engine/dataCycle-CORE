@@ -87,15 +87,24 @@ module DataCycleCore
           relevant_schema = content.schema.dup
           relevant_schema['properties'] = relevant_schema['properties'].except(*except)
           total = relevant_schema['properties'].size
-          DataCycleCore::Thing.where(
+          duplicates = DataCycleCore::Thing.where(
             template_name: content.template_name
           ).joins(:translations).where(
             "thing_translations.locale = 'de'"
           ).where( # prefilter with name
             "similarity(thing_translations.content ->> 'name', ?) > 0.8", content.name
-          ).where( # prefilter location
-            content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS})"
-          ).where.not(id: content.id)
+          )
+
+          if content.location.present?
+            duplicates = duplicates.where(
+              "ST_DWithin(location, ST_GeographyFromText(?), #{DISTANCE_METERS})",
+              "SRID=4326;#{content.location}"
+            )
+          else
+            duplicates = duplicates.where(location: nil)
+          end
+
+          duplicates.where.not(id: content.id)
             .filter_map do |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
               score = [0, 100 * (total - (diff.size * WEIGHTING)) / total].max
@@ -104,12 +113,21 @@ module DataCycleCore
         end
 
         def data_metric_name_geo(content)
-          DataCycleCore::Thing.where(
+          duplicates = DataCycleCore::Thing.where(
             template_name: content.template_name,
             name: content.name
-          ).where( # prefilter location
-            content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS_NAME_GEO})"
-          ).where.not(id: content.id)
+          )
+
+          if content.location.present?
+            duplicates = duplicates.where(
+              "ST_DWithin(location, ST_GeographyFromText(?), #{DISTANCE_METERS_NAME_GEO})",
+              "SRID=4326;#{content.location}"
+            )
+          else
+            duplicates = duplicates.where(location: nil)
+          end
+
+          duplicates.where.not(id: content.id)
             .pluck(:id)
             .filter_map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
         end
