@@ -75,13 +75,6 @@ Performance/CollectionLiteralInLoop:
     - "lib/tasks/dc_migrate.rake"
     - "test/models/master_data/data_converter_test.rb"
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowRegexpMatch.
-Performance/RedundantEqualityComparisonBlock:
-  Exclude:
-    - "app/views/data_cycle_core/schema/index.xlsx.axlsx"
-
 # Offense count: 14
 # This cop supports safe autocorrection (--autocorrect).
 Performance/StringIdentifierArgument:

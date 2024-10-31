@@ -6,7 +6,7 @@ def render_template(sheet, template)
   rows = template.schema['properties'].map { |key, definition|
     convert_attribute_to_row(key, definition)
   }.reduce([]) do |all, next_element|
-    all + (next_element.all? { |element| element.is_a?(Array) } ? next_element : [next_element])
+    all + (next_element.all?(Array) ? next_element : [next_element])
   end
 
   rows = rows.map do |row|
@@ -78,7 +78,7 @@ def convert_embedded_attribute_to_rows(key, definition)
   [[definition['label'], key, nil, nil]] + embedded_template.schema['properties'].map { |property_key, property_definition|
     nested_attributes = convert_attribute_to_row(property_key, property_definition)
 
-    if nested_attributes.all? { |attribute| attribute.is_a?(Array) }
+    if nested_attributes.all?(Array)
       nested_attributes.map { |attribute| [nil] + attribute }
     else
       [[nil] + convert_attribute_to_row(property_key, property_definition)]
