@@ -150,12 +150,6 @@ Style/OptionalBooleanParameter:
   Enabled: false
 
 # Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Style/RedundantBegin:
-  Exclude:
-    - "app/models/data_cycle_core/content/extensions/content_warnings.rb"
-
-# Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: SafeForConstants.
 Style/RedundantFetchBlock:
