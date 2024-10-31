@@ -9,9 +9,9 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 unless options[:header_type] == :overlay
   json.content_partial! 'context', content: content
 
-  json.set! '@id', send(:"api_v2_#{content.model_name.element.tableize.singularize}_url", @api_subversion, content, @language != I18n.available_locales.first.to_s ? { language: @language } : {})
+  json.set! '@id', send(:"api_v2_#{content.model_name.element.tableize.singularize}_url", @api_subversion, content, @language == I18n.available_locales.first.to_s ? {} : { language: @language })
   json.set! 'identifier', content.id
-  json.set! 'url', send(:"#{content.model_name.element.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
+  json.set! 'url', send(:"#{content.model_name.element.tableize.singularize}_url", content, @language == I18n.available_locales.first.to_s ? {} : { locale: @language })
 
 end
 
