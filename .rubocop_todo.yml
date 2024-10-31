@@ -75,16 +75,6 @@ Performance/CollectionLiteralInLoop:
     - "lib/tasks/dc_migrate.rake"
     - "test/models/master_data/data_converter_test.rb"
 
-# Offense count: 14
-# This cop supports safe autocorrection (--autocorrect).
-Performance/StringIdentifierArgument:
-  Exclude:
-    - "app/models/data_cycle_core/content/content.rb"
-    - "app/models/data_cycle_core/content/data_hash.rb"
-    - "app/models/data_cycle_core/serialize/serializer/gpx.rb"
-    - "app/views/data_cycle_core/api/v2/api_base/_content_header.json.jbuilder"
-    - "app/views/data_cycle_core/api/v3/api_base/_content_header.jb"
-
 # Offense count: 7
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: OnlySumOrWithInitialValue.

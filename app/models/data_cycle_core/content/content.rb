@@ -681,7 +681,7 @@ module DataCycleCore
       def set_memoized_attribute(key, value, filter = nil, overlay_flag = false)
         definition = properties_for(key)
 
-        return send("#{key}=", value) if definition['storage_location'] == 'column'
+        return send(:"#{key}=", value) if definition['storage_location'] == 'column'
 
         attibute_cache_key = attibute_cache_key(key, filter, overlay_flag)
 

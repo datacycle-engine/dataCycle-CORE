@@ -35,7 +35,7 @@ module DataCycleCore
               xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
                 xml.metadata do
                   xml.name content.title
-                  xml.desc ActionView::Base.full_sanitizer.sanitize(content.send('description')) if content.respond_to?('description')
+                  xml.desc ActionView::Base.full_sanitizer.sanitize(content.send(:description)) if content.respond_to?(:description)
                   if content.created_by_user&.name.present?
                     xml.author do
                       xml.name content.created_by_user&.name

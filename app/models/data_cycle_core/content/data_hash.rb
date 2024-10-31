@@ -295,7 +295,7 @@ module DataCycleCore
       end
 
       def save_slug(key, value, data_hash)
-        send("#{key}=", DataCycleCore::MasterData::DataConverter.string_to_slug(value, self, data_hash))
+        send(:"#{key}=", DataCycleCore::MasterData::DataConverter.string_to_slug(value, self, data_hash))
       end
 
       def save_values(key, value, properties)
@@ -312,7 +312,7 @@ module DataCycleCore
       def save_to_column(key, value, properties)
         save_data = normalize_value(value, properties)
         save_data = convert_to_type(properties['type'], save_data) if properties['type'].in?(['geographic', 'string'])
-        send("#{key}=", save_data)
+        send(:"#{key}=", save_data)
       end
 
       def normalize_value(value, properties)
@@ -327,7 +327,7 @@ module DataCycleCore
         save_data = convert_to_string(properties['type'], normalize_value(save_data, properties)) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
 
         if send(location.to_s).blank? # set to json field (could be empty)
-          send("#{location}=", { key => save_data })
+          send(:"#{location}=", { key => save_data })
         else
           send(location.to_s).method(:[]=).call(key, save_data)
         end
