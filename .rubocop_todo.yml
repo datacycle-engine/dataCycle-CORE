@@ -127,14 +127,6 @@ Rails/SquishedSQLHeredocs:
 Style/HashAsLastArrayItem:
   Enabled: false
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedMethods.
-# AllowedMethods: nonzero?
-Style/IfWithBooleanLiteralBranches:
-  Exclude:
-    - "app/models/data_cycle_core/schema.rb"
-
 # Offense count: 7
 # This cop supports safe autocorrection (--autocorrect).
 Style/KeywordParametersOrder:
