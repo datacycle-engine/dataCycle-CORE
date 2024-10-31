@@ -14,7 +14,7 @@ module DataCycleCore
             @current_user.update_column(:access_token, SecureRandom.hex)
             @new_user = DataCycleCore::User.create(DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
               email: "tester_#{Time.now.getutc.to_i}@datacycle.at",
-              confirmed_at: Time.zone.now - 1.day,
+              confirmed_at: 1.day.ago,
               role_id: DataCycleCore::Role.find_by(rank: 5)&.id
             }))
           end

@@ -68,7 +68,7 @@ namespace :data_cycle_core do
         puts 'Recipient is required!'
         exit(-1)
       end
-      last_month = Time.zone.now - 1.month
+      last_month = 1.month.ago
       params = {
         by_month: last_month.month,
         by_year: last_month.year

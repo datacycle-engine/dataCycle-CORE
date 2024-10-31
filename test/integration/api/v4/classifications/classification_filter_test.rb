@@ -24,13 +24,13 @@ module DataCycleCore
           test 'api/v4/concept_schemes parameter filter[:dct:created]' do
             orig_ts = @tags.created_at
 
-            @tags.update_column(:created_at, (Time.zone.now + 10.days))
+            @tags.update_column(:created_at, 10.days.from_now)
             params = {
               filter: {
                 attribute: {
                   'dct:created': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -45,8 +45,8 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -56,13 +56,13 @@ module DataCycleCore
 
             assert_api_count_result(1)
 
-            @tags.update_column(:created_at, (Time.zone.now - 10.days))
+            @tags.update_column(:created_at, 10.days.ago)
             params = {
               filter: {
                 attribute: {
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -72,13 +72,13 @@ module DataCycleCore
 
             assert_api_count_result(1)
 
-            @tags.update_column(:created_at, (Time.zone.now + 10.days))
+            @tags.update_column(:created_at, 10.days.from_now)
             params = {
               filter: {
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -96,8 +96,8 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -110,13 +110,13 @@ module DataCycleCore
 
             assert_api_count_result(@trees - 1)
 
-            @tags.update_column(:created_at, (Time.zone.now - 10.days))
+            @tags.update_column(:created_at, 10.days.ago)
             params = {
               filter: {
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -134,10 +134,10 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 15.days).to_fs(:iso8601)
+                      max: 15.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -153,13 +153,13 @@ module DataCycleCore
           test 'api/v4/concept_schemes parameter filter[:dct:modified]' do
             orig_ts = @tags.updated_at
 
-            @tags.update_column(:updated_at, (Time.zone.now + 10.days))
+            @tags.update_column(:updated_at, 10.days.from_now)
             params = {
               filter: {
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -174,8 +174,8 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -185,13 +185,13 @@ module DataCycleCore
 
             assert_api_count_result(1)
 
-            @tags.update_column(:updated_at, (Time.zone.now - 10.days))
+            @tags.update_column(:updated_at, 10.days.ago)
             params = {
               filter: {
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -201,13 +201,13 @@ module DataCycleCore
 
             assert_api_count_result(1)
 
-            @tags.update_column(:updated_at, (Time.zone.now + 10.days))
+            @tags.update_column(:updated_at, 10.days.from_now)
             params = {
               filter: {
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -225,8 +225,8 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -239,13 +239,13 @@ module DataCycleCore
 
             assert_api_count_result(@trees - 1)
 
-            @tags.update_column(:updated_at, (Time.zone.now - 10.days))
+            @tags.update_column(:updated_at, 10.days.ago)
             params = {
               filter: {
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -263,10 +263,10 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 15.days).to_fs(:iso8601)
+                      max: 15.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -285,7 +285,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: (Time.zone.now - 20.years).to_fs(:iso8601)
+                      min: 20.years.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -307,7 +307,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      max: (Time.zone.now + 20.years).to_fs(:iso8601)
+                      max: 20.years.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -327,14 +327,14 @@ module DataCycleCore
             classificaton_tag = classifications.with_name('Tag 3').first
             orig_ts = classificaton_tag.created_at
 
-            classificaton_tag.update_column(:created_at, (Time.zone.now + 10.days))
+            classificaton_tag.update_column(:created_at, 10.days.from_now)
             params = {
               id: tree_id,
               filter: {
                 attribute: {
                   'dct:created': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -350,8 +350,8 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -361,14 +361,14 @@ module DataCycleCore
 
             assert_api_count_result(1)
 
-            classificaton_tag.update_column(:created_at, (Time.zone.now - 10.days))
+            classificaton_tag.update_column(:created_at, 10.days.ago)
             params = {
               id: tree_id,
               filter: {
                 attribute: {
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -378,14 +378,14 @@ module DataCycleCore
 
             assert_api_count_result(1)
 
-            classificaton_tag.update_column(:created_at, (Time.zone.now + 10.days))
+            classificaton_tag.update_column(:created_at, 10.days.from_now)
             params = {
               id: tree_id,
               filter: {
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -401,8 +401,8 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -412,14 +412,14 @@ module DataCycleCore
 
             assert_api_count_result(classifications_count - 1)
 
-            classificaton_tag.update_column(:created_at, (Time.zone.now - 10.days))
+            classificaton_tag.update_column(:created_at, 10.days.ago)
             params = {
               id: tree_id,
               filter: {
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -434,10 +434,10 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 15.days).to_fs(:iso8601)
+                      max: 15.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -457,14 +457,14 @@ module DataCycleCore
             classificaton_tag = classifications.with_name('Tag 3').first
             orig_ts = classificaton_tag.updated_at
 
-            classificaton_tag.update_column(:updated_at, (Time.zone.now + 10.days))
+            classificaton_tag.update_column(:updated_at, 10.days.from_now)
             params = {
               id: tree_id,
               filter: {
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -480,8 +480,8 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -491,14 +491,14 @@ module DataCycleCore
 
             assert_api_count_result(1)
 
-            classificaton_tag.update_column(:updated_at, (Time.zone.now - 10.days))
+            classificaton_tag.update_column(:updated_at, 10.days.ago)
             params = {
               id: tree_id,
               filter: {
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -508,14 +508,14 @@ module DataCycleCore
 
             assert_api_count_result(1)
 
-            classificaton_tag.update_column(:updated_at, (Time.zone.now + 10.days))
+            classificaton_tag.update_column(:updated_at, 10.days.from_now)
             params = {
               id: tree_id,
               filter: {
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -531,8 +531,8 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 12.days).to_fs(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -542,14 +542,14 @@ module DataCycleCore
 
             assert_api_count_result(classifications_count - 1)
 
-            classificaton_tag.update_column(:updated_at, (Time.zone.now - 10.days))
+            classificaton_tag.update_column(:updated_at, 10.days.ago)
             params = {
               id: tree_id,
               filter: {
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -564,10 +564,10 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 15.days).to_fs(:iso8601)
+                      max: 15.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -590,7 +590,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: (Time.zone.now - 20.years).to_fs(:iso8601)
+                      min: 20.years.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -611,7 +611,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      max: (Time.zone.now + 20.years).to_fs(:iso8601)
+                      max: 20.years.from_now.to_fs(:iso8601)
                     }
                   }
                 }

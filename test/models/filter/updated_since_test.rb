@@ -10,7 +10,7 @@ module DataCycleCore
         # create entity and add 5 linked entities from the same table
         @things_before = DataCycleCore::Thing.count
         @linked_objects = []
-        @timestamp = Time.zone.now - 1.second
+        @timestamp = 1.second.ago
         5.times do |i|
           @linked_objects.push(
             DataCycleCore::TestPreparations.create_content(

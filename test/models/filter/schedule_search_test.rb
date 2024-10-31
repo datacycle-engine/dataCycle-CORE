@@ -46,7 +46,7 @@ module DataCycleCore
     end
 
     test 'test query for event_schedule with multiple occurrences and daily rrule' do
-      create_content('Event', { name: 'DDD0', event_schedule: schedule_hash(Time.zone.now - 10.days, 'Daily', Time.zone.now.end_of_day) })
+      create_content('Event', { name: 'DDD0', event_schedule: schedule_hash(10.days.ago, 'Daily', Time.zone.now.end_of_day) })
 
       items = DataCycleCore::Filter::Search.new(:de).schedule_search(Date.current, Date.current)
       assert_equal(1, items.count)
@@ -88,7 +88,7 @@ module DataCycleCore
     end
 
     test 'test query for event_schedule with multiple occurrences and weekly rrule' do
-      create_content('Event', { name: 'DDD0', event_schedule: schedule_hash(Time.zone.now - 3.weeks, 'Weekly', Time.zone.now.end_of_day, { 'day' => [Date.current.wday] }) })
+      create_content('Event', { name: 'DDD0', event_schedule: schedule_hash(3.weeks.ago, 'Weekly', Time.zone.now.end_of_day, { 'day' => [Date.current.wday] }) })
 
       items = DataCycleCore::Filter::Search.new(:de).schedule_search(Date.current, Date.current)
       assert_equal(1, items.count)
@@ -130,7 +130,7 @@ module DataCycleCore
     end
 
     test 'test query for event_schedule with multiple occurrences and yearly rrule' do
-      create_content('Event', { name: 'DDD0', event_schedule: schedule_hash(Time.zone.now - 4.years, 'Yearly', Time.zone.now.end_of_day) })
+      create_content('Event', { name: 'DDD0', event_schedule: schedule_hash(4.years.ago, 'Yearly', Time.zone.now.end_of_day) })
 
       items = DataCycleCore::Filter::Search.new(:de).schedule_search(Date.current, Date.current)
       assert_equal(1, items.count)

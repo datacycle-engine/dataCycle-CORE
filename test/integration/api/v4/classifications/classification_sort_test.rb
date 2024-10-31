@@ -17,7 +17,7 @@ module DataCycleCore
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
 
-            tree_tags.update_column(:created_at, (Time.zone.now + 10.days))
+            tree_tags.update_column(:created_at, 10.days.from_now)
 
             # DESC
             params = {
@@ -78,7 +78,7 @@ module DataCycleCore
             orig_ts = tree_tags.updated_at
 
             # DESC
-            tree_tags.update_column(:updated_at, (Time.zone.now + 10.days))
+            tree_tags.update_column(:updated_at, 10.days.from_now)
             params = {
               sort: '-dct:modified',
               page: {
@@ -151,7 +151,7 @@ module DataCycleCore
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
 
-            tree_tags.update_column(:created_at, (Time.zone.now + 10.days))
+            tree_tags.update_column(:created_at, 10.days.from_now)
             params = {
               sort: '-dct:created,+dct:modified,+another',
               page: {
@@ -177,7 +177,7 @@ module DataCycleCore
             classificaton_tag = classifications.with_name('Tag 3').first
             orig_ts = classificaton_tag.updated_at
 
-            classificaton_tag.update_column(:updated_at, (Time.zone.now + 10.days))
+            classificaton_tag.update_column(:updated_at, 10.days.from_now)
 
             # modified ASC
             params = {

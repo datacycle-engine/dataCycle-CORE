@@ -205,8 +205,8 @@ module DataCycleCore
     test 'has helper for created_at and modified_at' do
       items = DataCycleCore::Filter::Search.new(:de)
       all = items.count
-      assert_equal(all, items.created_at({ min: (Time.zone.now - 1.hour).to_s }).count)
-      assert_equal(all, items.modified_at({ min: (Time.zone.now - 1.hour).to_s }).count)
+      assert_equal(all, items.created_at({ min: 1.hour.ago.to_s }).count)
+      assert_equal(all, items.modified_at({ min: 1.hour.ago.to_s }).count)
     end
 
     test 'supports geo queries' do

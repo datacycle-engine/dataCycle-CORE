@@ -120,14 +120,14 @@ module DataCycleCore
         given_name: 'Administrator',
         password: 'PME_jeh0nek4tbf8mea',
         role_id: DataCycleCore::Role.order('rank DESC').first.id,
-        confirmed_at: Time.zone.now - 1.day
+        confirmed_at: 1.day.ago
       })
       @guest = DataCycleCore::User.where(email: 'guest@datacycle.at').first_or_create({
         given_name: 'Guest',
         family_name: 'User',
         password: 'vdr5pmx@juv9BMJ6ujt',
         role_id: DataCycleCore::Role.find_by(name: 'guest')&.id,
-        confirmed_at: Time.zone.now - 1.day
+        confirmed_at: 1.day.ago
       })
     end
 

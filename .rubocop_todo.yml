@@ -75,11 +75,6 @@ Performance/CollectionLiteralInLoop:
     - "lib/tasks/dc_migrate.rake"
     - "test/models/master_data/data_converter_test.rb"
 
-# Offense count: 159
-# This cop supports safe autocorrection (--autocorrect).
-Rails/DurationArithmetic:
-  Enabled: false
-
 # Offense count: 23
 # Configuration parameters: Include.
 # Include: app/models/**/*.rb

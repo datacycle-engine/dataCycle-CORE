@@ -943,7 +943,7 @@ module DataCycleCore
 
           test 'api/v4/endpoints parameter combine with more filters' do
             orig_ts = @event.updated_at
-            @event.update_column(:updated_at, (Time.zone.now - 10.days))
+            @event.update_column(:updated_at, 10.days.ago)
             params = {
               filter: {
                 union: [
@@ -964,7 +964,7 @@ module DataCycleCore
                   attribute: {
                     'dct:modified': {
                       in: {
-                        max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                        max: 5.days.ago.to_fs(:iso8601)
                       }
                     }
                   }
@@ -978,7 +978,7 @@ module DataCycleCore
             @event.update_column(:updated_at, orig_ts)
 
             orig_ts = @event.updated_at
-            @event.update_column(:updated_at, (Time.zone.now - 10.days))
+            @event.update_column(:updated_at, 10.days.ago)
             params = {
               filter: {
                 union: [
@@ -998,7 +998,7 @@ module DataCycleCore
                     attribute: {
                       'dct:modified': {
                         in: {
-                          max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                          max: 5.days.ago.to_fs(:iso8601)
                         }
                       }
                     }
@@ -1013,7 +1013,7 @@ module DataCycleCore
             @event.update_column(:updated_at, orig_ts)
 
             orig_ts = @poi.updated_at
-            @poi.update_column(:updated_at, (Time.zone.now - 10.days))
+            @poi.update_column(:updated_at, 10.days.ago)
             params = {
               filter: {
                 union: [
@@ -1035,7 +1035,7 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_fs(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }

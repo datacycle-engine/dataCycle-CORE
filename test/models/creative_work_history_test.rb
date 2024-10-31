@@ -65,7 +65,7 @@ module DataCycleCore
       template_count = DataCycleCore::Thing.count
       template_trans_count = DataCycleCore::Thing::Translation.count
 
-      save_time = Time.zone.now - 10.seconds
+      save_time = 10.seconds.ago
 
       data_set = DataCycleCore::Thing.new(template_name: 'TestClassificationData')
       data_set.created_at = save_time
@@ -93,7 +93,7 @@ module DataCycleCore
       template_count = DataCycleCore::Thing.count
       template_trans_count = DataCycleCore::Thing::Translation.count
 
-      save_time = Time.zone.now - 10.seconds
+      save_time = 10.seconds.ago
 
       data_set = DataCycleCore::Thing.new(template_name: 'TestEmbeddedPlaceData')
       data_set.created_at = save_time
@@ -134,7 +134,7 @@ module DataCycleCore
       template_count = DataCycleCore::Thing.count
       template_trans_count = DataCycleCore::Thing::Translation.count
 
-      save_time = Time.zone.now - 64.seconds
+      save_time = 64.seconds.ago
 
       data_set = DataCycleCore::Thing.new(template_name: 'TestEmbeddedCreativeWork')
       data_set.created_at = save_time
@@ -181,29 +181,29 @@ module DataCycleCore
 
       data_set = DataCycleCore::Thing.new(template_name: 'TestSimple')
       data_set.name = 'initial'
-      data_set.updated_at = Time.zone.now - 5.weeks
+      data_set.updated_at = 5.weeks.ago
       data_set.created_at = data_set.updated_at
       data_set.save
 
-      weeks4ago = Time.zone.now - 4.weeks
+      weeks4ago = 4.weeks.ago
       data_hash_4w = { 'name' => 'Test 4.weeks.ago!' }
       data_set.set_data_hash(data_hash: data_hash_4w, current_user: nil, save_time: weeks4ago)
       data_set.updated_at = weeks4ago
       data_set.save
 
-      weeks3ago = Time.zone.now - 3.weeks
+      weeks3ago = 3.weeks.ago
       data_hash_3w = { 'name' => 'Test 3.weeks.ago!' }
       data_set.set_data_hash(data_hash: data_hash_3w, current_user: nil, save_time: weeks3ago)
       data_set.updated_at = weeks3ago
       data_set.save
 
-      weeks2ago = Time.zone.now - 2.weeks
+      weeks2ago = 2.weeks.ago
       data_hash_2w = { 'name' => 'Test 2.weeks.ago!' }
       data_set.set_data_hash(data_hash: data_hash_2w, current_user: nil, save_time: weeks2ago)
       data_set.updated_at = weeks2ago
       data_set.save
 
-      weeks1ago = Time.zone.now - 1.week
+      weeks1ago = 1.week.ago
       data_hash_1w = { 'name' => 'Test 1.weeks.ago!' }
       data_set.set_data_hash(data_hash: data_hash_1w, current_user: nil, save_time: weeks1ago)
       data_set.updated_at = weeks1ago
@@ -222,8 +222,8 @@ module DataCycleCore
       assert_equal(data_hash_4w, data_set.as_of(weeks3ago - 1.day).get_data_hash.except('id'))
       assert_equal(data_hash_4w, data_set.as_of(weeks4ago - 1.day).get_data_hash.except('id'))
       assert_nil(data_set.as_of(weeks4ago - 2.weeks))
-      assert_nil(data_set.as_of(Time.zone.now - 3.months))
-      assert_equal(data_hash_1w, data_set.as_of(Time.zone.now + 1.month).get_data_hash.except('id'))
+      assert_nil(data_set.as_of(3.months.ago))
+      assert_equal(data_hash_1w, data_set.as_of(1.month.from_now).get_data_hash.except('id'))
     end
 
     test 'save creative work with embeddedLink to history' do

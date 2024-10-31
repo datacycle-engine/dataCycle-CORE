@@ -11,7 +11,7 @@ module DataCycleCore
       @collection = WatchList.create(name: 'test-watchlist')
       @tag1 = Concept.for_tree('Tags').first
       @start_time = Time.zone.now
-      @end_time = Time.zone.now + 1.day + 1.hour
+      @end_time = 1.day.from_now + 1.hour
       @schedule_value = [Schedule.transform_data_for_data_hash({
         start_time: { time: @start_time, zone: @start_time.time_zone.name },
         end_time: { time: @start_time + 1.hour, zone: @start_time.time_zone.name},

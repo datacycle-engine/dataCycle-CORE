@@ -231,7 +231,7 @@ module DataCycleCore
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
         else
           start_date = Time.zone.now
-          end_date = (Time.zone.now + 1.week).end_of_week
+          end_date = 1.week.from_now.end_of_week
         end
 
         if sort_by_date
@@ -343,7 +343,7 @@ module DataCycleCore
 
         if start_date.nil? && end_date.nil?
           start_date = Time.zone.now
-          end_date = (Time.zone.now + 1.week).end_of_week
+          end_date = 1.week.from_now.end_of_week
         end
         if sort_by_date
           min_start_date = 'MIN(LOWER(so.occurrence))'

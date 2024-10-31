@@ -25,7 +25,7 @@ module DataCycleCore
 
           test 'api/v4/things with parameter sort: created' do
             orig_ts = @food_establishment_a.created_at
-            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days))
+            @food_establishment_a.update_column(:created_at, 10.days.from_now)
 
             # DESC
             params = {
@@ -77,7 +77,7 @@ module DataCycleCore
 
           test 'api/v4/things with parameter sort: modified' do
             orig_ts = @food_establishment_a.updated_at
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days))
+            @food_establishment_a.update_column(:updated_at, 10.days.from_now)
 
             # DESC
             params = {
@@ -142,7 +142,7 @@ module DataCycleCore
 
           test 'api/v4/things parameter multiple and invalid sort params' do
             orig_ts = @food_establishment_a.created_at
-            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days))
+            @food_establishment_a.update_column(:created_at, 10.days.from_now)
 
             params = {
               fields: 'dct:modified,dct:created',

@@ -54,7 +54,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now - 7.days).to_fs(:iso8601)
+                      min: 7.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -69,7 +69,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now + 2.days).to_fs(:iso8601)
+                      min: 2.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -84,8 +84,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now + 2.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 3.days).to_fs(:iso8601)
+                      min: 2.days.from_now.to_fs(:iso8601),
+                      max: 3.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -100,7 +100,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      max: (Time.zone.now + 3.days).to_fs(:iso8601)
+                      max: 3.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -131,8 +131,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now + 9.days).to_fs(:iso8601),
-                      max: (Time.zone.now + 20.days).to_fs(:iso8601)
+                      min: 9.days.from_now.to_fs(:iso8601),
+                      max: 20.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -150,8 +150,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now - 20.days).to_fs(:iso8601),
-                      max: (Time.zone.now - 7.days).to_fs(:iso8601)
+                      min: 20.days.ago.to_fs(:iso8601),
+                      max: 7.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -170,7 +170,7 @@ module DataCycleCore
               filter: {
                 schedule: {
                   in: {
-                    min: (Time.zone.now - 7.days).to_fs(:iso8601)
+                    min: 7.days.ago.to_fs(:iso8601)
                   }
                 }
               }
@@ -186,7 +186,7 @@ module DataCycleCore
                 attribute: {
                   openingHoursSpecification: {
                     in: {
-                      min: (Time.zone.now - 7.days).to_fs(:iso8601)
+                      min: 7.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -203,7 +203,7 @@ module DataCycleCore
                 attribute: {
                   'dc:diningHoursSpecification': {
                     in: {
-                      min: (Time.zone.now - 7.days).to_fs(:iso8601)
+                      min: 7.days.ago.to_fs(:iso8601)
                     }
                   }
                 }

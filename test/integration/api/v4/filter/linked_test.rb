@@ -376,7 +376,7 @@ module DataCycleCore
             # validate linked with 'dct:modified'
             image_test = @event_c.image.first
             orig_ts = image_test.updated_at
-            image_test.update_column(:updated_at, (Time.zone.now + 10.days))
+            image_test.update_column(:updated_at, 10.days.from_now)
 
             # events start in 2days today
             # with image cc0
@@ -402,7 +402,7 @@ module DataCycleCore
                     attribute: {
                       'dct:modified': {
                         in: {
-                          min: (Time.zone.now + 5.days).to_fs(:iso8601)
+                          min: 5.days.from_now.to_fs(:iso8601)
                         }
                       }
                     }

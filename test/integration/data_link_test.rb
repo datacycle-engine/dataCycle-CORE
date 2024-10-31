@@ -22,7 +22,7 @@ module DataCycleCore
     end
 
     test 'create new external link for content' do
-      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user').merge({ confirmed_at: Time.zone.now - 1.day })
+      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user').merge({ confirmed_at: 1.day.ago })
 
       readonly_content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel not editable' })
 
@@ -95,7 +95,7 @@ module DataCycleCore
     end
 
     test 'create new external link for watch_list' do
-      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user').merge({ confirmed_at: Time.zone.now - 1.day })
+      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user').merge({ confirmed_at: 1.day.ago })
       watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
       watch_list_content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel in WatchList' })
       DataCycleCore::WatchListDataHash.find_or_create_by({
@@ -202,7 +202,7 @@ module DataCycleCore
         given_name: 'normal',
         family_name: 'admin',
         password: Devise.friendly_token,
-        confirmed_at: Time.zone.now - 1.day,
+        confirmed_at: 1.day.ago,
         role_id: DataCycleCore::Role.find_by(name: 'admin')&.id
       })
 

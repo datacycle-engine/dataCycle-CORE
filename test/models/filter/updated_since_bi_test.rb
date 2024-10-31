@@ -103,7 +103,7 @@ module DataCycleCore
       private
 
       def data_setup(one: nil, bi: nil)
-        timestamp = Time.zone.now - 1.minute
+        timestamp = 1.minute.ago
         linked_objects = create_places(one, timestamp) if one&.positive?
         linked_bi_objects = create_places(bi, timestamp) if bi&.positive?
 
