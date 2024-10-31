@@ -120,14 +120,6 @@ Rails/OutputSafety:
 Rails/SquishedSQLHeredocs:
   Enabled: false
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedMethods, AllowedPatterns.
-# AllowedMethods: ==, equal?, eql?
-Style/ClassEqualityComparison:
-  Exclude:
-    - "config/initializers/monkey/patch_active_record_range.rb"
-
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/CombinableLoops:
