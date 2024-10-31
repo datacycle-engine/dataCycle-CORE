@@ -13,7 +13,7 @@ class ShellHelper
 
     def prompt(*)
       print(*) # rubocop:disable Rails/Output
-      STDIN.gets.strip
+      $stdin.gets.strip
     end
 
     def progress_bar(total_items, index, interval = nil)
