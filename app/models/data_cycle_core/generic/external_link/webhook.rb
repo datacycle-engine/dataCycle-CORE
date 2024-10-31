@@ -22,7 +22,7 @@ module DataCycleCore
             end
           end
 
-          errors.present? ? { error: errors } : { update: "#{data['id']} (#{data.dig('external_system_syncs').map { |i| i[:external_key] }.join(', ')})" }
+          errors.present? ? { error: errors } : { update: "#{data['id']} (#{data.dig('external_system_syncs').pluck(:external_key).join(', ')})" }
         end
 
         def delete(raw_data, external_system)
@@ -40,7 +40,7 @@ module DataCycleCore
               logging.info("delete Thing: #{data['id']}", "transformed_data: #{data}")
             end
           end
-          errors.present? ? { error: errors } : { delete: "#{data['id']} (#{data.dig('external_system_syncs').map { |i| i[:external_key] }.join(', ')})" }
+          errors.present? ? { error: errors } : { delete: "#{data['id']} (#{data.dig('external_system_syncs').pluck(:external_key).join(', ')})" }
         end
 
         private

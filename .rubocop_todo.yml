@@ -115,12 +115,6 @@ Rails/OutputSafety:
   Exclude:
     - "app/helpers/data_cycle_core/data_hash_helper.rb"
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/Pluck:
-  Exclude:
-    - "app/models/data_cycle_core/generic/external_link/webhook.rb"
-
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
