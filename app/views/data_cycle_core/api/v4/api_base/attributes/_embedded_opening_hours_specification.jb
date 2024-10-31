@@ -2,7 +2,7 @@
 
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 
-opening_hours = content.try(key + '_overlay')&.sum { |specification|
+opening_hours = content.try("#{key}_overlay")&.sum { |specification|
   if specification.time.present?
     specification.time.map do |time|
       [specification, time]

@@ -132,7 +132,7 @@ namespace :dc do
       )
 
       items_to_delete = orphans.count
-      puts "Deleting #{items_to_delete.to_s.rjust(6)} #{('(template: ' + template.template_name + ')').ljust(32)} from #{external_source.name.ljust(50)} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
+      puts "Deleting #{items_to_delete.to_s.rjust(6)} #{"(template: #{template.template_name})".ljust(32)} from #{external_source.name.ljust(50)} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
 
       index = 0
       orphans.each do |orphan|
@@ -177,7 +177,7 @@ namespace :dc do
       main_templates = embedded[embedded_template]
       orphans = CleanupHelper.orphaned_embedded(main_templates, embedded_template)
       items_to_delete = orphans.count
-      puts "#{('embedded: ' + embedded_template).ljust(25)} used in:  #{main_templates.map(&:to_s)}"
+      puts "#{"embedded: #{embedded_template}".ljust(25)} used in:  #{main_templates.map(&:to_s)}"
       puts "Deleting #{items_to_delete.to_s.rjust(6)} #{' ' * 88} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
 
       index = 0

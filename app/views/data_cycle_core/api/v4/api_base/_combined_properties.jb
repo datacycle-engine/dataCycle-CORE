@@ -11,7 +11,7 @@ end
 
 combined.each do |combined_key, combined_value|
   json[combined_key] = combined_value.map { |key, definition|
-    value = load_value_object(content, key, content.try(key + '_overlay'), options[:languages], definition, options[:expand_language])
+    value = load_value_object(content, key, content.try("#{key}_overlay"), options[:languages], definition, options[:expand_language])
 
     next if DataCycleCore::DataHashService.blank?(value)
 

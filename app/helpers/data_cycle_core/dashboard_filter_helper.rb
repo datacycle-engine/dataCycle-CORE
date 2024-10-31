@@ -204,7 +204,7 @@ module DataCycleCore
       capture do
         if value.is_a?(::Array)
           value.each do |v|
-            concat filter_to_hidden_fields(key + '[]', v)
+            concat filter_to_hidden_fields("#{key}[]", v)
           end
         elsif value.is_a?(::Hash)
           value.each do |k, v|

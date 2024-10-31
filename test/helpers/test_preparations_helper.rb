@@ -92,7 +92,7 @@ module DataCycleCore
     def self.load_dummy_data(paths)
       paths.each do |path|
         CONTENT_TABLES.each do |content_table_name|
-          files = path + content_table_name.to_s + '*.json'
+          files = path.join(content_table_name.to_s, '*.json')
 
           file_names = Dir[files]
           file_names.each do |file_name|

@@ -3,7 +3,7 @@
 json ||= {}
 key_new = attribute_key(key, definition)
 
-classification_string = content.send(key + '_overlay')
+classification_string = content.send(:"#{key}_overlay")
   .includes(:classification_aliases)
   .map(&:classification_aliases)
   .flatten

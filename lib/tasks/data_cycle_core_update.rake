@@ -33,7 +33,7 @@ namespace :data_cycle_core do
       data = DataCycleCore::MasterData::ImportClassifications.updated_classification_statistics(before_import)
       if data.present?
         puts "\nWARNING: the following classification_aliases are not updated:"
-        puts 'name'.ljust(30) + ' | ' + 'last_seen'.ljust(38) + ' | ' + 'occurrence'
+        puts "#{'name'.ljust(30)} | #{'last_seen'.ljust(38)} | occurrence"
         puts '-' * 82
         data.each do |key, value|
           puts "#{key.to_s.ljust(30)} |  #{value[:seen_at].to_fs(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(7)}"

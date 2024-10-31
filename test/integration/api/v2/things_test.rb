@@ -110,10 +110,10 @@ module DataCycleCore
           v1_except = ['dateCreated', 'dateModified', 'classifications']
 
           v2_hash = {
-            '@context' => data_hash['@context'] + '/thing',
+            '@context' => "#{data_hash['@context']}/thing",
             'contentType' => data_hash['contentType'],
             '@id' => data_hash['@id'].split('/').last,
-            'identifier' => 'http://www.example.com/things/' + data_hash['identifier'],
+            'identifier' => "http://www.example.com/things/#{data_hash['identifier']}",
             'url' => data_hash['url'],
             'inLanguage' => data_hash['inLanguage'],
             'name' => data_hash['headline'],

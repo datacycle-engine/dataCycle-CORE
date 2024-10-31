@@ -81,8 +81,8 @@ namespace :db do
       options = []
       options << 'FULL' if full
       options << 'ANALYZE'
-      sql = "VACUUM (#{options.join(', ')}) #{table_names}".squish + ';'
-      visibility_sql = "VACUUM (ANALYZE) #{table_names}".squish + ';'
+      sql = "#{"VACUUM (#{options.join(', ')}) #{table_names}".squish};"
+      visibility_sql = "#{"VACUUM (ANALYZE) #{table_names}".squish};"
 
       ActiveRecord::Base.connection.exec_query('SET statement_timeout = 0;')
       ActiveRecord::Base.connection.exec_query(sql)
@@ -210,7 +210,7 @@ namespace :db do
           end
         else
           puts "Too many files match the pattern '#{pattern}':"
-          puts ' ' + files.join("\n ")
+          puts " #{files.join("\n ")}"
           puts ''
           puts 'Try a more specific pattern'
           puts ''

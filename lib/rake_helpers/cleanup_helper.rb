@@ -50,7 +50,7 @@ class CleanupHelper
     end
 
     def orphaned_embedded(template_array, embedded_name)
-      template_string = "'" + template_array.map(&:to_s).join("', '") + "'"
+      template_string = "'#{template_array.map(&:to_s).join("', '")}'"
       where_string = <<-SQL.squish
         things.id NOT IN (
           SELECT things.id FROM things

@@ -3,9 +3,9 @@
 json ||= {}
 
 if @linked_stored_filter.present?
-  data = content.send(key + '_overlay', @linked_stored_filter)
+  data = content.send(:"#{key}_overlay", @linked_stored_filter)
 else
-  data = content.send(key + '_overlay')
+  data = content.send(:"#{key}_overlay")
 end
 
 if data.present?

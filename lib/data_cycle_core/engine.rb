@@ -412,8 +412,8 @@ module DataCycleCore
       )
       Dir.glob(
         [
-          Rails.root + 'app/decorators/**/*_decorator*.rb',
-          Rails.root + 'app/extensions/**/*.rb'
+          Rails.root.join('app', 'decorators', '**', '*_decorator*.rb'),
+          Rails.root.join('app', 'extensions', '**', '*.rb')
         ]
       ).each do |c|
         load c

@@ -30,7 +30,7 @@ module DataCycleCore
     end
 
     def render_markdown
-      root_paths = ROOT_PATHS.map { |p| p.join(@root_path, sanitized_path + '.{md,md.erb}') }
+      root_paths = ROOT_PATHS.map { |p| p.join(@root_path, "#{sanitized_path}.{md,md.erb}") }
       markdown_path = Dir.glob(root_paths).first
 
       raise ActiveRecord::RecordNotFound if markdown_path.nil?

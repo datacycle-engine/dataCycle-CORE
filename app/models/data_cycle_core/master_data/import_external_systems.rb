@@ -10,7 +10,7 @@ module DataCycleCore
         errors = []
         paths ||= [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path]
         paths = paths&.flatten&.compact
-        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p + Rails.env + '*.yml' })).concat(Dir.glob(Array.wrap(paths&.map { |p| p + '*.yml' }))).uniq { |p| File.basename(p) }
+        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p.join(Rails.env, '*.yml') })).concat(Dir.glob(Array.wrap(paths&.map { |p| p.join('*.yml') }))).uniq { |p| File.basename(p) }
 
         if file_paths.blank?
           puts 'INFO: no external systems found'
@@ -53,7 +53,7 @@ module DataCycleCore
         errors = []
         paths = [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path]
         paths = paths&.flatten&.compact
-        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p + Rails.env + '*.yml' })).concat(Dir.glob(Array.wrap(paths&.map { |p| p + '*.yml' }))).uniq { |p| File.basename(p) }
+        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| "#{p}#{Rails.env}*.yml" })).concat(Dir.glob(Array.wrap(paths&.map { |p| "#{p}*.yml" }))).uniq { |p| File.basename(p) }
 
         if file_paths.blank?
           puts 'INFO: no external systems found'

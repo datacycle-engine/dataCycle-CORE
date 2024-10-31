@@ -155,7 +155,7 @@ module DataCycleCore
       if content_for(:title).blank?
         base_title
       else
-        content_for(:title) + ' | ' + base_title
+        "#{content_for(:title)} | #{base_title}"
       end
     end
 

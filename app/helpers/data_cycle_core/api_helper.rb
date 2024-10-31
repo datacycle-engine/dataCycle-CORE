@@ -123,12 +123,12 @@ module DataCycleCore
       single_value = languages.size == 1 && content.available_locales.map(&:to_s).include?(first_locale)
 
       if single_value && !expand_language
-        data_value = I18n.with_locale(first_locale) { api_value_format(content.send(key + '_overlay'), definition) } || []
+        data_value = I18n.with_locale(first_locale) { api_value_format(content.send(:"#{key}_overlay"), definition) } || []
 
         if content.embedded_property_names.include?(key)
           data_value = DataCycleCore::Thing.none
           content.available_locales.map(&:to_s).each do |locale|
-            records = data_value.to_a + I18n.with_locale(locale) { content.try(key + '_overlay') }.to_a
+            records = data_value.to_a + I18n.with_locale(locale) { content.try("#{key}_overlay") }.to_a
             records_ids = records.pluck(:id)
             data_value = DataCycleCore::Thing.by_ordered_values(records_ids).tap { |rel| rel.send(:load_records, records) }
           end
@@ -138,7 +138,7 @@ module DataCycleCore
 
         content.available_locales.map(&:to_s).intersection(Array.wrap(languages)).each do |locale|
           I18n.with_locale(locale) do
-            o_value = content.send(key + '_overlay')
+            o_value = content.send(:"#{key}_overlay")
             data_value << { '@language' => I18n.locale, '@value' => api_value_format(o_value, definition) } if o_value.present?
           end
         end
@@ -162,7 +162,7 @@ module DataCycleCore
 
         content.available_locales.map(&:to_s).intersection(Array.wrap(languages)).each do |locale|
           I18n.with_locale(locale) do
-            o_value = content.send(key + '_overlay')&.try(o_key)
+            o_value = content.send(:"#{key}_overlay")&.try(o_key)
             data_value << { '@language' => I18n.locale, '@value' => api_value_format(o_value, api_property_definition) } if o_value.present?
           end
         end
@@ -173,11 +173,11 @@ module DataCycleCore
 
     def load_embedded_object(content, key, languages, _definition)
       return if languages.blank?
-      return content.try(key + '_overlay') unless content.translatable_property_names.include?(key)
+      return content.try("#{key}_overlay") unless content.translatable_property_names.include?(key)
 
       data_value = DataCycleCore::Thing.none
       content.available_locales.map(&:to_s).each do |locale|
-        records = (data_value.to_a + I18n.with_locale(locale) { content.try(key + '_overlay') }.to_a).uniq
+        records = (data_value.to_a + I18n.with_locale(locale) { content.try("#{key}_overlay") }.to_a).uniq
         records_ids = records.pluck(:id)
         data_value = DataCycleCore::Thing.by_ordered_values(records_ids).tap { |rel| rel.send(:load_records, records) }
       end
@@ -236,13 +236,13 @@ module DataCycleCore
       [
         'https://schema.org/',
         {
-          '@base' => api_v4_universal_url(id: nil) + '/',
+          '@base' => "#{api_v4_universal_url(id: nil)}/",
           '@language' => display_language,
           'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
           'dct' => 'http://purl.org/dc/terms/',
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
-          'dcls' => schema_url + '/',
+          'dcls' => "#{schema_url}/",
           'odta' => 'https://odta.io/voc/',
           'sdm' => 'https://smartdatamodels.org/',
           'alps' => 'http://json-schema.org/draft-07/schema/destinationdata/schemas/2022-04/datatypes#/definitions/'
@@ -260,7 +260,7 @@ module DataCycleCore
     def api_plain_links(contents = nil)
       contents ||= @contents
       object_url = lambda do |params|
-        File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+        "#{File.join("#{request.protocol}#{request.host}:#{request.port}", request.path)}?#{params.to_query}"
       end
       if request.request_method == 'POST'
         common_params = {}

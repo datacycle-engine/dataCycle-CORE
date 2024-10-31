@@ -110,7 +110,7 @@ module DataCycleCore
     end
 
     def cache_key
-      [super, translations.in_locale(I18n.locale).cache_key].join('/') + '-' + I18n.locale.to_s
+      "#{[super, translations.in_locale(I18n.locale).cache_key].join('/')}-#{I18n.locale}"
     end
   end
 end

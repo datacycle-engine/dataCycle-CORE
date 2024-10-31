@@ -97,7 +97,7 @@ module DataCycleCore
     def apply_creator_filters(query, filters)
       query_method = 'creator'
       filters.each do |operator, values|
-        query_method = 'not_' + query_method if operator == :notIn
+        query_method = "not_#{query_method}" if operator == :notIn
         next unless query.respond_to?(query_method)
         values.each do |v|
           query = query.send(query_method, v.split(','))
@@ -146,7 +146,7 @@ module DataCycleCore
         attribute_path = attribute_path_mapping(attribute_key)
         operator.each do |k, v|
           query_method = query_method_mapping(attribute_key, v)
-          query_method = 'not_' + query_method if k == :notIn
+          query_method = "not_#{query_method}" if k == :notIn
           next unless query.respond_to?(query_method)
 
           v = transform_values_for_query(v, attribute_key)
@@ -184,7 +184,7 @@ module DataCycleCore
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
-          filter_method_name = ('apply_' + filter_k.to_s.underscore_blanks + '_filters')
+          filter_method_name = "apply_#{filter_k.to_s.underscore_blanks}_filters"
           next unless respond_to?(filter_method_name)
           union_query = send(filter_method_name, union_query, filter_v)
         end
@@ -217,7 +217,7 @@ module DataCycleCore
 
     def apply_union_filter_methods(query, filters, query_method)
       filters.each do |operator, values|
-        query_method = 'not_' + query_method if operator == :notIn
+        query_method = "not_#{query_method}" if operator == :notIn
         next unless query.respond_to?(query_method)
         values.each do |v|
           query = query.send(query_method, v.split(','))

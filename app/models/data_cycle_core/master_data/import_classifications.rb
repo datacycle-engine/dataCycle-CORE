@@ -12,7 +12,7 @@ module DataCycleCore
         inhaltstypen_trees = []
 
         classification_paths.each do |classification_path|
-          file = classification_path + 'classifications.yml'
+          file = Pathname.new(classification_path).join('classifications.yml')
           next unless File.exist?(file)
           tree_array = YAML.safe_load(File.open(file.to_s), permitted_classes: [Symbol])
           tree_hash = iterate_array(tree_array)
@@ -58,7 +58,7 @@ module DataCycleCore
         merged_hash = {}
 
         classification_paths.each do |classification_path|
-          file = classification_path + 'classification_mappings.yml'
+          file = Pathname.new(classification_path).join('classification_mappings.yml')
           next unless File.exist?(file)
 
           mapping_hash = YAML.safe_load(File.open(file.to_s), permitted_classes: [Symbol])

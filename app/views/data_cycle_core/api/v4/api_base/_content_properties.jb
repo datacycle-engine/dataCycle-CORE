@@ -42,7 +42,7 @@ unless content.schema.nil?
       value = load_embedded_object(content, key, options[:languages], prop)
       value_blank = DataCycleCore::DataHashService.blank?(value)
     else
-      value = I18n.with_locale(content.first_available_locale) { content.try(key + '_overlay') }
+      value = I18n.with_locale(content.first_available_locale) { content.try("#{key}_overlay") }
       value_blank = DataCycleCore::DataHashService.blank?(load_value_object(content, key, value, options[:languages], api_definition(prop), options[:expand_language]))
     end
 

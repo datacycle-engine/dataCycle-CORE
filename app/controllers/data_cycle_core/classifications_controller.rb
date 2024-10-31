@@ -250,7 +250,7 @@ module DataCycleCore
             raw_csv = object.to_csv
           end
 
-          send_data "sep=,\n" + raw_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace),
+          send_data "sep=,\n#{raw_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace)}",
                     type: 'text/csv; charset=iso-8859-1;',
                     filename: "#{object.name}.csv"
         end

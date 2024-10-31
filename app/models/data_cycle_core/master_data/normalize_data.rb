@@ -98,7 +98,7 @@ module DataCycleCore
           street_nr = fields_list[index_street_nr]['content']
           report['entry']['fields'] = fields_list.filter_map do |item|
             if item['type'] == 'STREET'
-              item['content'] += ' ' + street_nr
+              item['content'] += " #{street_nr}"
               item
             elsif item['type'] == 'STREETNR'
               nil

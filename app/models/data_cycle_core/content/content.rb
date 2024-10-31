@@ -247,7 +247,7 @@ module DataCycleCore
       end
 
       def translated_columns
-        @translated_columns ||= (self.class.to_s + '::Translation').constantize.column_names
+        @translated_columns ||= "#{self.class}::Translation".constantize.column_names
       end
 
       def translatable_property?(property_name, property_definition = nil)
@@ -671,7 +671,7 @@ module DataCycleCore
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}, caller: #{caller.join("\n")}") unless Rails.env.test?
 
         send(
-          NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
+          :"#{NEW_STORAGE_LOCATION[property_definition['storage_location']]}=",
           (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value })
         )
 
