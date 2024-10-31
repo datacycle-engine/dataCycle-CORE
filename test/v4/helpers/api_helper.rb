@@ -121,8 +121,8 @@ module DataCycleCore
         json = json_validate.dup.slice(*compare_json.keys)
         compare_json.each_key do |attribute|
           assert_equal(compare_json.dig(attribute).sort_by { |c| c['@id'] }, json.dig(attribute).sort_by { |c| c['@id'] })
+          json_validate.delete(attribute)
         end
-        compare_json.each_key { |a| json_validate.delete(a) }
         attributes.each { |a| required_attributes.delete(a) }
       end
 
