@@ -127,12 +127,6 @@ Rails/SquishedSQLHeredocs:
 Style/HashAsLastArrayItem:
   Enabled: false
 
-# Offense count: 7
-# This cop supports safe autocorrection (--autocorrect).
-Style/KeywordParametersOrder:
-  Exclude:
-    - "app/models/data_cycle_core/generic/common/download_functions.rb"
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:

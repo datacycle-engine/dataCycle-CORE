@@ -12,13 +12,13 @@ module DataCycleCore
         DELTA = Extensions::DownloadContentFunctions::DELTA
         FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
 
-        def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
+        def self.download_data(download_object:, data_id:, data_name:, options:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)
           send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options:)
         end
 
-        def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, cleanup_data: nil, **keyword_args)
+        def self.download_single(download_object:, data_id:, data_name:, raw_data:, modified: nil, delete: nil, cleanup_data: nil, **keyword_args)
           with_logging(download_object:, data_id:, data_name:, modified:, delete:, raw_data:, cleanup_data:, iterate_locales: false, **keyword_args) do |options, step_label|
             locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
             download_object.source_object.with(download_object.source_type) do |mongo_item|
