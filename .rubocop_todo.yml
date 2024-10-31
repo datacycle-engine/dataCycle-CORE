@@ -128,12 +128,6 @@ Style/HashAsLastArrayItem:
   Enabled: false
 
 # Offense count: 1
-# Configuration parameters: MinBranchesCount.
-Style/HashLikeCase:
-  Exclude:
-    - "lib/rake_helpers/db_helper.rb"
-
-# Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: nonzero?
