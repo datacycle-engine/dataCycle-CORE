@@ -104,11 +104,11 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data.dig('id').to_s
+          data['id'].to_s
         end
 
         def self.data_name(data)
-          data.dig('name')
+          data['name']
         end
       end
     end

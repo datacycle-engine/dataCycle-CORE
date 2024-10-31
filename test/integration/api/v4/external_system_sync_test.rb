@@ -76,7 +76,7 @@ module DataCycleCore
           patch api_v4_external_sources_update_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :bad_request
 
-          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
+          assert_nil(@data_set.external_system_data(@external_system)['external_key'])
           data = response.parsed_body
           assert_equal(1, data.first['error'].size)
         end
@@ -130,7 +130,7 @@ module DataCycleCore
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :bad_request
 
-          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
+          assert_nil(@data_set.external_system_data(@external_system)['external_key'])
           data = response.parsed_body
           assert_equal(1, data.first['error'].size)
         end

@@ -13,10 +13,10 @@ module DataCycleCore
       @parent = DataCycleCore::Thing.find(permitted_params[:parent_id]) if permitted_params[:parent_id].present?
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-        @definition = permitted_params.dig(:definition)
-        template_names = Array.wrap(@definition.dig(:template_name)).map(&:to_s).compact_blank
-        stored_filter = @definition.dig(:stored_filter)
-        @language = Array(@definition.dig(:linked_language) == 'same' ? permitted_params.fetch(:locale) { current_user.default_locale } : 'all')
+        @definition = permitted_params[:definition]
+        template_names = Array.wrap(@definition[:template_name]).map(&:to_s).compact_blank
+        stored_filter = @definition[:stored_filter]
+        @language = Array(@definition[:linked_language] == 'same' ? permitted_params.fetch(:locale) { current_user.default_locale } : 'all')
 
         filter = DataCycleCore::StoredFilter.new
           .parameters_from_hash(stored_filter)

@@ -23,7 +23,7 @@ module DataCycleCore
             a_uuid = nil
             a_data = nil
             if a_item.is_a?(::Hash)
-              a_uuid = a_item.dig('id')
+              a_uuid = a_item['id']
               a_data = a_item
             end
             if a_item.is_a?(DataCycleCore::Schedule) || a_item.is_a?(DataCycleCore::Schedule::History)
@@ -56,7 +56,7 @@ module DataCycleCore
             iuuid = nil
             if item.is_a?(::Hash)
               data = item
-              iuuid = item.dig('id') || item.dig(:id)
+              iuuid = item['id'] || item[:id]
             end
             if item.is_a?(DataCycleCore::Schedule) || item.is_a?(DataCycleCore::Schedule::History)
               data = item.to_hash

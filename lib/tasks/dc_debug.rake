@@ -83,16 +83,16 @@ namespace :dc do
         end
 
         de_overlay.embedded_property_names.each do |embedded_property|
-          if de_overlay_data_hash.dig(embedded_property).size == 1 && en_overlay_data_hash.dig(embedded_property).size == 1
+          if de_overlay_data_hash[embedded_property].size == 1 && en_overlay_data_hash[embedded_property].size == 1
             en_overlay_data_hash[embedded_property][0]['id'] = de_overlay_data_hash[embedded_property][0]['id']
-          elsif de_overlay_data_hash.dig(embedded_property).empty? && en_overlay_data_hash.dig(embedded_property).empty?
+          elsif de_overlay_data_hash[embedded_property].empty? && en_overlay_data_hash[embedded_property].empty?
 
-          elsif de_overlay_data_hash.dig(embedded_property).size == 1 && en_overlay_data_hash.dig(embedded_property).empty?
+          elsif de_overlay_data_hash[embedded_property].size == 1 && en_overlay_data_hash[embedded_property].empty?
 
-          elsif (de_overlay_data_hash.dig(embedded_property).size == en_overlay_data_hash.dig(embedded_property).size) && embedded_property == 'opening_hours_specification'
+          elsif (de_overlay_data_hash[embedded_property].size == en_overlay_data_hash[embedded_property].size) && embedded_property == 'opening_hours_specification'
             en_overlay_data_hash[embedded_property] = de_overlay_data_hash[embedded_property]
           else
-            puts "#{de_overlay_data_hash.dig(embedded_property).size} | #{en_overlay_data_hash.dig(embedded_property).size} | #{item.id}\n"
+            puts "#{de_overlay_data_hash[embedded_property].size} | #{en_overlay_data_hash[embedded_property].size} | #{item.id}\n"
           end
         end
 

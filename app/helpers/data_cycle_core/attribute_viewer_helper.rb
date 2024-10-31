@@ -134,12 +134,12 @@ module DataCycleCore
       html_classes = [
         'detail-type',
         key.attribute_name_from_key,
-        definition.dig('type')&.underscore,
-        options.dig('class')
+        definition['type']&.underscore,
+        options['class']
       ]
 
       html_classes.push(definition.dig('ui', 'show', 'type').underscore) if definition.dig('ui', 'show', 'type').present?
-      html_classes.push(options.dig(:mode) || 'has-changes edit') if options.dig(:item_diff).present?
+      html_classes.push(options[:mode] || 'has-changes edit') if options[:item_diff].present?
       html_classes.push('is-embedded-title') if parent.is_a?(DataCycleCore::Thing) && parent.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
 
       html_classes.compact_blank!

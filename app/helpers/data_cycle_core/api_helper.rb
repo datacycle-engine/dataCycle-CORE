@@ -98,7 +98,7 @@ module DataCycleCore
     end
 
     def in_language?(content, options)
-      (content.embedded? && options.dig(:translatable_embedded)) || content.translatable? || options.dig(:languages).include?(content.first_available_locale.to_s)
+      (content.embedded? && options[:translatable_embedded]) || content.translatable? || options[:languages].include?(content.first_available_locale.to_s)
     end
 
     def ordered_api_properties(validation:, type: nil)
@@ -186,7 +186,7 @@ module DataCycleCore
     end
 
     def api_value_format(value, definition)
-      return value if definition.blank? || definition.dig('format').blank?
+      return value if definition.blank? || definition['format'].blank?
       return value if DataCycleCore::DataHashService.blank?(value)
       "#{definition.dig('format', 'prepend')}#{value}#{definition.dig('format', 'append')}"
     end
@@ -282,7 +282,7 @@ module DataCycleCore
         elsif data[key].blank? || !key.in?(['dataCycleProperty', 'additionalProperty'])
           { key => value }
         else
-          { key => data[key].reject { |item| item.dig('identifier').in?(value.map { |i| i.dig('identifier') }) } + overlay[key] }
+          { key => data[key].reject { |item| item['identifier'].in?(value.pluck('identifier')) } + overlay[key] }
         end
       }.compact_blank.inject(&:merge) || {}
     end

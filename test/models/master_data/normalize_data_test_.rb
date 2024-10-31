@@ -46,7 +46,7 @@ describe DataCycleCore::MasterData::NormalizeData do
 
     it 'updates a value deep in the data_hash' do
       hash = subject.update_path(hash1, 'a', 6)
-      assert(hash.dig('a'), 6)
+      assert(hash['a'], 6)
       hash = subject.update_path(hash1, 'c/d', 6)
       assert(hash.dig('c', 'd'), 6)
       hash = subject.update_path(hash1, 'c/e/f', 6)
@@ -55,7 +55,7 @@ describe DataCycleCore::MasterData::NormalizeData do
 
     it 'ignores updates if trying to update a subhash' do
       hash = subject.update_path(hash1, 'a/c', 6)
-      assert(hash.dig('a'), 1)
+      assert(hash['a'], 1)
     end
 
     it 'inserts leaf if path does not previously exist' do
@@ -339,7 +339,7 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'grabs correctly all normalizable data attributs' do
-      assert(subject.normalizable_data(nil, person_template.dig('properties'), data_hash), normalizable_hash)
+      assert(subject.normalizable_data(nil, person_template['properties'], data_hash), normalizable_hash)
     end
 
     it 'does the preprocessing of the data correctly' do
@@ -351,8 +351,8 @@ describe DataCycleCore::MasterData::NormalizeData do
     it 'merges correctly street and street_nr' do
       merged_report = subject.merge_street_streetnr(normalize_report)
       assert(merged_report.dig('entry', 'fields'), merged_fields)
-      new_action_list = normalize_report.dig('actionList').deep_dup
-      assert(merged_report.dig('actionList'), new_action_list)
+      new_action_list = normalize_report['actionList'].deep_dup
+      assert(merged_report['actionList'], new_action_list)
     end
 
     it 'back_transforms normalized_data to original ids and schema' do

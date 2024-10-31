@@ -67,7 +67,7 @@ module DataCycleCore
 
             return true if property[:storage_location] == 'translated_value'
             return true if property[:storage_location] == 'column' && name.to_s.in?(TRANSLATED_COLUMS)
-            return true if property.key?(:properties) && translatable_properties?(property.dig(:properties))
+            return true if property.key?(:properties) && translatable_properties?(property[:properties])
           end
 
           false

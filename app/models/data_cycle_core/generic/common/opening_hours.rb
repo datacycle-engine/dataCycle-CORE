@@ -59,7 +59,7 @@ module DataCycleCore
                 }]
               }
             }
-            .select { |item| item.dig('day_of_week').size.positive? }
+            .select { |item| item['day_of_week'].size.positive? }
         end
 
         def empty?
@@ -156,7 +156,7 @@ module DataCycleCore
                 day =>
                   data_hash
                     .select { |record| record&.dig('day_of_week')&.include?(day_of_week_classification_ids[day]) }
-                    .map { |record| record.dig('time').map { |time| parse_opening_hours_interval(time) } }
+                    .map { |record| record['time'].map { |time| parse_opening_hours_interval(time) } }
                     .flatten
               }
             }
@@ -166,8 +166,8 @@ module DataCycleCore
         def simplify_all_ranges
           return if @data.blank?
           DAY_HASH.each_key do |day|
-            next if @data.dig(day).size < 2
-            @data[day] = simplify_ranges(@data.dig(day).sort_by(&:min))
+            next if @data[day].size < 2
+            @data[day] = simplify_ranges(@data[day].sort_by(&:min))
           end
           self
         end
@@ -197,15 +197,15 @@ module DataCycleCore
 
         def parse_google_interval(data)
           return nil if data&.dig('open').blank? || data&.dig('close').blank?
-          opens = data.dig('open')
-          closes = data.dig('close')
+          opens = data['open']
+          closes = data['close']
           parse_time_interval(opens, closes)
         end
 
         def parse_opening_hours_interval(data)
           return nil if data&.dig('opens')&.blank? || data&.dig('closes').blank?
-          opens = data.dig('opens')
-          closes = data.dig('closes')
+          opens = data['opens']
+          closes = data['closes']
           parse_time_interval(opens, closes)
         end
 
@@ -228,7 +228,7 @@ module DataCycleCore
         end
 
         def convert_to_i(string, next_day = false)
-          if @options.dig(:wrong_time_format).present?
+          if @options[:wrong_time_format].present?
             string.split(':')
               .rotate(1)
               .map(&:to_i)

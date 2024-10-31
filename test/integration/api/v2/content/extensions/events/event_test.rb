@@ -43,44 +43,44 @@ module DataCycleCore
                 json_data = response.parsed_body
 
                 # validate header
-                assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('Event', json_data.dig('@type'))
-                assert_equal('Event', json_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + api_v2_thing_path(id: @content), json_data.dig('@id'))
-                assert_equal(@content.id, json_data.dig('identifier'))
-                assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
-                assert_equal(@content.updated_at.as_json, json_data.dig('dateModified'))
-                assert_equal(root_url[0...-1] + thing_path(@content), json_data.dig('url'))
+                assert_equal('http://schema.org', json_data['@context'])
+                assert_equal('Event', json_data['@type'])
+                assert_equal('Event', json_data['contentType'])
+                assert_equal(root_url[0...-1] + api_v2_thing_path(id: @content), json_data['@id'])
+                assert_equal(@content.id, json_data['identifier'])
+                assert_equal(@content.created_at.as_json, json_data['dateCreated'])
+                assert_equal(@content.updated_at.as_json, json_data['dateModified'])
+                assert_equal(root_url[0...-1] + thing_path(@content), json_data['url'])
 
                 # validity period
                 # TODO: (move to generic tests)
 
                 # classifications
                 # TODO: (move to generic tests)
-                assert(json_data.dig('classifications').present?)
-                assert_equal(1, json_data.dig('classifications').size)
-                classification_hash = json_data.dig('classifications').first
+                assert(json_data['classifications'].present?)
+                assert_equal(1, json_data['classifications'].size)
+                classification_hash = json_data['classifications'].first
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
-                assert_equal('Veranstaltung', classification_hash.dig('name'))
-                assert_equal(1, classification_hash.dig('ancestors').size)
-                assert_equal(['Inhaltstypen'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
+                assert_equal('Veranstaltung', classification_hash['name'])
+                assert_equal(1, classification_hash['ancestors'].size)
+                assert_equal(['Inhaltstypen'], classification_hash['ancestors'].pluck('name').sort)
 
                 # language
-                assert_equal('de', json_data.dig('inLanguage'))
+                assert_equal('de', json_data['inLanguage'])
 
                 # startDate / endDate
-                assert_equal(@content.start_date.as_json, json_data.dig('startDate'))
-                assert_equal(@content.end_date.as_json, json_data.dig('endDate'))
+                assert_equal(@content.start_date.as_json, json_data['startDate'])
+                assert_equal(@content.end_date.as_json, json_data['endDate'])
 
                 # content data
-                assert_equal(@content.name, json_data.dig('name'))
-                assert_equal(@content.description, json_data.dig('description'))
-                assert_equal(@content.url, json_data.dig('sameAs'))
-                assert_equal(@content.same_as, json_data.dig('additionalProperty').detect { |item| item.dig('identifier') == 'link' }.dig('value'))
+                assert_equal(@content.name, json_data['name'])
+                assert_equal(@content.description, json_data['description'])
+                assert_equal(@content.url, json_data['sameAs'])
+                assert_equal(@content.same_as, json_data['additionalProperty'].detect { |item| item['identifier'] == 'link' }['value'])
 
                 # TODO: check image rendering via minimal or linked
-                assert_equal(@content.image.first.id, json_data.dig('image').first.dig('identifier'))
-                assert_equal(@content.content_location.first.id, json_data.dig('location').first.dig('identifier'))
+                assert_equal(@content.image.first.id, json_data['image'].first['identifier'])
+                assert_equal(@content.content_location.first.id, json_data['location'].first['identifier'])
 
                 # sub_events
                 sub_events = @content.sub_event.map do |sub_event|
@@ -93,7 +93,7 @@ module DataCycleCore
                     'sameAs' => @content.url
                   }
                 end
-                json_sub_events = json_data.dig('subEvent').map { |i| i.except('identifier', 'inLanguage') }
+                json_sub_events = json_data['subEvent'].map { |i| i.except('identifier', 'inLanguage') }
                 assert_equal(sub_events, json_sub_events)
               end
 
@@ -143,33 +143,33 @@ module DataCycleCore
                 json_data = response.parsed_body
 
                 # content data
-                assert_equal(event_schedule['start_date'], json_data.dig('startDate'))
-                assert_equal(event_schedule['end_date'], json_data.dig('endDate'))
-                assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
-                assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
-                assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))
-                assert_equal(overlay_image.id, json_data.dig('image').first.dig('identifier'))
-                assert_equal(overlay_place.id, json_data.dig('location').first.dig('identifier'))
+                assert_equal(event_schedule['start_date'], json_data['startDate'])
+                assert_equal(event_schedule['end_date'], json_data['endDate'])
+                assert_equal(data_hash.dig('overlay', 0, 'name'), json_data['name'])
+                assert_equal(data_hash.dig('overlay', 0, 'description'), json_data['description'])
+                assert_equal(data_hash.dig('overlay', 0, 'url'), json_data['sameAs'])
+                assert_equal(overlay_image.id, json_data['image'].first['identifier'])
+                assert_equal(overlay_place.id, json_data['location'].first['identifier'])
               end
 
               test 'stored item can be found via different endpoints' do
                 get(api_v2_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| item.dig('@type') == 'Event' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Event' }
+                assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| item.dig('@type') == 'Event' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Event' }
+                assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_events_path(filter: { from: '2019-10-01' }))
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').first
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].first
+                assert_equal(@content.id, json_data['identifier'])
               end
             end
           end

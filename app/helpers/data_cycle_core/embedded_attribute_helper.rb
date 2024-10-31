@@ -15,7 +15,7 @@ module DataCycleCore
 
         return if translated_text.try(:error).present?
 
-        translated_text.dig('text')
+        translated_text['text']
       else
         I18n.with_locale(locale) { object.try(key.to_sym) }
       end

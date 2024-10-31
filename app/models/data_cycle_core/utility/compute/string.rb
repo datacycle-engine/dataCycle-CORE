@@ -63,12 +63,12 @@ module DataCycleCore
             parameters.map do |parameter|
               if parameter.is_a?(::Hash)
                 parameter.map do |k, v|
-                  data.dig(k)&.map do |s|
+                  data[k]&.map do |s|
                     recursive_char_count(s, v)
                   end
                 end
               else
-                ActionController::Base.helpers.strip_tags((data.dig('translations', I18n.locale.to_s, parameter) || data.dig('datahash', parameter) || data.dig(parameter)).to_s).size
+                ActionController::Base.helpers.strip_tags((data.dig('translations', I18n.locale.to_s, parameter) || data.dig('datahash', parameter) || data[parameter]).to_s).size
               end
             end
           end

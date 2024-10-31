@@ -36,7 +36,7 @@ module DataCycleCore
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
                 .select { |item| serializable?(item) }
-                .map { |item| serialize(item, language, (options.dig(:version) || options.dig(:versions, item.id)), options.dig(:transformation)) }
+                .map { |item| serialize(item, language, (options[:version] || options.dig(:versions, item.id)), options[:transformation]) }
             )
           end
 

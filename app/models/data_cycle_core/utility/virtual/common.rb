@@ -18,7 +18,7 @@ module DataCycleCore
               return val if DataHashService.present?(val)
             end
 
-            DataHashService.none_by_property_type(virtual_definition.dig('type'))
+            DataHashService.none_by_property_type(virtual_definition['type'])
           end
 
           def value_from_definition(virtual_definition:, content:, **_args)

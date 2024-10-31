@@ -77,9 +77,9 @@ module DataCycleCore
 
       external_system = ExternalSystem.find(uuid).reload
 
-      return unless external_system.data.dig("last_#{delayed_reference_type}_failed")
+      return unless external_system.data["last_#{delayed_reference_type}_failed"]
 
-      exception_hash = external_system.data.dig("last_#{delayed_reference_type}_exception")
+      exception_hash = external_system.data["last_#{delayed_reference_type}_exception"]
 
       if exception_hash.is_a?(::Hash)
         exception = exception_hash['class'].safe_constantize.new(exception_hash['message'])

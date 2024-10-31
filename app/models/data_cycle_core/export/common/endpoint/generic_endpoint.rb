@@ -6,7 +6,7 @@ module DataCycleCore
       module Endpoint
         class GenericEndpoint
           def initialize(**options)
-            @host = options.dig(:host)
+            @host = options[:host]
           end
 
           def connection

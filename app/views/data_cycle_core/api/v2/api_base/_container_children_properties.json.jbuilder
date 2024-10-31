@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-if options.dig(:disable_children).blank?
+if options[:disable_children].blank?
   related_objects = DataCycleCore::Thing
     .where(is_part_of: content.id)
     .includes({ classifications: { classification_aliases: { classification_tree: [:classification_tree_label] } }, translations: [] })

@@ -132,8 +132,8 @@ module DataCycleCore
         end
 
         def self.thing(params: {})
-          fields = params.dig(:fields)
-          include = params.dig(:include)
+          fields = params[:fields]
+          include = params[:include]
           attributes = build_thing_validation(fields, include)
           Dry::Validation.Contract do
             config.validate_keys = true
@@ -149,8 +149,8 @@ module DataCycleCore
         end
 
         def self.event(params: {})
-          fields = params.dig(:fields)
-          include = params.dig(:include)
+          fields = params[:fields]
+          include = params[:include]
           attributes = build_event_validation(fields, include)
           Dry::Validation.Contract do
             config.validate_keys = true

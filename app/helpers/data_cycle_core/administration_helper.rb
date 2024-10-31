@@ -7,14 +7,14 @@ module DataCycleCore
     end
 
     def active_duration(data, type)
-      return if data.dig(:"last_#{type}_time").blank? && data.dig(:"last_#{type}_class") != 'primary-color'
+      return if data[:"last_#{type}_time"].blank? && data[:"last_#{type}_class"] != 'primary-color'
 
-      if data.dig(:"last_#{type}_class") == 'primary-color'
-        start_time = data.dig(:"last_#{type}")
+      if data[:"last_#{type}_class"] == 'primary-color'
+        start_time = data[:"last_#{type}"]
         end_time = Time.zone.now
       else
         start_time = Time.zone.now
-        end_time = Time.zone.now + data.dig(:"last_#{type}_time")
+        end_time = Time.zone.now + data[:"last_#{type}_time"]
       end
 
       " (#{distance_of_time_in_words(start_time, end_time, locale: active_ui_locale)})"
@@ -22,7 +22,7 @@ module DataCycleCore
 
     def timestamp_tooltip(data, type)
       capture do
-        timestamp = import_data_time(data.dig(:"last_#{type}"))
+        timestamp = import_data_time(data[:"last_#{type}"])
         next if timestamp.blank?
 
         concat(tag.b("#{type.titleize}: "))

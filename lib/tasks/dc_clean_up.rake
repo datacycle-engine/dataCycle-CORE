@@ -172,7 +172,7 @@ namespace :dc do
       embedded_template = args.fetch(:embedded)
       template = DataCycleCore::Thing.find_by(template_name: embedded_template)
       ShellHelper.error("Error: No embedded template found for #{embedded_template}") if template.blank?
-      ShellHelper.error("Error: #{embedded_template} is not an embedded template!") unless template.schema.dig('content_type') == 'embedded'
+      ShellHelper.error("Error: #{embedded_template} is not an embedded template!") unless template.schema['content_type'] == 'embedded'
 
       main_templates = embedded[embedded_template]
       orphans = CleanupHelper.orphaned_embedded(main_templates, embedded_template)

@@ -9,9 +9,9 @@ module DataCycleCore
         end
 
         def initialize(**options)
-          @host = options.dig(:host)
-          @token = options.dig(:token)
-          @token_type = options.dig(:token_type) || 'body'
+          @host = options[:host]
+          @token = options[:token]
+          @token_type = options[:token_type] || 'body'
         end
 
         def content_request(utility_object:, data:)

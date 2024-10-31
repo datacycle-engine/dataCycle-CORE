@@ -44,7 +44,7 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # ASC
             params = {
@@ -55,7 +55,7 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # DESC
             params = {
@@ -66,7 +66,7 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@poi_c.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_c.id, json_data['@graph'].first['@id'])
           end
 
           test 'api/v4/things with parameter sort: name with fullt text search' do
@@ -92,7 +92,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # ASC
             params = {
@@ -106,7 +106,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # DESC
             params = {
@@ -120,7 +120,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(@poi_b.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_b.id, json_data['@graph'].first['@id'])
 
             # DESC
             params = {
@@ -134,7 +134,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
           end
         end
       end

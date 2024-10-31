@@ -44,11 +44,11 @@ namespace :dc do
       end
       task :universal_classifications, [:debug] => :environment do |_, _args|
         puts "migrate classifications to universal classifications\n"
-        if DataCycleCore.data_definition_mapping.dig('universal_classifications').blank?
+        if DataCycleCore.data_definition_mapping['universal_classifications'].blank?
           puts 'no mappings found'
           exit(-1)
         end
-        classifications = DataCycleCore.data_definition_mapping.dig('universal_classifications')
+        classifications = DataCycleCore.data_definition_mapping['universal_classifications']
         ap classifications
         ActiveRecord::Base.connection.execute <<-SQL.squish
           UPDATE classification_contents SET relation = 'universal_classifications' WHERE relation IN ('#{classifications.join("','")}');
@@ -57,11 +57,11 @@ namespace :dc do
       end
       task :embedded_relations, [:debug] => :environment do |_, _args|
         puts "migrate content_contents to new relations\n"
-        if DataCycleCore.data_definition_mapping.dig('embedded_relations').blank?
+        if DataCycleCore.data_definition_mapping['embedded_relations'].blank?
           puts 'no mappings found'
           exit(-1)
         end
-        content_contents_mapping = DataCycleCore.data_definition_mapping.dig('embedded_relations')
+        content_contents_mapping = DataCycleCore.data_definition_mapping['embedded_relations']
         ap content_contents_mapping
 
         content_contents_mapping.each do |old, new|

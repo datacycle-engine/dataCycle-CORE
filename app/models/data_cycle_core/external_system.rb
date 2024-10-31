@@ -72,7 +72,7 @@ module DataCycleCore
 
     def download_list_ranked
       return @download_list_ranked if defined? @download_list_ranked
-      @download_list_ranked = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+      @download_list_ranked = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v['sorting'], k.to_sym] }
     end
 
     def download_pretty_list
@@ -88,7 +88,7 @@ module DataCycleCore
 
     def import_list_ranked
       return @import_list_ranked if defined? @import_list_ranked
-      @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+      @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v['sorting'], k.to_sym] }
     end
 
     def import_pretty_list
@@ -104,14 +104,14 @@ module DataCycleCore
     def full_options(name, type = 'import', options = {})
       (default_options(type) || {})
         .deep_symbolize_keys
-        .deep_merge({ type.to_sym => send(:"#{type}_config").dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) })
+        .deep_merge({ type.to_sym => send(:"#{type}_config")[name].merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) })
         .deep_merge(options.deep_symbolize_keys)
     end
 
     def credentials(type = 'import')
       @credentials ||= Hash.new do |h, key|
         next h[key] = self[:credentials] unless self[:credentials].is_a?(Hash)
-        t_credentials = self[:credentials].dig(key) || {}
+        t_credentials = self[:credentials][key] || {}
         next h[key] = t_credentials if t_credentials.is_a?(Array)
         h[key] = self[:credentials].merge(t_credentials)&.except('import', 'export')
       end
@@ -121,7 +121,7 @@ module DataCycleCore
     def default_options(type = 'import')
       @default_options ||= Hash.new do |h, key|
         next h[key] = self[:default_options] unless self[:default_options].is_a?(Hash)
-        h[key] = self[:default_options].merge(self[:default_options].dig(key) || {}).except('import', 'export')
+        h[key] = self[:default_options].merge(self[:default_options][key] || {}).except('import', 'export')
       end
       @default_options[type.to_s]
     end
@@ -201,13 +201,13 @@ module DataCycleCore
     def external_url(content)
       return if default_options&.dig('external_url').blank? || content&.external_key.blank?
 
-      format(default_options.dig('external_url'), locale: I18n.locale, external_key: content.external_key)
+      format(default_options['external_url'], locale: I18n.locale, external_key: content.external_key)
     end
 
     def external_detail_url(content)
       return if default_options&.dig('external_detail_url').blank? || content&.external_key.blank?
 
-      format(default_options.dig('external_detail_url'), locale: I18n.locale, external_key: content.external_key)
+      format(default_options['external_detail_url'], locale: I18n.locale, external_key: content.external_key)
     end
 
     def self.find_from_hash(data)

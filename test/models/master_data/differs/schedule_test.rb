@@ -73,7 +73,7 @@ describe DataCycleCore::MasterData::Differs::Schedule do
         } } }
 
       template = DataCycleCore::ThingTemplate.find_by(template_name: 'Event')
-      transformed_schedule_hash = DataCycleCore::DataHashService.flatten_datahash_value(schedule_hash, template.schema).dig('event_schedule')
+      transformed_schedule_hash = DataCycleCore::DataHashService.flatten_datahash_value(schedule_hash, template.schema)['event_schedule']
 
       assert_nil(subject.new(a_hash, transformed_schedule_hash).diff_hash)
       assert_nil(subject.new(a_hash, transformed_schedule_hash, template_hash).diff_hash)
@@ -97,7 +97,7 @@ describe DataCycleCore::MasterData::Differs::Schedule do
         } } }
 
       template = DataCycleCore::ThingTemplate.find_by(template_name: 'Event')
-      transformed_schedule_hash = DataCycleCore::DataHashService.flatten_datahash_value(schedule_hash, template.schema).dig('event_schedule')
+      transformed_schedule_hash = DataCycleCore::DataHashService.flatten_datahash_value(schedule_hash, template.schema)['event_schedule']
 
       assert_nil(subject.new(a_hash, transformed_schedule_hash).diff_hash)
       assert_nil(subject.new(a_hash, transformed_schedule_hash, template_hash).diff_hash)
@@ -120,7 +120,7 @@ describe DataCycleCore::MasterData::Differs::Schedule do
         } } }
 
       template = DataCycleCore::ThingTemplate.find_by(template_name: 'Event')
-      transformed_schedule_hash = DataCycleCore::DataHashService.flatten_datahash_value(schedule_hash, template.schema).dig('event_schedule')
+      transformed_schedule_hash = DataCycleCore::DataHashService.flatten_datahash_value(schedule_hash, template.schema)['event_schedule']
 
       assert_nil(subject.new(a_hash, transformed_schedule_hash).diff_hash)
       assert_nil(subject.new(a_hash, transformed_schedule_hash, template_hash).diff_hash)

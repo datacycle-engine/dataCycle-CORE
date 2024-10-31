@@ -161,7 +161,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # all images with cc0
@@ -206,7 +206,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # events
@@ -244,7 +244,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # events
@@ -282,7 +282,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # events from today
@@ -327,7 +327,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # events start in 2days today
@@ -371,7 +371,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@event_b.id, json_data['@graph'].first.dig('@id'))
+            assert_equal(@event_b.id, json_data['@graph'].first['@id'])
 
             # validate linked with 'dct:modified'
             image_test = @event_c.image.first
@@ -414,7 +414,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@event_c.id, json_data['@graph'].first.dig('@id'))
+            assert_equal(@event_c.id, json_data['@graph'].first['@id'])
             image_test.update_column(:updated_at, orig_ts)
           end
 

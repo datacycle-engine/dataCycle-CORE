@@ -59,7 +59,7 @@ module DataCycleCore
 
                 output_xlsx = DataCycleCore::ApplicationController.renderer_with_user(
                   user,
-                  http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+                  http_host: Rails.application.config.action_mailer.default_url_options[:host],
                   https: Rails.application.config.force_ssl
                 ).render(
                   handlers: [:axlsx],

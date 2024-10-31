@@ -28,29 +28,29 @@ module DataCycleCore
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
                 # validate header
-                assert_equal('https://schema.org/', xml_data.dig('context'))
-                assert_equal('Place', xml_data.dig('type'))
-                assert_equal('POI', xml_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + xml_v1_thing_path(id: @content), xml_data.dig('id'))
-                assert_equal(@content.id, xml_data.dig('identifier'))
-                assert_equal(root_url[0...-1] + thing_path(@content), xml_data.dig('url'))
-                assert_equal('de', xml_data.dig('inLanguage'))
+                assert_equal('https://schema.org/', xml_data['context'])
+                assert_equal('Place', xml_data['type'])
+                assert_equal('POI', xml_data['contentType'])
+                assert_equal(root_url[0...-1] + xml_v1_thing_path(id: @content), xml_data['id'])
+                assert_equal(@content.id, xml_data['identifier'])
+                assert_equal(root_url[0...-1] + thing_path(@content), xml_data['url'])
+                assert_equal('de', xml_data['inLanguage'])
 
                 # content data
-                assert_equal(@content.name, xml_data.dig('name'))
-                assert_equal(@content.description, xml_data.dig('description'))
+                assert_equal(@content.name, xml_data['name'])
+                assert_equal(@content.description, xml_data['description'])
 
-                assert_equal(@content.text, xml_data.dig('text'))
+                assert_equal(@content.text, xml_data['text'])
 
-                assert_equal(@content.longitude, xml_data.dig('longitude').to_f)
-                assert_equal(@content.latitude, xml_data.dig('latitude').to_f)
-                assert_equal(@content.elevation, xml_data.dig('elevation').to_f)
+                assert_equal(@content.longitude, xml_data['longitude'].to_f)
+                assert_equal(@content.latitude, xml_data['latitude'].to_f)
+                assert_equal(@content.elevation, xml_data['elevation'].to_f)
 
                 postal_address = @content.address.to_h.transform_keys { |key| key.camelize(:lower) }
                 contact_info = @content.contact_info.to_h.transform_keys { |key| key.camelize(:lower) }
                 address = { 'type' => 'PostalAddress' }.merge(postal_address)
-                assert_equal(address, xml_data.dig('address'))
-                assert_equal(contact_info, xml_data.dig('contactInfo'))
+                assert_equal(address, xml_data['address'])
+                assert_equal(contact_info, xml_data['contactInfo'])
                 assert_equal(@content.country_code.first.name, xml_data.dig('countryCode', 'classification', 'name'))
 
                 assert_equal(@content.image.first.id, xml_data.dig('image', 'thing', 'identifier'))
@@ -82,8 +82,8 @@ module DataCycleCore
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
                 # content data
-                assert_equal(data_hash.dig('overlay').first.dig('name'), xml_data.dig('name'))
-                assert_equal(data_hash.dig('overlay').first.dig('description'), xml_data.dig('description'))
+                assert_equal(data_hash['overlay'].first['name'], xml_data['name'])
+                assert_equal(data_hash['overlay'].first['description'], xml_data['description'])
                 assert_equal(overlay_image.id, xml_data.dig('image', 'thing', 'identifier'))
               end
 
@@ -92,19 +92,19 @@ module DataCycleCore
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'POI' }
-                assert_equal(@content.id, xml_data.dig('identifier'))
+                assert_equal(@content.id, xml_data['identifier'])
 
                 get(xml_v1_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'POI' }
-                assert_equal(@content.id, xml_data.dig('identifier'))
+                assert_equal(@content.id, xml_data['identifier'])
 
                 get(xml_v1_places_path)
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'POI' }
-                assert_equal(@content.id, xml_data.dig('identifier'))
+                assert_equal(@content.id, xml_data['identifier'])
               end
             end
           end

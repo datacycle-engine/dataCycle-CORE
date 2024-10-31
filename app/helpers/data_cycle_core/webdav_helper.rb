@@ -63,7 +63,7 @@ module DataCycleCore
       (["#{thing.template_name} (#{thing.id})\n"] +
         thing
           .plain_property_names
-          .map { |i| thing.send(i).present? && !i.in?(EXCLUDE_THING_PROPERTIES) ? ["#{thing.properties_for(i).dig('label')}:", "#{thing.send(i)}\n"] : nil }
+          .map { |i| thing.send(i).present? && !i.in?(EXCLUDE_THING_PROPERTIES) ? ["#{thing.properties_for(i)['label']}:", "#{thing.send(i)}\n"] : nil }
           .flatten
           .compact +
         ['Klassifizierungen:'] +

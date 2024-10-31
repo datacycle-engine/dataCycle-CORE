@@ -2,7 +2,7 @@
 
 json ||= {}
 data = load_embedded_object(content, key, options[:languages], definition)
-translatable_embedded = content.properties_for(key).dig('translated') || false
+translatable_embedded = content.properties_for(key)['translated'] || false
 
 if data.present?
   api_property_definition = api_definition(definition)

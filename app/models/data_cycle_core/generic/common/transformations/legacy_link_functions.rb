@@ -67,7 +67,7 @@ module DataCycleCore
                   data_list.call(data_hash)&.filter_map do |item_data|
                     search_params = {
                       external_source_id:,
-                      external_key: external_prefix + item_data.dig(key)
+                      external_key: external_prefix + item_data[key]
                     }
                     DataCycleCore::Classification.find_by(search_params)&.id
                   end || []

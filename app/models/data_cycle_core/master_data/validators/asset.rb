@@ -51,7 +51,7 @@ module DataCycleCore
         end
 
         def check_asset_type(asset, template)
-          (asset.type == "DataCycleCore::#{template.dig('asset_type').camelize}")
+          (asset.type == "DataCycleCore::#{template['asset_type'].camelize}")
         end
 
         def required(data, value)

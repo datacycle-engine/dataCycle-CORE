@@ -139,7 +139,7 @@ module DataCycleCore
     end
 
     def color
-      ui_configs.dig('color')
+      ui_configs['color']
     end
 
     def color?

@@ -32,9 +32,9 @@ module DataCycleCore
             post api_v4_concept_scheme_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             assert_json_attributes(json_validate) do
               {
@@ -75,9 +75,9 @@ module DataCycleCore
             post api_v4_concept_scheme_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), params.dig(:language))
+            assert_context(json_data['@context'], params[:language])
 
             assert_json_attributes(json_validate) do
               {
@@ -128,9 +128,9 @@ module DataCycleCore
             post api_v4_concept_scheme_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), params.dig(:language))
+            assert_context(json_data['@context'], params[:language])
 
             assert_json_attributes(json_validate) do
               {
@@ -188,9 +188,9 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), params.dig(:language))
+            assert_context(json_data['@context'], params[:language])
 
             assert_json_attributes(json_validate) do
               {
@@ -304,9 +304,9 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), params.dig(:language))
+            assert_context(json_data['@context'], params[:language])
 
             I18n.with_locale('en') do
               assert_json_attributes(json_validate) do
@@ -448,9 +448,9 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), params.dig(:language))
+            assert_context(json_data['@context'], params[:language])
 
             pref_label = []
             I18n.with_locale('en') do
@@ -617,9 +617,9 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), params.dig('de'))
+            assert_context(json_data['@context'], params['de'])
 
             assert_json_attributes(json_validate) do
               {

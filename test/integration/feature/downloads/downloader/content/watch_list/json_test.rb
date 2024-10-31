@@ -48,7 +48,7 @@ module DataCycleCore
 
                 assert_response :success
                 assert_equal(@watch_list.name, response.parsed_body.dig('meta', 'watchList', 'name'))
-                assert_equal(@content.name, response.parsed_body.dig('data').first.dig('headline'))
+                assert_equal(@content.name, response.parsed_body['data'].first['headline'])
               end
 
               test 'enable watch_list json serializer and test downloads controller' do
@@ -63,7 +63,7 @@ module DataCycleCore
 
                 assert_response :success
                 assert_equal(@watch_list.name, response.parsed_body.dig('meta', 'watchList', 'name'))
-                assert_equal(@content.name, response.parsed_body.dig('data').first.dig('headline'))
+                assert_equal(@content.name, response.parsed_body['data'].first['headline'])
               end
 
               def teardown

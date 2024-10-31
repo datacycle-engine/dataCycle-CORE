@@ -21,11 +21,11 @@ module DataCycleCore
         end
 
         def external_source
-          @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration.dig(:external_source))
+          @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration[:external_source])
         end
 
         def endpoint
-          @endpoint ||= (configuration.dig(:endpoint).constantize.new(**external_source.credentials.symbolize_keys) if external_source.present?)
+          @endpoint ||= (configuration[:endpoint].constantize.new(**external_source.credentials.symbolize_keys) if external_source.present?)
         end
 
         def translate_text(translate_hash)
@@ -35,7 +35,7 @@ module DataCycleCore
         end
 
         def allowed_attribute?(content, key, locale, user)
-          enabled? && allowed_languages.include?(locale.to_s) && configuration(content, key).dig(:inline) && user&.can?(:translate, content)
+          enabled? && allowed_languages.include?(locale.to_s) && configuration(content, key)[:inline] && user&.can?(:translate, content)
         end
 
         def allowed_languages

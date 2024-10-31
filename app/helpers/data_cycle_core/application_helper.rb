@@ -224,11 +224,11 @@ module DataCycleCore
       if Feature::Aggregate.enabled? && Feature::Aggregate.aggregate?(template)
         { 'name' => [MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME] }
       elsif DataCycleCore.new_dialog.key?(template&.template_name&.underscore_blanks)
-        DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) || {}
+        DataCycleCore.new_dialog[template&.template_name&.underscore_blanks] || {}
       elsif DataCycleCore.new_dialog.key?(template&.schema_type&.underscore_blanks)
-        DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) || {}
+        DataCycleCore.new_dialog[template&.schema_type&.underscore_blanks] || {}
       else
-        DataCycleCore.new_dialog.dig('default')
+        DataCycleCore.new_dialog['default']
       end.transform_values do |v|
         v&.filter_map do |t|
           key = Array.wrap(t).first
@@ -346,7 +346,7 @@ module DataCycleCore
       partials = [
         key.attribute_name_from_key,
         definition&.dig('ui', 'show', 'type')&.underscore_blanks,
-        definition.dig('template_name')&.underscore_blanks,
+        definition['template_name']&.underscore_blanks,
         'thing',
         'default'
       ].compact_blank.map { |p| "data_cycle_core/contents/history/linked/#{p}" }
@@ -356,7 +356,7 @@ module DataCycleCore
 
     def render_asset_editor(key:, value:, definition:, parameters: {}, content: nil)
       partials = [
-        definition.dig('asset_type')&.underscore_blanks,
+        definition['asset_type']&.underscore_blanks,
         'default'
       ].compact_blank.map { |p| "data_cycle_core/contents/editors/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))

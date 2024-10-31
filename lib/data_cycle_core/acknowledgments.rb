@@ -38,7 +38,7 @@ module DataCycleCore
             'full-name' => package['name'],
             'version' => package['name'].sub(/^.*@([^@]*)$/, '\1')
           }.merge(
-            (JSON.parse(`yarn info #{package['name']} #{default_options}`).dig('data') || {}).select { |k, _|
+            (JSON.parse(`yarn info #{package['name']} #{default_options}`)['data'] || {}).select { |k, _|
               ['name', 'description', 'license', 'homepage'].include?(k)
             }.then do |package_info|
               package_info.merge({

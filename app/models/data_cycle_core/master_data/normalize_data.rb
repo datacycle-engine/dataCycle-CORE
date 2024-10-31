@@ -41,7 +41,7 @@ module DataCycleCore
 
       class << self
         def preprocess_data(template_hash, data_hash)
-          normalize_hash = normalizable_data(nil, template_hash.dig('properties'), data_hash)
+          normalize_hash = normalizable_data(nil, template_hash['properties'], data_hash)
           split_normalize_hash(normalize_hash)
         end
 
@@ -70,9 +70,9 @@ module DataCycleCore
 
         def normalizable_data(root, template_hash, data_hash)
           template_hash.filter_map { |key, value|
-            if value.dig('properties').present?
-              normalizable_data([root, key].compact.join('/'), value.dig('properties'), data_hash&.dig(key))
-            elsif value.dig('normalize').present?
+            if value['properties'].present?
+              normalizable_data([root, key].compact.join('/'), value['properties'], data_hash&.dig(key))
+            elsif value['normalize'].present?
               { 'data_hash_path' => [root, key].compact.join('/'), 'id' => value.dig('normalize', 'id').upcase, 'type' => value.dig('normalize', 'type').upcase, 'content' => data_hash&.dig(key) }
             end
           }.flatten
@@ -80,10 +80,10 @@ module DataCycleCore
 
         def parse_normalizable_fields(root, template_hash)
           template_hash.filter_map { |key, value|
-            if value.dig('properties').present?
-              parse_normalizable_fields([root, key].compact.join('/'), value.dig('properties'))
-            elsif value.dig('normalize').present?
-              { 'id' => [root, key].compact.join('/'), 'type' => value.dig('normalize').upcase }
+            if value['properties'].present?
+              parse_normalizable_fields([root, key].compact.join('/'), value['properties'])
+            elsif value['normalize'].present?
+              { 'id' => [root, key].compact.join('/'), 'type' => value['normalize'].upcase }
             end
           }.flatten
         end
@@ -107,7 +107,7 @@ module DataCycleCore
             end
           end
 
-          action_list = report.dig('actionList')
+          action_list = report['actionList']
           action_index = action_list.find_index { |item| item['taskType'] == 'SPLIT' && item['taskId'] == 'Split_StreetStreetnr' }
           action_entry = action_list[action_index]
           new_name = fields_list[fields_list.find_index { |item| item['type'] == 'STREET' }]['content']
@@ -147,7 +147,7 @@ module DataCycleCore
         def update_data(old_data, update_list)
           new_data = old_data.deep_dup || {}
           update_list.each do |item|
-            new_data = update_path(new_data, item.dig('id'), item.dig('content'))
+            new_data = update_path(new_data, item['id'], item['content'])
           end
           new_data
         end

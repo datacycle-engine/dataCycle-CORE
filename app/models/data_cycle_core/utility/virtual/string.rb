@@ -18,13 +18,13 @@ module DataCycleCore
           end
 
           def transform_string(definition, args)
-            case definition.dig('type')
+            case definition['type']
             when 'external_source'
-              args.dig(:content)&.external_source&.default_options&.dig(definition.dig('name'))
+              args[:content]&.external_source&.default_options&.dig(definition['name'])
             when 'I18n'
-              definition.dig('type').constantize.send(definition.dig('name'))
+              definition['type'].constantize.send(definition['name'])
             when 'content'
-              args.dig(:content).send(definition.dig('name'))
+              args[:content].send(definition['name'])
             else
               raise 'Unknown type for string transformation'
             end

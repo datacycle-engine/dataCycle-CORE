@@ -90,8 +90,8 @@ module DataCycleCore
             .with_internal_name(hash.dig('v', 'aliases')).pluck(:id)
         when 'with_classification_paths'
           hash['t'] = 'classification_alias_ids'
-          hash['n'] = Array.wrap(hash.dig('v')).map { |v| v&.split(' > ')&.first }.join(', ')
-          hash['v'] = DataCycleCore::ClassificationAlias.by_full_paths(hash.dig('v')).pluck(:id)
+          hash['n'] = Array.wrap(hash['v']).map { |v| v&.split(' > ')&.first }.join(', ')
+          hash['v'] = DataCycleCore::ClassificationAlias.by_full_paths(hash['v']).pluck(:id)
         when 'external_source'
           hash['t'] = 'external_system'
           hash['n'] = hash['t'].capitalize

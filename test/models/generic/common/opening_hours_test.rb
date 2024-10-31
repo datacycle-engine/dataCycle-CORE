@@ -282,8 +282,8 @@ describe DataCycleCore::Generic::Common::OpeningHours do
     end
 
     it 'hadles intervals over midnight correctly' do
-      assert(subject.new(next_day, format: :google).to_per_day_opening_hours.dig('Montag'), '20:00 - 2:00')
-      assert(subject.new(next_day, format: :google).to_per_day_opening_hours.dig('Mittwoch'), 'geschlossen')
+      assert(subject.new(next_day, format: :google).to_per_day_opening_hours['Montag'], '20:00 - 2:00')
+      assert(subject.new(next_day, format: :google).to_per_day_opening_hours['Mittwoch'], 'geschlossen')
     end
   end
 

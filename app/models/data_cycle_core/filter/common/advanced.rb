@@ -157,7 +157,7 @@ module DataCycleCore
 
         def equals_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
-          search_value = value.dig('text')
+          search_value = value['text']
           reflect(
             @query.where(
               DataCycleCore::Thing::Translation.where(
@@ -171,7 +171,7 @@ module DataCycleCore
 
         def not_equals_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
-          search_value = value.dig('text')
+          search_value = value['text']
           reflect(
             @query.where.not(
               DataCycleCore::Thing::Translation.where(
@@ -185,7 +185,7 @@ module DataCycleCore
 
         def like_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
-          search_value = value.dig('text')
+          search_value = value['text']
           reflect(
             @query.where(
               DataCycleCore::Thing::Translation.where(
@@ -199,7 +199,7 @@ module DataCycleCore
 
         def not_like_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
-          search_value = value.dig('text')
+          search_value = value['text']
           reflect(
             @query.where.not(
               DataCycleCore::Thing::Translation.where(
@@ -314,7 +314,7 @@ module DataCycleCore
           date_range = "[#{value&.dig('from')&.to_s},#{value&.dig('until')&.to_s}]"
 
           interval_keys = DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters.dig(attribute_path, 'attribute_keys')
-          query_operator = DATE_RANGE_COMPARISON_OPERATORS.dig(DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters.dig(attribute_path, 'query_operator')&.to_sym || :overlaps)
+          query_operator = DATE_RANGE_COMPARISON_OPERATORS[DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters.dig(attribute_path, 'query_operator')&.to_sym || :overlaps]
 
           case comparison
           when :equal
@@ -330,7 +330,7 @@ module DataCycleCore
 
         def advanced_time(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.present? && attribute_path.present? && comparison.present?
-          comparison_operator = COMPARISON_OPERATORS.dig(comparison)
+          comparison_operator = COMPARISON_OPERATORS[comparison]
           query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparison_operator} ?::time)", attribute_path, value])
 
           advanced_query(query_string, attribute_path)
@@ -339,14 +339,14 @@ module DataCycleCore
         def advanced_boolean(value = nil, attribute_path = nil, comparison = nil)
           return self unless (value.present? || value.to_s == 'false') && attribute_path.present? && comparison.present?
 
-          comparison_operator = COMPARISON_OPERATORS.dig(comparison)
+          comparison_operator = COMPARISON_OPERATORS[comparison]
           query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparison_operator} ?)", attribute_path, value])
           advanced_query(query_string, attribute_path)
         end
 
         def advanced_string(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
-          search_value = value.dig('text')
+          search_value = value['text']
           attribute_path_exists = true
 
           case comparison

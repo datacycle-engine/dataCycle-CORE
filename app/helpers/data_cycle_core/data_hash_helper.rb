@@ -13,7 +13,7 @@ module DataCycleCore
     ].freeze
 
     def object_from_definition(definition)
-      return nil if definition.blank? || definition.dig('template_name').nil?
+      return nil if definition.blank? || definition['template_name'].nil?
 
       template_name = definition['template_name']
       DataCycleCore::Thing.new(template_name:)

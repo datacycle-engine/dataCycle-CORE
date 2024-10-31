@@ -7,9 +7,9 @@ module DataCycleCore
         class << self
           def proxy_url(**args)
             transformations = args.dig(:virtual_definition, 'virtual', 'transformation')
-            name = args.dig(:content).name&.parameterize(separator: '_') || args.dig(:content).id
-            if transformations.dig('version') == 'original'
-              content = args.dig(:content)
+            name = args[:content].name&.parameterize(separator: '_') || args[:content].id
+            if transformations['version'] == 'original'
+              content = args[:content]
               if content.respond_to?(:asset) && content.send(:asset).present?
                 orig_url = content.send(:asset)&.try(:file)&.try(:url)
               else
@@ -18,27 +18,27 @@ module DataCycleCore
               [
                 Rails.application.config.asset_host,
                 'asset',
-                args.dig(:content).id,
-                transformations.dig('version'),
+                args[:content].id,
+                transformations['version'],
                 "#{name}#{orig_url.present? ? File.extname(orig_url) : ''}"
               ].join('/')
-            elsif transformations.dig('version') == 'dynamic'
+            elsif transformations['version'] == 'dynamic'
               [
                 Rails.application.config.asset_host,
                 'asset',
-                args.dig(:content).id,
-                transformations.dig('type'),
-                transformations.dig('width'),
-                transformations.dig('height'),
-                "#{name}.#{transformations.dig('format')}"
+                args[:content].id,
+                transformations['type'],
+                transformations['width'],
+                transformations['height'],
+                "#{name}.#{transformations['format']}"
               ].join('/')
             else
               [
                 Rails.application.config.asset_host,
                 'asset',
-                args.dig(:content).id,
-                transformations.dig('version'),
-                "#{name}.#{transformations.dig('format')}"
+                args[:content].id,
+                transformations['version'],
+                "#{name}.#{transformations['format']}"
               ].join('/')
             end
           end

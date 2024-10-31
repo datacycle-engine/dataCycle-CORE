@@ -16,7 +16,7 @@ module DataCycleCore
           modes = ['grid']
           return modes unless enabled? && !user.nil?
 
-          config_modes = Array.wrap(configuration.dig('allowed'))
+          config_modes = Array.wrap(configuration['allowed'])
           config_modes = config_modes.intersection(VIEW_MODES_BY_CONTEXT[context]) if VIEW_MODES_BY_CONTEXT.key?(context)
           config_modes.select { |mode| user.can?(mode.to_sym, :view_mode) }.presence || modes
         end

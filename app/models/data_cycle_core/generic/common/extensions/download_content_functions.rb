@@ -29,7 +29,7 @@ module DataCycleCore
 
                     item_count += 1
                     item_id = data_id.call(item_data)&.to_s
-                    item = mongo_items.dig(item_id) || mongo_item.new(external_id: item_id)
+                    item = mongo_items[item_id] || mongo_item.new(external_id: item_id)
                     item.dump ||= {}
                     local_item = item.dump[locale]
 
@@ -132,7 +132,7 @@ module DataCycleCore
           end
 
           def props_from_config(options:)
-            options.dig(:download)&.slice(*CONFIG_PROPS)&.stringify_keys || {}
+            options[:download]&.slice(*CONFIG_PROPS)&.stringify_keys || {}
           end
 
           def endpoint_items(download_object:, options:, locale:)
@@ -235,7 +235,7 @@ module DataCycleCore
               tstart = Time.current
 
               init_mongo_db(download_object.database_name) do
-                download_object.logger.phase_started(step_label, options.dig(:max_count))
+                download_object.logger.phase_started(step_label, options[:max_count])
 
                 item_count = yield options, step_label if block
 

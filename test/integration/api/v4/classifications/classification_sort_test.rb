@@ -30,10 +30,10 @@ module DataCycleCore
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
-            assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(tree_tags.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:created').to_datetime >= b.dig('dct:created').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:created'].to_datetime >= b['dct:created'].to_datetime)
             end
 
             # ASC
@@ -47,10 +47,10 @@ module DataCycleCore
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
-            assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(tree_tags.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:created').to_datetime <= b.dig('dct:created').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:created'].to_datetime <= b['dct:created'].to_datetime)
             end
 
             # make sure ASC is default
@@ -64,10 +64,10 @@ module DataCycleCore
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
-            assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(tree_tags.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:created').to_datetime <= b.dig('dct:created').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:created'].to_datetime <= b['dct:created'].to_datetime)
             end
             tree_tags.update_column(:created_at, orig_ts)
           end
@@ -89,10 +89,10 @@ module DataCycleCore
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
-            assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(tree_tags.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
             end
 
             # ASC
@@ -106,10 +106,10 @@ module DataCycleCore
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
-            assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(tree_tags.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
             end
 
             # make sure ASC is default
@@ -123,10 +123,10 @@ module DataCycleCore
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
-            assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(tree_tags.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
             end
 
             # make sure modified DESC is default for empty sort params
@@ -139,10 +139,10 @@ module DataCycleCore
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
-            assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(tree_tags.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
             end
             tree_tags.update_column(:updated_at, orig_ts)
           end
@@ -162,10 +162,10 @@ module DataCycleCore
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
-            assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(tree_tags.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:created').to_datetime >= b.dig('dct:created').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:created'].to_datetime >= b['dct:created'].to_datetime)
             end
             tree_tags.update_column(:created_at, orig_ts)
           end
@@ -191,10 +191,10 @@ module DataCycleCore
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
-            assert_equal(classificaton_tag.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(classificaton_tag.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
             end
 
             # modified ASC
@@ -209,10 +209,10 @@ module DataCycleCore
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
-            assert_equal(classificaton_tag.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(classificaton_tag.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
             end
 
             # modified DESC
@@ -227,10 +227,10 @@ module DataCycleCore
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
-            assert_equal(classificaton_tag.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(classificaton_tag.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
             end
 
             # make sure default is order_a ASC
@@ -244,11 +244,11 @@ module DataCycleCore
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
-            assert_equal(classifications.first.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(classifications.first.id, json_data['@graph'].first['@id'])
 
             classification_mappings = classifications.index_by(&:id)
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
+            json_data['@graph'].each_cons(2) do |a, b|
               assert(classification_mappings[a['@id']].order_a < classification_mappings[b['@id']].order_a)
             end
 
@@ -264,10 +264,10 @@ module DataCycleCore
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
-            assert_equal(classificaton_tag.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(classificaton_tag.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
             end
 
             classificaton_tag.update_column(:updated_at, orig_ts)

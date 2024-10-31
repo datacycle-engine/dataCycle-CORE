@@ -34,7 +34,7 @@ module DataCycleCore
 
       def to_json(*_args)
         mime_type = 'application/json'
-        return { @params.dig(:key) || 'data' => @data }.to_json, { filename: "#{@params.dig(:key) || 'report'}.json", disposition: 'attachment', type: mime_type }
+        return { @params[:key] || 'data' => @data }.to_json, { filename: "#{@params[:key] || 'report'}.json", disposition: 'attachment', type: mime_type }
       end
 
       def generate_csv(file_extension: 'csv', separator: ';', mime_type: 'text/csv')
@@ -47,7 +47,7 @@ module DataCycleCore
           end
         end
 
-        return csv_string, { filename: "#{@params.dig(:key) || 'report'}.#{file_extension}", disposition: 'attachment', type: mime_type }
+        return csv_string, { filename: "#{@params[:key] || 'report'}.#{file_extension}", disposition: 'attachment', type: mime_type }
       end
 
       def to_xlsx
@@ -55,7 +55,7 @@ module DataCycleCore
         wb = p.workbook
         s = wb.styles
         header = s.add_style bg_color: 'DD', sz: 16, b: true, alignment: { horizontal: :center }
-        title = I18n.t "feature.report_generator.#{@params.dig(:key)}", default: @params.dig(:key), locale: @locale
+        title = I18n.t "feature.report_generator.#{@params[:key]}", default: @params[:key], locale: @locale
 
         wb.add_worksheet(name: title.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|
           sheet.add_row translated_headings, style: header
@@ -64,7 +64,7 @@ module DataCycleCore
           end
         end
         mime_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        return p.to_stream.read, { filename: "#{@params.dig(:key) || 'report'}.xlsx", disposition: 'attachment', type: mime_type }
+        return p.to_stream.read, { filename: "#{@params[:key] || 'report'}.xlsx", disposition: 'attachment', type: mime_type }
       end
 
       private

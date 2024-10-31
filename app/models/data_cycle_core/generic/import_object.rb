@@ -11,10 +11,10 @@ module DataCycleCore
         super
 
         @logging = @logger
-        @history = @options.dig(:history) || false
-        no_asset_download = @options.dig(:no_asset_download) || false
+        @history = @options[:history] || false
+        no_asset_download = @options[:no_asset_download] || false
         @asset_download = !no_asset_download
-        @partial_update = @options.dig(:partial_update) || false
+        @partial_update = @options[:partial_update] || false
 
         @concepts_cache = {}
       end

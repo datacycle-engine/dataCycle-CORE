@@ -43,7 +43,7 @@ end
 
 module DummyNestedFilter
   def self.value?(raw_data)
-    raw_data.dig('has_value') == 'MY VALUE'
+    raw_data['has_value'] == 'MY VALUE'
   end
 end
 

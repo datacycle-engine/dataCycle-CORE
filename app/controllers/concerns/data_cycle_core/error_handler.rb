@@ -42,10 +42,10 @@ module DataCycleCore
       api_errors = exception.data.map do |error|
         {
           source: {
-            parameter: error.dig(:parameter_path)
+            parameter: error[:parameter_path]
           },
-          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error.dig(:type)}", default: exception.message, locale: :en),
-          detail: error.dig(:detail)
+          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error[:type]}", default: exception.message, locale: :en),
+          detail: error[:detail]
         }
       end
       render json: { errors: api_errors }, layout: false, status: :bad_request
@@ -55,10 +55,10 @@ module DataCycleCore
       api_errors = exception.data.map do |error|
         {
           source: {
-            pointer: error.dig(:pointer_path)
+            pointer: error[:pointer_path]
           },
-          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error.dig(:type)}", default: exception.message, locale: :en),
-          detail: error.dig(:detail)
+          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error[:type]}", default: exception.message, locale: :en),
+          detail: error[:detail]
         }
       end
       render json: { errors: api_errors }, layout: false, status: :not_found

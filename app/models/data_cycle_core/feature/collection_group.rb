@@ -5,7 +5,7 @@ module DataCycleCore
     class CollectionGroup < Base
       class << self
         def separator
-          configuration.dig('separator')
+          configuration['separator']
         end
       end
     end

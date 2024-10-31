@@ -49,13 +49,13 @@ module DataCycleCore
           def attribute_value_from_hash(data:, key_path:, filter:, external_key_prefix: [])
             key = key_path.first
             value = if data.key?(key)
-                      data.dig(key)
-                    elsif data.dig('datahash')&.key?(key)
+                      data[key]
+                    elsif data['datahash']&.key?(key)
                       data.dig('datahash', key)
                     elsif data.dig('translations', I18n.locale.to_s)&.key?(key)
                       data.dig('translations', I18n.locale.to_s, key)
                     else
-                      id = data.dig('id') || data.dig('datahash', 'id') || data.dig('translations', I18n.locale.to_s, 'id')
+                      id = data['id'] || data.dig('datahash', 'id') || data.dig('translations', I18n.locale.to_s, 'id')
                       item = DataCycleCore::Thing.find_by(id:)
                       item&.property?(key) ? item.attribute_to_h(key) : nil
                     end

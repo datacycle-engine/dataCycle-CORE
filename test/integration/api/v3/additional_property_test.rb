@@ -50,10 +50,10 @@ module DataCycleCore
           assert_equal(embedded_data.name, json_ed['name'])
 
           assert_equal(2, json_ed['additionalProperty'].count)
-          assert_equal(embedded_data.add1, json_ed['additionalProperty'].detect { |item| item.dig('identifier') == 'add1' }.dig('value'))
-          assert_equal(embedded_data.add1, json_ed['additionalProperty'].detect { |item| item.dig('name') == 'add1' }.dig('value'))
-          assert_equal(embedded_data.add2, json_ed['additionalProperty'].detect { |item| item.dig('identifier') == 'add2' }.dig('value'))
-          assert_equal(embedded_data.add2, json_ed['additionalProperty'].detect { |item| item.dig('name') == 'add2' }.dig('value'))
+          assert_equal(embedded_data.add1, json_ed['additionalProperty'].detect { |item| item['identifier'] == 'add1' }['value'])
+          assert_equal(embedded_data.add1, json_ed['additionalProperty'].detect { |item| item['name'] == 'add1' }['value'])
+          assert_equal(embedded_data.add2, json_ed['additionalProperty'].detect { |item| item['identifier'] == 'add2' }['value'])
+          assert_equal(embedded_data.add2, json_ed['additionalProperty'].detect { |item| item['name'] == 'add2' }['value'])
           assert_equal('PropertyValue', json_ed['additionalProperty'][0]['@type'])
           assert_equal('PropertyValue', json_ed['additionalProperty'][1]['@type'])
         end

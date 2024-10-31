@@ -19,9 +19,9 @@ module DataCycleCore
     private
 
     def metadata_from_blob
-      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
+      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable[:io].present?
         # import from local disc
-        tempfile = attachment_changes['file'].attachable.dig(:io)
+        tempfile = attachment_changes['file'].attachable[:io]
       else
         tempfile = attachment_changes['file'].attachable.to_io
       end

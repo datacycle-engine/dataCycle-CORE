@@ -49,7 +49,7 @@ module DataCycleCore
     end
 
     def self.validate_by_duplicate_search(content, datahash, primary_key, _current_user, active_ui_locale)
-      return {} if datahash.blank? || primary_key.blank? || content.properties_for(primary_key).dig('type') != 'string'
+      return {} if datahash.blank? || primary_key.blank? || content.properties_for(primary_key)['type'] != 'string'
 
       value = datahash&.dig(primary_key)
 

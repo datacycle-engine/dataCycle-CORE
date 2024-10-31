@@ -86,7 +86,7 @@ module DataCycleCore
     end
 
     def activity_details
-      type = permitted_params.dig(:type)
+      type = permitted_params[:type]
       case type
       when 'summary'
         activities = DataCycleCore::Activity.activity_stats

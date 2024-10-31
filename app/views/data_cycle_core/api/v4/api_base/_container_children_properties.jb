@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
-if options.dig(:disable_children).blank?
+if options[:disable_children].blank?
   new_fields = subtree_for('hasPart', options[:fields])
   json['hasPart'] = content.children.filter_map { |part|
     if included_attribute?('hasPart', options[:include])

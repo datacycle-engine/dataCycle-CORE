@@ -55,7 +55,7 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('application/zip', response.headers.dig('Content-Type'))
+                assert_equal('application/zip', response.headers['Content-Type'])
               end
 
               test 'enable content collection and test zip download via downloads controller' do
@@ -75,7 +75,7 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('application/zip', response.headers.dig('Content-Type'))
+                assert_equal('application/zip', response.headers['Content-Type'])
               end
 
               def teardown

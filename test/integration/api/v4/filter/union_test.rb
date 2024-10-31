@@ -173,7 +173,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -191,7 +191,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -205,7 +205,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -223,7 +223,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -313,7 +313,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -473,7 +473,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {

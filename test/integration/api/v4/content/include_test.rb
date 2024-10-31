@@ -45,7 +45,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -57,7 +57,7 @@ module DataCycleCore
               next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
 
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
-              assert_compact_header(json_data.dig(json_key))
+              assert_compact_header(json_data[json_key])
             end
           end
 
@@ -67,7 +67,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -80,7 +80,7 @@ module DataCycleCore
               next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
 
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
-              assert_compact_header(json_data.dig(json_key))
+              assert_compact_header(json_data[json_key])
             end
 
             # schedule has a full header
@@ -96,7 +96,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -109,7 +109,7 @@ module DataCycleCore
               next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
 
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
-              assert_compact_header(json_data.dig(json_key))
+              assert_compact_header(json_data[json_key])
             end
 
             # poi has a full header
@@ -124,7 +124,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -137,7 +137,7 @@ module DataCycleCore
               next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
 
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
-              assert_compact_header(json_data.dig(json_key))
+              assert_compact_header(json_data[json_key])
             end
 
             # poi has a full header
@@ -157,7 +157,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -170,7 +170,7 @@ module DataCycleCore
               next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
 
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
-              assert_compact_header(json_data.dig(json_key))
+              assert_compact_header(json_data[json_key])
             end
 
             # poi has a full header

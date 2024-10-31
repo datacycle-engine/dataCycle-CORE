@@ -14,8 +14,8 @@ unless content.schema.nil?
 
     partial_params = render_api_attribute(key:, definition: prop, value:, parameters: { options: }, content:)
     if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && prop.dig('api', 'transformation', 'name').present?
-      if json.dig(prop.dig('api', 'transformation', 'name')).present?
-        json.dig(prop.dig('api', 'transformation', 'name')).merge! render(*partial_params) unless partial_params.nil?
+      if json[prop.dig('api', 'transformation', 'name')].present?
+        json[prop.dig('api', 'transformation', 'name')].merge! render(*partial_params) unless partial_params.nil?
       else
         json[prop.dig('api', 'transformation', 'name')] = render(*partial_params) unless partial_params.nil?
       end

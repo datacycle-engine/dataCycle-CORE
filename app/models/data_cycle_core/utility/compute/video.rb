@@ -62,14 +62,14 @@ module DataCycleCore
           end
 
           def transcode(**args)
-            content = args.dig(:content)
-            original_value = content.try(args.dig(:key))
+            content = args[:content]
+            original_value = content.try(args[:key])
             return original_value if original_value.present? && original_value != DataCycleCore::Feature::VideoTranscoding.placeholder
 
-            asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
+            asset = args[:computed_parameters]&.first || args[:content].try(:asset)
             return if asset.blank?
 
-            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
+            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args[:key])
             DataCycleCore::Feature::VideoTranscoding.placeholder
           end
 

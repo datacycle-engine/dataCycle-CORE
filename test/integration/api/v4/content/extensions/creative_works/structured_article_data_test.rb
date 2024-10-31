@@ -22,9 +22,9 @@ module DataCycleCore
                 }
                 post api_v4_thing_path(params)
                 json_data = response.parsed_body
-                json_validate = json_data.dup.dig('@graph').first
+                json_validate = json_data.dup['@graph'].first
 
-                assert_context(json_data.dig('@context'), 'de')
+                assert_context(json_data['@context'], 'de')
 
                 required_attributes = required_validation_attributes(@content)
 

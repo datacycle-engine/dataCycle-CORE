@@ -115,7 +115,7 @@ module DataCycleCore
       def permit_user_groups_from_yaml(role)
         raise 'missing roles in permission' if role.blank?
 
-        DataCycleCore.permissions.dig(:user_groups)&.each do |group_name, permissions|
+        DataCycleCore.permissions[:user_groups]&.each do |group_name, permissions|
           raise 'missing user_group name in permission' if group_name.blank?
 
           permissions&.each_value do |permission|

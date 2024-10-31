@@ -83,7 +83,7 @@ module DataCycleCore
 
             assert response.content_type.include?('application/json')
             json_data = response.parsed_body
-            assert json_data.dig('token').present?
+            assert json_data['token'].present?
           end
 
           test 'PATCH /api/v4/users/password - change password for user - ok with password and confirmation' do
@@ -102,7 +102,7 @@ module DataCycleCore
 
             assert response.content_type.include?('application/json')
             json_data = response.parsed_body
-            assert json_data.dig('token').present?
+            assert json_data['token'].present?
           end
 
           test 'PUT /api/v4/users/password - change password for user - ok with single password' do
@@ -120,7 +120,7 @@ module DataCycleCore
 
             assert response.content_type.include?('application/json')
             json_data = response.parsed_body
-            assert json_data.dig('token').present?
+            assert json_data['token'].present?
           end
         end
       end

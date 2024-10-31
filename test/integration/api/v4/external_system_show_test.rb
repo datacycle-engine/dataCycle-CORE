@@ -62,13 +62,13 @@ module DataCycleCore
 
           get api_v4_things_select_by_external_key_path(params)
           json_data = response.parsed_body
-          assert_context(json_data.dig('@context'), 'de')
+          assert_context(json_data['@context'], 'de')
           assert_api_count_result(2)
           assert_equal([@content.id, @content2.id].sort, json_data['@graph'].pluck('@id').sort)
 
           post api_v4_things_select_by_external_key_path(params)
           json_data = response.parsed_body
-          assert_context(json_data.dig('@context'), 'de')
+          assert_context(json_data['@context'], 'de')
           assert_api_count_result(2)
           assert_equal([@content.id, @content2.id].sort, json_data['@graph'].pluck('@id').sort)
         end

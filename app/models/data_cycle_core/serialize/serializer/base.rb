@@ -30,8 +30,8 @@ module DataCycleCore
 
             if content_title.present?
               content_title = "#{try(:file_name_prefix, content)}#{content_title}" if respond_to?(:file_name_prefix)
-              content_title += "_#{options[:language]}" if translatable? && options.dig(:language).present?
-              content_title += "-#{options[:version]}" if options.dig(:version).present?
+              content_title += "_#{options[:language]}" if translatable? && options[:language].present?
+              content_title += "-#{options[:version]}" if options[:version].present?
               return content_title.parameterize(separator: '_').to_s
             end
 

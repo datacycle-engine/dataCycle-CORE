@@ -30,13 +30,13 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
             assert_equal(header, data)
 
-            assert_compact_classification_header(json_data.dig('dc:classification'))
+            assert_compact_classification_header(json_data['dc:classification'])
           end
 
           test 'concepts at /api/v4/things/:id with include concepts --> full data' do
@@ -45,7 +45,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
@@ -63,7 +63,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
@@ -82,13 +82,13 @@ module DataCycleCore
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             get api_v4_thing_path(id: @content.id, include: 'dc:classification.skos:inScheme')
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data2 = response.parsed_body
-            json_data2 = json_data2.dig('@graph').first
+            json_data2 = json_data2['@graph'].first
             assert_equal(json_data, json_data2)
           end
 
@@ -97,9 +97,9 @@ module DataCycleCore
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
-            assert_equal(1, json_data.dig('dc:classification').size)
+            assert_equal(1, json_data['dc:classification'].size)
             assert_equal(['@id', '@type', 'skos:inScheme'], json_data.dig('dc:classification', 0).keys)
             assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
           end
@@ -109,9 +109,9 @@ module DataCycleCore
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
-            assert_equal(1, json_data.dig('dc:classification').size)
+            assert_equal(1, json_data['dc:classification'].size)
             assert_concept_attributes(json_data.dig('dc:classification', 0))
             json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
               assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))

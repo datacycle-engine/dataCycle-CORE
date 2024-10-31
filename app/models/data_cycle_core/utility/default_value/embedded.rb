@@ -14,10 +14,10 @@ module DataCycleCore
             if value_definition.is_a?(::Array)
               values = value_definition
             else
-              values = (content&.external? ? value_definition.dig('external') : value_definition.dig('internal')) || []
+              values = (content&.external? ? value_definition['external'] : value_definition['internal']) || []
             end
 
-            first_template = Array.wrap(property_definition.dig('template_name')).first
+            first_template = Array.wrap(property_definition['template_name']).first
 
             values.map do |value|
               value['template_name'] ||= first_template

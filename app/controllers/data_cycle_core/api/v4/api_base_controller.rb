@@ -106,16 +106,16 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.except('format')
-          @include_parameters = parse_tree_params(permitted_params.dig(:include))
-          @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
+          @include_parameters = parse_tree_params(permitted_params[:include])
+          @fields_parameters = parse_tree_params(permitted_params[:fields])
           @field_filter = @fields_parameters.present?
-          @classification_trees_parameters = Array.wrap(permitted_params.dig(:classification_trees))
+          @classification_trees_parameters = Array.wrap(permitted_params[:classification_trees])
           @classification_trees_filter = @classification_trees_parameters.present?
-          @live_data = permitted_params.dig(:'dc:liveData')
+          @live_data = permitted_params[:'dc:liveData']
           @section_parameters = section_parameters
-          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
+          @language = parse_language(permitted_params[:language]).presence || Array(I18n.available_locales.first.to_s)
           @expand_language = false # TODO: language_mode = 'expanded' --> true, 'compact' --> false
-          @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
+          @api_subversion = permitted_params[:api_subversion] if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params[:api_subversion])
           @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
           @api_version = 4
         end

@@ -39,7 +39,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
             params = {
               fields: 'dct:modified',
@@ -151,7 +151,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
             params = {
               fields: 'dct:modified',
@@ -307,8 +307,8 @@ module DataCycleCore
             end
 
             # make sure items ordered by deleted_at DESC
-            assert_equal(food_establishment_b_id, json_data['@graph'].first.dig('@id'))
-            assert_equal(food_establishment_a_id, json_data['@graph'].second.dig('@id'))
+            assert_equal(food_establishment_b_id, json_data['@graph'].first['@id'])
+            assert_equal(food_establishment_a_id, json_data['@graph'].second['@id'])
 
             params = {
               filter: {

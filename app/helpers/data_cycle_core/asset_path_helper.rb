@@ -15,9 +15,9 @@ module DataCycleCore
     end
 
     def dc_background_image_style
-      return if DataCycleCore.logo.dig('background_images').blank?
+      return if DataCycleCore.logo['background_images'].blank?
 
-      "--dc-background-image-url: url('#{dc_image_path(Array.wrap(DataCycleCore.logo.dig('background_images')).sample.to_s)}');"
+      "--dc-background-image-url: url('#{dc_image_path(Array.wrap(DataCycleCore.logo['background_images']).sample.to_s)}');"
     end
 
     def dc_stylesheet_tag(asset_name)

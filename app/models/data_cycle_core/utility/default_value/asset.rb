@@ -37,7 +37,7 @@ module DataCycleCore
           create_or_map = property_definition.dig('default_value', 'options', 'create') || false
           return if meta_data.blank? || meta_property_keys.blank?
 
-          search_values = meta_property_keys.map { |attribute| meta_data.dig(attribute) }&.flatten&.reject(&:blank?)&.uniq
+          search_values = meta_property_keys.map { |attribute| meta_data[attribute] }&.flatten&.reject(&:blank?)&.uniq
           return if search_values.blank? && default_value.blank?
 
           if create_or_map
@@ -62,7 +62,7 @@ module DataCycleCore
 
           return if meta_data.blank? || meta_property_keys.blank?
 
-          value = meta_data.dig(meta_property_keys.detect { |attribute| meta_data.dig(attribute).present? })
+          value = meta_data[meta_property_keys.detect { |attribute| meta_data[attribute].present? }]
           value = value.join(', ') if value.is_a?(Array)
           value
         end
@@ -86,12 +86,12 @@ module DataCycleCore
           return if meta_data.blank? || meta_property_keys.blank?
 
           meta_property_keys.each do |meta_key|
-            search_value = meta_data.dig(meta_key)
+            search_value = meta_data[meta_key]
 
             next if search_value.blank?
             search_value = search_value.join(', ') if search_value.is_a?(Array)
 
-            stored_filter = DataCycleCore::StoredFilter.new.parameters_from_hash(property_definition.dig('stored_filter'))
+            stored_filter = DataCycleCore::StoredFilter.new.parameters_from_hash(property_definition['stored_filter'])
             query = stored_filter.apply
             query = query.equals_advanced_translated_name(search_value)
 

@@ -5,7 +5,7 @@ module DataCycleCore
     class CustomAssetPreviewer < Base
       class << self
         def previewer_options(previewer)
-          configuration.dig("#{previewer}_options").with_indifferent_access
+          configuration["#{previewer}_options"].with_indifferent_access
         end
 
         def update_computed_for_templates(template_names:, webhooks: true)

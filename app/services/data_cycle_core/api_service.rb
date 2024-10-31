@@ -227,7 +227,7 @@ module DataCycleCore
     end
 
     def transform_values_for_query(value, key)
-      return { 'from' => value.dig(:min), 'until' => value.dig(:max) } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
+      return { 'from' => value[:min], 'until' => value[:max] } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
       return { 'text' => value.values.first } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'string' && value&.values&.first.present?
       value
     end
@@ -245,7 +245,7 @@ module DataCycleCore
     end
 
     def advanced_attribute_filter?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present? ||
+      DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present? ||
         API_NUMERIC_ATTRIBUTES.include?(key)
     end
 
@@ -370,7 +370,7 @@ module DataCycleCore
       raise 'API Bad Request Error' unless unpermitted_params.is_a?(Hash)
 
       validation_params = unpermitted_params&.deep_symbolize_keys
-      linked_params = validation_params.delete(:linked) if validation_params.dig(:linked).present?
+      linked_params = validation_params.delete(:linked) if validation_params[:linked].present?
 
       validation = validator.call(validation_params)
       validation_errors = validation.errors.to_h.present? ? api_errors(validation.errors) : []
@@ -383,7 +383,7 @@ module DataCycleCore
 
     # only used for classifications + deleted things endpoint
     def apply_timestamp_query_string(values, attribute_path)
-      date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
+      date_range = "[#{date_from_single_value(values[:min])&.beginning_of_day},#{date_from_single_value(values[:max])&.end_of_day}]"
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
@@ -392,7 +392,7 @@ module DataCycleCore
     end
 
     def self.order_value_from_params(key, full_text_search, raw_query_params)
-      schedule_order_params = order_constraints.dig(key)&.filter_map { |c| raw_query_params.dig(*c) }
+      schedule_order_params = order_constraints[key]&.filter_map { |c| raw_query_params.dig(*c) }
       return schedule_order_params if schedule_order_params.present? && ['proximity.occurrence_with_distance', 'proximity.in_occurrence_with_distance'].include?(key)
       return schedule_order_params.first if schedule_order_params.present?
       full_text_search if key == 'similarity' && full_text_search.present?

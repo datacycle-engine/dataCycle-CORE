@@ -213,13 +213,13 @@ module DataCycleCore
             validator_fallback = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields_fallback })
             concept_with_description = false
             json_data['@graph'].each do |item|
-              if @classification_tag.id == item.dig('@id')
+              if @classification_tag.id == item['@id']
                 assert_equal({}, validator_translated.call(item).errors.to_h)
               else
                 assert_equal({}, validator_fallback.call(item).errors.to_h)
               end
               # additional check to make sure at least one item has dct:description attribute
-              concept_with_description = true if item.dig('dct:description').present?
+              concept_with_description = true if item['dct:description'].present?
             end
             assert(concept_with_description)
           end
@@ -264,13 +264,13 @@ module DataCycleCore
 
             concept_with_description = false
             json_data['@graph'].each do |item|
-              if @classification_tag.id == item.dig('@id')
+              if @classification_tag.id == item['@id']
                 assert_equal({}, validator_translated.call(item).errors.to_h)
               else
                 assert_equal({}, validator_fallback.call(item).errors.to_h)
               end
               # additional check to make sure at least one item has dct:description attribute
-              concept_with_description = true if item.dig('dct:description').present?
+              concept_with_description = true if item['dct:description'].present?
             end
             assert(concept_with_description)
           end
@@ -310,7 +310,7 @@ module DataCycleCore
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
               # additional check to make sure at least one item has dct:description attribute
-              concept_with_description = true if item.dig('dct:description').present?
+              concept_with_description = true if item['dct:description'].present?
             end
             assert(concept_with_description)
           end
@@ -352,7 +352,7 @@ module DataCycleCore
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
               # additional check to make sure at least one item has dct:description attribute
-              concept_with_description = true if item.dig('dct:description').present?
+              concept_with_description = true if item['dct:description'].present?
             end
             assert(concept_with_description)
           end

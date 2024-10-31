@@ -25,7 +25,7 @@ module DataCycleCore
           data.map do |key, value|
             {
               'id' => key,
-              'name' => value.is_a?(::Hash) ? value.dig(locale) : value,
+              'name' => value.is_a?(::Hash) ? value[locale] : value,
               'modifiedAt' => file.mtime.iso8601
             }.compact
           end
@@ -34,14 +34,14 @@ module DataCycleCore
         def self.data_id(external_id_hash_method, data)
           case external_id_hash_method
           when 'MD5'
-            Digest::MD5.hexdigest(data.dig('id'))
+            Digest::MD5.hexdigest(data['id'])
           else
-            data.dig('id')&.to_s
+            data['id']&.to_s
           end
         end
 
         def self.data_name(data)
-          data.dig('name')
+          data['name']
         end
       end
     end

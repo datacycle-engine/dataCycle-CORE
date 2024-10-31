@@ -124,7 +124,7 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd', 'poi_a', 'poi_b', 'poi_c', 'poi_d'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd', 'poi_a', 'poi_b', 'poi_c', 'poi_d'], json_data['@graph'].pluck('name'))
           end
 
           test 'api/v4/things with implicit sorting' do
@@ -149,7 +149,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
 
-            assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
 
             # default for search = similarity
             params = {
@@ -162,7 +162,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # default sorting: proximity.geographic ASC
             params = {
@@ -179,7 +179,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data['@graph'].pluck('name'))
           end
 
           test 'api/v4/things with explicit sorting' do
@@ -205,7 +205,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd'], json_data['@graph'].pluck('name'))
 
             # proximity.occurrence
             params = {
@@ -226,7 +226,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
 
             # similarity
             params = {
@@ -240,7 +240,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # proximity.geographic ASC
             params = {
@@ -258,7 +258,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data['@graph'].pluck('name'))
           end
 
           test 'api/v4/things with explicit over implicit sorting' do
@@ -281,7 +281,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # overrule sorting priority schedule -> location -> search: search -> schedule
             params = {
@@ -303,7 +303,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaabbb', 'aaaaaa'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
           end
         end
       end

@@ -13,7 +13,7 @@ def concated_keys_translateable?(keys, content)
 end
 
 combined = {}
-options.dig(:combined_attributes).each do |property|
+options[:combined_attributes].each do |property|
   definition = content.properties_for(property)
   next if definition.blank?
   combined[definition.dig('api', 'transformation', 'name')] ||= {
@@ -27,7 +27,7 @@ combined.each do |combined_key, combined_value|
   if combined_value.dig('transformation', 'values') == 'concat'
     # only default values
     # values must either be stored in value or translated_value
-    if content.translations.size > 1 && concated_keys_translateable?(combined_value.dig('items').map(&:first), content) && @include_parameters.include?('translations')
+    if content.translations.size > 1 && concated_keys_translateable?(combined_value['items'].map(&:first), content) && @include_parameters.include?('translations')
       concated_translated_value = {}
       combined_value['items'].each do |key, definition|
         content.translations.each do |translation|

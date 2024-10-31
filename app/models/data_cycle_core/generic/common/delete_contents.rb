@@ -38,7 +38,7 @@ module DataCycleCore
           I18n.with_locale(locale) do
             external_key_path = options.dig(:import, :external_key_path).split('.')
 
-            raise "No external id found! Item:#{raw_data.dig('Id')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
+            raise "No external id found! Item:#{raw_data['Id']}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
 
             external_key = [options.dig(:import, :external_key_prefix), raw_data.dig(*external_key_path)].compact_blank.join
 

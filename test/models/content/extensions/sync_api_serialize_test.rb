@@ -165,10 +165,10 @@ module DataCycleCore
       end
       assert_equal(overlay_image.id, main_data.dig('image', 0))
 
-      assert_equal(1, serialized_event.dig('included').size)
-      included_image = serialized_event.dig('included').first
-      assert('image', included_image.dig('attribute_name'))
-      assert([], included_image.dig('included'))
+      assert_equal(1, serialized_event['included'].size)
+      included_image = serialized_event['included'].first
+      assert('image', included_image['attribute_name'])
+      assert([], included_image['included'])
 
       included_image_data = included_image['de']
       assert(overlay_image.id, included_image_data['id'])
@@ -183,8 +183,8 @@ module DataCycleCore
       assert_equal(['de', 'included', 'classifications'].sort, serialized_event.keys.sort)
 
       assert_equal(event.event_status, event.event_status_overlay)
-      serialized_classification = serialized_event.dig('classifications').detect { |i| i.dig('attribute_name')&.include?('event_status') }
-      assert_equal(event.event_status_overlay.first.name, serialized_classification.dig('name'))
+      serialized_classification = serialized_event['classifications'].detect { |i| i['attribute_name']&.include?('event_status') }
+      assert_equal(event.event_status_overlay.first.name, serialized_classification['name'])
     end
 
     test 'test classifications, set differently in event and overlay' do
@@ -193,8 +193,8 @@ module DataCycleCore
       assert_equal('Veranstaltung geplant', event.event_status.first.name)
       assert_equal('Veranstaltung abgesagt', event.event_status_overlay.first.name)
 
-      serialized_classification = serialized_event.dig('classifications').detect { |i| i.dig('attribute_name').include?('event_status') }
-      assert_equal(event.event_status_overlay.first.name, serialized_classification.dig('name'))
+      serialized_classification = serialized_event['classifications'].detect { |i| i['attribute_name'].include?('event_status') }
+      assert_equal(event.event_status_overlay.first.name, serialized_classification['name'])
     end
 
     test 'serialize mapped classifications' do

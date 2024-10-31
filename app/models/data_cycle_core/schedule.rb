@@ -212,9 +212,9 @@ module DataCycleCore
     def to_repeat_frequency(rule_hash)
       return if rule_hash[:interval].nil? || rule_hash[:rule_type].nil?
 
-      interval = rule_hash.dig(:interval).to_s
+      interval = rule_hash[:interval].to_s
 
-      case rule_hash.dig(:rule_type)
+      case rule_hash[:rule_type]
       when 'IceCube::YearlyRule'
         "P#{interval}Y"
       when 'IceCube::MonthlyRule'

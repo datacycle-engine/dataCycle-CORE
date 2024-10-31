@@ -23,7 +23,7 @@ module DataCycleCore
         end
 
         def dependencies(content = nil)
-          Array.wrap(configuration(content).dig(:dependencies))
+          Array.wrap(configuration(content)[:dependencies])
         end
 
         def dependencies_enabled?(content = nil)
@@ -35,7 +35,7 @@ module DataCycleCore
         end
 
         def attribute_keys(content = nil)
-          configuration(content).dig('attribute_keys') || []
+          configuration(content)['attribute_keys'] || []
         end
 
         def available?(content = nil)
@@ -43,7 +43,7 @@ module DataCycleCore
         end
 
         def allowed?(content = nil)
-          enabled? && configuration(content).dig('allowed')
+          enabled? && configuration(content)['allowed']
         end
 
         def allowed_attribute_keys(content = nil)
@@ -65,7 +65,7 @@ module DataCycleCore
 
           @configuration ||= Hash.new do |h, key|
             config = ActiveSupport::HashWithIndifferentAccess.new
-            config.merge!(DataCycleCore.features.dig(feature_key.to_sym) || {})
+            config.merge!(DataCycleCore.features[feature_key.to_sym] || {})
             config.merge!(key[3]&.dig('features', feature_key) || {})
             config.merge!(key[4]&.filter_map { |k|
               key[3]&.dig('properties', *k, 'features', feature_key).presence&.merge({ attribute_keys: (k.is_a?(Array) ? [k.last] : [k]), tree_label: key[3]&.dig('properties', *k, 'tree_label') })

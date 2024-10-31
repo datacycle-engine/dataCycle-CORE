@@ -99,7 +99,7 @@ module DataCycleCore
             @classification_aliases = @classification_aliases.where(id: permitted_params[:classification_ids].split(','))
           end
 
-          @classification_aliases = apply_order_query(@classification_aliases, permitted_params.dig(:sort))
+          @classification_aliases = apply_order_query(@classification_aliases, permitted_params[:sort])
           @classification_aliases = apply_paging(@classification_aliases)
           @classification_aliases = @classification_aliases.includes(:classification_tree_label)
 
@@ -261,7 +261,7 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          apply_order_query(query, permitted_params.dig(:sort), @full_text_search)
+          apply_order_query(query, permitted_params[:sort], @full_text_search)
         end
 
         def apply_order_query(query, order_params, full_text_search = '')
@@ -294,7 +294,7 @@ module DataCycleCore
           allowed_sort_attributes.merge!(ALLOWED_FACET_SORT_ATTRIBUTES) if action_name == 'facets'
 
           return unless allowed_sort_attributes.key?(key)
-          "#{allowed_sort_attributes.dig(key)} #{order} NULLS LAST, id ASC"
+          "#{allowed_sort_attributes[key]} #{order} NULLS LAST, id ASC"
         end
       end
     end

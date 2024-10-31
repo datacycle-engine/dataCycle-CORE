@@ -22,7 +22,7 @@ module DataCycleCore
 
           if valid_url
             data_valid = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_data?(data)
-            if data_valid.dig(:success) == true
+            if data_valid[:success] == true
               if template.key?('validations')
                 template['validations'].each_key do |key|
                   method(key).call(data, template['validations'][key]) if oembed_keywords.include?(key)
@@ -94,8 +94,8 @@ module DataCycleCore
             }
           else
             success = true
-            host = Rails.application.config.action_mailer.default_url_options.dig(:host)
-            protocol = Rails.application.config.action_mailer.default_url_options.dig(:protocol)
+            host = Rails.application.config.action_mailer.default_url_options[:host]
+            protocol = Rails.application.config.action_mailer.default_url_options[:protocol]
             dc_thing_oembed_url = "#{protocol}://#{host}"
 
             if selected.first['oembed_url'].include? '{dcThingOembed}'
@@ -125,17 +125,17 @@ module DataCycleCore
           success = false
           error_path = ''
 
-          dc_host = "#{Rails.application.config.action_mailer.default_url_options.dig(:protocol)}://#{Rails.application.config.action_mailer.default_url_options.dig(:host)}"
+          dc_host = "#{Rails.application.config.action_mailer.default_url_options[:protocol]}://#{Rails.application.config.action_mailer.default_url_options[:host]}"
 
           @error ||= { error: {}, warning: {}, result: {} }
           thing = DataCycleCore::Thing.where(id: thing_id).first
 
           provider = select_provider(@providers.values, "#{dc_host}/things/#{thing_id}")&.first
-          oembed_output = provider.dig('output').select { |o| o['template_names']&.include?(thing.template_name) }&.first if provider.present?
+          oembed_output = provider['output'].select { |o| o['template_names']&.include?(thing.template_name) }&.first if provider.present?
 
           error_path = 'validation.errors.oembed_thing_not_found' if thing_id.blank? || thing.blank? || provider.blank?
 
-          if provider.present? && oembed_output.present? && oembed_output.dig('type').present? && oembed_output.dig('version').present?
+          if provider.present? && oembed_output.present? && oembed_output['type'].present? && oembed_output['version'].present?
 
             oembed = {
               provider_name: thing.external_source.presence&.name || provider['provider_name'] || Rails.application.config.session_options[:key].sub(/^_/, '').sub('_session', '') || 'dataCycle',
@@ -207,7 +207,7 @@ module DataCycleCore
         def self.select_provider(oembed_providers, data)
           oembed_providers.select do |provider|
             provider['endpoints'].any? do |endpoint|
-              next false if endpoint.dig('schemes').blank?
+              next false if endpoint['schemes'].blank?
 
               next if endpoint['formats'].present? && endpoint['formats'].exclude?('json')
 

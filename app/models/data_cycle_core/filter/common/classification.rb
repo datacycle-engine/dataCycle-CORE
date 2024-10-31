@@ -50,22 +50,22 @@ module DataCycleCore
 
         def with_classification_aliases_and_treename(definition)
           return self if definition.blank?
-          raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
-          raise StandardError, 'Missing data definition: aliases' if definition.dig('aliases').blank?
+          raise StandardError, 'Missing data definition: treeLabel' if definition['treeLabel'].blank?
+          raise StandardError, 'Missing data definition: aliases' if definition['aliases'].blank?
 
           classification_alias_ids_with_subtree(DataCycleCore::ClassificationAlias
-            .for_tree(definition.dig('treeLabel'))
-            .with_internal_name(definition.dig('aliases')).pluck(:id))
+            .for_tree(definition['treeLabel'])
+            .with_internal_name(definition['aliases']).pluck(:id))
         end
 
         def not_with_classification_aliases_and_treename(definition)
           return self if definition.blank?
-          raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
-          raise StandardError, 'Missing data definition: aliases' if definition.dig('aliases').blank?
+          raise StandardError, 'Missing data definition: treeLabel' if definition['treeLabel'].blank?
+          raise StandardError, 'Missing data definition: aliases' if definition['aliases'].blank?
 
           not_classification_alias_ids_with_subtree(DataCycleCore::ClassificationAlias
-            .for_tree(definition.dig('treeLabel'))
-            .with_internal_name(definition.dig('aliases')).pluck(:id))
+            .for_tree(definition['treeLabel'])
+            .with_internal_name(definition['aliases']).pluck(:id))
         end
 
         def classification_tree_ids(ids = nil)

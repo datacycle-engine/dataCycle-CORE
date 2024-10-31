@@ -49,7 +49,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # ASC
             params = {
@@ -63,7 +63,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(@poi_b.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_b.id, json_data['@graph'].first['@id'])
 
             # ASC
             params = {
@@ -77,7 +77,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(@poi_b.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_b.id, json_data['@graph'].first['@id'])
 
             # DESC
             params = {
@@ -91,7 +91,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
           end
         end
       end

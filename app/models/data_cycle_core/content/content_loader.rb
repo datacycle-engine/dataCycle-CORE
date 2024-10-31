@@ -36,10 +36,10 @@ module DataCycleCore
       def load_linked_objects(relation_name, filter = nil, same_language = false, languages = [I18n.locale], overlay_flag = false)
         properties = properties_for(relation_name, overlay_flag)
         return [] if properties.nil?
-        relation_b = properties.dig('inverse_of')
+        relation_b = properties['inverse_of']
         language_flag = same_language
-        language_flag = properties.dig('linked_language') == 'same' if properties.dig('linked_language').present?
-        load_relation(relation_name, relation_b, language_flag, languages, filter, properties.dig('link_direction') == 'inverse', overlay_flag)
+        language_flag = properties['linked_language'] == 'same' if properties['linked_language'].present?
+        load_relation(relation_name, relation_b, language_flag, languages, filter, properties['link_direction'] == 'inverse', overlay_flag)
       end
 
       def load_embedded_objects(relation_name, filter = nil, same_language = true, languages = [I18n.locale], overlay_flag = false)

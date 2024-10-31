@@ -5,11 +5,11 @@ module DataCycleCore
     class UserGroupSharedCollection < Base
       class << self
         def attribute_keys(content = nil)
-          Array.wrap(configuration(content).dig('attribute_keys')&.keys)
+          Array.wrap(configuration(content)['attribute_keys']&.keys)
         end
 
         def whitelist(content = nil)
-          whitelist = Array.wrap(configuration(content).dig('whitelist'))
+          whitelist = Array.wrap(configuration(content)['whitelist'])
           collections = []
           if whitelist.blank? || !whitelist.first.is_a?(String)
             collections

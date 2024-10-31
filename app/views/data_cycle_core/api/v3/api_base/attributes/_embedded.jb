@@ -24,7 +24,7 @@ if content.translations.size > 1 && @include_parameters.include?('translations')
         #
         # end
       end
-      json[key_new][translation.locale] = json[key_new][translation.locale]&.filter_map { |o| o.dig(definition.dig('api', 'transformation', 'key')) }.presence if definition.dig('api', 'transformation', 'method') == 'map' && definition.dig('api', 'transformation', 'key').present?
+      json[key_new][translation.locale] = json[key_new][translation.locale]&.filter_map { |o| o[definition.dig('api', 'transformation', 'key')] }.presence if definition.dig('api', 'transformation', 'method') == 'map' && definition.dig('api', 'transformation', 'key').present?
     end
   end
 else
@@ -46,7 +46,7 @@ else
       # end
     end
   end
-  json[key_new] = json[key_new]&.filter_map { |o| o.dig(definition.dig('api', 'transformation', 'key')) }.presence if definition.dig('api', 'transformation', 'method') == 'map' && definition.dig('api', 'transformation', 'key').present?
+  json[key_new] = json[key_new]&.filter_map { |o| o[definition.dig('api', 'transformation', 'key')] }.presence if definition.dig('api', 'transformation', 'method') == 'map' && definition.dig('api', 'transformation', 'key').present?
 end
 
 # end

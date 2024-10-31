@@ -19,16 +19,16 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
-          unless options.dig(:mode).try(:to_s) == 'full'
+          unless options[:mode].try(:to_s) == 'full'
             last_successful_import = utility_object.external_source.last_successful_import || 20.years.ago
             last_successful_download = utility_object.external_source.last_successful_download || 20.years.ago
             last_success = [last_successful_import, last_successful_download].compact.min
-            return if last_success.present? && last_success > raw_data.dig('deleted_at').in_time_zone
+            return if last_success.present? && last_success > raw_data['deleted_at'].in_time_zone
           end
 
           I18n.with_locale(locale) do
             external_key_path = options.dig(:import, :external_key_path).split('.')
-            raise "No external id found! Item:#{raw_data.dig('Id')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
+            raise "No external id found! Item:#{raw_data['Id']}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
             external_key = [options.dig(:import, :external_key_prefix), raw_data.dig(*external_key_path)].join
 
             content = DataCycleCore::Thing.find_by(

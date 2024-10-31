@@ -31,9 +31,9 @@ module DataCycleCore
         changed_from = external_source.last_successful_download
         changed_from = nil if FULL_MODES.include?(mode.to_s)
         endpoint_options_params = opts.except(:download, :credentials, :external_source).merge(changed_from:)
-        endpoint_params = opts.dig(:credentials).symbolize_keys
+        endpoint_params = opts[:credentials].symbolize_keys
           .merge(read_type: read_type(opts) || {})
-          .merge(options: opts.dig(:download).merge(params: endpoint_options_params))
+          .merge(options: opts[:download].merge(params: endpoint_options_params))
 
         opts.dig(:download, :endpoint).constantize.new(**endpoint_params)
       end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
-if content&.parent&.content_type?('container') && options.dig(:disable_parent).blank?
+if content&.parent&.content_type?('container') && options[:disable_parent].blank?
   data = content.parent
   new_fields = subtree_for('isPartOf', options[:fields])
   if included_attribute?('isPartOf', options[:include])

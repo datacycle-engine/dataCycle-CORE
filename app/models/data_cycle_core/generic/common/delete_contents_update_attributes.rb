@@ -40,7 +40,7 @@ module DataCycleCore
           I18n.with_locale(locale) do
             external_key_path = options.dig(:import, :external_key_path).split('.')
 
-            raise "No external id found! Item: #{raw_data.dig('Id')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
+            raise "No external id found! Item: #{raw_data['Id']}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
 
             update_item = DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,
@@ -52,15 +52,15 @@ module DataCycleCore
             attributes = validate_attributes(update_item, options.dig(:import, :attributes))
             update_hash = {}
             attributes.each do |attribute|
-              next unless update_item.respond_to?(attribute.dig(:key)&.to_s)
+              next unless update_item.respond_to?(attribute[:key]&.to_s)
               value = load_value_for_attribute(attribute, utility_object)
-              if attribute.dig(:key) == 'universal_classifications' || attribute.dig(:type) == 'classification'
-                delete = attribute.dig(:delete) || false
+              if attribute[:key] == 'universal_classifications' || attribute[:type] == 'classification'
+                delete = attribute[:delete] || false
                 update = false
-                old_value = if attribute.dig(:key) == 'universal_classifications'
+                old_value = if attribute[:key] == 'universal_classifications'
                               update_item.universal_classifications.pluck(:id)
                             else
-                              update_item.send(attribute.dig(:key)).pluck(:id)
+                              update_item.send(attribute[:key]).pluck(:id)
                             end
 
                 if delete && old_value.include?(*value)
@@ -70,12 +70,12 @@ module DataCycleCore
                   new_value = old_value + value
                   update = true
                 end
-                update_hash[attribute.dig(:key)] = new_value if update
+                update_hash[attribute[:key]] = new_value if update
               elsif value.present?
-                update_hash[attribute.dig(:key)] = value
-              elsif value.nil? && attribute.dig(:value).nil?
+                update_hash[attribute[:key]] = value
+              elsif value.nil? && attribute[:value].nil?
                 # here we want to delete the attribute
-                update_hash[attribute.dig(:key)] = nil
+                update_hash[attribute[:key]] = nil
               end
             end
 
@@ -84,21 +84,21 @@ module DataCycleCore
         end
 
         def self.load_value_for_attribute(attribute, utility_object)
-          case attribute.dig(:type)
+          case attribute[:type]
           when 'classification'
-            utility_object.concept_by_path(attribute.dig(:value))&.pluck(:classification_id)
+            utility_object.concept_by_path(attribute[:value])&.pluck(:classification_id)
           when 'float'
-            attribute.dig(:value).to_f
+            attribute[:value].to_f
           when 'integer'
-            attribute.dig(:value).to_i
+            attribute[:value].to_i
           when 'string'
-            attribute.dig(:value).to_s
+            attribute[:value].to_s
           end
         end
 
         def self.validate_attributes(thing, attributes)
           attributes = attributes.map { |attribute|
-            type = thing.properties_for(attribute.dig(:key))&.dig('type')
+            type = thing.properties_for(attribute[:key])&.dig('type')
             if type.blank?
               nil
             else

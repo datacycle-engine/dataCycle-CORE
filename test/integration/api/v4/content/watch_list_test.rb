@@ -37,7 +37,7 @@ module DataCycleCore
             assert_equal('Merkliste 1', json_data.dig('meta', 'collection', 'name'))
             assert_equal(0, json_data.dig('meta', 'total'))
             assert_equal(0, json_data.dig('meta', 'pages'))
-            assert_equal(0, json_data.dig('@graph').length)
+            assert_equal(0, json_data['@graph'].length)
           end
 
           test '/api/v4/collections/ results with parameter user_email' do
@@ -50,7 +50,7 @@ module DataCycleCore
             assert_equal('Merkliste 1', json_data.dig('@graph', 0, 'name'))
             assert_equal(1, json_data.dig('meta', 'total'))
             assert_equal(1, json_data.dig('meta', 'pages'))
-            assert_equal(1, json_data.dig('@graph').length)
+            assert_equal(1, json_data['@graph'].length)
           end
 
           test '/api/v4/endpoints/:id default results and /api/v4/users/' do

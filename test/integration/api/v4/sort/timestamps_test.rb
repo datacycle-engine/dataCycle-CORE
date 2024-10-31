@@ -36,10 +36,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:created').to_datetime >= b.dig('dct:created').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:created'].to_datetime >= b['dct:created'].to_datetime)
             end
 
             # ASC
@@ -51,10 +51,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:created').to_datetime <= b.dig('dct:created').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:created'].to_datetime <= b['dct:created'].to_datetime)
             end
 
             # make sure ASC is default
@@ -66,10 +66,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:created').to_datetime <= b.dig('dct:created').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:created'].to_datetime <= b['dct:created'].to_datetime)
             end
 
             @food_establishment_a.update_column(:created_at, orig_ts)
@@ -88,9 +88,9 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
             end
 
             # ASC
@@ -102,10 +102,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
             end
 
             # make sure ASC is default
@@ -117,10 +117,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].last['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
             end
 
             # make sure dashboard default sorting (boost desc, updated_at desc, id asc) is default for empty sort params
@@ -131,10 +131,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
             end
 
             @food_establishment_a.update_column(:updated_at, orig_ts)
@@ -152,10 +152,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
-            json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:created').to_datetime >= b.dig('dct:created').to_datetime)
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dct:created'].to_datetime >= b['dct:created'].to_datetime)
             end
             @food_establishment_a.update_column(:created_at, orig_ts)
           end

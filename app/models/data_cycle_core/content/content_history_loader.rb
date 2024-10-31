@@ -20,10 +20,10 @@ module DataCycleCore
       def load_linked_objects(relation_name, _filter = nil, same_language = false, _languages = ['de'], _overlay_flag = false)
         properties = properties_for(relation_name)
         relation_a = relation_name
-        relation_b = properties.dig('inverse_of')
+        relation_b = properties['inverse_of']
         language_flag = same_language
-        language_flag = properties_for(relation_name).dig('linked_language') == 'same' if properties.dig('linked_language').present?
-        if properties.dig('link_direction') == 'inverse'
+        language_flag = properties_for(relation_name)['linked_language'] == 'same' if properties['linked_language'].present?
+        if properties['link_direction'] == 'inverse'
           result_object = DataCycleCore::Thing::History
           relation_name = :content_content_a_history
           content_id_sym = :content_b_history_id
@@ -56,7 +56,7 @@ module DataCycleCore
 
       def load_embedded_objects(relation_name, _filter = nil, same_language = true, _languages = ['de'], _overlay_flag = false)
         language_flag = same_language
-        language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
+        language_flag = !properties_for(relation_name)['translated'] if properties_for(relation_name)['translated'].present?
         relation_contents = DataCycleCore::Thing::History
           .joins(:content_content_b_history)
           .where({

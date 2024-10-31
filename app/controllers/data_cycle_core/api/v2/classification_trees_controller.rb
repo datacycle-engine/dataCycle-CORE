@@ -64,10 +64,10 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.except('format')
-          @include_parameters = (permitted_params.dig(:include)&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
-          @mode_parameters = (permitted_params.dig(:mode)&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
-          @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
-          @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v2, :subversions)&.include?(permitted_params.dig(:api_subversion))
+          @include_parameters = (permitted_params[:include]&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
+          @mode_parameters = (permitted_params[:mode]&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
+          @language = permitted_params[:language] || I18n.available_locales.first.to_s
+          @api_subversion = permitted_params[:api_subversion] if DataCycleCore.main_config.dig(:api, :v2, :subversions)&.include?(permitted_params[:api_subversion])
           @api_version = 2
         end
 

@@ -39,8 +39,8 @@ module DataCycleCore
               nested_content_filter_module = nested_contents_config.dig(:filter, :module)
               nested_content_filter_method = nested_contents_config.dig(:filter, :method)
 
-              if nested_contents_config.dig(:json_path).present?
-                nested_contents_items = JsonPath.new(nested_contents_config.dig(:json_path)).on(raw_data).flatten
+              if nested_contents_config[:json_path].present?
+                nested_contents_items = JsonPath.new(nested_contents_config[:json_path]).on(raw_data).flatten
               else
                 nested_contents_items = resolve_attribute_path(raw_data, nested_contents_config[:path])
               end

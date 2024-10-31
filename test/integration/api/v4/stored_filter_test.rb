@@ -81,9 +81,9 @@ module DataCycleCore
           assert_equal(1, json_data['meta']['total'].to_i)
           assert(json_data.key?('links'))
 
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
-          assert_equal(1, poi.dig('image')&.size)
+          assert_equal(1, poi['image']&.size)
         end
 
         test '/api/v4/endpoints/:uuid with a valid fulltext stored_filter' do
@@ -98,9 +98,9 @@ module DataCycleCore
           assert_equal(1, json_data['meta']['total'].to_i)
           assert(json_data.key?('links'))
 
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
-          assert_equal(1, poi.dig('image')&.size)
+          assert_equal(1, poi['image']&.size)
         end
 
         test '/api/v4/endpoints/:uuid with a valid fulltext stored_filter and restrict for classification_trees' do
@@ -109,9 +109,9 @@ module DataCycleCore
           get api_v4_stored_filter_path(id: fulltext_filter.id)
 
           json_data = response.parsed_body
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
-          assert_equal(1, poi.dig('dc:classification')&.size)
+          assert_equal(1, poi['dc:classification']&.size)
 
           # add whitelist to stored_filter
           tree1 = Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Ländercodes').id)
@@ -121,16 +121,16 @@ module DataCycleCore
 
           get api_v4_stored_filter_path(id: fulltext_filter.id)
           json_data = response.parsed_body
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
-          assert_nil(poi.dig('dc:classification'))
+          assert_nil(poi['dc:classification'])
 
           # whitelist for in request
           get api_v4_stored_filter_path(id: fulltext_filter.id, classification_trees: tree1)
           json_data = response.parsed_body
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
-          assert_equal(1, poi.dig('dc:classification')&.size)
+          assert_equal(1, poi['dc:classification']&.size)
 
           # directly whitlist in filter
           fulltext_filter.classification_tree_labels = tree1
@@ -138,9 +138,9 @@ module DataCycleCore
 
           get api_v4_stored_filter_path(id: fulltext_filter.id)
           json_data = response.parsed_body
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
-          assert_equal(1, poi.dig('dc:classification')&.size)
+          assert_equal(1, poi['dc:classification']&.size)
         end
 
         test '/api/v4/endpoints/:uuid with a valid fulltext stored_filter and restrict for classification_trees in linked data' do
@@ -151,7 +151,7 @@ module DataCycleCore
 
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
           json_data = response.parsed_body
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
           assert_equal(2, poi.dig('image', 0, 'dc:classification')&.size)
 
@@ -159,7 +159,7 @@ module DataCycleCore
           fulltext_filter.save
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
           json_data = response.parsed_body
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
           assert_equal(1, poi.dig('image', 0, 'dc:classification')&.size)
 
@@ -167,7 +167,7 @@ module DataCycleCore
           fulltext_filter.save
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
           json_data = response.parsed_body
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
           assert_nil(poi.dig('image', 0, 'dc:classification')&.size)
         end
@@ -204,9 +204,9 @@ module DataCycleCore
           assert_equal(1, json_data['meta']['total'].to_i)
           assert(json_data.key?('links'))
 
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
-          assert_nil(poi.dig('image'))
+          assert_nil(poi['image'])
         end
 
         test '/api/v4/endpoints/:uuid with relation_filter, finds one POI with one suitable image' do
@@ -218,9 +218,9 @@ module DataCycleCore
 
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
-          poi = json_data.dig('@graph').detect { |i| i.dig('name') == 'Test-POI' }
+          poi = json_data['@graph'].detect { |i| i['name'] == 'Test-POI' }
 
-          assert_equal(1, poi.dig('image')&.size)
+          assert_equal(1, poi['image']&.size)
         end
 
         test '/api/v4/endpoints/:uuid with relation_filter, all POIs filtered out because no valid image found' do

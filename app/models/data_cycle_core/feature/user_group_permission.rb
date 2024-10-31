@@ -5,13 +5,13 @@ module DataCycleCore
     class UserGroupPermission < Base
       class << self
         def attribute_keys(content = nil)
-          Array.wrap(configuration(content).dig('attribute_keys')&.keys)
+          Array.wrap(configuration(content)['attribute_keys']&.keys)
         end
 
         def ability_selection(view = nil)
           return [] if view.nil?
 
-          relations = configuration.dig('abilities')
+          relations = configuration['abilities']
           permission_list = relations.map do |resource, details|
             create_permission_option(resource, details, view.active_ui_locale)
           end

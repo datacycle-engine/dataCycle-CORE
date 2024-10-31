@@ -185,7 +185,7 @@ module DataCycleCore
 
     def update_with_token(token)
       self.role = user_api_feature.allowed_role(token.dig(:user, :rank)) if user_api_feature.rank_allowed?(token.dig(:user, :rank))
-      self.attributes = user_api_feature.parsed_user_params(ActionController::Parameters.new(token.dig(:user) || {}))
+      self.attributes = user_api_feature.parsed_user_params(ActionController::Parameters.new(token[:user] || {}))
 
       save
 

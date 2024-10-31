@@ -247,7 +247,7 @@ module DataCycleCore
                     v['translations'] = v['translations']&.transform_values { |t| flatten_recursive(t, e_schema) }
                   end)
                 else
-                  e_schema = object_schemas[object_value.dig('template_name')] || default_schema
+                  e_schema = object_schemas[object_value['template_name']] || default_schema
                   temp_value.push(flatten_recursive(object_value, e_schema))
                 end
               end

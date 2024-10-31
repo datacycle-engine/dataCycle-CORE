@@ -128,8 +128,8 @@ module DataCycleCore
         def date_from_filter_object(value, mode)
           mode ||= 'absolute'
           value.stringify_keys!
-          min = value.dig('from') || value.dig('min')
-          max = value.dig('until') || value.dig('max')
+          min = value['from'] || value['min']
+          max = value['until'] || value['max']
 
           if mode == 'absolute'
             from_date = date_from_single_value(min)
@@ -146,13 +146,13 @@ module DataCycleCore
         end
 
         def relative_to_absolute_date(value)
-          distance = value.dig('n')&.presence&.to_i
+          distance = value['n']&.presence&.to_i
 
           return if distance.blank?
 
-          unit = value.dig('unit') || 'day'
+          unit = value['unit'] || 'day'
 
-          if value.dig('mode') == 'p'
+          if value['mode'] == 'p'
             date = Time.zone.now + distance.send(unit)
           else
             date = Time.zone.now - distance.send(unit)

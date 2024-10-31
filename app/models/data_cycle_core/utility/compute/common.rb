@@ -16,13 +16,13 @@ module DataCycleCore
               return val if val.present?
             end
 
-            return [] if computed_definition.dig('type')&.in?(['embedded', 'linked', 'classification'])
+            return [] if computed_definition['type']&.in?(['embedded', 'linked', 'classification'])
 
             nil
           end
 
           def copy_embedded(computed_parameters:, computed_definition:, content:, key:, **_args)
-            return [] unless computed_definition.dig('type') == 'embedded'
+            return [] unless computed_definition['type'] == 'embedded'
 
             values = []
 
@@ -80,7 +80,7 @@ module DataCycleCore
                                    external_key_prefix: base_key_prefix(content:, key:)
                                  )).compact.first
 
-              return value if DataHashService.present?(computed_parameters.dig(key_path.first))
+              return value if DataHashService.present?(computed_parameters[key_path.first])
             end
 
             nil
@@ -103,7 +103,7 @@ module DataCycleCore
 
           # does not work for embedded or schedule attributes
           def overlay(computed_parameters:, computed_definition:, **_args)
-            raise "Cloning #{computed_definition.dig('type')} is not implemented yet" if computed_definition.dig('type').in?(Content::Content::EMBEDDED_PROPERTY_TYPES + Content::Content::SCHEDULE_PROPERTY_TYPES + Content::Content::TIMESERIES_PROPERTY_TYPES + Content::Content::ASSET_PROPERTY_TYPES)
+            raise "Cloning #{computed_definition['type']} is not implemented yet" if computed_definition['type'].in?(Content::Content::EMBEDDED_PROPERTY_TYPES + Content::Content::SCHEDULE_PROPERTY_TYPES + Content::Content::TIMESERIES_PROPERTY_TYPES + Content::Content::ASSET_PROPERTY_TYPES)
 
             allowed_postfixes = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(computed_definition['type'])
 

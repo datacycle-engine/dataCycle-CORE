@@ -79,7 +79,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data.dig('@graph').pluck('@id'))
+            assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data['@graph'].pluck('@id'))
 
             # sorting: proximity.geographic ASC
             params = {
@@ -97,7 +97,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data.dig('@graph').pluck('@id'))
+            assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data['@graph'].pluck('@id'))
 
             # proximity.geographic DESC
             params = {
@@ -115,7 +115,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal([@poi_a.id, @poi_c.id, @poi_b.id, @poi_d.id], json_data.dig('@graph').pluck('@id'))
+            assert_equal([@poi_a.id, @poi_c.id, @poi_b.id, @poi_d.id], json_data['@graph'].pluck('@id'))
           end
         end
       end

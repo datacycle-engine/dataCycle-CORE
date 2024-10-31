@@ -21,7 +21,7 @@ module DataCycleCore
     end
 
     def bulk_create
-      new_thing_params = params.dig('thing')
+      new_thing_params = params['thing']
 
       return if new_thing_params.blank?
 
@@ -116,7 +116,7 @@ module DataCycleCore
 
       content = content.try(:image)&.first unless content.respond_to?(:asset)
 
-      attribute = asset_proxy_params.dig(:type) == 'content' && ['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
+      attribute = asset_proxy_params[:type] == 'content' && ['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
@@ -173,7 +173,7 @@ module DataCycleCore
 
     def create
       template = DataCycleCore::Thing.new(template_name: params[:template])
-      authorize!(__method__, template, resolve_params(params, false).dig(:scope))
+      authorize!(__method__, template, resolve_params(params, false)[:scope])
 
       @object_browser_parent = content_by_id_or_template
 

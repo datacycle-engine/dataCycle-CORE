@@ -9,7 +9,7 @@ options[:languages] = [I18n.locale] if options[:languages].blank?
 json = {}
 
 unless options[:header_type] == :overlay
-  json['dc:multilingual'] = (content.embedded? ? options.dig(:translatable_embedded) || false : content.translatable?) if options[:field_filter] == false || (included_attribute?('dc:multilingual', options[:include]) || included_attribute?('dc:multilingual', options[:fields]))
+  json['dc:multilingual'] = (content.embedded? ? options[:translatable_embedded] || false : content.translatable?) if options[:field_filter] == false || (included_attribute?('dc:multilingual', options[:include]) || included_attribute?('dc:multilingual', options[:fields]))
   json['dc:translation'] = content.available_locales if options[:field_filter] == false || (included_attribute?('dc:translation', options[:include]) || included_attribute?('dc:translation', options[:fields]))
 end
 

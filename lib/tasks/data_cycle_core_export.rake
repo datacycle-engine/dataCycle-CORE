@@ -29,7 +29,7 @@ namespace :data_cycle_core do
       contents = DataCycleCore::WatchList.where(id: args[:id]).map(&:things).flatten if contents.empty?
       contents = DataCycleCore::StoredFilter.where(id: args[:id]).map { |x| x.apply.to_a }.flatten if contents.empty?
 
-      webhook_class = external_system.export_config.dig(:webhook).constantize
+      webhook_class = external_system.export_config[:webhook].constantize
 
       contents.each do |content|
         puts "Updating #{content.name} (#{content.id}) ..."

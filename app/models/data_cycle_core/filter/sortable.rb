@@ -123,7 +123,7 @@ module DataCycleCore
 
       def sort_proximity_in_time(_ordering = '', value = {})
         date = Time.zone.now
-        if value.present? && value.is_a?(::Hash) && value.dig('q') == 'relative'
+        if value.present? && value.is_a?(::Hash) && value['q'] == 'relative'
           date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
         elsif value.present? && value.is_a?(::Hash)

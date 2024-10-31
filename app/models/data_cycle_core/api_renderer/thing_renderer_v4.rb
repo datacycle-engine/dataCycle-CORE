@@ -56,7 +56,7 @@ module DataCycleCore
 
       def render_json
         @renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
-          http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+          http_host: Rails.application.config.action_mailer.default_url_options[:host],
           https: Rails.application.config.force_ssl
         )
 

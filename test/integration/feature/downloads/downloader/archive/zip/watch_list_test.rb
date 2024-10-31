@@ -58,7 +58,7 @@ module DataCycleCore
                   referer: watch_list_path(@watch_list)
                 }
                 assert_response :success
-                assert_equal('application/zip', response.headers.dig('Content-Type'))
+                assert_equal('application/zip', response.headers['Content-Type'])
               end
 
               test 'enable content collection and test zip download via downloads controller' do
@@ -76,7 +76,7 @@ module DataCycleCore
 
                 get "/downloads/watch_list_collections/#{@watch_list.id}", params: { serialize_format: 'asset, json, xml' }
                 assert_response :success
-                assert_equal('application/zip', response.headers.dig('Content-Type'))
+                assert_equal('application/zip', response.headers['Content-Type'])
               end
 
               def teardown

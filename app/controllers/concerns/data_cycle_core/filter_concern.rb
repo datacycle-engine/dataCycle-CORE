@@ -71,8 +71,7 @@ module DataCycleCore
     def pre_filters
       # @pre_filters is used to override pre_filters
       @pre_filters ||= params
-        .to_unsafe_hash
-        .dig(:f)
+        .to_unsafe_hash[:f]
         .presence
         &.values
         &.reject do |f|

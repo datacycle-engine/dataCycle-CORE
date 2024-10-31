@@ -27,7 +27,7 @@ module DataCycleCore
         end
 
         def allowed_templates(content)
-          configuration(content).dig('allowed_templates')
+          configuration(content)['allowed_templates']
         end
 
         def index_query_methods

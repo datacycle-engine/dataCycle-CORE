@@ -60,7 +60,7 @@ require 'helpers/mongo_helper'
 require 'helpers/api_v4_helper'
 require 'helpers/active_storage_helper'
 
-if DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
+if DataCycleCore::TestPreparations.cli_options[:ignore_preparations]
   Rails.backtrace_cleaner.remove_silencers!
 else
   # DataCycleCore::TestPreparations.load_dictionaries

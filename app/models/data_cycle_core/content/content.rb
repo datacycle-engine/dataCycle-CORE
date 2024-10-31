@@ -201,7 +201,7 @@ module DataCycleCore
       end
 
       def creatable?(scope)
-        schema.dig('content_type') != 'embedded' &&
+        schema['content_type'] != 'embedded' &&
           schema.dig('features', 'creatable', 'allowed') &&
           (
           schema.dig('features', 'creatable', 'scope').blank? ||
@@ -273,7 +273,7 @@ module DataCycleCore
           else
             definition.dig('api', 'transformation', 'method') == 'combine'
           end
-        }.sort_by { |_k, v| v.dig('sorting') }.to_h.keys
+        }.sort_by { |_k, v| v['sorting'] }.to_h.keys
       end
 
       def attribute_transformation_mapping(api_version = nil)
@@ -285,7 +285,7 @@ module DataCycleCore
             definition.dig('api', 'transformation', 'method') == 'unwrap'
           end
         }.to_h do |k, v|
-          [k, v.dig('properties').keys.map { |prop_key| prop_key.camelize(:lower) }]
+          [k, v['properties'].keys.map { |prop_key| prop_key.camelize(:lower) }]
         end
       end
 
@@ -370,7 +370,7 @@ module DataCycleCore
       end
 
       def external_property_names
-        name_property_selector { |definition| definition.dig('external') }
+        name_property_selector { |definition| definition['external'] }
       end
 
       def relation_property_names(include_overlay = false)
@@ -382,7 +382,7 @@ module DataCycleCore
       end
 
       def untranslatable_embedded_property_names
-        name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition.dig('translated') }
+        name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition['translated'] }
       end
 
       def searchable_embedded_property_names
@@ -605,7 +605,7 @@ module DataCycleCore
       def feature_attributes(prefix = '')
         @feature_attributes ||= Hash.new do |h, key|
           h[key] = DataCycleCore.features
-            .select { |_, v| !v.dig(:only_config) == true }
+            .select { |_, v| !v[:only_config] == true }
             .keys
             .map { |f| ModuleService.safe_load_module("Feature::#{f.to_s.classify}", 'Datacycle').try("#{prefix}attribute_keys", self) }
             .flatten

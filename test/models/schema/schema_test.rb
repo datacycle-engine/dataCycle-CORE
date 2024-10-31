@@ -12,7 +12,7 @@ describe DataCycleCore::Schema do
     template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
       template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
     )
-    cw = template_importer.templates.dig(:creative_works)
+    cw = template_importer.templates[:creative_works]
     DataCycleCore::Schema.new(
       [
         DataCycleCore::Schema::Template.new(cw.find { |t| t[:name] == 'Container One' }[:data].as_json),

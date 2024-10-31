@@ -62,7 +62,7 @@ module DataCycleCore
         def duplicate_method(content)
           return unless enabled?
 
-          Array.wrap(configuration(content).dig('method'))
+          Array.wrap(configuration(content)['method'])
         end
 
         # specific implementiations of duplicatemethods
@@ -85,7 +85,7 @@ module DataCycleCore
         def data_metric_hamming(content)
           except = EXCEPT_PROPERTIES + content.linked_property_names + content.embedded_property_names + content.classification_property_names
           relevant_schema = content.schema.dup
-          relevant_schema['properties'] = relevant_schema.dig('properties').except(*except)
+          relevant_schema['properties'] = relevant_schema['properties'].except(*except)
           total = relevant_schema['properties'].size
           DataCycleCore::Thing.where(
             template_name: content.template_name

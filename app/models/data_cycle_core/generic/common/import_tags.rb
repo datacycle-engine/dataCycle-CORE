@@ -82,7 +82,7 @@ module DataCycleCore
           end
 
           def process_content(utility_object:, raw_data:, locale:, options:)
-            return if options&.blank? || options.dig(:import).blank?
+            return if options&.blank? || options[:import].blank?
             allowed_locales = options.dig(:import, :locales) || utility_object.external_source.try(:default_options)&.symbolize_keys&.dig(:locales) || [locale]
             return unless allowed_locales.include?(locale)
 

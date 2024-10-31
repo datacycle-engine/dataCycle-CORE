@@ -25,7 +25,7 @@ module DataCycleCore
     end
 
     def schema_sorted
-      sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort_by { |i| i.values.first.dig('sorting') }.inject(&:merge)
+      sorted_properties = schema['properties'].map { |key, value| { key => value } }.sort_by { |i| i.values.first['sorting'] }.inject(&:merge)
       schema.deep_dup.merge({ 'properties' => sorted_properties })
     end
 
@@ -120,8 +120,8 @@ module DataCycleCore
               definition = t.properties_for(k)
               {
                 text: t.class.human_attribute_name(k, { base: t, locale:, definition:, locale_string: false }),
-                type: definition.dig('type'),
-                template: definition.dig('type') == 'embedded' ? definition.dig('template_name') : nil,
+                type: definition['type'],
+                template: definition['type'] == 'embedded' ? definition['template_name'] : nil,
                 embedded_template: t.embedded?
               }
             end

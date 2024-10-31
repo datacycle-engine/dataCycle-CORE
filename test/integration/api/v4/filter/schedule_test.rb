@@ -142,7 +142,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@event_d.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@event_d.id, json_data['@graph'].first['@id'])
 
             params = {
               fields: 'dct:modified,startDate,endDate',
@@ -161,7 +161,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@event_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@event_a.id, json_data['@graph'].first['@id'])
           end
 
           test 'api/v4/things parameter filter[schedule]' do

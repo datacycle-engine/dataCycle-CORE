@@ -73,7 +73,7 @@ module DataCycleCore
 
         def available_advanced_attribute_filters
           return {} unless enabled?
-          configuration.dig('advanced_attributes') || {}
+          configuration['advanced_attributes'] || {}
         end
 
         def classification_alias_ids(locale, value)
@@ -270,7 +270,7 @@ module DataCycleCore
             [
               I18n.t("filter.advanced_attributes.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k, locale:), locale:),
               'advanced_attributes',
-              data: { name: k, advancedType: v.dig('type') }
+              data: { name: k, advancedType: v['type'] }
             ]
           end
         end

@@ -245,14 +245,14 @@ module DataCycleCore
     test 'test typeahead, specific language' do
       words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en']).to_a
       assert_equal(3, words_typeahead.size)
-      assert_equal('xyz', words_typeahead.first.dig('word'))
-      assert_equal(0.0, words_typeahead.first.dig('score'))
-      assert_equal('xyz-en', words_typeahead.second.dig('word'))
+      assert_equal('xyz', words_typeahead.first['word'])
+      assert_equal(0.0, words_typeahead.first['score'])
+      assert_equal('xyz-en', words_typeahead.second['word'])
     end
 
     test 'test typeahead, specific language, typeahead in german' do
       words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['de']).to_a
-      assert_equal('xyz-de', words_typeahead.second.dig('word'))
+      assert_equal('xyz-de', words_typeahead.second['word'])
     end
 
     test 'limit for typeahead' do

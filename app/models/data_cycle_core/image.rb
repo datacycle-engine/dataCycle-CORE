@@ -23,7 +23,7 @@ module DataCycleCore
     DEFAULT_MIME_TYPE = 'image/jpeg'
 
     def custom_validators
-      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+      DataCycleCore.uploader_validations[self.class.name.demodulize.underscore]&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
       end
     end
@@ -38,7 +38,7 @@ module DataCycleCore
       if attachment_changes.present?
         if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
           # import from local disc
-          path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+          path_to_tempfile = attachment_changes['file'].attachable[:io].path
         else
           path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
         end
@@ -136,7 +136,7 @@ module DataCycleCore
     def thumb_preview(transformation = {})
       return unless file&.attached?
 
-      file.variant(resize_to_fit: [300, 300], colourspace: 'srgb', format: format_for_transformation(transformation.dig('format'))).processed
+      file.variant(resize_to_fit: [300, 300], colourspace: 'srgb', format: format_for_transformation(transformation['format'])).processed
     rescue ActiveStorage::FileNotFoundError
       nil
     end
@@ -144,7 +144,7 @@ module DataCycleCore
     def web(transformation = {})
       return unless file&.attached?
 
-      file.variant(resize_to_limit: [2048, 2048], format: format_for_transformation(transformation.dig('format'))).processed
+      file.variant(resize_to_limit: [2048, 2048], format: format_for_transformation(transformation['format'])).processed
     rescue ActiveStorage::FileNotFoundError
       nil
     end
@@ -152,7 +152,7 @@ module DataCycleCore
     def default(transformation = {})
       return unless file&.attached?
 
-      file.variant(format: format_for_transformation(transformation.dig('format'))).processed
+      file.variant(format: format_for_transformation(transformation['format'])).processed
     rescue ActiveStorage::FileNotFoundError
       nil
     end
@@ -160,10 +160,10 @@ module DataCycleCore
     def dynamic(transformation = {})
       return unless file&.attached?
 
-      if transformation.dig('width').present? || transformation.dig('height').present?
-        file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], format: format_for_transformation(transformation.dig('format'))).processed
+      if transformation['width'].present? || transformation['height'].present?
+        file.variant(resize_to_fit: [transformation['width']&.to_i || nil, transformation['height']&.to_i || nil], format: format_for_transformation(transformation['format'])).processed
       else
-        file.variant(format: format_for_transformation(transformation.dig('format'))).processed
+        file.variant(format: format_for_transformation(transformation['format'])).processed
       end
     rescue ActiveStorage::FileNotFoundError
       nil
@@ -178,9 +178,9 @@ module DataCycleCore
     end
 
     def metadata_from_blob
-      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
+      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable[:io].present?
         # import from local disc
-        tempfile = attachment_changes['file'].attachable.dig(:io)
+        tempfile = attachment_changes['file'].attachable[:io]
       else
         tempfile = attachment_changes['file'].attachable
       end

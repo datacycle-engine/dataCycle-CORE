@@ -29,7 +29,7 @@ module DataCycleCore
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
 
           assert_equal(2.days.ago.to_date, data_set.upload_date)
-          assert_equal(2.days.ago.to_date.as_json, data_set.get_data_hash.dig('upload_date'))
+          assert_equal(2.days.ago.to_date.as_json, data_set.get_data_hash['upload_date'])
         end
 
         test 'set data property (stored as root translated_value) with default_value does not overwrite original value' do
@@ -42,7 +42,7 @@ module DataCycleCore
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
 
           assert_equal(2.days.ago.to_date, data_set.upload_date)
-          assert_equal(2.days.ago.to_date.as_json, data_set.get_data_hash.dig('upload_date'))
+          assert_equal(2.days.ago.to_date.as_json, data_set.get_data_hash['upload_date'])
         end
 
         test 'set data property (stored as object in value) with default_value, does not overwrite original value' do
@@ -81,7 +81,7 @@ module DataCycleCore
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
 
           assert_equal('Hallo', data_set.description)
-          assert_equal('Hallo', data_set.get_data_hash.dig('description'))
+          assert_equal('Hallo', data_set.get_data_hash['description'])
         end
 
         test 'create thing with data_hash_service/create_internal_object' do
@@ -129,14 +129,14 @@ module DataCycleCore
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
 
           assert_equal(upload_date, data_set.upload_date)
-          assert_equal(upload_date.as_json, data_set.get_data_hash.dig('upload_date'))
+          assert_equal(upload_date.as_json, data_set.get_data_hash['upload_date'])
 
           data_hash = {}
           data_set.add_default_values(data_hash:, force: true)
           data_set.set_data_hash(data_hash:, partial_update: true)
 
           assert_equal(upload_date, data_set.upload_date)
-          assert_equal(upload_date.as_json, data_set.get_data_hash.dig('upload_date'))
+          assert_equal(upload_date.as_json, data_set.get_data_hash['upload_date'])
         end
       end
     end

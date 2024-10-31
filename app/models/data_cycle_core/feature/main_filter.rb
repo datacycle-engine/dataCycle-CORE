@@ -149,7 +149,7 @@ module DataCycleCore
         end
 
         def autoload_last_filter?
-          configuration.dig('autoload_last_filter')
+          configuration['autoload_last_filter']
         end
 
         def filterable_classification_aliases(allowed_labels, excluded = [], include_tree = true)

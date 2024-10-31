@@ -22,7 +22,7 @@ module DataCycleCore
             end
           end
 
-          errors.present? ? { error: errors } : { update: "#{data['id']} (#{data.dig('external_system_syncs').pluck(:external_key).join(', ')})" }
+          errors.present? ? { error: errors } : { update: "#{data['id']} (#{data['external_system_syncs'].pluck(:external_key).join(', ')})" }
         end
 
         def delete(raw_data, external_system)
@@ -40,7 +40,7 @@ module DataCycleCore
               logging.info("delete Thing: #{data['id']}", "transformed_data: #{data}")
             end
           end
-          errors.present? ? { error: errors } : { delete: "#{data['id']} (#{data.dig('external_system_syncs').pluck(:external_key).join(', ')})" }
+          errors.present? ? { error: errors } : { delete: "#{data['id']} (#{data['external_system_syncs'].pluck(:external_key).join(', ')})" }
         end
 
         private
@@ -48,8 +48,8 @@ module DataCycleCore
         def update_sync(data:, external_system:)
           return ["Data with id=#{data['id']} not found!"] unless DataCycleCore::Thing.exists?(id: data['id'])
           now = Time.zone.now
-          data.dig('external_system_syncs').each do |sync_data|
-            sync = external_system.external_system_syncs.find_or_initialize_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_key: sync_data.dig(:external_key), sync_type: 'link')
+          data['external_system_syncs'].each do |sync_data|
+            sync = external_system.external_system_syncs.find_or_initialize_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_key: sync_data[:external_key], sync_type: 'link')
             sync.data = Hash(sync.data).merge(pull_data: data.merge(updated_at: now))
             sync.data['name'] = sync_data[:name] if sync_data[:name].present?
             sync.data['alternate_name'] = sync_data[:alternate_name] if sync_data[:alternate_name].present?
@@ -64,9 +64,9 @@ module DataCycleCore
 
         def delete_sync(data:, external_system:)
           return ["Data with id=#{data['id']} not found!"] unless DataCycleCore::Thing.exists?(id: data['id'])
-          data.dig('external_system_syncs').each do |sync_data|
-            sync = external_system.external_system_syncs.find_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_key: sync_data.dig(:external_key), sync_type: 'link')
-            return ["Nothing to delete for data with id=#{data['id']}, in system with id=#{external_system.id}, external_id: #{sync_data.dig(:external_key)}!"] if sync.blank?
+          data['external_system_syncs'].each do |sync_data|
+            sync = external_system.external_system_syncs.find_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_key: sync_data[:external_key], sync_type: 'link')
+            return ["Nothing to delete for data with id=#{data['id']}, in system with id=#{external_system.id}, external_id: #{sync_data[:external_key]}!"] if sync.blank?
             sync.destroy!
           end
 

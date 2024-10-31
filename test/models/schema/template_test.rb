@@ -13,7 +13,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'All Simple Property Types' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'All Simple Property Types' }
       DataCycleCore::Schema::Template.new(template[:data].as_json)
     end
 
@@ -60,7 +60,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Simple Embedded Container' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Simple Embedded Container' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_ActingAsEmbeddedContainer')
     end
 
@@ -77,7 +77,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Simple Linked Entity One' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Simple Linked Entity One' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_SimpleEntityLinkedOne')
     end
 
@@ -101,7 +101,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Container' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Container' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_Container')
     end
 

@@ -79,7 +79,7 @@ namespace :dc do
           properties.each do |property_name, property_definition|
             update_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, data_hash, image)
           end
-          update_hash['name'] = image.asset.metadata['Headline'] if image.asset.metadata.dig('Headline').present?
+          update_hash['name'] = image.asset.metadata['Headline'] if image.asset.metadata['Headline'].present?
           image.available_locales.each do |locale|
             I18n.with_locale(locale) { image.set_data_hash(data_hash: update_hash) }
           end

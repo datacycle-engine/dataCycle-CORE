@@ -162,7 +162,7 @@ module DataCycleCore
         def typeahead
           query = build_search_query
           result = query.typeahead(permitted_params[:search], @language, permitted_params[:limit] || 10)
-          words = result.to_a.map { |i| i.dig('word') } # score not needed
+          words = result.to_a.pluck('word') # score not needed
           render json: {
             '@context' => api_plain_context(@language),
             '@graph' => {

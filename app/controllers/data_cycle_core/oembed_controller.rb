@@ -42,9 +42,9 @@ module DataCycleCore
         cache_key = "oembed/#{Digest::MD5.hexdigest(oembed[:oembed_url])}/#{maxwidth}/#{maxheight}"
         oembed_uri = URI(oembed[:oembed_url])
 
-        thing_id = CGI.parse(oembed_uri.query).dig('thing_id')&.first
+        thing_id = CGI.parse(oembed_uri.query)['thing_id']&.first
 
-        if oembed[:oembed_url].include?(Rails.application.config.action_mailer.default_url_options.dig(:host)) && thing_id.present?
+        if oembed[:oembed_url].include?(Rails.application.config.action_mailer.default_url_options[:host]) && thing_id.present?
           oembed_response = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_from_thing_id(thing_id)
           response = oembed_response[:oembed]&.to_json
           if response.blank?

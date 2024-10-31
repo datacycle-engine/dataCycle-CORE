@@ -70,7 +70,7 @@ module DataCycleCore
         end
 
         def attribute_not_external?(attribute)
-          attribute.definition.dig('global').to_s == 'true' || attribute.definition.dig('local').to_s == 'true' || attribute.definition.dig('external').to_s != 'true'
+          attribute.definition['global'].to_s == 'true' || attribute.definition['local'].to_s == 'true' || attribute.definition['external'].to_s != 'true'
         end
 
         def attribute_force_render?(attribute)
@@ -78,9 +78,9 @@ module DataCycleCore
         end
 
         def attribute_tree_label_visible?(attribute)
-          return true if attribute.definition.dig('global')
-          return true if attribute.definition.dig('local')
-          return true if attribute.definition.dig('tree_label').blank? # only for classification type attributes
+          return true if attribute.definition['global']
+          return true if attribute.definition['local']
+          return true if attribute.definition['tree_label'].blank? # only for classification type attributes
 
           tree_label_external_id = ability.concept_scheme(attribute.definition['tree_label'])&.external_source_id
 
@@ -110,7 +110,7 @@ module DataCycleCore
         end
 
         def attribute_and_template_whitelisted?(attribute, whitelist = {})
-          whitelist.to_h.with_indifferent_access.dig(attribute.content.template_name)&.then { |v| Array.wrap(v).include?(attribute.key.attribute_name_from_key) }
+          whitelist.to_h.with_indifferent_access[attribute.content.template_name]&.then { |v| Array.wrap(v).include?(attribute.key.attribute_name_from_key) }
         end
 
         def attribute_and_template_not_blacklisted?(attribute, blacklist = {})

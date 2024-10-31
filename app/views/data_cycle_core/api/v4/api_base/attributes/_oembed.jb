@@ -5,8 +5,8 @@ key_new = attribute_key(key, definition)
 api_property_definition = api_definition(definition)
 
 data_value = load_value_object(content, key, value, options[:languages], api_property_definition, options[:expand_language])
-host = Rails.application.config.action_mailer.default_url_options.dig(:host)
-protocol = Rails.application.config.action_mailer.default_url_options.dig(:protocol)
+host = Rails.application.config.action_mailer.default_url_options[:host]
+protocol = Rails.application.config.action_mailer.default_url_options[:protocol]
 server_url = "#{protocol}://#{host}"
 
 json = { key_new.camelize(:lower) => "#{server_url}/oembed?url=#{data_value}" } unless DataCycleCore::DataHashService.blank?(data_value)

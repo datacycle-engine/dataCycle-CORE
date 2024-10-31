@@ -18,9 +18,9 @@ module DataCycleCore
         assert_equal(file_name, @pdf.name)
         assert_equal('DataCycleCore::Pdf', @pdf.type)
         assert(@pdf.metadata.is_a?(Hash))
-        assert_predicate(@pdf.metadata.dig('content'), :present?)
-        assert(@pdf.metadata.dig('metadata').is_a?(Hash))
-        assert_predicate(@pdf.metadata.dig('metadata'), :present?)
+        assert_predicate(@pdf.metadata['content'], :present?)
+        assert(@pdf.metadata['metadata'].is_a?(Hash))
+        assert_predicate(@pdf.metadata['metadata'], :present?)
       end
 
       test 'upload Pdf: pdf' do

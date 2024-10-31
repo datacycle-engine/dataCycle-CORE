@@ -59,7 +59,7 @@ describe DataCycleCore::MasterData::Validators::Schedule do
       schedule = DataCycleCore::Schedule.new(thing_id: SecureRandom.uuid, relation: 'event_schedule')
       schedule.schedule_object = schedule_object
 
-      assert(subject.new([schedule.to_h], template_hash).error.dig(:error).present?)
+      assert(subject.new([schedule.to_h], template_hash).error[:error].present?)
     end
 
     it 'properly validates a schedule object with valid dates' do
@@ -70,7 +70,7 @@ describe DataCycleCore::MasterData::Validators::Schedule do
       schedule = DataCycleCore::Schedule.new(thing_id: SecureRandom.uuid, relation: 'event_schedule')
       schedule.schedule_object = schedule_object
 
-      assert(subject.new([schedule.to_h], template_hash).error.dig(:error).blank?)
+      assert(subject.new([schedule.to_h], template_hash).error[:error].blank?)
     end
   end
 end

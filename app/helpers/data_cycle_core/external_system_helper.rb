@@ -41,7 +41,7 @@ module DataCycleCore
           external_edit_url: sync.external_url,
           external_detail_url: sync.external_detail_url,
           sync_locale: sync.data&.dig('pull_data', 'inLanguage')&.upcase,
-          name: sync.data&.dig('name').present? ? [sync.data.dig('pull_data', 'inLanguage')&.upcase, sync.data.dig('name')].compact.join(': ') : nil,
+          name: sync.data&.dig('name').present? ? [sync.data.dig('pull_data', 'inLanguage')&.upcase, sync.data['name']].compact.join(': ') : nil,
           title: [
             sync.data&.dig('name').present? ? "#{t('common.external_name', locale: active_ui_locale)}: #{sync.data['name']}" : nil,
             sync.data&.dig('alternate_name').present? ? "#{t('common.external_alternate_name', locale: active_ui_locale)}: #{sync.data['alternate_name']}" : nil,

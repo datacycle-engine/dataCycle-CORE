@@ -49,8 +49,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/jpeg', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/jpeg', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
 
@@ -59,8 +59,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/jpeg', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/jpeg', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.second)
 
@@ -69,8 +69,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/jpeg', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/jpeg', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
 
@@ -79,8 +79,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/png', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/png', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-web.png"', content_disposition.second)
 
@@ -89,8 +89,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/jpeg', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/jpeg', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
 
@@ -99,8 +99,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/jpeg', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/jpeg', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
               end
@@ -115,8 +115,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/jpeg', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/jpeg', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
 
@@ -125,8 +125,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/jpeg', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/jpeg', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.second)
 
@@ -135,8 +135,8 @@ module DataCycleCore
                   referer: thing_path(@content)
                 }
                 assert_response :success
-                assert_equal('image/jpeg', response.headers.dig('Content-Type'))
-                content_disposition = response.headers.dig('Content-Disposition').split(';')
+                assert_equal('image/jpeg', response.headers['Content-Type'])
+                content_disposition = response.headers['Content-Disposition'].split(';')
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
               end

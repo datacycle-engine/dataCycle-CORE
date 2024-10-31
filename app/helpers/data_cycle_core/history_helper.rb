@@ -30,7 +30,7 @@ module DataCycleCore
 
     def changes_mode(diff)
       return '' if diff.blank?
-      diff.is_a?(Hash) || diff.dig(0).is_a?(Array) ? INDICATOR_CLASSES['~'] : INDICATOR_CLASSES[diff.dig(0)]
+      diff.is_a?(Hash) || diff[0].is_a?(Array) ? INDICATOR_CLASSES['~'] : INDICATOR_CLASSES[diff[0]]
     end
 
     def changes_by_value(diff, value)
@@ -299,9 +299,9 @@ module DataCycleCore
     def publication_attribute_changes(date_changes, publication)
       case date_changes&.dig(0)
       when '~'
-        tag.del(l(date_changes.dig(1).to_date, format: :long, locale: active_ui_locale)) + tag.ins(l(date_changes.dig(2).to_date, format: :long, locale: active_ui_locale))
+        tag.del(l(date_changes[1].to_date, format: :long, locale: active_ui_locale)) + tag.ins(l(date_changes[2].to_date, format: :long, locale: active_ui_locale))
       when '+'
-        tag.ins(l(date_changes.dig(1).to_date, format: :long, locale: active_ui_locale))
+        tag.ins(l(date_changes[1].to_date, format: :long, locale: active_ui_locale))
       when '-'
         tag.del(l(publication&.publish_at&.to_date, format: :long, locale: active_ui_locale))
       else

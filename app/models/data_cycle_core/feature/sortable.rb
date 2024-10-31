@@ -9,7 +9,7 @@ module DataCycleCore
 
           sortable = []
 
-          (configuration.dig("#{view}_context").presence || configuration&.reject { |k, _v| k == 'enabled' || k.end_with?('_context') })&.each do |key, value|
+          (configuration["#{view}_context"].presence || configuration&.reject { |k, _v| k == 'enabled' || k.end_with?('_context') })&.each do |key, value|
             if respond_to?(key) && method(key).parameters.size == 2
               sortable.concat(send(key.to_sym, value, user))
             else
@@ -22,7 +22,7 @@ module DataCycleCore
 
         def available_advanced_attribute_options
           return {} unless enabled?
-          configuration.dig('advanced_attributes') || {}
+          configuration['advanced_attributes'] || {}
         end
 
         def default(key, value, user, view = 'backend')

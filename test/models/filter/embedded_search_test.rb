@@ -38,16 +38,16 @@ module DataCycleCore
       })
 
       stored_search = DataCycleCore::Search.where(self_contained: true).first
-      assert_includes(stored_search.advanced_attributes.dig('float_main'), content.float_main)
+      assert_includes(stored_search.advanced_attributes['float_main'], content.float_main)
       content.embedded_search.each do |embedded_search|
-        assert_includes(stored_search.advanced_attributes.dig('float_one'), embedded_search.float_one)
-        assert_includes(stored_search.advanced_attributes.dig('float_two'), embedded_search.float_two)
-        assert_includes(stored_search.advanced_attributes.dig('float_main'), embedded_search.float_main)
-        assert_includes(stored_search.advanced_attributes.dig('integer_main'), embedded_search.integer_main)
-        assert_includes(stored_search.advanced_attributes.dig('opens'), embedded_search.opens)
-        assert_includes(stored_search.advanced_attributes.dig('closes'), embedded_search.closes)
-        assert_includes(stored_search.advanced_attributes.dig('boolean_test'), embedded_search.boolean_test)
-        assert_includes(stored_search.advanced_attributes.dig('publish_at'), embedded_search.publish_at.as_json)
+        assert_includes(stored_search.advanced_attributes['float_one'], embedded_search.float_one)
+        assert_includes(stored_search.advanced_attributes['float_two'], embedded_search.float_two)
+        assert_includes(stored_search.advanced_attributes['float_main'], embedded_search.float_main)
+        assert_includes(stored_search.advanced_attributes['integer_main'], embedded_search.integer_main)
+        assert_includes(stored_search.advanced_attributes['opens'], embedded_search.opens)
+        assert_includes(stored_search.advanced_attributes['closes'], embedded_search.closes)
+        assert_includes(stored_search.advanced_attributes['boolean_test'], embedded_search.boolean_test)
+        assert_includes(stored_search.advanced_attributes['publish_at'], embedded_search.publish_at.as_json)
       end
 
       content.set_data_hash(data_hash: content.get_data_hash.merge(
@@ -82,16 +82,16 @@ module DataCycleCore
         }
       ))
       stored_search = DataCycleCore::Search.where(self_contained: true).first
-      assert_includes(stored_search.advanced_attributes.dig('float_main'), content.float_main)
+      assert_includes(stored_search.advanced_attributes['float_main'], content.float_main)
       content.embedded_search.each do |embedded_search|
-        assert_includes(stored_search.advanced_attributes.dig('float_one'), embedded_search.float_one)
-        assert_includes(stored_search.advanced_attributes.dig('float_two'), embedded_search.float_two)
-        assert_includes(stored_search.advanced_attributes.dig('float_main'), embedded_search.float_main)
-        assert_includes(stored_search.advanced_attributes.dig('integer_main'), embedded_search.integer_main)
-        assert_includes(stored_search.advanced_attributes.dig('opens'), embedded_search.opens)
-        assert_includes(stored_search.advanced_attributes.dig('closes'), embedded_search.closes)
-        assert_includes(stored_search.advanced_attributes.dig('boolean_test'), embedded_search.boolean_test)
-        assert_includes(stored_search.advanced_attributes.dig('publish_at'), embedded_search.publish_at.as_json)
+        assert_includes(stored_search.advanced_attributes['float_one'], embedded_search.float_one)
+        assert_includes(stored_search.advanced_attributes['float_two'], embedded_search.float_two)
+        assert_includes(stored_search.advanced_attributes['float_main'], embedded_search.float_main)
+        assert_includes(stored_search.advanced_attributes['integer_main'], embedded_search.integer_main)
+        assert_includes(stored_search.advanced_attributes['opens'], embedded_search.opens)
+        assert_includes(stored_search.advanced_attributes['closes'], embedded_search.closes)
+        assert_includes(stored_search.advanced_attributes['boolean_test'], embedded_search.boolean_test)
+        assert_includes(stored_search.advanced_attributes['publish_at'], embedded_search.publish_at.as_json)
       end
     end
 

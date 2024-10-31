@@ -43,8 +43,8 @@ module DataCycleCore
         raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
 
         success = true
-        min = options.dig(:min) || 0
-        max = options.dig(:max) || Float::INFINITY
+        min = options[:min] || 0
+        max = options[:max] || Float::INFINITY
 
         sorted_steps(:download, (min..max)).each do |name|
           success &&= download_single(name, options, &)
@@ -54,7 +54,7 @@ module DataCycleCore
       end
 
       def download_single(name, options = {})
-        config = download_config.dig(name)
+        config = download_config[name]
         raise "unknown downloader name: #{name}" if config.blank?
 
         import_step(name, options, config)
@@ -82,8 +82,8 @@ module DataCycleCore
       def import_range(options = {}, &)
         raise 'First parameter has to be an options Hash!' unless options.is_a?(::Hash)
 
-        min = options.dig(:min) || 0
-        max = options.dig(:max) || Float::INFINITY
+        min = options[:min] || 0
+        max = options[:max] || Float::INFINITY
 
         sorted_steps(:import, (min..max)).each do |name|
           import_single(name, options, &)
@@ -91,7 +91,7 @@ module DataCycleCore
       end
 
       def import_single(name, options = {})
-        config = import_config.dig(name)
+        config = import_config[name]
         raise "unknown importer name: #{name}" if config.blank?
 
         import_step(name, options, config)

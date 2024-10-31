@@ -13,14 +13,14 @@ module DataCycleCore
         FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
 
         def self.download_data(download_object:, data_id:, data_name:, options:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil)
-          iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
+          iteration_strategy = options.dig(:download, :iteration_strategy) || options[:iteration_strategy] || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)
           send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options:)
         end
 
         def self.download_single(download_object:, data_id:, data_name:, raw_data:, modified: nil, delete: nil, cleanup_data: nil, **keyword_args)
           with_logging(download_object:, data_id:, data_name:, modified:, delete:, raw_data:, cleanup_data:, iterate_locales: false, **keyword_args) do |options, step_label|
-            locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
+            locales = (options[:locales] || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
             download_object.source_object.with(download_object.source_type) do |mongo_item|
               item_id = data_id.call(raw_data.first[1])
               item_name = data_name.call(raw_data.first[1])
@@ -147,7 +147,7 @@ module DataCycleCore
 
               endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
 
-              credentials = credential.call(options.dig(:credentials)) if credential.present?
+              credentials = credential.call(options[:credentials]) if credential.present?
 
               items = download_object.endpoint(options).send(endpoint_method, lang: locale)
               items.each_slice(100) do |item_data_slice|
@@ -167,7 +167,7 @@ module DataCycleCore
 
                       item_id = data_id.call(item_data) || nil
 
-                      item = mongo_items.dig(item_id) || mongo_item_parallel.new(external_id: item_id)
+                      item = mongo_items[item_id] || mongo_item_parallel.new(external_id: item_id)
                       item.dump ||= {}
                       local_item = item.dump[locale]
 
@@ -204,9 +204,9 @@ module DataCycleCore
                         item.external_system ||= {}
                         item.external_system['credentials'] ||= {}
                         if item.external_system.dig('credentials', credential_key).blank? ||
-                           Digest::MD5.hexdigest(item.external_system.dig('credentials', credential_key).to_json) != Digest::MD5.hexdigest(options.dig(:credentials).to_json)
+                           Digest::MD5.hexdigest(item.external_system.dig('credentials', credential_key).to_json) != Digest::MD5.hexdigest(options[:credentials].to_json)
 
-                          item.external_system['credentials'][credential_key] = options.dig(:credentials)
+                          item.external_system['credentials'][credential_key] = options[:credentials]
                           item.save!
                         end
                       end
@@ -244,7 +244,7 @@ module DataCycleCore
 
         def self.download_parallel(download_object:, data_id:, modified: nil, delete: nil, cleanup_data: nil, **keyword_args)
           with_logging(download_object:, data_id:, modified:, delete:, cleanup_data:, iterate_locales: false, **keyword_args) do |options, step_label|
-            locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
+            locales = (options[:locales] || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
             item_count = 0
 
             download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -298,7 +298,7 @@ module DataCycleCore
 
         def self.download_all(download_object:, data_id:, modified: nil, delete: nil, cleanup_data: nil, credential: nil, **keyword_args)
           with_logging(download_object:, data_id:, modified:, delete:, cleanup_data:, credential:, iterate_locales: false, **keyword_args) do |options, step_label|
-            locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
+            locales = (options[:locales] || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
             endpoint_method = nil
             item_count = 0
 
@@ -450,7 +450,7 @@ module DataCycleCore
 
             download_object.source_object.with(download_object.source_type) do |mongo_item|
               mongo_item.with_session do |session|
-                if options.dig(:iterator_type) == :aggregate || options.dig(:download, :iterator_type) == 'aggregate'
+                if options[:iterator_type] == :aggregate || options.dig(:download, :iterator_type) == 'aggregate'
                   iterate = iterator.call(mongo_item, locale, source_filter)
                 else
                   iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
@@ -509,7 +509,7 @@ module DataCycleCore
             source_filter = source_filter.with_evaluated_values
 
             download_object.source_object.with(download_object.source_type) do |mongo_item|
-              if options.dig(:iterator_type) == :aggregate || options.dig(:download, :iterator_type) == 'aggregate'
+              if options[:iterator_type] == :aggregate || options.dig(:download, :iterator_type) == 'aggregate'
                 iterate = iterator.call(mongo_item, locales, source_filter)
               else
                 iterate = iterator.call(mongo_item, locales, source_filter).all.no_timeout.max_time_ms(fixnum_max)

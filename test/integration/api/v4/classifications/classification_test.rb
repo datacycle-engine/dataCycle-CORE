@@ -72,7 +72,7 @@ module DataCycleCore
 
             validator = DataCycleCore::V4::Validation::Concept.concept_scheme
 
-            assert_empty(validator.call(json_data.dig('@graph').first).errors.to_h)
+            assert_empty(validator.call(json_data['@graph'].first).errors.to_h)
           end
 
           test 'api/v4/concept_schemes/(:id) with fields=dc:entityUrl,dc:hasConcept' do
@@ -95,7 +95,7 @@ module DataCycleCore
 
             validator = DataCycleCore::V4::Validation::Concept.concept_scheme(params: { fields: })
 
-            assert_empty(validator.call(json_data.dig('@graph').first).errors.to_h)
+            assert_empty(validator.call(json_data['@graph'].first).errors.to_h)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts' do
@@ -144,7 +144,7 @@ module DataCycleCore
             json_data['@graph'].each do |item|
               assert_empty(validator.call(item).errors.to_h)
               # additional check to make sure at least one item has dct:description attribute
-              concept_with_description = true if item.dig('dct:description').present?
+              concept_with_description = true if item['dct:description'].present?
             end
 
             assert(concept_with_description)
@@ -181,8 +181,8 @@ module DataCycleCore
 
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
 
-            assert_empty(validator.call(json_data.dig('@graph').first).errors.to_h)
-            assert_equal('test-identifier', json_data.dig('@graph').first.dig('identifier').first.dig('value'))
+            assert_empty(validator.call(json_data['@graph'].first).errors.to_h)
+            assert_equal('test-identifier', json_data['@graph'].first['identifier'].first['value'])
 
             update_tag.update_column(:external_source_id, nil)
             update_tag.primary_classification.update_column(:external_source_id, nil)
@@ -415,7 +415,7 @@ module DataCycleCore
             json_data['@graph'].each do |item|
               assert_empty(validator.call(item).errors.to_h)
               # additional check to make sure at least one item has skos:ancestors attribute
-              concept_with_ancestor = true if item.dig('skos:ancestors').present?
+              concept_with_ancestor = true if item['skos:ancestors'].present?
             end
 
             assert(concept_with_ancestor)
@@ -452,7 +452,7 @@ module DataCycleCore
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_empty(validator.call(item).errors.to_h)
-              concept_with_ancestor = true if item.dig('skos:ancestors').present?
+              concept_with_ancestor = true if item['skos:ancestors'].present?
             end
 
             assert(concept_with_ancestor)

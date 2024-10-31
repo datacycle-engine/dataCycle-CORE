@@ -13,7 +13,7 @@ module DataCycleCore
           if options&.dig(:iteration_strategy).blank?
             import_sequential(utility_object:, iterator:, data_processor:, options:)
           else
-            send(options.dig(:iteration_strategy), utility_object:, iterator:, data_processor:, options:)
+            send(options[:iteration_strategy], utility_object:, iterator:, data_processor:, options:)
           end
         end
 
@@ -47,7 +47,7 @@ module DataCycleCore
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     per = options[:per] || logging_delta
-                    aggregate = options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
+                    aggregate = options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
 
                     if aggregate
                       iterate = iterator.call(mongo_item, locale, source_filter).allow_disk_use(true)
@@ -269,7 +269,7 @@ module DataCycleCore
                   times = [Time.current]
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
+                    if options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
                       iterate = iterator.call(mongo_item, locale, source_filter)
                     else
                       iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
@@ -283,7 +283,7 @@ module DataCycleCore
                     keys.each do |external_id|
                       item_count += 1
 
-                      if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
+                      if options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
                         query = iterator.call(mongo_item, locale, source_filter.merge('external_id' => external_id))
                       else
                         query = iterator.call(mongo_item, locale, source_filter.merge('external_id' => external_id)).all.no_timeout.max_time_ms(fixnum_max)

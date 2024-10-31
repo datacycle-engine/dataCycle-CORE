@@ -57,7 +57,7 @@ namespace :dc do
             puts "ERROR: #{translated_value.try(:error)}"
             value
           else
-            translated_value.dig('text')
+            translated_value['text']
           end
         rescue Faraday::Error => e
           puts "FARADAY ERROR: #{e.message}"

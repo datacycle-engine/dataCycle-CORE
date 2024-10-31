@@ -7,7 +7,7 @@ module DataCycleCore
       params[:key] = identifier
       data, options = report_class.constantize.new(params:, locale: 'de').send(:"to_#{format}")
 
-      attachments[options.dig(:filename)] = {
+      attachments[options[:filename]] = {
         mime_type: Mime[format.to_sym],
         content: Base64.encode64(data),
         encoding: 'base64'

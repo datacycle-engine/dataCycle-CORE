@@ -46,7 +46,7 @@ module DataCycleCore
           sub_query = DataCycleCore::User
             .select(1)
             .where(thing[key].eq(user_table[:id]))
-            .where(user_table[:email].matches("%#{value.dig('text')}"))
+            .where(user_table[:email].matches("%#{value['text']}"))
             .arel
             .exists
 
@@ -62,7 +62,7 @@ module DataCycleCore
           sub_query = DataCycleCore::User
             .select(1)
             .where(thing[key].eq(user_table[:id]))
-            .where(user_table[:email].matches("%#{value.dig('text')}"))
+            .where(user_table[:email].matches("%#{value['text']}"))
             .arel
             .exists
 
@@ -207,7 +207,7 @@ module DataCycleCore
               user_table
                 .project(1)
                 .where(thing_alias[:updated_by].eq(user_table[:id]))
-                .where(user_table[:email].matches("%#{value.dig('text')}"))
+                .where(user_table[:email].matches("%#{value['text']}"))
                 .exists
             )
           thing_history_query = thing_history_table
@@ -217,7 +217,7 @@ module DataCycleCore
               user_table
                 .project(1)
                 .where(thing_history_table[:updated_by].eq(user_table[:id]))
-                .where(user_table[:email].matches("%#{value.dig('text')}"))
+                .where(user_table[:email].matches("%#{value['text']}"))
                 .exists
             )
 
@@ -242,7 +242,7 @@ module DataCycleCore
               user_table
                 .project(1)
                 .where(thing_alias[:updated_by].eq(user_table[:id]))
-                .where(user_table[:email].matches("%#{value.dig('text')}"))
+                .where(user_table[:email].matches("%#{value['text']}"))
                 .exists
             )
           thing_history_query = thing_history_table
@@ -252,7 +252,7 @@ module DataCycleCore
               user_table
                 .project(1)
                 .where(thing_history_table[:updated_by].eq(user_table[:id]))
-                .where(user_table[:email].matches("%#{value.dig('text')}"))
+                .where(user_table[:email].matches("%#{value['text']}"))
                 .exists
             )
 

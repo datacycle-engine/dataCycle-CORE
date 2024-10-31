@@ -27,7 +27,7 @@ module DataCycleCore
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
 
     def custom_validators
-      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+      DataCycleCore.uploader_validations[self.class.name.demodulize.underscore]&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
       end
     end
@@ -114,7 +114,7 @@ module DataCycleCore
     end
 
     def file_size_validation(options)
-      return unless file.blob.byte_size > options.dig(:max).to_i
+      return unless file.blob.byte_size > options[:max].to_i
       errors.add :file,
                  :invalid,
                  path: 'uploader.validation.file_size.max',

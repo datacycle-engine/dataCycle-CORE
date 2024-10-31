@@ -36,7 +36,7 @@ module DataCycleCore
                 'type' => type,
                 'type_of_info' => type,
                 'name' => I18n.t("import.generic.#{type}", default: [type]),
-                'external_key' => "#{importer_name} - AdditionalInformation - #{data.dig('external_key')} - #{type}",
+                'external_key' => "#{importer_name} - AdditionalInformation - #{data['external_key']} - #{type}",
                 'description' => data[type]
               }
             end

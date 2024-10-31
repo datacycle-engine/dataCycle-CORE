@@ -31,7 +31,7 @@ module DataCycleCore
           data.try(:synchronous_webhooks) ||
             (
               utility_object.external_system.export_config.dig(utility_object.action, :queue) ||
-              utility_object.external_system.export_config.dig(:queue)
+              utility_object.external_system.export_config[:queue]
             ) == 'inline' # legacy config support
         end
 

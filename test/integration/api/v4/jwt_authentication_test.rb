@@ -164,7 +164,7 @@ module DataCycleCore
           json_data = response.parsed_body
 
           assert json_data['token'].present?
-          assert_equal user_data['email'], json_data.dig('email')
+          assert_equal user_data['email'], json_data['email']
 
           new_token = json_data['token']
 

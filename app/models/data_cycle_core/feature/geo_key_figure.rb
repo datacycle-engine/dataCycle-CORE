@@ -9,7 +9,7 @@ module DataCycleCore
         end
 
         def local(content)
-          configuration(content).dig('local')
+          configuration(content)['local']
         end
 
         def allowed_child_attribute_key?(content, definition)
@@ -17,11 +17,11 @@ module DataCycleCore
         end
 
         def external_source
-          @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration.dig(:external_source))
+          @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration[:external_source])
         end
 
         def endpoint
-          @endpoint ||= (configuration.dig(:endpoint).constantize.new(**external_source.credentials.symbolize_keys) if external_source.present?)
+          @endpoint ||= (configuration[:endpoint].constantize.new(**external_source.credentials.symbolize_keys) if external_source.present?)
         end
 
         def get_key_figure(part_ids, key = nil)

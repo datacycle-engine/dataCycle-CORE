@@ -40,7 +40,7 @@ module DataCycleCore
 
     def opening_time_opening_hours(opening_times)
       days = [*(1..6), 0]
-      days.push(99) if opening_times.any? { |d| !d.dig(:holidays).nil? }
+      days.push(99) if opening_times.any? { |d| !d[:holidays].nil? }
 
       safe_join(days.filter_map do |v|
         (safe_join(

@@ -64,14 +64,14 @@ module DataCycleCore
         def self.data_id(external_id_hash_method, data)
           case external_id_hash_method
           when 'MD5'
-            Digest::MD5.hexdigest(data.dig('id'))
+            Digest::MD5.hexdigest(data['id'])
           else
-            data.dig('id')
+            data['id']
           end
         end
 
         def self.data_name(data)
-          data.dig('name')
+          data['name']
         end
       end
     end

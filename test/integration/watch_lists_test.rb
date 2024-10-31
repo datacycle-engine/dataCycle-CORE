@@ -44,7 +44,7 @@ module DataCycleCore
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = response.parsed_body
-      assert_equal(1, json_data.dig('collections').count { |w| w['name'] == name })
+      assert_equal(1, json_data['collections'].count { |w| w['name'] == name })
     end
 
     test 'update Watchlist' do
@@ -108,7 +108,7 @@ module DataCycleCore
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = response.parsed_body
-      assert_equal json_data.dig('collections').size, 0
+      assert_equal json_data['collections'].size, 0
     end
 
     test 'add content to watch_list' do

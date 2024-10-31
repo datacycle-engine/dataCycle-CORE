@@ -38,7 +38,7 @@ module DataCycleCore
           I18n.with_locale(locale) do
             external_key_path = options.dig(:import, :external_key_path).split('.')
 
-            raise "No external id found! Item:#{raw_data.dig('Id')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
+            raise "No external id found! Item:#{raw_data['Id']}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
 
             external_key = options.dig(:import, :external_key_prefix).present? ? options.dig(:import, :external_key_prefix) + raw_data.dig(*external_key_path).to_s : raw_data.dig(*external_key_path).to_s
 
@@ -49,15 +49,15 @@ module DataCycleCore
 
             update_hash = {}
             options.dig(:import, :attributes).each do |attribute|
-              next unless update_item.respond_to?(attribute.dig(:key)&.to_s)
+              next unless update_item.respond_to?(attribute[:key]&.to_s)
               value = load_value_for_attribute(attribute)
-              if attribute.dig(:key) == 'universal_classifications' || attribute.dig(:type) == 'classification'
-                delete = attribute.dig(:delete) || false
+              if attribute[:key] == 'universal_classifications' || attribute[:type] == 'classification'
+                delete = attribute[:delete] || false
                 update = false
-                old_value = if attribute.dig(:key) == 'universal_classifications'
+                old_value = if attribute[:key] == 'universal_classifications'
                               update_item.universal_classifications.pluck(:id)
                             else
-                              update_item.send(attribute.dig(:key)).pluck(:id)
+                              update_item.send(attribute[:key]).pluck(:id)
                             end
                 if delete && old_value.include?(*value)
                   new_value = old_value - value
@@ -66,9 +66,9 @@ module DataCycleCore
                   new_value = old_value + value
                   update = true
                 end
-                update_hash[attribute.dig(:key)] = new_value if update
+                update_hash[attribute[:key]] = new_value if update
               elsif value.present?
-                update_hash[attribute.dig(:key)] = value
+                update_hash[attribute[:key]] = value
               end
             end
 
@@ -77,15 +77,15 @@ module DataCycleCore
         end
 
         def self.load_value_for_attribute(attribute)
-          case attribute.dig(:type)
+          case attribute[:type]
           when 'classification'
-            DataCycleCore::Concept.includes(:concept_scheme).where(internal_name: attribute.dig(:value), concept_scheme: { name: attribute.dig(:tree_label) }).limit(1).pluck(:classification_id)
+            DataCycleCore::Concept.includes(:concept_scheme).where(internal_name: attribute[:value], concept_scheme: { name: attribute[:tree_label] }).limit(1).pluck(:classification_id)
           when 'float'
-            attribute.dig(:value).to_f
+            attribute[:value].to_f
           when 'integer'
-            attribute.dig(:value).to_i
+            attribute[:value].to_i
           when 'string'
-            attribute.dig(:value).to_s
+            attribute[:value].to_s
           end
         end
       end

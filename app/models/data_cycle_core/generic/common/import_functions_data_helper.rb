@@ -7,7 +7,7 @@ module DataCycleCore
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
 
-          template = load_template(config&.dig(:template) || default.dig(:template))
+          template = load_template(config&.dig(:template) || default[:template])
 
           raw_data = pre_process_data(raw_data:, config:, utility_object:)
 
@@ -17,11 +17,11 @@ module DataCycleCore
             utility_object
           ).with_indifferent_access
 
-          return if DataCycleCore::DataHashService.deep_blank?(data) || data.dig('external_key').blank?
+          return if DataCycleCore::DataHashService.deep_blank?(data) || data['external_key'].blank?
 
           data = post_process_data(data:, config:, utility_object:).slice(*template.properties, 'external_system_data')
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
-          external_key = data.dig('external_key')
+          external_key = data['external_key']
           external_source_id = utility_object.external_source.id
           external_hash = DataCycleCore::ExternalHash.find_or_initialize_by(external_key:, external_source_id:, locale: I18n.locale)
 
@@ -67,8 +67,8 @@ module DataCycleCore
                 'external_key' => data['external_key'],
                 'name' => utility_object.external_source.name,
                 'identifier' => utility_object.external_source.identifier,
-                'last_sync_at' => data.dig('updated_at'),
-                'last_successful_sync_at' => data.dig('updated_at')
+                'last_sync_at' => data['updated_at'],
+                'last_successful_sync_at' => data['updated_at']
               }]
               all_imported_external_system_data.each do |es|
                 next if Array(utility_object.external_source.default_options&.dig('current_instance_identifiers')).include?(es['identifier'] || es['name'])
@@ -144,7 +144,7 @@ module DataCycleCore
             return
           end
 
-          data.dig('external_system_data')&.each do |es|
+          data['external_system_data']&.each do |es|
             next if Array(utility_object.external_source.default_options['current_instance_identifiers']).include?(es['identifier'] || es['name'])
 
             external_system = DataCycleCore::ExternalSystem.find_from_hash(es)
@@ -191,7 +191,7 @@ module DataCycleCore
 
         def merge_default_values(config, data_hash, utility_object)
           new_hash = {}
-          new_hash = load_default_values(config.dig(:default_values)) if config&.dig(:default_values).present?
+          new_hash = load_default_values(config[:default_values]) if config&.dig(:default_values).present?
           new_hash.merge!(data_hash)
 
           transform_external_system_data!(config, new_hash, utility_object)

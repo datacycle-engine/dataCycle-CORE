@@ -31,7 +31,7 @@ module DataCycleCore
         end
 
         def ordered_items(content = nil)
-          configuration(content).dig('ordered')
+          configuration(content)['ordered']
         end
 
         def creatable_stages(content = nil)
@@ -41,7 +41,7 @@ module DataCycleCore
         end
 
         def tree_label(content = nil)
-          configuration(content).dig('tree_label')
+          configuration(content)['tree_label']
         end
 
         def default_alias_id(content)

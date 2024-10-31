@@ -23,7 +23,7 @@ classification_aliases = load_value_object(content, key, value, options[:languag
 classification_json = render 'classifications', classification_aliases:, key: key_new, definition: {}, options: new_options
 
 if new_options[:full]
-  json['dc:multilingual'] = (content.embedded? ? options.dig(:translatable_embedded) || false : content.translatable?) if options[:field_filter] == false || (included_attribute?('dc:multilingual', options[:include]) || included_attribute?('dc:multilingual', options[:fields]))
+  json['dc:multilingual'] = (content.embedded? ? options[:translatable_embedded] || false : content.translatable?) if options[:field_filter] == false || (included_attribute?('dc:multilingual', options[:include]) || included_attribute?('dc:multilingual', options[:fields]))
   json['dc:translation'] = content.available_locales if options[:field_filter] == false || (included_attribute?('dc:translation', options[:include]) || included_attribute?('dc:translation', options[:fields]))
   json['dc:classification'] = classification_json[key_new]
 end

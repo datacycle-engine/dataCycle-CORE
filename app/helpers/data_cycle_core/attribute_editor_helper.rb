@@ -95,7 +95,7 @@ module DataCycleCore
     def nested_definition(definition, options)
       return definition unless options&.dig(:readonly)
 
-      definition.deep_merge({ 'ui' => { 'edit' => { 'readonly' => options.dig(:readonly) } } })
+      definition.deep_merge({ 'ui' => { 'edit' => { 'readonly' => options[:readonly] } } })
     end
 
     def nested_options(definition, options)

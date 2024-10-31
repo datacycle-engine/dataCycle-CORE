@@ -57,7 +57,7 @@ module DataCycleCore
             return if values.empty?
 
             values.map { |value|
-              get_ids_from_geometry(tree_label: computed_definition.dig('tree_label'), geometry: value.to_s)
+              get_ids_from_geometry(tree_label: computed_definition['tree_label'], geometry: value.to_s)
             }.flatten
               .compact_blank
               .uniq
@@ -72,7 +72,7 @@ module DataCycleCore
           def from_embedded(computed_parameters:, computed_definition:, **_args)
             Array.wrap(computed_definition.dig('compute', 'parameters')&.map do |path|
               key_path = path.split('.')
-              get_values_from_embedded(key_path.drop(1), computed_parameters.dig(key_path.first))
+              get_values_from_embedded(key_path.drop(1), computed_parameters[key_path.first])
             end).flatten.compact_blank.uniq
           end
 
@@ -121,10 +121,10 @@ module DataCycleCore
             if values.is_a?(::Hash)
               key = key_path.first
 
-              if values.key?(key) || values.dig('datahash')&.key?(key) || values.dig('translations', I18n.locale.to_s)&.key?(key)
-                value = values.dig(key) || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
+              if values.key?(key) || values['datahash']&.key?(key) || values.dig('translations', I18n.locale.to_s)&.key?(key)
+                value = values[key] || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
               else
-                id = values.dig('id') || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
+                id = values['id'] || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
                 item = DataCycleCore::Thing.find_by(id:)
                 value = item.respond_to?(key) ? item.attribute_to_h(key) : nil
               end

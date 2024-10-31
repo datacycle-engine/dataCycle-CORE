@@ -24,7 +24,7 @@ module DataCycleCore
           @database_name = "#{@source_type.database_name}_#{@external_source.id}"
         end
 
-        @mode = options.dig(type, :mode)&.to_sym || options.dig(:mode)&.to_sym || :incremental
+        @mode = options.dig(type, :mode)&.to_sym || options[:mode]&.to_sym || :incremental
         @logger = init_logging(type)
         @locales = Array.wrap(@options[:locales]).map(&:to_sym)
       end

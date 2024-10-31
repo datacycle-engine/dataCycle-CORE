@@ -20,7 +20,7 @@ module DataCycleCore
           render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Normalisierung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if external_source.blank? || @content.blank?
 
           normalize_logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
-          normalizer = DataCycleCore::MasterData::NormalizeData.new(logger: normalize_logger, host: external_source.credentials.dig('host'), end_point: external_source.credentials.dig('end_point'))
+          normalizer = DataCycleCore::MasterData::NormalizeData.new(logger: normalize_logger, host: external_source.credentials['host'], end_point: external_source.credentials['end_point'])
 
           object_params = content_params(@content.template_name)
           datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)

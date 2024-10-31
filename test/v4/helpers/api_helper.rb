@@ -111,7 +111,7 @@ module DataCycleCore
       end
 
       def assert_classifications(json_validate, classifications)
-        json_classifications = json_validate.dig('dc:classification').sort_by { |c| c['@id'] }
+        json_classifications = json_validate['dc:classification'].sort_by { |c| c['@id'] }
         assert_equal(json_classifications, classifications.sort_by { |c| c['@id'] })
         json_validate.delete('dc:classification')
       end
@@ -120,7 +120,7 @@ module DataCycleCore
         compare_json = yield
         json = json_validate.dup.slice(*compare_json.keys)
         compare_json.each_key do |attribute|
-          assert_equal(compare_json.dig(attribute).sort_by { |c| c['@id'] }, json.dig(attribute).sort_by { |c| c['@id'] })
+          assert_equal(compare_json[attribute].sort_by { |c| c['@id'] }, json[attribute].sort_by { |c| c['@id'] })
           json_validate.delete(attribute)
         end
         attributes.each { |a| required_attributes.delete(a) }
@@ -152,7 +152,7 @@ module DataCycleCore
 
       def api_enabled?(definition)
         return true if definition.dig('api', 'v4', 'disabled') == false && definition.dig('api', 'v4')&.key?('disabled')
-        return true if definition.dig('api', 'disabled') == false && definition.dig('api')&.key?('disabled')
+        return true if definition.dig('api', 'disabled') == false && definition['api']&.key?('disabled')
         false
       end
 

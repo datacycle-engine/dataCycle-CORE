@@ -111,13 +111,13 @@ module DataCycleCore
     test 'event with schedule' do
       event = create_event_with_schedule
       assert_equal(event.schedule, event.schedule_overlay)
-      assert_equal(event_date_range(1).stringify_keys, event.schedule_overlay.first.get_data_hash.dig('event_date'))
+      assert_equal(event_date_range(1).stringify_keys, event.schedule_overlay.first.get_data_hash['event_date'])
     end
 
     test 'event with overlayed schedule' do
       event = create_event_with_overlay_schedule
-      assert_equal(event_date_range(1).stringify_keys, event.schedule.first.get_data_hash.dig('event_date'))
-      assert_equal(event_date_range(2).stringify_keys, event.schedule_overlay.first.get_data_hash.dig('event_date'))
+      assert_equal(event_date_range(1).stringify_keys, event.schedule.first.get_data_hash['event_date'])
+      assert_equal(event_date_range(2).stringify_keys, event.schedule_overlay.first.get_data_hash['event_date'])
     end
 
     test 'event with linked image' do

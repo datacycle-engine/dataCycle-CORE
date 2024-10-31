@@ -23,12 +23,12 @@ module DataCycleCore
           search_data = walk_embedded_data(language)
           advanced_search_attributes = walk_advanced
           classification_mapping = walk_classifications
-          classification_alias_mapping = classification_mapping.dig(:classification_aliases)
-          classification_ancestors_mapping = classification_mapping.dig(:classification_ancestors)
+          classification_alias_mapping = classification_mapping[:classification_aliases]
+          classification_ancestors_mapping = classification_mapping[:classification_ancestors]
 
           # TODO: remove hardcoded metadata
           validity_string = get_validity(metadata&.dig('validity_period'))
-          boost = schema.dig('boost') || 1.0
+          boost = schema['boost'] || 1.0
 
           begin
             DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|
@@ -138,7 +138,7 @@ module DataCycleCore
         # find included properties
         advanced_included_search_property_names.each do |property|
           properties_for(property).try(:[], 'properties').each do |included_property, included_definition|
-            next unless included_definition.dig('advanced_search')
+            next unless included_definition['advanced_search']
 
             value = try(property).try(included_property)
             (advanced_data[[property, included_property].join('.')] ||= []) << value if value.present? || value.is_a?(FalseClass)
@@ -166,7 +166,7 @@ module DataCycleCore
         return hash if add_hash.blank?
 
         (hash.keys + add_hash.keys).uniq.each do |key|
-          next if add_hash.dig(key).blank?
+          next if add_hash[key].blank?
           hash[key] = (hash[key] || []) + add_hash[key]
           hash[key].uniq!
         end

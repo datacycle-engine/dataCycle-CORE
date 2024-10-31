@@ -36,7 +36,7 @@ module DataCycleCore
             assert(json_data['meta']['total'].present?)
             assert(json_data['meta']['pages'].present?)
             assert(json_data.key?('links'))
-            assert(json_data.dig('links').blank?)
+            assert(json_data['links'].blank?)
           end
 
           test 'GET page size: 1' do
@@ -130,7 +130,7 @@ module DataCycleCore
             assert(json_data['meta']['total'].present?)
             assert(json_data['meta']['pages'].present?)
             assert(json_data.key?('links'))
-            assert(json_data.dig('links').blank?)
+            assert(json_data['links'].blank?)
           end
 
           test 'POST page size: 1' do
@@ -228,7 +228,7 @@ module DataCycleCore
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
             assert_equal(1, json_data['@graph'].size)
-            assert_equal(json_data['@graph'].first.dig('@id'), second.dig('@id'))
+            assert_equal(json_data['@graph'].first['@id'], second['@id'])
             assert(json_data['@context'].present?)
             assert(json_data['meta'].present?)
             assert(json_data['links'].present?)
@@ -239,7 +239,7 @@ module DataCycleCore
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
             assert_equal(1, json_data['@graph'].size)
-            assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
+            assert_equal(json_data['@graph'].first['@id'], third['@id'])
             assert(json_data['@context'].present?)
             assert(json_data['meta'].present?)
             assert(json_data['links'].present?)
@@ -250,7 +250,7 @@ module DataCycleCore
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
             assert_equal(1, json_data['@graph'].size)
-            assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
+            assert_equal(json_data['@graph'].first['@id'], third['@id'])
             assert(json_data['@context'].present?)
             assert(json_data['meta'].present?)
             assert(json_data['links'].blank?)

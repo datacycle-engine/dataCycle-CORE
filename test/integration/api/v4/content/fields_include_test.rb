@@ -49,7 +49,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_overlay, fields: fields&.join(','), include: includes&.join(','))
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
-            response.parsed_body.dig('@graph').first
+            response.parsed_body['@graph'].first
           end
 
           def add_default(array)

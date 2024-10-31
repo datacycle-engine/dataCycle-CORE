@@ -42,7 +42,7 @@ if data.present?
   key_name = api_property_definition.dig('transformation', 'name') if api_property_definition.dig('transformation', 'method') == 'append'
   new_fields = subtree_for(key_name, options[:fields])
   new_include = subtree_for(key_name, options[:include])
-  translatable_embedded = content.properties_for(key).dig('translated') || false
+  translatable_embedded = content.properties_for(key)['translated'] || false
 
   json[key_name] = data.map do |description|
     if options[:field_filter] && new_fields.present?

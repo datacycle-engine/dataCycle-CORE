@@ -30,7 +30,7 @@ module DataCycleCore
 
           def process_content(utility_object:, raw_data:, locale:, options:)
             return if raw_data.blank?
-            return if options&.blank? || options.dig(:import).blank?
+            return if options&.blank? || options[:import].blank?
             allowed_locales = (
               options.dig(:import, :locales) ||
               utility_object.external_source.try(:default_options)&.symbolize_keys&.dig(:locales) ||
@@ -82,7 +82,7 @@ module DataCycleCore
           def transform_data_array(data_array:, options:)
             data_array = external_system_identifiers_to_ids!(
               data_array:,
-              **options.dig(:import)&.slice(:import_external_systems, :external_systems_mapping)
+              **options[:import]&.slice(:import_external_systems, :external_systems_mapping)
             )
 
             transform_concept_scheme_identifiers(data_array:, options:)
