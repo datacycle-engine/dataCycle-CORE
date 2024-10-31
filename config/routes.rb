@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-CONTENT_TABLES_FALLBACK = ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
-CONTENT_TABLE = ['things'].freeze
-
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
                      controllers: {
@@ -86,7 +83,7 @@ DataCycleCore::Engine.routes.draw do
     end
 
     scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-      resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things, except: :show) do
+      resources(*(Constants::CONTENT_TABLES_FALLBACK + Constants::CONTENT_TABLE).map(&:to_sym), controller: :things, except: :show) do
         post :import, on: :collection
         get 'history/:history_id', action: :history, on: :member, as: :history
         post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
@@ -123,7 +120,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things, only: []) do
+    resources(*(Constants::CONTENT_TABLES_FALLBACK + Constants::CONTENT_TABLE).map(&:to_sym), controller: :things, only: []) do
       get 'asset/:type', on: :member, action: :asset, constraints: { type: /(content|thumb|original)/ }
     end
   end
@@ -282,10 +279,10 @@ DataCycleCore::Engine.routes.draw do
           if DataCycleCore.main_config.dig(:api, :v2, :enabled)
             namespace :v2 do
               scope path: '(/:api_subversion)' do
-                type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+                type_regexp = Regexp.new(*Constants::CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
                 get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-                resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+                resources(*(Constants::CONTENT_TABLES_FALLBACK + Constants::CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
                   get :gpx, on: :member, to: '/data_cycle_core/downloads#download_gpx'
                 end
 
@@ -309,14 +306,14 @@ DataCycleCore::Engine.routes.draw do
           if DataCycleCore.main_config.dig(:api, :v3, :enabled)
             namespace :v3 do
               scope path: '(/:api_subversion)' do
-                type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+                type_regexp = Regexp.new(*Constants::CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
                 match 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter', via: [:get, :post]
 
-                resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: []) do
+                resources(*(Constants::CONTENT_TABLES_FALLBACK + Constants::CONTENT_TABLE).map(&:to_sym), only: []) do
                   get :gpx, on: :member, to: '/data_cycle_core/downloads#download_gpx'
                 end
 
-                (CONTENT_TABLES_FALLBACK + CONTENT_TABLE).each do |content_type|
+                (Constants::CONTENT_TABLES_FALLBACK + Constants::CONTENT_TABLE).each do |content_type|
                   match content_type, to: "#{content_type}#index", as: content_type, via: [:get, :post]
                   match "#{content_type}/:id", to: "#{content_type}#show", as: content_type.singularize, via: [:get, :post]
                 end
@@ -481,10 +478,10 @@ DataCycleCore::Engine.routes.draw do
         namespace :xml do
           namespace :v1 do
             scope path: '(/:api_subversion)' do
-              type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+              type_regexp = Regexp.new(*Constants::CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
               get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-              resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
+              resources(*(Constants::CONTENT_TABLES_FALLBACK + Constants::CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
 
               get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
 
