@@ -132,7 +132,7 @@ module DataCycleCore
         # find plain attributes
         advanced_search_property_names.each do |property|
           property_value = try(property)
-          (advanced_data[property] ||= []).concat(Array.wrap(property_value.is_a?(ActiveRecord::Relation) ? property_value.pluck(:id) : property_value)) if property_value.present? || property_value&.is_a?(FalseClass)
+          (advanced_data[property] ||= []).concat(Array.wrap(property_value.is_a?(ActiveRecord::Relation) ? property_value.pluck(:id) : property_value)) if property_value.present? || property_value.is_a?(FalseClass)
         end
 
         # find included properties
