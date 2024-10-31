@@ -27,7 +27,7 @@ module DataCycleCore
       q = text_to_websearch_tsquery(value)
 
       where("collections.search_vector @@ websearch_to_prefix_tsquery('simple', ?)", q)
-      .reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql("ts_rank_cd(collections.search_vector, websearch_to_prefix_tsquery('simple', ?), 5) DESC"), q]))
+        .reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql("ts_rank_cd(collections.search_vector, websearch_to_prefix_tsquery('simple', ?), 5) DESC"), q]))
     }
 
     scope :by_id_or_slug, lambda { |value|

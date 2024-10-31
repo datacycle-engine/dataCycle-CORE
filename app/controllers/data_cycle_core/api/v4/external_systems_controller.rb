@@ -96,8 +96,6 @@ module DataCycleCore
           strategy, external_system = api_strategy
           @webhook_logger ||= ::Logger.new('./log/APIv4_webhook.log')
           @webhook_logger.info("[Request #{request.request_id}] Incoming webhook (APIv4) for external system '#{external_system.identifier}'. User #{current_user.id} #{current_user.email}. Payload: #{content_params}")
-          return_value = nil
-          status = nil
 
           return_logger = lambda { |return_status, data|
             @webhook_logger.info("[#{return_status}] [Request #{request.request_id}] Returning for webhook (APIv4). Return value: #{data}")

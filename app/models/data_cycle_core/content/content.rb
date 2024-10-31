@@ -591,15 +591,15 @@ module DataCycleCore
 
       def parent_templates
         DataCycleCore::ThingTemplate
-        .from("thing_templates, jsonb_each(schema -> 'properties') property_name")
-        .where(
-          "property_name.value ->> 'type' = ? AND property_name.value ->> 'template_name' = ?",
-          'embedded',
-          template_name
-        )
-        .template_things
-        .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
-        .flatten
+          .from("thing_templates, jsonb_each(schema -> 'properties') property_name")
+          .where(
+            "property_name.value ->> 'type' = ? AND property_name.value ->> 'template_name' = ?",
+            'embedded',
+            template_name
+          )
+          .template_things
+          .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
+          .flatten
       end
 
       def feature_attributes(prefix = '')

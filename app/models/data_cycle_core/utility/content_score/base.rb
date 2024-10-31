@@ -58,7 +58,7 @@ module DataCycleCore
             quantity = quantity.to_r
             score_matrix = score_matrix.deep_dup.transform_values!(&:to_r)
 
-            convert_to_scale = ->(value, min, max) { ((value - min) / (max - min)) * (100.0 - 1.0) + 1.0 }
+            convert_to_scale = ->(value, min, max) { (((value - min) / (max - min)) * (100.0 - 1.0)) + 1.0 }
 
             if score_matrix['optimal'].nil?
               quantity.between?(score_matrix['min'], score_matrix['max'] || Float::INFINITY) ? 1 : 0

@@ -56,9 +56,9 @@ module DataCycleCore
                    property_definition&.dig('default_value', 'value', 'all')
 
             DataCycleCore::Concept
-             .for_tree(property_definition&.dig('tree_label'))
-             .with_internal_name(name)
-             .pluck(:classification_id)
+              .for_tree(property_definition&.dig('tree_label'))
+              .with_internal_name(name)
+              .pluck(:classification_id)
           end
 
           def copy_from_string(property_definition:, data_hash:, **_additional_args)

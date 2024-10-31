@@ -192,19 +192,19 @@ module DataCycleCore
 
         def self.load_schedules(external_source_id, external_keys)
           DataCycleCore::Schedule.where(external_source_id:, external_key: external_keys)
-                                 .pluck(:external_key, :id).to_h
+            .pluck(:external_key, :id).to_h
         end
 
         def self.load_classifications(external_source_id, external_keys)
           DataCycleCore::Classification.where(external_source_id:, external_key: external_keys)
-                                       .pluck(:external_key, :id).to_h
+            .pluck(:external_key, :id).to_h
         end
 
         def self.load_classifications_by_uri(classification_identifier)
           DataCycleCore::ClassificationAlias.for_tree(classification_identifier.pluck(0).uniq)
-                                            .where(uri: classification_identifier.pluck(1).uniq)
-                                            .primary_classifications
-                                            .pluck(:uri, :id).to_h
+            .where(uri: classification_identifier.pluck(1).uniq)
+            .primary_classifications
+            .pluck(:uri, :id).to_h
         end
 
         def self.load_classifications_by_path(classification_paths)

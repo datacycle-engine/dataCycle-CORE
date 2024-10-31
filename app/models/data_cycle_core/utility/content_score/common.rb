@@ -21,9 +21,9 @@ module DataCycleCore
 
           def by_cc_license(content:, **_args)
             license_classifications = content
-            &.classification_aliases
-            &.includes(:classification_tree_label)
-            &.where(classification_tree_labels: { name: content&.properties_for('license_classification')&.dig('tree_label') })
+              &.classification_aliases
+              &.includes(:classification_tree_label)
+              &.where(classification_tree_labels: { name: content&.properties_for('license_classification')&.dig('tree_label') })
 
             if license_classifications.present? && license_classifications&.all? { |c| c.try(:uri)&.starts_with?('https://creativecommons.org/') }
               1

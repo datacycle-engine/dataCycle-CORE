@@ -61,7 +61,7 @@ module DataCycleCore
             SQL
 
             if depth&.positive?
-              recursive_subquery << ' ' + <<-SQL.squish
+              recursive_subquery << (' ' + <<-SQL.squish)
                 AND NOT content_tree.leaf
               SQL
             end
@@ -96,7 +96,7 @@ module DataCycleCore
             SQL
 
             if depth&.positive?
-              recursive_subquery << ' ' + <<-SQL.squish
+              recursive_subquery << (' ' + <<-SQL.squish)
                 WHERE NOT content_tree.leaf
               SQL
             end

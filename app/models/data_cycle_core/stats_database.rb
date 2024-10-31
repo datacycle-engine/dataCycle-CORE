@@ -75,10 +75,8 @@ module DataCycleCore
 
       # Get collections and their stats in parallel
       collection_stats = Concurrent::Array.new
-      threads = []
-
-      db_client.collections.each do |collection|
-        threads << Thread.new do
+      threads = db_client.collections.map do |collection|
+        Thread.new do
           pipeline = [
             {
               '$facet' => {

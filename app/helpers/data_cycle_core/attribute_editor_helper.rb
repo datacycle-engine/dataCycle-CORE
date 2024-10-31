@@ -16,7 +16,7 @@ module DataCycleCore
     def schedule_duration_values(duration)
       duration = DataCycleCore::Schedule.iso8601_duration_to_parts(duration)
       duration_hash = DURATION_UNITS.to_h { |k, v| [k, { max: v, value: duration[k] }] }
-      duration_hash[:months][:value] = duration_hash[:months][:value].to_i + 12 * duration[:years] if duration.key?(:years)
+      duration_hash[:months][:value] = duration_hash[:months][:value].to_i + (12 * duration[:years]) if duration.key?(:years)
       duration_hash
     end
 
@@ -176,8 +176,8 @@ module DataCycleCore
         MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX,
         MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX
       ]
-      .intersection(versions)
-      .map do |v|
+        .intersection(versions)
+        .map do |v|
         CollectionHelper::CheckBoxStruct.new(
           v.delete_prefix('_'),
           t("common.bulk_update.check_box_labels.#{v.delete_prefix('_')}", locale: active_ui_locale)
@@ -191,7 +191,7 @@ module DataCycleCore
       check_boxes = [
         MasterData::Templates::AggregateTemplate::BASE_AGGREGATE_POSTFIX
       ]
-      .map do |v|
+        .map do |v|
         CollectionHelper::CheckBoxStruct.new(
           v.delete_prefix('_'),
           t("feature.aggregate.check_box_labels.#{v.delete_prefix('_')}", locale: active_ui_locale)

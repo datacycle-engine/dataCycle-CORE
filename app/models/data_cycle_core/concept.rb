@@ -167,7 +167,7 @@ module DataCycleCore
           include: { mapped_concepts: { only: [:id, :external_key], methods: [:external_system_identifier, :full_path] } },
           methods: [:parent_id, :name, :description, :external_system_identifier]
         )
-        .deep_compact_blank
+          .deep_compact_blank
       end
     end
 

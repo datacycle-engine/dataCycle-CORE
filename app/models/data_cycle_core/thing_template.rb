@@ -92,7 +92,7 @@ module DataCycleCore
       keys = attributes.is_a?(::Hash) ? attributes.keys : attributes
 
       DataCycleCore::ContentProperties.includes(:thing_template).where(property_name: keys).group_by(&:property_name)
-      .to_h do |key, cps|
+        .to_h do |key, cps|
         [
           key,
           cps.map { |cp|

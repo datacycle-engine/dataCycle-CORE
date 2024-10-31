@@ -18,7 +18,7 @@ module DataCycleCore
             external_key_prefix = Array.wrap(external_key_prefix)
             return attribute_value_from_hash(data:, key_path:, filter:, external_key_prefix:) if data.is_a?(::Hash)
 
-            if data.is_a?(::Array) && data.first.is_a?(ActiveRecord::Base) || data.is_a?(ActiveRecord::Relation)
+            if (data.is_a?(::Array) && data.first.is_a?(ActiveRecord::Base)) || data.is_a?(ActiveRecord::Relation)
               limited_value = (limit.to_i.positive? ? data.first(limit) : data)
               new_value_proc = -> { _1.to_h_partial([key_path.first, 'id', *filter&.pluck('key')&.flatten&.uniq]) }
             elsif data.is_a?(::Array) && data.first.to_s.uuid?

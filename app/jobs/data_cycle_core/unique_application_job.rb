@@ -21,7 +21,7 @@ module DataCycleCore
         locked_at: nil,
         failed_at: nil
       )
-      .order(run_at: :asc)
+        .order(run_at: :asc)
 
       first_job = previous_jobs.first
 

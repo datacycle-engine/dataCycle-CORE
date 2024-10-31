@@ -270,7 +270,7 @@ module DataCycleCore
         end
 
         def fixnum_max
-          (2**(0.size * 4 - 2) - 1)
+          ((2**((0.size * 4) - 2)) - 1)
         end
 
         def logging_delta

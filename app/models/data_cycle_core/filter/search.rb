@@ -351,13 +351,13 @@ module DataCycleCore
         relation_name = inverse ? :relation_b : :relation_a
 
         sub_select = content_content[thing_id].eq(thing[:id])
-                                              .and(content_content[related_to_id].in(filter_query))
+          .and(content_content[related_to_id].in(filter_query))
 
         sub_select = sub_select.and(content_content[relation_name].eq(name)) if name.present?
 
         Arel::SelectManager.new
-                           .from(content_content)
-                           .where(sub_select)
+          .from(content_content)
+          .where(sub_select)
       end
 
       ##

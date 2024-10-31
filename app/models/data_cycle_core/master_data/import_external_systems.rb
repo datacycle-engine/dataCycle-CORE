@@ -76,10 +76,8 @@ module DataCycleCore
         validation_hash = data_hash.deep_symbolize_keys
         validate_header = ExternalSystemHeaderContract.new
 
-        errors = []
-
-        validate_header.call(validation_hash).errors.each do |error|
-          errors.push("#{data_hash[:name]}.#{error.path.join('.')} => #{error.text}")
+        errors = validate_header.call(validation_hash).errors.map do |error|
+          "#{data_hash[:name]}.#{error.path.join('.')} => #{error.text}"
         end
 
         [:import_config, :download_config].each do |config_key|

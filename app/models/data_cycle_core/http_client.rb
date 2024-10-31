@@ -37,9 +37,9 @@ module DataCycleCore
         conn.adapter config[:adapter] || DEFAULT[:adapter]
         conn.options[:timeout] = config[:timeout] || DEFAULT[:timeout]
         conn.builder.handlers.delete(Faraday::Request::Retry)
-        conn.request :retry, **DEFAULT[:retry_options].merge(config[:retry_options] || {})
+        conn.request :retry, **DEFAULT[:retry_options], **config[:retry_options] || {}
         conn.builder.handlers.delete(FaradayMiddleware::FollowRedirects)
-        conn.response :follow_redirects, **DEFAULT[:follow_redirects].merge(config[:follow_redirects] || {})
+        conn.response :follow_redirects, **DEFAULT[:follow_redirects], **config[:follow_redirects] || {}
       }.tap do |conn|
         yield conn if block_given?
       end

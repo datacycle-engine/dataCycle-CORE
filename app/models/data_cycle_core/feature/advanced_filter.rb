@@ -31,7 +31,7 @@ module DataCycleCore
 
         def filter_requires_n_for_comparison?(filter)
           filter['t']&.in?(FILTERS_WITH_VALUE_IN_N) ||
-            filter['t'] == 'geo_filter' && filter['q'] == 'geo_within_classification'
+            (filter['t'] == 'geo_filter' && filter['q'] == 'geo_within_classification')
         end
 
         def all_available_filters(user, view_type, filter = nil)

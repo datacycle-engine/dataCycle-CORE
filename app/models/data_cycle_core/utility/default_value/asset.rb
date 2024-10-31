@@ -42,11 +42,9 @@ module DataCycleCore
 
           if create_or_map
             tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
-            classification_ids = []
-            search_values.each do |val|
-              classification_ids << tree_label&.create_classification_alias(val)&.primary_classification&.id
+            search_values.map do |val|
+              tree_label&.create_classification_alias(val)&.primary_classification&.id
             end
-            classification_ids
           else
             classification_ids = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), search_values)
             return classification_ids if classification_ids.present?

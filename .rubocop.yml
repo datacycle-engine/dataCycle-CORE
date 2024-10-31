@@ -142,6 +142,9 @@ Style/OperatorMethodCall:
 Style/ArgumentsForwarding:
   Enabled: false
 
+Style/SafeNavigationChainLength:
+  Max: 10
+
 #######################################################
 ########## Metrics
 Metrics/AbcSize:

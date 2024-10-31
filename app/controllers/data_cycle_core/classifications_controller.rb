@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class ClassificationsController < ApplicationController
-    FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
+    FIXNUM_MAX = ((2**((0.size * 8) - 2)) - 1)
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
 
     def index
@@ -59,16 +59,16 @@ module DataCycleCore
             @classification_trees = @classification_trees.includes(:classification_alias_path)
           else
             @classification_trees = @classification_trees
-            .joins(:sub_classification_alias)
-            .includes(
-              sub_classification_alias: [
-                :classification_alias_path,
-                :classification_tree_label,
-                additional_classifications: [primary_classification_alias: :classification_alias_path],
-                primary_classification: [additional_classification_aliases: :classification_alias_path],
-                classifications: [primary_classification_alias: :classification_alias_path]
-              ]
-            )
+              .joins(:sub_classification_alias)
+              .includes(
+                sub_classification_alias: [
+                  :classification_alias_path,
+                  :classification_tree_label,
+                  additional_classifications: [primary_classification_alias: :classification_alias_path],
+                  primary_classification: [additional_classification_aliases: :classification_alias_path],
+                  classifications: [primary_classification_alias: :classification_alias_path]
+                ]
+              )
 
             @classification_polygon_counts = @classification_trees
               .joins(sub_classification_alias: :classification_polygons)

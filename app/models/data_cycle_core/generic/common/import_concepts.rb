@@ -117,8 +117,8 @@ module DataCycleCore
             concept_schemes = concept_schemes_by_key.to_h.merge(concept_schemes_by_name.to_h)
 
             data_array
-            .group_by { |da| da[:concept_scheme_external_key].presence || da[:concept_scheme_name] }
-            .to_h { |k, v|
+              .group_by { |da| da[:concept_scheme_external_key].presence || da[:concept_scheme_name] }
+              .to_h { |k, v|
               new_k = concept_schemes[k]
               next [nil, nil] if new_k.blank? # reject if concept scheme is missing
               [
@@ -129,7 +129,7 @@ module DataCycleCore
                 }.compact.presence
               ]
             }
-            .compact_blank
+              .compact_blank
           end
 
           def external_system_identifiers_to_ids!(data_array:, import_external_systems: false, external_systems_mapping: nil)

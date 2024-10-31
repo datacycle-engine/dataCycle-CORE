@@ -236,8 +236,8 @@ module DataCycleCore
 
     def as_user_api_json
       as_json(user_api_feature.json_params)
-      .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*user_api_feature.json_additional_attributes) })
-      .deep_transform_keys { |k| k.to_s.camelize(:lower) }
+        .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*user_api_feature.json_additional_attributes) })
+        .deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
 
     def self.as_user_api_json

@@ -319,7 +319,7 @@ module DataCycleCore
       CSV.generate do |csv|
         csv << [name]
         classification_aliases.includes(:classification_alias_path, :classifications).sort_by(&:full_path).each do |classification_alias|
-          csv << Array.new(classification_alias.ancestors.count) + [classification_alias.name]
+          csv << (Array.new(classification_alias.ancestors.count) + [classification_alias.name])
 
           next unless include_contents
 

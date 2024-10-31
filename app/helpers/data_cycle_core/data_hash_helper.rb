@@ -66,10 +66,10 @@ module DataCycleCore
         content:
       }
 
-      content.classification_content.preload(classification: [primary_classification_alias: [:classification_tree_label, :classification_alias_path]]).group_by(&:relation).each { |key, ccs| ccs.each { |cc| add_content_header_classification_alias(**parameters.merge(key:, classification_alias: cc.classification&.primary_classification_alias)) } }
+      content.classification_content.preload(classification: [primary_classification_alias: [:classification_tree_label, :classification_alias_path]]).group_by(&:relation).each { |key, ccs| ccs.each { |cc| add_content_header_classification_alias(**parameters, key:, classification_alias: cc.classification&.primary_classification_alias) } }
 
       content.mapped_classification_aliases.preload(:classification_tree_label, :classification_alias_path).find_each do |ca|
-        add_content_header_classification_alias(**parameters.merge(key: '', classification_alias: ca, type: :mapped_value))
+        add_content_header_classification_alias(**parameters, key: '', classification_alias: ca, type: :mapped_value)
       end
 
       classification_aliases.each_value do |v|

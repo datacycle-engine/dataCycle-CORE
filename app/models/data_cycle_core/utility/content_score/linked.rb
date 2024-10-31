@@ -59,8 +59,8 @@ module DataCycleCore
             if definition.dig('content_score', 'weight_matrix').present?
               subtips = ['<ul>']
               definition.dig('content_score', 'weight_matrix')
-              .sort_by { |k, _v| k }
-              .each do |k, v|
+                .sort_by { |k, _v| k }
+                .each do |k, v|
                 subtips.push("<li><b>#{tooltip_string("weight_matrix_keys.#{k}", locale:, default: k.capitalize)}</b> (#{(v.to_r * 100).round}%)</li>")
               end
               tooltip.push("#{subtips.join}</ul>")

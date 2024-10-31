@@ -59,8 +59,8 @@ module DataCycleCore
             values.map { |value|
               get_ids_from_geometry(tree_label: computed_definition.dig('tree_label'), geometry: value.to_s)
             }.flatten
-            .compact_blank
-            .uniq
+              .compact_blank
+              .uniq
           end
 
           def copy_from_path(computed_parameters:, computed_definition:, **_args)

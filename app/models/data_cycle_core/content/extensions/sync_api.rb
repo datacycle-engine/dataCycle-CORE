@@ -83,7 +83,7 @@ module DataCycleCore
             embedded_hash.presence
           elsif embedded_property_names.include?(property_name)
             return if property_name == overlay_name
-            translated = properties_for(property_name)['translated']
+            properties_for(property_name)['translated']
             embedded_array = send(property_name_with_overlay)
 
             translated = property_definitions[property_name]['translated']
@@ -284,10 +284,10 @@ module DataCycleCore
                   .values_at(*ccc.classification_alias.classification_alias_path.full_path_ids)
                   .map { |ca|
                     ca.as_json(only: [:id, :internal_name, :external_source_id, :external_key, :name_i18n, :description_i18n, :uri], include: { primary_classification: { only: [:id, :name, :external_source_id, :external_key, :description, :uri] } })
-                    .merge({
-                      'class_type' => 'DataCycleCore::ClassificationAlias',
-                      'external_system' => ca.external_source&.identifier
-                    })
+                      .merge({
+                        'class_type' => 'DataCycleCore::ClassificationAlias',
+                        'external_system' => ca.external_source&.identifier
+                      })
                   } +
                   [
                     ccc.classification_alias.classification_tree_label.as_json(only: [:id, :name]).merge({

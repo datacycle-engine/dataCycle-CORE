@@ -53,8 +53,6 @@ module DataCycleCore
               writer = ZipTricks::BlockWrite.new(&yielder)
 
               ZipTricks::Streamer.open(writer) do |zip|
-                output_xlsx = nil
-
                 txt_writer = zip.write_stored_file('contents.csv')
                 txt_write = CSV(txt_writer)
                 txt_write << ['ID', 'Name', 'URL']

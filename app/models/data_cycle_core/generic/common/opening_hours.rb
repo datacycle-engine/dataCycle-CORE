@@ -222,7 +222,7 @@ module DataCycleCore
 
         def convert_to_time_string(number)
           hh = number / (60 * 60)
-          mm = (number - hh * 60 * 60) / 60
+          mm = (number - (hh * 60 * 60)) / 60
           hh -= 24 if hh >= 24
           [hh.to_s, mm.to_s.rjust(2, '0')].join(':')
         end

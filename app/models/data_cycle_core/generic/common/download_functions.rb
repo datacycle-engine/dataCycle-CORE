@@ -436,7 +436,7 @@ module DataCycleCore
 
         def self.mark_deleted_from_data(download_object:, iterator:, archived: nil, **keyword_args)
           with_logging(download_object:, iterator:, archived:, **keyword_args) do |options, step_label|
-            fixnum_max = (2**(0.size * 4 - 2) - 1)
+            fixnum_max = ((2**((0.size * 4) - 2)) - 1)
             locale = options[:locales].first
             item_count = 0
             source_filter = nil
@@ -494,7 +494,7 @@ module DataCycleCore
 
         def self.mark_updated(download_object:, iterator:, dependent_keys:, **keyword_args)
           with_logging(download_object:, iterator:, dependent_keys:, iterate_locales: false, **keyword_args) do |options, step_label|
-            fixnum_max = (2**(0.size * 4 - 2) - 1)
+            fixnum_max = ((2**((0.size * 4) - 2)) - 1)
             locales = (options[:locales] || I18n.available_locales).map(&:to_s)
             deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
             item_count = 0

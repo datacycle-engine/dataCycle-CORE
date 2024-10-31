@@ -99,7 +99,7 @@ module DataCycleCore
           ).where.not(id: content.id)
             .map { |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
-              score = [0, 100 * (total - diff.size * WEIGHTING) / total].max
+              score = [0, 100 * (total - (diff.size * WEIGHTING)) / total].max
               { thing_duplicate_id: d.id, method: 'data_metric_hamming', score: } if score > 80
             }.compact
         end
@@ -111,9 +111,9 @@ module DataCycleCore
           ).where( # prefilter location
             content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS_NAME_GEO})"
           ).where.not(id: content.id)
-          .pluck(:id)
-          .map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
-          .compact
+            .pluck(:id)
+            .map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
+            .compact
         end
 
         def version_name_for_merge(duplicate, ui_locale = DataCycleCore.ui_locales.first)

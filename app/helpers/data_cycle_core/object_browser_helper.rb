@@ -15,7 +15,7 @@ module DataCycleCore
           }]
         }
 
-        creatable_templates = new_content_select_options(**query_filter.merge({ scope: 'object_browser' }))
+        creatable_templates = new_content_select_options(**query_filter, scope: 'object_browser')
 
         return if creatable_templates.blank?
 

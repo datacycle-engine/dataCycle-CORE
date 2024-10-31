@@ -216,12 +216,12 @@ module DataCycleCore
 
     def self.custom_find_by_full_path(full_path)
       includes(:classification_alias_path)
-      .where(
-        "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
-        full_path.split('>').reverse.map(&:strip).join(' < ')
-      )
-      .references(:classification_alias_paths)
-      .first
+        .where(
+          "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
+          full_path.split('>').reverse.map(&:strip).join(' < ')
+        )
+        .references(:classification_alias_paths)
+        .first
     end
 
     def self.custom_find_by_full_path!(full_path)
