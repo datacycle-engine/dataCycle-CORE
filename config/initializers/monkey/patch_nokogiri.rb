@@ -13,7 +13,7 @@ Nokogiri::XML::Node.class_eval do
     }.group_by { |h|
       h.keys.first
     }.map { |k, v|
-      Hash[k, v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten]
+      {k => v.size == 1 ? v.map(&:values).flatten.first : v.map(&:values).flatten}
     }.reduce({}, &:merge)
 
     if !attributes.empty? && children.empty?

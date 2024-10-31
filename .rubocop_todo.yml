@@ -127,17 +127,6 @@ Rails/SquishedSQLHeredocs:
 Style/HashAsLastArrayItem:
   Enabled: false
 
-# Offense count: 10
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowSplatArgument.
-Style/HashConversion:
-  Exclude:
-    - "app/models/data_cycle_core/generic/common/download_functions.rb"
-    - "app/models/data_cycle_core/generic/external_link/functions.rb"
-    - "config/initializers/monkey/hash_extension.rb"
-    - "config/initializers/monkey/patch_nokogiri.rb"
-    - "lib/tasks/data_cycle_core_import.rake"
-
 # Offense count: 1
 # Configuration parameters: MinBranchesCount.
 Style/HashLikeCase:

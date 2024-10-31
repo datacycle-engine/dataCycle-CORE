@@ -552,7 +552,7 @@ module DataCycleCore
 
         def self.bson_to_hash(item)
           return item unless item.is_a?(::Hash)
-          Hash[item.to_a.map { |k, v| [k, v.is_a?(::Hash) ? bson_to_hash(v) : (v.is_a?(::Array) ? v.map { |i| bson_to_hash(i) } : v)] }]
+          item.to_a.to_h { |k, v| [k, v.is_a?(::Hash) ? bson_to_hash(v) : (v.is_a?(::Array) ? v.map { |i| bson_to_hash(i) } : v)] }
         end
 
         def self.diff?(a, b, _options = {})
