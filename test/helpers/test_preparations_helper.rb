@@ -184,11 +184,12 @@ module DataCycleCore
       end_time = dtstart + duration if duration.present?
       untildt = DataCycleCore::Schedule.until_as_utc(untild, dtstart)
       schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time:, duration: duration&.to_i }) do |s|
-        if frequency == 'daily'
+        case frequency
+        when 'daily'
           s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(untildt))
-        elsif frequency == 'weekly'
+        when 'weekly'
           s.add_recurrence_rule(IceCube::Rule.weekly.until(untildt).day(week_days))
-        elsif frequency == 'monthly'
+        when 'monthly'
           s.add_recurrence_rule(IceCube::Rule.monthly.until(untildt))
         end
       end

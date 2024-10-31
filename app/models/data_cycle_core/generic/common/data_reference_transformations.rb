@@ -106,11 +106,12 @@ module DataCycleCore
         end
 
         def self.collect_references(data)
-          if data.is_a?(ExternalReference) || data.is_a?(ClassificationNameReference) || data.is_a?(ClassificationUriReference)
+          case data
+          when ExternalReference, ClassificationNameReference, ClassificationUriReference
             data
-          elsif data.is_a?(Hash)
+          when Hash
             data.values.map { |v| collect_references(v) }.flatten
-          elsif data.is_a?(Array)
+          when Array
             data.map { |v| collect_references(v) }.flatten
           else
             []
@@ -154,15 +155,16 @@ module DataCycleCore
         end
 
         def self.replace_references(data, external_reference_mapping_table, classification_mapping_table)
-          if data.is_a?(ExternalReference)
+          case data
+          when ExternalReference
             external_reference_mapping_table.dig(data.reference_type, data.external_source_id, data.external_key&.to_s)
-          elsif data.is_a?(ClassificationNameReference)
+          when ClassificationNameReference
             classification_mapping_table[data.classification_path&.map(&:to_s)]
-          elsif data.is_a?(ClassificationUriReference)
+          when ClassificationUriReference
             classification_mapping_table[data.uri&.to_s]
-          elsif data.is_a?(Hash)
+          when Hash
             data.transform_values { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }
-          elsif data.is_a?(Array)
+          when Array
             data.filter_map { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }.uniq
           else
             data

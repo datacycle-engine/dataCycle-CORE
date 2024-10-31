@@ -136,11 +136,12 @@ module DataCycleCore
       end
 
       def parse_parameters_from_yaml(parameters)
-        if parameters.is_a?(::Array)
+        case parameters
+        when ::Array
           parameters.map { |v| parse_parameters_from_yaml(v) }
-        elsif parameters.is_a?(::String)
+        when ::String
           parameters.safe_constantize || parameters
-        elsif parameters.is_a?(::Hash)
+        when ::Hash
           parameters.transform_values { |v| parse_parameters_from_yaml(v) }
         else
           parameters

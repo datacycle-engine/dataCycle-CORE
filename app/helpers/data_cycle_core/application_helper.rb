@@ -523,11 +523,12 @@ module DataCycleCore
       options[:data][:type] = alert_class
       options[:data][:id] = SecureRandom.hex(10)
 
-      if value.is_a?(::String)
+      case value
+      when ::String
         options[:data][:text] = value
-      elsif value.is_a?(::Hash)
+      when ::Hash
         options[:data][:text] = value.map { |k, v| "#{k.to_s.titleize}: #{v.join(', ')}" }.join('<br>')
-      elsif value.is_a?(::Array)
+      when ::Array
         options[:data][:text] = value.join('<br>')
       else
         options[:data][:text] = value.to_s

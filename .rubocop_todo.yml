@@ -120,18 +120,6 @@ Rails/OutputSafety:
 Rails/SquishedSQLHeredocs:
   Enabled: false
 
-# Offense count: 7
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: MinBranchesCount.
-Style/CaseLikeIf:
-  Exclude:
-    - "app/helpers/data_cycle_core/api_helper.rb"
-    - "app/helpers/data_cycle_core/application_helper.rb"
-    - "app/models/data_cycle_core/abilities/permissions_list.rb"
-    - "app/models/data_cycle_core/feature/advanced_filter.rb"
-    - "app/models/data_cycle_core/generic/common/data_reference_transformations.rb"
-    - "test/helpers/test_preparations_helper.rb"
-
 # Offense count: 2
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AllowedMethods, AllowedPatterns.

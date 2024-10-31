@@ -173,7 +173,8 @@ module DataCycleCore
         end
 
         def date_range(locale, value)
-          if value == 'all'
+          case value
+          when 'all'
             ['created_at', 'updated_at'].map do |c|
               [
                 I18n.t("filter.date_range.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale:), locale:),
@@ -181,7 +182,7 @@ module DataCycleCore
                 data: { name: c }
               ]
             end
-          elsif value.is_a?(Hash)
+          when Hash
             value.keys.map do |c|
               [
                 I18n.t("filter.date_range.#{c.to_s.underscore_blanks}", default: I18n.t("filter.#{c.to_s.underscore_blanks}", default: c, locale:), locale:),
@@ -189,7 +190,7 @@ module DataCycleCore
                 data: { name: c }
               ]
             end
-          elsif value.is_a?(Array)
+          when Array
             value.map do |c|
               [
                 I18n.t("filter.date_range.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale:), locale:),
