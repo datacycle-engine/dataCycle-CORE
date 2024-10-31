@@ -3,8 +3,7 @@
 module DataCycleCore
   module MasterData
     class NormalizeData
-      attr_accessor :logger
-      attr_accessor :endpoint
+      attr_accessor :logger, :endpoint
 
       def initialize(logger: nil, host: nil, end_point: nil, **)
         if logger.blank?
