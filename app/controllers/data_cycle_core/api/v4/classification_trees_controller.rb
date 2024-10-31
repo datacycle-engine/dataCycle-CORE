@@ -257,8 +257,7 @@ module DataCycleCore
         end
 
         def apply_full_text_search(query, search)
-          query = query.search(search)
-          query
+          query.search(search)
         end
 
         def apply_ordering(query)

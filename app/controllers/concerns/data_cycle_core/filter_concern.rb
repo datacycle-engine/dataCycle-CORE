@@ -182,8 +182,7 @@ module DataCycleCore
       query = query.fulltext_search(@full_text_search) if @full_text_search
 
       query = apply_filters(query, permitted_params&.dig(:filter))
-      query = append_filters(query, permitted_params)
-      query
+      append_filters(query, permitted_params)
     end
 
     def set_view_mode

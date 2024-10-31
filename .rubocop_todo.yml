@@ -149,22 +149,6 @@ Style/OpenStructUse:
 Style/OptionalBooleanParameter:
   Enabled: false
 
-# Offense count: 16
-# This cop supports safe autocorrection (--autocorrect).
-Style/RedundantAssignment:
-  Exclude:
-    - "app/controllers/concerns/data_cycle_core/filter_concern.rb"
-    - "app/controllers/data_cycle_core/api/v1/contents_controller.rb"
-    - "app/controllers/data_cycle_core/api/v4/classification_trees_controller.rb"
-    - "app/helpers/data_cycle_core/attribute_editor_helper.rb"
-    - "app/models/data_cycle_core/feature/image_proxy.rb"
-    - "app/models/data_cycle_core/generic/external_link/webhook.rb"
-    - "app/models/data_cycle_core/geo/geojson_renderer.rb"
-    - "app/services/data_cycle_core/api_service.rb"
-    - "test/v4/validation/concept.rb"
-    - "test/v4/validation/context.rb"
-    - "test/v4/validation/thing.rb"
-
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantBegin:

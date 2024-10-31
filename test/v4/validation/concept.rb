@@ -62,22 +62,20 @@ module DataCycleCore
           fields = params.dig(:fields)
           include = params.dig(:include)
           attributes = build_concept_scheme_validation(fields, include)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
           end
-          validator
         end
 
         def self.concept(params: {})
           fields = params.dig(:fields)
           include = params.dig(:include)
           attributes = build_concept_validation(fields, include)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
           end
-          validator
         end
       end
     end

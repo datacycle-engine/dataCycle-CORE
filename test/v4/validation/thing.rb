@@ -135,30 +135,27 @@ module DataCycleCore
           fields = params.dig(:fields)
           include = params.dig(:include)
           attributes = build_thing_validation(fields, include)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
           end
-          validator
         end
 
         def self.deleted_thing
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_DELETED_HEADER)
           end
-          validator
         end
 
         def self.event(params: {})
           fields = params.dig(:fields)
           include = params.dig(:include)
           attributes = build_event_validation(fields, include)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
           end
-          validator
         end
       end
     end

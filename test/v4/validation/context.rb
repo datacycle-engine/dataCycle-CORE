@@ -26,11 +26,10 @@ module DataCycleCore
 
         def self.context(languages = nil)
           language_attributes = build_language_attributes(languages)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(CONTEXT_ATTRIBUTES, language_attributes)
           end
-          validator
         end
       end
     end

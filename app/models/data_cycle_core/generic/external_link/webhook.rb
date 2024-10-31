@@ -59,8 +59,7 @@ module DataCycleCore
             sync.save!
           end
 
-          errors = additional_update_actions(data, external_system) || {}
-          errors
+          additional_update_actions(data, external_system) || {}
         end
 
         def delete_sync(data:, external_system:)
@@ -71,8 +70,7 @@ module DataCycleCore
             sync.destroy!
           end
 
-          errors = additional_delete_actions(data, external_system) || {}
-          errors
+          additional_delete_actions(data, external_system) || {}
         end
 
         def init_logging

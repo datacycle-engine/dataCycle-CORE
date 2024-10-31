@@ -127,8 +127,7 @@ module DataCycleCore
           path = "/cachebuster:#{cachebuster}/preset:#{preset}/resize:#{resize_type}:#{width}:#{height}:#{enlarge}/gravity:#{gravity}/filename:#{content.id}/plain/#{url}@#{extension}"
 
           digest = OpenSSL::Digest.new('sha256')
-          hmac = Base64.urlsafe_encode64(OpenSSL::HMAC.digest(digest, key, "#{salt}#{path}")).tr('=', '')
-          hmac
+          Base64.urlsafe_encode64(OpenSSL::HMAC.digest(digest, key, "#{salt}#{path}")).tr('=', '')
         end
       end
     end

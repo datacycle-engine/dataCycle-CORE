@@ -192,8 +192,7 @@ module DataCycleCore
         all_filters += [union_query]
       end
 
-      query = query.union_filter(all_filters)
-      query
+      query.union_filter(all_filters)
     end
 
     def apply_content_id_filters(query, filters)
