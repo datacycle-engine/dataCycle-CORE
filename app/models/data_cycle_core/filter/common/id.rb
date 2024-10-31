@@ -60,7 +60,7 @@ module DataCycleCore
           reflect(
             @query.where(ActiveRecord::Base.send(:sanitize_sql_array, [
                                                    sub_query,
-                                                   key_string:
+                                                   {key_string:}
                                                  ]))
           )
         end

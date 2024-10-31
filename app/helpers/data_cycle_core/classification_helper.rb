@@ -119,9 +119,9 @@ module DataCycleCore
         .for_tree(tree_label)
         .includes(
           :primary_classification, :classification_alias_path, sub_classification_alias: [
-            :primary_classification, :classification_alias_path, sub_classification_alias: [
+            :primary_classification, :classification_alias_path, {sub_classification_alias: [
               :primary_classification, :classification_alias_path, :sub_classification_alias
-            ]
+            ]}
           ]
         )
         .order(order_by)

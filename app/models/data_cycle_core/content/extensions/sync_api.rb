@@ -253,7 +253,7 @@ module DataCycleCore
                 :schedules,
                 external_system_syncs: [:external_system],
                 asset_contents: [:asset],
-                collected_classification_contents: [classification_alias: [:external_source, :classification_alias_path, classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]]]
+                collected_classification_contents: [classification_alias: [:external_source, :classification_alias_path, {classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]}]]
               )
               .index_by(&:id)
 

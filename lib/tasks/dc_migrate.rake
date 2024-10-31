@@ -474,7 +474,7 @@ namespace :dc do
       SQL
 
       ActiveRecord::Base.connection.execute(
-        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, relation: args.attribute_key])
+        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, {relation: args.attribute_key}])
       )
 
       query.delete_all

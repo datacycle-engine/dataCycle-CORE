@@ -128,9 +128,9 @@ module DataCycleCore
         next if value.key?('compute') || value.key?('virtual')
 
         if value['type'] == 'schedule'
-          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [:day_of_week, :day_of_month, day: [], day_of_month: [], day_of_week: {}]]]] }
+          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, {start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, {validations: [:day_of_week, :day_of_month, {day: [], day_of_month: [], day_of_week: {}}]}]}]] }
         elsif value['type'] == 'opening_time'
-          parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]]] }
+          parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, {time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]}]] }
         elsif value['type'] == 'embedded'
           object_schemas = Array.wrap(value['template_name']).map { |t| get_internal_template(t).schema }
           parameter = { key.to_sym => object_schemas.map { |os| get_params_from_hash(os) }.reduce({}) { |p1, p2| p1.deep_merge(p2) { |_k, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? (v1 + v2).uniq : v2 } } }

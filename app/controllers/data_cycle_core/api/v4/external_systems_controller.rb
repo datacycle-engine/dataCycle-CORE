@@ -187,7 +187,7 @@ module DataCycleCore
         def permitted_parameter_keys
           super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
                    :days, :units, :from, :to, :page_size, :start_index, :attribute,
-                   occupation: [:adults, :children, :units], filter: {}]
+                   {occupation: [:adults, :children, :units], filter: {}}]
         end
 
         def api_strategy

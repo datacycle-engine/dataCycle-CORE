@@ -107,8 +107,8 @@ module DataCycleCore
             ActiveRecord::Base.connection.select_all(
               ActiveRecord::Base.send(:sanitize_sql_array, [
                                         query_sql,
-                                        tree_label:,
-                                        geo: geometry
+                                        {tree_label:,
+                                         geo: geometry}
                                       ])
             ).rows.flatten
           end

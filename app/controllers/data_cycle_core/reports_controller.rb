@@ -35,7 +35,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:type, :identifier, :thing_id, additional_params: {}]
+      [:type, :identifier, :thing_id, {additional_params: {}}]
     end
   end
 end

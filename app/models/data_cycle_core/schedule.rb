@@ -979,8 +979,8 @@ module DataCycleCore
 
       ActiveRecord::Base.send(:sanitize_sql_array, [
                                 sql,
-                                range_start:,
-                                range_end:
+                                {range_start:,
+                                 range_end:}
                               ])
     end
   end

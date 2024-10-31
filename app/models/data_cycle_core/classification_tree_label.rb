@@ -440,7 +440,7 @@ module DataCycleCore
           :sanitize_sql_array,
           [
             raw_sql,
-            id:
+            {id:}
           ]
         )
       )

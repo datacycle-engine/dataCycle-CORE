@@ -58,7 +58,7 @@ module DataCycleCore
                                           "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)"
                                         }.join(' + ') + ' DESC'.to_s
                                       ),
-                                      term:
+                                      {term:}
                                     ]
                                   )
                                 }

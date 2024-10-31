@@ -72,7 +72,7 @@ module DataCycleCore
           ON #{joined_name}.thing_id = things.id
         SQL
 
-        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id:, external_key: external_key.is_a?(Array) ? external_key.map(&:to_s) : external_key.to_s]))
+        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, {external_system_id:, external_key: external_key.is_a?(Array) ? external_key.map(&:to_s) : external_key.to_s}]))
       end
 
       def first_by_external_key_or_id(external_key, external_system_id)
@@ -112,7 +112,7 @@ module DataCycleCore
           ON #{joined_name}.thing_id = things.id
         SQL
 
-        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id:]))
+        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, {external_system_id:}]))
       end
 
       # TODO: currently not replaceable: used in PulicationsController

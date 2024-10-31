@@ -45,7 +45,7 @@ module DataCycleCore
             CROSS JOIN (SELECT :seed_value AS seed_value from setseed(:seed_value)) seed_values
           SQL
 
-          random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, seed_value: seed])
+          random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, {seed_value: seed}])
         end
 
         # TODO: fix random sorting with moving active query into exists subquery
@@ -450,8 +450,8 @@ module DataCycleCore
               2 * ts_rank_cd(searches.words, plainto_tsquery(pg_dict_mappings.dict, :search),16) +
               1 * similarity(searches.full_text, :search_string))"
             ),
-            search_string: "%#{search_string}%",
-            search: value.to_s.squish
+            {search_string: "%#{search_string}%",
+             search: value.to_s.squish}
           ]
         )
         reflect(

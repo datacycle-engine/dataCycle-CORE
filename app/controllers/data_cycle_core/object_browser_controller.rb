@@ -101,7 +101,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :external, :parent_id, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
+      [:per, :page, :id, :locale, :external, :parent_id, { filter_ids: [] }, { ids: [] }, { definition: {} }, {filter: {}, excluded: []}]
     end
 
     def count_only_params

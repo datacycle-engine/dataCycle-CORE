@@ -90,7 +90,7 @@ module DataCycleCore
       end
 
       def mvt_unclustered_sql
-        as_mvt_select = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsMVT(mvtgeom, :layer_name) FROM mvtgeom', layer_name: @layer_name])
+        as_mvt_select = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsMVT(mvtgeom, :layer_name) FROM mvtgeom', {layer_name: @layer_name}])
 
         <<-SQL.squish
           #{base_contents_subquery}, mvtgeom AS (
@@ -118,8 +118,8 @@ module DataCycleCore
 
         ActiveRecord::Base.send(:sanitize_sql_array, [
                                   layer_select_sql,
-                                  layer_name: @layer_name,
-                                  cluster_layer_name: @cluster_layer_name
+                                  {layer_name: @layer_name,
+                                   cluster_layer_name: @cluster_layer_name}
                                 ])
       end
 

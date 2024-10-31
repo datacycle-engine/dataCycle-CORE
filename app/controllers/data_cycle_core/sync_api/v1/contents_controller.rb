@@ -69,7 +69,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :deleted_at, :updated_since, :uuids, :index_only, uuid: []]
+          super + [:id, :language, :deleted_at, :updated_since, :uuids, :index_only, {uuid: []}]
         end
 
         private

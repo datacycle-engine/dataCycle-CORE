@@ -45,7 +45,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, :min_count_with_subtree, :min_count_without_subtree, section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: []]
+          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, :min_count_with_subtree, :min_count_without_subtree, {section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: []}]
         end
 
         def validate_params_exceptions

@@ -182,7 +182,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, user_group_ids: [], additional_attributes: {}]
+      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, {user_group_ids: [], additional_attributes: {}}]
       allowed_params.push(:password, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present?
       params.require(controller_name.singularize.to_sym).permit(allowed_params)
     end

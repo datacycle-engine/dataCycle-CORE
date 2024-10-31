@@ -120,13 +120,6 @@ Rails/OutputSafety:
 Rails/SquishedSQLHeredocs:
   Enabled: false
 
-# Offense count: 75
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces
-Style/HashAsLastArrayItem:
-  Enabled: false
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:

@@ -61,7 +61,7 @@ module DataCycleCore
         end
 
         def location_params
-          params.permit(geo: [:type, geometry: [:type, coordinates: []]])
+          params.permit(geo: [:type, {geometry: [:type, {coordinates: []}]}])
         end
 
         def locale_params

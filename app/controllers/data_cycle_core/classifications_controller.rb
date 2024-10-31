@@ -64,9 +64,9 @@ module DataCycleCore
                 sub_classification_alias: [
                   :classification_alias_path,
                   :classification_tree_label,
-                  additional_classifications: [primary_classification_alias: :classification_alias_path],
-                  primary_classification: [additional_classification_aliases: :classification_alias_path],
-                  classifications: [primary_classification_alias: :classification_alias_path]
+                  {additional_classifications: [primary_classification_alias: :classification_alias_path],
+                   primary_classification: [additional_classification_aliases: :classification_alias_path],
+                   classifications: [primary_classification_alias: :classification_alias_path]}
                 ]
               )
 
@@ -328,8 +328,8 @@ module DataCycleCore
         normalize_names(params).permit(
           :classification_tree_label_id,
           :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: [], ui_configs: [:color]]
+          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
     end
@@ -342,8 +342,8 @@ module DataCycleCore
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
         normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: [], ui_configs: [:color]]
+          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
     end

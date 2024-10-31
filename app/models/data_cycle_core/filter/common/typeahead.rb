@@ -25,7 +25,7 @@ module DataCycleCore
           SQL
 
           ActiveRecord::Base.connection.select_all(
-            ActiveRecord::Base.send(:sanitize_sql_array, [typeahead_query, word: normalized_search, limit:])
+            ActiveRecord::Base.send(:sanitize_sql_array, [typeahead_query, {word: normalized_search, limit:}])
           )
         end
 
@@ -53,10 +53,10 @@ module DataCycleCore
           ActiveRecord::Base.connection.select_all(
             ActiveRecord::Base.send(:sanitize_sql_array, [
                                       typeahead_query,
-                                      search: "#{normalized_name}%",
-                                      sort: normalized_name,
-                                      locale:,
-                                      limit:
+                                      {search: "#{normalized_name}%",
+                                       sort: normalized_name,
+                                       locale:,
+                                       limit:}
                                     ])
           ).to_a.pluck('headline').map(&:strip)
         end
@@ -100,9 +100,9 @@ module DataCycleCore
           ActiveRecord::Base.connection.select_all(
             ActiveRecord::Base.send(:sanitize_sql_array, [
                                       typeahead_query,
-                                      tsquery_value: normalized_name,
-                                      locale:,
-                                      limit:
+                                      {tsquery_value: normalized_name,
+                                       locale:,
+                                       limit:}
                                     ])
           ).to_a.pluck('headline').map(&:strip)
         end

@@ -9,16 +9,16 @@ module DataCycleCore
         def recursive_content_links(depth: 0)
           DataCycleCore::ContentContent.from("(#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                            self.class.send(:recursive_content_links_query, depth:),
-                                                                           id:,
-                                                                           depth: depth.to_i
+                                                                           {id:,
+                                                                            depth: depth.to_i}
                                                                          ])}) content_contents").reorder(order_a: :asc)
         end
 
         def recursive_content_content_a(depth: 0)
           DataCycleCore::ContentContent.from("(#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                            self.class.send(:recursive_content_content_a_query, depth:),
-                                                                           id:,
-                                                                           depth: depth.to_i
+                                                                           {id:,
+                                                                            depth: depth.to_i}
                                                                          ])}) content_contents").reorder(order_a: :asc)
         end
 
@@ -28,8 +28,8 @@ module DataCycleCore
               relation_name: :content_content_a,
               scope: DataCycleCore::ContentContent.from("(#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                       recursive_content_links_query(depth:),
-                                                                                      id: current_scope.pluck(:id),
-                                                                                      depth: depth.to_i
+                                                                                      {id: current_scope.pluck(:id),
+                                                                                       depth: depth.to_i}
                                                                                     ])}) content_contents").reorder(order_a: :asc),
               preload:
             )
@@ -40,8 +40,8 @@ module DataCycleCore
               relation_name: :content_content_a,
               scope: DataCycleCore::ContentContent.from("(#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                       recursive_content_content_a_query(depth:),
-                                                                                      id: current_scope.pluck(:id),
-                                                                                      depth: depth.to_i
+                                                                                      {id: current_scope.pluck(:id),
+                                                                                       depth: depth.to_i}
                                                                                     ])}) content_contents").reorder(order_a: :asc),
               preload:
             )

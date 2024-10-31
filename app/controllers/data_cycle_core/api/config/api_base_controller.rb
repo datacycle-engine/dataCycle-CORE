@@ -38,7 +38,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:token, :include, :format, section: {}, page: {}]
+          [:token, :include, :format, {section: {}, page: {}}]
         end
 
         def page_parameters
