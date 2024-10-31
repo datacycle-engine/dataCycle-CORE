@@ -17,13 +17,13 @@ module DataCycleCore
         }.freeze
 
         def advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = respond_to?("equals_advanced_#{attribute_path}".to_sym) ? "equals_advanced_#{attribute_path}".to_sym : "equals_advanced_#{type}".to_sym
+          advanced_type = respond_to?(:"equals_advanced_#{attribute_path}") ? :"equals_advanced_#{attribute_path}" : :"equals_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
 
         def not_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = respond_to?("not_equals_advanced_#{attribute_path}".to_sym) ? "not_equals_advanced_#{attribute_path}".to_sym : "not_equals_advanced_#{type}".to_sym
+          advanced_type = respond_to?(:"not_equals_advanced_#{attribute_path}") ? :"not_equals_advanced_#{attribute_path}" : :"not_equals_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
@@ -32,37 +32,37 @@ module DataCycleCore
         alias not_equals_advanced_attributes not_advanced_attributes
 
         def like_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = respond_to?("like_advanced_#{attribute_path}".to_sym) ? "like_advanced_#{attribute_path}".to_sym : "like_advanced_#{type}".to_sym
+          advanced_type = respond_to?(:"like_advanced_#{attribute_path}") ? :"like_advanced_#{attribute_path}" : :"like_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
 
         def not_like_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = respond_to?("not_like_advanced_#{attribute_path}".to_sym) ? "not_like_advanced_#{attribute_path}".to_sym : "not_like_advanced_#{type}".to_sym
+          advanced_type = respond_to?(:"not_like_advanced_#{attribute_path}") ? :"not_like_advanced_#{attribute_path}" : :"not_like_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
 
         def exists_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = respond_to?("exists_advanced_#{attribute_path}".to_sym) ? "exists_advanced_#{attribute_path}".to_sym : "exists_advanced_#{type}".to_sym
+          advanced_type = respond_to?(:"exists_advanced_#{attribute_path}") ? :"exists_advanced_#{attribute_path}" : :"exists_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
 
         def not_exists_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = respond_to?("not_exists_advanced_#{attribute_path}".to_sym) ? "not_exists_advanced_#{attribute_path}".to_sym : "not_exists_advanced_#{type}".to_sym
+          advanced_type = respond_to?(:"not_exists_advanced_#{attribute_path}") ? :"not_exists_advanced_#{attribute_path}" : :"not_exists_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
 
         def greater_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = respond_to?("greater_advanced_#{attribute_path}".to_sym) ? "greater_advanced_#{attribute_path}".to_sym : "greater_advanced_#{type}".to_sym
+          advanced_type = respond_to?(:"greater_advanced_#{attribute_path}") ? :"greater_advanced_#{attribute_path}" : :"greater_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
 
         def lower_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = respond_to?("lower_advanced_#{attribute_path}".to_sym) ? "lower_advanced_#{attribute_path}".to_sym : "lower_advanced_#{type}".to_sym
+          advanced_type = respond_to?(:"lower_advanced_#{attribute_path}") ? :"lower_advanced_#{attribute_path}" : :"lower_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end

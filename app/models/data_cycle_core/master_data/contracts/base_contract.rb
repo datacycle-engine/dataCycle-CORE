@@ -74,8 +74,8 @@ module DataCycleCore
         end
 
         SECTION = Dry::Schema.Params do
-          optional(:'@graph').value(:integer, included_in?: [0, 1])
-          optional(:'@context').value(:integer, included_in?: [0, 1])
+          optional(:@graph).value(:integer, included_in?: [0, 1])
+          optional(:@context).value(:integer, included_in?: [0, 1])
           optional(:meta).value(:integer, included_in?: [0, 1])
           optional(:links).value(:integer, included_in?: [0, 1])
         end

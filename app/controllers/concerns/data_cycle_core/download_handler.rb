@@ -206,7 +206,7 @@ module DataCycleCore
     end
 
     def serializer_method_for_content(content)
-      "serialize_#{content.class.to_s.demodulize.underscore}".to_sym
+      :"serialize_#{content.class.to_s.demodulize.underscore}"
     end
   end
 end

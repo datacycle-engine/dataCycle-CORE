@@ -60,8 +60,8 @@ module DataCycleCore
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language').value(eql?: 'de')
-                  required(:'@value').value(:string)
+                  required(:@language).value(eql?: 'de')
+                  required(:@value).value(:string)
                 end
               end
             end
@@ -112,8 +112,8 @@ module DataCycleCore
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language').value(eql?: 'de')
-                  required(:'@value').value(:string)
+                  required(:@language).value(eql?: 'de')
+                  required(:@value).value(:string)
                 end
               end
             end
@@ -197,14 +197,14 @@ module DataCycleCore
             fields_fallback = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language').value(eql?: 'de')
-                  required(:'@value').value(:string)
+                  required(:@language).value(eql?: 'de')
+                  required(:@value).value(:string)
                 end
               end
               optional(:'dct:description').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language').value(eql?: 'de')
-                  required(:'@value').value(:string)
+                  required(:@language).value(eql?: 'de')
+                  required(:@value).value(:string)
                 end
               end
             end
@@ -247,14 +247,14 @@ module DataCycleCore
             fields_fallback = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language').value(eql?: 'de')
-                  required(:'@value').value(:string)
+                  required(:@language).value(eql?: 'de')
+                  required(:@value).value(:string)
                 end
               end
               optional(:'dct:description').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language').value(eql?: 'de')
-                  required(:'@value').value(:string)
+                  required(:@language).value(eql?: 'de')
+                  required(:@value).value(:string)
                 end
               end
             end
@@ -293,14 +293,14 @@ module DataCycleCore
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language') { eql?('de') | eql?('en') }
-                  required(:'@value').value(:string)
+                  required(:@language) { eql?('de') | eql?('en') }
+                  required(:@value).value(:string)
                 end
               end
               optional(:'dct:description').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language') { eql?('de') | eql?('en') }
-                  required(:'@value').value(:string)
+                  required(:@language) { eql?('de') | eql?('en') }
+                  required(:@value).value(:string)
                 end
               end
             end
@@ -333,14 +333,14 @@ module DataCycleCore
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language') { eql?('de') | eql?('en') }
-                  required(:'@value').value(:string)
+                  required(:@language) { eql?('de') | eql?('en') }
+                  required(:@value).value(:string)
                 end
               end
               optional(:'dct:description').value(:array, min_size?: 1).each do
                 hash do
-                  required(:'@language') { eql?('de') | eql?('en') }
-                  required(:'@value').value(:string)
+                  required(:@language) { eql?('de') | eql?('en') }
+                  required(:@value).value(:string)
                 end
               end
               required(:'dct:modified').value(:date_time)

@@ -15,8 +15,8 @@ module DataCycleCore
             image = DataCycleCore::V4::DummyDataHelper.create_data('image')
             @event_poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
-              'latitude': 3,
-              'longitude': 3
+              latitude: 3,
+              longitude: 3
             }
             @event_poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
             @event_poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@event_poi.longitude, @event_poi.latitude)
@@ -30,8 +30,8 @@ module DataCycleCore
 
             @poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
-              'latitude': 5,
-              'longitude': 5
+              latitude: 5,
+              longitude: 5
             }
             @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
             @poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi.longitude, @poi.latitude)
@@ -39,8 +39,8 @@ module DataCycleCore
 
             @poi2 = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
-              'latitude': 20,
-              'longitude': 20
+              latitude: 20,
+              longitude: 20
             }
             @poi2.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
             @poi2.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi2.longitude, @poi2.latitude)

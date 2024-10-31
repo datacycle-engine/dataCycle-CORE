@@ -125,7 +125,7 @@ describe DataCycleCore::Content do
     it 'provides methods for all property names as symbol' do
       ['id', 'name', '1', '2', '3'].each do |item|
         assert(subject.respond_to?(item.to_sym))
-        assert(subject.respond_to?("#{item}=".to_sym))
+        assert(subject.respond_to?(:"#{item}="))
       end
     end
 
@@ -134,7 +134,7 @@ describe DataCycleCore::Content do
         assert_equal(subject.respond_to?(item), false)
         assert_equal(subject.respond_to?(item.to_sym), false)
         assert_equal(subject.respond_to?(:"#{item}="), false)
-        assert_equal(subject.respond_to?("#{item}=".to_sym), false)
+        assert_equal(subject.respond_to?(:"#{item}="), false)
       end
     end
 

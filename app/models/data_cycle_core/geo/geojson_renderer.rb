@@ -59,9 +59,9 @@ module DataCycleCore
 
       def empty_geojson
         {
-          'type': 'Feature',
-          'geometry': nil,
-          'properties': nil
+          type: 'Feature',
+          geometry: nil,
+          properties: nil
         }.to_json
       end
     end

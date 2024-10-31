@@ -29,7 +29,7 @@ module DataCycleCore
 
                     item_count += 1
                     item_id = data_id.call(item_data)&.to_s
-                    item = mongo_items.dig(item_id) || mongo_item.new('external_id': item_id)
+                    item = mongo_items.dig(item_id) || mongo_item.new(external_id: item_id)
                     item.dump ||= {}
                     local_item = item.dump[locale]
 
@@ -73,7 +73,7 @@ module DataCycleCore
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
-                dump_path = "dump.#{locale}".to_sym
+                dump_path = :"dump.#{locale}"
 
                 result = mongo_item.where({
                   dump_path => { '$ne' => nil },
@@ -106,7 +106,7 @@ module DataCycleCore
                 }
                 delete_reason = opts.dig(:download, :delete_reason)
                 delete_props["dump.#{locale}.delete_reason"] = delete_reason if delete_reason.present?
-                dump_path = "dump.#{locale}".to_sym
+                dump_path = :"dump.#{locale}"
 
                 result = mongo_item.where({
                   dump_path => { '$ne' => nil },

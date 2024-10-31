@@ -6,7 +6,7 @@ json.merge! render 'context', languages: @language
 pagination_objects = @pagination_contents || @contents
 pagination_objects.async_total_count unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
 
-unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
   json['@graph'] = []
 
   @contents.each do |item|

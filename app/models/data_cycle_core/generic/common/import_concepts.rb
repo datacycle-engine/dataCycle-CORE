@@ -75,7 +75,7 @@ module DataCycleCore
           end
 
           def extract_property(data, options, identifier)
-            path = options.dig(:import, "concept_#{identifier}_path".to_sym)
+            path = options.dig(:import, :"concept_#{identifier}_path")
             path.present? ? data.dig(*path.split('.')) : data[identifier]
           end
 

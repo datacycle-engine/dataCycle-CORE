@@ -24,7 +24,7 @@ module DataCycleCore
             download_object.source_object.with(download_object.source_type) do |mongo_item|
               item_id = data_id.call(raw_data.first[1])
               item_name = data_name.call(raw_data.first[1])
-              item = mongo_item.find_or_initialize_by('external_id': item_id)
+              item = mongo_item.find_or_initialize_by(external_id: item_id)
               item.dump ||= {}
 
               raw_data.each do |language, data_hash|
@@ -79,7 +79,7 @@ module DataCycleCore
                 download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
                   item_id = data_id.call(item_data)
 
-                  item = mongo_item_parallel.find_or_initialize_by('external_id': item_id)
+                  item = mongo_item_parallel.find_or_initialize_by(external_id: item_id)
 
                   item.dump ||= {}
                   local_item = item.dump[locale]
@@ -167,7 +167,7 @@ module DataCycleCore
 
                       item_id = data_id.call(item_data) || nil
 
-                      item = mongo_items.dig(item_id) || mongo_item_parallel.new('external_id': item_id)
+                      item = mongo_items.dig(item_id) || mongo_item_parallel.new(external_id: item_id)
                       item.dump ||= {}
                       local_item = item.dump[locale]
 
@@ -259,7 +259,7 @@ module DataCycleCore
                 next if item_data.nil?
 
                 item_id = data_id.call(item_data.first[1])
-                item = mongo_item.find_or_initialize_by('external_id': item_id)
+                item = mongo_item.find_or_initialize_by(external_id: item_id)
                 item.dump ||= {}
 
                 item_data.each do |language, data_hash|
@@ -314,7 +314,7 @@ module DataCycleCore
                 next if item_data.nil?
 
                 item_id = data_id.call(item_data.first[1])
-                item = mongo_item.find_or_initialize_by('external_id': item_id)
+                item = mongo_item.find_or_initialize_by(external_id: item_id)
                 item.dump ||= {}
 
                 item_data.each do |key, data_hash|
@@ -361,7 +361,7 @@ module DataCycleCore
             download_object.source_object.with(download_object.source_type) do |mongo_item|
               item_id = data_id.call(raw_data.first[1])
               item_name = data_name.call(raw_data.first[1])
-              item = mongo_item.find_or_initialize_by('external_id': item_id)
+              item = mongo_item.find_or_initialize_by(external_id: item_id)
               item.dump = raw_data
               item.save!
 
@@ -378,7 +378,7 @@ module DataCycleCore
               locale = options.dig(:download, :locales)&.first || :de
               item_id = data_id.call(raw_data)
               item_name = data_name.call(raw_data)
-              item = mongo_item.find_or_initialize_by('external_id': item_id)
+              item = mongo_item.find_or_initialize_by(external_id: item_id)
               item.dump = { locale => raw_data }
               item.save!
               GC.start
@@ -408,7 +408,7 @@ module DataCycleCore
                 item_id = data_id.call(item_data)
 
                 begin
-                  item = mongo_item.find_by('external_id': item_id)
+                  item = mongo_item.find_by(external_id: item_id)
                 rescue Mongoid::Errors::DocumentNotFound
                   next
                 end

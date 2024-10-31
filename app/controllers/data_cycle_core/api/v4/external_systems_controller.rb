@@ -152,7 +152,7 @@ module DataCycleCore
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
           endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(**credentials)
           search_data = endpoint.send(search_method)
-          if search_data&.first.try(:'[]', 'error').present?
+          if search_data&.first.try(:[], 'error').present?
             error = search_data.first['error']
           else
             live_data = search_data

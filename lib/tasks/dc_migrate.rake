@@ -592,7 +592,7 @@ namespace :dc do
         { '$match': { 'dump.de.meta.externalId.id': { '$exists': true } } },
         { '$match': { 'dump.de.meta.externalSystem.name': /.*feratel.*/i } },
         { '$match': { 'dump.de.frontendtype': 'poi' } },
-        { '$project': { 'external_id': '$dump.de.id', 'external_key': '$dump.de.meta.externalId.id' } }
+        { '$project': { external_id: '$dump.de.id', external_key: '$dump.de.meta.externalId.id' } }
       ]
 
       places = outdoor_active.query('places') { |i| i.collection.aggregate(aggregation).to_a }.to_h { |p| [p['external_id'], p['external_key']] }

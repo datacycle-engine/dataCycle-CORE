@@ -12,8 +12,8 @@ module DataCycleCore
 
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             lat_long_a = {
-              'latitude': 1,
-              'longitude': 10
+              latitude: 1,
+              longitude: 10
             }
             @poi_a.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_a)
             @poi_a.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_a.longitude, @poi_a.latitude)
@@ -21,8 +21,8 @@ module DataCycleCore
 
             @poi_b = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             lat_long_b = {
-              'latitude': 5,
-              'longitude': 5
+              latitude: 5,
+              longitude: 5
             }
             @poi_b.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_b)
             @poi_b.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_b.longitude, @poi_b.latitude)
@@ -30,8 +30,8 @@ module DataCycleCore
 
             @poi_c = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             lat_long_c = {
-              'latitude': 10,
-              'longitude': 1
+              latitude: 10,
+              longitude: 1
             }
             @poi_c.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_c)
             @poi_c.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_c.longitude, @poi_c.latitude)

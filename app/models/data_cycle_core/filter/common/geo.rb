@@ -11,7 +11,7 @@ module DataCycleCore
         end
 
         def not_geo_filter(value = nil, type = nil)
-          filter_type = "not_#{type}".to_sym
+          filter_type = :"not_#{type}"
           raise 'Unknown geo filter' unless respond_to?(filter_type)
           send(filter_type, value)
         end

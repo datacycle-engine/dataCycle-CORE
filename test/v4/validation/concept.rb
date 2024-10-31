@@ -10,7 +10,7 @@ module DataCycleCore
         end
 
         IDENTIFIER_ATTRIBUTES = Dry::Schema.JSON do
-          required(:'@type').value(:string)
+          required(:@type).value(:string)
           required(:propertyID).value(:string)
           required(:value).value(:string)
         end

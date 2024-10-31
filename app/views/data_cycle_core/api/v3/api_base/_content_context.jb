@@ -3,5 +3,5 @@
 {
   '@context': 'http://schema.org',
   '@type': content.legacy_api_type,
-  'contentType': content.template_name
+  contentType: content.template_name
 }

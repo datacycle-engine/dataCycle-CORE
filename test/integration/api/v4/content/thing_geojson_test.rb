@@ -19,8 +19,8 @@ module DataCycleCore
 
             @test_poi = DataCycleCore::DummyDataHelper.create_data('poi')
             lat_long = {
-              'latitude': 46.123456789,
-              'longitude': 14.123456789
+              latitude: 46.123456789,
+              longitude: 14.123456789
             }
             @test_poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
             @test_poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@test_poi.longitude, @test_poi.latitude)

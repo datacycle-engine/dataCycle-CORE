@@ -78,7 +78,7 @@ describe Hash do
                 '$ne': 'published'
               }
             }, {
-              'seen_at': {
+              seen_at: {
                 '$lt': '{{ 3.days.ago.to_date }}'
               }
             }

@@ -4,7 +4,7 @@ json = {}
 
 json.merge! render 'context', languages: @language
 
-unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
   json['@graph'] = []
 
   json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters), expires_in: 1.year + Random.rand(7.days)) do

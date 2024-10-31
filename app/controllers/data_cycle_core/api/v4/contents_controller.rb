@@ -214,7 +214,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, :weight, uuid: [], filter: {}, 'dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, :weight, uuid: [], filter: {}, 'dc:liveData': [:@id, :minPrice]]
         end
 
         # @todo: remove obsolete method?

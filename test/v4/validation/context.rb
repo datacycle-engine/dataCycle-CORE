@@ -5,7 +5,7 @@ module DataCycleCore
     module Validation
       class Context
         CONTEXT_ATTRIBUTES = Dry::Schema.JSON do
-          required(:'@base').value(:string)
+          required(:@base).value(:string)
           required(:skos) { eql?('https://www.w3.org/2009/08/skos-reference/skos.html#') }
           required(:dct) { eql?('http://purl.org/dc/terms/') }
           required(:cc) { eql?('http://creativecommons.org/ns#') }
@@ -20,7 +20,7 @@ module DataCycleCore
           return Dry::Schema.JSON if languages.present? && languages.split(',').size > 1
           language = ['de', 'en'].include?(languages) ? languages : 'de'
           Dry::Schema.JSON do
-            required(:'@language') { eql?(language) }
+            required(:@language) { eql?(language) }
           end
         end
 
