@@ -233,26 +233,20 @@ module DataCycleCore
               .rotate(1)
               .map(&:to_i)
               .zip(next_day ? [24, 0, 0] : [0, 0, 0])
-              .map { |item| item.inject(&:+) }
-              .zip([60 * 60, 60, 1])
-              .map { |item| item.inject(&:*) }
-              .inject(&:+)
+              .map(&:sum)
+              .zip([60 * 60, 60, 1]).sum { |item| item.inject(&:*) }
           elsif string.split(':').size == 3
             string.split(':')
               .map(&:to_i)
               .zip(next_day ? [24, 0, 0] : [0, 0, 0])
-              .map { |item| item.inject(&:+) }
-              .zip([60 * 60, 60, 1])
-              .map { |item| item.inject(&:*) }
-              .inject(&:+)
+              .map(&:sum)
+              .zip([60 * 60, 60, 1]).sum { |item| item.inject(&:*) }
           elsif string.split(':').size == 2
             string.split(':')
               .map(&:to_i)
               .zip(next_day ? [24, 0] : [0, 0])
-              .map { |item| item.inject(&:+) }
-              .zip([60 * 60, 60])
-              .map { |item| item.inject(&:*) }
-              .inject(&:+)
+              .map(&:sum)
+              .zip([60 * 60, 60]).sum { |item| item.inject(&:*) }
           end
         end
 

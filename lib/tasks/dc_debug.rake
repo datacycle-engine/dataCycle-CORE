@@ -49,7 +49,7 @@ namespace :dc do
         .group(:content_a_id).having('count(relation_a) > ?', 1)
         .pluck(:content_a_id)
         .map do |i|
-          puts "#{i}; #{DataCycleCore::Thing.find(i).template_name}; #{DataCycleCore::Thing.find(i).load_embedded_objects('overlay', nil, false).map { |o| o.translations.pluck(:locale) }.inject(:+)}"
+          puts "#{i}; #{DataCycleCore::Thing.find(i).template_name}; #{DataCycleCore::Thing.find(i).load_embedded_objects('overlay', nil, false).sum { |o| o.translations.pluck(:locale) }}"
         end
     end
 

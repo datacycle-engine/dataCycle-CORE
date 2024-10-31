@@ -75,14 +75,6 @@ Performance/CollectionLiteralInLoop:
     - "lib/tasks/dc_migrate.rake"
     - "test/models/master_data/data_converter_test.rb"
 
-# Offense count: 7
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: OnlySumOrWithInitialValue.
-Performance/Sum:
-  Exclude:
-    - "app/models/data_cycle_core/generic/common/opening_hours.rb"
-    - "lib/tasks/dc_debug.rake"
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: Include.
