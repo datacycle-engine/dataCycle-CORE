@@ -50,7 +50,7 @@ module DataCycleCore
           by_month_string = DataCycleCore::MasterData::DataConverter.string_to_datetime([0o7, by_month, by_year].join('-'))
           @data.columns.map do |key|
             if key == 'downloads_by_month'
-              I18n.t "feature.report_generator.headings.#{key}", default: key, date: I18n.localize(by_month_string, format: '%B %Y'), locale: @locale
+              I18n.t "feature.report_generator.headings.#{key}", default: key, date: I18n.l(by_month_string, format: '%B %Y'), locale: @locale
             else
               I18n.t "feature.report_generator.headings.#{key}", default: key, locale: @locale
             end

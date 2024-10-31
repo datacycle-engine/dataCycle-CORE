@@ -115,14 +115,6 @@ Rails/OutputSafety:
   Exclude:
     - "app/helpers/data_cycle_core/data_hash_helper.rb"
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: conservative, aggressive
-Rails/ShortI18n:
-  Exclude:
-    - "app/models/data_cycle_core/report/downloads/popular.rb"
-
 # Offense count: 95
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Rails/SquishedSQLHeredocs:
