@@ -4,9 +4,7 @@ Nokogiri::XML::Node.class_eval do
   def to_hash
     attributes_hash = attributes.map { |_, attribute|
       { attribute.name => attribute.value }
-    }.reduce({}, &:merge).reject do |_, v|
-      v.blank?
-    end
+    }.reduce({}, &:merge).compact_blank
 
     children_hash = children.map { |child|
       { child.name => child.to_hash }

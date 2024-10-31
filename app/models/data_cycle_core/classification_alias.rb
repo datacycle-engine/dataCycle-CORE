@@ -391,7 +391,7 @@ module DataCycleCore
       return @search_attributes_changed if defined? @search_attributes_changed
 
       @search_attributes_changed = saved_changes.keys.intersect?(['internal_name']) ||
-                                   saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+                                   saved_changes.dig('name_i18n')&.map(&:compact_blank)&.reject(&:blank?).present?
     end
 
     def cached_attributes_changed?
@@ -402,8 +402,8 @@ module DataCycleCore
       return @webhook_attributes_changed if defined? @webhook_attributes_changed
 
       @webhook_attributes_changed = saved_changes.keys.intersect?(['internal_name', 'uri']) ||
-                                    saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
-                                    saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+                                    saved_changes.dig('name_i18n')&.map(&:compact_blank)&.reject(&:blank?).present? ||
+                                    saved_changes.dig('description_i18n')&.map(&:compact_blank)&.reject(&:blank?).present?
     end
 
     def classifications_added(_classification = nil)

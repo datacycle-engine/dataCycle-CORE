@@ -382,8 +382,8 @@ module DataCycleCore
 
         def advanced_query_string(query_string, attribute_path, attribute_path_exists, skip_attribute_exists_query)
           return query_string if skip_attribute_exists_query
-          return [attribute_path_exists(attribute_path), query_string].reject(&:blank?).join(' AND ').prepend('(').concat(')') if attribute_path_exists == true
-          [attribute_path_not_exists(attribute_path), query_string].reject(&:blank?).join(' OR ').prepend('(').concat(')')
+          return [attribute_path_exists(attribute_path), query_string].compact_blank.join(' AND ').prepend('(').concat(')') if attribute_path_exists == true
+          [attribute_path_not_exists(attribute_path), query_string].compact_blank.join(' OR ').prepend('(').concat(')')
         end
 
         def attribute_path_exists(path)

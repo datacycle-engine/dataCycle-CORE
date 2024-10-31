@@ -40,7 +40,7 @@ module DataCycleCore
 
             raise "No external id found! Item:#{raw_data.dig('Id')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
 
-            external_key = [options.dig(:import, :external_key_prefix), raw_data.dig(*external_key_path)].reject(&:blank?).join('')
+            external_key = [options.dig(:import, :external_key_prefix), raw_data.dig(*external_key_path)].compact_blank.join('')
 
             content = DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,

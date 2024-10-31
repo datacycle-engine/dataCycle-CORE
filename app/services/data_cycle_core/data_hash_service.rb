@@ -266,10 +266,10 @@ module DataCycleCore
             elsif type == 'opening_time'
               value = DataCycleCore::Schedule.to_h_from_opening_time_params value
             elsif value['value'].is_a?(::Array)
-              value['value'] = value['value'].reject(&:blank?)
+              value['value'] = value['value'].compact_blank
             end
           elsif value.is_a?(::Array)
-            value = value.reject(&:blank?).uniq
+            value = value.compact_blank.uniq
           elsif type == 'number' && properties.dig('validations', 'format') == 'float'
             value = value.blank? ? nil : value.to_f
           elsif type == 'number'

@@ -30,7 +30,7 @@ end
 
 if classification_json[key_new].present?
   {
-    key_new => [json.reject { |_k, v| v.blank? }]
+    key_new => [json.compact_blank]
   }
 else
   {}

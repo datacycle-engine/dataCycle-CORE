@@ -107,7 +107,7 @@ module DataCycleCore
     private
 
     def permitted_params
-      @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+      @permitted_params ||= params.permit(*permitted_parameter_keys).compact_blank
     end
 
     def permitted_parameter_keys

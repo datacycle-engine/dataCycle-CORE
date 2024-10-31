@@ -17,7 +17,7 @@ module DataCycleCore
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         definition['type'].underscore.to_s,
         'default'
-      ].reject(&:blank?)
+      ].compact_blank
 
       xml_partials_prefix = "data_cycle_core/xml/v#{xml_version}/xml_base/attributes"
       return first_existing_xml_partial(partials, xml_partials_prefix), parameters.merge({ key:, definition:, value:, content:, cache: true })

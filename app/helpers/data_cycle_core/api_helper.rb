@@ -21,7 +21,7 @@ module DataCycleCore
           api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,
           'default'
-        ].reject(&:blank?)
+        ].compact_blank
       else
         partials = [
           "#{definition['type'].underscore}_#{key.underscore}",
@@ -29,7 +29,7 @@ module DataCycleCore
           "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
           definition['type'].underscore,
           'default'
-        ].reject(&:blank?)
+        ].compact_blank
       end
 
       api_partials = partials.dup.map { |p| "data_cycle_core/api/v#{api_version}/api_base/attributes/#{p}" }
@@ -73,7 +73,7 @@ module DataCycleCore
     def subtree_for(name, attribute_list)
       return attribute_list if full_recursive?(attribute_list)
 
-      attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
+      attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.compact_blank
     end
 
     def full_recursive?(attribute_list)
@@ -283,7 +283,7 @@ module DataCycleCore
         else
           { key => data[key].reject { |item| item.dig('identifier').in?(value.map { |i| i.dig('identifier') }) } + overlay[key] }
         end
-      }.reject(&:blank?).inject(&:merge) || {}
+      }.compact_blank.inject(&:merge) || {}
     end
   end
 end

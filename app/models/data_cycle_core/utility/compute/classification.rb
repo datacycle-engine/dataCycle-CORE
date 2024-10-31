@@ -8,11 +8,11 @@ module DataCycleCore
 
         class << self
           def keywords(computed_parameters:, **_args)
-            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.reject(&:blank?)).map(&:name).join(',').presence
+            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.compact_blank).map(&:name).join(',').presence
           end
 
           def description(computed_parameters:, **_args)
-            classification_ids = computed_parameters.values.flatten.reject(&:blank?)
+            classification_ids = computed_parameters.values.flatten.compact_blank
 
             return if classification_ids.blank?
 

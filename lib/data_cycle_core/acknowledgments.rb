@@ -57,7 +57,7 @@ module DataCycleCore
         rescue JSON::ParserError
           {}
         end
-      }.reject(&:blank?)
+      }.compact_blank
     end
 
     def packages

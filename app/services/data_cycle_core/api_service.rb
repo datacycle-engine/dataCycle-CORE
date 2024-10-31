@@ -483,7 +483,7 @@ module DataCycleCore
     # https://jsonapi.org/format/#errors
     def param_to_classifications(classification_string)
       classification_string.map { |classifications|
-        classifications.split(',').map(&:strip).reject(&:blank?)
+        classifications.split(',').map(&:strip).compact_blank
       }.reject(&:empty?)
     end
   end

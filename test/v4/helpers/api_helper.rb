@@ -64,7 +64,7 @@ module DataCycleCore
       end
 
       def assert_full_thing_datahash(thing)
-        filled_keys = thing.get_data_hash.select { |_k, v| v.present? }.keys
+        filled_keys = thing.get_data_hash.compact_blank.keys
         excluded_keys = EXCLUDED_PROPERTIES + DataCycleCore.internal_data_attributes + excluded_properties_for(thing) + thing.virtual_property_names
         assert_equal([], thing.property_names - filled_keys - excluded_keys)
       end

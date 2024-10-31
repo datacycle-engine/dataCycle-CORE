@@ -43,7 +43,7 @@ module DataCycleCore
       {
         type: 'Feature',
         geometry: RGeo::GeoJSON.encode(value),
-        properties: properties.reject { |_, v| v.blank? }.presence
+        properties: properties.compact_blank.presence
       }.compact
     end
 

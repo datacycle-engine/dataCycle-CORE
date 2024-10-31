@@ -13,4 +13,4 @@ new_options[:languages] = options[:languages]
 new_options[:full] = included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields])
 
 json.merge! render 'classifications', classification_aliases:, key: key_new, definition: {}, options: new_options
-json.reject { |_k, v| v.blank? }
+json.compact_blank

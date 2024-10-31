@@ -65,7 +65,7 @@ module DataCycleCore
         duplicate.destroy
 
         if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
-          duplicate_external_key.split(';').reject(&:blank?).each do |d_external_key|
+          duplicate_external_key.split(';').compact_blank.each do |d_external_key|
             original.external_system_syncs.find_or_create_by!(external_system_id: duplicate_external_source_id, external_key: d_external_key, sync_type: DataCycleCore::ExternalSystemSync::DUPLICATE_SYNC_TYPE)
           end
         end

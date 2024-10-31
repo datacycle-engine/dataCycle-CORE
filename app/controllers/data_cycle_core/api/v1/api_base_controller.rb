@@ -18,7 +18,7 @@ module DataCycleCore
         before_action :set_default_response_format
 
         def permitted_params
-          params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+          params.permit(*permitted_parameter_keys).compact_blank
         end
 
         def permitted_parameter_keys

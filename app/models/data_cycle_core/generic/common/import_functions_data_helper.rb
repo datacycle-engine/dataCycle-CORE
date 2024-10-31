@@ -172,7 +172,7 @@ module DataCycleCore
           data_hash.each do |key, value|
             return_data[key] = default_classification(**value.symbolize_keys)
           end
-          return_data.reject { |_, value| value.blank? }
+          return_data.compact_blank
         end
 
         def load_template(template_name)
