@@ -67,9 +67,9 @@ module DataCycleCore
             config = ActiveSupport::HashWithIndifferentAccess.new
             config.merge!(DataCycleCore.features.dig(feature_key.to_sym) || {})
             config.merge!(key[3]&.dig('features', feature_key) || {})
-            config.merge!(key[4]&.map { |k|
+            config.merge!(key[4]&.filter_map { |k|
               key[3]&.dig('properties', *k, 'features', feature_key).presence&.merge({ attribute_keys: (k.is_a?(Array) ? [k.last] : [k]), tree_label: key[3]&.dig('properties', *k, 'tree_label') })
-            }&.compact&.reduce({}) { |old, new| old.deep_merge(new) { |_, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? v1 | v2 : v2 } } || {})
+            }&.reduce({}) { |old, new| old.deep_merge(new) { |_, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? v1 | v2 : v2 } } || {})
 
             h[key] = config.compact
           end

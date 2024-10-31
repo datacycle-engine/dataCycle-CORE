@@ -172,7 +172,7 @@ module DataCycleCore
     end
 
     def self.to_sync_data
-      includes(:parent, :external_system, mapped_concepts: [:external_system, :classification_alias_path]).map(&:to_sync_data).compact
+      includes(:parent, :external_system, mapped_concepts: [:external_system, :classification_alias_path]).filter_map(&:to_sync_data)
     end
 
     def parent_id

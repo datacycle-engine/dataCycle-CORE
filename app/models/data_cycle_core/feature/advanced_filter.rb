@@ -93,7 +93,7 @@ module DataCycleCore
         def relation_filter(locale, value)
           return [] unless value.is_a?(Hash)
 
-          value.map { |k, v|
+          value.filter_map do |k, v|
             next unless v
 
             [
@@ -101,13 +101,13 @@ module DataCycleCore
               'relation_filter',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
-          }.compact
+          end
         end
 
         def relation_filter_inv(locale, value)
           return [] unless value.is_a?(Hash)
 
-          value.map { |k, v|
+          value.filter_map do |k, v|
             next unless v
 
             [
@@ -115,7 +115,7 @@ module DataCycleCore
               'relation_filter_inv',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
-          }.compact
+          end
         end
 
         def graph_filter(locale, value)
@@ -123,7 +123,7 @@ module DataCycleCore
 
           return [] unless DataCycleCore::ContentContent::Link.any?
 
-          value.slice('items_linked_to', 'linked_items_in').map { |k, v|
+          value.slice('items_linked_to', 'linked_items_in').filter_map do |k, v|
             next unless v
 
             [
@@ -131,7 +131,7 @@ module DataCycleCore
               'graph_filter',
               data: { name: k }
             ]
-          }.compact
+          end
         end
 
         def union_filter_ids(locale, value)
@@ -205,7 +205,7 @@ module DataCycleCore
         def boolean(locale, value = [])
           value = [{'duplicate_candidates' => {'depends_on' => 'DataCycleCore::Feature::DuplicateCandidate'}}] if value == 'all'
 
-          value.presence&.map { |c|
+          value.presence&.filter_map do |c|
             if c.is_a?(::Hash)
               next if c.values.first['depends_on'].present? && !c.values.first['depends_on'].safe_constantize&.enabled?
               c = c.keys.first
@@ -216,13 +216,13 @@ module DataCycleCore
               'boolean',
               data: { name: c }
             ]
-          }&.compact || []
+          end || []
         end
 
         def related_through_attribute(locale, value)
           return [] unless value.is_a?(Hash)
 
-          value.map { |k, v|
+          value.filter_map do |k, v|
             next unless v
 
             [
@@ -230,7 +230,7 @@ module DataCycleCore
               'related_through_attribute',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
-          }.compact
+          end
         end
 
         def default(locale, key, value)
@@ -249,7 +249,7 @@ module DataCycleCore
         def user(locale, value)
           return [] unless value
 
-          value.map { |k, v|
+          value.filter_map do |k, v|
             next unless v
 
             [
@@ -257,13 +257,13 @@ module DataCycleCore
               'user',
               data: { name: k, advancedType: k }
             ]
-          }.compact
+          end
         end
 
         def advanced_attributes(locale, value)
           return [] unless value
 
-          value.map { |k, v|
+          value.filter_map do |k, v|
             next if v.is_a?(::Hash) && v[:depends_on].present? && !v[:depends_on].safe_constantize&.enabled?
 
             [
@@ -271,12 +271,12 @@ module DataCycleCore
               'advanced_attributes',
               data: { name: k, advancedType: v.dig('type') }
             ]
-          }.compact
+          end
         end
 
         def inactive_things(locale, value)
           return [] unless value
-          value.map { |k, v|
+          value.filter_map do |k, v|
             next unless v
 
             [
@@ -284,12 +284,12 @@ module DataCycleCore
               'inactive_things',
               data: { name: k, advancedType: k }
             ]
-          }.compact
+          end
         end
 
         def in_schedule(locale, value)
           return [] unless value
-          value.map { |k, v|
+          value.filter_map do |k, v|
             next unless v
 
             [
@@ -297,12 +297,12 @@ module DataCycleCore
               'in_schedule',
               data: { name: k, advancedType: k }
             ]
-          }.compact
+          end
         end
 
         def validity_period(locale, value)
           return [] unless value
-          value.map { |k, v|
+          value.filter_map do |k, v|
             next unless v
 
             [
@@ -310,7 +310,7 @@ module DataCycleCore
               'validity_period',
               data: { name: k, advancedType: k }
             ]
-          }.compact
+          end
         end
 
         def always_visible?

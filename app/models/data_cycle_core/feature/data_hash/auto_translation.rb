@@ -142,7 +142,7 @@ module DataCycleCore
         end
 
         def destroy_auto_translations
-          destroy_locales = translations.map { |i| i.locale if i.content['translation_type'] == 'manual' }.compact
+          destroy_locales = translations.filter_map { |i| i.locale if i.content['translation_type'] == 'manual' }
           if (available_locales.map(&:to_s) - destroy_locales).present?
             destroy_locales.each do |locale|
               I18n.with_locale(locale) { destroy_content(destroy_locale: true) }

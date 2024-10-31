@@ -5,9 +5,9 @@ namespace :dc do
     desc '[debug] show suspicious overlay data'
     task overlays: :environment do
       overlay_ids = DataCycleCore::ContentContent.where(relation_a: 'overlay').pluck(:content_b_id)
-      bad_overlays = DataCycleCore::Thing.where(id: overlay_ids).map { |i|
+      bad_overlays = DataCycleCore::Thing.where(id: overlay_ids).filter_map do |i|
         [i.id, i.available_locales] if i.available_locales.size != 1 && i.template_name != 'LodgingBusinessOverlay'
-      }.compact
+      end
       puts 'Overlays without translation: '
       ap(bad_overlays.select { |i| i[1].blank? }.pluck(0))
       puts 'Overlays with multiple translations'
@@ -20,9 +20,9 @@ namespace :dc do
         'Ergänzende Information', 'SubEvent', 'AmenityFeature', 'Offer',
         'VirtualLocation', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt'
       ].map do |template_name|
-        DataCycleCore::Thing.where(template_name:).map { |i|
+        DataCycleCore::Thing.where(template_name:).filter_map do |i|
           [i.id, template_name, i.available_locales] if i.available_locales.size != 1
-        }.compact
+        end
       end
       ap data.select(&:presence)
     end
@@ -30,9 +30,9 @@ namespace :dc do
     desc '[destructive][debug] delete suspicious overlay data'
     task clean_overlays: :environment do
       overlay_ids = DataCycleCore::ContentContent.where(relation_a: 'overlay').pluck(:content_b_id)
-      bad_overlays = DataCycleCore::Thing.where(id: overlay_ids).map { |i|
+      bad_overlays = DataCycleCore::Thing.where(id: overlay_ids).filter_map do |i|
         [i.id, i.available_locales] if i.available_locales.size != 1 && i.template_name != 'LodgingBusinessOverlay'
-      }.compact
+      end
       overlays = bad_overlays.select { |i| i[1].blank? }.pluck(0)
       items = DataCycleCore::Thing.where(id: overlays)
       DataCycleCore::ProgressBarService.for_shell(items.count, title: "remove Overlays without translations (#{items.count}):") do |pb|

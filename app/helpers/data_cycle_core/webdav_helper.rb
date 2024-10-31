@@ -16,7 +16,7 @@ module DataCycleCore
       return ALLOWED_PROPS if props.present? || body.blank?
       props = data.xpath('//propfind/prop')&.first
       return [] if props.blank?
-      props&.children&.map { |i| ALLOWED_PROPS.include?(i.name.downcase) ? i.name.downcase : nil }&.compact || []
+      props&.children&.filter_map { |i| ALLOWED_PROPS.include?(i.name.downcase) ? i.name.downcase : nil } || []
     end
 
     def parse_header(request)

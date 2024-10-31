@@ -70,23 +70,23 @@ module DataCycleCore
         end
 
         def normalizable_data(root, template_hash, data_hash)
-          template_hash.map { |key, value|
+          template_hash.filter_map { |key, value|
             if value.dig('properties').present?
               normalizable_data([root, key].compact.join('/'), value.dig('properties'), data_hash&.dig(key))
             elsif value.dig('normalize').present?
               { 'data_hash_path' => [root, key].compact.join('/'), 'id' => value.dig('normalize', 'id').upcase, 'type' => value.dig('normalize', 'type').upcase, 'content' => data_hash&.dig(key) }
             end
-          }.compact.flatten
+          }.flatten
         end
 
         def parse_normalizable_fields(root, template_hash)
-          template_hash.map { |key, value|
+          template_hash.filter_map { |key, value|
             if value.dig('properties').present?
               parse_normalizable_fields([root, key].compact.join('/'), value.dig('properties'))
             elsif value.dig('normalize').present?
               { 'id' => [root, key].compact.join('/'), 'type' => value.dig('normalize').upcase }
             end
-          }.compact.flatten
+          }.flatten
         end
 
         def merge_street_streetnr(report)
@@ -97,7 +97,7 @@ module DataCycleCore
 
           index_street_nr = fields_list.find_index { |item| item['type'] == 'STREETNR' }
           street_nr = fields_list[index_street_nr]['content']
-          report['entry']['fields'] = fields_list.map { |item|
+          report['entry']['fields'] = fields_list.filter_map do |item|
             if item['type'] == 'STREET'
               item['content'] += ' ' + street_nr
               item
@@ -106,7 +106,7 @@ module DataCycleCore
             else
               item
             end
-          }.compact
+          end
 
           action_list = report.dig('actionList')
           action_index = action_list.find_index { |item| item['taskType'] == 'SPLIT' && item['taskId'] == 'Split_StreetStreetnr' }

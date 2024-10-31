@@ -34,9 +34,9 @@ module DataCycleCore
       def self.webhooks_for(action, data)
         DataCycleCore::ExternalSystem
           .where(name: available_system_names(data))
-          .collect { |external_system|
+          .filter_map do |external_system|
             utility_object_for(external_system, action, data)
-          }.compact
+          end
       end
 
       def self.utility_object_for(external_system, action, data)

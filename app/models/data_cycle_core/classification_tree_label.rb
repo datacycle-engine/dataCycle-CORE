@@ -117,7 +117,7 @@ module DataCycleCore
       raise ArgumentError, 'attributes must be an array' unless attributes.is_a?(Array)
       raise ArgumentError, 'a concept cannot be its own parent (external_key == parent_external_key)' if attributes.any? { |a| a[:external_key] == a[:parent_external_key] }
 
-      sql_values = attributes.compact_blank.map { |row|
+      sql_values = attributes.compact_blank.filter_map do |row|
         next if row[:name].blank?
 
         [
@@ -131,7 +131,7 @@ module DataCycleCore
           row[:uri],
           row[:order_a]
         ]
-      }.compact
+      end
 
       sql = <<-SQL.squish
         WITH raw_data(classification_tree_label_id, external_system_id, external_key, parent_external_key, locale, name, description, uri, order_a) AS (

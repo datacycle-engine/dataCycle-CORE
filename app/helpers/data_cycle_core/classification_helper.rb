@@ -134,7 +134,7 @@ module DataCycleCore
 
       options_for_select(
         value
-          .map { |c|
+          .filter_map do |c|
             ca = expected_classification_alias(c)
             next if ca.nil?
 
@@ -148,8 +148,7 @@ module DataCycleCore
                 }
               }
             ]
-          }
-          .compact,
+          end,
         value.pluck(:id)
       )
     end
@@ -158,7 +157,7 @@ module DataCycleCore
       value = Array.wrap(value).compact
       options_for_select(
         classification_items
-          &.map { |c|
+          &.filter_map do |c|
             ca = expected_classification_alias(c)
             next if ca.nil?
 
@@ -175,8 +174,7 @@ module DataCycleCore
                 disabled: disabled_proc.present? ? disabled_proc.call(ca) : !ca.assignable
               }
             ]
-          }
-          &.compact,
+          end,
         value&.pluck(:id)
       )
     end

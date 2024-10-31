@@ -42,8 +42,7 @@ module DataCycleCore
           def delete(action)
             action
               .dig('fieldsBefore')
-              .map { |item| item['content'].blank? ? nil : { item['id'] => ['-', item['content']] } }
-              .compact
+              .filter_map { |item| item['content'].blank? ? nil : { item['id'] => ['-', item['content']] } }
           end
 
           def split(action)

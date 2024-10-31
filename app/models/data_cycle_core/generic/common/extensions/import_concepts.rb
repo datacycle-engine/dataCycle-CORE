@@ -23,7 +23,7 @@ module DataCycleCore
 
                       utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                         raw_data = iterator.call(mongo_item, locale, source_filter).to_a
-                        concept_scheme_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.compact.uniq
+                        concept_scheme_data = raw_data.filter_map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.uniq
 
                         concept_scheme_data = external_system_processor.call(data_array: concept_scheme_data, options:, utility_object:)
 

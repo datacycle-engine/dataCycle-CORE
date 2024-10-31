@@ -95,7 +95,7 @@ module DataCycleCore
         .to_h do |key, cps|
         [
           key,
-          cps.map { |cp|
+          cps.filter_map { |cp|
             next unless attributes.is_a?(::Array) || attributes[cp.property_name]&.include?(cp.template_name)
 
             DataCycleCore::Thing.human_attribute_name(cp.property_name, {
@@ -106,7 +106,7 @@ module DataCycleCore
               count:,
               specific:
             })
-          }.compact.uniq.join(' / ')
+          }.uniq.join(' / ')
         ]
       end
     end

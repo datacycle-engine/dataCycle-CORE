@@ -70,28 +70,28 @@ module DataCycleCore
         def self.parse_opening_times(data, external_source_id, external_key, day_transformation = nil)
           return nil if data.blank?
 
-          transformed_data = Array.wrap(data).map { |item|
+          transformed_data = Array.wrap(data).filter_map do |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
             item['external_key'] = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             item
-          }.compact
+          end
 
           existing = DataCycleCore::Schedule.where(external_source_id:, external_key: transformed_data.pluck('external_key')).index_by(&:external_key)
 
-          transformed_data.map { |item|
+          transformed_data.filter_map do |item|
             preprocess_opening_time(item, external_source_id, item['external_key'], day_transformation, existing[item['external_key']]&.id)
-          }.compact
+          end
         end
 
         def self.parse_opening_times_reference(data, external_source_id, external_key, day_transformation = nil)
           return nil if data.blank?
 
-          Array.wrap(data).map { |item|
+          Array.wrap(data).filter_map do |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
             external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             schedule_id = DataCycleCore::Generic::Common::DataReferenceTransformations.get_external_schedule_references(item, external_source_id, ->(*) { external_schedule_key })&.first
             preprocess_opening_time(item, external_source_id, external_schedule_key, day_transformation, schedule_id)
-          }.compact
+          end
         end
 
         def self.preprocess_opening_time(data, external_source_id, external_key, day_transformation, schedule_id)
@@ -139,7 +139,7 @@ module DataCycleCore
         def parse_google(data_hash)
           DAY_HASH
             .keys
-            .map { |day| data_hash&.dig(day)&.map { |interval| parse_google_interval(interval) }&.compact || [] }
+            .map { |day| data_hash&.dig(day)&.filter_map { |interval| parse_google_interval(interval) } || [] }
             .zip(DAY_HASH.keys)
             .map { |data_interval| { data_interval[1] => data_interval[0] } }
             .inject(&:merge)

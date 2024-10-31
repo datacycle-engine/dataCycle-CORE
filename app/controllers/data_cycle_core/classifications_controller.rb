@@ -105,7 +105,7 @@ module DataCycleCore
       query = query.preload(*Array.wrap(search_params[:preload])) if search_params[:preload].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
-      render plain: query.map { |a|
+      render plain: query.filter_map { |a|
         next if a.primary_classification.nil?
 
         {
@@ -116,14 +116,14 @@ module DataCycleCore
           dc_tooltip: helpers.classification_tooltip(a),
           disabled: search_params[:disabled_unless_any?].present? ? a.try(search_params[:disabled_unless_any?]).none? : !a.assignable
         }
-      }.compact.to_json, content_type: 'application/json'
+      }.to_json, content_type: 'application/json'
     end
 
     def find
       query = DataCycleCore::Classification.where(id: find_params[:ids]).preload(primary_classification_alias: :classification_alias_path)
       query = query.for_tree(find_params[:tree_label]) if find_params[:tree_label].present?
 
-      render plain: query.map { |c|
+      render plain: query.filter_map { |c|
         next if c.primary_classification_alias.nil?
 
         {
@@ -134,7 +134,7 @@ module DataCycleCore
           dc_tooltip: helpers.classification_tooltip(c.primary_classification_alias),
           disabled: !c.primary_classification_alias.assignable
         }
-      }.compact.to_json, content_type: 'application/json'
+      }.to_json, content_type: 'application/json'
     end
 
     def create

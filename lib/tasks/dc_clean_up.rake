@@ -66,13 +66,13 @@ namespace :dc do
     desc 'Check all external_sources for orphaned data (does not modify the data)'
     task external_data_check: :environment do
       puts "checking ExternalSystems (#{DataCycleCore::ExternalSystem.count}) dependencies:"
-      linked_data = DataCycleCore::ExternalSystem.all.map { |item|
+      linked_data = DataCycleCore::ExternalSystem.all.filter_map do |item|
         name = CleanupHelper.identify_external_source(item)
         next if name.blank?
         linked = CleanupHelper.linked(name)
         next if linked.blank?
         { external_source_id: item.id, name: item.name, linked: }
-      }.compact
+      end
 
       dirty_data = []
 

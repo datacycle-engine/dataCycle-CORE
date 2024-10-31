@@ -72,13 +72,13 @@ module DataCycleCore
           if a.blank?
             []
           elsif a.is_a?(::Array)
-            a.map { |item|
+            a.filter_map do |item|
               if item.is_a?(::Hash)
                 item&.dig('id') || item&.dig(:id) || "new_#{item.hash}"
               elsif item.is_a?(DataCycleCore::Schedule)
                 item.id
               end
-            }.compact || []
+            end || []
           elsif a.is_a?(ActiveRecord::Relation)
             a.pluck(:id)
           else

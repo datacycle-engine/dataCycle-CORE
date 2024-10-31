@@ -24,7 +24,7 @@ module DataCycleCore
           schedule_hash[:dtstart] = data_hash.dig('event_period', 'start_date')&.in_time_zone
           schedule_hash[:dtend] = data_hash.dig('event_period', 'end_date')&.in_time_zone
           if sub_event.present?
-            rdate = sub_event.map { |i| i.dig('event_period', 'start_date')&.in_time_zone || i.dig('start_date')&.in_time_zone }.compact
+            rdate = sub_event.filter_map { |i| i.dig('event_period', 'start_date')&.in_time_zone || i.dig('start_date')&.in_time_zone }
             estart = sub_event.first.dig('event_period', 'start_date')&.in_time_zone || sub_event.first.dig('start_date')&.in_time_zone
             eend = sub_event.first.dig('event_period', 'end_date')&.in_time_zone || sub_event.first.dig('end_date')&.in_time_zone
             duration = eend.to_i - estart.to_i if eend.present? && estart.present?

@@ -31,7 +31,7 @@ module DataCycleCore
                 classification_copyright_notice.concat(license_classifications.primary_classification_aliases.pluck(:internal_name))
                 break if license_classifications.any? { |c| c.try(:uri) == 'https://creativecommons.org/publicdomain/zero/1.0/' } && license_classifications.size == 1
               when 'linked'
-                copyright_notice.push(DataCycleCore::Thing.where(id: value).map { |c| I18n.with_locale(c.first_available_locale) { c.title.presence } }.compact.join(', ').presence)
+                copyright_notice.push(DataCycleCore::Thing.where(id: value).filter_map { |c| I18n.with_locale(c.first_available_locale) { c.title.presence } }.join(', ').presence)
               when 'number'
                 copyright_notice.push(value.presence&.to_i)
               else

@@ -90,7 +90,7 @@ module DataCycleCore
     end
 
     def select_attributes(attribute_list)
-      Array(attribute_list).map(&:first).compact
+      Array(attribute_list).filter_map(&:first)
     end
 
     def serialize_language(language_array)

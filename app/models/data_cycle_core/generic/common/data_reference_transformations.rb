@@ -163,7 +163,7 @@ module DataCycleCore
           elsif data.is_a?(Hash)
             data.transform_values { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }
           elsif data.is_a?(Array)
-            data.map { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }.compact.uniq
+            data.filter_map { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }.uniq
           else
             data
           end

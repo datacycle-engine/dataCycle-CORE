@@ -495,7 +495,7 @@ module DataCycleCore
       def to_h_from_schedule_params(value)
         return nil if value.blank? || value.values.blank?
 
-        value.values.map { |s|
+        value.values.filter_map do |s|
           s = s['datahash'] if s.key?('datahash')
           next nil if s.dig('start_time', 'time').blank?
 
@@ -555,7 +555,7 @@ module DataCycleCore
           end
 
           transform_data_for_data_hash(s.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }).merge(id: s['id'])
-        }.compact
+        end
       end
 
       def to_h_from_opening_time_params(value)

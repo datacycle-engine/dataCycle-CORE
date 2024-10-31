@@ -72,7 +72,7 @@ module DataCycleCore
 
             return if template.template_missing?
 
-            virtual_parameters.map { |key|
+            virtual_parameters.filter_map do |key|
               value = content.try(key)
 
               next if value.blank?
@@ -93,7 +93,7 @@ module DataCycleCore
 
                 t.set_memoized_attribute('type_of_information', type_of_information)
               end
-            }.compact
+            end
           end
         end
       end

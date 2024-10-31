@@ -123,10 +123,10 @@ module DataCycleCore
               next [nil, nil] if new_k.blank? # reject if concept scheme is missing
               [
                 new_k,
-                v.map { |da|
+                v.filter_map { |da|
                   next if new_k.external_system_id != da[:external_source_id]
                   da.slice(*ALLOWED_CONCEPT_KEYS)
-                }.compact.presence
+                }.presence
               ]
             }
               .compact_blank
@@ -186,7 +186,7 @@ module DataCycleCore
               .by_external_sources_and_keys(filtered_mappings)
               .index_by { |co| [co.external_system_id, co.external_key] }
 
-            concept_mappings.map { |cm|
+            concept_mappings.filter_map do |cm|
               parent = existing_concepts[[cm[:parent][:external_source_id], cm[:parent][:external_key]]]
               child = concepts_by_path[cm[:child][:full_path]] || existing_concepts[[cm[:child][:external_source_id], cm[:child][:external_key]]]
 
@@ -197,7 +197,7 @@ module DataCycleCore
                 child_id: child.id,
                 link_type: 'related'
               }
-            }.compact
+            end
           end
 
           def map_concept_mappings(data_array:, utility_object:)

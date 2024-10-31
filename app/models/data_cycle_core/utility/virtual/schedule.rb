@@ -6,7 +6,7 @@ module DataCycleCore
       module Schedule
         class << self
           def start_date(virtual_parameters:, content:, **_args)
-            Array.wrap(content.try(virtual_parameters.first)).map { |e| e&.dtstart }.compact.min
+            Array.wrap(content.try(virtual_parameters.first)).filter_map { |e| e&.dtstart }.min
           end
 
           def end_date(virtual_parameters:, content:, **_args)

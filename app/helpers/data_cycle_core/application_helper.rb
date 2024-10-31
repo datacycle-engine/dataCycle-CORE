@@ -230,7 +230,7 @@ module DataCycleCore
       else
         DataCycleCore.new_dialog.dig('default')
       end.transform_values do |v|
-        v&.map { |t|
+        v&.filter_map do |t|
           key = Array.wrap(t).first
 
           next unless key.include?(filter.to_s)
@@ -242,7 +242,7 @@ module DataCycleCore
           else
             t&.remove('**list')&.squish
           end
-        }&.compact
+        end
       end
     end
 

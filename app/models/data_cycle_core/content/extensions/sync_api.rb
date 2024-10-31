@@ -87,15 +87,15 @@ module DataCycleCore
             embedded_array = send(property_name_with_overlay)
 
             translated = property_definitions[property_name]['translated']
-            embedded_array&.map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:) }&.compact || []
+            embedded_array&.filter_map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:) } || []
           elsif asset_property_names.include?(property_name)
           # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
             schedule_array = send(property_name_with_overlay)
 
-            schedule_array&.map { |schedule| schedule.to_h.except(:thing_id) }&.compact || []
+            schedule_array&.filter_map { |schedule| schedule.to_h.except(:thing_id) } || []
           elsif property_name == 'mapped_classifications'
-            classification_property_names&.map { |classification_property_name|
+            classification_property_names&.filter_map { |classification_property_name|
               classification_property_name_overlay = classification_property_name
               classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
               send(classification_property_name_overlay)&.map { |classification|
@@ -104,7 +104,7 @@ module DataCycleCore
                   &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
                   &.keys
               }.presence&.flatten
-            }&.compact&.flatten
+            }&.flatten
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
@@ -196,7 +196,7 @@ module DataCycleCore
               last_sync_at: updated_at,
               last_successful_sync_at: updated_at,
               status: 'success',
-              external_system_syncs: external_system_syncs.map { |i|
+              external_system_syncs: external_system_syncs.filter_map do |i|
                 {
                   'external_key' => i.external_key || id,
                   'status' => i.status,
@@ -205,7 +205,7 @@ module DataCycleCore
                   'last_successful_sync_at' => i.last_successful_sync_at,
                   'name' => i.external_system&.identifier
                 }
-              }.compact
+              end
             })
           end
           sm
@@ -267,7 +267,7 @@ module DataCycleCore
                 .where.not(id: classification_aliases.keys)
                 .index_by(&:id)
             )
-            preloaded['classifications'] = collected_classification_contents&.map { |ccc|
+            preloaded['classifications'] = collected_classification_contents&.filter_map { |ccc|
               next if ccc.classification_alias.primary_classification.nil?
 
               {
@@ -296,11 +296,11 @@ module DataCycleCore
                     })
                   ]
               }
-            }&.compact&.index_by { |v| v[:classification].id } || {}
+            }&.index_by { |v| v[:classification].id } || {}
 
             preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_content).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
             preloaded['full_classifications'] = collected_classification_contents.group_by(&:thing_id).transform_values! do |v|
-              v.map { |ccc| ccc.classification_alias.primary_classification&.id }.compact
+              v.filter_map { |ccc| ccc.classification_alias.primary_classification&.id }
             end
 
             preloaded['contents'].each_value do |content|

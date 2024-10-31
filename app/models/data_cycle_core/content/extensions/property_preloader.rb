@@ -114,7 +114,7 @@ module DataCycleCore
         def preload_overlays
           return if @_current_recursive_collection.instance_variable_get(:@_overlays_preloaded) || @_current_recursive_collection.all? { |c| c.instance_variable_get(:@_overlay_preloaded) }
 
-          overlay_templates = DataCycleCore::ThingTemplate.where(template_name: @_current_recursive_collection.map(&:overlay_template_name).compact.uniq).to_h { |tt| [tt.template_name, Array.wrap(tt.property_names)] }
+          overlay_templates = DataCycleCore::ThingTemplate.where(template_name: @_current_recursive_collection.filter_map(&:overlay_template_name).uniq).to_h { |tt| [tt.template_name, Array.wrap(tt.property_names)] }
 
           @_current_recursive_collection.each do |content|
             content.instance_variable_set(:@_overlay_preloaded, true)

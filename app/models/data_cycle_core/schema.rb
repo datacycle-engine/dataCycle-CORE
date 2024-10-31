@@ -90,7 +90,7 @@ module DataCycleCore
           elsif definition['stored_filter'].present?
             raise 'Cannot resolve linked templates without schema' if @schema.nil?
             @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
-              .map { |i| i.sub(/^Organisation$/, 'Organization') }.compact
+              .filter_map { |i| i.sub(/^Organisation$/, 'Organization') }
           else
             '//schema.org/Thing'
           end
@@ -163,9 +163,9 @@ module DataCycleCore
       tree_name = 'Inhaltstypen'
       aliases = DataCycleCore::ClassificationAlias.for_tree(tree_name).with_internal_name(names).with_descendants
 
-      aliases.map { |i|
+      aliases.filter_map { |i|
         i.classifications.first.things.first&.template_name || i.internal_name
-      }.compact.to_a.uniq
+      }.to_a.uniq
     end
 
     private
