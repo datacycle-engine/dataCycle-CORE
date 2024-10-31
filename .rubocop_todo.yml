@@ -38,13 +38,6 @@ Lint/EmptyConditionalBody:
 Lint/MissingSuper:
   Enabled: false
 
-# Offense count: 3
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/OrAssignmentToConstant:
-  Exclude:
-    - "config/routes.rb"
-    - "lib/tasks/data_cycle_core_db_tasks.rake"
-
 # Offense count: 56
 # This cop supports safe autocorrection (--autocorrect).
 Lint/RedundantCopDisableDirective:

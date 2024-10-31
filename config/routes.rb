@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+CONTENT_TABLES_FALLBACK = ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
+CONTENT_TABLE = ['things'].freeze
+
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
                      controllers: {
@@ -24,9 +27,6 @@ DataCycleCore::Engine.routes.draw do
   match '/409', to: 'exceptions#conflict_exception', via: :all, as: :conflict_exception
   match '/422', to: 'exceptions#unprocessable_entity_exception', via: :all, as: :unprocessable_entity_exception
   match '/500', to: 'exceptions#internal_server_error_exception', via: :all, as: :internal_server_error_exception
-
-  CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
-  CONTENT_TABLE ||= ['things'].freeze
 
   root to: redirect('users/sign_in')
 
