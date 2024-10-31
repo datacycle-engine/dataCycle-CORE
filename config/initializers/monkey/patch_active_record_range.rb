@@ -46,7 +46,7 @@ module ActiveRecord
                 ',',
                 to.is_a?(Time) ? to.to_fs(:long_usec) : to,
                 value.exclude_end? ? ')' : ']'
-              ].join('')
+              ].join
             else
               super
             end
