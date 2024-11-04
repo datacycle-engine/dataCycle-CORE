@@ -62,6 +62,15 @@ namespace :dc do
           File.write(f, new_text)
         end
 
+        if File.foreach(f).grep(Regexp.new('ActiveRecord::Base.maintain_test_schema')).present?
+          text = File.read(f)
+          new_text = text.gsub(
+            'ActiveRecord::Base.maintain_test_schema',
+            'ActiveRecord.maintain_test_schema'
+          )
+          File.write(f, new_text)
+        end
+
         manual_action_required.push "[MANUALLY] please replace Rails.application.secrets with corresponding ENV[...] (#{f})" if File.foreach(f).grep(Regexp.new('Rails.application.secrets')).present?
 
         manual_action_required.push "[MANUALLY] please replace simple_form_for with form_for and replace all f.input with corresponding field helpers (email_field, password_field, text_field) (#{f})" if File.foreach(f).grep(Regexp.new('simple_form_for')).present?
