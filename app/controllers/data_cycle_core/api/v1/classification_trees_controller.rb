@@ -9,19 +9,19 @@ module DataCycleCore
 
           if permitted_params[:modified_since]
             @classification_tree_labels = @classification_tree_labels.where(
-              ClassificationTreeLabel.arel_attribute(:updated_at).gteq(Time.zone.parse(permitted_params[:modified_since]))
+              ClassificationTreeLabel.arel_table[:updated_at].gteq(Time.zone.parse(permitted_params[:modified_since]))
             ).order(:updated_at)
           end
 
           if permitted_params[:created_since]
             @classification_tree_labels = @classification_tree_labels.where(
-              ClassificationTreeLabel.arel_attribute(:created_at).gteq(Time.zone.parse(permitted_params[:created_since]))
+              ClassificationTreeLabel.arel_table[:created_at].gteq(Time.zone.parse(permitted_params[:created_since]))
             ).order(:created_at)
           end
 
           if permitted_params[:deleted_since]
             @classification_tree_labels = @classification_tree_labels.with_deleted.where(
-              ClassificationTreeLabel.arel_attribute(:deleted_at).gteq(Time.zone.parse(permitted_params[:deleted_since]))
+              ClassificationTreeLabel.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
             ).order(:deleted_at)
           end
 
@@ -38,19 +38,19 @@ module DataCycleCore
 
           if permitted_params[:modified_since]
             @classification_aliases = @classification_aliases.where(
-              ClassificationAlias.arel_attribute(:updated_at).gteq(Time.zone.parse(permitted_params[:modified_since]))
+              ClassificationAlias.arel_table[:updated_at].gteq(Time.zone.parse(permitted_params[:modified_since]))
             ).reorder(nil).order(:updated_at)
           end
 
           if permitted_params[:created_since]
             @classification_aliases = @classification_aliases.where(
-              ClassificationAlias.arel_attribute(:created_at).gteq(Time.zone.parse(permitted_params[:created_since]))
+              ClassificationAlias.arel_table[:created_at].gteq(Time.zone.parse(permitted_params[:created_since]))
             ).reorder(nil).order(:created_at)
           end
 
           if permitted_params[:deleted_since]
             @classification_aliases = @classification_aliases.with_deleted.where(
-              ClassificationAlias.arel_attribute(:deleted_at).gteq(Time.zone.parse(permitted_params[:deleted_since]))
+              ClassificationAlias.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
             ).reorder(nil).order(:deleted_at)
           end
 
