@@ -47,10 +47,10 @@ module DataCycleCore
         def append_thing_data!(data_object, data, external_system)
           data_object[:template_name] = data.template_name if data.respond_to?(:template_name)
           if data.is_a?(DataCycleCore::Thing)
-            data_object[:webhook_data] = OpenStruct.new( # rubocop:disable Style/OpenStructUse
+            data_object[:webhook_data] = data.webhook_data.to_h.merge(
               external_keys: data.external_keys_by_system_id(external_system.id),
               original_external_keys: data.try(:original)&.external_keys_by_system_id(external_system.id)
-            ).to_h
+            )
           end
 
           data_object[:original_id] = data.original_id if data.respond_to?(:original_id)
