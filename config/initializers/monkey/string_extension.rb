@@ -40,6 +40,8 @@ module DataCycleCore
 
     def strip_tags
       ActionController::Base.helpers.strip_tags(self)
+    rescue StandardError
+      self
     end
 
     def encode_utf8!

@@ -68,7 +68,11 @@ module DataCycleCore
                   end
                 end
               else
-                ActionController::Base.helpers.strip_tags((data.dig('translations', I18n.locale.to_s, parameter) || data.dig('datahash', parameter) || data[parameter]).to_s).size
+                (
+                  data.dig('translations', I18n.locale.to_s, parameter) ||
+                  data.dig('datahash', parameter) ||
+                  data[parameter]
+                ).to_s.strip_tags.size
               end
             end
           end
