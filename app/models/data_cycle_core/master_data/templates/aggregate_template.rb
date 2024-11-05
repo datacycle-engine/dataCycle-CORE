@@ -57,8 +57,7 @@ module DataCycleCore
         def self.key_allowed_for_aggregate?(key:, prop:)
           PROPS_WITHOUT_AGGREGATE.exclude?(key) &&
             !prop.key?(:virtual) &&
-            !prop.key?(:compute) &&
-            !prop.dig(:features, :overlay, :allowed)
+            !prop.key?(:compute)
         end
 
         private
@@ -118,6 +117,7 @@ module DataCycleCore
 
         def transform_aggregate_property(key:, prop:)
           return [] if AGGREGATE_KEY_EXCEPTIONS.include?(key)
+          return [] if prop.dig(:features, :overlay)&.key?(:overlay_for) || prop.dig(:features, :aggregate)&.key?(:aggregate_for)
           return slug_definition(key:, prop:) if key == 'slug'
           return [[key, prop]] unless self.class.key_allowed_for_aggregate?(key:, prop:)
 
