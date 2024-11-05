@@ -286,14 +286,14 @@ module DataCycleCore
 
     def log_request_activity(type:, data: {}, request: nil, activitiable: nil)
       data ||= {}
-      data = data.with_indifferent_access
-      data = data.merge(CONTROLLER_CONTEXT_SCHEMA.call(request&.params).to_h)
-      data[:format] = request&.format&.to_sym
-      data[:referer] = request&.referer
-      data[:origin] = request&.origin
+      data.deep_stringify_keys!
+      data.merge!(CONTROLLER_CONTEXT_SCHEMA.call(request&.params).to_h.deep_stringify_keys)
+      data['format'] = request&.format&.to_s
+      data['referer'] = request&.referer&.to_s
+      data['origin'] = request&.origin&.to_s
 
       CUSTOM_TRACKING_HEADERS.each do |key, header|
-        data[key] = request&.headers&.[](header)
+        data[key.to_s] = request&.headers&.[](header)&.to_s
       end
 
       transaction(joinable: true) do
