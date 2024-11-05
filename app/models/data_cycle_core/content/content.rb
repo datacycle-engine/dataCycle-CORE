@@ -125,6 +125,8 @@ module DataCycleCore
         root_name = method_name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
 
         property_names.include?(root_name) || super
+      rescue StandardError
+        super
       end
 
       def property?(property_name)
