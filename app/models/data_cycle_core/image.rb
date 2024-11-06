@@ -137,7 +137,7 @@ module DataCycleCore
       return unless file&.attached?
 
       file.variant(resize_to_fit: [300, 300], colourspace: 'srgb', format: format_for_transformation(transformation['format'])).processed
-    rescue ActiveStorage::FileNotFoundError
+    rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
       nil
     end
 
@@ -145,7 +145,7 @@ module DataCycleCore
       return unless file&.attached?
 
       file.variant(resize_to_limit: [2048, 2048], format: format_for_transformation(transformation['format'])).processed
-    rescue ActiveStorage::FileNotFoundError
+    rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
       nil
     end
 
@@ -153,7 +153,7 @@ module DataCycleCore
       return unless file&.attached?
 
       file.variant(format: format_for_transformation(transformation['format'])).processed
-    rescue ActiveStorage::FileNotFoundError
+    rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
       nil
     end
 
@@ -165,7 +165,7 @@ module DataCycleCore
       else
         file.variant(format: format_for_transformation(transformation['format'])).processed
       end
-    rescue ActiveStorage::FileNotFoundError
+    rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
       nil
     end
 

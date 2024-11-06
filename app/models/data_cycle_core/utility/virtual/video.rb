@@ -17,7 +17,7 @@ module DataCycleCore
                 DataCycleCore::ActiveStorageService.with_current_options do
                   thumb_url = video.file.preview(resize_to_limit: [300, 300]).processed.url
                 end
-              rescue ActiveStorage::FileNotFoundError
+              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
                 # @todo: add some logging
                 return nil
               end

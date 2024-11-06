@@ -21,7 +21,7 @@ module DataCycleCore
                 DataCycleCore::ActiveStorageService.with_current_options do
                   thumb_url = pdf.file.preview(resize_to_limit: [300, 300]).processed.url
                 end
-              rescue ActiveStorage::FileNotFoundError
+              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
                 # @todo: add some logging
                 return nil
               end
@@ -37,7 +37,7 @@ module DataCycleCore
                 DataCycleCore::ActiveStorageService.with_current_options do
                   preview_url = pdf.file.preview({}).processed.url
                 end
-              rescue ActiveStorage::FileNotFoundError
+              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
                 # @todo: add some logging
                 return nil
               end

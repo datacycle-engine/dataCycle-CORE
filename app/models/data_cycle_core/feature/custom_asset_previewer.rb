@@ -22,7 +22,7 @@ module DataCycleCore
                 computed_keys = thing.property_definitions.slice(*thing.computed_property_names).select { |k, v| Array.wrap(v.dig('compute', 'parameters')).include?('asset') && k.ends_with?('_url') && k != 'content_url' }.keys
 
                 thing.update_computed_values(keys: computed_keys)
-              rescue ActiveStorage::FileNotFoundError
+              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
                 nil
               end
             end
