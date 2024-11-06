@@ -131,7 +131,7 @@ module DataCycleCore
     end
 
     def self.search(q)
-      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q OR (classification_aliases.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
+      joins(:classification_alias_path).where("ARRAY_TO_STRING(ARRAY_REVERSE(full_path_names), ' > ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q OR (classification_aliases.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
     end
 
     def self.order_by_similarity(term)
@@ -217,8 +217,8 @@ module DataCycleCore
     def self.custom_find_by_full_path(full_path)
       includes(:classification_alias_path)
         .where(
-          "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
-          full_path.split('>').reverse.map(&:strip).join(' < ')
+          "ARRAY_TO_STRING(ARRAY_REVERSE(full_path_names), ' > ') ILIKE ?",
+          full_path
         )
         .references(:classification_alias_paths)
         .first
