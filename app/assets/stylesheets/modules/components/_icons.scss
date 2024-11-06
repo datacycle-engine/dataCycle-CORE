@@ -16,9 +16,13 @@
       content: '\f2dc';
     }
 
-    &.ski_slope::before {
-      content: '\f2dc';
+    &.ski_slope,
+    &.mountain_area {
+      &::before {
+        content: '\f2dc';
+      }
     }
+
     &.thema_archiv,
     &.container_archiv {
       &::before {
@@ -144,7 +148,9 @@
     }
 
     &.place,
+    &.place_aggregate,
     &.tourist_attraction,
+    &.tourist_attraction_aggregate,
     &.content_location,
     &.ortlichkeit,
     &.poi {
@@ -178,7 +184,9 @@
     &.gesamtroute,
     &.donau_-_tour,
     &.etappe,
-    &.donau_tour {
+    &.donau_tour,
+    &.trail,
+    &.trail_aggregate {
       &::before {
         content: '\f279';
       }
@@ -186,13 +194,13 @@
 
     &.ladestation {
       &::before {
-        content: '\f242'
+        content: '\f242';
       }
     }
 
     &.ski_resort {
       &::before {
-        content: '\f2dc'
+        content: '\f2dc';
       }
     }
 
@@ -211,6 +219,7 @@
     }
 
     &.event,
+    &.event_aggregate,
     &.subevent {
       &::before {
         content: '\f073';
@@ -413,7 +422,6 @@
   }
 
   &.property-icon {
-
     &.type-date::before,
     &.type-daterange::before,
     &.type-object.key-duration::before {
