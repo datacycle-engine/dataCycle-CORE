@@ -64,33 +64,32 @@ namespace :dc do
     desc 'create all dictionaries in postgresql'
     task dictionaries: :environment do
       present_dictionaries = Rails.root.glob('config/configurations/ts_search/*.ths')
-      file_names = present_dictionaries.map { |f| f.split('/').last.split('.').first }
-
+      file_names = present_dictionaries.map { |f| File.basename(f, '.*') }
       file_names.each do |dict|
         dict_language = dict.split('_').last
 
         ActiveRecord::Base.connection.exec_query("
-          ALTER TEXT SEARCH CONFIGURATION #{dict_language}
-             ALTER MAPPING FOR asciihword, asciiword, hword, word
-             WITH #{dict_language}_stem;
-        ")
+            ALTER TEXT SEARCH CONFIGURATION #{dict_language}
+               ALTER MAPPING FOR asciihword, asciiword, hword, word
+               WITH #{dict_language}_stem;
+          ")
 
         ActiveRecord::Base.connection.exec_query("
-          DROP TEXT SEARCH DICTIONARY IF EXISTS #{dict};
-        ")
+            DROP TEXT SEARCH DICTIONARY IF EXISTS #{dict};
+          ")
 
         ActiveRecord::Base.connection.exec_query("
-          CREATE TEXT SEARCH DICTIONARY #{dict} (
-            TEMPLATE = thesaurus,
-            DictFile = #{dict},
-            Dictionary = pg_catalog.#{dict_language}_stem
-          );
-        ")
+            CREATE TEXT SEARCH DICTIONARY #{dict} (
+              TEMPLATE = thesaurus,
+              DictFile = #{dict},
+              Dictionary = pg_catalog.#{dict_language}_stem
+            );
+          ")
         ActiveRecord::Base.connection.exec_query("
-          ALTER TEXT SEARCH CONFIGURATION #{dict_language}
-             ALTER MAPPING FOR asciihword, asciiword, hword, word
-             WITH #{dict}, #{dict_language}_stem;
-        ")
+            ALTER TEXT SEARCH CONFIGURATION #{dict_language}
+               ALTER MAPPING FOR asciihword, asciiword, hword, word
+               WITH #{dict}, #{dict_language}_stem;
+          ")
       end
     end
   end
