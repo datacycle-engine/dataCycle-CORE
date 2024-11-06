@@ -3,7 +3,7 @@
 namespace :dc do
   namespace :upgrade do
     desc 'override some files in project from core templates'
-    task rails_7_1: :environment do # rubocop:disable Naming/VariableNumber
+    task rails71: :environment do
       project_path = Rails.root
       template_path = DataCycleCore::Engine.root.join('lib/templates/rails_7_1/')
 
