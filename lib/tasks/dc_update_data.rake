@@ -17,9 +17,9 @@ namespace :dc do
       if template_names_or_collection_id.present? && DataCycleCore::ThingTemplate.where(template_name: template_names_or_collection_id).present?
         selected_thing_templates = selected_thing_templates.where(template_name: template_names_or_collection_id)
       elsif template_names_or_collection_id.present?
-        selected_thing_ids = DataCycleCore::Collection.find(template_names_or_collection_id).map { |collection| collection.things.map(&:id) }.flatten
-        selected_things = selected_things.where(id: selected_thing_ids)
-        selected_thing_templates = selected_thing_templates.where(template_name: selected_things.map(&:template_name))
+        selected_thing_ids = DataCycleCore::Collection.where(id: template_names_or_collection_id).flat_map { |c| c.things.pluck(:id) }
+        selected_things = selected_things.where(id: selected_thing_ids.uniq)
+        selected_thing_templates = selected_thing_templates.where(template_name: selected_things.pluck(:template_name).uniq)
       end
 
       puts "ATTRIBUTES TO UPDATE: #{computed_names.present? ? computed_names.join(', ') : 'all'}"

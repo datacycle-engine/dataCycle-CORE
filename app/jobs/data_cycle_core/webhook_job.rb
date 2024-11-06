@@ -91,11 +91,13 @@ module DataCycleCore
     def exception_data
       return {} if last_error.blank?
 
+      text = last_error.try(:response)&.dig(:body)&.to_s&.dup&.encode_utf8! if last_error.try(:response).respond_to?(:dig)
+
       {
         exception: {
           timestamp: Time.zone.now,
           message: last_error.message.dup.encode_utf8!,
-          text: last_error.try(:response)&.dig(:body)&.to_s&.dup&.encode_utf8!
+          text:
         }
       }
     end
