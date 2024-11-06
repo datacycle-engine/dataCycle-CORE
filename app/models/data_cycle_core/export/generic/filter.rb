@@ -33,13 +33,13 @@ module DataCycleCore
           endpoints.any? do |endpoint|
             query = endpoint.apply.query.except(:order)
 
-            next true if query.exists?(id: data)
+            next true if query.exists?(id: data.id)
 
-            if data.depending_contents.exists?
-              tmp = query.exists?(id: data.depending_contents)
+            if data.depending_contents&.exists?
+              tmp = query.exists?(id: data.depending_contents.pluck(:id))
 
               next tmp if endpoint.linked_stored_filter.nil?
-              next tmp && endpoint.linked_stored_filter.apply.except(:order).exists?(id: data)
+              next tmp && endpoint.linked_stored_filter.apply.except(:order).exists?(id: data.id)
             end
 
             false
