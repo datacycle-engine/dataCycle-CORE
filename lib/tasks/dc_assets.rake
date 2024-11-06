@@ -292,5 +292,28 @@ namespace :dc do
       puts 'END'
       puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
     end
+
+    desc 'rebuild checksums for blobs'
+    task rebuild_blob_checksums: :environment do
+      puts 'Rebuilding checksums for blobs...'
+
+      updated_count = 0
+
+      ActiveStorage::Blob.find_each do |blob|
+        io = StringIO.new(blob.download)
+        digest = blob.send(:compute_checksum_in_chunks, io)
+        io.close
+
+        next if blob.checksum == digest
+
+        blob.update_column(:checksum, digest)
+        updated_count += 1
+        print '.'
+      rescue StandardError => e
+        puts "Error: #{e.message} (blob_id: #{blob.id})"
+      end
+
+      puts "[DONE] Rebuilt #{updated_count} checksums for blobs"
+    end
   end
 end
