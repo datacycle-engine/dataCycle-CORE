@@ -77,7 +77,7 @@ module DataCycleCore
           else
             transform_opts << utility_object.external_source
           end
-          transform_opts << config if transformation.parameters.dig(1, 1).in? [:options, :config]
+          transform_opts << config.with_indifferent_access if transformation.parameters.dig(1, 1).in? [:options, :config]
 
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object:,
