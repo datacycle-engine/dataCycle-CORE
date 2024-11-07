@@ -219,8 +219,11 @@ namespace :db do
       unless cmd.nil?
         ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
         Rake::Task['db:clear_connections'].invoke
+        Rake::Task['db:clear_connections'].reenable
         Rake::Task['db:drop'].invoke
+        Rake::Task['db:drop'].reenable
         Rake::Task['db:create'].invoke
+        Rake::Task['db:create'].reenable
         puts cmd
         system cmd
         Rake::Task['db:maintenance:vacuum'].invoke
