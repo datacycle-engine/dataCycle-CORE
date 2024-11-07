@@ -148,9 +148,7 @@
     }
 
     &.place,
-    &.place_aggregate,
     &.tourist_attraction,
-    &.tourist_attraction_aggregate,
     &.content_location,
     &.ortlichkeit,
     &.poi {
@@ -185,8 +183,7 @@
     &.donau_-_tour,
     &.etappe,
     &.donau_tour,
-    &.trail,
-    &.trail_aggregate {
+    &.trail {
       &::before {
         content: '\f279';
       }
@@ -219,7 +216,6 @@
     }
 
     &.event,
-    &.event_aggregate,
     &.subevent {
       &::before {
         content: '\f073';
@@ -422,6 +418,7 @@
   }
 
   &.property-icon {
+
     &.type-date::before,
     &.type-daterange::before,
     &.type-object.key-duration::before {

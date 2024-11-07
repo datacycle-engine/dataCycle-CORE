@@ -918,7 +918,6 @@ CREATE TABLE public.asset_contents (
 
 CREATE TABLE public.assets (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    file character varying,
     type character varying,
     content_type character varying,
     file_size bigint,
@@ -4717,6 +4716,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20241106065758'),
 ('20241025054443'),
 ('20241024130447'),
 ('20241024111455'),

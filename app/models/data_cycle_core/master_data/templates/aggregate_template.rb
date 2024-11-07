@@ -12,6 +12,7 @@ module DataCycleCore
         AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze # keys that should not be included in the aggregate definition
         PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type', 'slug'].freeze # keys that should not be aggregated
         ALLOWED_PROP_OVERRIDES = ['features', 'ui'].freeze
+        AGGREGATE_TEMPLATE_SUFFIX = ' (Aggregate)'
 
         def initialize(data:)
           @data = data
@@ -47,7 +48,7 @@ module DataCycleCore
         end
 
         def self.aggregate_template_name(name)
-          "#{name} (Aggregate)"
+          "#{name}#{AGGREGATE_TEMPLATE_SUFFIX}"
         end
 
         def self.aggregate_property_key(key)
