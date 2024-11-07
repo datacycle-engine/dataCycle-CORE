@@ -344,6 +344,10 @@ module DataCycleCore
       super
     end
 
+    def icon_class
+      organization? ? 'organization' : 'user'
+    end
+
     private
 
     def set_default_role

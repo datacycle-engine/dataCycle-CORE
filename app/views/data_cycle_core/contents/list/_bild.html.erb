@@ -10,7 +10,7 @@
               <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
             </figure>
           <% else %>
-            <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.underscore_blanks, icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+            <%= render 'data_cycle_core/shared/icon', icon_type: item.try(:icon_type), icon_class: item.try(:icon_class) %>
           <% end %>
           <span><%= item.translated_template_name(active_ui_locale) %></span>
           <span class="locale">(<%= I18n.locale.to_s %>)</span>

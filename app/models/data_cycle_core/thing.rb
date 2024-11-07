@@ -3,16 +3,12 @@
 module DataCycleCore
   class Thing < Content::DataHash
     include Content::ContentLoader
-    include Content::Extensions::Thing
     include Content::Extensions::OptimizedContentContents
     include Content::ExternalData
-    prepend Content::ContentOverlay
 
     class History < Content::Content
       include Content::ContentHistoryLoader
-      include Content::Extensions::Thing
       include Content::Restorable
-      prepend Content::ContentOverlay
 
       extend ::Mobility
       translates :slug, :content, backend: :table

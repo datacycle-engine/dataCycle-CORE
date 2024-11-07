@@ -90,7 +90,7 @@
 
       <div class="detail-header-info">
         <div class="type watchlist">
-          <%= render 'data_cycle_core/shared/icon', icon_class: @watch_list&.class&.name&.demodulize&.underscore_blanks %>
+          <%= render 'data_cycle_core/shared/icon', icon_class: @watch_list.try(:icon_class) %>
 
           <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %></span>
 

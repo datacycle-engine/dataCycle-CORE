@@ -55,6 +55,8 @@ module DataCycleCore
       include Extensions::PropertyPreloader
       prepend Extensions::Translation
       prepend Extensions::Geo
+      include Extensions::Thing
+      prepend ContentOverlay
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]

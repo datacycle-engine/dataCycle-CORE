@@ -27,6 +27,16 @@ module DataCycleCore
         def life_cycle_stage_index(classification_id = life_cycle_stage&.id)
           DataCycleCore::Feature::LifeCycle.ordered_classifications(self)&.values&.pluck(:id)&.index(classification_id)
         end
+
+        def icon_type
+          base_type = super
+
+          return base_type unless DataCycleCore::Feature::LifeCycle.allowed?(self) &&
+                                  DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).present? &&
+                                  content_type?('container')
+
+          "#{base_type}_#{life_cycle_stage&.name&.underscore_blanks}"
+        end
       end
     end
   end

@@ -5,7 +5,7 @@
     <%= render 'data_cycle_core/assets/file_links', asset: asset %>
     <span class="asset-type" title="<%= asset.content_type %>">
       <i class="fa fa-check asset-checkbox" aria-hidden="true"></i>
-      <%= render 'data_cycle_core/shared/icon', icon_class: asset.try(:icon_class) || asset.class.name.demodulize.underscore_blanks %>
+      <%= render 'data_cycle_core/shared/icon', icon_class: asset.try(:icon_class) %>
       <%= asset.model_name.human(locale: active_ui_locale) %> (<%= number_to_human_size(asset.file_size) %><%= yield_content!(:additional_asset_metadata) %>)
     </span>
     <span class="asset-upload-date">

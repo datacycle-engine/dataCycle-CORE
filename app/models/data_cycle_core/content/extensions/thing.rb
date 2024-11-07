@@ -72,8 +72,8 @@ module DataCycleCore
           I18n.t("template_names.#{template_name}", default: template_name, locale:)
         end
 
-        def icon_class
-          self.class.name.demodulize.underscore_blanks
+        def icon_type
+          template_name.underscore_blanks
         end
 
         module ClassMethods

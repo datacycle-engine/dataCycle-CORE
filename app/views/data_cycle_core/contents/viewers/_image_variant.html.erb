@@ -30,7 +30,7 @@
                  parent: local_assigns[:parent] do %>
 
         <div class="accordion-title">
-          <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore_blanks %>
+          <%= render 'data_cycle_core/shared/icon', icon_type: object.try(:icon_type), icon_class: object.try(:icon_class) %>
           <span class="title">
             <span class="embedded-type"><%= translated_attribute_label(key, definition, content, options) %></span>
             <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>

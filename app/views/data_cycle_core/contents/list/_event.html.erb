@@ -4,7 +4,7 @@
     <div class="content-row">
       <%= link_to thing_path(item, watch_list_id: @watch_list&.id, locale: I18n.locale), class: 'content-link' do %>
         <span class="type <%= item.template_name.downcase %>">
-          <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.underscore_blanks, icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+          <%= render 'data_cycle_core/shared/icon', icon_type: item.try(:icon_type), icon_class: item.try(:icon_class) %>
           <span><%= item.translated_template_name(active_ui_locale) %></span>
           <span class="locale">(<%= I18n.locale.to_s %>)</span>
         </span>
