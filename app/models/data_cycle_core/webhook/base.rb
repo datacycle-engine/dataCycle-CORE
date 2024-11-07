@@ -19,7 +19,7 @@ module DataCycleCore
 
       def self.execute(utility_object, data)
         # check filter for webhook immediately if it is delete action
-        return if utility_object.delete_action? && !utility_object.allowed?(data)
+        return if utility_object.synchronous_filter?(data) && !utility_object.allowed?(data)
 
         utility_object.process(data)
       end

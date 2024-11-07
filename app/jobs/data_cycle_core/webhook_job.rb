@@ -10,8 +10,12 @@ module DataCycleCore
 
     attr_accessor :data, :utility_object, :external_sync, :response, :start_time
 
-    before_perform ->(job) { job.initialize_context }
-    before_perform ->(job) { job.check_filter }
+    before_perform :initialize_context
+    before_perform :check_filter
+    before_perform :init_external_sync
+    after_success :success_external_sync
+    after_error :error_external_sync
+    after_failure :failure_external_sync
 
     def delayed_reference_id
       arguments.dig(0, :data_object, :id)
@@ -28,7 +32,7 @@ module DataCycleCore
       @response = utility_object.send_request(data)
     end
 
-    before_perform do
+    def init_external_sync
       @external_sync = data.external_system_sync_by_system(external_system: utility_object.external_system) if data.respond_to?(:external_system_sync_by_system)
 
       @start_time = Time.zone.now
@@ -36,17 +40,17 @@ module DataCycleCore
       instrument_status(:info, '[STARTED]')
     end
 
-    after_success do
+    def success_external_sync
       external_sync&.update(status: 'success', last_successful_sync_at: start_time, data: external_sync&.data&.except('exception'))
       instrument_status(:info, "[FINISHED] in #{(Time.zone.now - start_time).round(3)}s")
     end
 
-    after_error do
+    def error_external_sync
       external_sync&.update(status: 'error', data: (external_sync&.data || {}).merge(exception_data))
       instrument_status(:warn, "[ERROR] | #{exception_message}")
     end
 
-    after_failure do
+    def failure_external_sync
       external_sync&.update(status: 'failure', data: (external_sync&.data || {}).merge(exception_data))
       instrument_status(:error, "[FAILURE] | #{exception_message}")
     end

@@ -60,6 +60,10 @@ module DataCycleCore
         action.to_s == 'delete'
       end
 
+      def synchronous_filter?(data)
+        delete_action? || data.destroyed? || data.try(:synchronous_filter) == true
+      end
+
       def webhook
         external_system.export_config.dig(action, :strategy)&.safe_constantize
       end
