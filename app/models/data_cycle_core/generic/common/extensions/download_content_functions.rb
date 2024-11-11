@@ -189,11 +189,12 @@ module DataCycleCore
             success = true
 
             options[:credentials].each_with_index do |credentials, index|
-              options = options.merge(credentials_index: index) unless options.key?(:credentials_index) ||
-                                                                       options[:credentials].one?
-              options = options.merge(credentials:)
+              opts = options
+              opts = options.merge(credentials_index: index) unless options.key?(:credentials_index) ||
+                                                                    options[:credentials].one?
+              opts = opts.merge(credentials:)
 
-              success &&= with_logging(**keyword_args, options:, &block)
+              success &&= with_logging(**keyword_args, options: opts, &block)
             end
 
             success
@@ -203,9 +204,9 @@ module DataCycleCore
             success = true
 
             options.dig(:download, :read_type).each do |read_type|
-              options = options.deep_merge(download: { read_type: })
+              opts = options.deep_merge(download: { read_type: })
 
-              success &&= with_logging(**keyword_args, options:, &block)
+              success &&= with_logging(**keyword_args, options: opts, &block)
             end
 
             success
@@ -215,9 +216,9 @@ module DataCycleCore
             success = true
 
             Array.wrap(options[:locales]).each do |language|
-              options = options.merge(locales: [language])
+              opts = options.merge(locales: [language])
 
-              success &&= with_logging(**keyword_args, options:, &block)
+              success &&= with_logging(**keyword_args, options: opts, &block)
             end
 
             success
