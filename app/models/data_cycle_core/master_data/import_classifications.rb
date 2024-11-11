@@ -6,7 +6,10 @@ module DataCycleCore
       def self.import_all(_validation: true, classification_paths: nil)
         classification_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
 
-        return puts('###### classifications not found') if classification_paths.blank?
+        if classification_paths.blank?
+          puts('###### classifications not found')
+          return []
+        end
 
         merged_data_trees = {}
         inhaltstypen_trees = []

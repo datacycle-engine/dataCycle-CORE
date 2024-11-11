@@ -164,7 +164,7 @@ module DataCycleCore
 
           query.each do |ca|
             # set preloaded sub_classification_alias
-            records = preloaded.values_at(*ca.sub_classification_trees.to_a.pluck(:classification_alias_id)).compact.sort_by { |c| c.order_a || 0 }
+            records = preloaded.values_at(*ca.sub_classification_trees.to_a.pluck(:classification_alias_id)).compact.sort_by(&:order_a)
             association = ca.association(:sub_classification_alias)
             association.loaded!
             association.target.concat(records)
