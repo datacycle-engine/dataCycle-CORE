@@ -5,15 +5,16 @@ import MtkAdditionalValuesFilterControl from "./map_controls/mtk_additional_valu
 import UndoRedoControl from "./map_controls/mtk_maplibre_undo_redo_control";
 import pick from "lodash/pick";
 
-const mtkLibrary = ["https://static.maptoolkit.net/mtk/v10.0.1/mtk.js"];
+const mtkVersion = "10.0.1";
+const mtkLibrary = [`https://static.maptoolkit.net/mtk/v${mtkVersion}/mtk.js`];
 const defaultMtkScripts = [
-	"https://static.maptoolkit.net/mtk/v10.0.1/mtk.css",
-	"https://static.maptoolkit.net/mtk/v10.0.1/editor-gui.css",
-	"https://static.maptoolkit.net/mtk/v10.0.1/editor-gui.js",
+	`https://static.maptoolkit.net/mtk/v${mtkVersion}/mtk.css`,
+	`https://static.maptoolkit.net/mtk/v${mtkVersion}/editor-gui.css`,
+	`https://static.maptoolkit.net/mtk/v${mtkVersion}/editor-gui.js`,
 ];
 const mtkElevationProfile = [
-	"https://static.maptoolkit.net/mtk/v10.0.1/elevationprofile.css",
-	"https://static.maptoolkit.net/mtk/v10.0.1/elevationprofile.js",
+	`https://static.maptoolkit.net/mtk/v${mtkVersion}/elevationprofile.css`,
+	`https://static.maptoolkit.net/mtk/v${mtkVersion}/elevationprofile.js`,
 ];
 
 class TourSprungEditor extends MapLibreGlEditor {
@@ -125,7 +126,7 @@ class TourSprungEditor extends MapLibreGlEditor {
 			Math.round(keyFigures.elevation[this.keyFiguresMapping[key] || key]),
 		);
 	}
-	configureMap(map) {
+	async configureMap(map) {
 		this.mtkMap = map;
 		this.map = this.mtkMap.gl;
 
@@ -136,7 +137,7 @@ class TourSprungEditor extends MapLibreGlEditor {
 
 		this.configureEditor();
 
-		if (this.value) this.drawInitialRoute();
+		if (this.value) await this.drawInitialRoute();
 		this.initMtkEvents();
 
 		this.drawAdditionalFeatures();
@@ -161,10 +162,18 @@ class TourSprungEditor extends MapLibreGlEditor {
 			this._changeMtkLineStyle();
 		});
 	}
-	drawInitialRoute() {
-		this.editorGui.editor.loadGeoJSON(
-			this._createFeatureCollection([this.value]),
-		);
+	async drawInitialRoute() {
+		const geojsonPromise = new Promise((resolve, reject) => {
+			this.editorGui.editor.loadGeoJSON(
+				this._createFeatureCollection([this.value]),
+				(err, geojson) => {
+					if (err) reject(err);
+					resolve(geojson);
+				},
+			);
+		});
+
+		await geojsonPromise;
 
 		this.featurePolyLine = this.editorGui.editor.getPolyline();
 	}

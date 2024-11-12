@@ -17,7 +17,8 @@
           data-additional-values="<%= additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>"
           data-additional-values-overlay="<%= additional_map_values_overlay(content, definition, options)&.to_json %>"
           data-elevation-profile="<%= definition&.dig('ui', 'edit', 'options', 'elevation_profile') %>"
-          data-allow-upload="<%= definition&.dig('ui', 'edit', 'options', 'data_upload') %>">
+          data-allow-upload="<%= definition&.dig('ui', 'edit', 'options', 'data_upload') %>"
+          data-add-elevation-path="<%= geo_add_elevation_things_path if DataCycleCore::Feature['GeoAddElevation']&.allowed_attribute_key?(content, key) %>">
     </div>
   </div>
 
