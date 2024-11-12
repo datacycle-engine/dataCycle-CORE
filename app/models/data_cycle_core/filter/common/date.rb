@@ -74,6 +74,41 @@ module DataCycleCore
           )
         end
 
+        def offer_period(value = nil, mode = nil)
+          return if value.blank?
+          from_date, to_date = date_from_filter_object(value, mode)
+
+          query_base = <<-SQL
+    things.metadata->>'offer_period' IS NOT NULL
+    AND things.metadata->'offer_period'->>'valid_from' IS NOT NULL
+    AND things.metadata->'offer_period'->>'valid_through' IS NOT NULL
+    AND (
+      (
+        CASE
+          WHEN things.metadata->'offer_period'->>'valid_from' ~ '^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$'
+            THEN to_date(things.metadata->'offer_period'->>'valid_from', 'DD.MM.YYYY')
+          ELSE
+            NULLIF((things.metadata->'offer_period'->>'valid_from')::date, NULL)
+        END <= ?
+      )
+      AND (
+        CASE
+          WHEN things.metadata->'offer_period'->>'valid_through' ~ '^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$'
+            THEN to_date(things.metadata->'offer_period'->>'valid_through', 'DD.MM.YYYY')
+          ELSE
+            NULLIF((things.metadata->'offer_period'->>'valid_through')::date, NULL)
+        END >= ?
+      )
+    )
+          SQL
+
+          query_string = Thing.send(:sanitize_sql_for_conditions, [query_base, to_date, from_date])
+
+          reflect(
+            @query.where(query_string)
+          )
+        end
+
         def date_range(d = nil, attribute_path = nil)
           from_date, to_date = date_from_filter_object(d, nil)
 

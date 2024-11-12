@@ -314,6 +314,19 @@ module DataCycleCore
           end
         end
 
+        def offer_period(locale, value)
+          return [] unless value
+          value.filter_map do |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.in_schedule_types.#{k.underscore_blanks}", default: k, locale:),
+              'offer_period',
+              {data: { name: k, advancedType: k }}
+            ]
+          end
+        end
+
         def always_visible?
           !!configuration.dig(:config, :visible)
         end
