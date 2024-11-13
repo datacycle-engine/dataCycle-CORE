@@ -37,10 +37,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound unless @asset.file.attached?
 
-      file_status, file_headers, file_body = Rack::File.new(nil).serving(request, processed_asset_path)
-      response.status = file_status
-      response.headers.merge!(file_headers)
-      self.response_body = file_body
+      send_file processed_asset_path, disposition: 'inline'
     rescue StandardError => e
       not_found(e)
     end
