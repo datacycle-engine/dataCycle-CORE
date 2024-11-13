@@ -29,7 +29,7 @@ module DataCycleCore
     end
 
     def self.extension_white_list
-      DataCycleCore.uploader_validations.dig(:image, :format).presence || ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff']
+      DataCycleCore.uploader_validations.dig(:image, :format).presence || ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff', 'webp']
     end
 
     def dimensions_validation(options)
@@ -199,6 +199,8 @@ module DataCycleCore
       tempfile.rewind
 
       exif_data
+    rescue MiniMagick::Error
+      {}
     end
 
     def set_duplicate_hash

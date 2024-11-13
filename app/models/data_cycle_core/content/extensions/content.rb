@@ -23,6 +23,8 @@ module DataCycleCore
           DataCycleCore::ActiveStorageService.with_current_options do
             asset&.web&.url
           end
+        rescue StandardError
+          nil
         end
 
         def validation_messages_as_json
