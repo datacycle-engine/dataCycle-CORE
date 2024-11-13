@@ -1,11 +1,4 @@
 <span class="asset-file-links">
-  <a class="asset-file-link-tag copy-to-clipboard"
-     href="<%= asset.content_url %>"
-     target="_blank"
-     data-dc-tooltip="<%= t('actions.copy_to_clipboard_data', data: DataCycleCore::Asset.human_attribute_name(:content_url, locale: active_ui_locale), locale: active_ui_locale) %>"
-     data-value="<%= asset.content_url %>">
-    <i class="fa fa-clipboard" aria-hidden="true"></i>
-  </a>
   <a href="<%= asset.content_url %>" class="asset-file-link-tag" target="_blank" data-dc-tooltip="<%= t('actions.open_asset', locale: active_ui_locale) %>">
     <i class="fa fa-external-link" aria-hidden="true"></i>
   </a>
