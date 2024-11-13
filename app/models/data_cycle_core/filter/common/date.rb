@@ -12,7 +12,7 @@ module DataCycleCore
           schedule_search(from_date, to_date, attribute_key)
         end
 
-        def schedule_search(from, to, relation = nil)
+        def schedule_search(from, to, relation = [])
           return self if from.blank? && to.blank?
 
           from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from.is_a?(::Date) ? from.beginning_of_day : from)
@@ -24,7 +24,7 @@ module DataCycleCore
                 Arel::SelectManager.new(schedule)
                   .project(1)
                   .where(
-                    (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : schedule[:relation].not_in(DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions))
+                    (relation.present? ? schedule[:relation].in(Array.wrap(relation)) : schedule[:relation].not_in(DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions))
                     .and(schedule[:thing_id].eq(thing[:id]))
                     .and(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
                   )
@@ -78,25 +78,7 @@ module DataCycleCore
           return if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
 
-          from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_node.is_a?(::Date) ? from_node.beginning_of_day : from_date)
-          to_node = to_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to_date.is_a?(::Date) ? to_date.end_of_day : to_date)
-
-          reflect(
-            @query.where(
-              Arel::Nodes::Exists.new(
-                Arel::SelectManager.new(schedule)
-                 .project(1)
-                 .where(
-                   schedule[:relation].eq(Arel::Nodes.build_quoted('offers'))
-                     .or(
-                       schedule[:relation].eq(Arel::Nodes.build_quoted('offer_period_schedules'))
-                     )
-                   .and(schedule[:thing_id].eq(thing[:id]))
-                   .and(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
-                 )
-              )
-            )
-          )
+          schedule_search(from_date, to_date, ['offer_period_schedules', 'offers'])
         end
 
         def date_range(d = nil, attribute_path = nil)
