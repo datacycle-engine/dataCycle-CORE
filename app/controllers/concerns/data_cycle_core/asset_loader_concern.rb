@@ -7,11 +7,14 @@ module DataCycleCore
     private
 
     def load_asset_from_params
-      raise ActionController::BadRequest unless asset_params[:id].respond_to?(:uuid?) && asset_params[:id].uuid?
-
-      @asset = DataCycleCore::Thing.find_by(id: asset_params[:id]).try(:asset) ||
-               DataCycleCore::Asset.find_by(id: asset_params[:id]) ||
-               ActiveStorage::Blob.find_by(id: asset_params[:id])&.attachments&.first&.record
+      if asset_params[:id].respond_to?(:uuid?) && asset_params[:id].uuid?
+        @asset = DataCycleCore::Thing.find_by(id: asset_params[:id]).try(:asset) ||
+                 DataCycleCore::Asset.find_by(id: asset_params[:id]) ||
+                 ActiveStorage::Blob.find_by(id: asset_params[:id])&.attachments&.first&.record
+      elsif asset_params[:id].present?
+        slug = asset_params[:id].split('.').first
+        @asset = DataCycleCore::Thing::Translation.find_by(slug: slug)&.translated_model.try(:asset)
+      end
 
       raise ActiveRecord::RecordNotFound if @asset.nil?
     end

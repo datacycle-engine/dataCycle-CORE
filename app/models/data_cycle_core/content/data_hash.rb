@@ -26,6 +26,9 @@ module DataCycleCore
         # add default value
         add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if default_value_property_names.present?
 
+        # adjust slug if it already exists in database
+        make_slug_uniq(**options.to_h.slice(:data_hash)) if slug_property_names.intersect?(options.data_hash.keys)
+
         # add computed values
         add_computed_values(**options.to_h.slice(:data_hash, :current_user)) if computed_property_names.present? && options.update_computed
       end
@@ -271,7 +274,7 @@ module DataCycleCore
         value = options.data_hash[key]
         # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
-        when 'slug'
+        when *SLUG_PROPERTY_TYPES
           save_slug(key, value, options.data_hash)
         when 'key'
           true # do nothing

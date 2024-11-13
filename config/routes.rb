@@ -53,7 +53,6 @@ DataCycleCore::Engine.routes.draw do
     file: /.*/
   }
   get '/assets/:id(/:file)', to: 'missing_asset#show', as: 'local_blob', constraints: {
-    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
     file: /.*/
   }
   get '/processed/:klass/:id(/:file)', to: 'missing_asset#processed', constraints: {

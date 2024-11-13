@@ -51,6 +51,22 @@ module DataCycleCore
             local_blob_url(id: content.id, file: asset.filename)
           end
 
+          def content_url_from_slug(content:, computed_parameters:, **_args)
+            asset = DataCycleCore::Asset.find_by(id: computed_parameters['asset'])
+
+            return if asset.nil?
+
+            slug = if I18n.locale == content.first_available_locale(:de)
+                     computed_parameters['slug']
+                   else
+                     I18n.with_locale(content.first_available_locale(:de)) do
+                       content.try(:slug) || computed_parameters['slug']
+                     end
+                   end
+
+            local_blob_url(id: "#{slug}.#{asset.file_extension}")
+          end
+
           def asset_url_with_transformation(computed_parameters:, computed_definition:, **_args)
             asset = DataCycleCore::Asset.find_by(id: computed_parameters.values.first)
 
