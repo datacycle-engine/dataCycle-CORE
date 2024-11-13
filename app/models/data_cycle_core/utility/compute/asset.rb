@@ -4,7 +4,13 @@ module DataCycleCore
   module Utility
     module Compute
       module Asset
+        extend DataCycleCore::Engine.routes.url_helpers
+
         class << self
+          def url_options
+            Rails.application.config.action_mailer.default_url_options
+          end
+
           def file_name(computed_parameters:, **_args)
             DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:name)&.to_s
           end
@@ -37,10 +43,12 @@ module DataCycleCore
             Array.wrap(tree_label&.create_classification_alias(*Array.wrap(file_format_path))&.primary_classification&.id)
           end
 
-          def content_url(computed_parameters:, **_args)
+          def content_url(content:, computed_parameters:, **_args)
             asset = DataCycleCore::Asset.find_by(id: computed_parameters.values.first)
 
-            asset&.content_url
+            return if asset.nil?
+
+            local_blob_url(id: content.id, file: asset.filename)
           end
 
           def asset_url_with_transformation(computed_parameters:, computed_definition:, **_args)

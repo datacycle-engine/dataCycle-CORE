@@ -1,66 +1,32 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class MissingAssetController < ActiveStorage::BaseController
+  class MissingAssetController < ApplicationController
     include DataCycleCore::ErrorHandler
-    include ActiveStorage::Streaming
-    include ActiveStorage::DisableSession
+    include DataCycleCore::AssetLoaderConcern
 
     protect_from_forgery with: :exception
 
     def show
-      asset_class = "data_cycle_core/#{permitted_params[:klass]}".classify.safe_constantize
-      raise ActiveRecord::RecordNotFound if asset_class.nil?
+      load_asset_from_params
 
-      @asset = asset_class.find(permitted_params[:id])
-      filename = nil
-      content_type = nil
-
-      if permitted_params[:transformation]&.values.present?
-        @asset_version = @asset.try(:dynamic, permitted_params[:transformation])
-        @asset_path = @asset_version&.blob&.attachments&.first&.record&.file&.service&.path_for(@asset_version.key)
-
-        content_type = @asset_version.variation.content_type
-        filename = "#{@asset_version.blob.filename.base}.#{MiniMime.lookup_by_content_type(content_type)&.extension}"
-      elsif permitted_params[:version] == 'original'
-        @asset_version = @asset.try(permitted_params[:version])
-        @asset_path = @asset_version&.service&.path_for(@asset_version.key)
-
-        content_type = @asset_version.content_type
-        filename = @asset_version.filename.to_s
+      if permitted_params[:transformation]&.values.present? && @asset.respond_to?(:dynamic)
+        load_asset_path_with_transformation
+      elsif permitted_params[:version] == 'original' || permitted_params[:version].blank?
+        load_original_path
       else
-        @asset_version = @asset.try(permitted_params[:version], { recreate: true })
-        @asset_path = @asset_version&.blob&.attachments&.first&.record&.file&.service&.path_for(@asset_version.key)
-
-        content_type = @asset_version.variation.content_type
-        filename = @asset_version.blob.filename.to_s
+        load_asset_version_path
       end
+
       raise ActiveRecord::RecordNotFound if @asset_path.blank?
 
-      headers['ETag'] = %("#{File.mtime(@asset_path)}-#{@asset_version.try(:size)}")
-      headers['Last-Modified'] = File.mtime(@asset_path).httpdate
+      headers['ETag'] = @asset_version&.checksum
+      headers['Last-Modified'] = @asset_version.created_at.httpdate
       headers.delete 'X-Frame-Options'
 
-      send_file @asset_path, disposition: 'inline', filename:, type: content_type
+      send_file @asset_path, disposition: 'inline', filename: @filename, type: @content_type
     rescue StandardError => e
       not_found(e)
-    end
-
-    def show_blob
-      @blob = ActiveStorage::Blob.find(permitted_params[:id])
-
-      raise ActiveRecord::RecordNotFound if @blob.nil?
-
-      if request.headers['Range'].present?
-        send_blob_byte_range_data @blob, request.headers['Range']
-      else
-        http_cache_forever public: true do
-          response.headers['Accept-Ranges'] = 'bytes'
-          response.headers['Content-Length'] = @blob.byte_size.to_s
-
-          send_blob_stream @blob, disposition: params[:disposition]
-        end
-      end
     end
 
     def processed
