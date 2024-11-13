@@ -100,14 +100,24 @@ module DataCycleCore
 
       return if tooltip.blank?
 
-      tooltip.gsub!(/\s*(<li[^>]*>)\s*/i, '* ')
-      tooltip.gsub!(%r{</li>\s*(?!\n)}i, "\n")
-      tooltip.gsub!(%r{</p>}i, "\n\n")
-      tooltip.gsub!(%r{<br[/ ]*>}i, "\n")
-      tooltip.gsub!(%r{</div>}i, "\n")
-      tooltip.gsub!(/<ul>/i, "\n")
+      tooltip = Array.wrap(tooltip)
+      tooltip.each do |s|
+        content_score_tooltip_string_helper(s)
+      end
+      tooltip.join
+    end
 
-      tooltip.strip_tags.strip
+    def content_score_tooltip_string_helper(s)
+      s.gsub!(/\s*(<li[^>]*>)\s*/i, '* ')
+      s.gsub!(%r{</li>\s*(?!\n)}i, "\n")
+      s.gsub!(%r{</p>}i, "\n")
+      s.gsub!(%r{<br[/ ]*>}i, "\n")
+      s.gsub!(%r{</div>}i, "\n")
+      s.gsub!(/<ul>/i, "\n")
+      s.gsub!(%r{</ul>}i, '')
+      s.gsub!(/<b>/i, '')
+      s.gsub!(%r{</b>}i, '')
+      s.strip_tags.strip
     end
 
     def thing_content_score_class(content)
