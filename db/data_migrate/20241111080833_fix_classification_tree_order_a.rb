@@ -6,6 +6,8 @@ class FixClassificationTreeOrderA < ActiveRecord::Migration[7.1]
 
   def up
     execute <<-SQL.squish
+      SET statement_timeout = 0;
+
       SELECT public.update_classification_aliases_order_a(
           ARRAY_AGG(DISTINCT ct.classification_tree_label_id)
         )
