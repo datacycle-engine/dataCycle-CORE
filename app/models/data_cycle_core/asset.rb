@@ -153,6 +153,15 @@ module DataCycleCore
         .join(', ')
     end
 
+    def full_errors(locale)
+      errors
+        .map { |e|
+          e.options.present? ? "#{self.class.human_attribute_name(e.attribute, locale: locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(e.options, locale)}" : I18n.with_locale(locale) { e.message }
+        }
+        .flatten
+        .join(', ')
+    end
+
     def warnings
       @warnings ||= ActiveModel::Errors.new(self)
     end

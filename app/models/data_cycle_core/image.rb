@@ -17,7 +17,8 @@ module DataCycleCore
     WEB_SAVE_MIME_TYPES = [
       'image/gif',
       'image/png',
-      'image/jpeg'
+      'image/jpeg',
+      'image/webp'
     ].freeze
 
     DEFAULT_MIME_TYPE = 'image/jpeg'
@@ -196,11 +197,11 @@ module DataCycleCore
         .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
       exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip if image.path.present?
 
-      tempfile.rewind
-
       exif_data
     rescue MiniMagick::Error
       {}
+    ensure
+      tempfile.try(:rewind)
     end
 
     def set_duplicate_hash

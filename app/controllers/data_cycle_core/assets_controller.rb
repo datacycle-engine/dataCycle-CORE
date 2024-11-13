@@ -51,15 +51,7 @@ module DataCycleCore
         if @asset.save
           render json: @asset.attributes.merge(duplicateCandidates: Array.wrap(@asset.try(:duplicate_candidates)&.as_json(only: [:id], methods: :thumbnail_url))).merge(@asset.warnings? ? { 'warning' => @asset.full_warnings(helpers.active_ui_locale) } : {})
         else
-          render(json: {
-            error: @asset
-              .errors
-              .map { |e|
-                e.options.present? ? "#{@asset.class.human_attribute_name(e.attribute, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(e.options, helpers.active_ui_locale)}" : I18n.with_locale(helpers.active_ui_locale) { e.message }
-              }
-              .flatten
-              .join(', ')
-          })
+          render(json: { error: @asset.full_errors(helpers.active_ui_locale) })
         end
       rescue StandardError => e
         render(json: { error: I18n.t('validation.errors.asset_convert', locale: helpers.active_ui_locale), errorDetail: e.message }, status: :unprocessable_entity)

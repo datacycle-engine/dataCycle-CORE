@@ -50,7 +50,7 @@ module DataCycleCore
           (data_hash || {}).merge({ 'event_schedule' => Array.wrap(schedule_hash.with_indifferent_access) })
         end
 
-        def self.local_asset(data_hash, attribute, asset_type, creator_id = nil)
+        def self.local_asset(data_hash, attribute, asset_type, creator_id = nil, raise_exception = false)
           return data_hash if data_hash[attribute].blank?
 
           begin
@@ -61,9 +61,11 @@ module DataCycleCore
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => e
+            data_hash.delete(attribute)
             logger = DataCycleCore::Generic::Logger::LogFile.new('asset_processing')
             logger.info(e, data_hash[attribute])
             logger.close
+            raise if raise_exception
           end
 
           data_hash
