@@ -4,13 +4,13 @@ module DataCycleCore
   module Content
     module Extensions
       module Slug
-        def make_slug_uniq(data_hash:)
+        def slugify(data_hash:)
           data_hash.keys.intersection(slug_property_names).each do |key|
-            data_hash[key] = generate_uniq_slug(data_hash[key])
+            data_hash[key] = make_slug_uniq(data_hash[key]&.to_slug)
           end
         end
 
-        def generate_uniq_slug(base_slug)
+        def make_slug_uniq(base_slug)
           return if base_slug.blank?
 
           count = 0

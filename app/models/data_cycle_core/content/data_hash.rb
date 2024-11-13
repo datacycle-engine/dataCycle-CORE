@@ -27,7 +27,7 @@ module DataCycleCore
         add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if default_value_property_names.present?
 
         # adjust slug if it already exists in database
-        make_slug_uniq(**options.to_h.slice(:data_hash)) if slug_property_names.intersect?(options.data_hash.keys)
+        slugify(**options.to_h.slice(:data_hash)) if slug_property_names.intersect?(options.data_hash.keys)
 
         # add computed values
         add_computed_values(**options.to_h.slice(:data_hash, :current_user)) if computed_property_names.present? && options.update_computed

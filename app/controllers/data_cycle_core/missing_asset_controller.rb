@@ -20,8 +20,8 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound if @asset_path.blank?
 
-      headers['ETag'] = @asset_version&.checksum
-      headers['Last-Modified'] = @asset_version.created_at.httpdate
+      headers['ETag'] = @asset_version&.blob&.checksum
+      headers['Last-Modified'] = @asset_version&.blob&.created_at&.httpdate
       headers.delete 'X-Frame-Options'
 
       send_file @asset_path, disposition: 'inline', filename: @filename, type: @content_type
