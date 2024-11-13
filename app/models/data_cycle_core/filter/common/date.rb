@@ -78,34 +78,24 @@ module DataCycleCore
           return if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
 
-          query_base = <<-SQL
-    things.metadata->>'offer_period' IS NOT NULL
-    AND things.metadata->'offer_period'->>'valid_from' IS NOT NULL
-    AND things.metadata->'offer_period'->>'valid_through' IS NOT NULL
-    AND (
-      (
-        CASE
-          WHEN things.metadata->'offer_period'->>'valid_from' ~ '^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$'
-            THEN to_date(things.metadata->'offer_period'->>'valid_from', 'DD.MM.YYYY')
-          ELSE
-            NULLIF((things.metadata->'offer_period'->>'valid_from')::date, NULL)
-        END <= ?
-      )
-      AND (
-        CASE
-          WHEN things.metadata->'offer_period'->>'valid_through' ~ '^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$'
-            THEN to_date(things.metadata->'offer_period'->>'valid_through', 'DD.MM.YYYY')
-          ELSE
-            NULLIF((things.metadata->'offer_period'->>'valid_through')::date, NULL)
-        END >= ?
-      )
-    )
-          SQL
-
-          query_string = Thing.send(:sanitize_sql_for_conditions, [query_base, to_date, from_date])
+          from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_node.is_a?(::Date) ? from_node.beginning_of_day : from_date)
+          to_node = to_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to_date.is_a?(::Date) ? to_date.end_of_day : to_date)
 
           reflect(
-            @query.where(query_string)
+            @query.where(
+              Arel::Nodes::Exists.new(
+                Arel::SelectManager.new(schedule)
+                 .project(1)
+                 .where(
+                   schedule[:relation].eq(Arel::Nodes.build_quoted('offers'))
+                     .or(
+                       schedule[:relation].eq(Arel::Nodes.build_quoted('offer_period_schedules'))
+                     )
+                   .and(schedule[:thing_id].eq(thing[:id]))
+                   .and(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
+                 )
+              )
+            )
           )
         end
 
