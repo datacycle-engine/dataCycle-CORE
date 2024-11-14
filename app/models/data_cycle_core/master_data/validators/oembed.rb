@@ -59,21 +59,7 @@ module DataCycleCore
 
           oembed_url = nil
 
-          base_providers = Rails.cache.fetch(DataCycleCore.oembed_providers['base_json'], expires_in: 1.week) do
-            url = URI.parse(DataCycleCore.oembed_providers['base_json'])
-
-            begin
-              response = Net::HTTP.get(url)
-              json_data = JSON.parse(response)
-              json_data.index_by { |provider| provider['provider_url'] }
-            rescue StandardError => e
-              Rails.logger.error "Failed to fetch or parse JSON: #{e.message}"
-              { } # Return nil or handle this case as needed
-            end
-          end
-
-          additional_providers = DataCycleCore.oembed_providers['oembed_providers']&.index_by { |provider| provider['provider_url'] } || {}
-          @providers = (@providers || base_providers).merge(additional_providers)
+          @providers = (@providers || {}).merge(fetch_providers)
 
           selected = select_provider(@providers.values, data)
 
@@ -130,6 +116,8 @@ module DataCycleCore
           @error ||= { error: {}, warning: {}, result: {} }
           thing = DataCycleCore::Thing.where(id: thing_id).first
 
+          @providers = fetch_providers if @providers.blank?
+
           provider = select_provider(@providers.values, "#{dc_host}/things/#{thing_id}")&.first
           oembed_output = provider['output'].select { |o| o['template_names']&.include?(thing.template_name) }&.first if provider.present?
 
@@ -137,13 +125,17 @@ module DataCycleCore
 
           if provider.present? && oembed_output.present? && oembed_output['type'].present? && oembed_output['version'].present?
 
+            override_provider = oembed_output['override_provider'].select { |po|
+              URI.parse(thing.url).host.include?(po['host_match'])
+            }&.first || {}
+
             oembed = {
-              provider_name: thing.external_source.presence&.name || provider['provider_name'] || Rails.application.config.session_options[:key].sub(/^_/, '').sub('_session', '') || 'dataCycle',
-              provider_url: thing.external_source.present? ? '{url}' : (provider['provider_url'] || dc_host)
+              provider_name: override_provider['provider_name'] || thing.external_source.presence&.name || provider['provider_name'] || Rails.application.config.session_options[:key].sub(/^_/, '').sub('_session', '') || 'dataCycle',
+              provider_url: override_provider['provider_url'] || thing.external_source.present? ? '{url}' : (provider['provider_url'] || dc_host)
             }
 
             oembed_output.each do |k, v|
-              next if k == 'template_names'
+              next if ['template_names', 'override_provider'].include?(k)
               replaced_value = v.gsub(/\{([^}]+)}/) do
                 s = ::Regexp.last_match(1).split('|').map(&:strip).find do |key|
                   thing.present? ? ((thing.respond_to?(key) && thing.send(key).present?) || key.match(/^val:/)) : false
@@ -218,6 +210,25 @@ module DataCycleCore
               hit
             end
           end
+        end
+
+        def self.fetch_providers
+          base_providers = Rails.cache.fetch(DataCycleCore.oembed_providers['base_json'], expires_in: 1.week) do
+            url = URI.parse(DataCycleCore.oembed_providers['base_json'])
+
+            begin
+              response = Net::HTTP.get(url)
+              json_data = JSON.parse(response)
+              json_data.index_by { |provider| provider['provider_url'] }
+            rescue StandardError => e
+              Rails.logger.error "Failed to fetch or parse JSON: #{e.message}"
+              { } # Return nil or handle this case as needed
+            end
+          end
+
+          additional_providers = DataCycleCore.oembed_providers['oembed_providers']&.index_by { |provider| provider['provider_url'] } || {}
+
+          base_providers.merge(additional_providers)
         end
 
         private
