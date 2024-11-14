@@ -5,7 +5,7 @@ module DataCycleCore
     module Validation
       class Concept
         DEFAULT_HEADER = Dry::Schema.JSON do
-          required(:@id).value(:uuid_v4?)
+          required(:@id).value(:uuid?)
           required(:@type).value(:string)
         end
 

@@ -2,8 +2,8 @@
 
 Rails.application.reloader.to_prepare do
   Rails.application.configure do
-    Dry::Logic::Predicates.predicate(:uuid_v4_or_list_of_uuid_v4?) do |value|
-      value.is_a?(String) && value.split(',').map(&:strip).all? { |uuid| uuid_v4?(uuid) }
+    Dry::Logic::Predicates.predicate(:uuid_or_list_of_uuid?) do |value|
+      value.is_a?(String) && value.split(',').map(&:strip).all? { |uuid| format?(DataCycleCore::StringExtension::UUID_REGEX, uuid) }
     end
 
     Dry::Logic::Predicates.predicate(:api_sort_parameter?) do |value|
@@ -16,12 +16,16 @@ Rails.application.reloader.to_prepare do
       v.nil? || v.between?(-1, 1)
     end
 
-    Dry::Logic::Predicates.predicate(:uuid_v4_or_null_string?) do |value|
-      value.is_a?(String) && (uuid_v4?(value) || format?(/^NULL$/i, value))
+    Dry::Logic::Predicates.predicate(:uuid_or_null_string?) do |value|
+      value.is_a?(String) && (format?(DataCycleCore::StringExtension::UUID_REGEX, value) || format?(/^NULL$/i, value))
     end
 
     Dry::Logic::Predicates.predicate(:api_weight_string?) do |value|
       value.is_a?(String) && format?(/^[ABCD]{1,4}$/i, value)
+    end
+
+    Dry::Logic::Predicates.predicate(:uuid?) do |value|
+      value.is_a?(String) && format?(DataCycleCore::StringExtension::UUID_REGEX, value)
     end
   end
 end

@@ -10,6 +10,8 @@ module DataCycleCore
       Encoding::ISO_8859_1
     ].freeze
 
+    UUID_REGEX = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i
+
     def attribute_name_from_key
       self[/\[?([^\[\]]+)\]?$/, 1]
     end
@@ -35,7 +37,7 @@ module DataCycleCore
     end
 
     def uuid?
-      Dry::Logic::Predicates.uuid_v4?(self)
+      UUID_REGEX.match?(self)
     end
 
     def strip_tags

@@ -24,7 +24,7 @@ module DataCycleCore
 
         EXTERNAL_IDENTITY = Dry::Schema.Params do
           optional(:external_keys).filled(:string)
-          optional(:external_source_id).filled(:uuid_v4_or_list_of_uuid_v4?)
+          optional(:external_source_id).filled(:uuid_or_list_of_uuid?)
         end
 
         CONTENT = Dry::Schema.Params do
@@ -36,7 +36,7 @@ module DataCycleCore
         CLASSIFICATIONS = Dry::Schema.Params do
           optional(:classification_id).filled(:string)
           optional(:classification_ids).filled(:string)
-          optional(:classification_tree_label_id).filled(:uuid_v4_or_list_of_uuid_v4?)
+          optional(:classification_tree_label_id).filled(:uuid_or_list_of_uuid?)
         end
 
         BASE_JSON_API = Dry::Schema.Params do
@@ -44,7 +44,7 @@ module DataCycleCore
           optional(:sort).filled(:api_sort_parameter?)
           optional(:fields).filled(:string)
           optional(:include).filled(:string)
-          optional(:classification_trees) { (str? & uuid_v4?) | (array? & each(:uuid_v4?)) }
+          optional(:classification_trees) { (str? & uuid?) | (array? & each(:uuid?)) }
         end
 
         BASE_MVT_API = Dry::Schema.Params do
@@ -81,8 +81,8 @@ module DataCycleCore
         end
 
         CLASSIFICATIONS_FILTER = Dry::Schema.Params do
-          optional(:withSubtree).value(:array, min_size?: 1).each(:uuid_v4_or_list_of_uuid_v4?)
-          optional(:withoutSubtree).value(:array, min_size?: 1).each(:uuid_v4_or_list_of_uuid_v4?)
+          optional(:withSubtree).value(:array, min_size?: 1).each(:uuid_or_list_of_uuid?)
+          optional(:withoutSubtree).value(:array, min_size?: 1).each(:uuid_or_list_of_uuid?)
         end
 
         GEO_FILTER = Dry::Schema.Params do
@@ -116,13 +116,13 @@ module DataCycleCore
         end
 
         IN_UUID_OR_NULL_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array).each(:uuid_v4_or_null_string?)
-          optional(:notIn).filled(:array).each(:uuid_v4_or_null_string?)
+          optional(:in).filled(:array).each(:uuid_or_null_string?)
+          optional(:notIn).filled(:array).each(:uuid_or_null_string?)
         end
 
         IN_UUID_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array).each(:uuid_v4?)
-          optional(:notIn).filled(:array).each(:uuid_v4?)
+          optional(:in).filled(:array).each(:uuid?)
+          optional(:notIn).filled(:array).each(:uuid?)
         end
 
         IN_ARRAY_FILTER = Dry::Schema.Params do

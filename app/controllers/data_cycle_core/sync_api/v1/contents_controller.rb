@@ -6,9 +6,9 @@ module DataCycleCore
       class ContentsController < ::DataCycleCore::SyncApi::V1::BaseController
         PUMA_MAX_TIMEOUT = 600
         URL_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
-          optional(:id).filled(:uuid_v4?)
-          optional(:content_id).filled(:uuid_v4?)
-          optional(:uuids).filled(:uuid_v4_or_list_of_uuid_v4?)
+          optional(:id).filled(:uuid?)
+          optional(:content_id).filled(:uuid?)
+          optional(:uuids).filled(:uuid_or_list_of_uuid?)
         end
 
         include DataCycleCore::FilterConcern

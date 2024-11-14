@@ -13,33 +13,33 @@ module DataCycleCore
 
       assert_equal 1, validation.errors.count
       assert_equal [:filter, :classifications, :in, :withSubtree, 0], validation.errors.to_a.first.path
-      assert_equal 'must be a valid UUIDv4 or a list of UUIDv4s separated by commas', validation.errors.to_a.first.to_s
+      assert_equal 'must be a valid UUID or a list of UUIDs separated by commas', validation.errors.to_a.first.to_s
 
       validation = @validator.call({ filter: { classifications: { in: { withoutSubtree: ['0'] } } } })
 
       assert_equal 1, validation.errors.count
       assert_equal [:filter, :classifications, :in, :withoutSubtree, 0], validation.errors.to_a.first.path
-      assert_equal 'must be a valid UUIDv4 or a list of UUIDv4s separated by commas', validation.errors.to_a.first.to_s
+      assert_equal 'must be a valid UUID or a list of UUIDs separated by commas', validation.errors.to_a.first.to_s
 
       validation = @validator.call({ filter: { classifications: { in: { withoutSubtree: [' '] } } } })
 
       assert_equal 1, validation.errors.count
       assert_equal [:filter, :classifications, :in, :withoutSubtree, 0], validation.errors.to_a.first.path
-      assert_equal 'must be a valid UUIDv4 or a list of UUIDv4s separated by commas', validation.errors.to_a.first.to_s
+      assert_equal 'must be a valid UUID or a list of UUIDs separated by commas', validation.errors.to_a.first.to_s
 
       validation = @validator.call({ filter: { classifications: { notIn: { withSubtree: ['b6d30f72-8a3d-47ee-b21b-860ed6fae232', '0'] } } } })
 
       assert_equal 1, validation.errors.count
       assert_equal [:filter, :classifications, :notIn, :withSubtree, 1], validation.errors.to_a.first.path
-      assert_equal 'must be a valid UUIDv4 or a list of UUIDv4s separated by commas', validation.errors.to_a.first.to_s
+      assert_equal 'must be a valid UUID or a list of UUIDs separated by commas', validation.errors.to_a.first.to_s
 
       validation = @validator.call({ filter: { classifications: { in: { withSubtree: ['234234 ,   b6d30f72-8a3d-47ee-b21b-860ed6fae232', '0'] } } } })
 
       assert_equal 2, validation.errors.count
       assert_equal [:filter, :classifications, :in, :withSubtree, 0], validation.errors.to_a.first.path
-      assert_equal 'must be a valid UUIDv4 or a list of UUIDv4s separated by commas', validation.errors.to_a.first.to_s
+      assert_equal 'must be a valid UUID or a list of UUIDs separated by commas', validation.errors.to_a.first.to_s
       assert_equal [:filter, :classifications, :in, :withSubtree, 1], validation.errors.to_a.last.path
-      assert_equal 'must be a valid UUIDv4 or a list of UUIDv4s separated by commas', validation.errors.to_a.last.to_s
+      assert_equal 'must be a valid UUID or a list of UUIDs separated by commas', validation.errors.to_a.last.to_s
     end
 
     test 'filter[classifications][in][withSubtree][] works with valid params' do

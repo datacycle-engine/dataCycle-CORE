@@ -102,7 +102,7 @@ module DataCycleCore
               required(:eventSchedule).value(:array, min_size?: 1).each do
                 hash(
                   Dry::Schema.JSON do
-                    required(:@id).value(:uuid_v4?)
+                    required(:@id).value(:uuid?)
                     required(:@type).value(:string)
                     required(:startDate).value(:date_time)
                     required(:endDate).value(:date_time)
@@ -198,7 +198,7 @@ module DataCycleCore
                           DataCycleCore::V4::Validation::Thing::DEFAULT_HEADER.merge(
                             Dry::Schema.JSON do
                               required(:address).hash do
-                                required(:@id).value(:uuid_v4?)
+                                required(:@id).value(:uuid?)
                                 required(:@type).value(:string)
                                 required(:streetAddress).value(:string)
                                 required(:postalCode).value(:string)
@@ -265,7 +265,7 @@ module DataCycleCore
                               required(:givenName).value(:string)
                               required(:familyName).value(:string)
                               required(:address).hash do
-                                required(:@id).value(:uuid_v4?)
+                                required(:@id).value(:uuid?)
                                 required(:@type).value(:string)
                                 required(:streetAddress).value(:string)
                                 required(:postalCode).value(:string)
