@@ -17,6 +17,7 @@ class AssetUploader {
 		this.fileField = this.reveal.find('input[type="file"].upload-file');
 		this.uploadForm = this.reveal.find(".content-upload-form");
 		this.createButton = this.uploadForm.find(".content-create-button");
+		this.createButtonIcon = this.createButton.find(".button-text .fa");
 		this.assetReloadButton = this.uploadForm.find(".asset-reload-button");
 		this.renderedAttributes = this.reveal.data("rendered-attributes") || {};
 		this.formAttributes = this.reveal.data("form-attributes") || {};
@@ -249,6 +250,8 @@ class AssetUploader {
 
 		$(window).off("beforeunload", this.eventHandlers.pageLeave);
 
+		this.createButtonIcon.attr("class", "fa fa-spinner fa-spin");
+
 		DataCycle.httpRequest(
 			"/things/bulk_create",
 			{
@@ -257,6 +260,7 @@ class AssetUploader {
 			},
 			0,
 		).catch((e) => {
+			this.createButtonIcon.attr("class", "fa fa-exclamation-triangle");
 			if (e.status >= 400) console.error(e.statusText);
 		});
 	}
@@ -350,8 +354,10 @@ class AssetUploader {
 			!this.files.filter((f) => !(f.attributeFieldsValidated && f.uploaded))
 				.length
 		) {
+			this.createButtonIcon.attr("class", "fa fa-check");
 			DataCycle.enableElement(this.createButton);
 		} else {
+			this.createButtonIcon.attr("class", "fa fa-exclamation-triangle");
 			DataCycle.disableElement(this.createButton);
 			if (!e) e = await I18n.translate("frontend.upload.missing_metadata");
 		}

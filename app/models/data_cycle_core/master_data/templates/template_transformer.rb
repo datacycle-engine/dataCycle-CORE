@@ -39,7 +39,6 @@ module DataCycleCore
         end
 
         def transform
-          merge_base_templates! if @template.key?(:extends)
           return @template, @errors if @transform_properties == false
 
           @template[:boost] ||= 1.0
