@@ -11,8 +11,8 @@
             thumbnail_url = content.try(:thumbnail_image)&.first&.thumbnail_url || content.try(:asset_web_url) || content.try(:preview_url) || content.try(:thumbnail_url)
           %>
           <div class="image-container stripes">
-            <div data-vjs-player>
-              <video class="video-js" poster="<%= thumbnail_url %>">
+            <div>
+              <video controls autoplay poster="<%= thumbnail_url %>">
                 <source src="<%= content.try(:content_url) %>" type="video/mp4">
                 Your browser does not support the video tag
               </video>

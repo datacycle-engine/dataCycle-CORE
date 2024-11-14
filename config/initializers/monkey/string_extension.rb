@@ -10,6 +10,8 @@ module DataCycleCore
       Encoding::ISO_8859_1
     ].freeze
 
+    NULL_BYTE_REGEX = /\x00|\\u0000/
+
     UUID_REGEX = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i
 
     def attribute_name_from_key
@@ -44,6 +46,24 @@ module DataCycleCore
       ActionController::Base.helpers.strip_tags(self)
     rescue StandardError
       self
+    end
+
+    def sanitize_utf8
+      input = dup.force_encoding(Encoding::UTF_8)
+      encoded = input.valid_encoding? ? input : encode_utf8
+      encoded.gsub(NULL_BYTE_REGEX, '')
+    end
+
+    def encode_utf8
+      return self if is_utf8?
+
+      ENCODING_GUESSES.each do |guess|
+        force_encoding(guess)
+        return encode!(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: '') if valid_encoding?
+      end
+
+      force_encoding(Encoding::ASCII_8BIT)
+      encode!(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: '')
     end
 
     def encode_utf8!

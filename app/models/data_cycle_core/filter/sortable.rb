@@ -438,10 +438,11 @@ module DataCycleCore
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s
-        search_string = value.to_s.split.join('%')
+        normalized_value = DataCycleCore::MasterData::DataConverter.string_to_string(value)
+        search_string = normalized_value.split.join('%')
 
         order_string = ActiveRecord::Base.send(
-          :sanitize_sql_array,
+          :sanitize_sql_for_conditions,
           [
             Arel.sql(
               "things.boost * (
@@ -451,9 +452,10 @@ module DataCycleCore
               1 * similarity(searches.full_text, :search_string))"
             ),
             {search_string: "%#{search_string}%",
-             search: value.to_s.squish}
+             search: normalized_value}
           ]
         )
+
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))

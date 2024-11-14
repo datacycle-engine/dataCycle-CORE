@@ -400,7 +400,7 @@ module DataCycleCore
       ###
       app.config.time_zone = 'Europe/Vienna'
       app.config.exceptions_app = routes
-      app.middleware.insert_before Rack::Runtime, DataCycleCore::FixParamEncodingMiddleware
+      app.middleware.insert 0, DataCycleCore::Utf8CleanerMiddleware
     end
 
     config.to_prepare do

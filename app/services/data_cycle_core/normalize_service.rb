@@ -27,7 +27,7 @@ module DataCycleCore
     end
 
     def self.normalize_encoding(string)
-      string.scrub('').force_encoding('UTF-8').delete("\u0000")
+      string.sanitize_utf8
     end
   end
 end
