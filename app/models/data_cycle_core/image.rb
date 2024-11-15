@@ -138,7 +138,12 @@ module DataCycleCore
       return unless file&.attached?
 
       file.variant(resize_to_fit: [300, 300], colourspace: 'srgb', format: format_for_transformation(transformation['format'])).processed
-    rescue *IGNORABLE_EXCEPTIONS
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument 'asset_version_generation_failed.datacycle', {
+        exception: e,
+        asset: self,
+        version: 'thumb_preview'
+      }
       nil
     end
 
@@ -146,7 +151,12 @@ module DataCycleCore
       return unless file&.attached?
 
       file.variant(resize_to_limit: [2048, 2048], format: format_for_transformation(transformation['format'])).processed
-    rescue *IGNORABLE_EXCEPTIONS
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument 'asset_version_generation_failed.datacycle', {
+        exception: e,
+        asset: self,
+        version: 'web'
+      }
       nil
     end
 
@@ -154,7 +164,12 @@ module DataCycleCore
       return unless file&.attached?
 
       file.variant(format: format_for_transformation(transformation['format'])).processed
-    rescue *IGNORABLE_EXCEPTIONS
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument 'asset_version_generation_failed.datacycle', {
+        exception: e,
+        asset: self,
+        version: 'default'
+      }
       nil
     end
 
@@ -166,7 +181,12 @@ module DataCycleCore
       else
         file.variant(format: format_for_transformation(transformation['format'])).processed
       end
-    rescue *IGNORABLE_EXCEPTIONS
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument 'asset_version_generation_failed.datacycle', {
+        exception: e,
+        asset: self,
+        version: 'dynamic'
+      }
       nil
     end
 

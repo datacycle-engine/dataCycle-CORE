@@ -87,3 +87,7 @@ ActiveSupport::Notifications.subscribe('export_job_status.datacycle') do |_name,
     logger.dc_log(severity, data)
   end
 end
+
+ActiveSupport::Notifications.subscribe('asset_version_generation_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
+  Rails.logger.warn "Asset #{data[:version]} version generation failed for ##{data[:asset].id}: #{data[:exception].message}" if Rails.env.development?
+end

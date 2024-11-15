@@ -25,7 +25,6 @@ module DataCycleCore
 
     # @todo: disable default for audio and pdf assets
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
-    IGNORABLE_EXCEPTIONS = [ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError, Vips::Error].freeze
 
     def custom_validators
       DataCycleCore.uploader_validations[self.class.name.demodulize.underscore]&.except(:format)&.presence&.each do |validator, options|
