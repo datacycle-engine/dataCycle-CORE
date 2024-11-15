@@ -25,6 +25,7 @@ module DataCycleCore
 
     # @todo: disable default for audio and pdf assets
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
+    IGNORABLE_EXCEPTIONS = [ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError, Vips::Error].freeze
 
     def custom_validators
       DataCycleCore.uploader_validations[self.class.name.demodulize.underscore]&.except(:format)&.presence&.each do |validator, options|
@@ -137,7 +138,7 @@ module DataCycleCore
 
       hash = super
 
-      hash['file'] = { 'url' => Rails.application.routes.url_helpers.rails_storage_proxy_url(file, host: Rails.application.config.asset_host) } if include_file.present? && !file&.attachment&.blob.nil?
+      hash['file'] = { 'url' => content_url } if include_file.present?
 
       hash
     end
