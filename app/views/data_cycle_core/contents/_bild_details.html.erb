@@ -113,14 +113,22 @@
               <% end %>
             <% end %>
 
-            <% if content.try(:url).present? %>
+            <% if content.try(:url).present? || content.try(:content_url).present? %>
               <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
               <dd>
-                <a class="button button-small" href="<%= content.url %>" target="_blank">
-                  <i class="fa fa-external-link" aria-hidden="true"></i>
+                <% if content.try(:url).present? %>
+                  <a class="button button-small" href="<%= content.url %>" target="_blank">
+                    <i class="fa fa-external-link" aria-hidden="true"></i>
 
-                  <%= t('details.bild.open_url', locale: active_ui_locale) %>
-                </a>
+                    <%= t('details.bild.open_url', locale: active_ui_locale) %>
+                  </a>
+                <% end %>
+
+                <%= render_attribute_viewer key: 'content_url',
+                                          definition: content.properties_for('content_url'),
+                                          value: content.try(:content_url),
+                                          parameters: { options: {} },
+                                          content: content %>
               </dd>
 
             <% end %>
