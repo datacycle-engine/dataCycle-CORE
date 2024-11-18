@@ -18,6 +18,7 @@ module DataCycleCore
       end
 
       rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
+      rescue_from PG::QueryCanceled, with: :too_many_requests
       rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
       rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
 
