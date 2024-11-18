@@ -49,5 +49,21 @@ module DataCycleCore
         ).first&.values&.first
       )
     end
+
+    def self.upsert_all_geoms(data)
+      count = 0
+      return count if data.blank?
+
+      data.each_slice(1000) do |group|
+        DataCycleCore::ClassificationPolygon.transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+          DataCycleCore::ClassificationPolygon.where(classification_alias_id: group.pluck(:classification_alias_id)).delete_all
+          inserted = DataCycleCore::ClassificationPolygon.insert_all(group, returning: :id)
+          count += inserted.count
+        end
+      end
+
+      count
+    end
   end
 end

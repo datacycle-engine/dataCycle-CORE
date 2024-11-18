@@ -133,6 +133,27 @@ module DataCycleCore
         ]
       end
 
+      do_classifications = 'DO NOTHING'
+      if I18n.locale == I18n.available_locales.first
+        do_classifications = <<-SQL.squish
+          DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, uri = EXCLUDED.uri, updated_at = NOW()
+        SQL
+      end
+
+      do_classification_aliases = <<-SQL.squish
+        DO UPDATE SET name_i18n = coalesce(classification_aliases.name_i18n, '{}'::jsonb) || coalesce(EXCLUDED.name_i18n, '{}'::jsonb),
+        description_i18n = coalesce(classification_aliases.description_i18n, '{}'::jsonb) || coalesce(EXCLUDED.description_i18n, '{}'::jsonb),
+        uri = EXCLUDED.uri,
+        order_a = COALESCE(EXCLUDED.order_a, classification_aliases.order_a),
+        updated_at = NOW()
+      SQL
+
+      if I18n.locale == I18n.available_locales.first
+        do_classification_aliases += <<-SQL.squish
+          , internal_name = EXCLUDED.internal_name
+        SQL
+      end
+
       sql = <<-SQL.squish
         WITH raw_data(classification_tree_label_id, external_system_id, external_key, parent_external_key, locale, name, description, uri, order_a) AS (
           VALUES #{Array.new(sql_values.size, '(?::uuid, ?::uuid, ?::varchar, ?::varchar, ?::varchar, ?::varchar, ?::varchar, ?::varchar, ?::integer)').join(', ')}
@@ -142,22 +163,13 @@ module DataCycleCore
           INSERT INTO classifications (external_source_id, external_key, name, description, uri, created_at, updated_at)
           (SELECT external_system_id::uuid, external_key, name, description, uri, NOW(), NOW() FROM data)
           ON CONFLICT (external_source_id, external_key) WHERE deleted_at IS NULL
-            DO UPDATE SET #{I18n.locale == I18n.available_locales.first ? 'name = EXCLUDED.name, ' : ''}
-            #{I18n.locale == I18n.available_locales.first ? 'description = EXCLUDED.description, ' : ''}
-            #{I18n.locale == I18n.available_locales.first ? 'uri = EXCLUDED.uri, ' : ''}
-            updated_at = NOW()
+            #{do_classifications}
           RETURNING *
         ), inserted_ca AS (
           INSERT INTO classification_aliases (external_source_id, external_key, internal_name, name_i18n, description_i18n, uri, order_a, created_at, updated_at)
           (SELECT external_system_id::uuid, external_key, name, jsonb_strip_nulls(jsonb_build_object(locale, name)), jsonb_strip_nulls(jsonb_build_object(locale, description)), uri, order_a, NOW(), NOW() FROM data)
           ON CONFLICT (external_source_id, external_key) WHERE deleted_at IS NULL
-            DO UPDATE SET
-              name_i18n = coalesce(classification_aliases.name_i18n, '{}'::jsonb) || coalesce(EXCLUDED.name_i18n, '{}'::jsonb),
-              description_i18n = coalesce(classification_aliases.description_i18n, '{}'::jsonb) || coalesce(EXCLUDED.description_i18n, '{}'::jsonb),
-              #{I18n.locale == I18n.available_locales.first ? 'internal_name = EXCLUDED.internal_name, ' : ''}
-              uri = EXCLUDED.uri,
-              order_a = EXCLUDED.order_a,
-              updated_at = NOW()
+            #{do_classification_aliases}
           RETURNING *
         ), inserted_cg AS (
           INSERT INTO classification_groups (classification_id, classification_alias_id, external_source_id)
@@ -168,7 +180,7 @@ module DataCycleCore
               AND inserted_c.external_key = inserted_ca.external_key
           )
           ON CONFLICT (classification_id, classification_alias_id) WHERE deleted_at IS NULL
-            DO UPDATE SET updated_at = NOW()
+            DO NOTHING
         ), parent_ca AS (
           SELECT classification_aliases.id, classification_aliases.external_source_id, classification_aliases.external_key
           FROM data
@@ -201,13 +213,19 @@ module DataCycleCore
               classification_tree_label_id = EXCLUDED.classification_tree_label_id,
               external_source_id = EXCLUDED.external_source_id,
               updated_at = NOW()
+            WHERE classification_trees.parent_classification_alias_id IS DISTINCT FROM EXCLUDED.parent_classification_alias_id
+            OR classification_trees.classification_tree_label_id IS DISTINCT FROM EXCLUDED.classification_tree_label_id
+            OR classification_trees.external_source_id IS DISTINCT FROM EXCLUDED.external_source_id
         )
         SELECT * FROM classification_trees_data;
       SQL
 
-      ActiveRecord::Base.connection.exec_query(
-        ActiveRecord::Base.send(:sanitize_sql_array, [sql, *sql_values.flatten(1)])
-      )
+      transaction(joinable: false, requires_new: true) do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+        ActiveRecord::Base.connection.exec_query(
+          ActiveRecord::Base.send(:sanitize_sql_array, [sql, *sql_values.flatten(1)])
+        )
+      end
     end
 
     def insert_all_classifications_by_path(classification_attributes)

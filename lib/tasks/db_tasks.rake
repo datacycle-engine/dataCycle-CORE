@@ -219,11 +219,15 @@ namespace :db do
       unless cmd.nil?
         ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
         Rake::Task['db:clear_connections'].invoke
+        Rake::Task['db:clear_connections'].reenable
         Rake::Task['db:drop'].invoke
+        Rake::Task['db:drop'].reenable
         Rake::Task['db:create'].invoke
+        Rake::Task['db:create'].reenable
         puts cmd
         system cmd
         Rake::Task['db:maintenance:vacuum'].invoke
+        Rake::Task['db:maintenance:vacuum'].reenable
         puts ''
         puts "Restored from file: #{file}"
         puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
@@ -241,6 +245,7 @@ namespace :db do
 
     Rails.application.config.database_configuration.slice(*environments).each_value do |db|
       ActiveRecord::Base.establish_connection(db)
+      ActiveRecord::Base.connection.exec_query "UPDATE pg_catalog.pg_database SET datallowconn=false WHERE datname='#{db['database']}'"
       ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{db['database']}' AND pid <> pg_backend_pid();"
     rescue ActiveRecord::NoDatabaseError => e
       puts e.try(:message)

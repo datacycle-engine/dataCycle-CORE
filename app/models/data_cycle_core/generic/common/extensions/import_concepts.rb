@@ -45,7 +45,7 @@ module DataCycleCore
             end
           end
 
-          def import_concepts(utility_object:, iterator:, data_processor:, data_transformer:, data_mapping_processor:, options:)
+          def import_concepts(utility_object:, iterator:, data_processor:, data_transformer:, data_mapping_processor:, data_geom_processor:, options:)
             init_logging(utility_object) do |logging|
               init_mongo_db(utility_object) do
                 each_locale(utility_object.locales) do |locale|
@@ -71,23 +71,32 @@ module DataCycleCore
                           next logging.error(step_label, nil, nil, 'ConceptScheme missing!') if concept_scheme.nil?
 
                           upserted = concept_scheme.upsert_all_external_classifications(concepts)
-                          item_count += upserted.count
+                          tree_item_count = upserted.count
                           times << Time.current
 
-                          logging.phase_partial(step_label, upserted.count, times, concept_scheme.name)
+                          logging.phase_partial(step_label, tree_item_count, times, concept_scheme.name)
+
+                          item_count += tree_item_count
                         end
 
+                        additional_text = []
+
+                        # import new mappings
                         concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:, options:)
                         mapped = DataCycleCore::ConceptLink.insert_all(concept_mappings, unique_by: :index_concept_links_on_parent_id_and_child_id, returning: :id)
                         mapping_count += mapped.count
+                        additional_text << "#{mapping_count} new mappings" if mapping_count.positive?
+
+                        # import new geoms
+                        concept_geoms = data_geom_processor.call(data_array: concepts_data, utility_object:, options:)
+                        geoms_count = DataCycleCore::ClassificationPolygon.upsert_all_geoms(concept_geoms)
+                        additional_text << "#{geoms_count} new geoms" if geoms_count.positive?
 
                         times << Time.current
-                        new_mappings_text = "#{mapping_count} new mappings" if mapping_count.positive?
-
-                        logging.phase_partial(step_label, item_count, times, new_mappings_text)
+                        logging.phase_partial(step_label, item_count, times, additional_text.join(', '))
                       end
 
-                      logging.phase_finished(step_label, item_count)
+                      logging.phase_finished(step_label, item_count, times.last - times.first)
                     rescue StandardError => e
                       logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
                       raise

@@ -14,6 +14,7 @@ module DataCycleCore
               data_processor: method(:process_content).to_proc,
               data_transformer: method(:transform_data_array).to_proc,
               data_mapping_processor: method(:transform_concept_mappings).to_proc,
+              data_geom_processor: method(:transform_geometries).to_proc,
               options:
             )
           end
@@ -69,7 +70,8 @@ module DataCycleCore
                 ].compact_blank.join,
                 concept_scheme_name: extract_property(raw_data, options, 'concept_scheme_name').presence ||
                   options.dig(:import, :concept_scheme).presence,
-                mapped_concepts: extract_property(raw_data, options, 'mapped_concepts')
+                mapped_concepts: extract_property(raw_data, options, 'mapped_concepts'),
+                geom: extract_property(raw_data, options, 'geom')
               }.compact
             end
           end
@@ -236,6 +238,30 @@ module DataCycleCore
             end
 
             concept_mappings
+          end
+
+          def transform_geometries(data_array:, **)
+            with_geometries = data_array.filter { |da| da[:geom].present? }
+            geom_values = []
+            return geom_values if with_geometries.blank?
+
+            with_geometries.group_by { |v| v[:external_source_id] }.each do |es_id, values|
+              concepts = DataCycleCore::Concept
+                .where(external_system_id: es_id, external_key: values.pluck(:external_key))
+                .to_h { |co| [co.external_key, co.id] }
+
+              values.each do |da|
+                concept_id = concepts[da[:external_key]]
+                next if concept_id.nil?
+
+                geom_values << {
+                  classification_alias_id: concept_id,
+                  geom: da[:geom]
+                }
+              end
+            end
+
+            geom_values
           end
         end
 
