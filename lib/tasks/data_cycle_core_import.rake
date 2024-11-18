@@ -92,6 +92,8 @@ namespace :data_cycle_core do
 
     desc 'download data from partial data source'
     task :download_partial, [:external_source_id, :download_names, :mode, :max_count] => [:environment] do |_, args|
+      abort('download_names is required') if args[:download_names].blank?
+
       options = {}.merge(args.to_h).to_h do |k, v|
         if k == :max_count
           [k, v.to_i]
