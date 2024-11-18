@@ -2000,6 +2000,12 @@ en:
       Unsuitable: unsuitable
       Depends: depends
       Suitable: suitable
+      tourmoreinfos_directions: Directions
+      tourmoreinfos_safetyguidelines: Safety guidelines
+      tourmoreinfos_equipment: Equipment
+      tourmoreinfos_tip: Author tip
+      tourmoreinfos_gettingthere: Getting there
+      tourmoreinfos_parking: Parking
     bierfinder:
       description: Description
       book: Description

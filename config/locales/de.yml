@@ -1999,9 +1999,9 @@ de:
       price_info: Preisinformation
       price_reducedinfo: Preisinformation Überblick
       room_sonstige: Raum Sonstiges
-      route_start: Route Start
+      route_start: Startpunkt
       route_start_ort: Route Startort
-      route_ziel: Route Ziel
+      route_ziel: Zielpunkt
       socialdescription: Socialdescription
       socialtitle: Socialtitle
       web_seo_beschreibung: web_seo_beschreibung
@@ -2029,6 +2029,12 @@ de:
       Unsuitable: ungeeignet
       Depends: wetterabhängig
       Suitable: geeignet
+      tourmoreinfos_directions: Wegbeschreibung
+      tourmoreinfos_safetyguidelines: Sicherheitshinweise
+      tourmoreinfos_equipment: Ausrüstung
+      tourmoreinfos_tip: Tipp des Autors
+      tourmoreinfos_gettingthere: Anfahrt
+      tourmoreinfos_parking: Parken
     bierfinder:
       description: Beschreibung
       book: Detailbeschreibung
