@@ -20,10 +20,6 @@ module DataCycleCore
       'SERVER_NAME'
     ].freeze
 
-    URI_ENCODED_CONTENT_TYPES = [
-      'application/x-www-form-urlencoded'
-    ].freeze
-
     def initialize(app)
       @app = app
     end
@@ -40,16 +36,16 @@ module DataCycleCore
       request = Rack::Request.new(env)
 
       sanitize_env_rack_input(env) if SANITIZABLE_CONTENT_TYPES.include?(request.media_type)
-      sanitize_env_keys(env, request.media_type)
+      sanitize_env_keys(env)
       env
     end
 
-    def sanitize_env_keys(env, content_type)
+    def sanitize_env_keys(env)
       URI_FIELDS.each do |field|
         env[field] = sanitized_string(env[field]) if env[field]
       end
 
-      env['QUERY_STRING'] = reencode_urlencoded_value(env['QUERY_STRING']) if URI_ENCODED_CONTENT_TYPES.include?(content_type)
+      env['QUERY_STRING'] = reencode_urlencoded_value(env['QUERY_STRING']) if env['QUERY_STRING'].present?
     end
 
     def sanitize_env_rack_input(env)
