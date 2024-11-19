@@ -76,7 +76,7 @@ module DataCycleCore
             '_id' => '$data.id', 'data' => { '$first' => '$data'}
           }
 
-          pipelines =   [
+          pipelines = [
             {
               '$match' => source_filter_stage
             },
@@ -100,7 +100,7 @@ module DataCycleCore
             }
           ]
 
-          pipelines << { '$project' => (attribue_whitelist).map { |attr| [attr, 1] }.to_h } if attribue_whitelist.present?
+          pipelines << { '$project' => attribue_whitelist.index_with { |_attr| 1 } } if attribue_whitelist.present?
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
