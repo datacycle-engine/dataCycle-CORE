@@ -10,6 +10,16 @@ module DataCycleCore
 
             DataCycleCore::MasterData::DataConverter.string_to_geographic(computed_parameters.values.first).try(computed_definition.dig('compute', 'key'))
           end
+
+          def longitude_from_location(computed_parameters:, **_args)
+            return if computed_parameters.values.first.blank? || computed_parameters.values.first&.longitude.blank?
+            computed_parameters.values.first.longitude
+          end
+
+          def latitude_from_location(computed_parameters:, **_args)
+            return if computed_parameters.values.first.blank? || computed_parameters.values.first&.latitude.blank?
+            computed_parameters.values.first.latitude
+          end
         end
       end
     end
