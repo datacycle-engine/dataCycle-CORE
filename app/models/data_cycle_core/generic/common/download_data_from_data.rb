@@ -29,6 +29,8 @@ module DataCycleCore
           data_name_path = [data_name].compact_blank.join('.')
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
 
+          attribue_whitelist = Array.wrap(options.dig(:download, :attribute_whitelist)) + ['id', 'name'] if options.dig(:download, :attribute_whitelist).present?
+
           full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
           full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
           source_filter_stage = { full_id_path => { '$ne' => nil } }.with_indifferent_access
@@ -74,31 +76,35 @@ module DataCycleCore
             '_id' => '$data.id', 'data' => { '$first' => '$data'}
           }
 
+          pipelines =   [
+            {
+              '$match' => source_filter_stage
+            },
+            {
+              '$project' => project_filter_stage
+            },
+            {
+              '$unwind' => '$data'
+            },
+            {
+              '$match' => post_unwind_source_filter_stage
+            },
+            {
+              '$addFields' => add_fields_stage
+            },
+            {
+              '$group' => group_stage
+            },
+            {
+              '$replaceRoot' => { 'newRoot' => '$data' }
+            }
+          ]
+
+          pipelines << { '$project' => (attribue_whitelist).map { |attr| [attr, 1] }.to_h } if attribue_whitelist.present?
+
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
-              [
-                {
-                  '$match' => source_filter_stage
-                },
-                {
-                  '$project' => project_filter_stage
-                },
-                {
-                  '$unwind' => '$data'
-                },
-                {
-                  '$match' => post_unwind_source_filter_stage
-                },
-                {
-                  '$addFields' => add_fields_stage
-                },
-                {
-                  '$group' => group_stage
-                },
-                {
-                  '$replaceRoot' => { 'newRoot' => '$data' }
-                }
-              ], allow_disk_use: true
+              pipelines, allow_disk_use: true
             ).to_a
           end
         end
