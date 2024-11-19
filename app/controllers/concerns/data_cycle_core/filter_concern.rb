@@ -25,8 +25,7 @@ module DataCycleCore
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
       @sort_params = @stored_filter.sort_parameters
-
-      @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
+      @stored_filter.apply_user_filter(current_user, user_filter, filter_reset?(@stored_filter)) if user_filter.present?
       query = @stored_filter.apply(query: query&.dup, skip_ordering: @count_only, watch_list:)
 
       # used on dashboard
@@ -239,8 +238,7 @@ module DataCycleCore
     end
 
     def load_previous_page?
-      DataCycleCore::Feature::MainFilter.autoload_last_filter? &&
-        request.format.html? &&
+      request.format.html? &&
         params.slice(:stored_filter, :f, :reset).blank? &&
         session[:return_to].present? &&
         request.path == Addressable::URI.parse(session[:return_to].to_s).path
@@ -248,6 +246,10 @@ module DataCycleCore
 
     def load_previous_page
       redirect_to(session.delete(:return_to)) && return
+    end
+
+    def filter_reset?(stored_filter)
+      params.permit(:reset)[:reset].present? || (!stored_filter.persisted? && params.slice(:stored_filter, :f).blank?)
     end
 
     def page_params

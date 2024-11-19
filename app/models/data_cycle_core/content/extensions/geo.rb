@@ -4,8 +4,6 @@ module DataCycleCore
   module Content
     module Extensions
       module Geo
-        extend ActiveSupport::Concern
-
         def elevation_data?(key)
           return false unless respond_to?(key.attribute_name_from_key)
 

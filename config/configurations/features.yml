@@ -130,7 +130,6 @@
 
 :main_filter:
   :enabled: true
-  :autoload_last_filter: true
   :config:
     :backend:
       :filter:

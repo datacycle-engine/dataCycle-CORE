@@ -68,12 +68,12 @@ module DataCycleCore
           "GPS: #{latitude.round(2)}, #{longitude.round(2)}" if latitude.present? && longitude.present?
         end
 
-        def translated_template_name(locale)
-          I18n.t("template_names.#{template_name}", default: template_name, locale:)
-        end
-
         def icon_type
           template_name.underscore_blanks
+        end
+
+        def base_template_name
+          template_name
         end
 
         module ClassMethods

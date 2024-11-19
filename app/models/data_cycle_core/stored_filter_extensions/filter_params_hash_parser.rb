@@ -23,26 +23,13 @@ module DataCycleCore
         self
       end
 
-      def user_filters_from_hash(user, filter_options)
-        user_filters = []
-
-        DataCycleCore.user_filters&.each_value do |f|
-          next if f.blank?
-          next if Array.wrap(f['scope']).exclude?(filter_options[:scope])
-          next if Array.wrap(f['segments']).none? { |s| s['name'].safe_constantize.new(*Array.wrap(s['parameters'])).include?(user) }
-          next if filter_options[:scope] == 'object_browser' && f['object_browser_restriction']&.to_h&.none? { |k, v| filter_options[:content_template] == k && filter_options[:attribute_key]&.in?(Array.wrap(v)) }
-
-          user_filters.concat(Array.wrap(f['stored_filter']).map { |s| param_from_definition(s, f['force'] ? 'uf' : 'u', user) })
-        end
-
-        user_filters
-      end
-
-      def apply_user_filter(user, options = nil)
+      def apply_user_filter(user, options = nil, filter_reset = false)
         return self if user.nil?
 
         filter_options = { scope: 'backend' }
         filter_options.merge!(options) { |_k, v1, v2| v2.presence || v1 } if options.present?
+        filter_options[:scope] = Array.wrap(filter_options[:scope])
+        filter_options[:scope] = filter_options[:scope].flat_map { |v| [v, "#{v}_reset"] } if filter_reset
 
         self.parameters ||= []
         applicable_filters = user_filters_from_hash(user, filter_options)
@@ -55,12 +42,27 @@ module DataCycleCore
         self
       end
 
+      private
+
       def apply_specific_user_filter(filter)
         parameters.reject! { |f| filter_equal?(f, filter) } if filter['c'] == 'uf'
         parameters.push(filter) unless parameters.any? { |f| filter_equal?(f, filter) }
       end
 
-      private
+      def user_filters_from_hash(user, filter_options)
+        user_filters = []
+
+        DataCycleCore.user_filters&.each_value do |f|
+          next if f.blank?
+          next unless Array.wrap(f['scope']).intersect?(filter_options[:scope])
+          next if Array.wrap(f['segments']).none? { |s| s['name'].safe_constantize.new(*Array.wrap(s['parameters'])).include?(user) }
+          next if filter_options[:scope].include?('object_browser') && f['object_browser_restriction']&.to_h&.none? { |k, v| filter_options[:content_template] == k && filter_options[:attribute_key]&.in?(Array.wrap(v)) }
+
+          user_filters.concat(Array.wrap(f['stored_filter']).map { |s| param_from_definition(s, f['force'] ? 'uf' : 'u', user) })
+        end
+
+        user_filters
+      end
 
       def param_from_definition(definition, type = 'a', user = nil)
         definition.to_h.deep_stringify_keys.each_with_object({}) do |(k, v), hash|

@@ -141,9 +141,7 @@ module DataCycleCore
     def thing_helper_text(content, key)
       return unless content.is_a?(DataCycleCore::Thing)
 
-      return unless I18n.exists?("helper_text.attributes.#{content.template_name}.#{key.attribute_name_from_key}.tooltip", locale: active_ui_locale)
-
-      I18n.t("helper_text.attributes.#{content.template_name}.#{key.attribute_name_from_key}.tooltip", locale: active_ui_locale)
+      content.translated_helper_text(key, active_ui_locale)
     end
 
     def thing_info_icon(content, key)

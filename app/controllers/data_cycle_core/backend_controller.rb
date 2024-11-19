@@ -4,10 +4,7 @@ module DataCycleCore
   class BackendController < ApplicationController
     include DataCycleCore::FilterConcern
     authorize_resource class: false # from cancancan (authorize)
-    before_action :load_last_filter, only: :index, if: proc {
-      DataCycleCore::Feature::MainFilter.autoload_last_filter? &&
-        params.slice(:stored_filter, :f, :reset).blank?
-    }
+    before_action :load_last_filter, only: :index, if: -> { params.slice(:stored_filter, :f, :reset).blank? }
     before_action :load_stored_filter, only: :index, if: -> { params[:stored_filter].present? }
     prepend_before_action :load_previous_page, only: :index, if: :load_previous_page?
 

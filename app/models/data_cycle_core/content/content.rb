@@ -54,8 +54,8 @@ module DataCycleCore
       include Extensions::DefaultValue
       include Extensions::ComputedValue
       include Extensions::PropertyPreloader
-      prepend Extensions::Translation
-      prepend Extensions::Geo
+      include Extensions::Translation
+      include Extensions::Geo
       include Extensions::Thing
       include Extensions::Slug
 

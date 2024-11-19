@@ -25,6 +25,16 @@ module DataCycleCore
             )
         end
 
+        def translated_template_name(locale)
+          I18n.t("template_names.#{base_template_name}", default: base_template_name, locale:)
+        end
+
+        def translated_helper_text(key, locale)
+          return unless I18n.exists?("helper_text.attributes.#{base_template_name}.#{key.attribute_name_from_key}.tooltip", locale:)
+
+          I18n.t("helper_text.attributes.#{base_template_name}.#{key.attribute_name_from_key}.tooltip", locale:)
+        end
+
         class_methods do
           def human_property_name(attribute, options = {})
             @human_property_name ||= Hash.new do |h, k|

@@ -148,10 +148,6 @@ module DataCycleCore
           tree_filter[:identifier] = value&.dig('identifier') || SecureRandom.hex(10)
         end
 
-        def autoload_last_filter?
-          configuration['autoload_last_filter']
-        end
-
         def filterable_classification_aliases(allowed_labels, excluded = [], include_tree = true)
           query = DataCycleCore::ClassificationAlias
             .preload(:primary_classification, :classification_alias_path, :classification_tree, :sub_classification_trees)
