@@ -1991,6 +1991,7 @@ de:
       startpointGettingThere: Wegbeschreibung Startpunkt
       seasonDescription: Begehbare Monate
       price: Preisinformation
+      intro: Kurzbeschreibung
     destination_one:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag

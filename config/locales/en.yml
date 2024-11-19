@@ -1961,6 +1961,7 @@ en:
       startpointGettingThere: Start point getting there
       seasonDescription: Sesion
       price: Price information
+      intro: Short description
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement
