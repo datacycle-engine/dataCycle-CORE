@@ -253,6 +253,8 @@ module DataCycleCore
       return if ctl.nil?
 
       transaction do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
         if new_ca.nil?
           new_parent = ctl.create_classification_alias(*(new_path[1...-1].map { |c| { name: c } }))
 
@@ -295,6 +297,8 @@ module DataCycleCore
 
     def merge_with_children(new_classification_alias, destroy_children = false)
       transaction do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
         if destroy_children
           merge_children_into_self
         else
