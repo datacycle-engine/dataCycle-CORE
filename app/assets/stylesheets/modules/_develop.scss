@@ -4132,4 +4132,9 @@ form {
 
 .oembed-preview-spinner {
   min-height: 30px;
+  display: none;
+
+  &.visible {
+    display: block;
+  }
 }

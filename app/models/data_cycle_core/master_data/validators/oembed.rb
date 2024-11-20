@@ -204,7 +204,7 @@ module DataCycleCore
               next if endpoint['formats'].present? && endpoint['formats'].exclude?('json')
 
               hit = endpoint['schemes'].any? do |scheme|
-                Regexp.new("^#{Regexp.escape(scheme).gsub('\\*', '.*')}$").match?(data)
+                Regexp.new("^#{scheme}", Regexp::IGNORECASE).match?(data)
               end
               provider['oembed_url'] = endpoint['url'] if hit
               hit
