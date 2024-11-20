@@ -26,7 +26,7 @@ module DataCycleCore
 
     def call(env)
       @app.call(sanitize_env(env))
-    rescue EOFError
+    rescue EOFError, Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
       [400, {}, ['Bad Request']]
     end
 

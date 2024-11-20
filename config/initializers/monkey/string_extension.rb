@@ -64,6 +64,8 @@ module DataCycleCore
 
       force_encoding(Encoding::ASCII_8BIT)
       encode!(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: '')
+    rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
+      nil
     end
 
     def encode_utf8!
