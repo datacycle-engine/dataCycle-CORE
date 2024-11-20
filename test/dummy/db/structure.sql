@@ -3078,6 +3078,13 @@ CREATE INDEX index_collections_on_name ON public.collections USING gin (name pub
 
 
 --
+-- Name: index_collections_on_parameters; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collections_on_parameters ON public.collections USING gin (((parameters)::text) public.gin_trgm_ops);
+
+
+--
 -- Name: index_collections_on_slug; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4752,6 +4759,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20241119134033'),
 ('20241119111129'),
 ('20241111080833'),
 ('20241111072201'),
