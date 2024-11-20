@@ -46,7 +46,16 @@ module DataCycleCore
             datahash = DataCycleCore::DataHashService.flatten_datahash_translations_recursive(datahash)
 
             datahash.keys.intersection(content.embedded_property_names).each do |key|
-              datahash[key]&.map! { |v| v.is_a?(::String) && v.uuid? ? DataCycleCore::Thing.find_by(id: v)&.get_data_hash : v }
+              datahash[key]&.map! do |v|
+                if v.is_a?(::String) && v.uuid?
+                  DataCycleCore::Thing.find_by(id: v)&.get_data_hash
+                elsif v.is_a?(::Hash) && v['id'].present?
+                  existing = DataCycleCore::Thing.find_by(id: v['id'])&.get_data_hash || {}
+                  existing.deep_merge(v)
+                else
+                  v
+                end
+              end
             end
 
             datahash
