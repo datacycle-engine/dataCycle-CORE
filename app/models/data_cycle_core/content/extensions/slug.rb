@@ -4,16 +4,17 @@ module DataCycleCore
   module Content
     module Extensions
       module Slug
-        def slugify(data_hash:)
+        def transform_slugs(data_hash:)
           data_hash.keys.intersection(slug_property_names).each do |key|
-            data_hash[key] = make_slug_uniq(data_hash[key]&.to_slug)
+            data_hash[key] = slugify(data_hash[key])
           end
         end
 
-        def make_slug_uniq(base_slug)
+        def slugify(value)
+          slugified = value.to_s.to_slug
+          slug = slugified
           count = 0
           uniq_slug = nil
-          slug = base_slug
 
           while uniq_slug.nil?
             found = DataCycleCore::Thing::Translation.find_by(slug:)
@@ -25,9 +26,9 @@ module DataCycleCore
 
             count += 1
             if count < 10
-              slug = "#{base_slug}-#{count}"
+              slug = "#{slugified}-#{count}"
             else
-              slug = "#{base_slug}-#{rand(36**8).to_s(36)}"
+              slug = "#{slugified}-#{rand(36**8).to_s(36)}"
             end
           end
 
