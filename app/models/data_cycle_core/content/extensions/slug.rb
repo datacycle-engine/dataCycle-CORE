@@ -11,8 +11,6 @@ module DataCycleCore
         end
 
         def make_slug_uniq(base_slug)
-          return if base_slug.blank?
-
           count = 0
           uniq_slug = nil
           slug = base_slug
