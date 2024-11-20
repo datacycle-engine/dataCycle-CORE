@@ -23,7 +23,7 @@ module DataCycleCore
       @asset_version = @asset.try(:dynamic, asset_params[:transformation])
       @asset_path = @asset_version&.blob&.attachments&.first&.record&.file&.service&.path_for(@asset_version.key)
       @content_type = @asset_version.variation.content_type
-      @filename = "#{@asset_version.blob.filename.base}.#{MiniMime.lookup_by_content_type(@content_type)&.extension}"
+      @filename = "#{@asset.filename_without_extension}.#{MiniMime.lookup_by_content_type(@content_type)&.extension}"
     end
 
     def load_original_path
@@ -31,14 +31,14 @@ module DataCycleCore
       @asset_version = @asset
       @asset_path = @asset_version&.service&.path_for(@asset_version.key)
       @content_type = @asset_version.content_type
-      @filename = @asset_version.filename.to_s
+      @filename = @asset.record.filename.to_s
     end
 
     def load_asset_version_path
       @asset_version = @asset.try(asset_params[:version], { recreate: true })
       @asset_path = @asset_version&.blob&.attachments&.first&.record&.file&.service&.path_for(@asset_version.key)
       @content_type = @asset_version.variation.content_type
-      @filename = @asset_version.blob.filename.to_s
+      @filename = @asset.filename.to_s
     end
 
     def asset_params

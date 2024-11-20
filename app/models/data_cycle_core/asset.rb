@@ -73,12 +73,13 @@ module DataCycleCore
       extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
     end
 
-    def filename
-      filename = (thing&.title || name.presence || file.filename.to_s).to_slug
-      filename.delete_suffix!("-#{file_extension}")
-      filename += ".#{file_extension}"
+    def filename_without_extension
+      filename = (thing&.title.presence || name.presence || file.filename.to_s).to_slug
+      filename.delete_suffix("-#{file_extension}").delete_suffix(".#{file_extension}")
+    end
 
-      filename
+    def filename
+      "#{filename_without_extension}.#{file_extension}"
     end
 
     def content_url
@@ -88,9 +89,10 @@ module DataCycleCore
     end
 
     def file_extension
-      return if file.blank?
+      return @file_extension if defined? @file_extension
+      return @file_extension = nil if file.blank?
 
-      MiniMime.lookup_by_content_type(file.content_type.to_s)&.extension
+      @file_extension = MiniMime.lookup_by_content_type(file.content_type.to_s)&.extension
     end
 
     def file_extension_validation
