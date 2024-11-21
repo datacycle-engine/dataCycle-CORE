@@ -93,7 +93,7 @@ module DataCycleCore
               end
 
       I18n.with_locale(helpers.active_ui_locale) do
-        query = query.search(search_params[:q])
+        query = query.search(search_params[:q]).assignable
       end
       query = query.order_by_similarity(search_params[:q])
       query = query.limit(search_params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)

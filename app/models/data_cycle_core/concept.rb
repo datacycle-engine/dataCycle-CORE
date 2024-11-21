@@ -40,8 +40,9 @@ module DataCycleCore
     delegate :visible?, to: :concept_scheme
 
     scope :in_context, ->(context) { includes(:concept_scheme).where('concept_schemes.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:concept_scheme) }
-    scope :search, ->(q) { includes(:classification_alias_path).where("ARRAY_TO_STRING(ARRAY_REVERSE(full_path_names), ' > ') ILIKE :q OR (concepts.description_i18n ->> :locale) ILIKE :q OR (concepts.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" }).references(:classification_alias_path) }
+    scope :search, ->(q) { includes(:classification_alias_path).where("ARRAY_TO_STRING(ARRAY_REVERSE(full_path_names), ' > ') ILIKE :q OR (concepts.description_i18n ->> :locale) ILIKE :q OR (concepts.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q.squish.gsub(/\s/, '%')}%" }).references(:classification_alias_path) }
     scope :by_full_paths, ->(full_paths) { full_paths.blank? ? none : includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
+    scope :assignable, -> { where(assignable: true) }
 
     scope :for_tree, ->(tree_name) { tree_name.blank? ? none : includes(:concept_scheme).where(concept_schemes: { name: tree_name }) }
     scope :from_tree, ->(tree_name) { for_tree(tree_name) }
