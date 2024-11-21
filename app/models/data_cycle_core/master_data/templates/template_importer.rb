@@ -40,6 +40,7 @@ module DataCycleCore
 
           ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
             begin
+              ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
               update_templates
               update_schema_types
             rescue StandardError => e
