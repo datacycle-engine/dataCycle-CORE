@@ -45,7 +45,7 @@
         :condition:
           :not_content_type?: embedded
         :default_value:
-          module: DataCycleCore::Utility::DefaultValue::Slug
+          module: Slug
           method: generate_slug
         :advanced_search: true
         :search: true
