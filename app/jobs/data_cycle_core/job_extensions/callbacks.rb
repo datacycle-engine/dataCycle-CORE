@@ -15,6 +15,14 @@ module DataCycleCore
           @last_error = exception
 
           if executions < self.class::ATTEMPTS
+            ActiveSupport::Notifications.instrument 'background_exception.datacycle', {
+              exception: exception,
+              job_class: self.class.name,
+              executions: executions,
+              priority: priority,
+              arguments: arguments,
+              queue: queue_name
+            }
             run_callbacks :error
             retry_job wait: determine_delay(seconds_or_duration_or_algorithm: self.class::WAIT, executions:), priority: priority + 1, error: exception
           else
