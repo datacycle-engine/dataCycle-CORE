@@ -590,12 +590,12 @@ module DataCycleCore
         }.inject(&:merge)
       end
 
-      def convert_to_type(type, value, definition = nil, content = nil)
-        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition, self || content)
+      def convert_to_type(type, value, definition = nil)
+        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition)
       end
 
-      def convert_to_string(type, value, content = nil)
-        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value, self || content)
+      def convert_to_string(type, value)
+        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
       end
 
       def parent_templates

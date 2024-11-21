@@ -3,13 +3,13 @@
 module DataCycleCore
   module MasterData
     module DataConverter
-      def self.convert_to_type(type, data, definition = nil, content = nil)
+      def self.convert_to_type(type, data, definition = nil)
         case type
         when 'key'
           data
         when 'number'
           string_to_number(data, definition)
-        when 'string', 'oembed'
+        when 'string', 'oembed', 'slug'
           string_to_string(data)
         when 'date'
           string_to_date(data)
@@ -19,18 +19,16 @@ module DataCycleCore
           string_to_boolean(data)
         when 'geographic'
           string_to_geographic(data)
-        when 'slug'
-          string_to_slug(data, content)
         when 'table'
           data&.map { |v| v&.map(&:to_s) }
         end
       end
 
-      def self.convert_to_string(type, data, content = nil)
+      def self.convert_to_string(type, data)
         case type
         when 'key', 'number'
           data&.to_s
-        when 'string', 'oembed'
+        when 'string', 'oembed', 'slug'
           string_to_string(data)
         when 'date'
           date_to_string(data)
@@ -40,8 +38,6 @@ module DataCycleCore
           boolean_to_string(data)
         when 'geographic'
           geographic_to_string(data)
-        when 'slug'
-          slug_to_string(data, content)
         when 'table'
           data&.map { |v| v&.map(&:to_s) }
         end
@@ -156,23 +152,6 @@ module DataCycleCore
         return value if value.acts_like?(:date)
         raise ArgumentError, 'can not convert to a date' unless value.is_a?(::String)
         value.to_date.presence || raise(ArgumentError, 'can not convert to a date')
-      end
-
-      def self.string_to_slug(value, content = nil, data_hash = nil)
-        generate_slug(value, content, data_hash)
-      end
-
-      def self.slug_to_string(value, content = nil, data_hash = nil)
-        generate_slug(value, content, data_hash)
-      end
-
-      def self.generate_slug(value, content, data_hash = nil)
-        return if content&.embedded?
-
-        slug = value&.to_slug
-        slug ||= content&.title(data_hash:)&.to_slug
-        slug ||= I18n.t('common.no_name')
-        slug
       end
     end
   end
