@@ -246,7 +246,7 @@ module DataCycleCore
               rescue StandardError => e
                 download_object.logger.phase_failed(e, download_object.external_source, step_label)
 
-                return false
+                raise
               ensure
                 GC.start
               end
