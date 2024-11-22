@@ -111,6 +111,8 @@ module DataCycleCore
 
       threads.each(&:join)
 
+      collection_stats = collection_stats.sort_by(&:first)
+
       mongo_data = collection_stats.to_h.presence
 
       data = {
