@@ -14,14 +14,17 @@ module DataCycleCore
         rescue_from StandardError do |exception|
           @last_error = exception
 
-          if executions < self.class::ATTEMPTS
+          # don't retry inline jobs (enqueued_at is nil)
+          if enqueued_at.present? && executions < self.class::ATTEMPTS
             ActiveSupport::Notifications.instrument 'background_exception.datacycle', {
               exception: exception,
               job_class: self.class.name,
               executions: executions,
               priority: priority,
               arguments: arguments,
-              queue: queue_name
+              queue: queue_name,
+              delayed_reference_id: delayed_reference_id,
+              delayed_reference_type: delayed_reference_type
             }
             run_callbacks :error
             retry_job wait: determine_delay(seconds_or_duration_or_algorithm: self.class::WAIT, executions:), priority: priority + 1, error: exception
