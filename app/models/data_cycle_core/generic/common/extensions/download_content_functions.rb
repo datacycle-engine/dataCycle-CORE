@@ -139,14 +139,6 @@ module DataCycleCore
             item.external_system_has_changed = true
           end
 
-          def validate_credential(credential, option_credentials)
-            raise ArgumentError, 'Credential must be a proc' unless credential.is_a?(Proc)
-            return unless option_credentials.is_a?(Array)
-            creds = option_credentials.filter_map { |c| credential.call(c) }
-            raise 'credential keys must be present for all credentials' if option_credentials.size != creds.size
-            raise 'all credential keys must be unique' if creds.uniq.size != creds.size
-          end
-
           private
 
           def source_filter(download_object:, options:, locale:)

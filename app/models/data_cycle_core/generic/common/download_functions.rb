@@ -14,11 +14,9 @@ module DataCycleCore
 
         def self.download_data(download_object:, data_id:, data_name:, options:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil)
           credential ||= lambda { |credentials|
-            return if credentials.blank? || Array.wrap(options[:credential_key] || 'credential_key').any? { |key| credentials[key].blank? }
-            Array.wrap(options[:credential_key] || 'credential_key').map { |key| credentials[key] }.join('_')
+            return if credentials.blank? || credentials['credential_key'].blank?
+            credentials['credential_key']
           }
-
-          validate_credential(credential, options[:credentials])
 
           iteration_strategy = options.dig(:download, :iteration_strategy) || options[:iteration_strategy] || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)
