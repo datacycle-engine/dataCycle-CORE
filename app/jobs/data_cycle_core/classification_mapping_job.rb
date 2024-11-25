@@ -30,23 +30,27 @@ module DataCycleCore
       pid = Process.fork do
         read.close
 
-        if insert_ids.present?
-          ca.classification_groups.insert_all(insert_ids.map { |cid| { classification_id: cid } }, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
+        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
 
-          DataCycleCore::Classification.where(id: insert_ids).find_each do |c|
-            ca.send(:classifications_added, c)
+          if insert_ids.present?
+            ca.classification_groups.insert_all(insert_ids.map { |cid| { classification_id: cid } }, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
+
+            DataCycleCore::Classification.where(id: insert_ids).find_each do |c|
+              ca.send(:classifications_added, c)
+            end
           end
-        end
 
-        if delete_ids.present?
-          ca.classification_groups.where(classification_id: delete_ids).delete_all
+          if delete_ids.present?
+            ca.classification_groups.where(classification_id: delete_ids).delete_all
 
-          DataCycleCore::Classification.where(id: delete_ids).find_each do |c|
-            ca.send(:classifications_removed, c)
+            DataCycleCore::Classification.where(id: delete_ids).find_each do |c|
+              ca.send(:classifications_removed, c)
+            end
           end
-        end
 
-        ca.update(updated_at: Time.zone.now)
+          ca.touch
+        end
       rescue StandardError => e
         Marshal.dump({ error_class: e.class.name, error: e.to_s, backtrace: e.backtrace.first(10) }, write)
       ensure

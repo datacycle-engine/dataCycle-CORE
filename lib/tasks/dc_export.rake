@@ -78,7 +78,10 @@ namespace :dc do
           '@graph' => []
         }.to_json
 
-        size = contents.total_count
+        size = ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+          contents.total_count
+        end
         worker_pool_size = [ActiveRecord::Base.connection_pool.size - 2, 3].min
         queue = DataCycleCore::WorkerPool.new(worker_pool_size)
         progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
@@ -89,7 +92,12 @@ namespace :dc do
         file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
         file << result.delete_suffix(']}')
 
-        contents.each do |item|
+        objects = ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+          objects = contents.to_a
+        end
+
+        objects.each do |item|
           queue.append do
             data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
               retries = 1
