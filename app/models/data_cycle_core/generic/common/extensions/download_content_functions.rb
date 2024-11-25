@@ -14,7 +14,7 @@ module DataCycleCore
               locale = options[:locales].first
               item_count = 0
               times = [Time.current]
-              credentials = credential.call(download_object.credentials) if credential.present?
+              credential_key = credential.call(options[:credentials]) if credential.present?
               items = items(iterator:, download_object:, options:, locale:)
               items.each_slice(DELTA) do |item_data_slice|
                 break if options[:max_count] && item_count >= options[:max_count]
@@ -35,7 +35,13 @@ module DataCycleCore
 
                     next unless item_allowed?(local_item:, options:)
 
-                    add_credentials!(item:, download_object:, credentials:) if credentials.present?
+                    if item_data.key?(:external_system)
+                      data_credential_keys = Array.wrap(item_data.dig(:external_system, :credential_keys))
+                      data_credential_keys.each { |key| add_credentials!(item:, credential_key: key) }
+                      item_data.delete(:external_system)
+                    end
+
+                    add_credentials!(item:, credential_key:) if credential_key.present?
 
                     item_data = cleanup_data.call(item_data) if cleanup_data.present?
 
@@ -118,6 +124,29 @@ module DataCycleCore
             end
           end
 
+          protected
+
+          def add_credentials!(item:, credential_key:)
+            return if credential_key.blank?
+
+            key = 'credential_keys'
+
+            return if item.external_system&.dig(key)&.include?(credential_key)
+
+            item.external_system ||= {}
+            item.external_system[key] ||= []
+            item.external_system[key] << credential_key
+            item.external_system_has_changed = true
+          end
+
+          def validate_credential(credential, option_credentials)
+            raise ArgumentError, 'Credential must be a proc' unless credential.is_a?(Proc)
+            return unless option_credentials.is_a?(Array)
+            creds = option_credentials.filter_map { |c| credential.call(c) }
+            raise 'credential keys must be present for all credentials' if option_credentials.size != creds.size
+            raise 'all credential keys must be unique' if creds.uniq.size != creds.size
+          end
+
           private
 
           def source_filter(download_object:, options:, locale:)
@@ -170,19 +199,6 @@ module DataCycleCore
             return true if step_priority.blank? || item_priority.blank?
 
             step_priority <= item_priority
-          end
-
-          def add_credentials!(item:, credentials:)
-            return if credentials&.dig('key').blank?
-
-            credential_key = credentials['key']
-
-            return if item.external_system&.dig('credentials', credential_key)&.as_json.eql?(credentials.as_json)
-
-            item.external_system ||= {}
-            item.external_system['credentials'] ||= {}
-            item.external_system['credentials'][credential_key] = credentials
-            item.external_system_has_changed = true
           end
 
           def iterate_credentials(options:, **keyword_args, &block)

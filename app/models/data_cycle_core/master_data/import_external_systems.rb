@@ -145,6 +145,9 @@ module DataCycleCore
         end
 
         rule(:credentials).validate(:dc_array_or_hash)
+
+        rule(:credentials).validate(:dc_credential_keys)
+
         rule(config: :api_strategy).validate(:dc_class)
 
         rule('config.export_config.endpoint').validate(:dc_class)

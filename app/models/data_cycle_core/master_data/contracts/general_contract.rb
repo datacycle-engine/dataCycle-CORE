@@ -15,6 +15,20 @@ module DataCycleCore
           key.failure('the value must be of type Array or Hash') if key? && !value.is_a?(Hash) && !value.is_a?(Array)
         end
 
+        register_macro(:dc_credential_keys) do
+          if value.is_a?(Array)
+            credential_keys = value.filter_map { |v| v[:credential_key] }
+            if credential_keys.any?
+              if credential_keys.size != value.size
+                key.failure('if any entry has a credential_key, all entries must have one')
+              elsif credential_keys.uniq.size != credential_keys.size
+                non_unique_keys = credential_keys.select { |k| credential_keys.count(k) > 1 }.uniq
+                key.failure("all credential_keys must be unique. The following keys are not unique: #{non_unique_keys.join(', ')}")
+              end
+            end
+          end
+        end
+
         register_macro(:dc_module) do
           key.failure('the string given does not specify a valid ruby module.') if key? && value&.safe_constantize&.class != Module
         end

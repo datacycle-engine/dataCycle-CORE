@@ -13,12 +13,19 @@ module DataCycleCore
         FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
 
         def self.download_data(download_object:, data_id:, data_name:, options:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil)
+          credential ||= lambda { |credentials|
+            return if credentials.blank? || Array.wrap(options[:credential_key] || 'credential_key').any? { |key| credentials[key].blank? }
+            Array.wrap(options[:credential_key] || 'credential_key').map { |key| credentials[key] }.join('_')
+          }
+
+          validate_credential(credential, options[:credentials])
+
           iteration_strategy = options.dig(:download, :iteration_strategy) || options[:iteration_strategy] || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)
           send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options:)
         end
 
-        def self.download_single(download_object:, data_id:, data_name:, raw_data:, modified: nil, delete: nil, cleanup_data: nil, **keyword_args)
+        def self.download_single(download_object:, data_id:, data_name:, raw_data:, modified: nil, delete: nil, cleanup_data: nil, credential: nil, **keyword_args)
           with_logging(download_object:, data_id:, data_name:, modified:, delete:, raw_data:, cleanup_data:, iterate_locales: false, **keyword_args) do |options, step_label|
             locales = (options[:locales] || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
             download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -26,6 +33,8 @@ module DataCycleCore
               item_name = data_name.call(raw_data.first[1])
               item = mongo_item.find_or_initialize_by(external_id: item_id)
               item.dump ||= {}
+
+              credential_key = credential.call(options[:credentials]) if credential.present?
 
               raw_data.each do |language, data_hash|
                 next unless locales.include?(language.to_sym)
@@ -42,6 +51,8 @@ module DataCycleCore
                 data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                 item.data_has_changed = true if item.dump.dig(language, 'mark_for_update').present?
 
+                add_credentials!(item:, credential_key:) if credential_key.present?
+
                 data_hash = cleanup_data.call(data_hash) if cleanup_data.present?
                 item.data_has_changed ||= diff?(item.dump[language].as_json, data_hash.as_json, diff_base: options.dig(:download, :diff_base))
                 item.dump[language] = data_hash
@@ -57,7 +68,7 @@ module DataCycleCore
           end
         end
 
-        def self.download_sequential(download_object:, data_id:, modified: nil, delete: nil, cleanup_data: nil, **keyword_args)
+        def self.download_sequential(download_object:, data_id:, modified: nil, delete: nil, cleanup_data: nil, credential: nil, **keyword_args)
           with_logging(download_object:, data_id:, modified:, delete:, cleanup_data:, **keyword_args) do |options, step_label|
             locale = options[:locales].first
             item_count = 0
@@ -66,6 +77,9 @@ module DataCycleCore
 
             download_object.source_object.with(download_object.source_type) do |_mongo_item|
               times = [Time.current]
+
+              credential_key = credential.call(options[:credentials]) if credential.present?
+
               endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
               items = download_object.endpoint(options).send(endpoint_method, lang: locale)
               items.each do |item_data|
@@ -107,6 +121,8 @@ module DataCycleCore
                     end
                   end
 
+                  add_credentials!(item:, credential_key:) if credential_key.present?
+
                   item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
                   item_data = cleanup_data.call(item_data) if cleanup_data.present?
                   item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
@@ -147,7 +163,7 @@ module DataCycleCore
 
               endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
 
-              credentials = credential.call(options[:credentials]) if credential.present?
+              credential = credential.call(options[:credentials]) if credential.present?
 
               items = download_object.endpoint(options).send(endpoint_method, lang: locale)
               items.each_slice(100) do |item_data_slice|
