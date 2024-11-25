@@ -13,10 +13,7 @@ module DataCycleCore
         FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
 
         def self.download_data(download_object:, data_id:, data_name:, options:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil)
-          credential ||= lambda { |credentials|
-            return if credentials.blank? || credentials['credential_key'].blank?
-            credentials['credential_key']
-          }
+          credential ||= default_credential
 
           iteration_strategy = options.dig(:download, :iteration_strategy) || options[:iteration_strategy] || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)

@@ -10,6 +10,7 @@ module DataCycleCore
           CONFIG_PROPS = [:tree_label, :external_id_prefix, :priority].freeze
 
           def download_content(download_object:, cleanup_data: nil, credential: nil, iterator: nil, data_id: nil, **keyword_args)
+            credential ||= default_credential
             with_logging(**keyword_args, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |options, step_label|
               locale = options[:locales].first
               item_count = 0
@@ -125,6 +126,13 @@ module DataCycleCore
           end
 
           protected
+
+          def default_credential
+            lambda { |credentials|
+              return if credentials.blank? || credentials.is_a?(Array) || credentials['credential_key'].blank?
+              credentials['credential_key']
+            }
+          end
 
           def add_credentials!(item:, credential_key:)
             return if credential_key.blank?
