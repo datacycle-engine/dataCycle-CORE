@@ -15,6 +15,7 @@ module DataCycleCore
         import Transformations::RatingTransformations
         import Transformations::AdditionalInformation
         import Transformations::Schedules
+        import Transformations::Credentials
         import DataReferenceTransformations
 
         def self.event_schedule(data_hash, sub_event_function)
