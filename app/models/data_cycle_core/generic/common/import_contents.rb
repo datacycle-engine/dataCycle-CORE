@@ -72,17 +72,36 @@ module DataCycleCore
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
           transform_opts = []
-          if transformation.parameters.dig(0, 1).to_s.end_with?('_id')
+          transform_kwargs = {}
+
+          transform_req_params = transformation.parameters.select { |param| param[0] == :req }
+          transform_keyreq_params = transformation.parameters.select { |param| param[0] == :keyreq }
+
+          if transform_req_params.dig(0, 1).to_s.end_with?('_id')
             transform_opts << utility_object.external_source.id
           else
             transform_opts << utility_object.external_source
           end
-          transform_opts << config.with_indifferent_access if transformation.parameters.dig(1, 1).in? [:options, :config]
+          transform_opts << config.with_indifferent_access if transform_req_params.dig(1, 1).in? [:options, :config]
+
+          transform_keyreq_params.each do |param|
+            case param[1]
+            when :external_source_id
+              transform_kwargs[:external_source_id] = utility_object.external_source.id
+            when :external_source
+              transform_kwargs[:external_source] = utility_object.external_source
+            when :config
+              transform_kwargs[:config] = config.with_indifferent_access
+              # else
+              #   # provide a default value for keyreq params to avoid ArgumentError
+              #   transform_kwargs[param[1]] = nil
+            end
+          end
 
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object:,
             raw_data:,
-            transformation: transformation.call(*transform_opts),
+            transformation: transformation.call(*transform_opts, **transform_kwargs),
             default: { template: template_name },
             config:
           )
