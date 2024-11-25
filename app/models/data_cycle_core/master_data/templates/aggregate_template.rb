@@ -5,7 +5,7 @@ module DataCycleCore
     module Templates
       class AggregateTemplate
         BASE_AGGREGATE_POSTFIX = '_aggregate_for_override'
-        AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute', 'sorting'].freeze
+        AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute', 'sorting', 'inverse_of'].freeze
         AGGREGATE_PROPERTY_NAME = 'aggregate_for'
         AGGREGATE_INVERSE_PROPERTY_NAME = 'belongs_to_aggregate'
         ADDITIONAL_BASE_TEMPLATES_KEY = 'additional_base_templates'
