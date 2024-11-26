@@ -123,6 +123,14 @@ module DataCycleCore
         return if options.key?(:credentials)
 
         creds = Array.wrap(credentials || {})
+        credential_key = options[:credential_key]
+
+        if credential_key.present? && options[:credentials_index].blank?
+          credentials_index = creds.index { |item| item['credential_key'] == credential_key }
+          raise "Error: credential not found for key: #{credential_key}!" if credentials_index.nil?
+          options[:credentials_index] = credentials_index
+        end
+
         creds = Array.wrap(creds[options[:credentials_index]]) if options[:credentials_index].present?
 
         options[:credentials] = creds
