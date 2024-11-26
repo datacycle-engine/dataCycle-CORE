@@ -158,7 +158,7 @@ module DataCycleCore
 
               endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
 
-              credential = credential.call(options[:credentials]) if credential.present?
+              credentials = credential.call(options[:credentials]) if credential.present?
 
               items = download_object.endpoint(options).send(endpoint_method, lang: locale)
               items.each_slice(100) do |item_data_slice|
