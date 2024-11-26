@@ -241,6 +241,8 @@ module DataCycleCore
           end
 
           def with_logging(download_object:, options:, iterate_read_types: true, iterate_locales: true, iterate_credentials: true, **keyword_args, &block)
+            options.delete(:credentials) unless iterate_credentials
+
             if options[:credentials].is_a?(::Array) && iterate_credentials
               iterate_credentials(download_object:, options:, iterate_read_types:, iterate_locales:, iterate_credentials:, **keyword_args, &block)
             elsif options.dig(:download, :read_type).is_a?(::Array) && iterate_read_types
