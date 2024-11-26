@@ -12,8 +12,8 @@ module DataCycleCore
         DELTA = Extensions::DownloadContentFunctions::DELTA
         FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
 
-        def self.download_data(download_object:, data_id:, data_name:, options:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil)
-          credential ||= default_credential
+        def self.download_data(download_object:, data_id:, data_name:, options:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil)
+          credential = default_credential
 
           iteration_strategy = options.dig(:download, :iteration_strategy) || options[:iteration_strategy] || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)
@@ -122,7 +122,7 @@ module DataCycleCore
                   item_data = cleanup_data.call(item_data) if cleanup_data.present?
                   item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
 
-                  if item.data_has_changed
+                  if item.data_has_changed || item.external_system_has_changed
                     # for debugging, also uncomment the require 'hashdiff' at the top of this file
                     # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
                     item.dump[locale] = item_data
@@ -158,7 +158,7 @@ module DataCycleCore
 
               endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
 
-              credentials = credential.call(options[:credentials]) if credential.present?
+              credential_key = credential.call(options[:credentials]) if credential.present?
 
               items = download_object.endpoint(options).send(endpoint_method, lang: locale)
               items.each_slice(100) do |item_data_slice|
@@ -209,20 +209,9 @@ module DataCycleCore
                       item_data = cleanup_data.call(item_data) if cleanup_data.present?
                       item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
 
-                      # add credential from download_object to item
-                      if credentials&.dig('key').present?
-                        credential_key = credentials['key']
-                        item.external_system ||= {}
-                        item.external_system['credentials'] ||= {}
-                        if item.external_system.dig('credentials', credential_key).blank? ||
-                           Digest::MD5.hexdigest(item.external_system.dig('credentials', credential_key).to_json) != Digest::MD5.hexdigest(options[:credentials].to_json)
+                      add_credentials!(item:, credential_key:) if credential_key.present?
 
-                          item.external_system['credentials'][credential_key] = options[:credentials]
-                          item.save!
-                        end
-                      end
-
-                      if item.data_has_changed
+                      if item.data_has_changed || item.external_system_has_changed
                         # for debugging, also uncomment the require 'hashdiff' at the top of this file
                         # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
                         # binding.pry if differences.present?
