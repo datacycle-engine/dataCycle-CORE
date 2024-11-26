@@ -146,6 +146,7 @@ module DataCycleCore
 
         rule(:credentials).validate(:dc_array_or_hash)
 
+        rule(:credentials).validate(:dc_unique_credentials)
         rule(:credentials).validate(:dc_credential_keys)
 
         rule(config: :api_strategy).validate(:dc_class)

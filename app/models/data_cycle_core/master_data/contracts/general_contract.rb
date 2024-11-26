@@ -29,6 +29,13 @@ module DataCycleCore
           end
         end
 
+        register_macro(:dc_unique_credentials) do
+          if value.is_a?(Array)
+            md5_hashes = value.map { |v| Digest::MD5.hexdigest(v.except(:credential_key).to_s) }
+            key.failure('all credentials must be unique') if md5_hashes.uniq.size != md5_hashes.size
+          end
+        end
+
         register_macro(:dc_module) do
           key.failure('the string given does not specify a valid ruby module.') if key? && value&.safe_constantize&.class != Module
         end
