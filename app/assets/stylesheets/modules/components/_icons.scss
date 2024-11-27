@@ -1,10 +1,28 @@
 .dc-type-icon {
+  position: relative;
+
   &::before {
     font-family: 'FontAwesome';
     position: relative;
     text-align: center;
     font-style: normal;
   }
+
+  // future aggregate icon
+  // &.thing-aggregate-icon {
+  //   &::after {
+  //     font-family: 'FontAwesome';
+  //     position: absolute;
+  //     text-align: center;
+  //     font-style: normal;
+  //     content: '\f1c0';
+  //     color: var(--success-color);
+  //     right: -1px;
+  //     bottom: -1px;
+  //     font-size: 70%;
+  //     text-shadow: -1px 0px 0px white, 1px 0px 0px white, 0px -1px 0px white, 0px 1px 0px white;
+  //   }
+  // }
 
   &.thing-icon {
     &::before {
