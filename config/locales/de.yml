@@ -2253,7 +2253,7 @@ de:
         other: "%{count} Jahren"
     prompts:
       day: Tag
-      hour: Stunden
+      hour: Stunde
       minute: Minute
       month: Monat
       second: Sekunde

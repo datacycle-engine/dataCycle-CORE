@@ -2203,12 +2203,13 @@ en:
         other: "%{count} years"
     prompts:
       day: Day
-      hour: Hours
+      hour: Hour
       minute: Minute
       month: Month
       second: Second
       year: Year
       week: Week
+
   number:
     currency:
       format:

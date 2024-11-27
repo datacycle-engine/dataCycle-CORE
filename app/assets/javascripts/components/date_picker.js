@@ -36,6 +36,8 @@ class DatePicker {
 		this.dateTimeOptions = {
 			altFormat: "d.m.Y H:i",
 			enableTime: true,
+			minuteIncrement: 1,
+			defaultHour: 0,
 		};
 		this.timeOptions = {
 			enableTime: true,
@@ -44,6 +46,8 @@ class DatePicker {
 			altFormat: "H:i",
 			onClose: null,
 			onDayCreate: null,
+			minuteIncrement: 1,
+			defaultHour: 0,
 		};
 		this.configs = {};
 		this.startKeys = {
@@ -335,12 +339,24 @@ class DatePicker {
 		if (this.isDateTime || this.configs?.enableTime) {
 			this.isDateTime = true;
 			Object.assign(options, this.dateTimeOptions);
+			this.addTimeDefaults(options);
 		}
 
-		if (this.element.dataset.type === "timepicker")
+		if (this.element.dataset.type === "timepicker") {
 			Object.assign(options, this.timeOptions);
+			this.addTimeDefaults(options);
+		}
 
 		return options;
+	}
+	addTimeDefaults(options) {
+		if (this.calType === "start") {
+			options.defaultHour = 0;
+			options.defaultMinute = 0;
+		} else if (this.calType === "end") {
+			options.defaultHour = 23;
+			options.defaultMinute = 59;
+		}
 	}
 	async importData(event, data) {
 		event.stopImmediatePropagation();

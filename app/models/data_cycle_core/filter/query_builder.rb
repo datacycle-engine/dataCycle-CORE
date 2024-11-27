@@ -101,8 +101,16 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new('@>', range, date)
       end
 
+      def contained_in_range(range, date)
+        Arel::Nodes::InfixOperation.new('<@', range, date)
+      end
+
       def overlap(range_l, range_r)
         Arel::Nodes::InfixOperation.new('&&', range_l, range_r)
+      end
+
+      def subtract(value1, value2)
+        Arel::Nodes::Subtraction.new(value1, value2)
       end
 
       def in_json(json, key)
@@ -115,6 +123,22 @@ module DataCycleCore
 
       def tstzrange(ts_l, ts_h, border = '[]')
         Arel::Nodes::NamedFunction.new('tstzrange', [ts_l, ts_h, quoted(border)])
+      end
+
+      def tsrange(ts_l, ts_h, border = '[]')
+        Arel::Nodes::NamedFunction.new('tsrange', [ts_l, ts_h, quoted(border)])
+      end
+
+      def upper_range(range)
+        Arel::Nodes::NamedFunction.new('upper', [range])
+      end
+
+      def infinity
+        quoted('infinity')
+      end
+
+      def interval(interval)
+        Arel::Nodes::SqlLiteral.new("interval '#{interval}'")
       end
 
       def cast_rrule(rrule_string)

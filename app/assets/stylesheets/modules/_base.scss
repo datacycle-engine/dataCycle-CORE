@@ -54,6 +54,11 @@ button,
   border-radius: $global-radius;
 }
 
+input::placeholder {
+  font-weight: 200;
+  color: $dark-gray;
+}
+
 .button.success {
   color: $white;
 
@@ -1128,7 +1133,7 @@ footer {
     .single_date input.form-control,
     .number input,
     .oembed input,
-    .oembed-preview-html{
+    .oembed-preview-html {
       padding: 2.5rem 1rem 1.2rem 1rem;
       line-height: initial;
     }
