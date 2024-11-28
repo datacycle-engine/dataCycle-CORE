@@ -184,6 +184,8 @@ module DataCycleCore
           external_source_id = nil if utility_object.options.dig('import', 'no_external_source_id')
 
           ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+            ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
             if classification_data[:external_key].blank?
               classification = DataCycleCore::Classification
                 .find_or_initialize_by(
