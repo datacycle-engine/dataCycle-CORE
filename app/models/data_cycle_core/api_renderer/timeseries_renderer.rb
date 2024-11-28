@@ -55,11 +55,17 @@ module DataCycleCore
       def transform_data(data_format)
         group_and_filter_query
 
-        ActiveRecord::Base.connection.select_all(
-          Arel.sql(
-            sql_for_data_format("#{data_format}_#{@data_format}")
+        ActiveRecord::Base.transaction do
+          ActiveRecord::Base.connection.exec_query(
+            ActiveRecord::Base.send(:sanitize_sql_array, ['SET LOCAL timezone = ?;', Time.zone.name])
           )
-        ).first&.values&.first
+
+          ActiveRecord::Base.connection.select_all(
+            Arel.sql(
+              sql_for_data_format("#{data_format}_#{@data_format}")
+            )
+          ).first&.values&.first
+        end
       end
 
       def csv_array
