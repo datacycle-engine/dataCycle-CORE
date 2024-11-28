@@ -57,6 +57,8 @@ module DataCycleCore
             end
           end
 
+          additional_paths[:external_system] = '$external_system'
+
           project_filter_stage.merge!(additional_paths)
 
           id_fallback_fields = [
