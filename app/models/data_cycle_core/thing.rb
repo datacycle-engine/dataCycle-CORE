@@ -90,7 +90,7 @@ module DataCycleCore
     has_many :external_systems, through: :external_system_syncs
 
     has_many :activities, as: :activitiable, dependent: :destroy
-    has_many :timeseries, class_name: 'DataCycleCore::Timeseries', dependent: :destroy, inverse_of: :thing
+    has_many :timeseries, class_name: 'DataCycleCore::Timeseries', dependent: :delete_all, inverse_of: :thing
 
     has_many :schedules
     has_many :collected_classification_contents

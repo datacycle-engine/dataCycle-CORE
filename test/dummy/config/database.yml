@@ -10,6 +10,8 @@ default: &default
   host: <%= ENV["POSTGRES_HOST"] || "localhost" %>
   port: <%= ENV["POSTGRES_PORT"] || 5432 %>
   schema_search_path: public, postgis
+  variables:
+    statement_timeout: 60000
 
 development:
   <<: *default
