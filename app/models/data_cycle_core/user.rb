@@ -139,11 +139,11 @@ module DataCycleCore
     end
 
     def has_rank?(rank)
-      self&.role&.rank&.>= rank
+      role&.rank&.>= rank
     end
 
     def is_rank?(rank)
-      self&.role&.rank == rank
+      role&.rank == rank
     end
 
     def is_role?(*role_names)

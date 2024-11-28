@@ -27,7 +27,7 @@ namespace :dc do
       selected_thing_templates.find_each do |thing_template|
         template = DataCycleCore::Thing.new(thing_template:)
         next if template.computed_property_names.blank?
-        next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
+        next if computed_names.present? && computed_names.any? && !computed_names.intersect?(template.computed_property_names)
 
         items = selected_things.where(template_name: template.template_name)
         computed_keys = computed_names.presence || template.computed_property_names
@@ -96,7 +96,7 @@ namespace :dc do
       selected_thing_templates.find_each do |thing_template|
         template = DataCycleCore::Thing.new(thing_template:)
         next if template.default_value_property_names.blank?
-        next if default_value_names.present? && default_value_names.any? && (default_value_names & template.default_value_property_names).none?
+        next if default_value_names.present? && default_value_names.any? && !default_value_names.intersect?(template.default_value_property_names)
 
         items = selected_things.where(template_name: template.template_name)
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'

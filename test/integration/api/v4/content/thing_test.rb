@@ -388,7 +388,7 @@ module DataCycleCore
               thing_with_description = true if item['description'].present?
               thing_with_thumbnail_url = true if item['thumbnailUrl'].present?
               thing_with_image_thumbnail_url = true if item['image']&.first&.dig('thumbnailUrl').present?
-              thing_with_classifications_in_scheme = true if item['dc:classification']&.first&.dig('skos:inScheme')&.dig('skos:prefLabel').present?
+              thing_with_classifications_in_scheme = true if item['dc:classification']&.first&.dig('skos:inScheme', 'skos:prefLabel').present?
               thing_with_classifications_pref_label = true if item['dc:classification']&.first&.dig('skos:prefLabel').present?
             end
             assert(thing_with_description)

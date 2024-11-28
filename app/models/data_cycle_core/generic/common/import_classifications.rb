@@ -8,7 +8,6 @@ module DataCycleCore
           utility_object, tree_name, load_root_classifications, load_child_classifications,
           load_parent_classification_alias, extract_data, options
         )
-
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
           with_filters = options.dig(:import, :with_filters) || false
 
@@ -89,7 +88,6 @@ module DataCycleCore
           utility_object, tree_name, load_root_classifications, load_parent_classification_alias,
           extract_parent_data, extract_child_data, options
         )
-
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
 
           external_source_id = utility_object.external_source.id
