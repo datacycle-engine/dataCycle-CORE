@@ -2,9 +2,11 @@
 
 module DataCycleCore
   module HttpClient
+    DEFAULT_RETRY_STATUSES = [429, 503, 504].freeze
+    DEFAULT_RETRY_EXCEPTIONS = Faraday::Retry::Middleware::DEFAULT_EXCEPTIONS
     DEFAULT = {
       retry_options: {
-        max: 3, interval: 30, backoff_factor: 2, retry_statuses: [503, 504]
+        max: 3, interval: 30, backoff_factor: 2, retry_statuses: DEFAULT_RETRY_STATUSES
       },
       follow_redirects: { limit: 5 },
       adapter: Faraday.default_adapter,
