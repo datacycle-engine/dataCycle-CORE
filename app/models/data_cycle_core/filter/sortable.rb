@@ -439,6 +439,7 @@ module DataCycleCore
         return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s
         normalized_value = DataCycleCore::MasterData::DataConverter.string_to_string(value)
+        return self if normalized_value.blank?
         search_string = normalized_value.split.join('%')
 
         order_string = ActiveRecord::Base.send(
