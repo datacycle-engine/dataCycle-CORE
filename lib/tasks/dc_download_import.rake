@@ -81,7 +81,7 @@ namespace :dc do
 
     desc 'Download and import data from partial data source'
     task :partial, [:external_source_id, :download_names, :import_names, :mode, :max_count] => [:environment] do |_, args|
-      DcTasks.legacy_task('perform', *args)
+      DcTasks.legacy_task('perform_partial', *args)
     end
 
     desc 'perform download and import data for specific credential from feratel data source. Delimiter is | for multiple download_names and import_names'
