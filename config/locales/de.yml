@@ -1996,7 +1996,7 @@ de:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag
       kitchen_spezialitaeten: Küche Spezialitäten
-      kitchen_zeiten: Küche Öffungszeiten
+      kitchen_zeiten: Küche Öffnungszeiten
       object_betriebsurlaub: Betriebsurlaub
       price_info: Preisinformation
       price_reducedinfo: Preisinformation Überblick
@@ -2019,7 +2019,7 @@ de:
       iframe_titel: iframe_title
       iframe_url: iframe_url
       moreinfo: Weitere Informationen
-      openings: Öffungszeiten
+      openings: Öffnungszeiten
       packagefeature: Pauschalangebot Details
       packagetripinfo: Pauschalangebot Informationen
       station: Bahnhof
@@ -2092,7 +2092,7 @@ de:
       dependent: wetterabhängig
       roadmap: Streckenstichpunkte
     museumsportal:
-      opening_hours: Öffungszeiten Beschreibung
+      opening_hours: Öffnungszeiten Beschreibung
     oya_media:
       description: Beschreibung
       short_description: Teaser
