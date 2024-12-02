@@ -241,6 +241,7 @@ module DataCycleCore
               classification_tree = primary_classification_alias.classification_tree
 
               classification_tree.parent_classification_alias = primary_classification_alias.id == parent_classification_alias&.id ? nil : parent_classification_alias
+              classification_tree.classification_tree_label = parent_classification_alias.classification_tree_label unless parent_classification_alias.nil?
               classification_tree.save!
 
               classification_alias = primary_classification_alias
