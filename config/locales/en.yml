@@ -92,6 +92,8 @@ en:
     de-CH: Swiss-german
     nl-BE: Flemish
     zh: Chinese
+    sr: Serbian
+    ne: Nepali
   roles:
     super_admin: Administrator (DataCycle)
     admin: Administrator

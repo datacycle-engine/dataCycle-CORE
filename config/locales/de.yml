@@ -123,6 +123,8 @@ de:
     "de-CH": schweizer-deutsch
     "nl-BE": flämisch
     zh: chinesisch
+    se: serbisch
+    ne: nepalesisch
 
   roles:
     super_admin: Super-Administrator
