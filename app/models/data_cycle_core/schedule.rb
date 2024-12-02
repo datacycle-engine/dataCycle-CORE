@@ -892,8 +892,12 @@ module DataCycleCore
       range_start = range_start.to_date
       range_end = range_end.to_date
 
-      ActiveRecord::Base.connection.exec_query(schedule_occurrences_sql(range_start:, range_end:))
-      unscoped.where.not(rrule: nil).update_all('rrule = rrule')
+      ActiveRecord::Base.transaction do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+        ActiveRecord::Base.connection.exec_query(schedule_occurrences_sql(range_start:, range_end:))
+
+        unscoped.where.not(rrule: nil).update_all('rrule = rrule')
+      end
     end
 
     def self.schedule_occurrences_sql(range_start:, range_end:)

@@ -103,6 +103,7 @@ namespace :db do
       function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'upsert_ca_paths_transitive' : 'upsert_ca_paths'
 
       ActiveRecord::Base.connection.execute <<-SQL.squish
+        SET LOCAL statement_timeout = 0;
         SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM concepts;
       SQL
 
