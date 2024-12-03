@@ -80,7 +80,6 @@ module DataCycleCore
             }
           ]
 
-          binding.pry
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
               pipelines
