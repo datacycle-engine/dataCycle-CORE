@@ -26,37 +26,56 @@ module DataCycleCore
           concept_uri = options.dig(:download, :concept_uri_path) || 'uri'
 
           concept_path = options.dig(:download, :concept_path) || ''
+          full_concept_path = ["dump.#{locale}", concept_path].compact_blank.join('.')
           concept_id_path = [concept_path, concept_id].compact_blank.join('.')
           concept_name_path = [concept_path, concept_name].compact_blank.join('.')
           concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
           concept_uri_path = [concept_path, concept_uri].compact_blank.join('.')
           match_path = ['dump', locale, concept_id_path].compact_blank.join('.')
+          source_filter_stage = { match_path => { '$ne' => nil } }.with_indifferent_access
+          source_filter_stage.merge!(source_filter) if source_filter.present?
 
+          post_unwind_source_filter_stage = source_filter_stage
+            .deep_stringify_keys
+            .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(full_concept_path) }
+            .deep_transform_keys { |k| k.gsub(full_concept_path, 'data') }
+          
+            project_filter_stage = {
+              'data' => ['$dump', locale, concept_path].compact_blank.join('.')
+            }
+            pipelines = [
+              {
+                '$match' => source_filter_stage
+              },
+              {
+                '$project' => project_filter_stage
+              },
+              {
+                '$unwind' => '$data'
+              },
+              {
+                '$match' => post_unwind_source_filter_stage
+              }, 
+              {
+                '$project' => {
+                  'data.id' => ['$data', concept_id].compact_blank.join('.'),
+                  'data.name' => ['$data', concept_name].compact_blank.join('.'),
+                  'data.parent_id' => ['$data', concept_parent_id].compact_blank.join('.'),
+                  'data.uri' => ['$data', concept_uri].compact_blank.join('.'),
+                  'data.priority' => priority
+                }
+              }, {
+                '$group' => {
+                  '_id' => '$data.id',
+                  'data' => { '$first' => '$data' }
+                }
+              }, {
+                '$replaceRoot' => { 'newRoot' => '$data' }
+              }
+            ]
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
-              [
-                {
-                  '$match' => { match_path => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
-                },
-                {
-                  '$unwind' => ['$dump', locale, concept_path].compact_blank.join('.')
-                }, {
-                  '$project' => {
-                    'data.id' => ['$dump', locale, concept_id_path].compact_blank.join('.'),
-                    'data.name' => ['$dump', locale, concept_name_path].compact_blank.join('.'),
-                    'data.parent_id' => ['$dump', locale, concept_parent_id_path].compact_blank.join('.'),
-                    'data.uri' => ['$dump', locale, concept_uri_path].compact_blank.join('.'),
-                    'data.priority' => priority
-                  }
-                }, {
-                  '$group' => {
-                    '_id' => '$data.id',
-                    'data' => { '$first' => '$data' }
-                  }
-                }, {
-                  '$replaceRoot' => { 'newRoot' => '$data' }
-                }
-              ]
+              pipelines
             ).to_a
           end
         end
