@@ -158,7 +158,7 @@ GEM
       public_suffix (>= 2.0.2, < 7.0)
     afm (0.2.2)
     amazing_print (1.6.0)
-    appsignal (4.2.0)
+    appsignal (4.2.1)
       logger
       rack
     ast (2.4.2)
