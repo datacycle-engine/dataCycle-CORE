@@ -19,8 +19,11 @@ module DataCycleCore
           raise ArgumentError, 'missing read_type for download_concepts_from_data' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
+          # either both concept_name_path and concept_id_path should be present or none, hence the fallbacks
           concept_name = options.dig(:download, :concept_name_path)
           concept_id = options.dig(:download, :concept_id_path) || concept_name
+          concept_name ||= concept_id
+
           concept_parent_id = options.dig(:download, :concept_parent_id_path) || 'parent_id'
           priority = options.dig(:download, :priority) || 5
           concept_uri = options.dig(:download, :concept_uri_path) || 'uri'
