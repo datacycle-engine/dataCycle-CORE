@@ -16,47 +16,76 @@ module DataCycleCore
         end
 
         def self.load_concepts_from_mongo(options:, locale:, source_filter:, **_keyword_args)
-          raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
+          raise ArgumentError, 'missing read_type for download_concepts_from_data' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
+          # either both concept_name_path and concept_id_path should be present or none, hence the fallbacks
           concept_name = options.dig(:download, :concept_name_path)
           concept_id = options.dig(:download, :concept_id_path) || concept_name
+          concept_name ||= concept_id
+
           concept_parent_id = options.dig(:download, :concept_parent_id_path) || 'parent_id'
           priority = options.dig(:download, :priority) || 5
           concept_uri = options.dig(:download, :concept_uri_path) || 'uri'
 
           concept_path = options.dig(:download, :concept_path) || ''
+          full_concept_path = ["dump.#{locale}", concept_path].compact_blank.join('.')
           concept_id_path = [concept_path, concept_id].compact_blank.join('.')
-          concept_name_path = [concept_path, concept_name].compact_blank.join('.')
-          concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
-          concept_uri_path = [concept_path, concept_uri].compact_blank.join('.')
+          # concept_name_path = [concept_path, concept_name].compact_blank.join('.')
+          # concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
+          # concept_uri_path = [concept_path, concept_uri].compact_blank.join('.')
+
           match_path = ['dump', locale, concept_id_path].compact_blank.join('.')
+          source_filter_stage = { match_path => { '$ne' => nil } }.with_indifferent_access
+          source_filter_stage.merge!(source_filter) if source_filter.present?
+
+          post_unwind_source_filter_stage = source_filter_stage
+            .deep_stringify_keys
+            .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(full_concept_path) }
+            .deep_transform_keys { |k| k.gsub(full_concept_path, 'data') }
+
+          project_filter_stage = {
+            'data' => ['$dump', locale, concept_path].compact_blank.join('.')
+          }
+
+          final_projection_stage = {
+            'data.id' => ['$data', concept_id].compact_blank.join('.'),
+            'data.name' => ['$data', concept_name].compact_blank.join('.'),
+            'data.parent_id' => ['$data', concept_parent_id].compact_blank.join('.'),
+            'data.uri' => ['$data', concept_uri].compact_blank.join('.'),
+            'data.priority' => priority
+          }
+
+          pipelines = [
+            {
+              '$match' => source_filter_stage
+            },
+            {
+              '$project' => project_filter_stage
+            },
+            {
+              '$unwind' => '$data'
+            },
+            {
+              '$match' => post_unwind_source_filter_stage
+            },
+            {
+              '$project' => final_projection_stage
+            },
+            {
+              '$group' => {
+                '_id' => '$data.id',
+                'data' => { '$first' => '$data' }
+              }
+            },
+            {
+              '$replaceRoot' => { 'newRoot' => '$data' }
+            }
+          ]
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
-              [
-                {
-                  '$match' => { match_path => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
-                },
-                {
-                  '$unwind' => ['$dump', locale, concept_path].compact_blank.join('.')
-                }, {
-                  '$project' => {
-                    'data.id' => ['$dump', locale, concept_id_path].compact_blank.join('.'),
-                    'data.name' => ['$dump', locale, concept_name_path].compact_blank.join('.'),
-                    'data.parent_id' => ['$dump', locale, concept_parent_id_path].compact_blank.join('.'),
-                    'data.uri' => ['$dump', locale, concept_uri_path].compact_blank.join('.'),
-                    'data.priority' => priority
-                  }
-                }, {
-                  '$group' => {
-                    '_id' => '$data.id',
-                    'data' => { '$first' => '$data' }
-                  }
-                }, {
-                  '$replaceRoot' => { 'newRoot' => '$data' }
-                }
-              ]
+              pipelines
             ).to_a
           end
         end
