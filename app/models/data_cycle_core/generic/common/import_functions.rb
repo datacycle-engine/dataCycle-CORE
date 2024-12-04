@@ -74,8 +74,8 @@ module DataCycleCore
                         next if options[:min_count].present? && item_count < options[:min_count]
                         last_ext_key = content[:external_id]
 
-                        raw_data = content.dump[locale]
-                        raw_data['dc_credential_keys'] = content.external_system['credential_keys'] if !DataCycleCore::DataHashService.deep_blank?(raw_data) && content.external_system.present? && content.external_system['credential_keys'].present?
+                        raw_data = content[:dump][locale]
+                        raw_data['dc_credential_keys'] = content[:external_system]['credential_keys'] if !DataCycleCore::DataHashService.deep_blank?(raw_data) && content[:external_system].present? && content[:external_system]['credential_keys'].present?
 
                         data_processor.call(
                           utility_object:,
