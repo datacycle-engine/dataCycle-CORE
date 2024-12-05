@@ -3,11 +3,12 @@
     <div class="card-divider">
       <div class="header">
         <h5 class="copy-to-clipboard" data-value="<%= external_system[:name] %>" title="<%= external_system[:name] %>"><%= external_system[:name] %></h5>
-        <h5 class="copy-to-clipboard identifier" data-value="<%= external_system[:identifier] %>" title="<%= external_system[:identifier] %>"><%= external_system[:identifier] %></h5>
+        <div class="buttons">
+          <a href="#" class="copy-to-clipboard" data-dc-tooltip="<%= external_system[:id] %>" data-value="<%= external_system[:id] %>"><i class="fa fa-hashtag" aria-hidden="true"></i></a>
+        </div>
       </div>
-      <h6 class="external-system-id">
-        <span class="copy-to-clipboard" data-value="<%= external_system[:id] %>"><%= external_system[:id] %></span>
-      </h6>
+
+      <h5 class="copy-to-clipboard identifier" data-value="<%= external_system[:identifier] %>" data-dc-tooltip="<%= external_system[:identifier] %>"><%= external_system[:identifier] %></h5>
     </div>
   </div>
 </div>

@@ -6,7 +6,7 @@
 
   .grid-parent {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     grid-gap: 1rem;
   }
 
@@ -109,8 +109,29 @@
 
   .header {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     align-items: center;
+
+    .buttons {
+      display: flex;
+      flex: auto;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+
+      a {
+        color: var(--dark-gray-05);
+        font-size: 1rem;
+
+        .fa {
+          font-size: 1rem;
+        }
+
+        &:hover {
+          color: var(--dark-gray);
+        }
+      }
+    }
   }
 }
 
@@ -158,11 +179,11 @@
     .header {
       .import-data-timestamps {
         display: flex;
-        flex: auto;
         justify-content: flex-end;
         align-items: flex-start;
         color: var(--dark-gray);
         margin: 0;
+        gap: 0.1rem;
       }
     }
   }
