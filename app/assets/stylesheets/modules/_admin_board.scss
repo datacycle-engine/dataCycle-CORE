@@ -111,6 +111,13 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
+  }
+
+  .subheader {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0;
 
     .buttons {
       display: flex;
@@ -135,6 +142,10 @@
   }
 }
 
+.card.accordion .card-divider .subheader {
+  margin-right: 1.2rem;
+}
+
 .card-divider.accordion-title {
   cursor: pointer;
   padding: 0.8rem 1rem;
@@ -151,7 +162,7 @@
   &::before {
     color: $dark-gray;
     top: unset;
-    bottom: 0.7rem;
+    bottom: 0.75rem;
     font-size: 1.5rem;
   }
 }
@@ -179,6 +190,7 @@
     .header {
       .import-data-timestamps {
         display: flex;
+        flex: auto;
         justify-content: flex-end;
         align-items: flex-start;
         color: var(--dark-gray);
