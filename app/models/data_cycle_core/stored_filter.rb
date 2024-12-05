@@ -19,12 +19,16 @@ module DataCycleCore
 
     KEYS_FOR_EQUALITY = ['t', 'c', 'n'].freeze
 
-    def things(query: nil, skip_ordering: false, watch_list: nil)
-      apply(query:, skip_ordering:, watch_list:).query
+    def things(query: nil, skip_ordering: false, watch_list: nil, thing_alias: nil)
+      apply(query:, skip_ordering:, watch_list:, thing_alias:).query
     end
 
-    def apply(query: nil, skip_ordering: false, watch_list: nil)
-      self.query = query || DataCycleCore::Filter::Search.new(language&.exclude?('all') ? language : nil, nil, include_embedded || false)
+    def apply(query: nil, skip_ordering: false, watch_list: nil, thing_alias: nil)
+      self.query = query || DataCycleCore::Filter::Search.new(
+        locale: language&.exclude?('all') ? language : nil,
+        include_embedded: include_embedded || false,
+        thing_alias: thing_alias
+      )
 
       apply_filter_parameters
       apply_order_parameters(watch_list) unless skip_ordering

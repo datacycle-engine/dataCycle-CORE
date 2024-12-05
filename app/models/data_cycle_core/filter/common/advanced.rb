@@ -149,7 +149,7 @@ module DataCycleCore
             @query.where(
               DataCycleCore::Thing::Translation.where(
                 thing_translations[:slug].eq(value[:equals])
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
             )
           )
@@ -163,7 +163,7 @@ module DataCycleCore
               DataCycleCore::Thing::Translation.where(
                 in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
                   .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
             )
           )
@@ -177,7 +177,7 @@ module DataCycleCore
               DataCycleCore::Thing::Translation.where(
                 in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
                   .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
             )
           )
@@ -191,7 +191,7 @@ module DataCycleCore
               DataCycleCore::Thing::Translation.where(
                 in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
                   .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
             )
           )
@@ -205,7 +205,7 @@ module DataCycleCore
               DataCycleCore::Thing::Translation.where(
                 in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
                   .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
             )
           )
@@ -218,7 +218,7 @@ module DataCycleCore
               DataCycleCore::Thing::Translation.where(
                 in_json(thing_translations[:content], 'name').eq(nil)
                   .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
             )
           )
@@ -231,7 +231,7 @@ module DataCycleCore
               DataCycleCore::Thing::Translation.where(
                 in_json(thing_translations[:content], 'name').eq(nil)
                   .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
             )
           )

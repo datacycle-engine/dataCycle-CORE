@@ -58,7 +58,7 @@ module DataCycleCore
     end
 
     test 'filter contents based on mapped (2 hops) classifications by id' do
-      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(
+      items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree3.name).with_internal_name('mapped 2').pluck(:id)
       )
 
@@ -66,7 +66,7 @@ module DataCycleCore
     end
 
     test 'filter contents based on mapped (1 hop) classifications by id' do
-      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(
+      items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree2.name).with_internal_name('mapped 1').pluck(:id)
       )
 
@@ -74,14 +74,14 @@ module DataCycleCore
     end
 
     test 'filter contents based on mapped (2 hops) classifications by id without subtree' do
-      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_without_subtree(
+      items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_without_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree3.name).with_internal_name('mapped 2').pluck(:id)
       )
       assert_equal(0, items.query.size)
     end
 
     test 'filter contents based on mapped (1 hop) classifications by id without subtree' do
-      items = DataCycleCore::Filter::Search.new(:de)
+      items = DataCycleCore::Filter::Search.new(locale: :de)
       items = items.classification_alias_ids_without_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree2.name).with_internal_name('mapped 1').pluck(:id)
       )
@@ -90,7 +90,7 @@ module DataCycleCore
     end
 
     test 'filter contents based on mapped (2 hops) classifications, excluding contents with target classification' do
-      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(
+      items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree3.name).with_internal_name('mapped 2').pluck(:id)
       ).not_classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tags.name).with_internal_name('Tag 1').pluck(:id)
@@ -100,7 +100,7 @@ module DataCycleCore
     end
 
     test 'filter contents based on target classification, excluding contents with mapped (2 hops) classifications' do
-      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(
+      items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tags.name).with_internal_name('Tag 1').pluck(:id)
       ).not_classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree3.name).with_internal_name('mapped 2').pluck(:id)
@@ -110,7 +110,7 @@ module DataCycleCore
     end
 
     test 'filter contents based on mapped (1 hop) parent classifications by id' do
-      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(
+      items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree2.name).with_internal_name('parent 1').pluck(:id)
       )
 
@@ -118,7 +118,7 @@ module DataCycleCore
     end
 
     test 'filter contents based on mapped (2 hops) parent classifications by id' do
-      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(
+      items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree3.name).with_internal_name('parent 2').pluck(:id)
       )
 
@@ -128,7 +128,7 @@ module DataCycleCore
     test 'filter contents based on mapped (1 hop) parent classifications by id after removing 1 mapping' do
       @mapped12.update!(classification_ids: [@mapped12.primary_classification.id])
 
-      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(
+      items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_with_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree2.name).with_internal_name('parent 1').pluck(:id)
       )
 

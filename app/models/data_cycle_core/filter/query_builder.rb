@@ -7,10 +7,9 @@ module DataCycleCore
       include Enumerable
       include DataCycleCore::Common::ArelBuilder
 
-      attr_reader :query
+      attr_reader :query, :parent_thing_alias, :thing_alias, :is_root_query
       def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
-      TERMINAL_METHODS = [:count, :pluck,
-                          :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
+      TERMINAL_METHODS = [:count, :size, :pluck, :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS
 
       def limit(number)
@@ -207,80 +206,6 @@ module DataCycleCore
         )
       end
 
-      def join_classification_alias
-        Arel::SelectManager.new
-          .project(thing[:id])
-          .from(thing)
-          .join(classification_content)
-          .on(thing[:id].eq(classification_content[:content_data_id]))
-          .join(classification)
-          .on(classification_content[:classification_id].eq(classification[:id]))
-          .join(classification_group)
-          .on(classification[:id].eq(classification_group[:classification_id]))
-          .join(classification_alias)
-          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .where(
-            classification[:deleted_at].eq(nil)
-              .and(classification_group[:deleted_at].eq(nil))
-              .and(classification_alias[:deleted_at].eq(nil))
-          )
-      end
-
-      def join_classification_trees
-        Arel::SelectManager.new
-          .project(thing[:id])
-          .from(thing)
-          .join(classification_content)
-          .on(thing[:id].eq(classification_content[:content_data_id]))
-          .join(classification)
-          .on(classification_content[:classification_id].eq(classification[:id]))
-          .join(classification_group)
-          .on(classification[:id].eq(classification_group[:classification_id]))
-          .join(classification_alias)
-          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .join(classification_tree)
-          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
-          .where(
-            classification[:deleted_at].eq(nil)
-              .and(classification_group[:deleted_at].eq(nil))
-              .and(classification_alias[:deleted_at].eq(nil))
-          )
-      end
-
-      def join_classification_trees_on_classification_content
-        Arel::SelectManager.new
-          .from(classification_content)
-          .join(classification)
-          .on(classification_content[:classification_id].eq(classification[:id]))
-          .join(classification_group)
-          .on(classification[:id].eq(classification_group[:classification_id]))
-          .join(classification_alias)
-          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .join(classification_tree)
-          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
-          .where(
-            classification[:deleted_at].eq(nil)
-              .and(classification_group[:deleted_at].eq(nil))
-              .and(classification_alias[:deleted_at].eq(nil))
-          )
-      end
-
-      def join_classification_alias_on_classification_content
-        Arel::SelectManager.new
-          .from(classification_content)
-          .join(classification)
-          .on(classification_content[:classification_id].eq(classification[:id]))
-          .join(classification_group)
-          .on(classification[:id].eq(classification_group[:classification_id]))
-          .join(classification_alias)
-          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .where(
-            classification[:deleted_at].eq(nil)
-              .and(classification_group[:deleted_at].eq(nil))
-              .and(classification_alias[:deleted_at].eq(nil))
-          )
-      end
-
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
       end
@@ -365,6 +290,10 @@ module DataCycleCore
         DataCycleCore::CollectedClassificationContent.arel_table
       end
 
+      def generate_thing_alias
+        thing.alias("th_#{SecureRandom.hex(5)}")
+      end
+
       def search_exists(query_string, fulltext_search = false)
         search_query = search
 
@@ -373,21 +302,22 @@ module DataCycleCore
         if @locale.present?
           search_query
             .where(
-              search[:content_data_id].eq(thing[:id])
+              search[:content_data_id].eq(thing_alias[:id])
                 .and(query_string)
                 .and(search[:locale].in(@locale))
             ).project(1).exists
         else
           search_query
             .where(
-              search[:content_data_id].eq(thing[:id])
+              search[:content_data_id].eq(thing_alias[:id])
                 .and(query_string)
             ).project(1).exists
         end
       end
 
       def reflect(query)
-        self.class.new(@locale, query, @include_embedded)
+        @query = query
+        self
       end
     end
   end
