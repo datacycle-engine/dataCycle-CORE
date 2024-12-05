@@ -4,6 +4,12 @@ module DataCycleCore
   module Content
     module Extensions
       module Slug
+        def remove_blank_slugs!(data_hash:)
+          data_hash.keys.intersection(slug_property_names).each do |key|
+            data_hash.delete(key) if data_hash[key].blank?
+          end
+        end
+
         def transform_slugs(data_hash:)
           data_hash.keys.intersection(slug_property_names).each do |key|
             # slugs cannot be blank
