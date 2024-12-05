@@ -1819,6 +1819,7 @@ de:
     generic:
       description: Beschreibung
       text: Detailbeschreibung
+      snow_report: Schneebericht
     booking:
       hotel_important_information: Wichtige Informationen
       hotel_description: Kurzbeschreibung
