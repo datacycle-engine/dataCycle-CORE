@@ -11,7 +11,7 @@ module DataCycleCore
             properties = content.properties_for(key)&.with_indifferent_access
 
             return unless properties&.key?('compute')
-            return unless conditions_satisfied?(content, properties)
+            return unless conditions_satisfied?(content, properties, current_user)
 
             computed_parameters = parameter_keys(content, properties)
             computed_value_hash = data_hash.dc_deep_dup
@@ -43,17 +43,17 @@ module DataCycleCore
             end
           end
 
-          def conditions_satisfied?(content, properties)
+          def conditions_satisfied?(content, properties, current_user)
             return true unless properties['compute'].key?('condition')
 
             Array.wrap(properties.dig('compute', 'condition')).compact_blank.each do |condition|
-              return false unless condition_satisfied?(content, condition)
+              return false unless condition_satisfied?(content, condition, current_user)
             end
 
             true
           end
 
-          def condition_satisfied?(content, definition)
+          def condition_satisfied?(content, definition, current_user)
             expected_value = definition['value']
 
             value = case definition['type']
