@@ -65,8 +65,8 @@ module DataCycleCore
                       definition['name']&.split('.')&.inject(content, &:try)
                     when 'current_user'
                       allowed_methods = ['present?', 'nil?']
-                      raise 'unknown method for current_user' unless allowed_methods.include?(definition['method'])
-                      current_user.try(definition['method'])
+                      raise 'unknown method for current_user' unless allowed_methods.include?(definition['name'])
+                      current_user.try(definition['name'])
                     else
                       raise 'Unknown type for validation'
                     end
