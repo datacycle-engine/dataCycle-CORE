@@ -29,6 +29,8 @@ module DataCycleCore
     has_many :classifications, through: :classification_aliases
     has_many :things, -> { unscope(:order).distinct }, through: :concepts
 
+    scope :visible, ->(context) { where('? = ANY("classification_tree_labels"."visibility")', context) }
+
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
       classification_attributes.map { |attributes|
@@ -391,10 +393,6 @@ module DataCycleCore
 
     def visible?(context)
       visibility.include?(context)
-    end
-
-    def self.visible(context)
-      where('? = ANY(visibility)', context)
     end
 
     def first_available_locale(_locale)

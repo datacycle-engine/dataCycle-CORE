@@ -69,6 +69,8 @@ module DataCycleCore
           json_object.push("'@id', classification_aliases.id") if fields_parameters.blank? || fields_parameters.include?('@id')
           json_object.push("'dc:path', classification_alias_paths.full_path_names") if fields_parameters.blank? || fields_parameters.include?('dc:path')
 
+          # collected_classification_contents can't be filtered by link_type yet, wait for https://ticket.pixelpoint.at/issues/39929
+
           config << {
             identifier: '"dc:classification"',
             select: 'json_agg(tmp1."dc:classification") FILTER (

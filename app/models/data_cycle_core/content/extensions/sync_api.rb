@@ -253,13 +253,13 @@ module DataCycleCore
                 :schedules,
                 external_system_syncs: [:external_system],
                 asset_contents: [:asset],
-                collected_classification_contents: [classification_alias: [:external_source, :classification_alias_path, {classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]}]]
+                full_classification_contents: [classification_alias: [:external_source, :classification_alias_path, {classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]}]]
               )
               .index_by(&:id)
 
             preloaded['content_contents'] = preloaded_content_contents.group_by(&:content_a_id).transform_values! { |v| v.group_by(&:relation_a).transform_values! { |cc| cc.map(&:content_b_id) } }
             overlay_templates = DataCycleCore::ThingTemplate.where(template_name: preloaded['contents'].values.map(&:overlay_template_name).uniq).index_by(&:template_name)
-            collected_classification_contents = preloaded['contents'].values.map!(&:collected_classification_contents).flatten!
+            collected_classification_contents = preloaded['contents'].values.map!(&:full_classification_contents).flatten!
             classification_aliases = collected_classification_contents&.map(&:classification_alias)&.index_by(&:id) || {}
             full_classification_aliases = classification_aliases.merge(
               DataCycleCore::ClassificationAlias
