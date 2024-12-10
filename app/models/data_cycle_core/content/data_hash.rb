@@ -23,6 +23,9 @@ module DataCycleCore
         # inherit attributes if source content is present
         inherit_source_attributes(**options.to_h.slice(:data_hash, :source)) if options.new_content && !options.source.nil?
 
+        # remove empty slugs
+        remove_blank_slugs!(**options.to_h.slice(:data_hash)) if options.new_content && slug_property_names.present?
+
         # add default value
         add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if default_value_property_names.present?
 

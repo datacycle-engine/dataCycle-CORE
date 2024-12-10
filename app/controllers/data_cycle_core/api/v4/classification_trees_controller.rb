@@ -65,7 +65,7 @@ module DataCycleCore
           join_sql = <<~SQL.squish
             #{join_type} JOIN LATERAL (SELECT ccc1.classification_alias_id,
               COUNT(DISTINCT ccc1.thing_id) AS thing_count_with_subtree,
-              COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.direct = TRUE) AS thing_count_without_subtree
+              COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.link_type = 'direct') AS thing_count_without_subtree
               FROM collected_classification_contents ccc1
               WHERE EXISTS (#{query.query.where('things.id = ccc1.thing_id AND ccc1.classification_tree_label_id = ?',
                                                 @classification_tree_label.id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})

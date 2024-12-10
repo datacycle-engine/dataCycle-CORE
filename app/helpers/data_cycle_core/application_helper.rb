@@ -500,6 +500,19 @@ module DataCycleCore
 
     private
 
+    def render_core_partial(partial_name, parameters)
+      core_renderer = view_renderer.dup
+      core_renderer.lookup_context = ActionView::LookupContext.new(
+        ActionController::Base.view_paths.filter { |p| p.path.include?('vendor/gems/data-cycle-core') },
+        locale: lookup_context.locale,
+        formats: lookup_context.formats,
+        variants: lookup_context.variants,
+        handlers: lookup_context.handlers
+      )
+
+      core_renderer.render(self, partial: partial_name, locals: parameters)
+    end
+
     def render_first_existing_partial(partials, parameters)
       partials.each do |partial_name|
         partial = lookup_context.find_all(

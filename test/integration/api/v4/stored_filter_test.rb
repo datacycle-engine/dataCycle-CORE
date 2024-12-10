@@ -153,7 +153,7 @@ module DataCycleCore
           json_data = response.parsed_body
           poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
 
-          assert_equal(2, poi.dig('image', 0, 'dc:classification')&.size)
+          assert_equal(3, poi.dig('image', 0, 'dc:classification')&.size)
 
           fulltext_filter.classification_tree_labels = tree1
           fulltext_filter.save

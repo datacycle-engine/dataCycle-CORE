@@ -33,9 +33,17 @@ module DataCycleCore
               method,
               File.join(@host, path),
               transformed_data,
-              { 'Content-Type' => 'application/json' }
+              { 'Content-Type' => 'application/json' }.merge(utility_object.external_system.credentials(:export)&.dig('additional_headers') || {})
             ) do |req|
               req.params['token'] = @token if @token_type == 'url'
+
+              if @token_type == 'http_headers' && @token.is_a?(Hash)
+                @token.each do |k, v|
+                  req.headers[k] = v
+                end
+              elsif @token_type == 'x_api_key'
+                req.headers['X-API-KEY'] = @token
+              end
 
               utility_object.external_system.credentials(:export)&.dig('faraday_options')&.to_h&.each do |key, value|
                 req.options[key] = value

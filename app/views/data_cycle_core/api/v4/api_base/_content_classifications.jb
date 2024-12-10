@@ -3,7 +3,9 @@
 json ||= {}
 json['dc:classification'] ||= []
 
-classification_aliases = content.classifications.classification_aliases.includes(:classification_tree_label).reorder(nil).order('classification_tree_labels.name ASC, classification_aliases.order_a ASC').references(:classification_tree_labels)
+classification_aliases = content.full_classification_aliases.joins(:classification_tree_label).reorder(nil).order('"classification_tree_labels"."name" ASC, "classification_aliases"."order_a" ASC')
+classification_aliases = classification_aliases.merge(DataCycleCore::ClassificationTreeLabel.visible('api'))
+classification_aliases = classification_aliases.merge(DataCycleCore::ClassificationTreeLabel.where(id: options[:classification_trees])) if options[:classification_trees_filter]
 
 key_new = 'dc:classification'
 new_options = options.dup

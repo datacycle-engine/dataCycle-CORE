@@ -296,6 +296,70 @@ ul.backend-treeview-list,
         height: 1.4rem;
         width: 1.4rem;
       }
+
+      a:not(.button):not(.ca-translation-link) {
+        display: flex;
+        margin: 0;
+        color: var(--dark-gray-05);
+        cursor: pointer;
+        align-items: center;
+        transition: $color-transition;
+
+        &.destroy.disabled {
+          color: var(--alert-color);
+          pointer-events: none;
+        }
+
+        &.name {
+          color: $primary-color;
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+
+          &::after {
+            content: '\f107';
+            font-family: FontAwesome;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: normal;
+            font-weight: normal;
+            text-decoration: inherit;
+            position: relative;
+            height: 1rem;
+            width: 1rem;
+            background-color: transparent;
+            line-height: 1rem;
+          }
+
+          &.disabled {
+            pointer-events: none;
+
+            &::after {
+              content: '\f110';
+              animation: fa-spin 2s infinite linear;
+            }
+          }
+
+          &.open:not(.disabled)::after {
+            content: '\f106';
+          }
+        }
+      }
+
+      &:hover {
+        a:not(.name):not(.button):not(.ca-translation-link):not(.tree-link) {
+          color: var(--dark-gray);
+
+          &:hover {
+            color: var(--primary-color);
+          }
+
+          &.destroy:hover {
+            color: var(--alert-color);
+          }
+        }
+      }
     }
 
     .download-container {
@@ -325,64 +389,6 @@ ul.backend-treeview-list,
               flex: auto;
             }
           }
-        }
-      }
-    }
-
-    a:not(.button):not(.ca-translation-link) {
-      display: flex;
-      margin: 0;
-      color: lighten($dark-gray, 10%);
-      cursor: pointer;
-      align-items: center;
-      transition: $color-transition;
-
-      &:hover {
-        color: $primary-color;
-      }
-
-      &.destroy:hover,
-      &.destroy.disabled {
-        color: map-get($foundation-palette, alert);
-      }
-
-      &.destroy.disabled {
-        pointer-events: none;
-      }
-
-      &.name {
-        color: $primary-color;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-
-        &::after {
-          content: '\f107';
-          font-family: FontAwesome;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-style: normal;
-          font-weight: normal;
-          text-decoration: inherit;
-          position: relative;
-          height: 1rem;
-          width: 1rem;
-          background-color: transparent;
-          line-height: 1rem;
-        }
-
-        &.disabled {
-          pointer-events: none;
-
-          &::after {
-            content: '\f110';
-            animation: fa-spin 2s infinite linear;
-          }
-        }
-
-        &.open:not(.disabled)::after {
-          content: '\f106';
         }
       }
     }
@@ -535,7 +541,7 @@ ul.backend-treeview-list,
     }
   }
 
-  &.tree>li a:not(.button) {
+  &.tree>li span.inner-item a:not(.button) {
     color: $primary-color;
   }
 

@@ -1796,6 +1796,7 @@ en:
     generic:
       description: Description
       text: Detailed description
+      snow_report: Snow report
     booking:
       hotel_important_information: Important information
       hotel_description: Brief description

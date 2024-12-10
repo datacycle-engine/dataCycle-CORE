@@ -18,6 +18,8 @@
 
     <%= render 'data_cycle_core/contents/detail/content_header_classifications', local_assigns %>
 
+    <%= yield_content!(:contents_content_header) %>
+
     <%= render_first_existing_partial(["data_cycle_core/contents/viewers/#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first}", 'data_cycle_core/contents/viewers/life_cycle'], { content: content }) if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, DataCycleCore::Feature::LifeCycle.data_attribute(content)) %>
 
     <%= render_content_partial 'header_bottom', content: content %>

@@ -8,6 +8,7 @@
       <%= render 'data_cycle_core/contents/grid/attributes/title', local_assigns if item.try(:title).present? %>
       <%= render 'data_cycle_core/contents/grid/attributes/description', local_assigns if item.try(:desc).present? %>
 
+      <%= yield_content!(:contents_grid_default) %>
       <%= yield %>
 
       <%= render 'data_cycle_core/contents/grid/attributes/tags', local_assigns if item.try(:display_classification_aliases, 'tile').present? %>

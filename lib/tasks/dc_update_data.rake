@@ -151,5 +151,25 @@ namespace :dc do
 
       puts "[DONE] Updated computed previewer attributes for templates: #{template_names&.join(', ') || 'all'}"
     end
+
+    desc 'add missing slugs'
+    task add_missing_slugs: :environment do
+      thing_translations = DataCycleCore::Thing::Translation
+        .includes(:translated_model)
+        .where(slug: [nil, ''])
+        .where.not(translated_model: { content_type: 'embedded' })
+
+      thing_translations.find_each do |thing_translation|
+        slug_properties = thing_translation.translated_model&.slug_property_names
+
+        next if slug_properties.blank?
+
+        I18n.with_locale(thing_translation.locale) do
+          data_hash = {}
+          thing_translation.translated_model.add_default_values(data_hash:, force: true, keys: slug_properties)
+          thing_translation.translated_model.set_data_hash(data_hash:)
+        end
+      end
+    end
   end
 end

@@ -37,9 +37,8 @@ module DataCycleCore
 
             return max_value if max_value == min_value
 
-            actual = scores.values.count { |v| v&.>(0) }
-
-            [actual * rating_factor, max_value].min
+            actual = scores.values.sum { |v| v&.*(rating_factor) }
+            [actual, max_value].min
           end
 
           def by_field_presence(parameters:, definition:, **_args)

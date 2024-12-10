@@ -137,14 +137,6 @@ module DataCycleCore
         end
       end
 
-      def full_classification_aliases
-        full_ccc = collected_classification_contents.to_a
-        DataCycleCore::PreloadService.preload(collected_classification_contents, classification_alias: [:classification_alias_path, :classification_tree_label])
-        full_ccc.reject! { |ccc| !ccc.direct && full_ccc.any? { |ccc2| ccc2.id != ccc.id && ccc2.classification_alias.full_path.include?(ccc.classification_alias.full_path) } }
-
-        DataCycleCore::ClassificationAlias.where(id: full_ccc.pluck(:classification_alias_id)).tap { |rel| rel.send(:load_records, full_ccc.flat_map(&:classification_alias)) }
-      end
-
       def assigned_classification_aliases
         primary_classification_aliases
       end
