@@ -35,7 +35,8 @@
     }
 
     &.ski_slope,
-    &.mountain_area {
+    &.mountain_area,
+    &.snow_report_location {
       &::before {
         content: '\f2dc';
       }
