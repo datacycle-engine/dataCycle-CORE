@@ -124,7 +124,7 @@ module DataCycleCore
             .where(ccc_alias[:thing_id].eq(thing_alias[:id]))
             .where(ccc_alias[:classification_alias_id].in(ids))
 
-          query = query.where(ccc_alias[:direct].eq(true)) if direct
+          query = query.where(ccc_alias[:link_type].eq('direct')) if direct
 
           query.arel.exists
         end
@@ -137,7 +137,7 @@ module DataCycleCore
             .where(ccc_alias[:thing_id].eq(thing_alias[:id]))
             .where(ccc_alias[:classification_tree_label_id].in(ids))
 
-          query = query.where(ccc_alias[:direct].eq(true)) if direct
+          query = query.where(ccc_alias[:link_type].eq('direct')) if direct
 
           query.arel.exists
         end
