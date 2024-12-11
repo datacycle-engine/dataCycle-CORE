@@ -21,8 +21,8 @@ module DataCycleCore
             DataCycleCore::Generic::Collection2, collection: options[:download][:read_type]
           )
 
-          data_id = options.dig(:download, :data_id_path) || 'id'
-          data_name = options.dig(:download, :data_name_path) || data_id
+          data_id = options[:download].key?(:data_id_path) ? options.dig(:download, :data_id_path) : 'id'
+          data_name = options[:download].key?(:data_name_path) ? options.dig(:download, :data_name_path) : data_id
 
           data_path = options.dig(:download, :data_path)
           data_id_path = [data_id].compact_blank.join('.')
