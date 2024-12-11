@@ -70,7 +70,9 @@ module DataCycleCore
           def asset_url_with_transformation(computed_parameters:, computed_definition:, **_args)
             asset = DataCycleCore::Asset.find_by(id: computed_parameters.values.first)
 
-            asset.try(:dynamic, computed_definition.dig('compute', 'transformation'))&.url
+            DataCycleCore::ActiveStorageService.with_current_options do
+              asset.try(:dynamic, computed_definition.dig('compute', 'transformation'))&.url
+            end
           end
         end
       end
