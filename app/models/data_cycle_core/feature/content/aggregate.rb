@@ -30,8 +30,10 @@ module DataCycleCore
 
           if I18n.exists?("template_names.#{template_name}", locale:)
             I18n.t("template_names.#{template_name}", locale:)
-          else
+          elsif I18n.exists?('feature.aggregate.template_name_suffix', locale:)
             "#{super} #{I18n.t('feature.aggregate.template_name_suffix', locale:)}"
+          else
+            super
           end
         end
       end

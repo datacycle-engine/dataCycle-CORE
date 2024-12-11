@@ -803,7 +803,6 @@ de:
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer anzeigen
     aggregate:
-      template_name_suffix: " (Aggregat)"
       types:
         default: Alleinstehend
         aggregate: Aggregat
