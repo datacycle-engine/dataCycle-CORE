@@ -29,7 +29,11 @@ module DataCycleCore
           concept_uri = options.dig(:download, :concept_uri_path) || 'uri'
 
           concept_path = options.dig(:download, :concept_path) || ''
-          full_concept_path = ["dump.#{locale}", concept_path].compact_blank.join('.')
+          concept_path += '[]' unless concept_path.end_with?('[]')
+          array_positions = concept_path.split('.').map { |x| x.include?('[]') ? 1 : 0 }
+          concept_path = concept_path.gsub('[]', '')
+
+          # full_concept_path = ["dump.#{locale}", concept_path].compact_blank.join('.')
           concept_id_path = [concept_path, concept_id].compact_blank.join('.')
           # concept_name_path = [concept_path, concept_name].compact_blank.join('.')
           # concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
@@ -39,14 +43,12 @@ module DataCycleCore
           source_filter_stage = { match_path => { '$ne' => nil } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
-          post_unwind_source_filter_stage = source_filter_stage
-            .deep_stringify_keys
-            .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(full_concept_path) }
-            .deep_transform_keys { |k| k.gsub(full_concept_path, 'data') }
-
-          project_filter_stage = {
-            'data' => ['$dump', locale, concept_path].compact_blank.join('.')
-          }
+          create_post_unwind_source_filter_stage = lambda do |c_path|
+            source_filter_stage
+              .deep_stringify_keys
+              .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(c_path) }
+              .deep_transform_keys { |k| k.gsub(c_path, 'data') }
+          end
 
           final_projection_stage = {
             'data.id' => ['$data', concept_id].compact_blank.join('.'),
@@ -56,19 +58,20 @@ module DataCycleCore
             'data.priority' => priority
           }
 
-          pipelines = [
-            {
-              '$match' => source_filter_stage
-            },
-            {
-              '$project' => project_filter_stage
-            },
-            {
-              '$unwind' => '$data'
-            },
-            {
-              '$match' => post_unwind_source_filter_stage
-            },
+          proj_match_unwind_phases = []
+          array_positions.each_with_index do |position, index|
+            current_full_concept_path = ["dump.#{locale}", concept_path.split('.')[0..index].join('.')].compact_blank.join('.')
+            proj_match_unwind_phases << { '$project' => { 'data' => ["$#{current_full_concept_path}"].compact_blank.join('.')}} if index.zero?
+            proj_match_unwind_phases << { '$project' => { 'data' => ["$data.#{concept_path.split('.')[index]}"].compact_blank.join('.')}} unless index.zero?
+            next unless position == 1
+            proj_match_unwind_phases << { '$unwind' => '$data' }
+            proj_match_unwind_phases << { '$match' => create_post_unwind_source_filter_stage.call(current_full_concept_path) }
+          end
+
+          pipelines = []
+          pipelines += [{
+            '$match' => source_filter_stage
+          }] + proj_match_unwind_phases + [
             {
               '$project' => final_projection_stage
             },
@@ -82,6 +85,8 @@ module DataCycleCore
               '$replaceRoot' => { 'newRoot' => '$data' }
             }
           ]
+
+          binding.pry
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
