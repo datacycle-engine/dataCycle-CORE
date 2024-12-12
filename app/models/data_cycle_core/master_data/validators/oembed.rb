@@ -126,7 +126,7 @@ module DataCycleCore
           if provider.present? && oembed_output.present? && oembed_output['type'].present? && oembed_output['version'].present?
 
             override_provider = oembed_output['override_provider'].select { |po|
-              URI.parse(thing.url).host.include?(po['host_match'])
+              URI.parse(thing.url).host.include?(po['host_match']) if thing.url.present? && po['host_match'].present?
             }&.first || {}
 
             oembed = {
