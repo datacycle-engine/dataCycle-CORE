@@ -132,4 +132,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'jsonpath'
   s.add_dependency 'rexml' # used for Hash.from_xml
+
+  s.add_dependency 'fastimage'
 end
