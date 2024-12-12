@@ -25,10 +25,43 @@ module DataCycleCore
             oembed_url(thing_id: content.id)
           end
 
-          def fetch(content:, **_args)
+          def fetch(content:, **args)
             return if content.id.nil?
 
-            DataCycleCore::MasterData::Validators::Oembed.valid_oembed_from_thing_id(content.id)&.dig(:oembed)
+            identifier = args&.dig(:virtual_definition, 'virtual', 'identifier') || 'id'
+
+            thing_id = nil
+
+            case identifier
+            when 'id'
+              thing_id = content.id
+            when 'url'
+              if content.url.present?
+                url = URI.parse(content.url)
+                if url.path&.include?('/things')
+                  match = url.path.match(%r{things/([0-9a-fA-F-]{36})})
+                  thing_id = match[1] if match
+                elsif url.query&.include?('thing_id')
+                  match = url.path.match(/thing_id?([0-9a-fA-F-]{36})/)
+                  thing_id = match[1] if match
+                else
+                  oembed_remote_url = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_data?(content.url)&.dig(:oembed_url)
+
+                  if oembed_remote_url.present?
+                    res = Rails.cache.fetch(oembed_remote_url, expires_in: 1.week) do
+                      url = URI.parse(oembed_remote_url)
+                      res = Net::HTTP.get_response(url)
+                      res.is_a?(Net::HTTPSuccess) ? res.body : nil
+                    end
+                    return JSON.parse(res) if res.present?
+                  end
+                end
+              end
+            end
+
+            return nil if thing_id.nil?
+
+            DataCycleCore::MasterData::Validators::Oembed.valid_oembed_from_thing_id(thing_id)&.dig(:oembed)
           end
         end
       end
