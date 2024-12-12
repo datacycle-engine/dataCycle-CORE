@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'fastimage'
-
 module DataCycleCore
   module Utility
     module Compute
@@ -75,27 +73,6 @@ module DataCycleCore
             DataCycleCore::ActiveStorageService.with_current_options do
               asset.try(:dynamic, computed_definition.dig('compute', 'transformation'))&.url
             end
-          end
-
-          def local_file_size(computed_parameters:, **_args)
-            DataCycleCore::Asset.where(id: computed_parameters.values).first&.try(:file_size)&.to_i
-          end
-
-          def remote_file_size(computed_parameters:, content:, key:, **_args)
-            url_key, new_url = computed_parameters.find { |_, v| v.is_a?(::String) && v =~ URI::DEFAULT_PARSER.make_regexp }
-            old_url = content&.send(url_key)
-
-            old_file_size = content&.send(key)
-
-            if old_file_size.nil? || old_url != new_url
-              FastImage.new(new_url).content_length
-            else
-              old_file_size
-            end
-          end
-
-          def local_or_remote_file_size(**args)
-            local_file_size(**args) || remote_file_size(**args)
           end
         end
       end
