@@ -82,16 +82,14 @@ module DataCycleCore
           end
 
           def remote_file_size(computed_parameters:, content:, key:, **_args)
-            url_key, new_url = computed_parameters.find { |_, v| v.is_a?(::String) && v =~ URI::regexp }
+            url_key, new_url = computed_parameters.find { |_, v| v.is_a?(::String) && v =~ URI::DEFAULT_PARSER.make_regexp }
             old_url = content&.send(url_key)
 
             old_file_size = content&.send(key)
 
-            if old_file_size.nil? || old_url != new_url
-              FastImage.new(new_url).content_length
-            else
-              nil
-            end
+            return unless old_file_size.nil? || old_url != new_url
+
+            FastImage.new(new_url).content_length
           end
 
           def local_or_remote_file_size(**args)
