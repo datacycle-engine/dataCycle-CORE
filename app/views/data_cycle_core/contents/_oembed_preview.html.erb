@@ -15,10 +15,11 @@
       oembed_response = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_from_thing_id(thing_id)
       response_body = oembed_response[:oembed].to_json
     else
-      response = Rails.cache.fetch(oembed[:oembed_url], expires_in: 1.hour) do
-        Net::HTTP.get_response(oembed_uri)
+      response_body = Rails.cache.fetch(oembed[:oembed_url], expires_in: 1.hour) do
+        net_response = Net::HTTP.get_response(oembed_uri)
+        net_response_body = net_response&.body
+        net_response_body.to_s if net_response_body.present?
       end
-      response_body = response.body
     end
     html = JSON.parse(response_body)&.dig('html')
   end
