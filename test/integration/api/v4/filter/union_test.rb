@@ -133,19 +133,19 @@ module DataCycleCore
             )
 
             @watch_list_event_poi1 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList1')
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, hashable_id: @event.id, hashable_type: @event.class.name)
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, hashable_id: @poi.id, hashable_type: @poi.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, thing_id: @event.id)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, thing_id: @poi.id)
 
             @watch_list_poi2 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList2')
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_poi2.id, hashable_id: @poi2.id, hashable_type: @poi2.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_poi2.id, thing_id: @poi2.id)
 
             @watch_list_person_poi_poi2 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList3')
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @person.id, hashable_type: @person.class.name)
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi.id, hashable_type: @poi.class.name)
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi2.id, hashable_type: @poi2.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, thing_id: @person.id)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, thing_id: @poi.id)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, thing_id: @poi2.id)
 
             @watch_list_event_poi = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList4')
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi.id, hashable_id: @event_poi.id, hashable_type: @event_poi.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi.id, thing_id: @event_poi.id)
 
             # 4 Images
             # 3 POI's

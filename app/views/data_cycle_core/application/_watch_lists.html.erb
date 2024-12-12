@@ -1,7 +1,7 @@
 <% content ||= nil %>
 <% if content && !@watch_list&.id.nil? && @watch_list.persisted? && controller_name == 'watch_lists' %>
 
-  <%= link_to remove_item_watch_list_path(@watch_list, hashable_type: content&.class&.name, hashable_id: content&.id, load_more: true),
+  <%= link_to remove_item_watch_list_path(@watch_list, thing_id: content&.id, load_more: true),
     class: 'remove-from-watchlist-link watch-lists-link',
     method: :delete,
     data: {

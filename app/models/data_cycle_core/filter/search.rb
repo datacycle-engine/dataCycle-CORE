@@ -22,7 +22,7 @@ module DataCycleCore
         @locale = locale
         @include_embedded = include_embedded
         @is_root_query = thing_alias.blank?
-        @thing_alias = thing_alias || thing
+        @thing_alias = thing_alias || 'things'
         @thing_alias = thing.alias(@thing_alias) if @thing_alias.is_a?(String)
         @query = query || default_query
       end
@@ -117,7 +117,7 @@ module DataCycleCore
 
         reflect(
           @query.where(
-            watch_list_data_hash.where(watch_list_data_hash[:hashable_id].eq(thing_alias[:id]).and(watch_list_data_hash[:watch_list_id].eq(id))).exists
+            watch_list_data_hash.where(watch_list_data_hash[:thing_id].eq(thing_alias[:id]).and(watch_list_data_hash[:watch_list_id].eq(id))).exists
           )
         )
       end
@@ -347,7 +347,7 @@ module DataCycleCore
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
           filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
         elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-          filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
+          filter_query = Arel.sql(collection.watch_list_data_hashes.select(:thing_id).except(:order).to_sql)
         else # in case filter is array of thing_ids
           filter_query = Array.wrap(filter)
         end
@@ -391,21 +391,21 @@ module DataCycleCore
 
       def default_query
         query = DataCycleCore::Thing.default_scoped
-        query = query.from(thing_alias) unless thing_alias.is_a?(Arel::Table)
+        query = query.from(thing_alias) unless thing_alias.right == 'things'
+        query = query.where.not(thing_alias[:content_type].eq('embedded')) unless include_embedded
 
-        if is_root_query
-          query = query.where.not(thing_alias[:content_type].eq('embedded')) unless @include_embedded
+        if @locale.present?
+          query = query.where(
+            DataCycleCore::Search
+              .select(1)
+              .where(search[:content_data_id].eq(thing_alias[:id]))
+              .where(locale: @locale)
+              .arel
+              .exists
+          )
         end
 
-        query = query.where(
-          DataCycleCore::Search
-            .select(1)
-            .where(search[:content_data_id].eq(thing_alias[:id]))
-            .where(locale: @locale)
-            .arel
-            .exists
-        ) if @locale.present?
-        query = query.order(thing_alias[:boost].desc, thing_alias[:updated_at].desc, thing_alias[:id].desc)
+        query = query.order(thing_alias[:boost].desc, thing_alias[:updated_at].desc, thing_alias[:id].desc) if is_root_query
 
         query
       end

@@ -55,7 +55,7 @@ module DataCycleCore
           elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
             filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
           elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-            filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
+            filter_query = Arel.sql(collection.watch_list_data_hashes.select(:thing_id).except(:order).to_sql)
           elsif filter.present?
             filter_query = Array.wrap(filter)
           end

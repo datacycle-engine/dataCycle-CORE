@@ -1,17 +1,17 @@
 <li id="content-<%= content&.id %>-watch-list-<%= watch_list&.id %>" class="<%= 'my-selection' if watch_list.my_selection %>">
-  <% linked_watch_lists = watch_list.watch_list_data_hashes.exists?(hashable_id: content&.id, hashable_type: content&.class&.name) %>
+  <% linked_watch_lists = watch_list.watch_list_data_hashes.exists?(thing_id: content&.id) %>
   <span class="watch-list-item <%= watch_list.user == current_user ? 'private' : 'shared' %>">
     <span class="check <%= 'checked' if linked_watch_lists %>"><i class="fa fa-check" aria-hidden="true"></i></span>
     <span class="watchlist-name">
       <%= link_to_if !linked_watch_lists && can?(:add_item, watch_list), watch_list_list_title(watch_list),
-        add_item_watch_list_path(watch_list, hashable_type: content&.class&.name, hashable_id: content),
+        add_item_watch_list_path(watch_list, thing_id: content),
         class: 'add-to-watchlist-link',
         remote: true,
         title: watch_list.name %>
     </span>
     <span class="change-link">
       <% if linked_watch_lists && can?(:remove_item, watch_list) %>
-        <%= link_to remove_item_watch_list_path(watch_list, hashable_type: content&.class&.name, hashable_id: content&.id),
+        <%= link_to remove_item_watch_list_path(watch_list, thing_id: content&.id),
           class: 'remove-from-watchlist-link',
           remote: true,
           method: :delete,
@@ -23,7 +23,7 @@
           <i aria-hidden="true" class="fa fa-times-circle"></i>
         <% end %>
       <% elsif can?(:add_item, watch_list) %>
-        <%= link_to add_item_watch_list_path(watch_list, hashable_type: content&.class&.name, hashable_id: content), class: 'add-to-watchlist-link', remote: true, data: {
+        <%= link_to add_item_watch_list_path(watch_list, thing_id: content), class: 'add-to-watchlist-link', remote: true, data: {
           disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
         } do %>
           <i class="fa fa-plus-circle" aria-hidden="true"></i>

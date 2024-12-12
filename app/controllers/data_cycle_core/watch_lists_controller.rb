@@ -92,7 +92,7 @@ module DataCycleCore
     def remove_item
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      @content_object = DataCycleCore::Thing.find(params[:hashable_id])
+      @content_object = DataCycleCore::Thing.find(params[:thing_id])
       @content_object.watch_lists.destroy(@watch_list) unless @content_object.nil? || @watch_list.nil?
 
       @watch_list.notify_subscribers(current_user, [@content_object.id], 'remove')
@@ -106,7 +106,7 @@ module DataCycleCore
     def add_item
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      @content_object = DataCycleCore::Thing.find(params[:hashable_id])
+      @content_object = DataCycleCore::Thing.find(params[:thing_id])
       @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil? || @watch_list.id.in?(@content_object.watch_list_ids)
 
       @watch_list.notify_subscribers(current_user, [@content_object.id], 'add')
@@ -363,10 +363,6 @@ module DataCycleCore
 
     def search_params
       params.permit(:q)
-    end
-
-    def hashable_params
-      params.permit(:hashable_id, :hashable_type, serialize_format: [])
     end
 
     def bulk_update_type_params

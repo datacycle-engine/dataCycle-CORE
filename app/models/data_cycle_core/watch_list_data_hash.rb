@@ -3,6 +3,6 @@
 module DataCycleCore
   class WatchListDataHash < ApplicationRecord
     belongs_to :watch_list, touch: true
-    belongs_to :hashable, polymorphic: true
+    belongs_to :thing
   end
 end

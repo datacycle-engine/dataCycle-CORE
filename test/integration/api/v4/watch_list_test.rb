@@ -14,7 +14,7 @@ module DataCycleCore
           @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' }, user: @user)
           @content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel2' }, user: @user)
           @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
-          DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+          DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
         end
 
         setup do

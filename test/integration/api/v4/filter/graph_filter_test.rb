@@ -27,7 +27,7 @@ module DataCycleCore
 
             @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
 
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @poi_a.id, hashable_type: @poi_a.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @poi_a.id)
 
             # fulltext search stored filter that should have no results
             @empty_filter = add_fulltext_filter('???????????????')

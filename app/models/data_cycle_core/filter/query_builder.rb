@@ -7,7 +7,7 @@ module DataCycleCore
       include Enumerable
       include DataCycleCore::Common::ArelBuilder
 
-      attr_reader :query, :parent_thing_alias, :thing_alias, :is_root_query
+      attr_reader :query, :parent_thing_alias, :thing_alias, :is_root_query, :include_embedded
       def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
       TERMINAL_METHODS = [:count, :size, :pluck, :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS

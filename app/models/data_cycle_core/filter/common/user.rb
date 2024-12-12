@@ -273,7 +273,7 @@ module DataCycleCore
           filter_queries = []
           filter_queries.push(data_links.where(item_type: 'DataCycleCore::Thing').select(:item_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
 
-          filter_queries.push(DataCycleCore::WatchListDataHash.where(watch_list_id: data_links.where(item_type: ['DataCycleCore::WatchList', 'DataCycleCore::Collection']).select(:item_id), hashable_type: 'DataCycleCore::Thing').select(:hashable_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
+          filter_queries.push(DataCycleCore::WatchListDataHash.where(watch_list_id: data_links.where(item_type: ['DataCycleCore::WatchList', 'DataCycleCore::Collection']).select(:item_id)).select(:thing_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
 
           filter_queries.push(DataCycleCore::StoredFilter.where(id: data_links.where(item_type: ['DataCycleCore::StoredFilter', 'DataCycleCore::Collection']).select(:item_id)).map { |f| f.apply(skip_ordering: true).select(:id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql }.join(' UNION '))
 
@@ -307,8 +307,7 @@ module DataCycleCore
             SELECT 1
           	FROM "watch_list_data_hashes" "wldh"
             INNER JOIN "collection_shares" ON "collection_shares"."collection_id" = "wldh"."watch_list_id"
-            WHERE "wldh"."hashable_id" = "#{t_alias}"."id"
-              AND "wldh"."hashable_type" = 'DataCycleCore::Thing'
+            WHERE "wldh"."thing_id" = "#{t_alias}"."id"
               AND "collection_shares"."shareable_id" IN (?)
           SQL
 

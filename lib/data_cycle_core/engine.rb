@@ -228,6 +228,9 @@ module DataCycleCore
   mattr_accessor :external_system_template_paths
   self.external_system_template_paths = []
 
+  mattr_accessor :union_filter_strategy
+  self.union_filter_strategy = 'in'
+
   mattr_accessor :permissions
   self.permissions = {}
 
