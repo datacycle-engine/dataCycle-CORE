@@ -87,9 +87,11 @@ module DataCycleCore
 
             old_file_size = content&.send(key)
 
-            return unless old_file_size.nil? || old_url != new_url
-
-            FastImage.new(new_url).content_length
+            if old_file_size.nil? || old_url != new_url
+              FastImage.new(new_url).content_length
+            else
+              old_file_size
+            end
           end
 
           def local_or_remote_file_size(**args)
