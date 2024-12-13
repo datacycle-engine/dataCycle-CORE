@@ -85,8 +85,24 @@ module DataCycleCore
             },
             {
               '$match' => { 'id' => { '$ne' => nil }, 'name' => { '$ne' => nil } }
+            },
+            {
+              '$addFields' => {
+                'name' => { '$toString' => '$name'}
+              }
             }
           ]
+
+          data_id_prefix = options.dig(:download, :data_id_prefix)
+
+          raise ArgumentError, 'data_id_prefix and external_id_prefix cannot be present together' if data_id_prefix.present? && options.dig(:download, :external_id_prefix).present?
+          if data_id_prefix.present?
+            pipelines << {
+              '$addFields' => {
+                'id' => { '$concat' => [data_id_prefix, { '$toString' => '$id' }] }
+              }
+            }
+          end
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
