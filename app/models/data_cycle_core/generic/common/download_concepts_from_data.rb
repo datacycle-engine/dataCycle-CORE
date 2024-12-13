@@ -104,6 +104,16 @@ module DataCycleCore
             }
           end
 
+          trim_name = options[:download].key?(:trim_name) ? options.dig(:download, :trim_name) : true
+
+          if trim_name
+            pipelines << {
+              '$addFields' => {
+                'name' => { '$trim' => { 'input' => '$name' } }
+              }
+            }
+          end
+
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
               pipelines
