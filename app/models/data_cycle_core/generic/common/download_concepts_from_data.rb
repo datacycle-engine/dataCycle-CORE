@@ -40,7 +40,7 @@ module DataCycleCore
           # concept_uri_path = [concept_path, concept_uri].compact_blank.join('.')
 
           match_path = ['dump', locale, concept_id_path].compact_blank.join('.')
-          source_filter_stage = { match_path => { '$ne' => nil } }.with_indifferent_access
+          source_filter_stage = { match_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
           create_post_unwind_source_filter_stage = lambda do |c_path|
@@ -83,6 +83,9 @@ module DataCycleCore
             },
             {
               '$replaceRoot' => { 'newRoot' => '$data' }
+            },
+            {
+              '$match' => { 'id' => { '$ne' => nil }, 'name' => { '$ne' => nil } }
             }
           ]
 
