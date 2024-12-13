@@ -88,10 +88,20 @@ module DataCycleCore
             },
             {
               '$addFields' => {
-                'name' => { '$toString' => '$name'}
+                'name' => { '$toString' => '$name'},
+                'id' => { '$toString' => '$id'}
               }
             }
           ]
+
+          trim_name = options[:download].key?(:trim_name) ? options.dig(:download, :trim_name) : true
+          if trim_name
+            pipelines << {
+              '$addFields' => {
+                'name' => { '$trim' => { 'input' => '$name' } }
+              }
+            }
+          end
 
           data_id_prefix = options.dig(:download, :data_id_prefix)
 
@@ -100,16 +110,6 @@ module DataCycleCore
             pipelines << {
               '$addFields' => {
                 'id' => { '$concat' => [data_id_prefix, { '$toString' => '$id' }] }
-              }
-            }
-          end
-
-          trim_name = options[:download].key?(:trim_name) ? options.dig(:download, :trim_name) : true
-
-          if trim_name
-            pipelines << {
-              '$addFields' => {
-                'name' => { '$trim' => { 'input' => '$name' } }
               }
             }
           end
