@@ -33,7 +33,7 @@ module DataCycleCore
 
           full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
           full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
-          source_filter_stage = { full_id_path => { '$ne' => nil } }.with_indifferent_access
+          source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
           post_unwind_source_filter_stage = source_filter_stage
@@ -99,6 +99,9 @@ module DataCycleCore
             },
             {
               '$replaceRoot' => { 'newRoot' => '$data' }
+            },
+            {
+              '$match' => { 'id' => { '$ne' => nil } }
             }
           ]
 
