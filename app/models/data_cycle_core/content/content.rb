@@ -434,10 +434,8 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition.dig('features', 'overlay', 'allowed') }
       end
 
-      def embedded_title_property_name
-        return unless embedded?
-
-        @embedded_title_property_name ||=
+      def title_property_name
+        @title_property_name ||=
           name_property_selector { |definition| definition['type'] == 'string' && definition.dig('ui', 'is_title') == true }.first || 'name'
       end
 
