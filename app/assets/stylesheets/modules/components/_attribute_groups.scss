@@ -187,5 +187,13 @@
     &.four_columns>.attribute-group-item>.attribute-group-content>.attribute-group-content-element {
       grid-template-columns: 25fr 25fr 25fr 25fr;
     }
+
+    &.viewer {
+      &:not(:has(.detail-type)) {
+        display: none;
+        margin: 0;
+        padding: 0;
+      }
+    }
   }
 }

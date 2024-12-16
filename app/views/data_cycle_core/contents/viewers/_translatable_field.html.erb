@@ -1,24 +1,27 @@
-<div class="translatable-attribute-container" data-attribute-key="<%= key.attribute_name_from_key %>">
-  <div class="translatable-attribute active <%= I18n.locale.to_s %>">
+<div class="translatable-attribute-container viewer" data-attribute-key="<%= key.attribute_name_from_key %>">
+  <%= tag.div(class: "translatable-attribute active #{I18n.locale}") do %>
     <%= render_specific_translatable_attribute_viewer(
           key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{I18n.locale.to_s}]"),
           locale: I18n.locale,
           definition: definition&.dc_deep_dup,
           content: content,
           parameters: local_assigns.dig(:parameters)&.slice(:parent, :options)
-        ) %>
-  </div>
+        ) -%>
+  <% end %>
 
   <% content&.translated_locales&.except(I18n.locale)&.each do |a_locale| %>
-    <div class="translatable-attribute remote-render <%= a_locale.to_s %>"
-      data-remote-render-function="render_specific_translatable_attribute_viewer"
-      data-remote-render-params="<%= to_query_params(
-        key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{a_locale.to_s}]"),
-        locale: a_locale,
-        definition: definition,
-        content: content
-      ).to_json %>"
-      data-remote-options="<%= to_query_params(local_assigns.dig(:parameters)&.slice(:parent, :options) || {}).to_json %>">
-    </div>
+    <%= tag.div(
+      class: "translatable-attribute remote-render #{a_locale}",
+      data: {
+        remote_render_function: "render_specific_translatable_attribute_viewer",
+        remote_render_params: to_query_params(
+          key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{a_locale}]"),
+          locale: a_locale,
+          definition: definition,
+          content: content
+        ).to_json,
+        remote_options: to_query_params(local_assigns.dig(:parameters)&.slice(:parent, :options) || {})
+      }
+    ) -%>
   <% end %>
 </div>

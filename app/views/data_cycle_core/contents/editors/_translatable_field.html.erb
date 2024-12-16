@@ -1,5 +1,5 @@
 <div class="translatable-attribute-container" data-attribute-key="<%= key.attribute_name_from_key %>">
-  <div class="translatable-attribute active <%= I18n.locale.to_s %>">
+  <%= tag.div(class: "translatable-attribute active #{I18n.locale}") do %>
     <%= render_specific_translatable_attribute_editor(
           key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{I18n.locale.to_s}]"),
           locale: I18n.locale,
@@ -7,20 +7,23 @@
           value: local_assigns[:value],
           content: content,
           parameters: local_assigns[:parameters]&.dc_deep_dup
-        ) %>
-  </div>
+        ) -%>
+  <% end %>
 
   <% I18n.available_locales.except(I18n.locale).each do |a_locale| %>
-    <div class="translatable-attribute remote-render <%= a_locale.to_s %> <%= 'force-render-translation' if local_assigns.dig(:parameters, :force_render_locales)&.include?(a_locale) %>"
-      data-remote-render-function="render_specific_translatable_attribute_editor"
-      data-remote-render-params="<%= to_query_params(
-        key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{a_locale.to_s}]"),
-        locale: a_locale,
-        definition: definition,
-        value: nil,
-        content: content
-      ).to_json %>"
-      data-remote-options="<%= to_query_params((local_assigns.dig(:parameters) || {}).merge({ disabled: true })).to_json %>">
-    </div>
+    <%= tag.div(
+        class: "translatable-attribute remote-render #{a_locale} #{'force-render-translation' if local_assigns.dig(:parameters, :force_render_locales)&.include?(a_locale)}",
+        data: {
+          remote_render_function: "render_specific_translatable_attribute_editor",
+          remote_render_params: to_query_params(
+            key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{a_locale}]"),
+            locale: a_locale,
+            definition: definition,
+            value: nil,
+            content: content
+          ).to_json,
+          remote_options: to_query_params((local_assigns.dig(:parameters) || {}).merge({ disabled: true })).to_json
+        }
+      ) -%>
   <% end %>
 </div>
