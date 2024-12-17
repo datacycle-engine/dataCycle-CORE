@@ -2992,7 +2992,7 @@ input.normalized {
     }
   }
 
-  &.viewer:has(> .translatable-attribute.active:empty) {
+  &.viewer:has(> .translatable-attribute.active:not(.remote-render):not(.remote-rendering):empty) {
     display: none;
     margin: 0;
     padding: 0;

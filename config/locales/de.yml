@@ -1951,6 +1951,17 @@ de:
       seasonDescription: Begehbare Monate
       Preis-Zusatzbeschreibung: Preis-Zusatzbeschreibung
       booking_link: Buchungslink
+      numberParkspaceOverall: Parkmöglichkeiten
+      numberParkspaceOutdoor: Parkmöglichkeiten im Freien
+      numberParkspaceGarage: Parkmöglichkeiten überdacht
+      numberRooms: Anzahl Zimmer
+      numberSingleRooms: Einzelzimmer
+      numberDoubleRooms: Doppelzimmer
+      numberSharedRooms: Mehrbettzimmer
+      numberSuiteRooms: Suiten
+      numberConferenceRooms: Konferenzräume
+      numberGroupRooms: Gruppenräume
+      numberAccessibleRooms: Barrierefreie Zimmer
     gem2go:
       description: Beschreibung
     timm4:

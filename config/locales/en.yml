@@ -1920,6 +1920,17 @@ en:
       seasonDescription: Sesion
       Preis-Zusatzbeschreibung: Additional price description
       booking_link: Booking link
+      numberParkspaceOverall: Total parking spaces
+      numberParkspaceOutdoor: Outdoor parking spaces
+      numberParkspaceGarage: Garage parking spaces
+      numberRooms: Rooms
+      numberSingleRooms: Single rooms
+      numberDoubleRooms: Double rooms
+      numberSharedRooms: Shared rooms
+      numberSuiteRooms: Suite rooms
+      numberConferenceRooms: Conference rooms
+      numberGroupRooms: Group rooms
+      numberAccessibleRooms: Accessible rooms
     gem2go:
       description: Description
     timm4:
