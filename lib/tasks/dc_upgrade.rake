@@ -87,5 +87,21 @@ namespace :dc do
 
       puts '[DONE] please check all changes before commiting!'
     end
+
+    desc 'remove some unused config files'
+    task clean_configs: :environment do
+      file_path = Rails.root.join('config', 'cable.yml')
+      if File.exist?(file_path)
+        puts 'remove config/cable.yml ...'
+        FileUtils.rm_f(file_path)
+      end
+
+      file_path = Rails.root.join('config', 'appsignal.yml')
+      if File.exist?(file_path)
+        puts 'remove config/appsignal.yml ...'
+        puts '!!! WARNING: make sure PRODUCTION_ENVIRONMENT in gitlab CI/CD settings includes APPSIGNAL_PUSH_API_KEY !!!' if File.exist?(file_path)
+        FileUtils.rm_f(file_path)
+      end
+    end
   end
 end
