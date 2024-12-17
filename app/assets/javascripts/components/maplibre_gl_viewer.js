@@ -202,10 +202,7 @@ class MapLibreGlViewer {
 
 		if (isEmpty(bounds)) return;
 
-		if (
-			this.filterLayers?.geo_within_classification &&
-			!isEmpty(this.defaultOptions.bounds)
-		)
+		if (this.filterLayers?.concept_ids && !isEmpty(this.defaultOptions.bounds))
 			bounds.extend(this.defaultOptions.bounds);
 
 		this.defaultOptions.bounds = bounds;
@@ -415,14 +412,12 @@ class MapLibreGlViewer {
 		this._addPopup();
 	}
 	drawFilterFeatures() {
-		if (this.filterLayers?.geo_within_classification) {
-			const key = "filter_geo_within_classification";
+		if (this.filterLayers?.concept_ids) {
+			const key = "filter_concept_ids";
 			this.sources[key] = `filter_source_${key}`;
 			this._addVectorSource(
 				this.sources[key],
-				`concepts/select/${this.filterLayers.geo_within_classification.join(
-					",",
-				)}`,
+				`concepts/select/${this.filterLayers.concept_ids.join(",")}`,
 			);
 
 			this._pointLayer({
@@ -431,6 +426,7 @@ class MapLibreGlViewer {
 				sourceLayer: "dcConcepts",
 				popup: true,
 			});
+
 			this._polygonLayer({
 				layerId: `filter_polygon_${key}`,
 				source: this.sources[key],
