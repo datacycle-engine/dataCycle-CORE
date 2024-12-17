@@ -1887,22 +1887,19 @@ en:
         landscape_rating: Landscape
         difficulty_rating: Difficulty
     general_solutions:
-      place:
-        directions: Approach
-        parking: Parking
-        hours_available: Opening hours
-        text: Description
-        price: Price
-        description: Brief description
-        directions_public_transport: Public transport
+      directions: Approach
+      parking: Parking
+      hours_available: Opening hours
+      text: Description
+      price: Price
+      description: Brief description
+      directions_public_transport: Public transport
+      instructions: Directions
+      route_start: Start
+      route_end: Destination
+      importantInformation: Important information
       tour:
-        text: Description
-        description: Brief description
-        instructions: Directions
-        directions_public_transport: Public transport
-        parking: Parking
-        route_start: Start
-        route_end: Destination
+      poi:
       ratings:
         difficulty_rating: Difficulty
         priority_rating: Priority

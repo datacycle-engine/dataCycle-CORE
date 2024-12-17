@@ -1917,25 +1917,21 @@ de:
         difficulty_rating: Schwierigkeit
         panoramic_view_rating: Panoramaaussicht
     general_solutions:
-      place:
-        directions: Anfahrt
-        parking: Parken
-        hours_available: Öffnungszeiten
-        text: Beschreibung
-        price: Preis
-        description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-      tour:
-        text: Beschreibung
-        description: Kurzbeschreibung
-        instructions: Wegbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-        parking: Parken
-        route_start: Start
-        route_end: Ziel
+      directions: Anfahrt
+      parking: Parken
+      hours_available: Öffnungszeiten
+      text: Beschreibung
+      price: Preis
+      description: Kurzbeschreibung
+      directions_public_transport: Öffentliche Verkehrsmittel
+      route_start: Start
+      route_end: Ziel
+      importantInformation: Wichtige Informationen
       ratings:
         difficulty_rating: Schwierigkeit
         priority_rating: Priorität
+      tour:
+      poi:
     imx_platform:
       description: Beschreibung
       text: Detailbeschreibung
