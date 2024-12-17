@@ -104,4 +104,12 @@ namespace :dc do
       end
     end
   end
+
+  desc 'run all available upgrades'
+  task upgrade: :environment do
+    Rake::Task['dc:upgrade:rails71'].invoke
+    Rake::Task['dc:upgrade:rails71'].reenable
+    Rake::Task['dc:upgrade:clean_configs'].invoke
+    Rake::Task['dc:upgrade:clean_configs'].reenable
+  end
 end

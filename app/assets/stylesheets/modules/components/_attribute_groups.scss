@@ -189,7 +189,7 @@
     }
 
     &.viewer {
-      &:not(:has(.detail-type)) {
+      &:not(:has(.detail-type)):not(:has(.translatable-attribute.active:not(.remote-rendered))) {
         display: none;
         margin: 0;
         padding: 0;
