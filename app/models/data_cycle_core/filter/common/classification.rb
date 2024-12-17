@@ -122,7 +122,7 @@ module DataCycleCore
             .where('"collected_classification_contents"."thing_id" = "things"."id"')
             .where(classification_alias_id: ids)
 
-          query = query.direct if direct
+          query = query.where(link_type: 'direct') if direct
 
           query.arel.exists
         end
@@ -133,7 +133,7 @@ module DataCycleCore
             .where('"collected_classification_contents"."thing_id" = "things"."id"')
             .where(classification_tree_label_id: ids)
 
-          query = query.direct if direct
+          query = query.where(link_type: 'direct') if direct
 
           query.arel.exists
         end

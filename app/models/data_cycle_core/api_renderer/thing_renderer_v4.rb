@@ -12,7 +12,6 @@ module DataCycleCore
         :classification_trees_parameters,
         :classification_trees_filter,
         :live_data,
-        :section_parameters,
         :language,
         :expand_language,
         :api_context,
@@ -42,6 +41,18 @@ module DataCycleCore
 
       def json_params
         params = @params.slice(*JSON_RENDER_PARAMS)
+        params[:url_parameters] ||= {}
+        params[:section_parameters] ||= {}
+        params[:include_parameters] ||= []
+        params[:fields_parameters] ||= []
+        params[:field_filter] ||= false
+        params[:classification_trees_parameters] ||= []
+        params[:classification_trees_filter] ||= false
+        params[:language] ||= Array(I18n.available_locales.first.to_s)
+        params[:expand_language] ||= false
+        params[:api_context] ||= 'api'
+        params[:api_version] = 4
+        params[:permitted_params] ||= {}
 
         if @single_item
           params[:content] = @contents.first

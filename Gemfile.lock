@@ -392,7 +392,7 @@ GEM
     net-ftp (0.3.8)
       net-protocol
       time
-    net-imap (0.5.1)
+    net-imap (0.5.2)
       date
       net-protocol
     net-pop (0.1.2)
@@ -525,7 +525,7 @@ GEM
     redcarpet (3.6.0)
     redis (4.8.1)
     regexp_parser (2.9.3)
-    reline (0.5.12)
+    reline (0.6.0)
       io-console (~> 0.5)
     request_store (1.7.0)
       rack (>= 1.4)
