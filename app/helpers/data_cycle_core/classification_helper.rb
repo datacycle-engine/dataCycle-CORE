@@ -202,5 +202,31 @@ module DataCycleCore
         .merge(definition.dig('ui', 'edit', 'options')&.except('class') || {})
         .tap { |h| h['class'] = "#{h['class']} #{definition.dig('ui', 'edit', 'options', 'class')}".squish }
     end
+
+    def group_key_for_ctl(ctl, es)
+      return es[ctl.external_source_id]&.name || ctl.external_source_id if ctl.external_source_id.present?
+
+      es.values
+        .filter { |s|
+        ctl.name.to_s.downcase.start_with?(s.name.to_s.downcase) ||
+          ctl.name.to_s.downcase.start_with?(s.identifier.to_s.downcase)
+      }
+        .min_by { |s|
+        [
+          DidYouMean::Levenshtein.distance(ctl.name.to_s.downcase, s.name.to_s.downcase),
+          DidYouMean::Levenshtein.distance(ctl.name.to_s.downcase, s.identifier.to_s.downcase)
+        ].min
+      }&.name || (ctl.name.split(' - ').many? ? ctl.name.split(' - ').first : nil)
+    end
+
+    def grouped_classification_tree_labels(classification_tree_labels)
+      es = DataCycleCore::ExternalSystem.all.index_by(&:id)
+
+      classification_tree_labels
+        .group_by { |tree_label| group_key_for_ctl(tree_label, es) }
+        .sort_by { |group_key, _| group_key.to_s.downcase }
+        .to_h
+        .transform_values { |tree_labels| tree_labels.sort_by { |ctl| ctl.name.to_s.downcase } }
+    end
   end
 end
