@@ -25,6 +25,7 @@ module DataCycleCore
         @thing_alias = thing_alias || 'things'
         @thing_alias = thing.alias(@thing_alias) if @thing_alias.is_a?(String)
         @query = query || default_query
+        @base_query = DataCycleCore::Thing.all if @is_root_query
       end
 
       def content_includes
