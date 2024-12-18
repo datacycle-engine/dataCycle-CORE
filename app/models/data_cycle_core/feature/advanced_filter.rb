@@ -9,21 +9,19 @@ module DataCycleCore
         def all_filters_by_locale(locale, filter = nil)
           return [] if !enabled? || locale.blank?
 
-          @all_filters_by_locale ||= Hash.new do |h, key|
-            h[key] = configuration.except(:enabled, :config).reduce([]) do |acc, (k, v)|
-              acc.concat(try(k.to_sym, key, v) || default(key, k.to_s, v) || [])
+          filters = Rails.cache.fetch("#{cache_key_base}_#{locale}") do
+            configuration.except(:enabled, :config).reduce([]) do |acc, (k, v)|
+              acc.concat(try(k.to_sym, locale, v) || default(locale, k.to_s, v) || [])
             end
           end
-          filters = @all_filters_by_locale[locale]
+
           filters = filters.select { |k, v, data| filter.call(k, v, data) } if filter.present?
           filters
         end
 
         # Returns all filters_types with advanced type
         def all_filters_with_advanced_type
-          return @all_filters_with_advanced_type if defined? @all_filters_with_advanced_type
-
-          @all_filters_with_advanced_type = all_filters_by_locale(I18n.available_locales.first)
+          all_filters_by_locale(I18n.available_locales.first)
             .select { |(_k, _v, data)| data.dig(:data, :advancedType).present? }
             .pluck(1)
             .uniq
@@ -277,6 +275,7 @@ module DataCycleCore
 
         def inactive_things(locale, value)
           return [] unless value
+
           value.filter_map do |k, v|
             next unless v
 
@@ -303,6 +302,7 @@ module DataCycleCore
 
         def validity_period(locale, value)
           return [] unless value
+
           value.filter_map do |k, v|
             next unless v
 
@@ -367,10 +367,11 @@ module DataCycleCore
             .transform_values { |v| v.map(&:second).uniq }
         end
 
-        def reload
-          remove_instance_variable(:@all_filters_with_advanced_type) if instance_variable_defined?(:@all_filters_with_advanced_type)
-          remove_instance_variable(:@all_filters_by_locale) if instance_variable_defined?(:@all_filters_by_locale)
-          super
+        def cache_key_base
+          cache_key = "#{feature_path}_#{Digest::SHA2.hexdigest(configuration.to_json)}"
+          cache_key += "_#{DataCycleCore::ClassificationTreeLabel.maximum(:updated_at).iso8601}" if configuration['classification_alias_ids']
+          cache_key += "_#{DataCycleCore::ContentContent::Link.any?}" if configuration['graph_filter']
+          cache_key
         end
       end
     end

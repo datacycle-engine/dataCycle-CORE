@@ -74,7 +74,7 @@ module DataCycleCore
             h[key] = config.compact
           end
 
-          @configuration[cache_key(content, attribute_key)]
+          @configuration[memoize_key(content, attribute_key)]
         end
 
         def content_module
@@ -103,7 +103,7 @@ module DataCycleCore
           self
         end
 
-        def cache_key(content, key = nil)
+        def memoize_key(content, key = nil)
           [
             feature_path,
             'configuration',
