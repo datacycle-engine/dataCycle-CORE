@@ -392,7 +392,7 @@ module DataCycleCore
     end
 
     def visible?(context)
-      visibility.include?(context)
+      visibility&.include?(context)
     end
 
     def first_available_locale(_locale)

@@ -85,7 +85,7 @@ module DataCycleCore
             [
               I18n.t("filter.classification_alias_ids.#{c.name.underscore_blanks}", default: I18n.t("filter.#{c.name.underscore_blanks}", default: c.name, locale:), locale:),
               'classification_alias_ids',
-              {data: { name: c.name, visible: c.visibility&.include?('filter') }}
+              {data: { name: c.name, visible: c.visible?('filter') }}
             ]
           end
         end
