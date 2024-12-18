@@ -241,7 +241,7 @@ class MapLibreGlViewer {
 			this.filterFeatures = this._createFeatureCollection(features);
 	}
 	mergeStyles(oldStyle, newStyle, layerOverrides) {
-		if (!newStyle) return oldStyle;
+		if (!newStyle || typeof newStyle !== "object") return oldStyle;
 
 		oldStyle.version = Math.max(oldStyle.version ?? 0, newStyle.version);
 		oldStyle.sources = Object.assign({}, oldStyle.sources, newStyle.sources);
@@ -264,22 +264,22 @@ class MapLibreGlViewer {
 		if (!this.mapStyles) throw "No Map-Style defined!";
 
 		for (const style of this.mapStyles) {
-			let newStyle;
+			let newStyle = style.value;
 
 			if (
-				typeof style.value === "string" &&
-				typeof this[`baseLayer${style.value}`] === "function"
+				typeof newStyle === "string" &&
+				typeof this[`baseLayer${newStyle}`] === "function"
 			)
-				newStyle = this[`baseLayer${style.value}`]();
-			else if (typeof style.value === "string" && style.value) {
+				newStyle = this[`baseLayer${newStyle}`]();
+
+			if (typeof newStyle === "string" && newStyle) {
 				const options = { Accept: "application/json" };
 				if (this.credentials?.api_key) {
 					options.Authorization = `Bearer ${this.credentials.api_key}`;
 				}
-				const response = await fetch(style.value, { headers: options });
+				const response = await fetch(newStyle, { headers: options });
 				newStyle = await response.json();
-			} else if (typeof style.value === "object" && style.value)
-				newStyle = style.value;
+			}
 
 			this.mergeStyles(styles, newStyle, pick(style, ["minzoom", "maxzoom"]));
 		}
@@ -314,6 +314,9 @@ class MapLibreGlViewer {
 		};
 	}
 	baseLayerBaseMapAt() {
+		// vector url is not working, as there are relative paths in the json
+		// return "https://mapsneu.wien.gv.at/basemapvectorneu/root.json";
+
 		const layer = this.highDpi ? "bmaphidpi" : "geolandbasemap";
 		const matrixSet = "google3857";
 		const style = "normal";
@@ -324,11 +327,7 @@ class MapLibreGlViewer {
 				"basemap-at-tiles": {
 					type: "raster",
 					tiles: [
-						`https://maps.wien.gv.at/basemap/${layer}/${style}/${matrixSet}/{z}/{y}/{x}.${fileType}`,
-						`https://maps1.wien.gv.at/basemap/${layer}/${style}/${matrixSet}/{z}/{y}/{x}.${fileType}`,
-						`https://maps2.wien.gv.at/basemap/${layer}/${style}/${matrixSet}/{z}/{y}/{x}.${fileType}`,
-						`https://maps3.wien.gv.at/basemap/${layer}/${style}/${matrixSet}/{z}/{y}/{x}.${fileType}`,
-						`https://maps4.wien.gv.at/basemap/${layer}/${style}/${matrixSet}/{z}/{y}/{x}.${fileType}`,
+						`https://mapsneu.wien.gv.at/basemap/${layer}/${style}/${matrixSet}/{z}/{y}/{x}.${fileType}`,
 					],
 					tileSize: 256,
 					attribution:
