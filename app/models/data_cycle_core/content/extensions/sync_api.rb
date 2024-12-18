@@ -263,7 +263,7 @@ module DataCycleCore
             classification_aliases = collected_classification_contents&.map(&:classification_alias)&.index_by(&:id) || {}
             full_classification_aliases = classification_aliases.merge(
               DataCycleCore::ClassificationAlias
-                .where(id: classification_aliases.values.map(&:classification_alias_path).map!(&:ancestor_ids).flatten!)
+                .where(id: classification_aliases.values.filter_map(&:classification_alias_path).map!(&:ancestor_ids).flatten!)
                 .where.not(id: classification_aliases.keys)
                 .index_by(&:id)
             )
