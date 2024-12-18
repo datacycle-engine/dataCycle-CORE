@@ -347,6 +347,8 @@ module DataCycleCore
         def advanced_string(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
           search_value = value['text']
+          search_values = search_value.split(',').map(&:strip)
+
           attribute_path_exists = true
 
           case comparison
@@ -356,13 +358,19 @@ module DataCycleCore
             attribute_path_exists = false
             query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
           when :equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = ?)', attribute_path, search_value])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?))', attribute_path, search_values])
           when :not_equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = ?))', attribute_path, search_value])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?)))', attribute_path, search_values])
           when :like
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?)', attribute_path, "%#{search_value&.split&.join('%')}%"])
+            like_clauses = search_values.map do |val|
+              ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['pil ILIKE ?', "%#{val&.split&.join('%')}%"])
+            end
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE #{like_clauses.join(' OR ')})", attribute_path])
           when :not_like
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?))', attribute_path, "%#{search_value&.split&.join('%')}%"])
+            like_clauses = search_values.map do |val|
+              ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['pil ILIKE ?', "%#{val&.split&.join('%')}%"])
+            end
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE #{like_clauses.join(' OR ')}))", attribute_path])
           else
             return self
           end
