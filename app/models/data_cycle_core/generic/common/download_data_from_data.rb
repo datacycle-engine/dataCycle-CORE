@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::DownloadFunctions.download_content(
             download_object: utility_object,
             iterator: method(:load_data_from_mongo).to_proc,
-            data_id: method(:data_id).to_proc,
+            data_id: method(:data_id).to_proc.curry[options.dig(:download, :data_id_transformation)],
             data_name: method(:data_name).to_proc,
             options:,
             iterate_credentials: false
@@ -114,8 +114,11 @@ module DataCycleCore
           end
         end
 
-        def self.data_id(data)
-          data['id'].to_s
+        def self.data_id(data_id_transformation, data)
+          id = data['id'].to_s
+          id = data_id_transformation[:module].safe_constantize.public_send(data_id_transformation[:method], id) if data_id_transformation.present?
+
+          id
         end
 
         def self.data_name(data)

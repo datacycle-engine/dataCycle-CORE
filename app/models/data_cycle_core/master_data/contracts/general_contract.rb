@@ -40,6 +40,10 @@ module DataCycleCore
           key.failure('the string given does not specify a valid ruby module.') if key? && value&.safe_constantize&.class != Module
         end
 
+        register_macro(:dc_module_method) do
+          key.failure('the given module/method combination does not exist.') if key? && !value&.dig(:module)&.safe_constantize.respond_to?(value[:method])
+        end
+
         register_macro(:dc_logging_strategy) do
           temp = begin
             Class.new.instance_eval(value)
