@@ -426,6 +426,13 @@ class MapLibreGlViewer {
 				popup: true,
 			});
 
+			this._lineLayer({
+				layerId: `filter_line_${key}`,
+				source: this.sources[key],
+				sourceLayer: "dcConcepts",
+				popup: true,
+			});
+
 			this._polygonLayer({
 				layerId: `filter_polygon_${key}`,
 				source: this.sources[key],
