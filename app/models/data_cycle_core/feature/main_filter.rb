@@ -45,6 +45,7 @@ module DataCycleCore
         advanced_filters(user, config, selected_filters, :permanent_advanced, 'p', false)
         classification_tree_filters(user, config, selected_filters)
         advanced_user_filters(user, config, selected_filters)
+        advanced_forced_user_filters(user, config, selected_filters)
 
         return unless config[:view_type] == 'users'
 
@@ -130,6 +131,21 @@ module DataCycleCore
         advanced_filter[:filters].each do |filter|
           filter['buttons'] = buttons
         end
+      end
+
+      def advanced_forced_user_filters(_user, config, selected_filters)
+        # advanced_filters = config[:filter].find { |v| v[:type] == 'advanced' }&.dig(:filters)
+
+        user_forced_filters = selected_filters.select { |f| f['c'] == 'uf' }
+        return if user_forced_filters.blank?
+
+        # user_forced_filters.each do |filter|
+        #   advanced_filters.reject! { |f| configs_equal?(f, filter, ['t', 'v']) }
+        # end
+
+        # binding.pry
+
+        config[:hidden_filter].concat(user_forced_filters)
       end
 
       def advanced_user_filters(_user, config, selected_filters)
@@ -219,8 +235,8 @@ module DataCycleCore
         configs1.reject { |config1| configs2.any? { |config2| configs_equal?(config1, config2) } }
       end
 
-      def configs_equal?(config1, config2)
-        comparable_key = ['c', 't']
+      def configs_equal?(config1, config2, base_keys = ['c', 't'])
+        comparable_key = base_keys.dup
         comparable_key << 'q' if config1['t']&.in?(@advanced_filter_feature.all_filters_with_advanced_type)
         comparable_key << 'n' if @advanced_filter_feature.filter_requires_n_for_comparison?(config1)
         comparable_key.all? { |k| config1[k].presence == config2[k].presence }

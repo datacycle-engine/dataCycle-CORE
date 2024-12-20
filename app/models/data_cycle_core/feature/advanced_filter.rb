@@ -51,8 +51,7 @@ module DataCycleCore
       end
 
       def available_filters(user, view_type)
-        filters = all_available_filters(user, view_type)
-        filters
+        all_available_filters(user, view_type)
           .sort_by { |v| v[0] }
           .group_by { |f| f[1] }
           .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }

@@ -1,5 +1,5 @@
 <% content_for(:user_links, flush:true) do %>
-  <% if user_signed_in? && current_user.role&.rank&.positive? %>
+  <% if can?(:index, DataCycleCore::Subscription) %>
     <div>
       <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
         <span class="icon"><i class="fa fa-bell" aria-hidden="true"></i></span>
