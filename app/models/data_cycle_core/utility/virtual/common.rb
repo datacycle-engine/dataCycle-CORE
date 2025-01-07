@@ -14,7 +14,7 @@ module DataCycleCore
 
           def take_first(virtual_parameters:, virtual_definition:, content:, **_args)
             virtual_parameters.each do |virtual_key|
-              val = content.try(virtual_key.to_sym)
+              val = virtual_key.split('.').reduce(content) { |value, key| value.try(key) }
               return val if DataHashService.present?(val)
             end
 
