@@ -820,6 +820,10 @@ $filter-border: #aaa;
     }
   }
 
+  .hidden-filters {
+    display: none;
+  }
+
   .filtertags {
     font-size: 0.8rem;
     display: flex;

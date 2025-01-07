@@ -17,7 +17,7 @@ module DataCycleCore
 
     attr_accessor :query, :include_embedded
 
-    KEYS_FOR_EQUALITY = ['t', 'c', 'n'].freeze
+    KEYS_FOR_TYPE_EQUALITY = ['t', 'c', 'n', 'q'].freeze
 
     def things(query: nil, skip_ordering: false, watch_list: nil)
       apply(query:, skip_ordering:, watch_list:).query
@@ -32,8 +32,17 @@ module DataCycleCore
       self.query
     end
 
-    def filter_equal?(filter1, filter2)
-      filter1.slice(*KEYS_FOR_EQUALITY) == filter2.slice(*KEYS_FOR_EQUALITY)
+    def filter_type_equal?(filter1, filter2, consider_context = true)
+      keys = KEYS_FOR_TYPE_EQUALITY
+      keys -= ['c'] unless consider_context
+      filter1.slice(*keys) == filter2.slice(*keys)
+    end
+
+    def filter_equal?(filter1, filter2, consider_context = true)
+      keys = KEYS_FOR_TYPE_EQUALITY
+      keys -= ['c'] unless consider_context
+      keys += ['v']
+      filter1.slice(*keys) == filter2.slice(*keys)
     end
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)

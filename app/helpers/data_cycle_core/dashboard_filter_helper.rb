@@ -187,12 +187,12 @@ module DataCycleCore
     end
 
     def selected_filter_params(filter, config)
-      if config[:hidden_filter]&.any?(filter)
+      if filter['c'] == 'uf'
+        { buttons: false, container_classes: 'user-force-filter' }
+      elsif config[:hidden_filter]&.any?(filter)
         { buttons: 'h', container_classes: 'hidden-filter' }
       elsif filter['c'].in?(['a', 'u'])
         { buttons: 'a', container_classes: 'advanced-tags' }
-      elsif filter['c'] == 'uf'
-        { buttons: false, container_classes: 'user-force-filter' }
       elsif filter['c'] == 'p'
         { buttons: false }
       else
