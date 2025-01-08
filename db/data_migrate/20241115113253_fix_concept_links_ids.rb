@@ -3,7 +3,7 @@
 class FixConceptLinksIds < ActiveRecord::Migration[7.1]
   def up
     execute <<-SQL.squish
-      SET statement_timeout = 0;
+      SET LOCAL statement_timeout = 0;
 
       UPDATE concept_links
       SET id = ct.id,

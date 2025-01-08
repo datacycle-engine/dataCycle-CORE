@@ -21,6 +21,10 @@ module DataCycleCore
       arguments.dig(0, :data_object, :id)
     end
 
+    def discard_on_failure?
+      utility_object&.discard_job_on_failure?
+    end
+
     def delayed_reference_type
       [
         arguments.dig(0, :external_system_id),

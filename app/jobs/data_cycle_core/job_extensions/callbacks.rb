@@ -30,7 +30,7 @@ module DataCycleCore
             retry_job wait: determine_delay(seconds_or_duration_or_algorithm: self.class::WAIT, executions:), priority: priority + 1, error: exception
           else
             run_callbacks :failure
-            raise exception
+            raise exception unless try(:discard_on_failure?)
           end
         end
       end
