@@ -1408,6 +1408,13 @@ span.single_warning:before {
     }
   }
 
+  .selection-label-wrapper {
+    &.disabled {
+      font-weight: 700;
+      font-style: italic;
+    }
+  }
+
   .select2-selection {
     line-height: 1.2;
     outline: none;
@@ -1427,6 +1434,11 @@ span.single_warning:before {
           align-items: center;
           flex: auto;
           overflow: hidden;
+
+          &.disabled {
+            font-weight: 700;
+            font-style: italic;
+          }
 
           .selection-label {
             flex: auto;

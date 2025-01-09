@@ -398,7 +398,7 @@ CREATE FUNCTION public.generate_collected_cl_content_relations_transitive(thing_
 
 CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS void
     LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM collected_classification_contents WHERE thing_id IN ( SELECT cccr.thing_id FROM collected_classification_contents cccr WHERE cccr.thing_id = ANY (content_ids) ORDER BY cccr.thing_id ASC FOR UPDATE SKIP LOCKED ); WITH full_classification_content_relations AS ( SELECT DISTINCT ON ( classification_contents.content_data_id, classification_trees.classification_alias_id ) classification_contents.content_data_id "thing_id", classification_trees.classification_alias_id "classification_alias_id", classification_trees.classification_tree_label_id "classification_tree_label_id", CASE WHEN classification_alias_paths.id = classification_trees.classification_alias_id THEN 'direct' ELSE 'broader' END AS "link_type" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id JOIN classification_trees ON classification_trees.classification_alias_id = ANY (classification_alias_paths.full_path_ids) AND classification_trees.deleted_at IS NULL WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ) INSERT INTO collected_classification_contents ( thing_id, classification_alias_id, classification_tree_label_id, link_type ) SELECT full_classification_content_relations.thing_id, full_classification_content_relations.classification_alias_id, full_classification_content_relations.classification_tree_label_id, full_classification_content_relations.link_type FROM full_classification_content_relations ON CONFLICT (thing_id, classification_alias_id) DO UPDATE SET classification_tree_label_id = EXCLUDED.classification_tree_label_id, link_type = EXCLUDED.link_type WHERE collected_classification_contents.classification_tree_label_id IS DISTINCT FROM EXCLUDED.classification_tree_label_id OR collected_classification_contents.link_type IS DISTINCT FROM EXCLUDED.link_type; RETURN; END; $$;
+    AS $$ BEGIN DELETE FROM collected_classification_contents WHERE thing_id IN ( SELECT cccr.thing_id FROM collected_classification_contents cccr WHERE cccr.thing_id = ANY (content_ids) ORDER BY cccr.thing_id ASC FOR UPDATE SKIP LOCKED ); WITH full_classification_content_relations AS ( SELECT DISTINCT ON ( classification_contents.content_data_id, classification_trees.classification_alias_id ) classification_contents.content_data_id "thing_id", classification_trees.classification_alias_id "classification_alias_id", classification_trees.classification_tree_label_id "classification_tree_label_id", CASE WHEN classification_alias_paths.id = classification_trees.classification_alias_id THEN 'direct' ELSE 'broader' END AS "link_type" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id JOIN classification_trees ON classification_trees.classification_alias_id = ANY (classification_alias_paths.full_path_ids) AND classification_trees.deleted_at IS NULL WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ORDER BY classification_contents.content_data_id, classification_trees.classification_alias_id, classification_alias_paths.id <> classification_trees.classification_alias_id ) INSERT INTO collected_classification_contents ( thing_id, classification_alias_id, classification_tree_label_id, link_type ) SELECT full_classification_content_relations.thing_id, full_classification_content_relations.classification_alias_id, full_classification_content_relations.classification_tree_label_id, full_classification_content_relations.link_type FROM full_classification_content_relations ON CONFLICT (thing_id, classification_alias_id) DO UPDATE SET classification_tree_label_id = EXCLUDED.classification_tree_label_id, link_type = EXCLUDED.link_type WHERE collected_classification_contents.classification_tree_label_id IS DISTINCT FROM EXCLUDED.classification_tree_label_id OR collected_classification_contents.link_type IS DISTINCT FROM EXCLUDED.link_type; RETURN; END; $$;
 
 
 --
@@ -506,7 +506,7 @@ CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
 
 CREATE FUNCTION public.generate_schedule_occurences_array(s_dtstart timestamp with time zone, s_rrule character varying, s_rdate timestamp with time zone[], s_exdate timestamp with time zone[], s_duration interval) RETURNS tstzmultirange
     LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE
-    AS $$ DECLARE schedule_array tstzmultirange; schedule_duration INTERVAL; all_occurrences timestamp WITHOUT time zone []; BEGIN CASE WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds'; WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds'; ELSE schedule_duration = s_duration; END CASE ; CASE WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone]; WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences ( ( CASE WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule ELSE (s_rrule || ';UNTIL=2029-12-17') END )::rrule, s_dtstart AT TIME ZONE 'Europe/Vienna', '2029-12-17' AT TIME ZONE 'Europe/Vienna' ); END CASE ; WITH occurences AS ( SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence UNION SELECT unnest(s_rdate) AS occurence ), exdates AS ( SELECT tstzrange( DATE_TRUNC('day', s.exdate), DATE_TRUNC('day', s.exdate) + INTERVAL '1 day' ) exdate FROM unnest(s_exdate) AS s(exdate) ) SELECT range_agg( tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ) INTO schedule_array FROM occurences WHERE occurences.occurence IS NOT NULL AND occurences.occurence + schedule_duration > '2023-12-17' AND NOT EXISTS ( SELECT 1 FROM exdates WHERE exdates.exdate && tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ); RETURN schedule_array; END; $$;
+    AS $$ DECLARE schedule_array tstzmultirange; schedule_duration INTERVAL; all_occurrences timestamp WITHOUT time zone []; BEGIN CASE WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds'; WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds'; ELSE schedule_duration = s_duration; END CASE ; CASE WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone]; WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences ( ( CASE WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule ELSE (s_rrule || ';UNTIL=2030-01-09') END )::rrule, s_dtstart AT TIME ZONE 'Europe/Vienna', '2030-01-09' AT TIME ZONE 'Europe/Vienna' ); END CASE ; WITH occurences AS ( SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence UNION SELECT unnest(s_rdate) AS occurence ), exdates AS ( SELECT tstzrange( DATE_TRUNC('day', s.exdate), DATE_TRUNC('day', s.exdate) + INTERVAL '1 day' ) exdate FROM unnest(s_exdate) AS s(exdate) ) SELECT range_agg( tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ) INTO schedule_array FROM occurences WHERE occurences.occurence IS NOT NULL AND occurences.occurence + schedule_duration > '2024-01-09' AND NOT EXISTS ( SELECT 1 FROM exdates WHERE exdates.exdate && tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ); RETURN schedule_array; END; $$;
 
 
 --
@@ -542,7 +542,7 @@ CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
 
 CREATE FUNCTION public.insert_classification_trees_order_a_trigger() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM reset_classification_aliases_order_a(ARRAY_AGG(classification_alias_id)) FROM ( SELECT new_classification_trees.classification_alias_id FROM new_classification_trees ) "reset_classification_trees_alias"; PERFORM update_classification_aliases_order_a (ARRAY_AGG(classification_tree_label_id)) FROM ( SELECT DISTINCT new_classification_trees.classification_tree_label_id FROM new_classification_trees ) "new_classification_trees_alias"; RETURN NULL; END; $$;
+    AS $$ BEGIN PERFORM update_classification_aliases_order_a (ARRAY_AGG(classification_tree_label_id)) FROM ( SELECT DISTINCT new_classification_trees.classification_tree_label_id FROM new_classification_trees ) "new_classification_trees_alias"; RETURN NULL; END; $$;
 
 
 --
@@ -570,15 +570,6 @@ CREATE FUNCTION public.insert_concept_schemes_trigger_function() RETURNS trigger
 CREATE FUNCTION public.insert_concepts_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ BEGIN INSERT INTO concepts( id, internal_name, name_i18n, description_i18n, external_system_id, external_key, order_a, assignable, internal, uri, ui_configs, created_at, updated_at ) SELECT ca.id, ca.internal_name, coalesce(ca.name_i18n, '{}'), coalesce(ca.description_i18n, '{}'), ca.external_source_id, ca.external_key, ca.order_a, ca.assignable, ca.internal, ca.uri, coalesce(ca.ui_configs, '{}'), NOW(), NOW() FROM new_classification_aliases ca ON CONFLICT DO NOTHING; RETURN NULL; END; $$;
-
-
---
--- Name: reset_classification_aliases_order_a(uuid[]); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.reset_classification_aliases_order_a(classification_alias_ids uuid[]) RETURNS void
-    LANGUAGE plpgsql
-    AS $$ BEGIN IF array_length(classification_alias_ids, 1) > 0 THEN UPDATE classification_aliases SET order_a = NULL WHERE classification_aliases.order_a IS NOT NULL AND classification_aliases.id = ANY(classification_alias_ids); END IF; END; $$;
 
 
 --
@@ -695,7 +686,7 @@ CREATE FUNCTION public.update_classification_tree_tree_label_id_trigger() RETURN
 
 CREATE FUNCTION public.update_classification_trees_order_a_trigger() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM public.reset_classification_aliases_order_a(ARRAY_AGG(classification_alias_id)) FROM ( SELECT new_classification_trees.classification_alias_id FROM new_classification_trees INNER JOIN old_classification_trees ON old_classification_trees.id = new_classification_trees.id WHERE new_classification_trees.deleted_at IS NULL AND ( new_classification_trees.parent_classification_alias_id IS DISTINCT FROM old_classification_trees.parent_classification_alias_id OR new_classification_trees.classification_tree_label_id IS DISTINCT FROM old_classification_trees.classification_tree_label_id ) ) "reset_classification_trees_alias"; PERFORM public.update_classification_aliases_order_a (ARRAY_AGG(classification_tree_label_id)) FROM ( SELECT DISTINCT new_classification_trees.classification_tree_label_id FROM new_classification_trees INNER JOIN old_classification_trees ON old_classification_trees.id = new_classification_trees.id INNER JOIN classification_aliases ON classification_aliases.id = new_classification_trees.classification_alias_id AND classification_aliases.deleted_at IS NULL WHERE new_classification_trees.deleted_at IS NULL AND ( new_classification_trees.parent_classification_alias_id IS DISTINCT FROM old_classification_trees.parent_classification_alias_id OR new_classification_trees.classification_tree_label_id IS DISTINCT FROM old_classification_trees.classification_tree_label_id ) ) "updated_classification_trees_alias"; RETURN NULL; END; $$;
+    AS $$ BEGIN PERFORM public.update_classification_aliases_order_a (ARRAY_AGG(classification_tree_label_id)) FROM ( SELECT DISTINCT new_classification_trees.classification_tree_label_id FROM new_classification_trees INNER JOIN old_classification_trees ON old_classification_trees.id = new_classification_trees.id INNER JOIN classification_aliases ON classification_aliases.id = new_classification_trees.classification_alias_id AND classification_aliases.deleted_at IS NULL WHERE new_classification_trees.deleted_at IS NULL AND ( new_classification_trees.parent_classification_alias_id IS DISTINCT FROM old_classification_trees.parent_classification_alias_id OR new_classification_trees.classification_tree_label_id IS DISTINCT FROM old_classification_trees.classification_tree_label_id ) ) "updated_classification_trees_alias"; RETURN NULL; END; $$;
 
 
 --
@@ -1064,7 +1055,7 @@ CREATE TABLE public.classification_contents (
     seen_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
-    relation character varying
+    relation character varying NOT NULL
 );
 
 
@@ -4724,6 +4715,10 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250108131701'),
+('20250108090734'),
+('20250108072427'),
+('20250107133412'),
 ('20241216145559'),
 ('20241209070253'),
 ('20241206091323'),

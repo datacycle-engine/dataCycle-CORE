@@ -134,7 +134,7 @@ module DataCycleCore
           }
           get api_v3_classification_trees_path(params)
 
-          count = DataCycleCore::ClassificationTreeLabel.where("ARRAY['api']::VARCHAR[] && visibility").count
+          count = DataCycleCore::ClassificationTreeLabel.where(internal: false).count
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'

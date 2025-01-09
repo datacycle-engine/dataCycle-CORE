@@ -131,11 +131,11 @@ module DataCycleCore
       raise ArgumentError, 'attributes must be an array' unless attributes.is_a?(Array)
       raise ArgumentError, 'a concept cannot be its own parent (external_key == parent_external_key)' if attributes.any? { |a| a[:external_key] == a[:parent_external_key] }
 
-      query = insert_all_classifications_sql(attributes)
+      query = insert_all_classifications_sql(attributes, upsert: true)
 
       transaction(joinable: false, requires_new: true) do
         ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
-        ActiveRecord::Base.connection.exec_query(query, upsert: true)
+        ActiveRecord::Base.connection.exec_query(query)
       end
     end
 

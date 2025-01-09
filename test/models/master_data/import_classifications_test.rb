@@ -5,12 +5,12 @@ require 'minitest/spec'
 require 'minitest/autorun'
 require 'helpers/minitest_spec_helper'
 
-describe DataCycleCore::MasterData::ImportClassifications do
+describe DataCycleCore::MasterData::Concepts::ConceptImporter do
   include DataCycleCore::MinitestSpecHelper
 
   before do
-    DataCycleCore::MasterData::ImportClassifications
-      .import_all(classification_paths: ['test/fixtures/classifications/examples/'])
+    importer = DataCycleCore::MasterData::Concepts::ConceptImporter.new(paths: ['test/fixtures/classifications/examples/'])
+    importer.import
   end
 
   def load_single_category(*names)
