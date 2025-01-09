@@ -1959,6 +1959,12 @@ de:
       numberConferenceRooms: Konferenzräume
       numberGroupRooms: Gruppenräume
       numberAccessibleRooms: Barrierefreie Zimmer
+      opening_hours_special_types:
+        temporarilyClosed: Vorübergehend geschlossen
+        permanentlyClosed: Dauerhaft geschlossen
+        noOpeningHours: ohne Öffnungszeiten
+        permanentlyOpen: Jedezeit frei zugänglich
+        openOnRequest: geöffnet auf Anfrage
     gem2go:
       description: Beschreibung
     timm4:

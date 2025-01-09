@@ -1931,6 +1931,12 @@ en:
       numberConferenceRooms: Conference rooms
       numberGroupRooms: Group rooms
       numberAccessibleRooms: Accessible rooms
+      opening_hours_special_types:
+        temporarilyClosed: Temporarily closed
+        permanentlyClosed: Permanently closed
+        noOpeningHours: Without opening hours
+        permanentlyOpen: Always accessible
+        openOnRequest: Open on request
     gem2go:
       description: Description
     timm4:
