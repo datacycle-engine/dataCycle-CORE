@@ -254,10 +254,10 @@ module DataCycleCore
         end
 
         def parse_concept_hash(data, parent_key = nil)
-          c_data = data.slice('name', 'internal', 'assignable', 'uri', 'description')
+          c_data = data.slice('name', 'internal', 'assignable', 'uri', 'description', 'external_key')
           c_data['name_i18n'] = c_data.delete('name').symbolize_keys if c_data['name'].is_a?(::Hash)
           c_data['description_i18n'] = c_data.delete('description').symbolize_keys if c_data['description'].is_a?(::Hash)
-          c_data['external_key'] = concept_external_key(c_data, parent_key)
+          c_data['external_key'] = concept_external_key(c_data, parent_key) if c_data['external_key'].blank?
           c_data['parent_external_key'] = parent_key
 
           child_concepts = parse_concepts(data['concepts'], c_data['external_key'])
@@ -285,7 +285,6 @@ module DataCycleCore
           external_key = [parent_key, name].compact.join(' > ')
 
           concept = {
-            locale: 'de',
             name: name,
             description: description,
             internal: internal,
