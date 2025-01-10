@@ -4,19 +4,35 @@ module DataCycleCore
   module Filter
     module Sortable
       def reset_sort
-        reflect(@query.reorder(nil))
+        if DataCycleCore.filter_strategy == 'joins'
+          @base_query = @base_query.reorder(nil)
+          self
+        else
+          reflect(@query.reorder(nil))
+        end
       end
 
       def sort_default(_ordering = 'DESC')
-        reflect(
-          @query
+        if DataCycleCore.filter_strategy == 'joins'
+          @base_query = @base_query
             .reorder(nil)
             .order(
               thing_alias[:boost].desc,
               thing_alias[:updated_at].desc,
               thing_alias[:id].desc
             )
-        )
+          self
+        else
+          reflect(
+            @query
+              .reorder(nil)
+              .order(
+                thing_alias[:boost].desc,
+                thing_alias[:updated_at].desc,
+                thing_alias[:id].desc
+              )
+          )
+        end
       end
 
       def sort_collection_manual_order(ordering, watch_list_id)
@@ -161,8 +177,8 @@ module DataCycleCore
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
-        reflect(
-          @query
+        if DataCycleCore.filter_strategy == 'joins'
+          @base_query = @base_query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
             .reorder(nil)
             .order(
@@ -170,7 +186,19 @@ module DataCycleCore
               thing_alias[:updated_at].desc,
               thing_alias[:id].desc
             )
-        )
+          self
+        else
+          reflect(
+            @query
+              .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+              .reorder(nil)
+              .order(
+                sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+                thing_alias[:updated_at].desc,
+                thing_alias[:id].desc
+              )
+          )
+        end
       end
       alias sort_by_schedule_proximity sort_by_proximity
       alias sort_proximity_occurrence sort_by_proximity

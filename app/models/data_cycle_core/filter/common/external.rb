@@ -43,13 +43,40 @@ module DataCycleCore
 
           # this query performs well in all possible cases, things.id in (subquery) is worse in some cases with sorting (random)
           if type == 'all'
+            if DataCycleCore.filter_strategy == 'joins'
+              ess_alias = "ess_#{SecureRandom.hex(5)}"
+              reflect(
+                @query.joins(
+                  sanitize_sql(
+                    [
+                      "LEFT OUTER JOIN external_system_syncs #{ess_alias} ON #{ess_alias}.syncable_id = #{thing_alias.right}.id AND #{ess_alias}.external_system_id IN (?)",
+                      ids
+                    ]
+                  )
+                ).where("#{ess_alias}.id IS NOT NULL OR #{thing_alias.right}.external_source_id IN (?)", ids)
+              )
+            else
+              reflect(
+                @query.where(
+                  external_system_sync.project(1).where(
+                    external_system_sync[:external_system_id].in(ids)
+                      .and(external_system_sync[:syncable_id].eq(thing_alias[:id]))
+                  ).exists
+                  .or(thing_alias[:external_source_id].in(ids))
+                )
+              )
+            end
+          elsif DataCycleCore.filter_strategy == 'joins'
+            ess_alias = "ess_#{SecureRandom.hex(5)}"
             reflect(
-              @query.where(
-                external_system_sync.project(1).where(
-                  external_system_sync[:external_system_id].in(ids)
-                    .and(external_system_sync[:syncable_id].eq(thing_alias[:id]))
-                ).exists
-                .or(thing_alias[:external_source_id].in(ids))
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN external_system_syncs #{ess_alias} ON #{ess_alias}.syncable_id = #{thing_alias.right}.id AND #{ess_alias}.external_system_id IN (?) AND #{ess_alias}.sync_type = ?",
+                    ids,
+                    type
+                  ]
+                )
               )
             )
           else
@@ -72,15 +99,42 @@ module DataCycleCore
 
           # this query performs well in all possible cases, things.id in (subquery) is worse in some cases with sorting (random)
           if type == 'all'
-            reflect(
-              @query.where(
-                external_system_sync.project(1).where(
-                  external_system_sync[:external_system_id].in(ids)
-                    .and(external_system_sync[:syncable_id].eq(thing_alias[:id]))
-                ).exists.not
-                .and(thing_alias[:external_source_id].not_in(ids).or(thing_alias[:external_source_id].eq(nil)))
+            if DataCycleCore.filter_strategy == 'joins'
+              ess_alias = "ess_#{SecureRandom.hex(5)}"
+              reflect(
+                @query.joins(
+                  sanitize_sql(
+                    [
+                      "LEFT OUTER JOIN external_system_syncs #{ess_alias} ON #{ess_alias}.syncable_id = #{thing_alias.right}.id AND #{ess_alias}.external_system_id IN (?)",
+                      ids
+                    ]
+                  )
+                ).where("#{ess_alias}.id IS NULL AND (#{thing_alias.right}.external_source_id NOT IN (?) OR #{thing_alias.right}.external_source_id IS NULL)", ids)
               )
-            )
+            else
+              reflect(
+                @query.where(
+                  external_system_sync.project(1).where(
+                    external_system_sync[:external_system_id].in(ids)
+                      .and(external_system_sync[:syncable_id].eq(thing_alias[:id]))
+                  ).exists.not
+                  .and(thing_alias[:external_source_id].not_in(ids).or(thing_alias[:external_source_id].eq(nil)))
+                )
+              )
+            end
+          elsif DataCycleCore.filter_strategy == 'joins'
+            ess_alias = "ess_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "LEFT OUTER JOIN external_system_syncs #{ess_alias} ON #{ess_alias}.syncable_id = #{thing_alias.right}.id AND #{ess_alias}.external_system_id IN (?) AND #{ess_alias}.sync_type = ?",
+                    ids,
+                    type
+                  ]
+                )
+              )
+            ).where("#{ess_alias}.id IS NULL")
           else
             reflect(
               @query.where(

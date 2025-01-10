@@ -7,33 +7,91 @@ module DataCycleCore
         def classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where(sub_query_for_classification_alias_ids(ids, false))
-          )
+          if DataCycleCore.filter_strategy == 'joins'
+            ccc_alias = "ccc_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN collected_classification_contents #{ccc_alias} ON #{ccc_alias}.thing_id = #{thing_alias.right}.id AND #{ccc_alias}.classification_alias_id IN (?)",
+                    ids
+                  ]
+                )
+              )
+            )
+          else
+            reflect(
+              @query.where(sub_query_for_classification_alias_ids(ids, false))
+            )
+          end
         end
 
         def not_classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where.not(sub_query_for_classification_alias_ids(ids, false))
-          )
+          if DataCycleCore.filter_strategy == 'joins'
+            ccc_alias = "ccc_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "LEFT OUTER JOIN collected_classification_contents #{ccc_alias} ON #{ccc_alias}.thing_id = #{thing_alias.right}.id AND #{ccc_alias}.classification_alias_id IN (?)",
+                    ids
+                  ]
+                )
+              )
+              .where("#{ccc_alias}.id IS NULL")
+            )
+          else
+            reflect(
+              @query.where.not(sub_query_for_classification_alias_ids(ids, false))
+            )
+          end
         end
 
         def classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where(sub_query_for_classification_alias_ids(ids, true))
-          )
+          if DataCycleCore.filter_strategy == 'joins'
+            ccc_alias = "ccc_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN collected_classification_contents #{ccc_alias} ON #{ccc_alias}.thing_id = #{thing_alias.right}.id AND #{ccc_alias}.link_type = 'direct' AND #{ccc_alias}.classification_alias_id IN (?)",
+                    ids
+                  ]
+                )
+              )
+            )
+          else
+            reflect(
+              @query.where(sub_query_for_classification_alias_ids(ids, true))
+            )
+          end
         end
 
         def not_classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where.not(sub_query_for_classification_alias_ids(ids, true))
-          )
+          if DataCycleCore.filter_strategy == 'joins'
+            ccc_alias = "ccc_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "LEFT OUTER JOIN collected_classification_contents #{ccc_alias} ON #{ccc_alias}.thing_id = #{thing_alias.right}.id AND #{ccc_alias}.link_type = 'direct' AND #{ccc_alias}.classification_alias_id IN (?)",
+                    ids
+                  ]
+                )
+              )
+              .where("#{ccc_alias}.id IS NULL")
+            )
+          else
+            reflect(
+              @query.where.not(sub_query_for_classification_alias_ids(ids, true))
+            )
+          end
         end
 
         def with_classification_paths(paths)
@@ -109,6 +167,18 @@ module DataCycleCore
 
           if ids.blank?
             reflect(@query.where('1 = 0'))
+          elsif DataCycleCore.filter_strategy == 'joins'
+            ccc_alias = "ccc_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN collected_classification_contents #{ccc_alias} ON #{ccc_alias}.thing_id = #{thing_alias.right}.id AND #{ccc_alias}.classification_alias_id IN (?)",
+                    ids
+                  ]
+                )
+              )
+            )
           else
             reflect(@query.where(sub_query_for_classification_alias_ids(ids, false)))
           end

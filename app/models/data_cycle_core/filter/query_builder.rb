@@ -8,9 +8,9 @@ module DataCycleCore
       include DataCycleCore::Common::ArelBuilder
 
       attr_reader :parent_thing_alias, :thing_alias, :is_root_query, :include_embedded
-      def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
+      def_delegators :query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
       TERMINAL_METHODS = [:count, :size, :pluck, :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
-      def_delegators :@query, *TERMINAL_METHODS
+      def_delegators :query, *TERMINAL_METHODS
 
       def limit(number)
         reflect(@query.limit(number))
@@ -40,11 +40,13 @@ module DataCycleCore
         reflect(@query.order(*))
       end
 
+      def sanitize_sql(sql_array)
+        ActiveRecord::Base.send(:sanitize_sql_array, sql_array)
+      end
+
       def query
-        binding.pry
-        if DataCycleCore.filter_strategy == 'join' && is_root_query
-          @query.reselect(thing_alias[Arel.star]).group(thing_alias[:id])
-          # @base_query.where(id: @query.select(thing_alias[:id]))
+        if DataCycleCore.filter_strategy == 'joins' && is_root_query
+          @base_query.where(id: @query.select(thing_alias[:id]))
         else
           @query
         end

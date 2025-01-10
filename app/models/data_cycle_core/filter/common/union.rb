@@ -141,11 +141,6 @@ module DataCycleCore
             return DataCycleCore::Thing.where('1 = 0').arel.from(t_alias).select(1).where(t_alias[:id].eq(thing_alias[:id])).to_sql
           end
 
-          join_strategy = case DataCycleCore.union_filter_strategy
-                          when 'exists' then ' UNION ALL '
-                          else ' UNION ALL '
-                          end
-
           filters.map { |f|
             t_alias = generate_thing_alias
 
@@ -159,7 +154,7 @@ module DataCycleCore
             end
 
             subquery.to_sql
-          }.join(join_strategy)
+          }.join(' UNION ALL ')
         rescue SystemStackError
           raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end
@@ -177,15 +172,9 @@ module DataCycleCore
           stored_filters = collections.filter { |f| f.is_a?(DataCycleCore::StoredFilter) }
           watch_lists = collections.filter { |f| f.is_a?(DataCycleCore::WatchList) }
           queries = []
-
-          join_strategy = case DataCycleCore.union_filter_strategy
-                          when 'exists' then ' UNION ALL '
-                          else ' UNION ALL '
-                          end
-
           queries.push(watch_list_ids_query(watch_lists)) if watch_lists.present?
           queries.push(filter_ids_query(stored_filters)) if stored_filters.present?
-          queries.join(join_strategy)
+          queries.join(' UNION ALL ')
         end
 
         def union_filter(filters = [])

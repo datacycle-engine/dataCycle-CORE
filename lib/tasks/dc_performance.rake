@@ -23,12 +23,12 @@ namespace :dc do
             endpoint.things.count
 
             times = []
-            5.times do
+            3.times do
               times << Benchmark.ms { endpoint.things.page(1).reload }
             end
 
             count_times = []
-            5.times do
+            3.times do
               count_times << Benchmark.ms { endpoint.things.count }
             end
 

@@ -21,16 +21,16 @@ module DataCycleCore
       def initialize(locale: ['de'], query: nil, include_embedded: false, thing_alias: nil)
         @locale = locale
         @include_embedded = include_embedded
-        @is_root_query = thing_alias.blank?
+        @is_root_query = thing_alias.nil?
         @thing_alias = thing_alias || 'things'
         @thing_alias = thing.alias(@thing_alias) if @thing_alias.is_a?(String)
+        @base_query = DataCycleCore::Thing.all
         @query = query || default_query
-        @base_query = DataCycleCore::Thing.all if @is_root_query
       end
 
       def content_includes
-        reflect(
-          @query.includes(
+        if DataCycleCore.filter_strategy == 'joins'
+          @base_query = @base_query.includes(
             :translations,
             :external_source,
             :external_systems,
@@ -38,17 +38,42 @@ module DataCycleCore
             :primary_classification_aliases,
             classification_aliases: [:classification_alias_path, :classification_tree_label]
           )
-        )
+        else
+          @query = @query.includes(
+            :translations,
+            :external_source,
+            :external_systems,
+            :parent,
+            :primary_classification_aliases,
+            classification_aliases: [:classification_alias_path, :classification_tree_label]
+          )
+        end
+
+        self
       end
 
       def subscribed_user_id(id = nil)
         return self if id.blank?
 
-        reflect(
-          @query.where(
-            subscription.where(subscription[:subscribable_id].eq(thing_alias[:id]).and(subscription[:user_id].eq(id))).exists
+        if DataCycleCore.filter_strategy == 'joins'
+          s_alias = "s_#{SecureRandom.hex(5)}"
+          reflect(
+            @query.joins(
+              sanitize_sql(
+                [
+                  "INNER JOIN subscriptions #{s_alias} ON #{s_alias}.subscribable_id = #{thing_alias.right}.id AND #{s_alias}.user_id IN (?)",
+                  id
+                ]
+              )
+            )
           )
-        )
+        else
+          reflect(
+            @query.where(
+              subscription.where(subscription[:subscribable_id].eq(thing_alias[:id]).and(subscription[:user_id].eq(id))).exists
+            )
+          )
+        end
       end
 
       def updated_since_flat(updated_at = nil)
@@ -116,11 +141,25 @@ module DataCycleCore
       def watch_list_id(id = nil)
         return self if id.blank?
 
-        reflect(
-          @query.where(
-            watch_list_data_hash.where(watch_list_data_hash[:thing_id].eq(thing_alias[:id]).and(watch_list_data_hash[:watch_list_id].eq(id))).exists
+        if DataCycleCore.filter_strategy == 'joins'
+          wldh_alias = "wldh_#{SecureRandom.hex(5)}"
+          reflect(
+            @query.joins(
+              sanitize_sql(
+                [
+                  "INNER JOIN watch_list_data_hashes #{wldh_alias} ON #{wldh_alias}.thing_id = #{thing_alias.right}.id AND #{wldh_alias}.watch_list_id IN (?)",
+                  id
+                ]
+              )
+            )
           )
-        )
+        else
+          reflect(
+            @query.where(
+              watch_list_data_hash.where(watch_list_data_hash[:thing_id].eq(thing_alias[:id]).and(watch_list_data_hash[:watch_list_id].eq(id))).exists
+            )
+          )
+        end
       end
 
       def part_of(id = nil)
@@ -134,31 +173,57 @@ module DataCycleCore
       def relation(name = nil)
         return self if name.blank?
 
-        reflect(
-          @query.where(content_content.where(content_content[:content_a_id].eq(thing_alias[:id]).and(content_content[:relation_a].eq(name))).exists)
-        )
+        if DataCycleCore.filter_strategy == 'joins'
+          cc_alias = "cc_#{SecureRandom.hex(5)}"
+          reflect(
+            @query.joins(
+              sanitize_sql(
+                [
+                  "INNER JOIN content_contents #{cc_alias} ON #{cc_alias}.content_a_id = #{thing_alias.right}.id AND #{cc_alias}.relation_a IN (?)",
+                  name
+                ]
+              )
+            )
+          )
+        else
+          reflect(
+            @query.where(content_content.where(content_content[:content_a_id].eq(thing_alias[:id]).and(content_content[:relation_a].eq(name))).exists)
+          )
+        end
       end
 
       def like_relation_filter(filter = nil, name = nil)
         return self if name.blank? || filter.blank?
 
-        subquery = related_to_query(filter, name)
-        return self if subquery.nil?
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            related_to_joins_query(filter, name)
+          )
+        else
+          subquery = related_to_query(filter, name)
+          return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+          reflect(
+            @query.where(subquery.exists)
+          )
+        end
       end
 
       def not_like_relation_filter(filter = nil, name = nil)
         return self if name.blank? || filter.blank?
 
-        subquery = related_to_query(filter, name)
-        return self if subquery.nil?
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            not_related_to_joins_query(filter, name)
+          )
+        else
+          subquery = related_to_query(filter, name)
+          return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+          reflect(
+            @query.where.not(subquery.exists)
+          )
+        end
       end
 
       def related_through_attribute(value, relation_name)
@@ -171,88 +236,138 @@ module DataCycleCore
 
       def exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
-        subquery = related_to_any(name, inverse == true)
-        return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.project(1).exists)
-        )
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            related_to_any_joins_query(name, inverse)
+          )
+        else
+          subquery = related_to_any(name, inverse)
+          return self if subquery.nil?
+
+          reflect(
+            @query.where(subquery.project(1).exists)
+          )
+        end
       end
 
       def not_exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
-        subquery = related_to_any(name, inverse == true)
-        return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.project(1).exists)
-        )
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            not_related_to_any_joins_query(name, inverse)
+          )
+        else
+          subquery = related_to_any(name, inverse)
+          return self if subquery.nil?
+
+          reflect(
+            @query.where.not(subquery.project(1).exists)
+          )
+        end
       end
 
       def relation_filter(filter = nil, name = nil)
         return self if name.blank? || filter.blank?
 
-        subquery = related_to_query(filter, name)
-        return self if subquery.nil?
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            related_to_joins_query(filter, name)
+          )
+        else
+          subquery = related_to_query(filter, name)
+          return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+          reflect(
+            @query.where(subquery.exists)
+          )
+        end
       end
 
       def not_relation_filter(filter = nil, name = nil)
         return self if name.blank? || filter.blank?
 
-        subquery = related_to_query(filter, name)
-        return self if subquery.nil?
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            not_related_to_joins_query(filter, name)
+          )
+        else
+          subquery = related_to_query(filter, name)
+          return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+          reflect(
+            @query.where.not(subquery.exists)
+          )
+        end
       end
 
       def relation_filter_inv(filter = nil, name = nil)
         return self if name.blank? || filter.blank?
 
-        subquery = related_to_query(filter, name, true)
-        return self if subquery.nil?
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            related_to_joins_query(filter, name, true)
+          )
+        else
+          subquery = related_to_query(filter, name, true)
+          return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+          reflect(
+            @query.where(subquery.exists)
+          )
+        end
       end
 
       def not_relation_filter_inv(filter = nil, name = nil)
         return self if name.blank? || filter.blank?
 
-        subquery = related_to_query(filter, name, true)
-        return self if subquery.nil?
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            not_related_to_joins_query(filter, name, true)
+          )
+        else
+          subquery = related_to_query(filter, name, true)
+          return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+          reflect(
+            @query.where.not(subquery.exists)
+          )
+        end
       end
 
       def related_to(filter_id = nil)
         return self if filter_id.blank?
 
-        subquery = related_to_query(filter_id, nil, true)
-        return self if subquery.nil?
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            related_to_joins_query(filter_id, nil, true)
+          )
+        else
+          subquery = related_to_query(filter_id, nil, true)
+          return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+          reflect(
+            @query.where(subquery.exists)
+          )
+        end
       end
 
       def not_related_to(filter_id = nil)
         return self if filter_id.blank?
 
-        subquery = related_to_query(filter_id, nil, true)
-        return self if subquery.nil?
+        if DataCycleCore.filter_strategy == 'joins'
+          reflect(
+            not_related_to_joins_query(filter_id, nil, true)
+          )
+        else
+          subquery = related_to_query(filter_id, nil, true)
+          return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+          reflect(
+            @query.where.not(subquery.exists)
+          )
+        end
       end
 
       def boolean(value, filter_method)
@@ -264,17 +379,40 @@ module DataCycleCore
       end
 
       def duplicate_candidates(value, score = nil)
-        sub_query = duplicate_candidate[:duplicate_id].eq(thing_alias[:id]).and(duplicate_candidate[:false_positive].eq(false))
-        sub_query = sub_query.and(duplicate_candidate[:score].gteq(score.to_i)) if score.present?
+        if DataCycleCore.filter_strategy == 'joins'
+          dc_alias = "dc_#{SecureRandom.hex(5)}"
+          if value.to_s == 'true'
+            joins_query = ["INNER JOIN duplicate_candidates #{dc_alias} ON #{dc_alias}.duplicate_id = #{thing_alias.right}.id AND #{dc_alias}.false_positive = ?", false]
 
-        if value.to_s == 'true'
-          reflect(
-            @query.where(duplicate_candidate.project(1).where(sub_query).exists)
-          )
+            if score.present?
+              joins_query[0] += " AND #{dc_alias}.score >= ?"
+              joins_query << score.to_i
+            end
+
+            reflect(@query.joins(sanitize_sql(joins_query)))
+          else
+            joins_query = ["LEFT OUTER JOIN duplicate_candidates #{dc_alias} ON #{dc_alias}.duplicate_id = #{thing_alias.right}.id AND #{dc_alias}.false_positive = ?", false]
+
+            if score.present?
+              joins_query[0] += " AND #{dc_alias}.score >= ?"
+              joins_query << score.to_i
+            end
+
+            reflect(@query.joins(sanitize_sql(joins_query))).where("#{dc_alias}.id IS NULL")
+          end
         else
-          reflect(
-            @query.where(duplicate_candidate.project(1).where(sub_query).exists.not)
-          )
+          sub_query = duplicate_candidate[:duplicate_id].eq(thing_alias[:id]).and(duplicate_candidate[:false_positive].eq(false))
+          sub_query = sub_query.and(duplicate_candidate[:score].gteq(score.to_i)) if score.present?
+
+          if value.to_s == 'true'
+            reflect(
+              @query.where(duplicate_candidate.project(1).where(sub_query).exists)
+            )
+          else
+            reflect(
+              @query.where(duplicate_candidate.project(1).where(sub_query).exists.not)
+            )
+          end
         end
       end
 
@@ -342,17 +480,20 @@ module DataCycleCore
 
       private
 
-      def related_to_query(filter, name = nil, inverse = false)
+      def related_to_filter_query(filter)
         if filter.is_a?(Search)
-          filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
+          Arel.sql(filter.select(:id).except(:order).to_sql)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
-          filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
+          Arel.sql(stored_filter.things.select(:id).except(:order).to_sql)
         elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-          filter_query = Arel.sql(collection.watch_list_data_hashes.select(:thing_id).except(:order).to_sql)
+          Arel.sql(collection.watch_list_data_hashes.select(:thing_id).except(:order).to_sql)
         else # in case filter is array of thing_ids
-          filter_query = Array.wrap(filter)
+          Array.wrap(filter)
         end
+      end
 
+      def related_to_query(filter, name = nil, inverse = false)
+        filter_query = related_to_filter_query(filter)
         thing_id = :content_a_id
         related_to_id = :content_b_id
         thing_id, related_to_id = related_to_id, thing_id if inverse
@@ -366,6 +507,42 @@ module DataCycleCore
         Arel::SelectManager.new
           .from(content_content)
           .where(sub_select)
+      end
+
+      def related_to_joins_query(filter, relation = nil, inverse = false)
+        filter_query = related_to_filter_query(filter)
+        thing_id = :content_a_id
+        related_to_id = :content_b_id
+        thing_id, related_to_id = related_to_id, thing_id if inverse
+        relation_name = inverse ? :relation_b : :relation_a
+
+        cc_alias = "cc_#{SecureRandom.hex(5)}"
+        joins_query = ["INNER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id AND #{cc_alias}.#{related_to_id} IN (?)", filter_query]
+
+        if relation.present?
+          joins_query[0] += " AND #{cc_alias}.#{relation_name} IN (?)"
+          joins_query << relation
+        end
+
+        @query.joins(sanitize_sql(joins_query))
+      end
+
+      def not_related_to_joins_query(filter, relation = nil, inverse = false)
+        filter_query = related_to_filter_query(filter)
+        thing_id = :content_a_id
+        related_to_id = :content_b_id
+        thing_id, related_to_id = related_to_id, thing_id if inverse
+        relation_name = inverse ? :relation_b : :relation_a
+
+        cc_alias = "cc_#{SecureRandom.hex(5)}"
+        joins_query = ["LEFT OUTER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id AND #{cc_alias}.#{related_to_id} IN (?)", filter_query]
+
+        if relation.present?
+          joins_query[0] += " AND #{cc_alias}.#{relation_name} IN (?)"
+          joins_query << relation
+        end
+
+        @query.joins(sanitize_sql(joins_query)).where("#{cc_alias}.id IS NULL")
       end
 
       ##
@@ -390,6 +567,36 @@ module DataCycleCore
           .where(sub_select)
       end
 
+      def related_to_any_joins_query(name = nil, inverse = false)
+        thing_id = :content_a_id
+        thing_id = :content_b_id if inverse
+
+        cc_alias = "cc_#{SecureRandom.hex(5)}"
+        joins_query = ["INNER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id"]
+
+        if name.present?
+          joins_query[0] += " AND #{cc_alias}.relation_a IN (?)"
+          joins_query << name
+        end
+
+        @query.joins(sanitize_sql(joins_query))
+      end
+
+      def not_related_to_any_joins_query(name = nil, inverse = false)
+        thing_id = :content_a_id
+        thing_id = :content_b_id if inverse
+
+        cc_alias = "cc_#{SecureRandom.hex(5)}"
+        joins_query = ["LEFT OUTER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id"]
+
+        if name.present?
+          joins_query[0] += " AND #{cc_alias}.relation_a IN (?)"
+          joins_query << name
+        end
+
+        @query.joins(sanitize_sql(joins_query)).where("#{cc_alias}.id IS NULL")
+      end
+
       def default_query
         query = DataCycleCore::Thing.default_scoped
         query = query.from(thing_alias) unless thing_alias.right == 'things'
@@ -406,7 +613,7 @@ module DataCycleCore
           )
         end
 
-        query = query.order(thing_alias[:boost].desc, thing_alias[:updated_at].desc, thing_alias[:id].desc) if is_root_query
+        @base_query = @base_query.order(thing_alias[:boost].desc, thing_alias[:updated_at].desc, thing_alias[:id].desc) if is_root_query
 
         query
       end

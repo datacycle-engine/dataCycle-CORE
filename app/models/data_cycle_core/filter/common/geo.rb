@@ -41,26 +41,33 @@ module DataCycleCore
 
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
-          t_alias = generate_thing_alias
 
-          reflect(
-            @query
-              .where.not(thing_alias[:geom_simple].eq(nil))
-              .where(
-                DataCycleCore::Thing.select(1).arel
-                .from(t_alias)
+          if DataCycleCore.filter_strategy == 'joins'
+            reflect(
+              @query.where("#{thing_alias.right}.geom_simple IS NOT NULL AND ST_DWithin(#{thing_alias.right}.geom_simple::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)", values&.dig('lon').to_f, values&.dig('lat').to_f, distance)
+            )
+          else
+            t_alias = generate_thing_alias
+
+            reflect(
+              @query
+                .where.not(thing_alias[:geom_simple].eq(nil))
                 .where(
-                  t_alias[:id].eq(thing_alias[:id])
-                  .and(
-                    st_dwithin(
-                      cast_geography(t_alias[:geom_simple]),
-                      cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                      distance
+                  DataCycleCore::Thing.select(1).arel
+                  .from(t_alias)
+                  .where(
+                    t_alias[:id].eq(thing_alias[:id])
+                    .and(
+                      st_dwithin(
+                        cast_geography(t_alias[:geom_simple]),
+                        cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                        distance
+                      )
                     )
-                  )
-                ).exists
-              )
-          )
+                  ).exists
+                )
+            )
+          end
         end
 
         def not_geo_radius(values)
@@ -68,26 +75,33 @@ module DataCycleCore
 
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
-          t_alias = generate_thing_alias
 
-          reflect(
-            @query
-              .where.not(thing_alias[:geom_simple].eq(nil))
-              .where.not(
-                DataCycleCore::Thing.select(1).arel
-                .from(t_alias)
-                .where(
-                  t_alias[:id].eq(thing_alias[:id])
-                  .and(
-                    st_dwithin(
-                      cast_geography(t_alias[:geom_simple]),
-                      cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                      distance
+          if DataCycleCore.filter_strategy == 'joins'
+            reflect(
+              @query.where("#{thing_alias.right}.geom_simple IS NOT NULL AND NOT ST_DWithin(#{thing_alias.right}.geom_simple::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)", values&.dig('lon').to_f, values&.dig('lat').to_f, distance)
+            )
+          else
+            t_alias = generate_thing_alias
+
+            reflect(
+              @query
+                .where.not(thing_alias[:geom_simple].eq(nil))
+                .where.not(
+                  DataCycleCore::Thing.select(1).arel
+                  .from(t_alias)
+                  .where(
+                    t_alias[:id].eq(thing_alias[:id])
+                    .and(
+                      st_dwithin(
+                        cast_geography(t_alias[:geom_simple]),
+                        cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                        distance
+                      )
                     )
-                  )
-                ).exists
-              )
-          )
+                  ).exists
+                )
+            )
+          end
         end
 
         def geo_within_classification(ids)

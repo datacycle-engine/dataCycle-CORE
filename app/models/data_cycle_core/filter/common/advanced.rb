@@ -145,96 +145,195 @@ module DataCycleCore
         end
 
         def equals_advanced_slug(value = nil, _attribute_path = nil)
-          reflect(
-            @query.where(
-              DataCycleCore::Thing::Translation.where(
-                thing_translations[:slug].eq(value[:equals])
-                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+          if DataCycleCore.filter_strategy == 'joins'
+            tt_alias = "tt_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.slug = ?", value[:equals]
+                  ]
+                )
+              )
             )
-          )
+          else
+            reflect(
+              @query.where(
+                DataCycleCore::Thing::Translation.where(
+                  thing_translations[:slug].eq(value[:equals])
+                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def equals_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
           search_value = value['text']
-          reflect(
-            @query.where(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+
+          if DataCycleCore.filter_strategy == 'joins'
+            tt_alias = "tt_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' ILIKE ?", @locale, search_value
+                  ]
+                )
+              )
             )
-          )
+          else
+            reflect(
+              @query.where(
+                DataCycleCore::Thing::Translation.where(
+                  in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
+                    .and(thing_translations[:locale].in(@locale))
+                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def not_equals_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
           search_value = value['text']
-          reflect(
-            @query.where.not(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+
+          if DataCycleCore.filter_strategy == 'joins'
+            tt_alias = "tt_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "LEFT OUTER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' ILIKE ?", @locale, search_value
+                  ]
+                )
+              )
+              .where("#{tt_alias}.id IS NULL")
             )
-          )
+          else
+            reflect(
+              @query.where.not(
+                DataCycleCore::Thing::Translation.where(
+                  in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
+                    .and(thing_translations[:locale].in(@locale))
+                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def like_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
           search_value = value['text']
-          reflect(
-            @query.where(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+
+          if DataCycleCore.filter_strategy == 'joins'
+            tt_alias = "tt_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' ILIKE ?", @locale, "%#{search_value}%"
+                  ]
+                )
+              )
             )
-          )
+          else
+            reflect(
+              @query.where(
+                DataCycleCore::Thing::Translation.where(
+                  in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
+                    .and(thing_translations[:locale].in(@locale))
+                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def not_like_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
           search_value = value['text']
-          reflect(
-            @query.where.not(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+
+          if DataCycleCore.filter_strategy == 'joins'
+            tt_alias = "tt_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "LEFT OUTER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' ILIKE ?", @locale, "%#{search_value}%"
+                  ]
+                )
+              )
+              .where("#{tt_alias}.id IS NULL")
             )
-          )
+          else
+            reflect(
+              @query.where.not(
+                DataCycleCore::Thing::Translation.where(
+                  in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
+                    .and(thing_translations[:locale].in(@locale))
+                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def exists_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
-          reflect(
-            @query.where.not(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').eq(nil)
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+
+          if DataCycleCore.filter_strategy == 'joins'
+            tt_alias = "tt_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' IS NOT NULL AND #{tt_alias}.content ->> 'name' != ''", @locale
+                  ]
+                )
+              )
             )
-          )
+          else
+            reflect(
+              @query.where.not(
+                DataCycleCore::Thing::Translation.where(
+                  in_json(thing_translations[:content], 'name').eq(nil)
+                    .and(thing_translations[:locale].in(@locale))
+                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def not_exists_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
-          reflect(
-            @query.where(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').eq(nil)
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+
+          if DataCycleCore.filter_strategy == 'joins'
+            tt_alias = "tt_#{SecureRandom.hex(5)}"
+            reflect(
+              @query.joins(
+                sanitize_sql(
+                  [
+                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND (#{tt_alias}.content ->> 'name' IS NULL OR #{tt_alias}.content ->> 'name' = '')", @locale
+                  ]
+                )
+              )
             )
-          )
+          else
+            reflect(
+              @query.where(
+                DataCycleCore::Thing::Translation.where(
+                  in_json(thing_translations[:content], 'name').eq(nil)
+                    .and(thing_translations[:locale].in(@locale))
+                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)
@@ -262,14 +361,14 @@ module DataCycleCore
 
           case comparison
           when :exists
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil != \'[]\' AND pil IS NOT NULL)', attribute_path])
+            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil != \'[]\' AND pil IS NOT NULL)', attribute_path])
           when :not_exists
             attribute_path_exists = false
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'[]\' OR pil IS NULL)', attribute_path])
+            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'[]\' OR pil IS NULL)', attribute_path])
           when :equals
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[]', attribute_path, value])
+            query_string = sanitize_sql(['ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[]', attribute_path, value])
           when :not_equals
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[])', attribute_path, value])
+            query_string = sanitize_sql(['NOT(ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[])', attribute_path, value])
           else
             return self
           end
@@ -283,9 +382,9 @@ module DataCycleCore
 
           case comparison
           when :equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal)', attribute_path, num_range])
+            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal)', attribute_path, num_range])
           when :not_equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal))', attribute_path, num_range])
+            query_string = sanitize_sql(['NOT(EXISTS(SELECT 1 FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal))', attribute_path, num_range])
           else
             return self
           end
@@ -299,9 +398,9 @@ module DataCycleCore
 
           case comparison
           when :equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date)', attribute_path, date_range])
+            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date)', attribute_path, date_range])
           when :not_equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date))', attribute_path, date_range])
+            query_string = sanitize_sql(['NOT(EXISTS(SELECT 1 FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date))', attribute_path, date_range])
           else
             return self
           end
@@ -318,9 +417,9 @@ module DataCycleCore
 
           case comparison
           when :equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange #{query_operator} CONCAT('[',(advanced_attributes ->> ?)::text::date,',',(advanced_attributes ->> ?)::text::date,']')::daterange", date_range, interval_keys&.first, interval_keys&.second])
+            query_string = sanitize_sql(["?::daterange #{query_operator} CONCAT('[',(advanced_attributes ->> ?)::text::date,',',(advanced_attributes ->> ?)::text::date,']')::daterange", date_range, interval_keys&.first, interval_keys&.second])
           when :not_equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["NOT(?::daterange #{query_operator} CONCAT('[',(advanced_attributes ->> ?)::text::date,',',(advanced_attributes ->> ?)::text::date,']')::daterange)", date_range, interval_keys&.first, interval_keys&.second])
+            query_string = sanitize_sql(["NOT(?::daterange #{query_operator} CONCAT('[',(advanced_attributes ->> ?)::text::date,',',(advanced_attributes ->> ?)::text::date,']')::daterange)", date_range, interval_keys&.first, interval_keys&.second])
           else
             return self
           end
@@ -331,7 +430,7 @@ module DataCycleCore
         def advanced_time(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.present? && attribute_path.present? && comparison.present?
           comparison_operator = COMPARISON_OPERATORS[comparison]
-          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparison_operator} ?::time)", attribute_path, value])
+          query_string = sanitize_sql(["EXISTS(SELECT 1 FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparison_operator} ?::time)", attribute_path, value])
 
           advanced_query(query_string, attribute_path)
         end
@@ -340,7 +439,7 @@ module DataCycleCore
           return self unless (value.present? || value.to_s == 'false') && attribute_path.present? && comparison.present?
 
           comparison_operator = COMPARISON_OPERATORS[comparison]
-          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparison_operator} ?)", attribute_path, value])
+          query_string = sanitize_sql(["EXISTS(SELECT 1 FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparison_operator} ?)", attribute_path, value])
           advanced_query(query_string, attribute_path)
         end
 
@@ -353,24 +452,24 @@ module DataCycleCore
 
           case comparison
           when :exists
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil != \'\' AND pil IS NOT NULL)', attribute_path])
+            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil != \'\' AND pil IS NOT NULL)', attribute_path])
           when :not_exists
             attribute_path_exists = false
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
+            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
           when :equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?))', attribute_path, search_values])
+            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?))', attribute_path, search_values])
           when :not_equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?)))', attribute_path, search_values])
+            query_string = sanitize_sql(['NOT(EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?)))', attribute_path, search_values])
           when :like
             like_clauses = search_values.map do |val|
-              ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['pil ILIKE ?', "%#{val&.split&.join('%')}%"])
+              sanitize_sql(['pil ILIKE ?', "%#{val&.split&.join('%')}%"])
             end
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE #{like_clauses.join(' OR ')})", attribute_path])
+            query_string = sanitize_sql(["EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE #{like_clauses.join(' OR ')})", attribute_path])
           when :not_like
             like_clauses = search_values.map do |val|
-              ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['pil ILIKE ?', "%#{val&.split&.join('%')}%"])
+              sanitize_sql(['pil ILIKE ?', "%#{val&.split&.join('%')}%"])
             end
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE #{like_clauses.join(' OR ')}))", attribute_path])
+            query_string = sanitize_sql(["NOT(EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE #{like_clauses.join(' OR ')}))", attribute_path])
           else
             return self
           end
@@ -395,11 +494,11 @@ module DataCycleCore
         end
 
         def attribute_path_exists(path)
-          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['jsonb_path_exists(advanced_attributes, :path)', {path: "$.\"#{path}\""}])
+          sanitize_sql(['jsonb_path_exists(advanced_attributes, :path)', {path: "$.\"#{path}\""}])
         end
 
         def attribute_path_not_exists(path)
-          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(jsonb_path_exists(advanced_attributes, :path))', {path: "$.\"#{path}\""}])
+          sanitize_sql(['NOT(jsonb_path_exists(advanced_attributes, :path))', {path: "$.\"#{path}\""}])
         end
       end
     end
