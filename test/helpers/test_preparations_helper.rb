@@ -55,7 +55,8 @@ module DataCycleCore
     end
 
     def self.load_classifications(paths)
-      DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: paths)
+      importer = DataCycleCore::MasterData::Concepts::ConceptImporter.new(paths: paths)
+      importer.import
       # map classifications (Test1 mapped to Tag 1, Test2 mapped to Tag 2)
       test_alias = DataCycleCore::ClassificationAlias.find_by(name: 'Test1')
       return if test_alias.nil?

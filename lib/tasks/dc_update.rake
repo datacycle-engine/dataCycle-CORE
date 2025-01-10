@@ -7,8 +7,8 @@ namespace :dc do
       Rake::Task['dc:templates:import'].invoke(args.verbose)
       Rake::Task['dc:templates:import'].reenable
 
-      Rake::Task['data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['data_cycle_core:update:import_classifications'].reenable
+      Rake::Task['dc:concepts:import'].invoke
+      Rake::Task['dc:concepts:import'].reenable
 
       Rake::Task['dc:external_systems:import'].invoke
       Rake::Task['dc:external_systems:import'].reenable

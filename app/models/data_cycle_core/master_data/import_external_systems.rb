@@ -182,12 +182,17 @@ module DataCycleCore
           optional(:logging_strategy) { str? }
           optional(:transformations) { hash? }
           optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
+          optional(:data_id_transformation).hash do
+            required(:module) { str? }
+            required(:method) { str? }
+          end
         end
 
         rule(:endpoint).validate(:dc_class)
         rule(:download_strategy).validate(:dc_module)
         rule(:import_strategy).validate(:dc_module)
         rule(:logging_strategy).validate(:dc_logging_strategy)
+        rule(:data_id_transformation).validate(:dc_module_method)
 
         rule do
           base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)

@@ -4,35 +4,13 @@
   <div class="small-12 columns">
     <h1><%= t('data_cycle_core.classifications', locale: active_ui_locale) %></h1>
 
-    <% external_systems = DataCycleCore::ExternalSystem.all %>
-    <% esi = Hash[external_systems.pluck(:id, :name)] %>
-    <% @classification_tree_labels.group_by { |tree_label|
-        tree_label.external_source_id || external_systems.select { |s|
-          tree_label.name.to_s.downcase.start_with?(s.name.to_s.downcase + '') || tree_label.name.to_s.downcase.start_with?(s.identifier.to_s.downcase)
-        }.first&.id || (tree_label.name.split(' - ').size > 1 ? tree_label.name.split(' - ').first : nil)
-      }.to_a.sort_by { |external_source_id, tree_labels|
-        key = external_source_id || 'aaaaa'
-        if esi.keys.include?(key)
-          esi[key].downcase
-        else
-          key.downcase
-        end
-      }.each do |external_source_id, tree_labels| %>
-
-      <% tree_labels = tree_labels.sort_by { |label| label.name.to_s.downcase } %>
-      <% if external_source_id %>
-        <% if esi.keys.include?(external_source_id) %>
-          <h4><%= esi[external_source_id] %></h4>
-        <% else %>
-          <h4><%= external_source_id %></h4>
-          <%= external_source_id = nil %>
-        <% end %>
-      <% end %>
+    <% grouped_classification_tree_labels(@classification_tree_labels).each do |group_key, tree_labels| %>
+      <%= tag.h4(group_key) if group_key.present? %>
 
       <ul class="classification_trees backend-treeview-list">
         <%= render partial: 'classification_tree_label', collection: tree_labels, as: :tree_label %>
 
-        <% if !external_source_id && can?(:create, DataCycleCore::ClassificationTreeLabel) %>
+        <% if !group_key && can?(:create, DataCycleCore::ClassificationTreeLabel) %>
           <%= render 'data_cycle_core/classifications/new_classification_tree_label' %>
         <% end %>
       </ul>

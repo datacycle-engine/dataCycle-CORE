@@ -42,11 +42,9 @@ de:
     Trail: Tour
     GtfsStop: Haltestelle
     BodyOfWater: Badesee
-    MountainArea: Skigebiet
     MountainAreaDescription: Skigebiets-Beschreibung
     Recipe: Rezept
-    SkiSlope: Skipiste
-    SnowReportLocation: Schneehöhe - Messpunkt
+    AvalancheInfo: Lawineninfo
     Snowpark: Schneepark
     TouristDestination: Touristische Destination
     ContentPage: Inhaltsseite
@@ -120,6 +118,8 @@ de:
     sv: schwedisch
     tr: türkisch
     uk: ukrainisch
+    "de-AT": deutsch-AT
+    "de-DE": deutsch-DE
     "de-CH": schweizer-deutsch
     "nl-BE": flämisch
     zh: chinesisch
@@ -1916,25 +1916,21 @@ de:
         difficulty_rating: Schwierigkeit
         panoramic_view_rating: Panoramaaussicht
     general_solutions:
-      place:
-        directions: Anfahrt
-        parking: Parken
-        hours_available: Öffnungszeiten
-        text: Beschreibung
-        price: Preis
-        description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-      tour:
-        text: Beschreibung
-        description: Kurzbeschreibung
-        instructions: Wegbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-        parking: Parken
-        route_start: Start
-        route_end: Ziel
+      directions: Anfahrt
+      parking: Parken
+      hours_available: Öffnungszeiten
+      text: Beschreibung
+      price: Preis
+      description: Kurzbeschreibung
+      directions_public_transport: Öffentliche Verkehrsmittel
+      route_start: Start
+      route_end: Ziel
+      importantInformation: Wichtige Informationen
       ratings:
         difficulty_rating: Schwierigkeit
         priority_rating: Priorität
+      tour:
+      poi:
     imx_platform:
       description: Beschreibung
       text: Detailbeschreibung
@@ -1952,6 +1948,23 @@ de:
       seasonDescription: Begehbare Monate
       Preis-Zusatzbeschreibung: Preis-Zusatzbeschreibung
       booking_link: Buchungslink
+      numberParkspaceOverall: Parkmöglichkeiten
+      numberParkspaceOutdoor: Parkmöglichkeiten im Freien
+      numberParkspaceGarage: Parkmöglichkeiten überdacht
+      numberRooms: Anzahl Zimmer
+      numberSingleRooms: Einzelzimmer
+      numberDoubleRooms: Doppelzimmer
+      numberSharedRooms: Mehrbettzimmer
+      numberSuiteRooms: Suiten
+      numberConferenceRooms: Konferenzräume
+      numberGroupRooms: Gruppenräume
+      numberAccessibleRooms: Barrierefreie Zimmer
+      opening_hours_special_types:
+        temporarilyClosed: Vorübergehend geschlossen
+        permanentlyClosed: Dauerhaft geschlossen
+        noOpeningHours: ohne Öffnungszeiten
+        permanentlyOpen: Jedezeit frei zugänglich
+        openOnRequest: geöffnet auf Anfrage
     gem2go:
       description: Beschreibung
     timm4:

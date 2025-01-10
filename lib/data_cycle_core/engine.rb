@@ -207,9 +207,6 @@ module DataCycleCore
   mattr_accessor :holidays_country_code
   self.holidays_country_code = :at
 
-  mattr_accessor :partial_update_improved
-  self.partial_update_improved = true
-
   mattr_accessor :persistent_activities
   self.persistent_activities = ['downloads']
 

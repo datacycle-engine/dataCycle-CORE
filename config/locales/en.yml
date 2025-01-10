@@ -1887,22 +1887,19 @@ en:
         landscape_rating: Landscape
         difficulty_rating: Difficulty
     general_solutions:
-      place:
-        directions: Approach
-        parking: Parking
-        hours_available: Opening hours
-        text: Description
-        price: Price
-        description: Brief description
-        directions_public_transport: Public transport
+      directions: Approach
+      parking: Parking
+      hours_available: Opening hours
+      text: Description
+      price: Price
+      description: Brief description
+      directions_public_transport: Public transport
+      instructions: Directions
+      route_start: Start
+      route_end: Destination
+      importantInformation: Important information
       tour:
-        text: Description
-        description: Brief description
-        instructions: Directions
-        directions_public_transport: Public transport
-        parking: Parking
-        route_start: Start
-        route_end: Destination
+      poi:
       ratings:
         difficulty_rating: Difficulty
         priority_rating: Priority
@@ -1923,6 +1920,23 @@ en:
       seasonDescription: Sesion
       Preis-Zusatzbeschreibung: Additional price description
       booking_link: Booking link
+      numberParkspaceOverall: Total parking spaces
+      numberParkspaceOutdoor: Outdoor parking spaces
+      numberParkspaceGarage: Garage parking spaces
+      numberRooms: Rooms
+      numberSingleRooms: Single rooms
+      numberDoubleRooms: Double rooms
+      numberSharedRooms: Shared rooms
+      numberSuiteRooms: Suite rooms
+      numberConferenceRooms: Conference rooms
+      numberGroupRooms: Group rooms
+      numberAccessibleRooms: Accessible rooms
+      opening_hours_special_types:
+        temporarilyClosed: Temporarily closed
+        permanentlyClosed: Permanently closed
+        noOpeningHours: Without opening hours
+        permanentlyOpen: Always accessible
+        openOnRequest: Open on request
     gem2go:
       description: Description
     timm4:

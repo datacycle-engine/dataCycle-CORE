@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   # rails
   s.add_dependency 'rails', '~> 7.1.0'
   # Translations
-  s.add_dependency 'mobility'
+  s.add_dependency 'mobility', '>= 1.3.1'
   # Frontend Asset Handling
   s.add_dependency 'vite_rails', '3.0.15' # lock version, as newer version have problems with finding assets
   s.add_dependency 'vite_ruby', '3.3.4' # lock version, as newer version have problems with finding assets
@@ -132,4 +132,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'jsonpath'
   s.add_dependency 'rexml' # used for Hash.from_xml
+
+  s.add_dependency 'fastimage'
 end

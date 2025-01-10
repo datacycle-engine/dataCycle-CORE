@@ -92,10 +92,13 @@ module DataCycleCore
                 DataCycleCore::ClassificationAlias.all
               end
 
-      I18n.with_locale(helpers.active_ui_locale) do
-        query = query.search(search_params[:q]).assignable
+      if search_params[:q].present?
+        I18n.with_locale(helpers.active_ui_locale) do
+          query = query.search(search_params[:q])
+        end
+        query = query.order_by_similarity(search_params[:q])
       end
-      query = query.order_by_similarity(search_params[:q])
+      query = query.assignable
       query = query.limit(search_params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
       query = query.where.not(id: search_params[:exclude]) if search_params[:exclude].present?
       if search_params[:exclude_tree_label].present?

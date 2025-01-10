@@ -16,8 +16,8 @@ namespace :dc do
       Rake::Task['db:seed'].invoke
       Rake::Task['db:seed'].reenable
 
-      Rake::Task['data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['data_cycle_core:update:import_classifications'].reenable
+      Rake::Task['dc:concepts:import'].invoke
+      Rake::Task['dc:concepts:import'].reenable
 
       Rake::Task['dc:external_systems:import'].invoke
       Rake::Task['dc:external_systems:import'].reenable

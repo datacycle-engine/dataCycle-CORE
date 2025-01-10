@@ -2991,6 +2991,12 @@ input.normalized {
       display: block;
     }
   }
+
+  &.viewer:has(> .translatable-attribute.active:not(.remote-render):not(.remote-rendering):empty) {
+    display: none;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .available-attribute-locales {

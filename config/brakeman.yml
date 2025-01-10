@@ -5,3 +5,10 @@
   - node_modules/
   - cache/
   - lib/data_cycle_core/rufus_yaml_scheduler.rb
+  - app/models/data_cycle_core/generic/common/delete_contents.rb
+  - app/models/data_cycle_core/generic/common/import_functions.rb
+  - app/jobs/data_cycle_core/classification_mapping_job.rb
+  - config/initializers/monkey/hash_with_evaluated_values.rb
+  - app/models/data_cycle_core/generic/common/update_attributes.rb
+  - app/models/data_cycle_core/generic/common/download_functions.rb
+  - app/models/data_cycle_core/generic/common/delete_contents_update_attributes.rb

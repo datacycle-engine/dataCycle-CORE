@@ -1,4 +1,7 @@
-<% filter_config = DataCycleCore::Feature::MainFilter.available_filters(view: view_type, user: current_user, selected_filters: @filters) %>
+<%
+  filter_feature = DataCycleCore::Feature::MainFilter.new
+  filter_config = filter_feature.available_filters(view: view_type, user: current_user, selected_filters: @filters)
+%>
 <% new_filter_id = SecureRandom.hex(10) %>
 <% add_to_collection_id = SecureRandom.hex(10) %>
 
@@ -19,7 +22,7 @@
     <div class="row">
       <div class="column filter-body">
         <% filter_config[:filter].each do |filter| %>
-          <%= render "data_cycle_core/application/filters/sections/#{filter[:type]}", filter: filter, config: filter_config %>
+          <%= render "data_cycle_core/application/filters/sections/#{filter[:type]}", filter:, config: filter_config, filter_feature: %>
         <% end %>
 
         <%= render "data_cycle_core/application/filters/sections/hidden", hidden_filters: filter_config[:hidden_filter], config: filter_config if filter_config[:hidden_filter].present? %>

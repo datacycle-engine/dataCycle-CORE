@@ -117,6 +117,7 @@ module DataCycleCore
 
       DataCycleCore::ClassificationAlias
         .for_tree(tree_label)
+        .assignable
         .includes(
           :primary_classification, :classification_alias_path, sub_classification_alias: [
             :primary_classification, :classification_alias_path, {sub_classification_alias: [
@@ -153,10 +154,12 @@ module DataCycleCore
       )
     end
 
-    def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias, disabled_proc = nil)
+    def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias)
       value = Array.wrap(value).compact
+      full_classification_items = (classification_items + value).uniq
+
       options_for_select(
-        classification_items
+        full_classification_items
           &.filter_map do |c|
             ca = expected_classification_alias(c)
             next if ca.nil?
@@ -171,7 +174,7 @@ module DataCycleCore
                   dc_tooltip: classification_tooltip(ca),
                   full_path: ca.full_path
                 },
-                disabled: disabled_proc.present? ? disabled_proc.call(ca) : !ca.assignable
+                disabled: !ca.assignable
               }
             ]
           end,
@@ -191,7 +194,6 @@ module DataCycleCore
           allow_clear: definition.dig('validations', 'required') != true,
           tree_label: definition['tree_label'],
           max: 20,
-          close_on_select: single_select,
           placeholder: '',
           find_path: find_classifications_path,
           search_path: search_classifications_path
@@ -201,6 +203,32 @@ module DataCycleCore
         .merge(additional_options)
         .merge(definition.dig('ui', 'edit', 'options')&.except('class') || {})
         .tap { |h| h['class'] = "#{h['class']} #{definition.dig('ui', 'edit', 'options', 'class')}".squish }
+    end
+
+    def group_key_for_ctl(ctl, es)
+      return es[ctl.external_source_id]&.name || ctl.external_source_id if ctl.external_source_id.present?
+
+      es.values
+        .filter { |s|
+        ctl.name.to_s.downcase.start_with?(s.name.to_s.downcase) ||
+          ctl.name.to_s.downcase.start_with?(s.identifier.to_s.downcase)
+      }
+        .min_by { |s|
+        [
+          DidYouMean::Levenshtein.distance(ctl.name.to_s.downcase, s.name.to_s.downcase),
+          DidYouMean::Levenshtein.distance(ctl.name.to_s.downcase, s.identifier.to_s.downcase)
+        ].min
+      }&.name || (ctl.name.split(' - ').many? ? ctl.name.split(' - ').first : nil)
+    end
+
+    def grouped_classification_tree_labels(classification_tree_labels)
+      es = DataCycleCore::ExternalSystem.all.index_by(&:id)
+
+      classification_tree_labels
+        .group_by { |tree_label| group_key_for_ctl(tree_label, es) }
+        .sort_by { |group_key, _| group_key.to_s.downcase }
+        .to_h
+        .transform_values { |tree_labels| tree_labels.sort_by { |ctl| ctl.name.to_s.downcase } }
     end
   end
 end

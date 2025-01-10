@@ -32,14 +32,14 @@ module DataCycleCore
 
           @scheduler.send(task_type, config['time']) do
             Array(config['task']).each do |task|
-              system "rake #{task}"
+              run_task(task)
             end
           end
         else
           config.each do |cron_rule, tasks|
             @scheduler.cron cron_rule do
               tasks.each do |task|
-                system "rake #{task}"
+                run_task(task)
               end
             end
           end
@@ -47,6 +47,12 @@ module DataCycleCore
       end
 
       @scheduler.join
+    end
+
+    def run_task(task)
+      return if task.nil? || task.strip.empty?
+
+      system "rake #{task}"
     end
   end
 end

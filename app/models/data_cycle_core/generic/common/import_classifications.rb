@@ -211,7 +211,7 @@ module DataCycleCore
         end
 
         def import_classification(utility_object:, classification_data:, parent_classification_alias: nil)
-          return nil if classification_data[:name].blank?
+          return if classification_data[:name].blank?
 
           external_source_id = utility_object.external_source.id
           external_source_id = nil if utility_object.options.dig('import', 'no_external_source_id')

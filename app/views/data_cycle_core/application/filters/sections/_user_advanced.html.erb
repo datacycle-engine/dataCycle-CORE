@@ -14,7 +14,7 @@
 
   <div class="add-advanced-filter-container">
     <%= select_tag :add_advanced_filter,
-                    grouped_options_for_select(DataCycleCore::Feature::MainFilter.available_user_advanced_filters(current_user, :users)),
+                    grouped_options_for_select(filter_feature.available_user_advanced_filters(current_user, :users)),
                     prompt: t("filter.add", locale: active_ui_locale),
                     class: 'single-select',
                     data: { allow_clear: false } %>

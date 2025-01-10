@@ -60,6 +60,14 @@ module DataCycleCore
         action.to_s == 'delete'
       end
 
+      def discard_job_on_failure?
+        external_system.export_config.dig(action, :destroy_failed_jobs) ||
+          external_system.export_config.dig(action, :discard_on_failure) ||
+          external_system.export_config[:destroy_failed_jobs] ||
+          external_system.export_config[:discard_on_failure] ||
+          false
+      end
+
       def synchronous_filter?(data)
         delete_action? || data.destroyed? || data.try(:synchronous_filter) == true
       end

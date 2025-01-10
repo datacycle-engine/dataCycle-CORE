@@ -169,7 +169,8 @@ class RemoteRenderer {
 	}
 	renderNewHtml() {
 		for (const [target, html] of this.renderQueue) {
-			target.innerHTML = html;
+			const trimmedHtml = typeof html === "string" ? html.trim() : html;
+			target.innerHTML = trimmedHtml;
 			target.classList.add("remote-rendered");
 			target.classList.remove("remote-rendering");
 		}

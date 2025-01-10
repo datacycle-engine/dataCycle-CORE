@@ -130,7 +130,7 @@ module DataCycleCore
               }
             end
 
-            assert_classifications(json_validate, @content.full_classification_aliases.visible('api').map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)
@@ -304,7 +304,7 @@ module DataCycleCore
               }
             end
 
-            assert_classifications(json_validate, @content.full_classification_aliases.visible('api').map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)
@@ -695,7 +695,7 @@ module DataCycleCore
               }
             end
 
-            assert_classifications(json_validate, @content.full_classification_aliases.visible('api').map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)

@@ -15,7 +15,7 @@
   <% if can?(:advanced_filter, config[:view_type]&.to_sym) %>
     <div class="add-advanced-filter-container">
       <%= select_tag :add_advanced_filter,
-                      grouped_options_for_select(DataCycleCore::Feature::AdvancedFilter.available_filters(current_user, config[:view_type])),
+                      grouped_options_for_select(filter_feature.advanced_filter_feature.available_filters(current_user, config[:view_type])),
                       prompt: t("filter.add", locale: active_ui_locale),
                       class: 'single-select',
                       data: {
@@ -27,8 +27,8 @@
 
 <% if content_for?(:advanced_filters) %>
   <div class="advanced-filters accordion" data-accordion data-allow-all-closed="true">
-    <div class="accordion-item <%= 'is-active' if DataCycleCore::Feature::AdvancedFilter.always_visible? %>" data-accordion-item>
-      <div class="accordion-content" data-tab-content style="<%= 'display: block;' if DataCycleCore::Feature::AdvancedFilter.always_visible? %>">
+    <div class="accordion-item <%= 'is-active' if filter_feature.advanced_filter_feature.always_visible? %>" data-accordion-item>
+      <div class="accordion-content" data-tab-content style="<%= 'display: block;' if filter_feature.advanced_filter_feature.always_visible? %>">
         <%= yield_content!(:advanced_filters) %>
       </div>
       <a href="#" class="accordion-title">

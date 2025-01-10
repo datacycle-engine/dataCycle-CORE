@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::DownloadFunctions.download_content(
             download_object: utility_object,
             iterator: method(:load_data_from_mongo).to_proc,
-            data_id: method(:data_id).to_proc,
+            data_id: method(:data_id).to_proc.curry[options.dig(:download, :data_id_transformation)],
             data_name: method(:data_name).to_proc,
             options:,
             iterate_credentials: false
@@ -33,7 +33,7 @@ module DataCycleCore
 
           full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
           full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
-          source_filter_stage = { full_id_path => { '$ne' => nil } }.with_indifferent_access
+          source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
           post_unwind_source_filter_stage = source_filter_stage
@@ -99,6 +99,9 @@ module DataCycleCore
             },
             {
               '$replaceRoot' => { 'newRoot' => '$data' }
+            },
+            {
+              '$match' => { 'id' => { '$ne' => nil } }
             }
           ]
 
@@ -111,8 +114,11 @@ module DataCycleCore
           end
         end
 
-        def self.data_id(data)
-          data['id'].to_s
+        def self.data_id(data_id_transformation, data)
+          id = data['id'].to_s
+          id = data_id_transformation[:module].safe_constantize.public_send(data_id_transformation[:method], id) if data_id_transformation.present?
+
+          id
         end
 
         def self.data_name(data)

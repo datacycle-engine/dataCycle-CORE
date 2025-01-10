@@ -80,12 +80,14 @@ namespace :dc do
         abort('endpoint not found!') if stored_filter.nil? && watch_list.nil?
 
         params[:contents] = stored_filter.nil? ? watch_list.things : stored_filter.apply.query
+        contents_count = params[:contents].size
+        params[:contents] = params[:contents].page(1).per(contents_count)
       end
 
       renderer = cache_config['renderer'].classify.safe_constantize&.new(**params)
       renderer.render
 
-      logger.info("[DONE] Finished Warmup for #{args.identifier} in #{(Time.zone.now - tstart).round(2)}s.")
+      logger.info("[DONE] Finished Warmup for #{args.identifier} (#{contents_count.to_i} items) in #{(Time.zone.now - tstart).round(2)}s.")
     end
   end
 end
