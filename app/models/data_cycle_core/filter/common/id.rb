@@ -17,7 +17,7 @@ module DataCycleCore
               sub_query = '1 = 0'
             end
           when 'external'
-            alias1 = "things_#{SecureRandom.hex(5)}"
+            alias1 = "th#{SecureRandom.hex(5)}"
             sub_query = <<-SQL.squish
               "#{t_alias}"."id" IN (
                 SELECT "ess"."syncable_id"
@@ -30,8 +30,8 @@ module DataCycleCore
               )
             SQL
           when 'all'
-            alias1 = "things_#{SecureRandom.hex(5)}"
-            alias2 = "things_#{SecureRandom.hex(5)}"
+            alias1 = "th#{SecureRandom.hex(5)}"
+            alias2 = "th#{SecureRandom.hex(5)}"
 
             base_query = <<-SQL.squish
               SELECT "ess"."syncable_id"

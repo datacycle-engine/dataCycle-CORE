@@ -149,7 +149,7 @@ module DataCycleCore
 
         return self if start_date.nil? && end_date.nil?
 
-        joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
+        joined_table_name = "so#{SecureRandom.hex(10)}"
 
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
@@ -243,7 +243,7 @@ module DataCycleCore
           min_start_date = '1'
         end
 
-        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN (
             SELECT
@@ -259,7 +259,7 @@ module DataCycleCore
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
-        join_tabel_name2 = "opening_hours_description_closed_#{SecureRandom.hex(10)}"
+        join_tabel_name2 = "ohdc#{SecureRandom.hex(10)}"
         order_parameter_join2 = <<-SQL.squish
           LEFT OUTER JOIN (
             SELECT 1 AS "closed_description_exists", cc.content_a_id
@@ -314,7 +314,7 @@ module DataCycleCore
           min_start_date = '1'
         end
 
-        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,
@@ -354,7 +354,7 @@ module DataCycleCore
           min_start_date = '1'
         end
 
-        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN (
             SELECT
@@ -370,7 +370,7 @@ module DataCycleCore
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
-        join_tabel_name2 = "opening_hours_description_closed_#{SecureRandom.hex(10)}"
+        join_tabel_name2 = "ohdc#{SecureRandom.hex(10)}"
         order_parameter_join2 = <<-SQL.squish
           LEFT OUTER JOIN (
             SELECT 1 AS "closed_description_exists", cc.content_a_id
@@ -412,7 +412,7 @@ module DataCycleCore
           min_start_date = '1'
         end
 
-        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,

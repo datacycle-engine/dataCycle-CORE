@@ -378,7 +378,7 @@ module DataCycleCore
         thing_id, related_to_id = related_to_id, thing_id if inverse
         relation_name = inverse ? :relation_b : :relation_a
 
-        cc_alias = "cc_#{SecureRandom.hex(5)}"
+        cc_alias = "cc#{SecureRandom.hex(5)}"
         joins_query = ["INNER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id AND #{cc_alias}.#{related_to_id} IN (?)", filter_query]
 
         if relation.present?
@@ -396,7 +396,7 @@ module DataCycleCore
         thing_id, related_to_id = related_to_id, thing_id if inverse
         relation_name = inverse ? :relation_b : :relation_a
 
-        cc_alias = "cc_#{SecureRandom.hex(5)}"
+        cc_alias = "cc#{SecureRandom.hex(5)}"
         joins_query = ["LEFT OUTER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id AND #{cc_alias}.#{related_to_id} IN (?)", filter_query]
 
         if relation.present?
@@ -433,7 +433,7 @@ module DataCycleCore
         thing_id = :content_a_id
         thing_id = :content_b_id if inverse
 
-        cc_alias = "cc_#{SecureRandom.hex(5)}"
+        cc_alias = "cc#{SecureRandom.hex(5)}"
         joins_query = ["INNER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id"]
 
         if name.present?
@@ -448,7 +448,7 @@ module DataCycleCore
         thing_id = :content_a_id
         thing_id = :content_b_id if inverse
 
-        cc_alias = "cc_#{SecureRandom.hex(5)}"
+        cc_alias = "cc#{SecureRandom.hex(5)}"
         joins_query = ["LEFT OUTER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id"]
 
         if name.present?

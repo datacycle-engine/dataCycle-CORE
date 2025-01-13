@@ -295,7 +295,7 @@ module DataCycleCore
       end
 
       def generate_thing_alias
-        thing.alias("th_#{SecureRandom.hex(5)}")
+        thing.alias("th#{SecureRandom.hex(5)}")
       end
 
       def search_exists(query_string, fulltext_search = false)

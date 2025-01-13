@@ -112,7 +112,7 @@ module DataCycleCore
         def watch_list_ids_query(ids)
           return if ids.blank?
 
-          wldh_alias = watch_list_data_hash.alias("wldh_#{SecureRandom.hex(5)}")
+          wldh_alias = watch_list_data_hash.alias("wldh#{SecureRandom.hex(5)}")
           watch_lists = ids.all?(DataCycleCore::WatchList) ? ids : DataCycleCore::WatchList.where(id: ids).to_a
 
           subquery = DataCycleCore::WatchListDataHash.from(wldh_alias).except(*UNION_FILTER_EXCEPTS)
