@@ -23,7 +23,8 @@ module DataCycleCore
         @include_embedded = include_embedded
         @thing_alias = thing_alias || 'things'
         @thing_alias = thing.alias(@thing_alias) if @thing_alias.is_a?(String)
-        @query = query || default_query
+        @query = query
+        default_query if @query.nil?
       end
 
       def content_includes
@@ -371,42 +372,6 @@ module DataCycleCore
           .where(sub_select)
       end
 
-      def related_to_joins_query(filter, relation = nil, inverse = false)
-        filter_query = related_to_filter_query(filter)
-        thing_id = :content_a_id
-        related_to_id = :content_b_id
-        thing_id, related_to_id = related_to_id, thing_id if inverse
-        relation_name = inverse ? :relation_b : :relation_a
-
-        cc_alias = "cc#{SecureRandom.hex(5)}"
-        joins_query = ["INNER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id AND #{cc_alias}.#{related_to_id} IN (?)", filter_query]
-
-        if relation.present?
-          joins_query[0] += " AND #{cc_alias}.#{relation_name} IN (?)"
-          joins_query << relation
-        end
-
-        @query.joins(sanitize_sql(joins_query))
-      end
-
-      def not_related_to_joins_query(filter, relation = nil, inverse = false)
-        filter_query = related_to_filter_query(filter)
-        thing_id = :content_a_id
-        related_to_id = :content_b_id
-        thing_id, related_to_id = related_to_id, thing_id if inverse
-        relation_name = inverse ? :relation_b : :relation_a
-
-        cc_alias = "cc#{SecureRandom.hex(5)}"
-        joins_query = ["LEFT OUTER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id AND #{cc_alias}.#{related_to_id} IN (?)", filter_query]
-
-        if relation.present?
-          joins_query[0] += " AND #{cc_alias}.#{relation_name} IN (?)"
-          joins_query << relation
-        end
-
-        @query.joins(sanitize_sql(joins_query)).where("#{cc_alias}.id IS NULL")
-      end
-
       ##
       # This is the core functionality for the new bi-directional graph filter
       # Params:
@@ -429,36 +394,6 @@ module DataCycleCore
           .where(sub_select)
       end
 
-      def related_to_any_joins_query(name = nil, inverse = false)
-        thing_id = :content_a_id
-        thing_id = :content_b_id if inverse
-
-        cc_alias = "cc#{SecureRandom.hex(5)}"
-        joins_query = ["INNER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id"]
-
-        if name.present?
-          joins_query[0] += " AND #{cc_alias}.relation_a IN (?)"
-          joins_query << name
-        end
-
-        @query.joins(sanitize_sql(joins_query))
-      end
-
-      def not_related_to_any_joins_query(name = nil, inverse = false)
-        thing_id = :content_a_id
-        thing_id = :content_b_id if inverse
-
-        cc_alias = "cc#{SecureRandom.hex(5)}"
-        joins_query = ["LEFT OUTER JOIN content_contents #{cc_alias} ON #{cc_alias}.#{thing_id} = #{thing_alias.right}.id"]
-
-        if name.present?
-          joins_query[0] += " AND #{cc_alias}.relation_a IN (?)"
-          joins_query << name
-        end
-
-        @query.joins(sanitize_sql(joins_query)).where("#{cc_alias}.id IS NULL")
-      end
-
       def default_query
         query = DataCycleCore::Thing.default_scoped
         query = query.from(thing_alias) unless thing_alias.right == 'things'
@@ -475,7 +410,8 @@ module DataCycleCore
           )
         end
 
-        query
+        reflect(query)
+        sort_default
       end
     end
   end
