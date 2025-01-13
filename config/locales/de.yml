@@ -1792,6 +1792,7 @@ de:
           specification: Spezifikation
           elevation_profile: Höhenprofil
           suggest: Autovervollständigung
+          performance: Performance Optimierungen
         webhooks:
           root: Webhooks
           json_ld: JSON-LD

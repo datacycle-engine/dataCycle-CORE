@@ -23,8 +23,7 @@ module DataCycleCore
         @include_embedded = include_embedded
         @thing_alias = thing_alias || 'things'
         @thing_alias = thing.alias(@thing_alias) if @thing_alias.is_a?(String)
-        @query = query
-        default_query if @query.nil?
+        @query = query || default_query
       end
 
       def content_includes
@@ -345,11 +344,11 @@ module DataCycleCore
 
       def related_to_filter_query(filter)
         if filter.is_a?(Search)
-          filter.select(:id).except(:order)
+          Arel.sql(filter.select(:id).except(:order).to_sql)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
-          stored_filter.things.select(:id).except(:order)
+          Arel.sql(stored_filter.things.select(:id).except(:order).to_sql)
         elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-          collection.watch_list_data_hashes.select(:thing_id).except(:order)
+          Arel.sql(collection.watch_list_data_hashes.select(:thing_id).except(:order).to_sql)
         else # in case filter is array of thing_ids
           Array.wrap(filter)
         end
@@ -410,8 +409,7 @@ module DataCycleCore
           )
         end
 
-        reflect(query)
-        sort_default
+        apply_default_sorting(query)
       end
     end
   end

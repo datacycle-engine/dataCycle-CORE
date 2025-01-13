@@ -4,33 +4,24 @@ module DataCycleCore
   module Filter
     module Sortable
       def reset_sort
-        reflect(@query.reorder(nil))
+        reflect(query_without_order)
       end
 
       def sort_default(_ordering = 'DESC')
-        reflect(
-          @query
-            .reorder(nil)
-            .order(
-              thing_alias[:boost].desc,
-              thing_alias[:updated_at].desc,
-              thing_alias[:id].desc
-            )
-        )
+        reflect(apply_default_sorting(query_without_order))
       end
 
       def sort_collection_manual_order(ordering, watch_list_id)
         return self if watch_list_id.nil?
 
         reflect(
-          @query
+          query_without_order
             .joins(
               ActiveRecord::Base.send(:sanitize_sql_array, [
                                         "LEFT OUTER JOIN watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = ? AND watch_list_data_hashes.thing_id = #{thing_alias.right}.id",
                                         watch_list_id
                                       ])
             )
-            .reorder(nil)
             .order(
               watch_list_data_hash[:order_a].send(sanitized_ordering(ordering.presence || 'asc')),
               watch_list_data_hash[:created_at].asc,
@@ -51,17 +42,15 @@ module DataCycleCore
         # TODO: fix random sorting with moving active query into exists subquery
 
         reflect(
-          @query
+          query_without_order
             .joins(random_join_query)
-            .reorder(nil)
             .order(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, 'random()')))
         )
       end
 
       def sort_boost(ordering)
         reflect(
-          @query
-            .reorder(nil)
+          query_without_order
             .order(
               thing_alias[:boost].send(sanitized_ordering(ordering)),
               thing_alias[:id].desc
@@ -71,8 +60,7 @@ module DataCycleCore
 
       def sort_updated_at(ordering)
         reflect(
-          @query
-            .reorder(nil)
+          query_without_order
             .order(
               thing_alias[:updated_at].send(sanitized_ordering(ordering)),
               thing_alias[:id].desc
@@ -83,8 +71,7 @@ module DataCycleCore
 
       def sort_created_at(ordering)
         reflect(
-          @query
-            .reorder(nil)
+          query_without_order
             .order(
               thing_alias[:created_at].send(sanitized_ordering(ordering)),
               thing_alias[:id].desc
@@ -97,9 +84,8 @@ module DataCycleCore
         locale = @locale&.first || I18n.available_locales.first.to_s
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = #{thing_alias.right}.id AND thing_translations.locale = ?", locale]))
-            .reorder(nil)
             .order(
               sanitized_order_string("thing_translations.content ->> 'name'", ordering, true),
               thing_alias[:id].desc
@@ -112,9 +98,8 @@ module DataCycleCore
         locale = @locale&.first || I18n.available_locales.first.to_s
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT OUTER JOIN searches ON searches.content_data_id = #{thing_alias.right}.id AND searches.locale = ?", locale]))
-            .reorder(nil)
             .order(
               sanitized_order_string("searches.advanced_attributes -> '#{attribute_path}'", ordering, true),
               thing_alias[:id].desc
@@ -133,8 +118,7 @@ module DataCycleCore
         end
 
         reflect(
-          @query
-            .reorder(nil)
+          query_without_order
             .order(
               absolute_date_diff(cast_ts(in_json(thing_alias[:metadata], 'end_date')), Arel::Nodes.build_quoted(date.iso8601)),
               absolute_date_diff(cast_ts(in_json(thing_alias[:metadata], 'start_date')), Arel::Nodes.build_quoted(date.iso8601)),
@@ -164,9 +148,8 @@ module DataCycleCore
         SQL
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
-            .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               thing_alias[:updated_at].desc,
@@ -184,8 +167,7 @@ module DataCycleCore
         order_string = "#{thing_alias.right}.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
 
         reflect(
-          @query
-            .reorder(nil)
+          query_without_order
             .order(
               sanitized_order_string(order_string, ordering, true),
               thing_alias[:updated_at].desc,
@@ -274,10 +256,9 @@ module DataCycleCore
         SQL
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join2]))
-            .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
@@ -328,9 +309,8 @@ module DataCycleCore
         SQL
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
-            .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
@@ -385,10 +365,9 @@ module DataCycleCore
         SQL
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join2]))
-            .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
@@ -426,9 +405,8 @@ module DataCycleCore
         SQL
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
-            .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
@@ -444,26 +422,20 @@ module DataCycleCore
         normalized_value = DataCycleCore::MasterData::DataConverter.string_to_string(value)
         return self if normalized_value.blank?
         search_string = normalized_value.split.join('%')
+        order_sql = <<-SQL.squish
+          #{thing_alias.right}.boost * (
+            8 * similarity(searches.classification_string, :search_string) +
+            4 * similarity(searches.headline, :search_string) +
+            2 * ts_rank_cd(searches.words, plainto_tsquery(pg_dict_mappings.dict, :search),16) +
+            1 * similarity(searches.full_text, :search_string)
+          )
+        SQL
 
-        order_string = ActiveRecord::Base.send(
-          :sanitize_sql_for_conditions,
-          [
-            Arel.sql(
-              "#{thing_alias.right}.boost * (
-              8 * similarity(searches.classification_string, :search_string) +
-              4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery(pg_dict_mappings.dict, :search),16) +
-              1 * similarity(searches.full_text, :search_string))"
-            ),
-            {search_string: "%#{search_string}%",
-             search: normalized_value}
-          ]
-        )
+        order_string = sanitize_sql([order_sql, {search_string: "%#{search_string}%", search: normalized_value}])
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT JOIN searches ON searches.content_data_id = #{thing_alias.right}.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale", locale]))
-            .reorder(nil)
             .order(
               sanitized_order_string(order_string, ordering, true),
               thing_alias[:updated_at].desc,
@@ -479,9 +451,8 @@ module DataCycleCore
         locale = @locale&.first || I18n.available_locales.first.to_s
 
         reflect(
-          @query
+          query_without_order
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT JOIN searches ON searches.content_data_id = #{thing_alias.right}.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale", locale]))
-            .reorder(nil)
             .order(
               sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, ?), 5)'), q]), ordering, true),
               thing_alias[:updated_at].desc,
@@ -507,6 +478,20 @@ module DataCycleCore
 
         order_nulls = nulls_last ? ' NULLS LAST' : ''
         Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, "#{order_string} #{ordering}#{order_nulls}"))
+      end
+
+      private
+
+      def query_without_order
+        @query.reorder(nil).except(:joins)
+      end
+
+      def apply_default_sorting(query)
+        query.order(
+          thing_alias[:boost].desc,
+          thing_alias[:updated_at].desc,
+          thing_alias[:id].desc
+        )
       end
     end
   end

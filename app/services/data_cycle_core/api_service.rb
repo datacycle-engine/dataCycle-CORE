@@ -450,7 +450,11 @@ module DataCycleCore
 
     def new_thing_search(language, ids, embedded = false)
       DataCycleCore::Filter::Search
-        .new(language, ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.limit(1), embedded)
+        .new(
+          locale: language,
+          query: ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.limit(1),
+          include_embedded: embedded
+        )
         .content_ids(ids)
     end
 

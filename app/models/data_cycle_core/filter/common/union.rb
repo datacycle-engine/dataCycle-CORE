@@ -17,7 +17,7 @@ module DataCycleCore
           return self if filter_query_sql.blank?
 
           if DataCycleCore.union_filter_strategy == 'exists'
-            reflect(@query.where("EXISTS (#{Arel.sql(filter_query_sql)})"))
+            reflect(@query.where(filter_query_sql))
           else
             reflect(@query.where(thing_alias[:id].in(Arel.sql(filter_query_sql))))
           end
@@ -29,7 +29,7 @@ module DataCycleCore
           return self if filter_query_sql.blank?
 
           if DataCycleCore.union_filter_strategy == 'exists'
-            reflect(@query.where.not("EXISTS (#{Arel.sql(filter_query_sql)})"))
+            reflect(@query.where.not(filter_query_sql))
           else
             reflect(@query.where(thing_alias[:id].not_in(Arel.sql(filter_query_sql))))
           end
@@ -125,7 +125,7 @@ module DataCycleCore
 
           return subquery.where('1 = 0').to_sql if watch_lists.blank?
 
-          subquery.where(wldh_alias[:watch_list_id].in(ids.pluck(:id))).to_sql
+          subquery.where(wldh_alias[:watch_list_id].in(watch_lists.pluck(:id))).to_sql
         end
 
         def filter_ids_query(ids)
@@ -170,7 +170,9 @@ module DataCycleCore
           queries = []
           queries.push(watch_list_ids_query(watch_lists)) if watch_lists.present?
           queries.push(filter_ids_query(stored_filters)) if stored_filters.present?
-          queries.join(' UNION ALL ')
+          query = queries.join(' UNION ALL ')
+          query = "EXISTS (#{query})" if DataCycleCore.union_filter_strategy == 'exists'
+          query
         end
 
         def union_filter(filters = [])

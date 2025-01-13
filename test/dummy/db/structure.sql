@@ -506,7 +506,7 @@ CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
 
 CREATE FUNCTION public.generate_schedule_occurences_array(s_dtstart timestamp with time zone, s_rrule character varying, s_rdate timestamp with time zone[], s_exdate timestamp with time zone[], s_duration interval) RETURNS tstzmultirange
     LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE
-    AS $$ DECLARE schedule_array tstzmultirange; schedule_duration INTERVAL; all_occurrences timestamp WITHOUT time zone []; BEGIN CASE WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds'; WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds'; ELSE schedule_duration = s_duration; END CASE ; CASE WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone]; WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences ( ( CASE WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule ELSE (s_rrule || ';UNTIL=2030-01-09') END )::rrule, s_dtstart AT TIME ZONE 'Europe/Vienna', '2030-01-09' AT TIME ZONE 'Europe/Vienna' ); END CASE ; WITH occurences AS ( SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence UNION SELECT unnest(s_rdate) AS occurence ), exdates AS ( SELECT tstzrange( DATE_TRUNC('day', s.exdate), DATE_TRUNC('day', s.exdate) + INTERVAL '1 day' ) exdate FROM unnest(s_exdate) AS s(exdate) ) SELECT range_agg( tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ) INTO schedule_array FROM occurences WHERE occurences.occurence IS NOT NULL AND occurences.occurence + schedule_duration > '2024-01-09' AND NOT EXISTS ( SELECT 1 FROM exdates WHERE exdates.exdate && tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ); RETURN schedule_array; END; $$;
+    AS $$ DECLARE schedule_array tstzmultirange; schedule_duration INTERVAL; all_occurrences timestamp WITHOUT time zone []; BEGIN CASE WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds'; WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds'; ELSE schedule_duration = s_duration; END CASE ; CASE WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone]; WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences ( ( CASE WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule ELSE (s_rrule || ';UNTIL=2030-01-13') END )::rrule, s_dtstart AT TIME ZONE 'Europe/Vienna', '2030-01-13' AT TIME ZONE 'Europe/Vienna' ); END CASE ; WITH occurences AS ( SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence UNION SELECT unnest(s_rdate) AS occurence ), exdates AS ( SELECT tstzrange( DATE_TRUNC('day', s.exdate), DATE_TRUNC('day', s.exdate) + INTERVAL '1 day' ) exdate FROM unnest(s_exdate) AS s(exdate) ) SELECT range_agg( tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ) INTO schedule_array FROM occurences WHERE occurences.occurence IS NOT NULL AND occurences.occurence + schedule_duration > '2024-01-13' AND NOT EXISTS ( SELECT 1 FROM exdates WHERE exdates.exdate && tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ); RETURN schedule_array; END; $$;
 
 
 --
@@ -1474,8 +1474,7 @@ CREATE TABLE public.data_links (
 CREATE TABLE public.watch_list_data_hashes (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     watch_list_id uuid,
-    hashable_id uuid,
-    hashable_type character varying,
+    thing_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
@@ -1489,8 +1488,8 @@ CREATE TABLE public.watch_list_data_hashes (
 
 CREATE VIEW public.content_items AS
  SELECT data_links.id AS data_link_id,
-    watch_list_data_hashes.hashable_type AS content_type,
-    watch_list_data_hashes.hashable_id AS content_id,
+    'DataCycleCore::Thing'::character varying AS content_type,
+    watch_list_data_hashes.thing_id AS content_id,
     data_links.creator_id,
     data_links.receiver_id
    FROM (public.data_links
@@ -2538,10 +2537,10 @@ CREATE INDEX by_thing_id_version_name ON public.thing_histories USING btree (thi
 
 
 --
--- Name: by_watch_list_hashable; Type: INDEX; Schema: public; Owner: -
+-- Name: by_watch_list_thing; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX by_watch_list_hashable ON public.watch_list_data_hashes USING btree (watch_list_id, hashable_id, hashable_type);
+CREATE UNIQUE INDEX by_watch_list_thing ON public.watch_list_data_hashes USING btree (watch_list_id, thing_id);
 
 
 --
@@ -3721,17 +3720,10 @@ CREATE INDEX index_validity_range ON public.things USING gist (validity_range);
 
 
 --
--- Name: index_watch_list_data_hashes_on_hashable_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_watch_list_data_hashes_on_thing_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_watch_list_data_hashes_on_hashable_id ON public.watch_list_data_hashes USING btree (hashable_id);
-
-
---
--- Name: index_watch_list_data_hashes_on_hashable_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_watch_list_data_hashes_on_hashable_type ON public.watch_list_data_hashes USING btree (hashable_type);
+CREATE INDEX index_watch_list_data_hashes_on_thing_id ON public.watch_list_data_hashes USING btree (thing_id);
 
 
 --
@@ -4373,6 +4365,14 @@ ALTER TABLE ONLY public.external_hashes
 
 
 --
+-- Name: thing_duplicates fk_rails_05c54c3fa2; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_duplicates
+    ADD CONSTRAINT fk_rails_05c54c3fa2 FOREIGN KEY (thing_duplicate_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
+
+
+--
 -- Name: things fk_rails_08fe6d1543; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4410,6 +4410,22 @@ ALTER TABLE ONLY public.collection_concept_scheme_links
 
 ALTER TABLE ONLY public.concept_links
     ADD CONSTRAINT fk_rails_1c70d20c08 FOREIGN KEY (parent_id) REFERENCES public.concepts(id) ON DELETE CASCADE;
+
+
+--
+-- Name: data_links fk_rails_1d0770dd5d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.data_links
+    ADD CONSTRAINT fk_rails_1d0770dd5d FOREIGN KEY (receiver_id) REFERENCES public.users(id) ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: content_contents fk_rails_230e7ec445; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_contents
+    ADD CONSTRAINT fk_rails_230e7ec445 FOREIGN KEY (content_b_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4466,6 +4482,14 @@ ALTER TABLE ONLY public.user_group_users
 
 ALTER TABLE ONLY public.timeseries
     ADD CONSTRAINT fk_rails_53ff16144f FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
+-- Name: data_links fk_rails_54df7bf04c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.data_links
+    ADD CONSTRAINT fk_rails_54df7bf04c FOREIGN KEY (creator_id) REFERENCES public.users(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4541,11 +4565,51 @@ ALTER TABLE ONLY public.things
 
 
 --
+-- Name: activities fk_rails_7e11bb717f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT fk_rails_7e11bb717f FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL NOT VALID;
+
+
+--
+-- Name: watch_list_data_hashes fk_rails_802510cb44; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.watch_list_data_hashes
+    ADD CONSTRAINT fk_rails_802510cb44 FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: content_contents fk_rails_8f17626a0f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_contents
+    ADD CONSTRAINT fk_rails_8f17626a0f FOREIGN KEY (content_a_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: schedule_histories fk_rails_8f70a3c02a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schedule_histories
+    ADD CONSTRAINT fk_rails_8f70a3c02a FOREIGN KEY (thing_history_id) REFERENCES public.thing_histories(id) ON DELETE CASCADE NOT VALID;
+
+
+--
 -- Name: external_system_syncs fk_rails_8fcdea2ef6; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.external_system_syncs
     ADD CONSTRAINT fk_rails_8fcdea2ef6 FOREIGN KEY (external_system_id) REFERENCES public.external_systems(id) ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: subscriptions fk_rails_933bdff476; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT fk_rails_933bdff476 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4581,11 +4645,27 @@ ALTER TABLE ONLY public.collections
 
 
 --
+-- Name: thing_translations fk_rails_a1f2bbcb48; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_translations
+    ADD CONSTRAINT fk_rails_a1f2bbcb48 FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
+
+
+--
 -- Name: classification_aliases fk_rails_a7798aa495; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_aliases
     ADD CONSTRAINT fk_rails_a7798aa495 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
+
+
+--
+-- Name: thing_history_translations fk_rails_b0d96b715e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_history_translations
+    ADD CONSTRAINT fk_rails_b0d96b715e FOREIGN KEY (thing_history_id) REFERENCES public.thing_histories(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4613,11 +4693,27 @@ ALTER TABLE ONLY public.active_storage_attachments
 
 
 --
+-- Name: searches fk_rails_c8a621b20c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.searches
+    ADD CONSTRAINT fk_rails_c8a621b20c FOREIGN KEY (content_data_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
+
+
+--
 -- Name: classification_alias_paths_transitive fk_rails_ca1c042635; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_alias_paths_transitive
     ADD CONSTRAINT fk_rails_ca1c042635 FOREIGN KEY (classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: thing_duplicates fk_rails_caacc7a302; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_duplicates
+    ADD CONSTRAINT fk_rails_caacc7a302 FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4634,6 +4730,14 @@ ALTER TABLE ONLY public.content_collection_link_histories
 
 ALTER TABLE ONLY public.collection_shares
     ADD CONSTRAINT fk_rails_cd18bf012f FOREIGN KEY (collection_id) REFERENCES public.collections(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: schedules fk_rails_d8a1d5f0dc; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schedules
+    ADD CONSTRAINT fk_rails_d8a1d5f0dc FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4720,6 +4824,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20250108072427'),
 ('20250107133412'),
 ('20241216145559'),
+('20241211110059'),
 ('20241209070253'),
 ('20241206091323'),
 ('20241119134033'),

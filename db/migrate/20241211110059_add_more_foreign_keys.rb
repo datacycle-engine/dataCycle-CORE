@@ -14,6 +14,31 @@ class AddMoreForeignKeys < ActiveRecord::Migration[7.1]
 
     execute <<-SQL.squish
       DROP VIEW IF EXISTS public.content_items;
+
+      CREATE VIEW public.content_items(
+        data_link_id,
+        content_type,
+        content_id,
+        creator_id,
+        receiver_id
+      ) AS (
+        SELECT data_links.id AS data_link_id,
+          'DataCycleCore::Thing' AS content_type,
+          thing_id AS content_id,
+          creator_id,
+          receiver_id
+        FROM data_links
+          JOIN watch_list_data_hashes ON watch_list_id = item_id
+        WHERE item_type = 'DataCycleCore::WatchList'
+        UNION
+        SELECT data_links.id AS data_link_id,
+          item_type AS content_type,
+          item_id AS content_id,
+          creator_id,
+          receiver_id
+        FROM data_links
+        WHERE item_type <> 'DataCycleCore::WatchList'
+      );
     SQL
 
     remove_column :watch_list_data_hashes, :hashable_type
