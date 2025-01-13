@@ -31,19 +31,12 @@ module DataCycleCore
         end
 
         def common_graph_filter_prep(filter, name, query, exclude = false)
+          subquery = graph_filter_query(filter, name, query == 'items_linked_to')
+          return self if subquery.nil?
+
           if exclude
-            if DataCycleCore.filter_strategy == 'joins'
-              reflect(not_graph_joins_query(filter, name, query == 'items_linked_to'))
-            else
-              subquery = graph_filter_query(filter, name, query == 'items_linked_to')
-              return self if subquery.nil?
-              reflect(@query.where.not(subquery.project(1).exists))
-            end
-          elsif DataCycleCore.filter_strategy == 'joins'
-            reflect(graph_joins_query(filter, name, query == 'items_linked_to'))
+            reflect(@query.where.not(subquery.project(1).exists))
           else
-            subquery = graph_filter_query(filter, name, query == 'items_linked_to')
-            return self if subquery.nil?
             reflect(@query.where(subquery.project(1).exists))
           end
         end

@@ -16,8 +16,7 @@ module DataCycleCore
 
           return self if filter_query_sql.blank?
 
-          case DataCycleCore.union_filter_strategy
-          when 'exists'
+          if DataCycleCore.union_filter_strategy == 'exists'
             reflect(@query.where("EXISTS (#{Arel.sql(filter_query_sql)})"))
           else
             reflect(@query.where(thing_alias[:id].in(Arel.sql(filter_query_sql))))
@@ -29,8 +28,7 @@ module DataCycleCore
 
           return self if filter_query_sql.blank?
 
-          case DataCycleCore.union_filter_strategy
-          when 'exists'
+          if DataCycleCore.union_filter_strategy == 'exists'
             reflect(@query.where.not("EXISTS (#{Arel.sql(filter_query_sql)})"))
           else
             reflect(@query.where(thing_alias[:id].not_in(Arel.sql(filter_query_sql))))
@@ -119,8 +117,7 @@ module DataCycleCore
 
           subquery = DataCycleCore::WatchListDataHash.from(wldh_alias).except(*UNION_FILTER_EXCEPTS)
 
-          case DataCycleCore.union_filter_strategy
-          when 'exists'
+          if DataCycleCore.union_filter_strategy == 'exists'
             subquery = subquery.select(1).where(wldh_alias[:thing_id].eq(thing_alias[:id]))
           else
             subquery = subquery.select(wldh_alias[:thing_id])
@@ -146,8 +143,7 @@ module DataCycleCore
 
             subquery = f.things(skip_ordering: true, thing_alias: t_alias).except(*UNION_FILTER_EXCEPTS)
 
-            case DataCycleCore.union_filter_strategy
-            when 'exists'
+            if DataCycleCore.union_filter_strategy == 'exists'
               subquery = subquery.select(1).where(t_alias[:id].eq(thing_alias[:id]))
             else
               subquery = subquery.select(t_alias[:id])
@@ -178,8 +174,6 @@ module DataCycleCore
         end
 
         def union_filter(filters = [])
-          raise 'test'
-          binding.pry
           filters = filters.map { |f| f.select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.compact_blank
 
           return self if filters.blank?

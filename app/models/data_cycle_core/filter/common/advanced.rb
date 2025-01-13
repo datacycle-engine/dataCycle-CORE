@@ -145,195 +145,102 @@ module DataCycleCore
         end
 
         def equals_advanced_slug(value = nil, _attribute_path = nil)
-          if DataCycleCore.filter_strategy == 'joins'
-            tt_alias = "tt_#{SecureRandom.hex(5)}"
-            reflect(
-              @query.joins(
-                sanitize_sql(
-                  [
-                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.slug = ?", value[:equals]
-                  ]
-                )
-              )
+          reflect(
+            @query.where(
+              DataCycleCore::Thing::Translation.where(
+                thing_translations[:slug].eq(value[:equals])
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
             )
-          else
-            reflect(
-              @query.where(
-                DataCycleCore::Thing::Translation.where(
-                  thing_translations[:slug].eq(value[:equals])
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
-              )
-            )
-          end
+          )
         end
 
         def equals_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
           search_value = value['text']
 
-          if DataCycleCore.filter_strategy == 'joins'
-            tt_alias = "tt_#{SecureRandom.hex(5)}"
-            reflect(
-              @query.joins(
-                sanitize_sql(
-                  [
-                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' ILIKE ?", @locale, search_value
-                  ]
-                )
-              )
+          reflect(
+            @query.where(
+              DataCycleCore::Thing::Translation.where(
+                in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
+                  .and(thing_translations[:locale].in(@locale))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
             )
-          else
-            reflect(
-              @query.where(
-                DataCycleCore::Thing::Translation.where(
-                  in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
-                    .and(thing_translations[:locale].in(@locale))
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
-              )
-            )
-          end
+          )
         end
 
         def not_equals_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
           search_value = value['text']
 
-          if DataCycleCore.filter_strategy == 'joins'
-            tt_alias = "tt_#{SecureRandom.hex(5)}"
-            reflect(
-              @query.joins(
-                sanitize_sql(
-                  [
-                    "LEFT OUTER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' ILIKE ?", @locale, search_value
-                  ]
-                )
-              )
-              .where("#{tt_alias}.id IS NULL")
+          reflect(
+            @query.where.not(
+              DataCycleCore::Thing::Translation.where(
+                in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
+                  .and(thing_translations[:locale].in(@locale))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
             )
-          else
-            reflect(
-              @query.where.not(
-                DataCycleCore::Thing::Translation.where(
-                  in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
-                    .and(thing_translations[:locale].in(@locale))
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
-              )
-            )
-          end
+          )
         end
 
         def like_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
           search_value = value['text']
 
-          if DataCycleCore.filter_strategy == 'joins'
-            tt_alias = "tt_#{SecureRandom.hex(5)}"
-            reflect(
-              @query.joins(
-                sanitize_sql(
-                  [
-                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' ILIKE ?", @locale, "%#{search_value}%"
-                  ]
-                )
-              )
+          reflect(
+            @query.where(
+              DataCycleCore::Thing::Translation.where(
+                in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
+                  .and(thing_translations[:locale].in(@locale))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
             )
-          else
-            reflect(
-              @query.where(
-                DataCycleCore::Thing::Translation.where(
-                  in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
-                    .and(thing_translations[:locale].in(@locale))
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
-              )
-            )
-          end
+          )
         end
 
         def not_like_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
           search_value = value['text']
 
-          if DataCycleCore.filter_strategy == 'joins'
-            tt_alias = "tt_#{SecureRandom.hex(5)}"
-            reflect(
-              @query.joins(
-                sanitize_sql(
-                  [
-                    "LEFT OUTER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' ILIKE ?", @locale, "%#{search_value}%"
-                  ]
-                )
-              )
-              .where("#{tt_alias}.id IS NULL")
+          reflect(
+            @query.where.not(
+              DataCycleCore::Thing::Translation.where(
+                in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
+                  .and(thing_translations[:locale].in(@locale))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
             )
-          else
-            reflect(
-              @query.where.not(
-                DataCycleCore::Thing::Translation.where(
-                  in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
-                    .and(thing_translations[:locale].in(@locale))
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
-              )
-            )
-          end
+          )
         end
 
         def exists_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
 
-          if DataCycleCore.filter_strategy == 'joins'
-            tt_alias = "tt_#{SecureRandom.hex(5)}"
-            reflect(
-              @query.joins(
-                sanitize_sql(
-                  [
-                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND #{tt_alias}.content ->> 'name' IS NOT NULL AND #{tt_alias}.content ->> 'name' != ''", @locale
-                  ]
-                )
-              )
+          reflect(
+            @query.where.not(
+              DataCycleCore::Thing::Translation.where(
+                in_json(thing_translations[:content], 'name').eq(nil)
+                  .and(thing_translations[:locale].in(@locale))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
             )
-          else
-            reflect(
-              @query.where.not(
-                DataCycleCore::Thing::Translation.where(
-                  in_json(thing_translations[:content], 'name').eq(nil)
-                    .and(thing_translations[:locale].in(@locale))
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
-              )
-            )
-          end
+          )
         end
 
         def not_exists_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
 
-          if DataCycleCore.filter_strategy == 'joins'
-            tt_alias = "tt_#{SecureRandom.hex(5)}"
-            reflect(
-              @query.joins(
-                sanitize_sql(
-                  [
-                    "INNER JOIN thing_translations #{tt_alias} ON #{tt_alias}.thing_id = #{thing_alias.right}.id AND #{tt_alias}.locale IN (?) AND (#{tt_alias}.content ->> 'name' IS NULL OR #{tt_alias}.content ->> 'name' = '')", @locale
-                  ]
-                )
-              )
+          reflect(
+            @query.where(
+              DataCycleCore::Thing::Translation.where(
+                in_json(thing_translations[:content], 'name').eq(nil)
+                  .and(thing_translations[:locale].in(@locale))
+                  .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
             )
-          else
-            reflect(
-              @query.where(
-                DataCycleCore::Thing::Translation.where(
-                  in_json(thing_translations[:content], 'name').eq(nil)
-                    .and(thing_translations[:locale].in(@locale))
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
-              )
-            )
-          end
+          )
         end
 
         def equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)

@@ -228,9 +228,6 @@ module DataCycleCore
   mattr_accessor :union_filter_strategy
   self.union_filter_strategy = 'in'
 
-  mattr_accessor :filter_strategy
-  self.filter_strategy = 'joins'
-
   mattr_accessor :permissions
   self.permissions = {}
 

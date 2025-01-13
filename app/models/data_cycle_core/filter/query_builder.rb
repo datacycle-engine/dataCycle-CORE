@@ -7,7 +7,7 @@ module DataCycleCore
       include Enumerable
       include DataCycleCore::Common::ArelBuilder
 
-      attr_reader :parent_thing_alias, :thing_alias, :is_root_query, :include_embedded
+      attr_reader :query, :parent_thing_alias, :thing_alias, :is_root_query, :include_embedded
       def_delegators :query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
       TERMINAL_METHODS = [:count, :size, :pluck, :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :query, *TERMINAL_METHODS
@@ -42,14 +42,6 @@ module DataCycleCore
 
       def sanitize_sql(sql_array)
         ActiveRecord::Base.send(:sanitize_sql_array, sql_array)
-      end
-
-      def query
-        if DataCycleCore.filter_strategy == 'joins' && is_root_query
-          @base_query.where(id: @query.select(thing_alias[:id]))
-        else
-          @query
-        end
       end
 
       private

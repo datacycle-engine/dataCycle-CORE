@@ -4,35 +4,19 @@ module DataCycleCore
   module Filter
     module Sortable
       def reset_sort
-        if DataCycleCore.filter_strategy == 'joins'
-          @base_query = @base_query.reorder(nil)
-          self
-        else
-          reflect(@query.reorder(nil))
-        end
+        reflect(@query.reorder(nil))
       end
 
       def sort_default(_ordering = 'DESC')
-        if DataCycleCore.filter_strategy == 'joins'
-          @base_query = @base_query
+        reflect(
+          @query
             .reorder(nil)
             .order(
               thing_alias[:boost].desc,
               thing_alias[:updated_at].desc,
               thing_alias[:id].desc
             )
-          self
-        else
-          reflect(
-            @query
-              .reorder(nil)
-              .order(
-                thing_alias[:boost].desc,
-                thing_alias[:updated_at].desc,
-                thing_alias[:id].desc
-              )
-          )
-        end
+        )
       end
 
       def sort_collection_manual_order(ordering, watch_list_id)
@@ -126,6 +110,7 @@ module DataCycleCore
 
       def sort_advanced_attribute(ordering, attribute_path)
         locale = @locale&.first || I18n.available_locales.first.to_s
+
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT OUTER JOIN searches ON searches.content_data_id = #{thing_alias.right}.id AND searches.locale = ?", locale]))
@@ -146,6 +131,7 @@ module DataCycleCore
           date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
         end
+
         reflect(
           @query
             .reorder(nil)
@@ -177,8 +163,8 @@ module DataCycleCore
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
-        if DataCycleCore.filter_strategy == 'joins'
-          @base_query = @base_query
+        reflect(
+          @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
             .reorder(nil)
             .order(
@@ -186,20 +172,9 @@ module DataCycleCore
               thing_alias[:updated_at].desc,
               thing_alias[:id].desc
             )
-          self
-        else
-          reflect(
-            @query
-              .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
-              .reorder(nil)
-              .order(
-                sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
-                thing_alias[:updated_at].desc,
-                thing_alias[:id].desc
-              )
-          )
-        end
+        )
       end
+
       alias sort_by_schedule_proximity sort_by_proximity
       alias sort_proximity_occurrence sort_by_proximity
 
