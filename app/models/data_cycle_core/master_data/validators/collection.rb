@@ -8,7 +8,7 @@ module DataCycleCore
 
         def validate(data, template, _strict = false)
           if blank?(data)
-            true
+            return @error
           elsif data.is_a?(::Array) || data.is_a?(ActiveRecord::Relation) || data.is_a?(::String)
             check_reference_array(Array.wrap(data), template)
           else

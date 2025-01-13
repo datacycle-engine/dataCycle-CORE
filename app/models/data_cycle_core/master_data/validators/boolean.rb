@@ -24,7 +24,7 @@ module DataCycleCore
         end
 
         def boolean(data)
-          return if data.squish == 'true' || data.squish == 'false'
+          return if ['true', 'false'].include?(data.squish)
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.boolean',
