@@ -34,7 +34,7 @@ module DataCycleCore
                     '-W',
                     TO_CHAR(created_at, 'IW')
                 )
-            ORDER BY 3,
+            ORDER BY 3 DESC,
                 2 DESC;
           SQL
 

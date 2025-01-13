@@ -24,7 +24,7 @@ unless content.schema.nil?
 
     if options[:field_filter].present?
       is_valid_key = false
-      is_valid_key = true if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present? && valid_key?(property_name, options)
+      is_valid_key = true if ['nest', 'merge_object'].include?(api_property_definition.dig('transformation', 'method')) && property_name.present? && valid_key?(property_name, options)
 
       validation_keys = [attribute_key(key, prop)]
       validation_keys += options.dig(:transformation_mapping, key) if options.dig(:transformation_mapping, key).present?
@@ -49,7 +49,7 @@ unless content.schema.nil?
     next if value_blank
 
     partial_params = render_api_attribute(key:, definition: prop, value:, parameters: { options: }, content:)
-    if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?
+    if ['nest', 'merge_object'].include?(api_property_definition.dig('transformation', 'method')) && property_name.present?
       if json[property_name].present?
         json[property_name].merge! render(*partial_params) unless partial_params.nil?
       else

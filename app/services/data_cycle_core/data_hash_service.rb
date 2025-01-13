@@ -123,6 +123,7 @@ module DataCycleCore
 
     def self.get_params_from_hash(template_hash, translations = true)
       allowed_params = []
+      array_property_types = ['classification', 'linked', 'collection']
 
       template_hash['properties'].each do |key, value|
         next if value.key?('compute') || value.key?('virtual')
@@ -136,7 +137,7 @@ module DataCycleCore
           parameter = { key.to_sym => object_schemas.map { |os| get_params_from_hash(os) }.reduce({}) { |p1, p2| p1.deep_merge(p2) { |_k, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? (v1 + v2).uniq : v2 } } }
         elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
           parameter = { key.to_sym => get_params_from_hash(value, false) }
-        elsif value['type'] == 'classification' || value['type'] == 'linked' || value['type'] == 'collection'
+        elsif array_property_types.include?(value['type'])
           parameter = { key.to_sym => [] }
         else
           parameter = key.to_sym

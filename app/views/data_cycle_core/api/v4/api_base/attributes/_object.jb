@@ -21,7 +21,7 @@ ordered_api_properties(validation: definition).each do |o_key, o_definition|
   object_properties[key_new.camelize(:lower)] = data_value if data_value.present?
 end
 
-if api_property_definition.dig('transformation', 'method') == 'unwrap' || api_property_definition.dig('transformation', 'method') == 'merge_object'
+if ['unwrap', 'merge_object'].include?(api_property_definition.dig('transformation', 'method'))
   json.merge! object_properties
 else
   object_id = { '@id' => generate_uuid(content.id, key) }
