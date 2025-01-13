@@ -100,8 +100,7 @@ module DataCycleCore
       watch_list_content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel in WatchList' })
       DataCycleCore::WatchListDataHash.find_or_create_by({
         watch_list_id: watch_list.id,
-        hashable_id: watch_list_content.id,
-        hashable_type: watch_list_content.class.name
+        thing_id: watch_list_content.id
       })
 
       post data_links_path, params: {
@@ -123,8 +122,7 @@ module DataCycleCore
       assert data_link
 
       delete remove_item_watch_list_path(watch_list), xhr: true, params: {
-        hashable_id: watch_list_content.id,
-        hashable_type: watch_list_content.class.name
+        thing_id: watch_list_content.id
       }, headers: {
         referer: root_url
       }
@@ -132,8 +130,7 @@ module DataCycleCore
       assert_response :ok
 
       get add_item_watch_list_path(watch_list), xhr: true, params: {
-        hashable_id: watch_list_content.id,
-        hashable_type: watch_list_content.class.name
+        thing_id: watch_list_content.id
       }, headers: {
         referer: root_url
       }

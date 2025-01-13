@@ -126,7 +126,7 @@ module DataCycleCore
       })
       assert_equal(DataCycleCore::Search.where(self_contained: true).count, 2)
 
-      query = DataCycleCore::Filter::Search.new([:de])
+      query = DataCycleCore::Filter::Search.new(locale: [:de])
 
       test_greater_a = query.equals_advanced_numeric({ min: 7 }, 'float_main')
       assert_equal(test_greater_a.count, 1)
@@ -181,7 +181,7 @@ module DataCycleCore
       })
       assert_equal(DataCycleCore::Search.where(self_contained: true).count, 2)
 
-      query = DataCycleCore::Filter::Search.new([:de])
+      query = DataCycleCore::Filter::Search.new(locale: [:de])
 
       test_true_a = query.equals_advanced_boolean(true, 'boolean_test')
       assert_equal(test_true_a.count, 1)
@@ -212,7 +212,7 @@ module DataCycleCore
       })
       assert_equal(DataCycleCore::Search.where(self_contained: true).count, 2)
 
-      query = DataCycleCore::Filter::Search.new([:de])
+      query = DataCycleCore::Filter::Search.new(locale: [:de])
 
       # closed after 14:00
       test_closes_a = query.greater_advanced_time('14:00', 'closes')
@@ -281,7 +281,7 @@ module DataCycleCore
       })
       assert_equal(DataCycleCore::Search.where(self_contained: true).count, 2)
 
-      query = DataCycleCore::Filter::Search.new([:de])
+      query = DataCycleCore::Filter::Search.new(locale: [:de])
 
       test_greater_date_a = query.equals_advanced_date({ from: '2019-10-01' }, 'publish_at')
       assert_equal(test_greater_date_a.count, 2)

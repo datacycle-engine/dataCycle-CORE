@@ -13,7 +13,7 @@ module DataCycleCore
     end
 
     test 'find external_system by external_source_id in thing' do
-      assert_equal(1, DataCycleCore::Filter::Search.new(:de).external_system(@local_system.id).count)
+      assert_equal(1, DataCycleCore::Filter::Search.new(locale: :de).external_system(@local_system.id).count)
       assert_equal(1, DataCycleCore::Filter::Search.new.external_system(@local_system.id, 'import').count)
     end
 

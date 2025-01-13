@@ -22,7 +22,7 @@ module DataCycleCore
           return exists_editor if key.blank?
 
           reflect(
-            @query.where(thing[key].not_eq(nil))
+            @query.where(thing_alias[key].not_eq(nil))
           )
         end
 
@@ -33,7 +33,7 @@ module DataCycleCore
           return not_exists_editor if key.blank?
 
           reflect(
-            @query.where(thing[key].eq(nil))
+            @query.where(thing_alias[key].eq(nil))
           )
         end
 
@@ -45,7 +45,7 @@ module DataCycleCore
 
           sub_query = DataCycleCore::User
             .select(1)
-            .where(thing[key].eq(user_table[:id]))
+            .where(thing_alias[key].eq(user_table[:id]))
             .where(user_table[:email].matches("%#{value['text']}"))
             .arel
             .exists
@@ -61,7 +61,7 @@ module DataCycleCore
 
           sub_query = DataCycleCore::User
             .select(1)
-            .where(thing[key].eq(user_table[:id]))
+            .where(thing_alias[key].eq(user_table[:id]))
             .where(user_table[:email].matches("%#{value['text']}"))
             .arel
             .exists
@@ -79,7 +79,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(thing[:created_by].in(ids))
+            @query.where(thing_alias[:created_by].in(ids))
           )
         end
 
@@ -87,7 +87,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where.not(thing[:created_by].in(ids))
+            @query.where.not(thing_alias[:created_by].in(ids))
           )
         end
 
@@ -95,7 +95,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(thing[:updated_by].in(ids))
+            @query.where(thing_alias[:updated_by].in(ids))
           )
         end
 
@@ -103,22 +103,22 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where.not(thing[:updated_by].in(ids))
+            @query.where.not(thing_alias[:updated_by].in(ids))
           )
         end
 
         def editor(ids = nil)
           return self if ids.blank?
 
-          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          t_alias = generate_thing_alias
           thing_query = thing
             .project(1)
-            .from(thing_alias)
-            .where(thing_alias[:id].eq(thing[:id]))
-            .where(thing_alias[:updated_by].in(ids))
+            .from(t_alias)
+            .where(t_alias[:id].eq(thing_alias[:id]))
+            .where(t_alias[:updated_by].in(ids))
           thing_history_query = thing_history_table
             .project(1)
-            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:thing_id].eq(thing_alias[:id]))
             .where(thing_history_table[:updated_by].in(ids))
 
           reflect(
@@ -133,15 +133,15 @@ module DataCycleCore
         def not_editor(ids = nil)
           return self if ids.blank?
 
-          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          t_alias = generate_thing_alias
           thing_query = thing
             .project(1)
-            .from(thing_alias)
-            .where(thing_alias[:id].eq(thing[:id]))
-            .where(thing_alias[:updated_by].in(ids))
+            .from(t_alias)
+            .where(t_alias[:id].eq(thing_alias[:id]))
+            .where(t_alias[:updated_by].in(ids))
           thing_history_query = thing_history_table
             .project(1)
-            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:thing_id].eq(thing_alias[:id]))
             .where(thing_history_table[:updated_by].in(ids))
 
           reflect(
@@ -154,15 +154,15 @@ module DataCycleCore
         end
 
         def exists_editor
-          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          t_alias = generate_thing_alias
           thing_query = thing
             .project(1)
-            .from(thing_alias)
-            .where(thing_alias[:id].eq(thing[:id]))
-            .where(thing_alias[:updated_by].not_eq(nil))
+            .from(t_alias)
+            .where(t_alias[:id].eq(thing_alias[:id]))
+            .where(t_alias[:updated_by].not_eq(nil))
           thing_history_query = thing_history_table
             .project(1)
-            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:thing_id].eq(thing_alias[:id]))
             .where(thing_history_table[:updated_by].not_eq(nil))
 
           reflect(
@@ -175,15 +175,15 @@ module DataCycleCore
         end
 
         def not_exists_editor
-          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          t_alias = generate_thing_alias
           thing_query = thing
             .project(1)
-            .from(thing_alias)
-            .where(thing_alias[:id].eq(thing[:id]))
-            .where(thing_alias[:updated_by].eq(nil))
+            .from(t_alias)
+            .where(t_alias[:id].eq(thing_alias[:id]))
+            .where(t_alias[:updated_by].eq(nil))
           thing_history_query = thing_history_table
             .project(1)
-            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:thing_id].eq(thing_alias[:id]))
             .where(thing_history_table[:updated_by].eq(nil))
 
           reflect(
@@ -198,21 +198,21 @@ module DataCycleCore
         def like_editor(value = nil)
           return self if value&.dig('text').blank?
 
-          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          t_alias = generate_thing_alias
           thing_query = thing
             .project(1)
-            .from(thing_alias)
-            .where(thing_alias[:id].eq(thing[:id]))
+            .from(t_alias)
+            .where(t_alias[:id].eq(thing_alias[:id]))
             .where(
               user_table
                 .project(1)
-                .where(thing_alias[:updated_by].eq(user_table[:id]))
+                .where(t_alias[:updated_by].eq(user_table[:id]))
                 .where(user_table[:email].matches("%#{value['text']}"))
                 .exists
             )
           thing_history_query = thing_history_table
             .project(1)
-            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:thing_id].eq(thing_alias[:id]))
             .where(
               user_table
                 .project(1)
@@ -233,21 +233,21 @@ module DataCycleCore
         def not_like_editor(value = nil)
           return self if value&.dig('text').blank?
 
-          thing_alias = thing.alias("thing_#{SecureRandom.hex(6)}")
+          t_alias = generate_thing_alias
           thing_query = thing
             .project(1)
-            .from(thing_alias)
-            .where(thing_alias[:id].eq(thing[:id]))
+            .from(t_alias)
+            .where(t_alias[:id].eq(thing_alias[:id]))
             .where(
               user_table
                 .project(1)
-                .where(thing_alias[:updated_by].eq(user_table[:id]))
+                .where(t_alias[:updated_by].eq(user_table[:id]))
                 .where(user_table[:email].matches("%#{value['text']}"))
                 .exists
             )
           thing_history_query = thing_history_table
             .project(1)
-            .where(thing_history_table[:thing_id].eq(thing[:id]))
+            .where(thing_history_table[:thing_id].eq(thing_alias[:id]))
             .where(
               user_table
                 .project(1)
@@ -273,12 +273,12 @@ module DataCycleCore
           filter_queries = []
           filter_queries.push(data_links.where(item_type: 'DataCycleCore::Thing').select(:item_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
 
-          filter_queries.push(DataCycleCore::WatchListDataHash.where(watch_list_id: data_links.where(item_type: ['DataCycleCore::WatchList', 'DataCycleCore::Collection']).select(:item_id), hashable_type: 'DataCycleCore::Thing').select(:hashable_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
+          filter_queries.push(DataCycleCore::WatchListDataHash.where(watch_list_id: data_links.where(item_type: ['DataCycleCore::WatchList', 'DataCycleCore::Collection']).select(:item_id)).select(:thing_id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql)
 
           filter_queries.push(DataCycleCore::StoredFilter.where(id: data_links.where(item_type: ['DataCycleCore::StoredFilter', 'DataCycleCore::Collection']).select(:item_id)).map { |f| f.apply(skip_ordering: true).select(:id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql }.join(' UNION '))
 
           reflect(
-            @query.where(thing[:id].in(Arel.sql(filter_queries.compact_blank.join(' UNION '))))
+            @query.where(thing_alias[:id].in(Arel.sql(filter_queries.compact_blank.join(' UNION '))))
           )
         end
 
@@ -301,14 +301,14 @@ module DataCycleCore
           return self if ids.blank?
 
           combined_ids = Array.wrap(ids) + DataCycleCore::UserGroup.where(id: DataCycleCore::UserGroupUser.where(user_id: ids)).pluck(:id)
+          t_alias = thing_alias.right
 
           raw_query = <<-SQL.squish
             SELECT 1
-          	FROM watch_list_data_hashes
-            INNER JOIN collection_shares ON collection_shares.collection_id = watch_list_data_hashes.watch_list_id
-            WHERE watch_list_data_hashes.hashable_id = things.id
-              AND watch_list_data_hashes.hashable_type = 'DataCycleCore::Thing'
-              AND collection_shares.shareable_id IN (?)
+          	FROM "watch_list_data_hashes" "wldh"
+            INNER JOIN "collection_shares" ON "collection_shares"."collection_id" = "wldh"."watch_list_id"
+            WHERE "wldh"."thing_id" = "#{t_alias}"."id"
+              AND "collection_shares"."shareable_id" IN (?)
           SQL
 
           reflect(

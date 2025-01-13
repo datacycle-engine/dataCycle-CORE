@@ -21,27 +21,27 @@ module DataCycleCore
       end
 
       test 'default order for new elements' do
-        assert_equal [@content.id, @content2.id, @content3.id, @content4.id, @content5.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:hashable_id)
+        assert_equal [@content.id, @content2.id, @content3.id, @content4.id, @content5.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:thing_id)
         assert_equal [nil, nil, nil, nil, nil], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:order_a)
       end
 
       test 'set manual order flag if it is not set' do
         @collection.update_order_by_array([@content3.id, @content5.id, @content.id, @content4.id, @content2.id])
 
-        assert_equal [@content3.id, @content5.id, @content.id, @content4.id, @content2.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:hashable_id)
+        assert_equal [@content3.id, @content5.id, @content.id, @content4.id, @content2.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:thing_id)
         assert_equal true, @collection.manual_order
       end
 
       test 'set manual order for all watch_list items' do
         @collection.update_order_by_array([@content3.id, @content5.id, @content.id, @content4.id, @content2.id])
 
-        assert_equal [@content3.id, @content5.id, @content.id, @content4.id, @content2.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:hashable_id)
+        assert_equal [@content3.id, @content5.id, @content.id, @content4.id, @content2.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:thing_id)
       end
 
       test 'set manual order for some watch_list items' do
         @collection.update_order_by_array([@content3.id, @content2.id, @content.id])
 
-        assert_equal [@content3.id, @content2.id, @content.id, @content4.id, @content5.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:hashable_id)
+        assert_equal [@content3.id, @content2.id, @content.id, @content4.id, @content5.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:thing_id)
       end
 
       test 'manual default order for search' do

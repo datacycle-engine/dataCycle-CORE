@@ -16,7 +16,7 @@ module DataCycleCore
 
           return false if ids.blank? # no collections with permission
 
-          DataCycleCore::Filter::Search.new(nil)
+          DataCycleCore::Filter::Search.new(locale: nil)
             .union_filter_ids(ids)
             .query
             .exists?(id: content.id)

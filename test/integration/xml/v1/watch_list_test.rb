@@ -41,8 +41,7 @@ module DataCycleCore
 
           # add data to watchlist
           get(add_item_watch_list_path(@watch_list), xhr: true, params: {
-            hashable_id: @content.id,
-            hashable_type: @content.class.name
+            thing_id: @content.id
           }, headers: {
             referer: root_path
           })

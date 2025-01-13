@@ -7,17 +7,19 @@ module DataCycleCore
         def id(key = nil, type = 'all')
           return self if (key_string = key&.dig('text').to_s).blank?
 
+          t_alias = thing_alias.right
+
           case type
           when 'internal'
             if key_string.uuid?
-              sub_query = '"things"."id" = :key_string'
+              sub_query = "\"#{t_alias}\".\"id\" = :key_string"
             else
               sub_query = '1 = 0'
             end
           when 'external'
-            alias1 = "things_#{SecureRandom.hex(5)}"
+            alias1 = "th#{SecureRandom.hex(5)}"
             sub_query = <<-SQL.squish
-              things.id IN (
+              "#{t_alias}"."id" IN (
                 SELECT "ess"."syncable_id"
                 FROM "external_system_syncs" "ess"
                 WHERE "ess"."external_key" = :key_string
@@ -28,8 +30,8 @@ module DataCycleCore
               )
             SQL
           when 'all'
-            alias1 = "things_#{SecureRandom.hex(5)}"
-            alias2 = "things_#{SecureRandom.hex(5)}"
+            alias1 = "th#{SecureRandom.hex(5)}"
+            alias2 = "th#{SecureRandom.hex(5)}"
 
             base_query = <<-SQL.squish
               SELECT "ess"."syncable_id"
@@ -51,7 +53,7 @@ module DataCycleCore
             end
 
             sub_query = <<-SQL.squish
-              things.id IN (
+              "#{t_alias}"."id" IN (
                 #{base_query}
               )
             SQL

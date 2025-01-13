@@ -27,7 +27,7 @@ module DataCycleCore
     end
 
     def selected_collections?(collections, content_id)
-      collections.any? { |c| c.watch_list_data_hashes.any? { |w| w.hashable_id == content_id && w.hashable_type == 'DataCycleCore::Thing' } }
+      collections.any? { |c| c.watch_list_data_hashes.any? { |w| w.thing_id == content_id } }
     end
 
     def bulk_update_types(prop)

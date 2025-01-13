@@ -8,7 +8,7 @@ module DataCycleCore
           return self if value.blank?
 
           reflect(
-            @query.where(thing[:aggregate_type].in(value))
+            @query.where(thing_alias[:aggregate_type].in(value))
           )
         end
 
@@ -16,7 +16,7 @@ module DataCycleCore
           return self if value.blank?
 
           reflect(
-            @query.where.not(thing[:aggregate_type].in(value))
+            @query.where.not(thing_alias[:aggregate_type].in(value))
           )
         end
       end

@@ -20,15 +20,14 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              Arel::Nodes::Exists.new(
-                Arel::SelectManager.new(schedule)
-                  .project(1)
-                  .where(
-                    (relation.present? ? schedule[:relation].in(Array.wrap(relation)) : schedule[:relation].not_in(DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions))
-                    .and(schedule[:thing_id].eq(thing[:id]))
-                    .and(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
-                  )
-              )
+              Arel::SelectManager.new(schedule)
+                .project(1)
+                .where(
+                  (relation.present? ? schedule[:relation].in(Array.wrap(relation)) : schedule[:relation].not_in(DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions))
+                  .and(schedule[:thing_id].eq(thing_alias[:id]))
+                  .and(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
+                )
+                .exists
             )
           )
         end
@@ -42,7 +41,7 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              in_range(thing[:validity_range], tstzrange(from_node, to_node))
+              in_range(thing_alias[:validity_range], tstzrange(from_node, to_node))
             )
           )
         end
@@ -50,7 +49,7 @@ module DataCycleCore
         def in_validity_period(current_date = nil)
           current_date ||= Time.zone.now.beginning_of_day
           reflect(
-            @query.where(in_range(thing[:validity_range], cast_tstz(current_date)))
+            @query.where(in_range(thing_alias[:validity_range], cast_tstz(current_date)))
           )
         end
 
@@ -63,9 +62,9 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              upper_range(thing[:validity_range]).not_eq(infinity)
+              upper_range(thing_alias[:validity_range]).not_eq(infinity)
               .and(
-                contained_in_range(subtract(upper_range(thing[:validity_range]), interval('1 second')), tstzrange(from_node, to_node))
+                contained_in_range(subtract(upper_range(thing_alias[:validity_range]), interval('1 second')), tstzrange(from_node, to_node))
               )
             )
           )
@@ -78,7 +77,7 @@ module DataCycleCore
 
           reflect(
             @query.where.not(
-              in_range(thing[:validity_range], tstzrange(from_node, to_node))
+              in_range(thing_alias[:validity_range], tstzrange(from_node, to_node))
             )
           )
         end
@@ -97,7 +96,7 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              in_range(tsrange(from_node, to_node), thing[attribute_path.to_sym])
+              in_range(tsrange(from_node, to_node), thing_alias[attribute_path.to_sym])
             )
           )
         end
@@ -109,7 +108,7 @@ module DataCycleCore
 
           reflect(
             @query.where.not(
-              in_range(tsrange(from_node, to_node), thing[attribute_path.to_sym])
+              in_range(tsrange(from_node, to_node), thing_alias[attribute_path.to_sym])
             )
           )
         end
@@ -125,14 +124,14 @@ module DataCycleCore
         def event_end_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
-            @query.where(cast_ts(in_json(thing[:metadata], 'start_date')).lteq(Arel::Nodes.build_quoted(time.iso8601)))
+            @query.where(cast_ts(in_json(thing_alias[:metadata], 'start_date')).lteq(Arel::Nodes.build_quoted(time.iso8601)))
           )
         end
 
         def event_from_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
-            @query.where(cast_ts(in_json(thing[:metadata], 'end_date')).gteq(Arel::Nodes.build_quoted(time.iso8601)))
+            @query.where(cast_ts(in_json(thing_alias[:metadata], 'end_date')).gteq(Arel::Nodes.build_quoted(time.iso8601)))
           )
         end
 
@@ -178,6 +177,16 @@ module DataCycleCore
           end
 
           date
+        end
+
+        def from_as_time(from)
+          from_time = from.presence
+          from_time.is_a?(::Date) ? from_time.beginning_of_day : from_time
+        end
+
+        def to_as_time(to)
+          to_time = to.presence
+          to_time.is_a?(::Date) ? to_time.end_of_day : to_time
         end
 
         module_function :date_from_filter_object

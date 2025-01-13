@@ -23,7 +23,7 @@ module DataCycleCore
         api: true
       )
       @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       @serialize_config = DataCycleCore.features[:serialize].deep_dup
       @download_config = DataCycleCore.features[:download].deep_dup
     end

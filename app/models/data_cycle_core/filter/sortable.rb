@@ -12,9 +12,9 @@ module DataCycleCore
           @query
             .reorder(nil)
             .order(
-              sanitized_order_string('things.boost', 'DESC'),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:boost].desc,
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -26,15 +26,15 @@ module DataCycleCore
           @query
             .joins(
               ActiveRecord::Base.send(:sanitize_sql_array, [
-                                        'LEFT OUTER JOIN watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = ? AND watch_list_data_hashes.hashable_id = things.id',
+                                        "LEFT OUTER JOIN watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = ? AND watch_list_data_hashes.thing_id = #{thing_alias.right}.id",
                                         watch_list_id
                                       ])
             )
             .reorder(nil)
             .order(
-              sanitized_order_string('watch_list_data_hashes.order_a', ordering.presence || 'ASC'),
-              sanitized_order_string('watch_list_data_hashes.created_at', 'ASC'),
-              sanitized_order_string('things.id', 'DESC')
+              watch_list_data_hash[:order_a].send(sanitized_ordering(ordering.presence || 'asc')),
+              watch_list_data_hash[:created_at].asc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -63,8 +63,8 @@ module DataCycleCore
           @query
             .reorder(nil)
             .order(
-              sanitized_order_string('things.boost', ordering),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:boost].send(sanitized_ordering(ordering)),
+              thing_alias[:id].desc
             )
         )
       end
@@ -74,8 +74,8 @@ module DataCycleCore
           @query
             .reorder(nil)
             .order(
-              sanitized_order_string('things.updated_at', ordering),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].send(sanitized_ordering(ordering)),
+              thing_alias[:id].desc
             )
         )
       end
@@ -86,8 +86,8 @@ module DataCycleCore
           @query
             .reorder(nil)
             .order(
-              sanitized_order_string('things.created_at', ordering),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:created_at].send(sanitized_ordering(ordering)),
+              thing_alias[:id].desc
             )
         )
       end
@@ -98,11 +98,11 @@ module DataCycleCore
 
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = #{thing_alias.right}.id AND thing_translations.locale = ?", locale]))
             .reorder(nil)
             .order(
               sanitized_order_string("thing_translations.content ->> 'name'", ordering, true),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:id].desc
             )
         )
       end
@@ -110,13 +110,14 @@ module DataCycleCore
 
       def sort_advanced_attribute(ordering, attribute_path)
         locale = @locale&.first || I18n.available_locales.first.to_s
+
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT OUTER JOIN searches ON searches.content_data_id = #{thing_alias.right}.id AND searches.locale = ?", locale]))
             .reorder(nil)
             .order(
               sanitized_order_string("searches.advanced_attributes -> '#{attribute_path}'", ordering, true),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:id].desc
             )
         )
       end
@@ -130,14 +131,15 @@ module DataCycleCore
           date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
         end
+
         reflect(
           @query
             .reorder(nil)
             .order(
-              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'end_date')), Arel::Nodes.build_quoted(date.iso8601)),
-              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'start_date')), Arel::Nodes.build_quoted(date.iso8601)),
-              cast_ts(in_json(thing[:metadata], 'start_date')),
-              sanitized_order_string('things.id', 'DESC')
+              absolute_date_diff(cast_ts(in_json(thing_alias[:metadata], 'end_date')), Arel::Nodes.build_quoted(date.iso8601)),
+              absolute_date_diff(cast_ts(in_json(thing_alias[:metadata], 'start_date')), Arel::Nodes.build_quoted(date.iso8601)),
+              cast_ts(in_json(thing_alias[:metadata], 'start_date')),
+              thing_alias[:id].desc
             )
         )
       end
@@ -147,7 +149,7 @@ module DataCycleCore
 
         return self if start_date.nil? && end_date.nil?
 
-        joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
+        joined_table_name = "so#{SecureRandom.hex(10)}"
 
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
@@ -155,10 +157,10 @@ module DataCycleCore
               MIN(LOWER(so.occurrence)) AS "min_start_date"
             FROM schedules,
               UNNEST(schedules.occurrences) so(occurrence)
-            WHERE things.id = schedules.thing_id
+            WHERE #{thing_alias.right}.id = schedules.thing_id
               AND so.occurrence && TSTZRANGE(?, ?)
             GROUP BY schedules.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
         reflect(
@@ -167,26 +169,27 @@ module DataCycleCore
             .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
+
       alias sort_by_schedule_proximity sort_by_proximity
       alias sort_proximity_occurrence sort_by_proximity
 
       def sort_proximity_geographic(ordering = '', value = {})
         return self if value&.first.blank? || value&.second.blank?
 
-        order_string = "things.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+        order_string = "#{thing_alias.right}.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
 
         reflect(
           @query
             .reorder(nil)
             .order(
               sanitized_order_string(order_string, ordering, true),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -222,9 +225,9 @@ module DataCycleCore
         return self if geo&.first.blank? || geo&.second.blank?
 
         if use_spheroid
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
+          geo_order_string = "ST_DISTANCE(#{thing_alias.right}.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
         else
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
+          geo_order_string = "ST_DISTANCE(#{thing_alias.right}.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
         end
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
@@ -240,7 +243,7 @@ module DataCycleCore
           min_start_date = '1'
         end
 
-        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN (
             SELECT
@@ -253,10 +256,10 @@ module DataCycleCore
             WHERE so.occurrence && TSTZRANGE(?, ?)
             GROUP BY
               a.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
-        join_tabel_name2 = "opening_hours_description_closed_#{SecureRandom.hex(10)}"
+        join_tabel_name2 = "ohdc#{SecureRandom.hex(10)}"
         order_parameter_join2 = <<-SQL.squish
           LEFT OUTER JOIN (
             SELECT 1 AS "closed_description_exists", cc.content_a_id
@@ -267,7 +270,7 @@ module DataCycleCore
             LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
             WHERE cc.relation_a = 'opening_hours_description'
             AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
-          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
+          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = #{thing_alias.right}.id
         SQL
 
         reflect(
@@ -280,8 +283,8 @@ module DataCycleCore
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
               sanitized_order_string(geo_order_string, ordering, true),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -293,9 +296,9 @@ module DataCycleCore
         return self if geo&.first.blank? || geo&.second.blank?
 
         if use_spheroid
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
+          geo_order_string = "ST_DISTANCE(#{thing_alias.right}.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
         else
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
+          geo_order_string = "ST_DISTANCE(#{thing_alias.right}.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
         end
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
@@ -311,7 +314,7 @@ module DataCycleCore
           min_start_date = '1'
         end
 
-        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,
@@ -319,9 +322,9 @@ module DataCycleCore
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
             FROM schedules a
             LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
-            WHERE things.id = a.thing_id
+            WHERE #{thing_alias.right}.id = a.thing_id
             GROUP BY a.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
         reflect(
@@ -332,8 +335,8 @@ module DataCycleCore
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string(geo_order_string, ordering, true),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -351,7 +354,7 @@ module DataCycleCore
           min_start_date = '1'
         end
 
-        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN (
             SELECT
@@ -364,10 +367,10 @@ module DataCycleCore
             WHERE so.occurrence && TSTZRANGE(?, ?)
             GROUP BY
               a.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
-        join_tabel_name2 = "opening_hours_description_closed_#{SecureRandom.hex(10)}"
+        join_tabel_name2 = "ohdc#{SecureRandom.hex(10)}"
         order_parameter_join2 = <<-SQL.squish
           LEFT OUTER JOIN (
             SELECT 1 AS "closed_description_exists", cc.content_a_id
@@ -378,7 +381,7 @@ module DataCycleCore
             LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
             WHERE cc.relation_a = 'opening_hours_description'
             AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
-          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
+          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = #{thing_alias.right}.id
         SQL
 
         reflect(
@@ -390,8 +393,8 @@ module DataCycleCore
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -409,7 +412,7 @@ module DataCycleCore
           min_start_date = '1'
         end
 
-        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,
@@ -417,9 +420,9 @@ module DataCycleCore
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
             FROM schedules a
             LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
-            WHERE things.id = a.thing_id
+            WHERE #{thing_alias.right}.id = a.thing_id
             GROUP BY a.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = #{thing_alias.right}.id
         SQL
 
         reflect(
@@ -429,8 +432,8 @@ module DataCycleCore
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -446,7 +449,7 @@ module DataCycleCore
           :sanitize_sql_for_conditions,
           [
             Arel.sql(
-              "things.boost * (
+              "#{thing_alias.right}.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
               2 * ts_rank_cd(searches.words, plainto_tsquery(pg_dict_mappings.dict, :search),16) +
@@ -459,12 +462,12 @@ module DataCycleCore
 
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT JOIN searches ON searches.content_data_id = #{thing_alias.right}.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale", locale]))
             .reorder(nil)
             .order(
               sanitized_order_string(order_string, ordering, true),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -477,12 +480,12 @@ module DataCycleCore
 
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["LEFT JOIN searches ON searches.content_data_id = #{thing_alias.right}.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale", locale]))
             .reorder(nil)
             .order(
               sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, ?), 5)'), q]), ordering, true),
-              sanitized_order_string('things.updated_at', 'DESC'),
-              sanitized_order_string('things.id', 'DESC')
+              thing_alias[:updated_at].desc,
+              thing_alias[:id].desc
             )
         )
       end
@@ -490,12 +493,20 @@ module DataCycleCore
       alias sort_fulltext_search sort_ts_rank_fulltext_search if Feature::TsQueryFulltextSearch.enabled?
       alias sort_similarity sort_fulltext_search
 
+      def sanitized_ordering(ordering)
+        ordering = ordering&.downcase
+
+        raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for ordering: #{ordering}" unless ['asc', 'desc'].include?(ordering)
+
+        ordering
+      end
+
       def sanitized_order_string(order_string, order, nulls_last = false)
-        raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for ordering: #{order}" unless ['ASC', 'DESC'].include?(order)
+        ordering = sanitized_ordering(order)
         raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for order string: #{order_string}" if order_string.blank?
 
         order_nulls = nulls_last ? ' NULLS LAST' : ''
-        Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, "#{order_string} #{order}#{order_nulls}"))
+        Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, "#{order_string} #{ordering}#{order_nulls}"))
       end
     end
   end

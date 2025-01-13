@@ -56,7 +56,7 @@ module DataCycleCore
           belongs_to :parent, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :children, touch: false
           has_many :children, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
 
-          has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
+          has_many :watch_list_data_hashes, inverse_of: :thing, dependent: :destroy
           has_many :watch_lists, through: :watch_list_data_hashes
 
           has_many :subscriptions, as: :subscribable, dependent: :destroy
@@ -121,7 +121,7 @@ module DataCycleCore
 
         sub_queries = []
         sub_queries << data_links.thing_links.where(item_id: id).select(:id).reorder(nil).to_sql
-        sub_queries << data_links.joins(watch_list: :watch_list_data_hashes).where(watch_list_data_hashes: { hashable_id: id }).select(:id).reorder(nil).to_sql
+        sub_queries << data_links.joins(watch_list: :watch_list_data_hashes).where(watch_list_data_hashes: { thing_id: id }).select(:id).reorder(nil).to_sql
 
         DataLink.where("#{DataLink.table_name}.id IN (#{DataLink.send(:sanitize_sql_array, [sub_queries.join(' UNION ')])})").exists?
       end

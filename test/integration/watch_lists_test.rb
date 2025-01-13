@@ -113,8 +113,7 @@ module DataCycleCore
 
     test 'add content to watch_list' do
       get add_item_watch_list_path(@watch_list), xhr: true, params: {
-        hashable_id: @content.id,
-        hashable_type: @content.class.name
+        thing_id: @content.id
       }, headers: {
         referer: root_path
       }
@@ -189,11 +188,10 @@ module DataCycleCore
     end
 
     test 'remove content from watch_list' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
 
       delete remove_item_watch_list_path(@watch_list), xhr: true, params: {
-        hashable_id: @content.id,
-        hashable_type: @content.class.name
+        thing_id: @content.id
       }, headers: {
         referer: root_path
       }
@@ -212,7 +210,7 @@ module DataCycleCore
     end
 
     test 'bulk delete all watch_list items' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       items_before = @watch_list.things.count
 
       delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
@@ -224,11 +222,11 @@ module DataCycleCore
     end
 
     test 'bulk delete all watch_list_items, fails because one item is external' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
       content2.external_source_id = ExternalSystem.first.id
       content2.save!
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: content2.id, hashable_type: content2.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: content2.id)
       items_before = @watch_list.things.count
 
       delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
@@ -238,7 +236,7 @@ module DataCycleCore
     end
 
     test 'bulk edit all watch_list items' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       shared_ordered_properties = @watch_list.things.shared_ordered_properties(@current_user).reject { |_, v| v.dig('ui', 'edit', 'disabled').to_s == 'true' }.keys
 
       get bulk_edit_watch_list_path(@watch_list), params: {}, headers: {
@@ -253,7 +251,7 @@ module DataCycleCore
     end
 
     test 'bulk update all watch_list items' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
       content_template = to_query_params(thing_template: generic_content(@watch_list).thing_template).to_json
 
@@ -309,7 +307,7 @@ module DataCycleCore
     end
 
     test 'bulk update all watch_list items - override classifications' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -345,7 +343,7 @@ module DataCycleCore
     end
 
     test 'bulk update all watch_list items - add classifications' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -381,7 +379,7 @@ module DataCycleCore
     end
 
     test 'bulk update all watch_list items - remove classification' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -417,7 +415,7 @@ module DataCycleCore
     end
 
     test 'validate (bulk update) watch_list items' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
 
       post validate_watch_list_path(@watch_list), xhr: true, params: {
@@ -466,7 +464,7 @@ module DataCycleCore
     end
 
     test 'clear watch_list' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
 
       assert_equal(1, @watch_list.things.count)
 
