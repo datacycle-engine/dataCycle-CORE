@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module DeleteConcepts
         def self.import_data(utility_object:, options:)
-          DataCycleCore::Generic::Common::ImportFunctions.delete_concepts(
+          DataCycleCore::Generic::Common::ImportFunctions.delete_data(
             utility_object: utility_object.tap { |obj| obj.mode = :full },
             iterator: method(:load_concepts).to_proc,
             data_processor: method(:process_concepts).to_proc,

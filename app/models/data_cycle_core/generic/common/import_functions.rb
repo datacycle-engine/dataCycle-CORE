@@ -8,6 +8,7 @@ module DataCycleCore
         extend ImportFunctionsDataHelper
         extend ImportClassifications
         extend Extensions::ImportConcepts
+        extend ImportData
 
         def self.import_contents(utility_object:, iterator:, data_processor:, options:)
           if options&.dig(:iteration_strategy).blank?
