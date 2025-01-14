@@ -146,7 +146,8 @@ module DataCycleCore
                 data: {
                   dc_tooltip: classification_tooltip(ca),
                   full_path: ca.full_path
-                }
+                },
+                disabled: !ca.assignable
               }
             ]
           end,
@@ -156,11 +157,10 @@ module DataCycleCore
 
     def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias)
       value = Array.wrap(value).compact
-
-      # full_classification_items = (classification_items + value).uniq
+      full_classification_items = (classification_items + value).uniq { |v| expected_value_id(v, expected_type) }
 
       options_for_select(
-        classification_items
+        full_classification_items
           &.filter_map do |c|
             ca = expected_classification_alias(c)
             next if ca.nil?
