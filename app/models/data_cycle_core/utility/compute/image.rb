@@ -25,7 +25,7 @@ module DataCycleCore
 
           def remote_width(**args)
             remote_value(**args) do |remote_image|
-              remote_image.size.first
+              remote_image&.size&.first
             end
           end
 
@@ -51,7 +51,7 @@ module DataCycleCore
 
           def remote_height(**args)
             remote_value(**args) do |remote_image|
-              remote_image.size.last
+              remote_image&.size&.last
             end
           end
 
