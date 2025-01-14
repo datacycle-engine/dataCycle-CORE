@@ -11,6 +11,8 @@ class RemoveCaptionFromDesklineImages < ActiveRecord::Migration[7.1]
     return if deskline_source.import_config.to_s.include?('to_image_btm_rpt')
 
     execute <<-SQL.squish
+      SET LOCAL statement_timeout = 0;
+
       WITH updated_translations AS (
         UPDATE thing_translations
         SET content = thing_translations.content - 'caption'
