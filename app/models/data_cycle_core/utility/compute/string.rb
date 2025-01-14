@@ -55,6 +55,16 @@ module DataCycleCore
             DataCycleCore::Concept.for_tree(tree_label).find_by(classification_id: classifications)&.parent&.name
           end
 
+          def classification_name(computed_parameters:, computed_definition:, **_args)
+            classifications = computed_parameters.values.flatten
+            return nil if classifications.blank?
+
+            tree_label = computed_definition.dig('compute', 'tree_label')
+            return nil if tree_label.blank?
+
+            DataCycleCore::Concept.for_tree(tree_label).find_by(classification_id: classifications)&.name
+          end
+
           private
 
           def recursive_char_count(data, parameters)
