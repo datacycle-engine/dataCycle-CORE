@@ -15,7 +15,7 @@ module DataCycleCore
     UUID_REGEX = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i
 
     def attribute_name_from_key
-      self[/\[?([^\[\]]+)\]?$/, 1]
+      self[/\[?([^\[\]]+)\]?(\[\])?$/, 1]
     end
 
     def replace_attribute_name_in_key(new_attribute_name)
