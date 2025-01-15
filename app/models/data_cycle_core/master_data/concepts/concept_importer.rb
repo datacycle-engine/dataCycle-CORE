@@ -62,7 +62,7 @@ module DataCycleCore
 
           ctls = @concept_schemes.values
           existing = DataCycleCore::ClassificationTreeLabel.with_deleted.where(external_key: ctls.pluck(:external_key)).pluck(:external_key)
-          to_insert = @concept_schemes.except(*existing)
+          to_insert = @concept_schemes.reject { |_, v| v[:external_key]&.in?(existing) }
 
           return if to_insert.blank?
 
