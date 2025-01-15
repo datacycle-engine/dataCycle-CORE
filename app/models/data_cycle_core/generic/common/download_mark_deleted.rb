@@ -14,14 +14,9 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(
-            I18n.with_locale(locale) { source_filter.with_evaluated_values }
-              .merge({
-                "dump.#{locale}" => { '$exists' => true },
-                "dump.#{locale}.deleted_at" => { '$exists' => false },
-                "dump.#{locale}.archived_at" => { '$exists' => false }
-              })
-          )
+          minimum_filter_keys = ["dump.#{locale}", "dump.#{locale}.deleted_at", "dump.#{locale}.archived_at", 'updated_at']
+          raise 'Possible wrong source_filter' if source_filter.blank? || source_filter.keys.count { |k| minimum_filter_keys.exclude?(k) }.zero?
+          mongo_item.where(source_filter)
         end
       end
     end

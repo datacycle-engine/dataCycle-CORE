@@ -435,15 +435,17 @@ module DataCycleCore
         end
 
         def self.mark_deleted_from_data(download_object:, iterator:, archived: nil, **keyword_args)
-          with_logging(download_object:, iterator:, archived:, **keyword_args) do |options, step_label|
+          with_logging(download_object:, iterator:, archived:, **keyword_args) do |options, _step_label|
             fixnum_max = ((2**((0.size * 4) - 2)) - 1)
             locale = options[:locales].first
             item_count = 0
             source_filter = nil
 
             I18n.with_locale(locale) do
-              source_filter = options&.dig(:download, :source_filter) || {}
-              source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values(binding) }
+              raise 'No source_filter given. Marking data deleted without one is dangerous.' if options&.dig(:download, :source_filter).blank?
+              source_filter = source_filter_base(download_object:, options:, locale:)
+              last_download = download_object.external_source.last_successful_download
+              source_filter[:seen_at] = { '$gte': last_download } if last_download.present? && FULL_MODES.exclude?(options[:mode].to_s)
             end
 
             archive_from = options.dig(:download, :archive_from).present? ? eval(options.dig(:download, :archive_from)) : nil # rubocop:disable Security/Eval
