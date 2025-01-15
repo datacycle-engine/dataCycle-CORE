@@ -508,6 +508,14 @@
           - "tsv"
           - "json"
           - "xlsx"
+      :dzt_report:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::DztReport
+        :allowed_formats:
+          - "csv"
+          - "tsv"
+          - "json"
+          - "xlsx"
     :content:
       :downloads_content:
         :enabled: false

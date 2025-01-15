@@ -794,6 +794,7 @@ en:
       stored_searches_usage: Usage of saved Searches
       watch_lists_usage: Usage of content collections
       widget_usage: Usage of widgets
+      dzt_report: Failed syncs to DZT knowledge graph
       headings:
         id: ID
         name: Name
@@ -832,8 +833,10 @@ en:
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
+          dzt_report: DZT-Sync - Error report
         text_html:
           downloads_popular: Attached you will find the TOP 50 image downloads.
+          dzt_report: Please find attached a list of all items, for which recently the synchronization to the DZT knowledge graph failed
       download_form:
         type: Format
 

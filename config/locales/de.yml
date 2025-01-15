@@ -815,6 +815,7 @@ de:
       stored_searches_usage: Verwendung Gespeicherte Suchen
       watch_lists_usage: Verwendung Inhaltssammlungen
       widget_usage: Verwendung Widgets
+      dzt_report: Fehlgeschlagene Syncs zum DZT Knowledge-Graph
       headings:
         id: ID
         name: Name
@@ -853,8 +854,10 @@ de:
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
+          dzt_report: DZT-Synchronisation - Fehlerreport
         text_html:
           downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
+          dzt_report: Im Anhang finden Sie einen Report zu jenen Inhalten, bei denen die Synchronisation zum DZT Knowledge-Graph fehlgeschlagen ist.
       download_form:
         type: Format
 
