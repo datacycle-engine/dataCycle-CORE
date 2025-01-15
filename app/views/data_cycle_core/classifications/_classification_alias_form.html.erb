@@ -26,10 +26,12 @@
     <button class="button-prime small discard secondary" type="reset"><i aria-hidden="true" class="fa fa-times"></i></button>
   </div>
 
-  <div class="ca-input">
-    <%= f.label :internal_name, DataCycleCore::ClassificationAlias.human_attribute_name(:internal_name, locale: active_ui_locale), class: 'ca-label' %>
-    <%= f.text_field :internal_name, class: 'ca-input-field', readonly: true, placeholder: t('common.generated_value_placeholder', locale: active_ui_locale), data: { dc_tooltip: classification_alias.full_path } %>
-  </div>
+  <% if classification_alias.persisted? %>
+    <div class="ca-input">
+      <%= f.label :internal_name, DataCycleCore::ClassificationAlias.human_attribute_name(:internal_name, locale: active_ui_locale), class: 'ca-label' %>
+      <%= f.text_field :internal_name, class: 'ca-input-field', readonly: true, placeholder: t('common.generated_value_placeholder', locale: active_ui_locale), data: { dc_tooltip: classification_alias.full_path } %>
+    </div>
+  <% end %>
 
   <div class="ca-input translated">
     <% I18n.available_locales.each do |locale| %>
@@ -107,10 +109,10 @@
     </div>
   <% end %>
 
-  <% if can?(:view_all, classification_alias) %>
+  <% if classification_alias.persisted? && can?(:view_all, classification_alias) %>
     <div class="ca-input">
       <%= f.label :external_keys, class: 'ca-label'%>
-      <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true %>
+      <%= f.text_field :external_keys, class: 'ca-input-field', disabled: true %>
     </div>
 
     <%# to show classifications mapped to this ClassificationAlias %>

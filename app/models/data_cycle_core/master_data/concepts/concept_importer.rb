@@ -204,8 +204,8 @@ module DataCycleCore
         end
 
         def parse_concept_scheme_hash(data)
-          cs_data = data.slice('name', 'internal', 'visibility', 'external_source')
-          cs_data['external_key'] = cs_data['name']
+          cs_data = data.slice('name', 'internal', 'visibility', 'external_source', 'external_key')
+          cs_data['external_key'] = cs_data['name'] if cs_data['external_key'].blank?
           cs_data['concepts'] = parse_concepts(data['concepts'], cs_data['name'])
           cs_data.symbolize_keys
         end
@@ -303,6 +303,7 @@ module DataCycleCore
 
           @concept_schemes.each_value do |cs|
             cs[:visibility] = DataCycleCore.default_classification_visibilities if cs[:visibility].blank? || cs[:visibility].include?('all')
+            cs[:internal] = false if cs[:internal].nil?
             es_id = es_mapping[cs.delete(:external_source)] if cs[:external_source].present?
             cs[:external_source_id] = es_id
             cs[:concepts].each.with_index do |c, index|

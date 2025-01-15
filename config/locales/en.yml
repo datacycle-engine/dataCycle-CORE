@@ -1545,13 +1545,15 @@ en:
       data_cycle_core/classification_tree_label:
         visibility: Visibility
         change_behaviour: Change behavior
+        external_key: external ID
       data_cycle_core/classification_alias:
         assignable: Assignable
         description: Description text
         classification_ids: Classification Mapping
         internal_name: Language neutral name
         uri: External URI
-        external_keys: External Keys
+        external_key: external ID
+        external_keys: external IDs (self + mapped)
         mapped_to_string: Classifications mapped from
         ui_configs: UI-Configuration
         ui_configs/color: Color

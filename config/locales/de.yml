@@ -1587,13 +1587,15 @@ de:
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten
+        external_key: Externe ID
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: "Beschreibungstext"
         classification_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
         uri: Externe URI
-        external_keys: Externe Keys
+        external_key: Externe ID
+        external_keys: Externe IDs (selbst + mapped)
         mapped_to_string: Klassifizierungen gemapped von
         ui_configs: UI-Konfiguration
         ui_configs/color: Farbe
