@@ -16,6 +16,8 @@ module DataCycleCore
             SELECT
                 syncable_id AS "thing_id",
                 status,
+                last_sync_at,
+                last_successful_sync_at,
                 CASE
                     WHEN (data->'exception'->>'timestamp')::timestamp = GREATEST(
                         (data->'exception'->>'timestamp')::timestamp,
@@ -28,14 +30,7 @@ module DataCycleCore
                     WHEN (data->>'data_send_at')::timestamp > (data->'exception'->>'timestamp')::timestamp
                     THEN data->'job_result'->'verificationReport'
                     ELSE NULL
-                END AS verification_report,
-                CASE
-                    WHEN (data->>'data_send_at')::timestamp > (data->'exception'->>'timestamp')::timestamp
-                    THEN data->'job_result'->'verificationReport'
-                    ELSE NULL
-                END AS verification_report,
-                last_successful_sync_at,
-                last_sync_at
+                END AS verification_report
             FROM external_system_syncs
             WHERE external_system_id = :dzt_sys_id
               #{errors_only == true ? 'AND NOT (status IN (\'success\', \'pending\', \'running\'))' : ''}
