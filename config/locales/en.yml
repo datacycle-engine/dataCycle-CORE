@@ -828,7 +828,10 @@ en:
         user_group_names: User groups
         api_access: accessible via API
         user_role: User role
-        access_count: Number of accesses
+        access_count: Accesses (Total including meta-info)
+        true_count: Accesses (Widget initializations)
+        retention_count: Accesses (Load more button clicks)
+        combined_count: Accesses (Total widget initializations + load more button clicks)
         week: Week
       mailer:
         subject:

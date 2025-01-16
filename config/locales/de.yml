@@ -849,10 +849,10 @@ de:
         user_group_names: Benutzergruppen
         api_access: Für API freigegeben
         user_role: Benutzerrolle
-        access_count: Zugriffe (Gesamt)
-        true_count: Zugriffe (Liste (Seite 1), Detailseite)
-        retention_count: Zugriffe (Liste (Seite 2 und mehr))
-        combined_count: Zugriffe (Liste (Seite 1 und weiter), Detailseite)
+        access_count: Zugriffe (Gesamt inkl. Meta-Info)
+        true_count: Zugriffe (Widget Initialisierungen)
+        retention_count: Zugriffe (Nachladen von Inhalten)
+        combined_count: Zugriffe (Gesamt Widget Initialisierungen + Nachladen)
         week: Woche
       mailer:
         subject:
