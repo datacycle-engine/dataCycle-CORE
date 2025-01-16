@@ -444,8 +444,8 @@ module DataCycleCore
             I18n.with_locale(locale) do
               raise 'No source_filter given. Marking data deleted without one is dangerous.' if options&.dig(:download, :source_filter).blank?
               source_filter = source_filter_base(download_object:, options:, locale:)
-              last_download = download_object.external_source.last_successful_download
-              source_filter[:seen_at] = { '$gte': last_download } if last_download.present? && FULL_MODES.exclude?(options[:mode].to_s)
+              # last_download = download_object.external_source.last_successful_download
+              # source_filter[:seen_at] = { '$gte': last_download } if last_download.present? && FULL_MODES.exclude?(options[:mode].to_s)
             end
 
             archive_from = options.dig(:download, :archive_from).present? ? eval(options.dig(:download, :archive_from)) : nil # rubocop:disable Security/Eval
