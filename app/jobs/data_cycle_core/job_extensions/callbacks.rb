@@ -33,6 +33,8 @@ module DataCycleCore
             raise exception unless try(:discard_on_failure?)
           end
         end
+
+        discard_on ActiveJob::DeserializationError, ActiveRecord::RecordNotFound
       end
 
       class_methods do

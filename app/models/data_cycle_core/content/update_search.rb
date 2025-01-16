@@ -4,7 +4,11 @@ module DataCycleCore
   module Content
     module UpdateSearch
       def search_languages(all)
-        DataCycleCore::SearchUpdateJob.perform_later(self.class.name, id, all ? nil : I18n.locale.to_s)
+        if all
+          DataCycleCore::SearchUpdateJob.perform_later(id)
+        else
+          DataCycleCore::SearchUpdateJob.perform_later(id, I18n.locale.to_s)
+        end
       end
 
       def update_search_languages(all, current_locale)
