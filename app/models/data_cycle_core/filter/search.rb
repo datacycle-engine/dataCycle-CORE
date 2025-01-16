@@ -170,7 +170,8 @@ module DataCycleCore
       def exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
 
-        subquery = related_to_any(name, inverse)
+        # inverse can be non-boolean, inverse == true is required
+        subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
         reflect(
@@ -181,7 +182,8 @@ module DataCycleCore
       def not_exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
 
-        subquery = related_to_any(name, inverse)
+        # inverse can be non-boolean, inverse == true is required
+        subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
         reflect(
