@@ -3,9 +3,9 @@
 module DataCycleCore
   module Report
     module Downloads
-      class WidgetUsage < Base
+      class WidgetUsageOverview < Base
         def apply(_params)
-          raw_query = WidgetUsageBase.base_query(is_overview: false)
+          raw_query = WidgetUsageBase.base_query(is_overview: true)
 
           # no need to sanitize the query as it is a constant string
           @data = ActiveRecord::Base.connection.select_all(raw_query)
