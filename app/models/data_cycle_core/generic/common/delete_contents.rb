@@ -13,12 +13,8 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locale, source_filter)
-          source_filter = source_filter.with_evaluated_values.reject do |k, _|
-            k.to_s.ends_with?('deleted_at') || k.to_s.ends_with?('archived_at')
-          end
-
-          mongo_item.where({ "dump.#{locale}": { '$exists': true } }.merge(I18n.with_locale(locale) { source_filter.with_evaluated_values }))
+        def self.load_contents(filter_object:)
+          filter_object.except(:without_deleted, :without_archived, :with_deleted).with_locale.query
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)

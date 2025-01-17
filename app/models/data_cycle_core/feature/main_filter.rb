@@ -134,16 +134,8 @@ module DataCycleCore
       end
 
       def advanced_forced_user_filters(_user, config, selected_filters)
-        # advanced_filters = config[:filter].find { |v| v[:type] == 'advanced' }&.dig(:filters)
-
         user_forced_filters = selected_filters.select { |f| f['c'] == 'uf' }
         return if user_forced_filters.blank?
-
-        # user_forced_filters.each do |filter|
-        #   advanced_filters.reject! { |f| configs_equal?(f, filter, ['t', 'v']) }
-        # end
-
-        # binding.pry
 
         config[:hidden_filter].concat(user_forced_filters)
       end

@@ -13,10 +13,8 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locale, source_filter)
-          source_filter ||= { "dump.#{locale}.deleted_at": { '$exists': true } }
-
-          mongo_item.where(source_filter)
+        def self.load_contents(filter_object:)
+          filter_object.with_deleted.query
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)

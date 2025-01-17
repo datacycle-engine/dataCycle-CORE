@@ -12,12 +12,13 @@ module DataCycleCore
 
                 begin
                   logging.phase_started(step_label)
-                  source_filter = { "dump.#{locale}.deleted_at" => { '$exists' => true } }
-
-                  source_filter = { "dump.#{locale}.deleted_at" => { '$gte' => utility_object.external_source.last_successful_import } } if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    iterate = iterator.call(mongo_item, locale, source_filter)
+                    filter_object = Import::FilterObject.new(nil, locale, mongo_item, binding)
+                      .with_deleted
+                    filter_object = filter_object.with_deleted_since(utility_object.external_source.last_successful_import) if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+
+                    iterate = filtered_items(iterator, locale, filter_object)
                     total = iterate.size
                     data = iterate.to_a
                     times = [Time.current]

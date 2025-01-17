@@ -17,14 +17,8 @@ module DataCycleCore
             )
           end
 
-          def load_concept_schemes(mongo_item, locale, source_filter)
-            mongo_item.where(
-              I18n.with_locale(locale) { source_filter.with_evaluated_values }
-                .merge(
-                  "dump.#{locale}": { '$exists': true },
-                  "dump.#{locale}.deleted_at": { '$exists': false }
-                )
-            )
+          def load_concept_schemes(filter_object:)
+            filter_object.with_locale.without_deleted.query
           end
 
           def process_content(utility_object:, raw_data:, locale:, options:)
