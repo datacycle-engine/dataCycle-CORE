@@ -20,7 +20,12 @@ module DataCycleCore
 
         filter = DataCycleCore::StoredFilter.new
           .parameters_from_hash(stored_filter)
-          .apply_user_filter(current_user, { scope: 'object_browser', content_template: @content&.template_name, attribute_key: params[:key]&.attribute_name_from_key, template_name: stored_filter.blank? ? template_names : nil })
+          .apply_user_filter(current_user, {
+            scope: 'object_browser',
+            content: @content,
+            attribute_key: attribute_key_params[:key]&.attribute_name_from_key,
+            template_name: stored_filter.blank? ? template_names : nil
+          })
         filter.language = @language
         filter.parameters.concat Array.wrap(permitted_params.dig(:filter, :f)&.values)
 
@@ -102,6 +107,10 @@ module DataCycleCore
 
     def permitted_parameter_keys
       [:per, :page, :id, :locale, :external, :parent_id, { filter_ids: [] }, { ids: [] }, { definition: {} }, {filter: {}, excluded: []}]
+    end
+
+    def attribute_key_params
+      params.permit(:key)
     end
 
     def count_only_params

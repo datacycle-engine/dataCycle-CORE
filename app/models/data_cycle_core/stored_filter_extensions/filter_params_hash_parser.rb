@@ -56,12 +56,27 @@ module DataCycleCore
           next if f.blank?
           next unless Array.wrap(f['scope']).intersect?(filter_options[:scope])
           next if Array.wrap(f['segments']).none? { |s| s['name'].safe_constantize.new(*Array.wrap(s['parameters'])).include?(user) }
-          next if filter_options[:scope].include?('object_browser') && f['object_browser_restriction']&.to_h&.none? { |k, v| filter_options[:content_template] == k && filter_options[:attribute_key]&.in?(Array.wrap(v)) }
+
+          next if filter_options[:scope].include?('object_browser') && !relevant_for_object_browser?(f, filter_options)
 
           user_filters.concat(Array.wrap(f['stored_filter']).map { |s| param_from_definition(s, f['force'] ? 'uf' : 'u', user) })
         end
 
         user_filters
+      end
+
+      def relevant_for_object_browser?(filter, options)
+        return true if filter['object_browser_restriction'].blank?
+
+        content = options[:content]
+        return false if content.nil?
+
+        template_names = content.relevant_template_names
+        attribute_names = content.relevant_property_names(options[:attribute_key])
+
+        filter['object_browser_restriction'].to_h.any? do |k, v|
+          template_names.include?(k) && attribute_names.intersect?(Array.wrap(v))
+        end
       end
 
       def param_from_definition(definition, type = 'a', user = nil)

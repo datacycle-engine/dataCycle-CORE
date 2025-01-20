@@ -76,6 +76,20 @@ module DataCycleCore
           template_name
         end
 
+        # return all template_names, whose configuration is relevant for this thing
+        def relevant_template_names
+          [template_name]
+        end
+
+        # return all property_names, whose configuration might be relevant for given key
+        def relevant_property_names(key)
+          attribute_name = key&.attribute_name_from_key
+
+          return [] if attribute_name.blank? || !property?(attribute_name)
+
+          [attribute_name]
+        end
+
         module ClassMethods
           # Deprecated: no replacement
           def from_time(_time)

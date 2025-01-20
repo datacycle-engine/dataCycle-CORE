@@ -16,6 +16,12 @@ module DataCycleCore
           template_name.gsub(MasterData::Templates::AggregateTemplate::AGGREGATE_TEMPLATE_SUFFIX, '')
         end
 
+        def relevant_template_names
+          return super unless aggregate_type_aggregate?
+
+          [base_template_name, template_name]
+        end
+
         def icon_type
           return super unless aggregate_type_aggregate?
 
