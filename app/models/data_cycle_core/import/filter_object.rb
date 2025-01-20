@@ -3,7 +3,8 @@
 module DataCycleCore
   module Import
     class FilterObject
-      attr_reader :locale, :mongo_item, :source_filter
+      attr_reader :locale, :source_filter
+      attr_accessor :mongo_item
 
       FILTER_METHODS = [
         :with_locale,
@@ -39,6 +40,8 @@ module DataCycleCore
       end
 
       def query
+        raise '@mongo_item is required for query!' if @mongo_item.nil?
+
         return @mongo_item.all if @source_filter.blank? && @filters.blank?
 
         evaluated_filter.reduce(@mongo_item) do |query, filter|
