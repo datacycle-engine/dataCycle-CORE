@@ -13,7 +13,7 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(filter_object:)
+        def self.load_concepts(filter_object:)
           filter_object.with_deleted.query
         end
 
