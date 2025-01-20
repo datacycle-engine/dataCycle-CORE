@@ -15,14 +15,11 @@ module DataCycleCore
 
                     begin
                       logging.phase_started(step_label)
-
-                      source_filter = options&.dig(:import, :source_filter) || {}
-                      source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values(binding) }
-
                       times = [Time.current]
 
                       utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                        raw_data = iterator.call(mongo_item, locale, source_filter).to_a
+                        filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
+                        raw_data = filtered_items(iterator, locale, filter_object).to_a
                         concept_scheme_data = raw_data.filter_map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.uniq
 
                         concept_scheme_data = external_system_processor.call(data_array: concept_scheme_data, options:, utility_object:)
@@ -56,14 +53,11 @@ module DataCycleCore
 
                     begin
                       logging.phase_started(step_label)
-
-                      source_filter = options&.dig(:import, :source_filter) || {}
-                      source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values(binding) }
-
                       times = [Time.current]
 
                       utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                        raw_data = iterator.call(mongo_item, locale, source_filter).to_a
+                        filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
+                        raw_data = filtered_items(iterator, locale, filter_object).to_a
                         concepts_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.compact_blank
 
                         transformed_concepts = data_transformer.call(data_array: concepts_data, options:)

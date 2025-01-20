@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'jsonpath'
+
 module DataCycleCore
   module Generic
     module Common
@@ -16,14 +17,8 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(
-            I18n.with_locale(locale) { source_filter.with_evaluated_values&.with_indifferent_access }
-              .merge(
-                "dump.#{locale}": { '$exists': true },
-                "dump.#{locale}.deleted_at": { '$exists': false }
-              )
-          )
+        def self.load_contents(filter_object:)
+          filter_object.with_locale.without_deleted.query
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)

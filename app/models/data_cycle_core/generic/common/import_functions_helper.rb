@@ -23,6 +23,20 @@ module DataCycleCore
         ensure
           logging.close if logging.respond_to?(:close)
         end
+
+        def filter_object?(iterator)
+          return true if iterator.blank?
+
+          iterator.parameters.size >= 1 && iterator.parameters.any? { |k| k[0].in?([:key, :keyreq]) && k[1] == :filter_object }
+        end
+
+        def filtered_items(iterator, locale, filter_object)
+          if filter_object?(iterator)
+            iterator.call(filter_object:)
+          else
+            iterator.call(filter_object.mongo_item, locale, filter_object.legacy_source_filter)
+          end
+        end
       end
     end
   end

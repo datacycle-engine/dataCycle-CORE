@@ -32,32 +32,22 @@ module DataCycleCore
 
                 begin
                   logging.phase_started(step_label)
-                  source_filter = (options&.dig(:import, :source_filter) || {}).with_indifferent_access
-                  source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
-                  source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
-
-                  if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
-                    source_filter = source_filter.merge({
-                      '$or' => [{
-                        'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
-                      }, {
-                        "dump.#{locale}.updated_at" => { '$gte' => utility_object.external_source.last_successful_import }
-                      }]
-                    })
-                  end
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                    filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
+                      .without_deleted
+                      .without_archived
+                    filter_object = filter_object.with_updated_since(utility_object.external_source.last_successful_import) if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+
                     per = options[:per] || logging_delta
                     aggregate = options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
 
                     if aggregate
-                      iterate = iterator.call(mongo_item, locale, source_filter).allow_disk_use(true)
-
+                      iterate = filtered_items(iterator, locale, filter_object).allow_disk_use(true)
                       page_from = 0
                       page_to = 0
                     else
-                      iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).batch_size(2)
-
+                      iterate = filtered_items(iterator, locale, filter_object).all.no_timeout.max_time_ms(fixnum_max).batch_size(2)
                       total = iterate.size
                       from = [options[:min_count] || 0, 0].max
                       to = [options[:max_count] || total, total].min
@@ -166,20 +156,14 @@ module DataCycleCore
 
               begin
                 logging.phase_started(step_label)
-                source_filter = options&.dig(:import, :source_filter) || {}
-                source_filter = source_filter.with_evaluated_values
-                source_filter = source_filter.merge({ 'dump.deleted_at' => { '$exists' => false } })
-                if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
-                  source_filter = source_filter.merge({
-                    '$or' => [{
-                      'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
-                    }]
-                  })
-                end
-
                 times = [Time.current]
+
                 utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                  iterator.call(mongo_item, nil, source_filter).all.no_timeout.max_time_ms(fixnum_max).batch_size(2).each do |content|
+                  filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), nil, mongo_item, binding)
+                    .without_deleted
+                  filter_object = filter_object.with_updated_since(utility_object.external_source.last_successful_import) if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+
+                  filtered_items(iterator, nil, filter_object).all.no_timeout.max_time_ms(fixnum_max).batch_size(2).each do |content|
                     item_count += 1
                     break if options[:max_count].present? && item_count > options[:max_count]
                     next if options[:min_count].present? && item_count < options[:min_count]
@@ -259,27 +243,16 @@ module DataCycleCore
 
                 begin
                   logging.phase_started(step_label)
-                  source_filter = options&.dig(:import, :source_filter) || {}
-                  source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
-                  source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
-                  if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
-                    source_filter = source_filter.merge({
-                      '$or' => [{
-                        'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
-                      }, {
-                        "dump.#{locale}.updated_at" => { '$gte' => utility_object.external_source.last_successful_import }
-                      }]
-                    })
-                  end
-
                   times = [Time.current]
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    if options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
-                      iterate = iterator.call(mongo_item, locale, source_filter)
-                    else
-                      iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
-                    end
+                    filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
+                      .without_deleted
+                      .without_archived
+                    filter_object = filter_object.with_updated_since(utility_object.external_source.last_successful_import) if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+
+                    iterate = filtered_items(iterator, locale, filter_object)
+                    iterate = iterate.all.no_timeout.max_time_ms(fixnum_max) unless options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
 
                     external_keys = iterate.pluck(:external_id)
                     min = (options[:min_count] || 1) - 1
@@ -289,11 +262,9 @@ module DataCycleCore
                     keys.each do |external_id|
                       item_count += 1
 
-                      if options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
-                        query = iterator.call(mongo_item, locale, source_filter.merge('external_id' => external_id))
-                      else
-                        query = iterator.call(mongo_item, locale, source_filter.merge('external_id' => external_id)).all.no_timeout.max_time_ms(fixnum_max)
-                      end
+                      nested_filter_object = filter_object.with_external_id(external_id)
+                      query = filtered_items(iterator, locale, nested_filter_object)
+                      query = query.all.no_timeout.max_time_ms(fixnum_max) unless options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
 
                       content_data = query.first[:dump][locale]
                       data_processor.call(

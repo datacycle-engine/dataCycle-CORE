@@ -21,19 +21,20 @@ module DataCycleCore
 
                   begin
                     logging.phase_started(step_label)
-
-                    if with_filters
-                      source_filter = (options&.dig(:import, :source_filter) || {}).with_indifferent_access
-                      source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
-                      source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
-                    end
-
                     times = [Time.current]
 
                     utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                      filter_object = Import::FilterObject.new(nil, locale, mongo_item, binding)
+                      if with_filters
+                        filter_object.source_filter = options&.dig(:import, :source_filter)
+                        filter_object = filter_object.without_deleted.without_archived
+                      end
+
                       raw_classification_data_stack =
-                        if with_filters
-                          load_root_classifications.call(mongo_item, locale, options, source_filter).to_a
+                        if with_filters && !filter_object?(load_root_classifications)
+                          load_root_classifications.call(mongo_item, locale, options, filter_object.legacy_source_filter).to_a
+                        elsif filter_object?(load_root_classifications)
+                          load_root_classifications.call(filter_object:, options:).to_a
                         else
                           load_root_classifications.call(mongo_item, locale, options).to_a
                         end
@@ -51,8 +52,10 @@ module DataCycleCore
                         )
 
                         raw_classification_data_stack +=
-                          if with_filters
-                            load_child_classifications.call(mongo_item, raw_classification_data, locale, source_filter).to_a
+                          if with_filters && !filter_object?(load_child_classifications)
+                            load_child_classifications.call(mongo_item, raw_classification_data, locale, filter_object.legacy_source_filter).to_a
+                          elsif filter_object?(load_child_classifications)
+                            load_child_classifications.call(filter_object:, data: raw_classification_data).to_a
                           else
                             load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
                           end
