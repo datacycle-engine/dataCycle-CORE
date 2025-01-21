@@ -1,0 +1,84 @@
+---
+- :data:
+    :name: Simple Linked Entity Inverse
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Thing_SimpleEntityLinkedInverse
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :linked_with_template1:
+        :label: Simple Linked Entity
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template1_inverse
+      :linked_with_template1_inverse:
+        :label: Simple Linked Entity Inverse
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template1
+        :link_direction: inverse
+      :linked_with_template2:
+        :label: Simple Linked Entity
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template2_inverse
+      :linked_with_template2_inverse:
+        :label: Simple Linked Entity Inverse
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template2
+        :visible: false
+        :link_direction: inverse
+      :linked_with_template3:
+        :label: Simple Linked Entity
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template3_inverse
+      :linked_with_template3_inverse:
+        :label: Simple Linked Entity Inverse
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template3
+        :visible: true
+        :link_direction: inverse
+      :linked_with_template4:
+        :label: Simple Linked Entity
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template4_inverse
+      :linked_with_template4_inverse:
+        :label: Simple Linked Entity Inverse
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template4
+        :visible: show
+        :link_direction: inverse
+      :linked_with_template5:
+        :label: Simple Linked Entity
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template5_inverse
+      :linked_with_template5_inverse:
+        :label: Simple Linked Entity Inverse
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template5
+        :visible: [edit, api]
+        :link_direction: inverse
+      :linked_with_template6:
+        :label: Simple Linked Entity
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template6_inverse
+      :linked_with_template6_inverse:
+        :label: Simple Linked Entity Inverse
+        :type: linked
+        :template_name: Simple Linked Entity Inverse
+        :inverse_of: linked_with_template6
+        :ui:
+          :edit:
+            :disabled: false
+        :link_direction: inverse

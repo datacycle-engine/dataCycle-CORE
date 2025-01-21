@@ -66,6 +66,13 @@ module DataCycleCore
         def add_missing_parameters!(properties)
           return properties if properties.blank?
 
+          resolve_computed_params_path!(properties)
+          hide_inverse_linked_in_edit_mode!(properties)
+
+          properties
+        end
+
+        def resolve_computed_params_path!(properties)
           properties.filter { |_k, prop| prop&.dig(:compute, :parameters_path).present? }.each_value do |value|
             value[:compute][:parameters] = []
 
@@ -73,8 +80,12 @@ module DataCycleCore
               value[:compute][:parameters].concat(Array.wrap(@template.dig(*path.split('.'))))
             end
           end
+        end
 
-          properties
+        def hide_inverse_linked_in_edit_mode!(properties)
+          properties.filter { |_k, prop| prop&.dig(:link_direction) == 'inverse' }.each_value do |value|
+            value[:visible] = VISIBILITIES.keys.except('edit') unless value.key?(:visible)
+          end
         end
 
         def replace_mixin_properties(props, additional_attributes = {}, additional_path = [])
