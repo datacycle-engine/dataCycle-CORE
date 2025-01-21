@@ -23,6 +23,7 @@ module DataCycleCore
 
       def update_search(language)
         return if search_property_names.blank?
+
         I18n.with_locale(language) do
           search_data = walk_embedded_data(language)
           advanced_search_attributes = walk_advanced
@@ -63,7 +64,9 @@ module DataCycleCore
         string_hash = parse_search_data
 
         embedded_property_names.each do |embedded_name|
-          try('send', embedded_name)&.each do |embedded_object|
+          next if virtual_property_names.include?(embedded_name)
+
+          try(embedded_name)&.each do |embedded_object|
             embedded_object.update_search(language)
             embedded_string_hash = embedded_object.walk_embedded_data(language)
             string_hash = append_hash(string_hash, embedded_string_hash)
@@ -108,6 +111,8 @@ module DataCycleCore
         advanced_data = parse_advanced_data
 
         searchable_embedded_property_names.each do |embedded_name|
+          next if virtual_property_names.include?(embedded_name)
+
           try(embedded_name)&.each do |embedded_object|
             embedded_advanced_data = embedded_object.walk_advanced
             advanced_data = append_advanced_data(advanced_data, embedded_advanced_data)
@@ -135,13 +140,17 @@ module DataCycleCore
         advanced_data = {}
         # find plain attributes
         advanced_search_property_names.each do |property|
+          next if virtual_property_names.include?(property)
+
           property_value = try(property)
           (advanced_data[property] ||= []).concat(Array.wrap(property_value.is_a?(ActiveRecord::Relation) ? property_value.pluck(:id) : property_value)) if property_value.present? || property_value.is_a?(FalseClass)
         end
 
         # find included properties
         advanced_included_search_property_names.each do |property|
-          properties_for(property).try(:[], 'properties').each do |included_property, included_definition|
+          next if virtual_property_names.include?(property)
+
+          properties_for(property)&.dig('properties')&.each do |included_property, included_definition|
             next unless included_definition['advanced_search']
 
             value = try(property).try(included_property)
@@ -151,6 +160,8 @@ module DataCycleCore
 
         # find classification properties
         advanced_classification_property_names.each do |property|
+          next if virtual_property_names.include?(property)
+
           ids = []
           try(property)&.classification_aliases&.each do |c|
             c.ancestors.each do |a|
