@@ -138,6 +138,11 @@ module DataCycleCore
             return DataCycleCore::Thing.where('1 = 0').arel.from(t_alias).select(1).where(t_alias[:id].eq(thing_alias[:id])).to_sql
           end
 
+          join_strategy = case DataCycleCore.union_filter_strategy
+                          when 'exists' then ' UNION ALL '
+                          else ' UNION ' # UNION ALL has performance problems with IN subquery
+                          end
+
           filters.map { |f|
             t_alias = generate_thing_alias
 
@@ -150,7 +155,7 @@ module DataCycleCore
             end
 
             subquery.to_sql
-          }.join(' UNION ALL ')
+          }.join(join_strategy)
         rescue SystemStackError
           raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end
@@ -165,12 +170,17 @@ module DataCycleCore
             return DataCycleCore::Thing.where('1 = 0').arel.from(t_alias).select(1).where(t_alias[:id].eq(thing_alias[:id])).to_sql
           end
 
+          join_strategy = case DataCycleCore.union_filter_strategy
+                          when 'exists' then ' UNION ALL '
+                          else ' UNION ' # UNION ALL has performance problems with IN subquery
+                          end
+
           stored_filters = collections.filter { |f| f.is_a?(DataCycleCore::StoredFilter) }
           watch_lists = collections.filter { |f| f.is_a?(DataCycleCore::WatchList) }
           queries = []
           queries.push(watch_list_ids_query(watch_lists)) if watch_lists.present?
           queries.push(filter_ids_query(stored_filters)) if stored_filters.present?
-          query = queries.join(' UNION ALL ')
+          query = queries.join(join_strategy)
           query = "EXISTS (#{query})" if DataCycleCore.union_filter_strategy == 'exists'
           query
         end
@@ -181,7 +191,7 @@ module DataCycleCore
           return self if filters.blank?
 
           reflect(
-            @query.where(thing_alias[:id].in(Arel.sql(filters.join(' UNION ALL '))))
+            @query.where(thing_alias[:id].in(Arel.sql(filters.join(' UNION '))))
           )
         end
       end
