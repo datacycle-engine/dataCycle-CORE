@@ -36,7 +36,7 @@ module DataCycleCore
       end
 
       def legacy_source_filter
-        evaluated_filter.reduce(&:reverse_merge)
+        evaluated_filter.reduce(&:reverse_merge).deep_symbolize_keys.with_indifferent_access
       end
 
       def query
