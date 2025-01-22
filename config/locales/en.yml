@@ -794,6 +794,7 @@ en:
       stored_searches_usage: Usage of saved Searches
       watch_lists_usage: Usage of content collections
       widget_usage: Usage of widgets
+      widget_usage_detail: Usage of widgets (Overview)
       dzt_report: Failed syncs to DZT knowledge graph
       headings:
         id: ID
