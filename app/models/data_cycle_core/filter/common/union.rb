@@ -16,11 +16,7 @@ module DataCycleCore
 
           return self if filter_query_sql.blank?
 
-          if DataCycleCore.union_filter_strategy == 'exists'
-            reflect(@query.where(filter_query_sql))
-          else
-            reflect(@query.where(thing_alias[:id].in(Arel.sql(filter_query_sql))))
-          end
+          reflect(@query.where(thing_alias[:id].in(Arel.sql(filter_query_sql))))
         end
 
         def not_union_filter_ids(ids)
@@ -28,11 +24,7 @@ module DataCycleCore
 
           return self if filter_query_sql.blank?
 
-          if DataCycleCore.union_filter_strategy == 'exists'
-            reflect(@query.where.not(filter_query_sql))
-          else
-            reflect(@query.where(thing_alias[:id].not_in(Arel.sql(filter_query_sql))))
-          end
+          reflect(@query.where(thing_alias[:id].not_in(Arel.sql(filter_query_sql))))
         end
 
         def content_ids(ids = nil)
@@ -116,12 +108,7 @@ module DataCycleCore
           watch_lists = ids.all?(DataCycleCore::WatchList) ? ids : DataCycleCore::WatchList.where(id: ids).to_a
 
           subquery = DataCycleCore::WatchListDataHash.from(wldh_alias).except(*UNION_FILTER_EXCEPTS)
-
-          if DataCycleCore.union_filter_strategy == 'exists'
-            subquery = subquery.select(1).where(wldh_alias[:thing_id].eq(thing_alias[:id]))
-          else
-            subquery = subquery.select(wldh_alias[:thing_id])
-          end
+          subquery = subquery.select(wldh_alias[:thing_id])
 
           return subquery.where('1 = 0').to_sql if watch_lists.blank?
 
@@ -133,29 +120,14 @@ module DataCycleCore
 
           filters = ids.all?(DataCycleCore::StoredFilter) ? ids : DataCycleCore::StoredFilter.where(id: ids)
 
-          if filters.blank?
-            t_alias = generate_thing_alias
-            return DataCycleCore::Thing.where('1 = 0').arel.from(t_alias).select(1).where(t_alias[:id].eq(thing_alias[:id])).to_sql
-          end
-
-          join_strategy = case DataCycleCore.union_filter_strategy
-                          when 'exists' then ' UNION ALL '
-                          else ' UNION ' # UNION ALL has performance problems with IN subquery
-                          end
+          return DataCycleCore::Thing.where('1 = 0').arel.select(thing[:id]).to_sql if filters.blank?
 
           filters.map { |f|
-            t_alias = generate_thing_alias
-
-            subquery = f.things(skip_ordering: true, thing_alias: t_alias).except(*UNION_FILTER_EXCEPTS)
-
-            if DataCycleCore.union_filter_strategy == 'exists'
-              subquery = subquery.select(1).where(t_alias[:id].eq(thing_alias[:id]))
-            else
-              subquery = subquery.select(t_alias[:id])
-            end
-
-            subquery.to_sql
-          }.join(join_strategy)
+            f.things(skip_ordering: true, thing_alias: 'things')
+              .except(*UNION_FILTER_EXCEPTS)
+              .select(thing[:id])
+              .to_sql
+          }.join(' UNION ')
         rescue SystemStackError
           raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end
@@ -165,24 +137,14 @@ module DataCycleCore
 
           collections = DataCycleCore::Collection.where(id: ids)
 
-          if collections.blank?
-            t_alias = generate_thing_alias
-            return DataCycleCore::Thing.where('1 = 0').arel.from(t_alias).select(1).where(t_alias[:id].eq(thing_alias[:id])).to_sql
-          end
-
-          join_strategy = case DataCycleCore.union_filter_strategy
-                          when 'exists' then ' UNION ALL '
-                          else ' UNION ' # UNION ALL has performance problems with IN subquery
-                          end
+          return DataCycleCore::Thing.where('1 = 0').arel.select(thing[:id]).to_sql if collections.blank?
 
           stored_filters = collections.filter { |f| f.is_a?(DataCycleCore::StoredFilter) }
           watch_lists = collections.filter { |f| f.is_a?(DataCycleCore::WatchList) }
           queries = []
           queries.push(watch_list_ids_query(watch_lists)) if watch_lists.present?
           queries.push(filter_ids_query(stored_filters)) if stored_filters.present?
-          query = queries.join(join_strategy)
-          query = "EXISTS (#{query})" if DataCycleCore.union_filter_strategy == 'exists'
-          query
+          queries.join(' UNION ')
         end
 
         def union_filter(filters = [])
