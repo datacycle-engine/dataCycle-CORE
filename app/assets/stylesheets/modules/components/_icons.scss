@@ -37,6 +37,14 @@
       content: '\f2dc';
     }
 
+    &.funding::before{
+      content: '\f0d6';
+    }
+    
+    &.ideas_innovations::before{
+      content: '\f0eb';
+    }
+
     &.ski_slope,
     &.mountain_area,
     &.snow_report_location {
