@@ -67,28 +67,28 @@ module DataCycleCore
         def render_duplicates
           return if @duplicates.blank?
 
-          puts 'INFO: the following templates are overwritten:'
+          puts '[TEMPLATES] INFO: the following templates are overwritten:'
           ap @duplicates
         end
 
         def render_mixin_errors
           return if @mixin_errors.blank?
 
-          puts 'the following mixins have multiple definitions or file_name does not match mixin name:'
+          puts '[TEMPLATES] the following mixins have multiple definitions or file_name does not match mixin name:'
           ap @mixin_errors
         end
 
         def render_errors
           return if @errors.blank?
 
-          puts 'the following errors were encountered during import:'
+          puts '[TEMPLATES] the following errors were encountered during import:'
           ap @errors
         end
 
         def render_mixin_paths
           return if @mixin_paths.blank?
 
-          puts 'the following mixins were used for properties:'
+          puts '[TEMPLATES] the following mixins were used for properties:'
           ap @mixin_paths.sort
         end
         # rubocop:enable Rails/Output

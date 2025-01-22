@@ -16,6 +16,8 @@ module DataCycleCore
 
     after_initialize :add_template_properties, if: :new_record?
 
+    delegate :properties_for, to: :template_thing
+
     def readonly?
       true
     end
@@ -35,9 +37,11 @@ module DataCycleCore
     alias properties property_names
 
     def template_thing
-      tt = DataCycleCore::Thing.new(thing_template: self)
-      tt.readonly!
-      tt
+      @template_thing ||= begin
+        tt = DataCycleCore::Thing.new(thing_template: self)
+        tt.readonly!
+        tt
+      end
     end
 
     def all_templates

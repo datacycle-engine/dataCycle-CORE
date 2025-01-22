@@ -1,7 +1,7 @@
 <% breadcrumb :show, @watch_list, :name %>
 
 <% content_for :title do %>
-  <%= "#{@watch_list.model_name.human(locale: active_ui_locale)}: #{@watch_list.name}" %>
+  <%= safe_join([@watch_list.model_name.human(locale: active_ui_locale), @watch_list.name], ': ') %>
 <% end %>
 
 <% content_for :top_content do %>

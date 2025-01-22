@@ -118,6 +118,9 @@ class TextEditor {
 		)
 			toolbarButtons.container.push(["inlineTranslator"]);
 
+		if (domElementHelpers.parseDataAttribute(this.element.dataset.enhanceTips))
+			toolbarButtons.container.push(["enhanceTips"]);
+
 		this.options = {
 			modules: {
 				counter: true,

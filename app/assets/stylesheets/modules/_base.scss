@@ -149,16 +149,24 @@ label.attribute-edit-label {
     }
   }
 
-  .translate-inline-button {
+  .text-toolbar {
     position: absolute;
-    z-index: 1;
-    top: 0;
     right: 0;
+    top: 0;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    gap: 0.5rem;
+
+    >a,
+    >button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+    }
   }
 }
 
@@ -2416,4 +2424,33 @@ button[disabled] {
 
 .vertical-separator:last-child {
   display: none;
+}
+
+.ellipsis-loading::after {
+  content: '\f141';
+  font-family: FontAwesome;
+  font-size: 0.9rem;
+  line-height: 0.5rem;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  animation: ellipsis-animation steps(1, end) 2s infinite;
+}
+
+@keyframes ellipsis-animation {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  25% {
+    clip-path: inset(0 66.6% 0 0);
+  }
+
+  50% {
+    clip-path: inset(0 33.3% 0 0);
+  }
+
+  75% {
+    clip-path: inset(0 0 0 0);
+  }
 }

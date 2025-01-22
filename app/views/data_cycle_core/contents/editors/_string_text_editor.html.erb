@@ -7,7 +7,17 @@
 
     <%= hidden_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !attribute_editable?(key, definition, options, content)) %>
 
-    <% options.merge!({ data: { hidden_field_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", locale: I18n.locale, translate_inline: DataCycleCore::Feature['Translate']&.allowed_attribute?(contextual_content(local_assigns), key, I18n.locale, current_user) }.merge(definition&.slice('validations', 'warnings')), class: 'quill-editor', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}-editor" }) %>
+    <% options.merge!({
+        data: {
+          hidden_field_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}",
+          locale: I18n.locale,
+          key: key,
+          template_name: contextual_content(local_assigns).template_name,
+          translate_inline: DataCycleCore::Feature['Translate']&.allowed_attribute?(contextual_content(local_assigns), key, I18n.locale, current_user)
+        }.merge(definition&.slice('validations', 'warnings')),
+        class: 'quill-editor',
+        id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}-editor"
+      }) %>
 
     <%= content_tag :div, options do %>
       <%= value.presence&.html_safe %>

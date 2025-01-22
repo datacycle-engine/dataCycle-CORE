@@ -1,0 +1,41 @@
+.ai-lector-dropdown-button {
+  color: #639;
+
+  .fa {
+    font-size: 1.2rem;
+  }
+}
+
+.ai-lector-dropdown {
+  .ai-lector-tip-container {
+    .ai-lector-tips-button {
+      margin: 0;
+      padding: 0;
+    }
+
+    .ai-lector-tip-result {
+      display: none;
+      line-height: 0.5rem;
+
+      &.visible {
+        display: block;
+        margin-top: 0.5rem;
+        line-height: normal;
+      }
+
+      .ai-lector-tip {
+        padding: 0.3rem 0.5rem;
+        border-radius: var(--global-radius);
+        background-color: var(--nearly-white);
+
+        .ai-lector-tip-title {
+          font-weight: 600;
+        }
+
+        &:not(:last-child) {
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+  }
+}
