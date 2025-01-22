@@ -352,8 +352,7 @@ module DataCycleCore
 
         def advanced_string(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
-          search_value = value['text']
-          search_values = search_value.split(',').map(&:strip)
+          search_value = value['text']&.split(',')&.map(&:strip) # not present for exists, not_exists
 
           attribute_path_exists = true
 
@@ -364,16 +363,16 @@ module DataCycleCore
             attribute_path_exists = false
             query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
           when :equal
-            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?))', attribute_path, search_values])
+            query_string = sanitize_sql(['EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?))', attribute_path, search_value])
           when :not_equal
-            query_string = sanitize_sql(['NOT(EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?)))', attribute_path, search_values])
+            query_string = sanitize_sql(['NOT(EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil IN (?)))', attribute_path, search_value])
           when :like
-            like_clauses = search_values.map do |val|
+            like_clauses = search_value.map do |val|
               sanitize_sql(['pil ILIKE ?', "%#{val&.split&.join('%')}%"])
             end
             query_string = sanitize_sql(["EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE #{like_clauses.join(' OR ')})", attribute_path])
           when :not_like
-            like_clauses = search_values.map do |val|
+            like_clauses = search_value.map do |val|
               sanitize_sql(['pil ILIKE ?', "%#{val&.split&.join('%')}%"])
             end
             query_string = sanitize_sql(["NOT(EXISTS(SELECT 1 FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE #{like_clauses.join(' OR ')}))", attribute_path])
