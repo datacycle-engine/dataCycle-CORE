@@ -854,6 +854,10 @@ de:
         retention_count: Zugriffe (Nachladen von Inhalten)
         combined_count: Zugriffe (Gesamt Widget Initialisierungen + Nachladen)
         week: Woche
+        unique_domains: Einzigartige Domains
+        widget_type: Widget Typ
+        domain: Domain
+        url: URL
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
