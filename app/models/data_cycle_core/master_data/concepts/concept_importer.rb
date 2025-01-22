@@ -50,7 +50,7 @@ module DataCycleCore
         def render_errors
           return if @errors.blank?
 
-          puts '[CONCEPTS] the following errors were encountered during import:'
+          puts 'the following errors were encountered during import:'
           ap @errors
         end
         # rubocop:enable Rails/Output

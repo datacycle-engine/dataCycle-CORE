@@ -4,7 +4,7 @@ namespace :dc do
   namespace :templates do
     desc 'validate template definitions'
     task :validate, [:verbose] => :environment do |_, args|
-      puts "[TEMPLATES] validating new template definitions\n"
+      puts "validating new template definitions\n"
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new
       template_importer.validate
 
@@ -12,13 +12,13 @@ namespace :dc do
       template_importer.render_errors
       template_importer.render_mixin_paths if args.verbose.to_s.casecmp('true').zero?
 
-      template_importer.valid? ? puts('[TEMPLATES] looks good') : exit(-1)
+      template_importer.valid? ? puts('[done] ... looks good') : exit(-1)
     end
 
     desc 'import and update all template definitions'
     task :import, [:verbose] => :environment do |_, args|
       before_import = Time.zone.now
-      puts "[TEMPLATES] importing new template definitions\n"
+      puts "importing new template definitions\n"
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new
       template_importer.import
 
@@ -27,7 +27,7 @@ namespace :dc do
       template_importer.render_errors
       template_importer.render_mixin_paths if args.verbose.to_s.casecmp('true').zero?
 
-      template_importer.valid? ? puts("[TEMPLATES] looks good (Duration: #{(Time.zone.now - before_import).round} sec)") : exit(-1)
+      template_importer.valid? ? puts("[done] ... looks good (Duration: #{(Time.zone.now - before_import).round} sec)") : exit(-1)
 
       template_statistics = DataCycleCore::MasterData::Templates::TemplateStatistics.new(start_time: before_import)
       template_statistics.update_statistics
