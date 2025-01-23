@@ -35,9 +35,9 @@ module DataCycleCore
           return self if subquery.nil?
 
           if exclude
-            reflect(@query.where.not(subquery.project(1).exists))
+            reflect(@query.where.not(subquery.exists))
           else
-            reflect(@query.where(subquery.project(1).exists))
+            reflect(@query.where(subquery.exists))
           end
         end
 
@@ -49,11 +49,14 @@ module DataCycleCore
           related_to_id = :content_b_id
           thing_id, related_to_id = related_to_id, thing_id if inverse
 
-          sub_select = content_content_link[thing_id].eq(thing[:id])
-          sub_select = sub_select.and(content_content_link[related_to_id].in(filter_query)) if filter_query.present?
-          sub_select = sub_select.and(content_content_link[:relation].eq(relation)) if relation.present?
+          query = DataCycleCore::ContentContent::Link.select(1)
+            .where(content_content_link[thing_id].eq(thing[:id]))
+          query = query.where(relation: relation) if relation.present?
+          query = query.where(related_to_id => filter_query) unless filter_query.nil?
 
-          Arel::SelectManager.new.from(content_content_link).where(sub_select)
+          # binding.pry
+
+          query.arel
         end
       end
     end

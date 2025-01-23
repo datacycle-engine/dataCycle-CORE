@@ -16,7 +16,7 @@ module DataCycleCore
 
           return self if filter_query_sql.blank?
 
-          reflect(@query.where(thing_alias[:id].in(Arel.sql(filter_query_sql))))
+          reflect(@query.where(thing[:id].in(Arel.sql(filter_query_sql))))
         end
 
         def not_union_filter_ids(ids)
@@ -24,7 +24,7 @@ module DataCycleCore
 
           return self if filter_query_sql.blank?
 
-          reflect(@query.where(thing_alias[:id].not_in(Arel.sql(filter_query_sql))))
+          reflect(@query.where(thing[:id].not_in(Arel.sql(filter_query_sql))))
         end
 
         def content_ids(ids = nil)
@@ -32,14 +32,14 @@ module DataCycleCore
 
           if Array.wrap(ids).all?(&:uuid?)
             reflect(
-              @query.where(thing_alias[:id].in(ids))
+              @query.where(thing[:id].in(ids))
             )
           else
             reflect(
               @query.where(
                 DataCycleCore::Thing::Translation.where(
                   thing_translations[:slug].in(ids)
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                    .and(thing[:id].eq(thing_translations[:thing_id]))
                 ).arel.exists
               )
             )
@@ -51,14 +51,14 @@ module DataCycleCore
 
           if Array.wrap(ids).all?(&:uuid?)
             reflect(
-              @query.where.not(thing_alias[:id].in(ids))
+              @query.where.not(thing[:id].in(ids))
             )
           else
             reflect(
               @query.where.not(
                 DataCycleCore::Thing::Translation.where(
                   thing_translations[:slug].in(ids)
-                    .and(thing_alias[:id].eq(thing_translations[:thing_id]))
+                    .and(thing[:id].eq(thing_translations[:thing_id]))
                 ).arel.exists
               )
             )
@@ -70,7 +70,7 @@ module DataCycleCore
           return self if filter_query_sql.blank?
 
           reflect(
-            @query.where(thing_alias[:id].in(Arel.sql(filter_query_sql)))
+            @query.where(thing[:id].in(Arel.sql(filter_query_sql)))
           )
         end
 
@@ -79,7 +79,7 @@ module DataCycleCore
           return self if filter_query_sql.blank?
 
           reflect(
-            @query.where.not(thing_alias[:id].in(Arel.sql(filter_query_sql)))
+            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql)))
           )
         end
 
@@ -88,7 +88,7 @@ module DataCycleCore
           return self if filter_query_sql.blank?
 
           reflect(
-            @query.where(thing_alias[:id].in(Arel.sql(filter_query_sql)))
+            @query.where(thing[:id].in(Arel.sql(filter_query_sql)))
           )
         end
 
@@ -97,7 +97,7 @@ module DataCycleCore
           return self if filter_query_sql.blank?
 
           reflect(
-            @query.where.not(thing_alias[:id].in(Arel.sql(filter_query_sql)))
+            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql)))
           )
         end
 
@@ -123,7 +123,7 @@ module DataCycleCore
           return DataCycleCore::Thing.where('1 = 0').arel.select(thing[:id]).to_sql if filters.blank?
 
           filters.map { |f|
-            f.things(skip_ordering: true, thing_alias: 'things')
+            f.things(skip_ordering: true)
               .except(*UNION_FILTER_EXCEPTS)
               .select(thing[:id])
               .to_sql
@@ -153,7 +153,7 @@ module DataCycleCore
           return self if filters.blank?
 
           reflect(
-            @query.where(thing_alias[:id].in(Arel.sql(filters.join(' UNION '))))
+            @query.where(thing[:id].in(Arel.sql(filters.join(' UNION '))))
           )
         end
       end

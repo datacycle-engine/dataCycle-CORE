@@ -117,27 +117,23 @@ module DataCycleCore
         private
 
         def sub_query_for_classification_alias_ids(ids, direct = false)
-          ccc_alias = ccc_table.alias("ccc#{SecureRandom.hex(5)}")
           query = DataCycleCore::CollectedClassificationContent
-            .from(ccc_alias)
             .select(1)
-            .where(ccc_alias[:thing_id].eq(thing_alias[:id]))
-            .where(ccc_alias[:classification_alias_id].in(ids))
+            .where(ccc_table[:thing_id].eq(thing[:id]))
+            .where(classification_alias_id: ids)
 
-          query = query.where(ccc_alias[:link_type].eq('direct')) if direct
+          query = query.where(link_type: 'direct') if direct
 
           query.arel.exists
         end
 
         def sub_query_for_tree_label_ids(ids, direct = false)
-          ccc_alias = ccc_table.alias("ccc#{SecureRandom.hex(5)}")
           query = DataCycleCore::CollectedClassificationContent
-            .from(ccc_alias)
             .select(1)
-            .where(ccc_alias[:thing_id].eq(thing_alias[:id]))
-            .where(ccc_alias[:classification_tree_label_id].in(ids))
+            .where(ccc_table[:thing_id].eq(thing[:id]))
+            .where(classification_tree_label_id: ids)
 
-          query = query.where(ccc_alias[:link_type].eq('direct')) if direct
+          query = query.where(link_type: 'direct') if direct
 
           query.arel.exists
         end

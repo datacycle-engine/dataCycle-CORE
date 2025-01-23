@@ -19,15 +19,14 @@ module DataCycleCore
 
     KEYS_FOR_TYPE_EQUALITY = ['t', 'c', 'n', 'q'].freeze
 
-    def things(query: nil, skip_ordering: false, watch_list: nil, thing_alias: nil)
-      apply(query:, skip_ordering:, watch_list:, thing_alias:).query
+    def things(query: nil, skip_ordering: false, watch_list: nil)
+      apply(query:, skip_ordering:, watch_list:).query
     end
 
-    def apply(query: nil, skip_ordering: false, watch_list: nil, thing_alias: nil)
+    def apply(query: nil, skip_ordering: false, watch_list: nil)
       self.query = query || DataCycleCore::Filter::Search.new(
         locale: language&.exclude?('all') ? language : nil,
-        include_embedded: include_embedded || false,
-        thing_alias: thing_alias
+        include_embedded: include_embedded || false
       )
 
       apply_filter_parameters

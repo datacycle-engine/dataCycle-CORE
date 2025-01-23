@@ -31,7 +31,8 @@ module DataCycleCore
                 data: computed_parameters,
                 key_path: config['attribute'].split('.'),
                 filter: config['filter'],
-                external_key_prefix: base_key_prefix(content:, key:)
+                external_key_prefix: base_key_prefix(content:, key:),
+                external_source_id: content.external_source_id
               )
 
               value.reject!(&:blank?)
@@ -47,7 +48,8 @@ module DataCycleCore
                                    data: computed_parameters,
                                    key_path: config['attribute'].split('.'),
                                    filter: config['filter'],
-                                   external_key_prefix: base_key_prefix(content:, key:)
+                                   external_key_prefix: base_key_prefix(content:, key:),
+                                   external_source_id: content.external_source_id
                                  )).compact.first
 
               return value if DataHashService.present?(value)
@@ -64,7 +66,8 @@ module DataCycleCore
                                      data: computed_parameters,
                                      key_path: config['attribute'].split('.'),
                                      filter: config['filter'],
-                                     external_key_prefix: base_key_prefix(content:, key:)
+                                     external_key_prefix: base_key_prefix(content:, key:),
+                                     external_source_id: content.external_source_id
                                    )).compact
             end
 
@@ -77,7 +80,8 @@ module DataCycleCore
               value = Array.wrap(get_values_from_hash(
                                    data: computed_parameters,
                                    key_path:,
-                                   external_key_prefix: base_key_prefix(content:, key:)
+                                   external_key_prefix: base_key_prefix(content:, key:),
+                                   external_source_id: content.external_source_id
                                  )).compact.first
 
               return value if DataHashService.present?(computed_parameters[key_path.first])
@@ -92,7 +96,8 @@ module DataCycleCore
                                    data: computed_parameters,
                                    key_path: config.split('.'),
                                    limit: 1,
-                                   external_key_prefix: base_key_prefix(content:, key:)
+                                   external_key_prefix: base_key_prefix(content:, key:),
+                                   external_source_id: content.external_source_id
                                  )).compact.first
 
               return value if DataHashService.present?(value)

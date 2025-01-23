@@ -815,6 +815,7 @@ de:
       stored_searches_usage: Verwendung Gespeicherte Suchen
       watch_lists_usage: Verwendung Inhaltssammlungen
       widget_usage: Verwendung Widgets
+      widget_usage_overview: Verwendung Widgets (Übersicht)
       dzt_report: Fehlgeschlagene Syncs zum DZT Knowledge-Graph
       headings:
         id: ID
@@ -854,6 +855,10 @@ de:
         retention_count: Zugriffe (Nachladen von Inhalten)
         combined_count: Zugriffe (Gesamt Widget Initialisierungen + Nachladen)
         week: Woche
+        unique_domains: Einzigartige Domains
+        widget_type: Widget Typ
+        domain: Domain
+        url: URL
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
