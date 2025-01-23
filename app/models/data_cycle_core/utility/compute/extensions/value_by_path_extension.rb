@@ -11,12 +11,12 @@ module DataCycleCore
 
           private
 
-          def get_values_from_hash(data:, key_path:, filter: nil, limit: nil, external_key_prefix: [], current_key: nil)
-            data = filtered_data(data:, filter:, current_key:) if filter.present?
+          def get_values_from_hash(data:, key_path:, filter: nil, limit: nil, external_key_prefix: [], current_key: nil, external_source_id: nil)
+            data = filtered_data(data:, filter:, current_key:, external_source_id:) if filter.present?
             return data if key_path.blank?
             return if DataHashService.blank?(data)
             external_key_prefix = Array.wrap(external_key_prefix)
-            return attribute_value_from_hash(data:, key_path:, filter:, external_key_prefix:) if data.is_a?(::Hash)
+            return attribute_value_from_hash(data:, key_path:, filter:, external_key_prefix:, external_source_id:) if data.is_a?(::Hash)
 
             if (data.is_a?(::Array) && data.first.is_a?(ActiveRecord::Base)) || data.is_a?(ActiveRecord::Relation)
               limited_value = (limit.to_i.positive? ? data.first(limit) : data)
@@ -31,7 +31,7 @@ module DataCycleCore
 
             return if limited_value.blank?
 
-            return_value = limited_value.map { |v| get_values_from_hash(data: new_value_proc.call(v), key_path:, filter:, external_key_prefix:, current_key:) }
+            return_value = limited_value.map { |v| get_values_from_hash(data: new_value_proc.call(v), key_path:, filter:, external_key_prefix:, current_key:, external_source_id:) }
             exptects_array = return_value.all?(::Array)
             return_value.reject! { |v| DataHashService.blank?(v) }
             return return_value if DataHashService.present?(return_value)
@@ -46,7 +46,7 @@ module DataCycleCore
             external_key_prefix
           end
 
-          def attribute_value_from_hash(data:, key_path:, filter:, external_key_prefix: [])
+          def attribute_value_from_hash(data:, key_path:, filter:, external_key_prefix: [], external_source_id: nil)
             key = key_path.first
             value = if data.key?(key)
                       data[key]
@@ -60,26 +60,26 @@ module DataCycleCore
                       item&.property?(key) ? item.attribute_to_h(key) : nil
                     end
 
-            value = clone_attribute_value(value:, external_key_prefix: external_key_prefix + key_path) if key_path.length <= 1
+            value = clone_attribute_value(value:, external_key_prefix: external_key_prefix + key_path, external_source_id:) if key_path.length <= 1
 
-            get_values_from_hash(data: value, key_path: key_path.drop(1), filter:, external_key_prefix:, current_key: key)
+            get_values_from_hash(data: value, key_path: key_path.drop(1), filter:, external_key_prefix:, current_key: key, external_source_id:)
           end
 
-          def filtered_data(data:, filter:, current_key:)
+          def filtered_data(data:, filter:, current_key:, external_source_id: nil)
             if data.is_a?(::Hash)
-              data_in_filter?(current_key, data, filter) ? data : {}
+              data_in_filter?(current_key, data, filter, external_source_id) ? data : {}
             elsif data.is_a?(::Array)
-              data.select { data_in_filter?(current_key, _1, filter) }
+              data.select { data_in_filter?(current_key, _1, filter, external_source_id) }
             else
               data
             end
           end
 
-          def clone_attribute_value(value:, resolve: true, external_key_prefix: [])
+          def clone_attribute_value(value:, resolve: true, external_key_prefix: [], external_source_id: nil)
             return value unless (value.is_a?(::Hash) || value.is_a?(::Array)) && DataHashService.present?(value)
 
             if value.is_a?(::Array)
-              cloned_value = value.map { |v| clone_attribute_value(value: v, resolve: false, external_key_prefix:) }
+              cloned_value = value.map { |v| clone_attribute_value(value: v, resolve: false, external_key_prefix:, external_source_id:) }
             else
               cloned_value = value.with_indifferent_access
 
@@ -87,11 +87,17 @@ module DataCycleCore
                 external_key = Digest::SHA1.hexdigest(value.to_json)
                 cloned_value.except!(*CLONED_ATTRIBUTE_EXCEPTIONS)
                 cloned_value['external_key'] = [*external_key_prefix, external_key].compact.join('_')
-                cloned_value['id'] = Generic::Common::DataReferenceTransformations::ExternalReference.new(cloned_value.key?('start_time') ? :schedule : :content, nil, cloned_value['external_key'])
+
+                if cloned_value.key?('start_time')
+                  cloned_value['id'] = Generic::Common::DataReferenceTransformations::ExternalReference.new(:schedule, nil, cloned_value['external_key'])
+                else
+                  # needs to be updated if app/models/data_cycle_core/content/data_hash.rb#upsert_content is changed, and does not inherit external_source_id from parent anymore
+                  cloned_value['id'] = Generic::Common::DataReferenceTransformations::ExternalReference.new(:content, external_source_id, cloned_value['external_key'])
+                end
               end
 
               cloned_value.each do |k, v|
-                cloned_value[k] = clone_attribute_value(value: v, resolve: false, external_key_prefix: external_key_prefix + [external_key, k].compact) if v.is_a?(::Hash) || v.is_a?(::Array)
+                cloned_value[k] = clone_attribute_value(value: v, resolve: false, external_key_prefix: external_key_prefix + [external_key, k].compact, external_source_id:) if v.is_a?(::Hash) || v.is_a?(::Array)
               end
             end
 
@@ -99,7 +105,7 @@ module DataCycleCore
             cloned_value
           end
 
-          def data_in_filter?(key, data, filter)
+          def data_in_filter?(key, data, filter, external_source_id = nil)
             return true unless data.is_a?(::Hash) && key.present?
 
             Array.wrap(filter).each do |config|
@@ -110,9 +116,9 @@ module DataCycleCore
                             id = DataCycleCore::Concept.by_full_paths(config['value']).first&.classification_id
                             next false if id.nil?
 
-                            Array.wrap(config['key']).any? { |k| Array.wrap(get_values_from_hash(data:, key_path: [k])).include?(id) }
+                            Array.wrap(config['key']).any? { |k| Array.wrap(get_values_from_hash(data:, key_path: [k]), external_source_id:).include?(id) }
                           else
-                            get_values_from_hash(data:, key_path: [config['type']]) == config['value']
+                            get_values_from_hash(data:, key_path: [config['type']], external_source_id:) == config['value']
                           end
 
               return false unless in_filter
