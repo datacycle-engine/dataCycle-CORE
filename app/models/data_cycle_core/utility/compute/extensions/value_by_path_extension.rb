@@ -116,7 +116,7 @@ module DataCycleCore
                             id = DataCycleCore::Concept.by_full_paths(config['value']).first&.classification_id
                             next false if id.nil?
 
-                            Array.wrap(config['key']).any? { |k| Array.wrap(get_values_from_hash(data:, key_path: [k]), external_source_id:).include?(id) }
+                            Array.wrap(config['key']).any? { |k| Array.wrap(get_values_from_hash(data:, key_path: [k], external_source_id:)).include?(id) }
                           else
                             get_values_from_hash(data:, key_path: [config['type']], external_source_id:) == config['value']
                           end
