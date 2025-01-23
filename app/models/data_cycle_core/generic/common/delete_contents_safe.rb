@@ -22,11 +22,13 @@ module DataCycleCore
             external_key_path = options.dig(:import, :external_key_path).split('.')
             external_keys = raw_data.filter_map { |data| data.dump[locale]&.dig(*external_key_path) }
             external_keys.map! { |key| [options.dig(:import, :external_key_prefix), key].join } if options.dig(:import, :external_key_prefix)
+            template_names = options.dig(:import, :template_name)
 
             contents = DataCycleCore::Thing.where(
               external_source_id: utility_object.external_source.id,
               external_key: external_keys
             )
+            contents = contents.where(template_name: template_names) if template_names.present?
 
             # for all contents not found, clean up the external_system_sync
             external_keys_missing_contents = external_keys - contents.pluck(:external_key)
