@@ -120,7 +120,7 @@ module DataCycleCore
 
           filters = ids.all?(DataCycleCore::StoredFilter) ? ids : DataCycleCore::StoredFilter.where(id: ids)
 
-          return DataCycleCore::Thing.where('1 = 0').arel.select(thing[:id]).to_sql if filters.blank?
+          return DataCycleCore::Thing.where('1 = 0').select(:id).to_sql if filters.blank?
 
           filters.map { |f|
             f.things(skip_ordering: true)
@@ -137,7 +137,7 @@ module DataCycleCore
 
           collections = DataCycleCore::Collection.where(id: ids)
 
-          return DataCycleCore::Thing.where('1 = 0').arel.select(thing[:id]).to_sql if collections.blank?
+          return DataCycleCore::Thing.where('1 = 0').select(:id).to_sql if collections.blank?
 
           stored_filters = collections.filter { |f| f.is_a?(DataCycleCore::StoredFilter) }
           watch_lists = collections.filter { |f| f.is_a?(DataCycleCore::WatchList) }
