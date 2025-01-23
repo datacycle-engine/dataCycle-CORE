@@ -7,7 +7,7 @@ module DataCycleCore
       include Enumerable
       include DataCycleCore::Common::ArelBuilder
 
-      attr_reader :query, :thing_alias, :include_embedded
+      attr_reader :query, :include_embedded
       def_delegators :query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
       TERMINAL_METHODS = [:count, :size, :pluck, :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :query, *TERMINAL_METHODS
@@ -295,7 +295,7 @@ module DataCycleCore
       end
 
       def generate_thing_alias
-        thing.alias("th#{SecureRandom.hex(5)}")
+        thing.alias("th_#{SecureRandom.hex(5)}")
       end
 
       def search_exists(query_string, fulltext_search = false)
@@ -306,14 +306,14 @@ module DataCycleCore
         if @locale.present?
           search_query
             .where(
-              search[:content_data_id].eq(thing_alias[:id])
+              search[:content_data_id].eq(thing[:id])
                 .and(query_string)
                 .and(search[:locale].in(@locale))
             ).project(1).exists
         else
           search_query
             .where(
-              search[:content_data_id].eq(thing_alias[:id])
+              search[:content_data_id].eq(thing[:id])
                 .and(query_string)
             ).project(1).exists
         end
@@ -323,8 +323,7 @@ module DataCycleCore
         self.class.new(
           locale: @locale,
           query: query,
-          include_embedded: include_embedded,
-          thing_alias: thing_alias
+          include_embedded: include_embedded
         )
       end
     end
