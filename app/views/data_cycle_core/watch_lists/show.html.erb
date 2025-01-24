@@ -201,7 +201,7 @@
 
         <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: @watch_list if can?(:bulk_edit, @watch_list) %>
 
-        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?", dc_tooltip: t('actions.delete', locale: active_ui_locale) } do %>
+        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?", dc_tooltip: t('actions.delete_with_data', data: @watch_list.model_name.human(locale: active_ui_locale), locale: active_ui_locale) } do %>
           <i class="fa fa-trash-o" aria-hidden="true"></i>
         <% end if can? :destroy, @watch_list %>
 
