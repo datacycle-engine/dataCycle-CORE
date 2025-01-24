@@ -1,7 +1,8 @@
 // import TextEditor from '../components/text_editor';
 const TextEditorLoader = () => import("../components/text_editor");
 import InlineTranslator from "../components/inline_translator";
-import TextEnhanceTips from "../components/ai_lector/ai_lector_tips";
+import AiLectorTips from "../components/ai_lector/ai_lector_tips";
+import AiLector from "../components/ai_lector/ai_lector";
 
 function initTextEditor(item) {
 	TextEditorLoader()
@@ -25,6 +26,11 @@ export default function () {
 	DataCycle.registerAddCallback(
 		".ai-lector-tips-button",
 		"ai-lector-tips",
-		(e) => new TextEnhanceTips(e),
+		(e) => new AiLectorTips(e),
 	);
+
+	DataCycle.registerAddCallback(".ai-lector-dropdown", "ai-lector", () => {
+		if (!DataCycle.globals.aiLector)
+			DataCycle.globals.aiLector = new AiLector();
+	});
 }

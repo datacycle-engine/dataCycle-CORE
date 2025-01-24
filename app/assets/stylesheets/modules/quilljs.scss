@@ -292,6 +292,29 @@ $fa-font-path: '/assets';
     border-radius: $global-radius;
   }
 
+  >.ql-toolbar {
+
+    &.text-editor-toolbar {
+      flex: 0;
+      padding: 8px;
+
+      button {
+        padding: 3px 5px;
+        margin: 0;
+      }
+    }
+
+    ~.ql-toolbar,
+    ~.text-editor-toolbar {
+      padding-left: 0;
+    }
+
+    &:has(~.ql-toolbar),
+    &:has(~.text-editor-toolbar) {
+      padding-right: 0;
+    }
+  }
+
   >.quill-editor {
     order: 20;
     width: 100%;

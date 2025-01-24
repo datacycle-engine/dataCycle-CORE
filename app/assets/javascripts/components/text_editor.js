@@ -21,6 +21,7 @@ import quillHelpers from "./../helpers/quill_helpers";
 import quillCustomHandlers from "../components/quill_custom_handlers";
 const icons = Quill.import("ui/icons");
 import castArray from "lodash/castArray";
+import debounce from "lodash/debounce";
 
 Quill.register(SmartBreak);
 Quill.register("modules/contentlink", QuillContentlinkModule);
@@ -37,6 +38,7 @@ class TextEditor {
 		this.excludeFormats = this.element.dataset.excludeFormats
 			? castArray(this.element.dataset.excludeFormats)
 			: [];
+		this.debouncedUpdate;
 		this.availableFormats = {
 			none: ["break"],
 			minimal: ["bold", "italic", "underline", "break"],
@@ -192,6 +194,11 @@ class TextEditor {
 	}
 	addEventHandlers() {
 		this.editor.on("selection-change", this.updateEditorHandler.bind(this));
+		this.editor.on(
+			"text-change",
+			debounce(this.updateSilentHandler.bind(this), 500),
+		);
+
 		$(this.editor.container)
 			.closest("form")
 			.on("reset", this.resetEditor.bind(this));
@@ -224,8 +231,14 @@ class TextEditor {
 		);
 		quillHelpers.updateEditors(this.editor.container, true);
 	}
-	updateEditorHandler(range, _oldRange, _source) {
-		if (range == null) quillHelpers.updateEditors(this.editor.container, true);
+	updateSilentHandler(..._args) {
+		quillHelpers.updateEditors(this.editor.container, false);
+	}
+	updateEditorHandler(range, ..._args) {
+		if (range == null) {
+			if (this.debouncedUpdate) this.debouncedUpdate.cancel();
+			quillHelpers.updateEditors(this.editor.container, true);
+		}
 	}
 	removeInitialExtraLines() {
 		const length = this.editor.getLength();

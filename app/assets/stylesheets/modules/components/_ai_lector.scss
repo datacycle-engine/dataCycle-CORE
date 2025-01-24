@@ -7,34 +7,28 @@
 }
 
 .ai-lector-dropdown {
+  min-width: 400px;
+
   .ai-lector-tip-container {
     .ai-lector-tips-button {
       margin: 0;
       padding: 0;
+      text-align: left;
     }
 
-    .ai-lector-tip-result {
+    .ai-lector-result {
       display: none;
       line-height: 0.5rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--global-radius);
+      background-color: var(--nearly-white);
+      white-space: pre-line;
+      font-size: 0.9rem;
 
       &.visible {
         display: block;
         margin-top: 0.5rem;
         line-height: normal;
-      }
-
-      .ai-lector-tip {
-        padding: 0.3rem 0.5rem;
-        border-radius: var(--global-radius);
-        background-color: var(--nearly-white);
-
-        .ai-lector-tip-title {
-          font-weight: 600;
-        }
-
-        &:not(:last-child) {
-          margin-bottom: 0.5rem;
-        }
       }
     }
   }

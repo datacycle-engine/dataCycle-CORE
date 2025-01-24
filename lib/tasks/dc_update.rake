@@ -98,10 +98,12 @@ namespace :dc do
 
   desc 'run migrations, update all configs and run data_migrations'
   task :update, [:verbose] => :environment do |_, args|
+    puts 'run checks for migrations'
     Rake::Task['db:migrate:check'].invoke
     Rake::Task['db:migrate:check'].reenable
     puts '----------'
 
+    puts 'run migrations'
     Rake::Task['db:migrate'].invoke
     Rake::Task['db:migrate'].reenable
     puts '----------'
@@ -110,6 +112,7 @@ namespace :dc do
     Rake::Task['dc:update:configs'].reenable
     puts '----------'
 
+    puts 'run data_migrations'
     Rake::Task['db:migrate:with_data'].invoke
     Rake::Task['db:migrate:with_data'].reenable
   end

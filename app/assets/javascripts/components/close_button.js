@@ -12,6 +12,7 @@ class CloseButton {
 	}
 	closeParent(event) {
 		event.preventDefault();
+		// event.stopImmediatePropagation();
 
 		DomElementHelpers.fadeOut(this.parent)
 			.then(() => this.parent.remove())

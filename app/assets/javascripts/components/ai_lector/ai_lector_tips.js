@@ -1,4 +1,6 @@
 import CalloutHelpers from "../../helpers/callout_helpers";
+import QuillHelpers from "../../helpers/quill_helpers";
+import { nanoid } from "nanoid";
 
 class AiLectorTips {
 	constructor(item) {
@@ -9,71 +11,100 @@ class AiLectorTips {
 		this.locale = this.item.dataset.locale;
 		this.formElement = this.item.closest(".form-element");
 		this.label = this.formElement.dataset.label;
-		this.contentField = this.item.parentElement.querySelector(
-			".ai-lector-tip-result",
-		);
+		this.contentField =
+			this.item.parentElement.querySelector(".ai-lector-result");
+		this.identifier = nanoid();
+		this.streaming = false;
+		this.aiLectorContainer = this.item.closest(".ai-lector-dropdown");
+		this.valueField = this.formElement.querySelector(`[name="${this.key}"]`);
+		this.timeout;
 
 		this.setup();
 	}
 	setup() {
+		this.item.id = this.identifier;
 		this.item.addEventListener("click", this.showTips.bind(this));
+		this.item.addEventListener("data", this.renderResult.bind(this));
+		this.item.addEventListener("reset", this.reset.bind(this));
 	}
 	getValue() {
-		return this.formElement.querySelector(`[name="${this.key}"]`).value;
+		if (this.valueField.type === "hidden")
+			QuillHelpers.updateEditors(this.formElement);
+		return this.valueField.value;
 	}
 	contentFieldLoading() {
-		this.contentField.innerHTML =
-			'<li class="ai-lector-tip ellipsis-loading"></li>';
-		this.contentField.classList.add("visible");
+		this.clearNeighboringTips();
+		this.streaming = true;
+		DataCycle.disableElement(this.item);
+		this.contentField.textContent = "";
+		this.contentField.classList.add("visible", "ellipsis-loading");
 	}
-	contentFieldValue(value) {
-		this.contentField.innerHTML = value;
-		this.contentField.classList.toggle("visible", !!value);
-	}
-	renderTips({ tips }) {
-		let tipsHtml = "";
-		for (const tip of tips) {
-			tipsHtml += `<li class="ai-lector-tip">
-        <div class="ai-lector-tip-title">${tip.title}</div>
-        <div class="ai-lector-tip-content">${tip.content}</div>
-      </li>`;
-		}
-
-		this.contentFieldValue(tipsHtml);
-	}
-	async renderError(error) {
-		let errorMessage = await I18n.translate(
-			"feature.ai_lector.errors.generic_error",
+	clearNeighboringTips() {
+		const neighboringTips = this.aiLectorContainer.querySelectorAll(
+			":scope > ul > li > button",
 		);
-		if (error?.responseJSON?.error)
-			errorMessage += `<br><i>${error.responseJSON.error}</i>`;
-		CalloutHelpers.show(errorMessage, "alert");
+		for (const tip of neighboringTips) {
+			if (tip !== this.item) tip.dispatchEvent(new Event("reset"));
+		}
+	}
+	contentFieldFinished() {
+		this.streaming = false;
+		if (this.timeout) clearTimeout(this.timeout);
+		DataCycle.enableElement(this.item);
+	}
+	reset() {
+		this.contentFieldFinished();
+		this.contentField.textContent = "";
+		this.contentField.classList.remove("visible", "ellipsis-loading");
+	}
+	async renderError(error, cssClass = "alert", key = "errors") {
+		let message = error;
+		if (!message)
+			message = await I18n.translate(`feature.ai_lector.${key}.generic`);
+		CalloutHelpers.show(message, cssClass);
 		this.contentField.classList.remove("visible");
+		this.reset();
 	}
 	async showTips(event) {
 		event.preventDefault();
 
-		DataCycle.disableElement(this.item);
 		this.contentFieldLoading();
 
-		const value = this.getValue();
-		const request = DataCycle.httpRequest("/things/ai_lector/get_tips", {
-			method: "POST",
-			body: {
-				text: typeof value === "string" ? value.trim() : value,
+		try {
+			DataCycle.globals.aiLector.send({
+				text: this.getValue(),
 				target_locale: this.locale,
 				template_name: this.templateName,
 				key: this.key,
 				tip_key: this.tipKey,
-			},
-		});
-
-		request
-			.then(this.renderTips.bind(this))
-			.catch(this.renderError.bind(this))
-			.finally(() => {
-				DataCycle.enableElement(this.item);
+				identifier: this.identifier,
 			});
+		} catch (error) {
+			I18n.t("feature.ai_lector.warnings.no_connection").then((text) =>
+				CalloutHelpers.show(text, "info"),
+			);
+			this.reset();
+		}
+	}
+	renderResult(event) {
+		event.preventDefault();
+
+		const data = event.detail;
+
+		if (data?.error) this.renderError(data.error);
+		else if (data?.warning) this.renderError(data.warning, "info", "warnings");
+		else if (data?.data) this.appendData(data.data);
+
+		if (data?.finished) this.contentFieldFinished();
+	}
+	appendData(data) {
+		if (this.streaming) {
+			if (this.timeout) clearTimeout(this.timeout);
+			this.timeout = setTimeout(this.contentFieldFinished.bind(this), 30000);
+			this.contentField.classList.remove("ellipsis-loading");
+			this.contentField.textContent += data;
+			// this.contentField.insertAdjacentHTML("beforeend", data);
+		}
 	}
 }
 

@@ -1,11 +1,11 @@
 <% dropdown_id = "#{sanitize_to_id(key)}-ai-lector-dropdown" %>
 <%= button_tag(tag.i(class: 'fa fa-magic'), type: 'button', data: { toggle: dropdown_id }, class: 'ai-lector-dropdown-button') %>
-<%= tag.div(class: 'dropdown-pane ai-lector-dropdown', id: dropdown_id, data: { dropdown: true }) do %>
+<%= tag.div(class: 'dropdown-pane ai-lector-dropdown', id: dropdown_id, data: { hover: false, dropdown: true, close_on_click: true, position: 'bottom' }) do %>
   <ul class="no-bullet">
     <% DataCycleCore::Feature['AiLector'].tips_config(content, key)&.each do |k, v| %>
       <li class="ai-lector-tip-container">
-        <%= button_tag(t("feature.ai_lector.tips.#{k}", default: k.to_s, locale: active_ui_locale), class: 'ai-lector-tips-button', type: 'button', data: { template_name: content.template_name, tip_key: k, key: key, locale: I18n.locale }) %>
-        <ul class="no-bullet ai-lector-tip-result"></ul>
+        <%= button_tag(t("feature.ai_lector.tips.#{k}", default: k.to_s, locale: active_ui_locale), class: 'ai-lector-tips-button ai-lector-button', type: 'button', data: { template_name: content.template_name, tip_key: k, key: key, locale: I18n.locale }) %>
+        <div class="ai-lector-result"></div>
       </li>
     <% end %>
   </ul>
