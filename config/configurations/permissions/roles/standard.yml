@@ -37,7 +37,7 @@ asset_create:
     - :creator_id
 
 thing_create:
-  actions: create
+  actions: [create, create_without_search]
   segment: TemplateByCreatableScope
   parameters: :all
 

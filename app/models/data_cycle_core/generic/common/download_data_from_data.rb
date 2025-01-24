@@ -29,7 +29,7 @@ module DataCycleCore
           data_name_path = [data_name].compact_blank.join('.')
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
 
-          attribue_whitelist = Array.wrap(options.dig(:download, :attribute_whitelist)) + ['id', 'name'] if options.dig(:download, :attribute_whitelist).present?
+          attribute_whitelist = Array.wrap(options.dig(:download, :attribute_whitelist)) + ['id', 'name'] if options.dig(:download, :attribute_whitelist).present?
 
           full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
           full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
@@ -105,7 +105,7 @@ module DataCycleCore
             }
           ]
 
-          pipelines << { '$project' => attribue_whitelist.index_with { |_attr| 1 } } if attribue_whitelist.present?
+          pipelines << { '$project' => attribute_whitelist.index_with { |_attr| 1 } } if attribute_whitelist.present?
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
