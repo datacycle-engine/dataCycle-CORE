@@ -22,16 +22,19 @@ module DataCycleCore
             external_key_path = options.dig(:import, :external_key_path).split('.')
             external_keys = raw_data.filter_map { |data| data.dump[locale]&.dig(*external_key_path) }
             external_keys.map! { |key| [options.dig(:import, :external_key_prefix), key].join } if options.dig(:import, :external_key_prefix)
-            template_names = Array.wrap(options.dig(:import, :template_name))
-            all_templates = DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').pluck(:template_name)
-
-            raise "Template names not found: #{template_names - all_templates}" if (template_names - all_templates).any?
 
             contents = DataCycleCore::Thing.where(
               external_source_id: utility_object.external_source.id,
               external_key: external_keys
             )
-            contents = contents.where(template_name: template_names) if template_names.present?
+
+            template_names = Array.wrap(options.dig(:import, :template_name))
+            if template_names.present?
+              all_templates = DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').pluck(:template_name)
+
+              raise "Template names not found: #{template_names - all_templates}" if (template_names - all_templates).any?
+              contents = contents.where(template_name: template_names)
+            end
 
             # for all contents not found, clean up the external_system_sync
             external_keys_missing_contents = external_keys - contents.pluck(:external_key)
