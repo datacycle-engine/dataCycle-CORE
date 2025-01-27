@@ -32,7 +32,7 @@ namespace :dc do
       faraday = Faraday.default_connection
       deleted_ids = []
       delete_proc = lambda do |thing|
-        return print('x'.yellow) if !delete_in_use && thing.content_a.exists?
+        return print(AmazingPrint::Colors.yellow('x')) if !delete_in_use && thing.content_a.exists?
         deleted_ids << thing.id
 
         logger.info("Deleting content with id: #{thing.id} and content_url: #{thing.content_url}")
