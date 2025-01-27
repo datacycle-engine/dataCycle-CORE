@@ -85,7 +85,7 @@ namespace :dc do
         end
       end
 
-      puts '[DONE] please check all changes before commiting!'
+      puts AmazingPrint::Colors.green('[DONE] please check all changes before commiting!')
     end
 
     desc 'remove some unused config files'

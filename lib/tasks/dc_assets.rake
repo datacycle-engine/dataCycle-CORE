@@ -313,7 +313,7 @@ namespace :dc do
         puts "Error: #{e.message} (blob_id: #{blob.id})"
       end
 
-      puts "[DONE] Rebuilt #{updated_count} checksums for blobs"
+      puts AmazingPrint::Colors.green("[DONE] Rebuilt #{updated_count} checksums for blobs")
     end
   end
 end

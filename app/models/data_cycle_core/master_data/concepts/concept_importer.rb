@@ -50,7 +50,7 @@ module DataCycleCore
         def render_errors
           return if @errors.blank?
 
-          puts 'the following errors were encountered during import:'
+          puts AmazingPrint::Colors.red('the following errors were encountered during import:')
           ap @errors
         end
         # rubocop:enable Rails/Output

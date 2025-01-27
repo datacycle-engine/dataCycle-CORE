@@ -37,7 +37,7 @@ namespace :dc do
 
         logger.info("Deleting content with id: #{thing.id} and content_url: #{thing.content_url}")
         thing.destroy
-        print('x'.red)
+        print(AmazingPrint::Colors.red('x'))
       end
 
       to_check.find_each do |thing|
@@ -51,10 +51,10 @@ namespace :dc do
             image = FastImage.size(thing.content_url)
             next delete_proc.call(thing) if image.present? && image.is_a?(Array) && image.size == 2 && image.all? { |v| v <= 1 }
 
-            print('.'.green)
+            print(AmazingPrint::Colors.green('.'))
           end
         rescue StandardError
-          print('~'.yellow)
+          print(AmazingPrint::Colors.yellow('~'))
         end
       end
 

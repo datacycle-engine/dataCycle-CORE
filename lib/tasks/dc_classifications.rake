@@ -200,7 +200,7 @@ namespace :dc do
 
         DataCycleCore::ClassificationGroup.insert_all(new_ca_groups, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
 
-        puts "[DONE] finished upserting in #{Time.zone.now - tmp}s."
+        puts AmazingPrint::Colors.green("[DONE] finished upserting in #{Time.zone.now - tmp}s.")
       end
     end
 

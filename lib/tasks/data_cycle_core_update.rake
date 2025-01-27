@@ -9,9 +9,9 @@ namespace :data_cycle_core do
       puts 'importing new external_system configs'
       errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
       if errors.blank?
-        puts '[done] ... looks good'
+        puts AmazingPrint::Colors.green('[done] ... looks good')
       else
-        puts 'the following errors were encountered during import:'
+        puts AmazingPrint::Colors.red('the following errors were encountered during import:')
         ap errors
       end
       puts "\n"

@@ -149,7 +149,7 @@ namespace :dc do
 
       DataCycleCore::Feature::CustomAssetPreviewer.update_computed_for_templates(template_names:, webhooks:)
 
-      puts "[DONE] Updated computed previewer attributes for templates: #{template_names&.join(', ') || 'all'}"
+      puts AmazingPrint::Colors.green("[DONE] Updated computed previewer attributes for templates: #{template_names&.join(', ') || 'all'}")
     end
 
     desc 'add missing slugs'
