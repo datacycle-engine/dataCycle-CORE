@@ -18,7 +18,7 @@ module DataCycleCore
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
 
           if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
             @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:'dct:deleted')
             @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
           end
@@ -42,7 +42,7 @@ module DataCycleCore
           end
 
           if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
             @classification_aliases = @classification_tree_label.classification_aliases_with_deleted if filter.key?(:'dct:deleted')
             @classification_aliases = apply_filters(@classification_aliases, filter)
           end
@@ -118,7 +118,7 @@ module DataCycleCore
             .primary_classification_aliases
 
           if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
             if filter.key?(:'dct:deleted')
               @classification_aliases = DataCycleCore::Classification
                 .by_external_key(@external_source_id, external_keys).with_deleted

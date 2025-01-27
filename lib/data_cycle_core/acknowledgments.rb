@@ -38,9 +38,7 @@ module DataCycleCore
             'full-name' => package['name'],
             'version' => package['name'].sub(/^.*@([^@]*)$/, '\1')
           }.merge(
-            (JSON.parse(`yarn info #{package['name']} #{default_options}`)['data'] || {}).select { |k, _|
-              ['name', 'description', 'license', 'homepage'].include?(k)
-            }.then do |package_info|
+            (JSON.parse(`yarn info #{package['name']} #{default_options}`)['data'] || {}).slice('name', 'description', 'license', 'homepage').then do |package_info|
               package_info.merge({
                 'base_path' => File.join(NODE_MODULES_PATH, package_info['name']),
                 'license_files' => Dir[File.join(NODE_MODULES_PATH, package_info['name'], '*')]

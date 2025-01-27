@@ -14,7 +14,7 @@ module DataCycleCore
           end
 
           def self.select_keys(data, *keys)
-            data.select { |k, _| keys.flatten.include?(k) }
+            data.slice(*keys.flatten)
           end
 
           def self.compact(data_hash)
