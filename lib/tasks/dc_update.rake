@@ -6,9 +6,11 @@ namespace :dc do
     task :configs, [:verbose] => :environment do |_, args|
       Rake::Task['dc:templates:import'].invoke(args.verbose)
       Rake::Task['dc:templates:import'].reenable
+      puts '----------'
 
       Rake::Task['dc:concepts:import'].invoke
       Rake::Task['dc:concepts:import'].reenable
+      puts '----------'
 
       Rake::Task['dc:external_systems:import'].invoke
       Rake::Task['dc:external_systems:import'].reenable
@@ -96,12 +98,21 @@ namespace :dc do
 
   desc 'run migrations, update all configs and run data_migrations'
   task :update, [:verbose] => :environment do |_, args|
+    puts 'run checks for migrations'
     Rake::Task['db:migrate:check'].invoke
     Rake::Task['db:migrate:check'].reenable
+    puts '----------'
+
+    puts 'run migrations'
     Rake::Task['db:migrate'].invoke
     Rake::Task['db:migrate'].reenable
+    puts '----------'
+
     Rake::Task['dc:update:configs'].invoke(args.verbose)
     Rake::Task['dc:update:configs'].reenable
+    puts '----------'
+
+    puts 'run data_migrations'
     Rake::Task['db:migrate:with_data'].invoke
     Rake::Task['db:migrate:with_data'].reenable
   end

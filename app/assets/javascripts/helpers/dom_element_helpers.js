@@ -151,7 +151,8 @@ const DomElementHelpers = {
 	fadeOut(target, duration = 500) {
 		if (!(target && target instanceof Element)) return Promise.reject();
 
-		target.style.transitionDuration = `${duration}ms`;
+		target.style.animationDuration = `${duration}ms`;
+		target.style.animationPlayState = "initial";
 		target.classList.add("fadeout");
 
 		return new Promise((resolve) =>

@@ -5,7 +5,7 @@ namespace :dc do
     desc 'import new concepts from classifications.yml'
     task :import, [:verbose] => :environment do |_, _args|
       before_import = Time.zone.now
-      puts "importing new concepts\n"
+      puts 'importing new concepts'
       importer = DataCycleCore::MasterData::Concepts::ConceptImporter.new
       importer.import
       importer.render_errors

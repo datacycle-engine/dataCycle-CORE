@@ -654,6 +654,10 @@ ul.footer-links {
     animation: slideIn 0.5s ease-in-out both, slideOut 0.5s ease-in-out var(--_time) forwards;
   }
 
+  &.fadeout {
+    animation: slideOut ease-in-out forwards;
+  }
+
   min-height: 2.8rem;
   position: relative;
   display: block;

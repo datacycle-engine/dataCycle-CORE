@@ -32,9 +32,8 @@ namespace :dc do
       template_statistics = DataCycleCore::MasterData::Templates::TemplateStatistics.new(start_time: before_import)
       template_statistics.update_statistics
       template_statistics.render_statistics
-
-      puts "\n"
     end
+
     namespace :migrations do
       task :validate, [:debug] => :environment do |_, _args|
         puts "validating new data definitions\n"

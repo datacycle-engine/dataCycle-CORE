@@ -17,6 +17,15 @@
 }
 
 .fadeout {
-  transition-property: opacity;
-  opacity: 0;
+  animation: fadeOut 500ms linear forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }

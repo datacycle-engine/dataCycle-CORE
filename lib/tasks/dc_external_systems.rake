@@ -19,7 +19,7 @@ namespace :dc do
     desc 'import and update all template definitions'
     task import: :environment do
       tmp = Time.zone.now
-      puts "importing new external_system configs\n"
+      puts 'importing new external_system configs'
       errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
 
       if errors.blank?
