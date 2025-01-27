@@ -16,9 +16,10 @@ module DataCycleCore
         end
 
         def self.load_concepts_from_yaml(options:, locale:, **_keyword_args)
-          raise ArgumentError, 'missing file path!' if options.dig(:download, :file).nil?
+          file_path = options.dig(:download, :file) || options.dig(:download, :file_path)
+          raise ArgumentError, 'missing file path!' if file_path.nil?
 
-          path = Rails.root.join(options.dig(:download, :file))
+          path = Rails.root.join(file_path)
           file = File.open(path)
           data = YAML.safe_load(file)
 
