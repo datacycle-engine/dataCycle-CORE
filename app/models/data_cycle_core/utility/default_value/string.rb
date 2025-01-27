@@ -5,7 +5,7 @@ module DataCycleCore
     module DefaultValue
       module String
         class << self
-          def substitution(content:, property_definition:, **_additional_args)#
+          def substitution(content:, property_definition:, **_additional_args)
             identifier = property_definition&.dig('default_value', 'attribute').to_s == 'slug' ? content&.slug : content&.id
             format(property_definition&.dig('default_value', 'substitute_string').to_s, id: identifier).presence
           end
