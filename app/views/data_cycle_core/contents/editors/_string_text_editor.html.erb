@@ -25,7 +25,7 @@
 
     <div class="ql-toolbar text-editor-toolbar">
       <span class="ql-formats">
-        <%= render 'data_cycle_core/contents/editors/features/ai_lector', content: contextual_content(local_assigns), key: key if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature['AiLector']&.allowed_attribute_key?(contextual_content(local_assigns), key) %>
+        <%= render 'data_cycle_core/contents/editors/features/ai_lector', content: contextual_content(local_assigns), key: key if ai_lector_allowed?(**local_assigns) %>
       </span>
     </div>
   </div>

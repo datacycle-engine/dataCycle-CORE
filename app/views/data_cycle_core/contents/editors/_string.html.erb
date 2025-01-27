@@ -7,7 +7,7 @@
   <% content_for(:toolbar, flush: true) do %>
     <%= link_to(tag.i(class: 'fa fa-language'), '#', class: 'translate-inline-button', data: { locale: I18n.locale, key: key, dc_tooltip: t('frontend.text_editor.inlineTranslator', locale: active_ui_locale) }) if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature['Translate']&.allowed_attribute?(contextual_content(local_assigns), key, I18n.locale, current_user) %>
 
-    <%= render 'data_cycle_core/contents/editors/features/ai_lector', content: contextual_content(local_assigns), key: key if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature['AiLector']&.allowed_attribute_key?(contextual_content(local_assigns), key) %>
+    <%= render 'data_cycle_core/contents/editors/features/ai_lector', content: contextual_content(local_assigns), key: key if ai_lector_allowed?(**local_assigns) %>
   <% end %>
 
   <%= tag.div(yield_content!(:toolbar), class: 'text-toolbar') if content_for?(:toolbar) %>

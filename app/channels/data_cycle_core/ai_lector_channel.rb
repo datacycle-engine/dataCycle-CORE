@@ -30,7 +30,13 @@ module DataCycleCore
 
       ActionCable.server.broadcast(channel_name, data.symbolize_keys.merge(result))
     rescue StandardError => e
-      ActionCable.server.broadcast(channel_name, data.symbolize_keys.merge({ error: e.message || I18n.t('feature.ai_lector.errors.generic', locale: current_user.ui_locale) }))
+      if e.is_a?(Faraday::Error)
+        error = I18n.t('feature.ai_lector.warnings.no_connection', locale: current_user.ui_locale)
+      else
+        error = I18n.t('feature.ai_lector.errors.generic', locale: current_user.ui_locale)
+      end
+
+      ActionCable.server.broadcast(channel_name, data.symbolize_keys.merge({ error: }))
     end
 
     private
