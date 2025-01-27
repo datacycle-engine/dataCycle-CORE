@@ -301,7 +301,7 @@ module DataCycleCore
 
         def advanced_date(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
-          date_range = "[#{value&.dig('from')&.to_s},#{value&.dig('until')&.to_s}]"
+          date_range = "[#{value&.dig('from')},#{value&.dig('until')}]"
 
           case comparison
           when :equal
@@ -317,7 +317,7 @@ module DataCycleCore
 
         def advanced_date_range(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
-          date_range = "[#{value&.dig('from')&.to_s},#{value&.dig('until')&.to_s}]"
+          date_range = "[#{value&.dig('from')},#{value&.dig('until')}]"
 
           interval_keys = DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters.dig(attribute_path, 'attribute_keys')
           query_operator = DATE_RANGE_COMPARISON_OPERATORS[DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters.dig(attribute_path, 'query_operator')&.to_sym || :overlaps]
