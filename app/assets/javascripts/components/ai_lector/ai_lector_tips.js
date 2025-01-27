@@ -73,7 +73,7 @@ class AiLectorTips {
 		try {
 			DataCycle.globals.aiLector.send({
 				text: this.getValue(),
-				target_locale: this.locale,
+				locale: this.locale,
 				template_name: this.templateName,
 				key: this.key,
 				tip_key: this.tipKey,
@@ -103,7 +103,6 @@ class AiLectorTips {
 			this.timeout = setTimeout(this.contentFieldFinished.bind(this), 30000);
 			this.contentField.classList.remove("ellipsis-loading");
 			this.contentField.textContent += data;
-			// this.contentField.insertAdjacentHTML("beforeend", data);
 		}
 	}
 }

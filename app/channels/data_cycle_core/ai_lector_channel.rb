@@ -8,7 +8,7 @@ module DataCycleCore
       required(:tip_key).filled(:str?)
       required(:identifier).filled(:str?)
       optional(:text).value(:str?)
-      optional(:target_locale).value(:str?)
+      optional(:locale).value(:str?)
     end
 
     def subscribed
@@ -24,7 +24,7 @@ module DataCycleCore
 
       ActionCable.server.broadcast(channel_name, data.symbolize_keys.merge({ warning: I18n.t('feature.ai_lector.tips.warnings.no_data', locale: current_user.ui_locale) })) && return if parsed_data[:text].blank?
 
-      result = DataCycleCore::Feature['AiLector'].new.get_tips(current_user:, **parsed_data.slice(:text, :target_locale, :template_name, :key, :tip_key).symbolize_keys) do |chunk|
+      result = DataCycleCore::Feature['AiLector'].new.get_tips(current_user:, **parsed_data.slice(:text, :locale, :template_name, :key, :tip_key).symbolize_keys) do |chunk|
         ActionCable.server.broadcast(channel_name, data.symbolize_keys.merge(chunk))
       end
 
