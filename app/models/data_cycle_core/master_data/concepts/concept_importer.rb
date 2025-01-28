@@ -103,7 +103,13 @@ module DataCycleCore
 
           new_groups = []
           full_paths = (@concept_mappings.keys + @concept_mappings.values).flatten
-          concepts = DataCycleCore::ClassificationAlias.includes(:primary_classification).by_full_paths(full_paths).to_h { |ca| [ca.full_path, { classification_alias_id: ca.id, classification_id: ca.primary_classification&.id }] }
+          concepts = DataCycleCore::ClassificationAlias
+            .includes(:primary_classification)
+            .by_full_paths(full_paths)
+            .each_with_object({}) do |ca, h|
+            h[ca.full_path] ||= []
+            h[ca.full_path] << { classification_alias_id: ca.id, classification_id: ca.primary_classification&.id }
+          end
 
           @concept_mappings.each do |key, value|
             next unless concepts.key?(key)
@@ -111,7 +117,14 @@ module DataCycleCore
             Array.wrap(value).each do |v|
               next unless concepts.key?(v)
 
-              new_groups.push({ classification_alias_id: concepts[key][:classification_alias_id], classification_id: concepts[v][:classification_id], created_at: Time.zone.now, updated_at: Time.zone.now }) # created_at and updated_at required for primary_classification in tests
+              parents = concepts[key]
+              children = concepts[v]
+
+              parents.each do |parent|
+                children.each do |child|
+                  new_groups.push({ classification_alias_id: parent[:classification_alias_id], classification_id: child[:classification_id], created_at: Time.zone.now, updated_at: Time.zone.now }) # created_at and updated_at required for primary_classification in tests
+                end
+              end
             end
           end
 
