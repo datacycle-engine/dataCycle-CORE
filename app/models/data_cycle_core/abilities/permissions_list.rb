@@ -103,9 +103,10 @@ module DataCycleCore
         DataCycleCore.permissions.dig(:roles, permissions)&.each_value do |permission|
           next if permission.blank?
           parameters = parse_parameters_from_yaml(permission[:parameters])
+          condition_segment = condition_to_segment(role, permission)
 
           permit(
-            segment(:UsersByRole).new(role),
+            condition_segment,
             *Array.wrap(permission[:actions]).map(&:to_sym),
             definition_to_segment({ permission[:segment].to_sym => Array.wrap(parameters) })
           )
@@ -239,6 +240,16 @@ module DataCycleCore
 
           ability.send(*parameters, &definition.to_proc)
         end
+      end
+
+      private
+
+      def condition_to_segment(role, permission)
+        segment_name = permission.dig(:condition, :segment).presence || :UsersByRole
+        parameters = Array.wrap(parse_parameters_from_yaml(permission.dig(:condition, :parameters)))
+        parameters.unshift(role) if segment_name.to_s.include?('Role')
+
+        segment(segment_name).new(*parameters)
       end
     end
   end

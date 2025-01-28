@@ -23,17 +23,8 @@ module DataCycleCore
     def ai_lector_allowed?(key:, definition:, options:, content:, scope: :update, **args)
       return false unless DataCycleCore::Feature['AiLector']&.allowed_attribute_key?(contextual_content(key:, definition:, options:, content:, **args), key)
 
-      a_options = DataCycleCore::DataAttributeOptions.new(
-        key:,
-        definition:,
-        parameters: { options: },
-        content:,
-        user: current_user,
-        context: :editor,
-        scope:
-      )
-
-      a_options.attribute_allowed? && can?(:ai_lector, a_options)
+      attribute_editable?(key, definition, options, content, scope) &&
+        can?(:ai_lector, DataCycleCore::DataAttribute.new(key, definition, options, content, scope))
     end
 
     def attribute_editable?(key, definition, options, content, scope = :update)

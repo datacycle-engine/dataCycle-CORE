@@ -144,6 +144,7 @@ de:
       download_user_info_activity: "Nutzerinformationen und API-Aktivität herunterladen"
       copy_to_clipboard: in die Zwischenablage kopieren
       api_translate_text: Texte per API übersetzen
+      ai_lector: D.A.I.S.Y. verwenden
     restrictions:
       advanced_filter_except_type: "nicht: %{except}"
       asset_by_user_and_no_content:
@@ -197,6 +198,9 @@ de:
       tree_label_by_visibility: "Sichtbarkeit: %{visibilities}"
       users_by_email_domain: "E-Mail Domain: %{domain}"
       users_by_role: "Rolle: %{roles}"
+      users_by_role_and_provider:
+        - "Rolle: %{roles}"
+        - "Provider: %{provider}"
       users_by_user_group:
         - "Benutzergruppe: %{group}"
         - "Rolle: %{roles}"
