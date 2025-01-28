@@ -13,8 +13,8 @@ module DataCycleCore
 
       where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
     }
-    scope :with_schema_type, lambda { |type|
-      where("thing_templates.schema ->> 'schema_type' = :type OR thing_templates.computed_schema_types && ARRAY[:type]::VARCHAR[]", type: type)
+    scope :with_schema_type, lambda { |schema_type|
+      where('thing_templates.computed_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
     }
 
     after_initialize :add_template_properties, if: :new_record?

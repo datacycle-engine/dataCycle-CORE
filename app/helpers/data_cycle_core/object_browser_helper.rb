@@ -3,21 +3,15 @@
 module DataCycleCore
   module ObjectBrowserHelper
     def extract_aliases(definition, type)
-      definition&.dig('stored_filter')&.flat_map do |v|
+      definition&.dig('stored_filter')&.flat_map { |v|
         v&.values&.select { |c| c.is_a?(Hash) && c&.value?(type) }&.map { |c| c&.dig('aliases') }
-      end&.compact
+      }&.compact&.flatten
     end
 
     def object_browser_new_form_parameters(form_parameters, definition)
       if definition&.dig('stored_filter').present?
-        def extract_aliases(definition, type)
-          definition&.dig('stored_filter')&.flat_map do |v|
-            v&.values&.select { |c| c.is_a?(Hash) && c&.value?(type) }&.map { |c| c&.dig('aliases') }
-          end&.compact
-        end
-
         creatable_ids = extract_aliases(definition, 'Inhaltstypen')
-        creatable_schema_type_ids= extract_aliases(definition, 'SchemaTypes')
+        creatable_schema_type_ids = extract_aliases(definition, 'SchemaTypes')
 
         return if creatable_ids.blank? && creatable_schema_type_ids.blank?
 
