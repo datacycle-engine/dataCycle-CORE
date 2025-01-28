@@ -576,7 +576,8 @@ Das Response Objekt ist folgend aufgebaut:
       "updated": "Array" // Array der aktualisierten Inhalte
     },
     "error": "Array", // Array der Fehlermeldungen
-    "warnings": "Array" // Array der Warnungen
+    "warnings": "Array", // Array der Warnungen
+    "cache_invalidated": "Integer" // Anzahl der ungültig gemachten Caches (inkl. verlinkter Inhalte)
   }
 ]
 ```
@@ -591,7 +592,7 @@ Das `meta`-Attribut enthält unter anderem auch wichtige Informationen zu den er
   "template": "String",
   "external_key": "String",
   "key?": "String", // Attributname
-  "path": "Array" // Gibt an, wo im Request Object sich der Inhalt befindet, z.B. ["location"] oder ["image", "copyrightHolder"]
+  "path": "Array" // Gibt an, wo im Request Object sich der Inhalt befindet, z.B. ["location"] oder ["image", "copyrightHolder", 0]
 }
 ```
 
@@ -606,6 +607,8 @@ Das `error`-Attribut speichert Fehler, die während der Bearbeitung aufgetreten 
   "template?": "String" // Template des Inhaltes, falls anwendbar
 }
 ```
+
+Das `cache_invalidated`-Attribut gibt an, wie viele Caches ungültig gemacht wurden. Dies beinhaltet auch verlinkte Inhalte. Dies bedeutet, dass alle Caches sofort ungültig gemacht wurden, die den Inhalt betreffen.
 
 ## Löschen von Inhalten
 
@@ -623,7 +626,7 @@ Inhalte können auch gelöscht werden. Dazu kann entweder die dataCycle ID oder 
 }
 ```
 
-**Hinweis:** Verlinkte Inhalte und embedded Inhalte werden ebenfalls gelöscht, sofern sie nicht in anderen Inhalten referenziert sind.
+**Hinweis:** Embedded Inhalte werden ebenfalls gelöscht. Verlinkte Inhalte werden nicht gelöscht, dies muss separat erfolgen durch eigene Requests oder Angeben der entsprechenden IDs.
 
 ## Klassifizierungen
 
