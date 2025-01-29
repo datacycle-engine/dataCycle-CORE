@@ -6,7 +6,7 @@ module DataCycleCore
       module DeleteContentsSafe
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.delete_data(
-            utility_object: utility_object.tap { |obj| obj.mode = :full },
+            utility_object: utility_object,
             iterator: method(:load_contents).to_proc,
             data_processor: method(:process_content).to_proc,
             options:
