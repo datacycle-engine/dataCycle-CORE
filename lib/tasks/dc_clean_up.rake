@@ -109,7 +109,7 @@ namespace :dc do
           puts "#{task[:name].ljust(35)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_data#{ShellHelper.zsh? ? '\\' : ''}[#{task[:id]},\"#{task[:template].tr(' ', '\\ ')}\"#{ShellHelper.zsh? ? '\\' : ''}]"
         end
       else
-        puts AmazingPrint::Colors.green("\n✅ [done] ... looks good 🚀")
+        puts AmazingPrint::Colors.green("\n[✔] ... looks good 🚀")
       end
     end
 
@@ -163,7 +163,7 @@ namespace :dc do
           puts "#{embedded.to_s.ljust(25)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:embedded#{ShellHelper.zsh? ? '\\' : ''}[\"#{embedded.tr(' ', '\\ ')}\"#{ShellHelper.zsh? ? '\\' : ''}]"
         end
       else
-        puts AmazingPrint::Colors.green("\n✅ [done] ... looks good 🚀")
+        puts AmazingPrint::Colors.green("\n[✔] ... looks good 🚀")
       end
     end
 

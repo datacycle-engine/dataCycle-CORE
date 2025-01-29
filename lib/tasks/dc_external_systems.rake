@@ -8,7 +8,7 @@ namespace :dc do
       errors = DataCycleCore::MasterData::ImportExternalSystems.validate_all
 
       if errors.blank?
-        puts(AmazingPrint::Colors.green('✅ [done] ... looks good 🚀'))
+        puts(AmazingPrint::Colors.green('[✔] ... looks good 🚀'))
       else
         puts AmazingPrint::Colors.red('🔥 the following errors were encountered during validation:')
         ap errors
@@ -23,7 +23,7 @@ namespace :dc do
       errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
 
       if errors.blank?
-        puts(AmazingPrint::Colors.green("✅ [done] ... looks good 🚀 (Duration: #{(Time.zone.now - tmp).round} sec)"))
+        puts(AmazingPrint::Colors.green("[✔] ... looks good 🚀 (Duration: #{(Time.zone.now - tmp).round} sec)"))
       else
         puts AmazingPrint::Colors.red('🔥 the following errors were encountered during import:')
         ap errors
