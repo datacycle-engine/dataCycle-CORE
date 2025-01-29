@@ -118,6 +118,7 @@ module DataCycleCore
             end
             optional(:ai_model) { str? }
             optional(:endpoint) { str? }
+            optional(:transformations) { str? }
           end
           optional(:config).hash do
             optional(:api_strategy) { str? }
@@ -156,6 +157,8 @@ module DataCycleCore
         rule('config.export_config.endpoint').validate(:dc_class)
         rule('config.refresh_config.endpoint').validate(:dc_class)
         rule('default_options.endpoint').validate(:dc_class)
+
+        rule('default_options.transformations').validate(:dc_module)
 
         rule('config.export_config.create.strategy').validate(:dc_module)
         rule('config.export_config.update.strategy').validate(:dc_module)
