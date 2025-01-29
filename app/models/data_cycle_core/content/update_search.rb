@@ -56,6 +56,8 @@ module DataCycleCore
             end
           rescue ActiveRecord::RecordNotUnique
             retry
+          rescue ActiveRecord::InvalidForeignKey
+            # ignore, as the thing does not exist anymore
           end
         end
       end
