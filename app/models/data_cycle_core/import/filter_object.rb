@@ -12,6 +12,7 @@ module DataCycleCore
         :without_deleted,
         :without_archived,
         :with_updated_since,
+        :with_deleted_since,
         :with_external_id
       ].freeze
 
@@ -150,6 +151,11 @@ module DataCycleCore
             { "dump.#{@locale}.updated_at" => { '$gte' => timestamp } }
           ]
         }
+      end
+
+      def with_deleted_since_filter(timestamp)
+        return { 'dump.deleted_at' => { '$gte' => timestamp } } if @locale.blank?
+        { "dump.#{@locale}.deleted_at" => { '$gte' => timestamp } }
       end
 
       def with_external_id_filter(external_id)
