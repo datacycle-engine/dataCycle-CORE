@@ -10,7 +10,7 @@ namespace :dc do
       importer.import
       importer.render_errors
 
-      importer.valid? ? puts(AmazingPrint::Colors.green("[done] ... looks good (Duration: #{(Time.zone.now - before_import).round} sec, #{importer.counts[:concept_schemes]}/#{importer.counts[:concepts]}/#{importer.counts[:concept_mappings]})")) : exit(-1)
+      importer.valid? ? puts(AmazingPrint::Colors.green("✅ [done] ... looks good 🚀 (Duration: #{(Time.zone.now - before_import).round} sec, #{importer.counts[:concept_schemes]}/#{importer.counts[:concepts]}/#{importer.counts[:concept_mappings]})")) : exit(-1)
     end
   end
 end

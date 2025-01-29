@@ -81,7 +81,7 @@ module DataCycleCore
         def render_errors
           return if @errors.blank?
 
-          puts AmazingPrint::Colors.red('the following errors were encountered during import:')
+          puts AmazingPrint::Colors.red('🔥 the following errors were encountered during import:')
           ap @errors
         end
 
