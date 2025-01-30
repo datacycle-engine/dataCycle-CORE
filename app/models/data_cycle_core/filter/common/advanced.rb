@@ -285,7 +285,7 @@ module DataCycleCore
 
         def advanced_numeric(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
-          if [:equal, :not_equal].include?(comparison)
+          if value.key?('equals') || value.key?('not_equals')
             v = (value['equals'] || value['not_equals'])&.to_f
             num_range = "[#{v},#{v}]"
           else
