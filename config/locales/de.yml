@@ -1937,12 +1937,19 @@ de:
       price: Preis
       description: Kurzbeschreibung
       directions_public_transport: Öffentliche Verkehrsmittel
+      instructions: Wegbeschreibung
       route_start: Start
       route_end: Ziel
       importantInformation: Wichtige Informationen
+      equipment: Ausrüstung
+      authors_tip: Tipps
+      information_links: Weitere Informationen
+      road_quality: Wegbeschaffenheit
       ratings:
         difficulty_rating: Schwierigkeit
         priority_rating: Priorität
+        skill_rating: Fähigkeiten
+        stamina_rating: Kondition
       tour:
       poi:
     imx_platform:

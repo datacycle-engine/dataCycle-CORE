@@ -1911,11 +1911,17 @@ en:
       route_start: Start
       route_end: Destination
       importantInformation: Important information
-      tour:
-      poi:
+      equipment: Equipment
+      authors_tip: Tips
+      information_links: Further information
+      road_quality: Road quality
       ratings:
         difficulty_rating: Difficulty
         priority_rating: Priority
+        skill_rating: Skill
+        stamina_rating: Stamina
+      tour:
+      poi:
     imx_platform:
       description: Description
       text: Detailed description
