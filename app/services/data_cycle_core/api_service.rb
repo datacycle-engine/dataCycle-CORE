@@ -4,7 +4,7 @@ module DataCycleCore
   module ApiService
     API_SCHEDULE_ATTRIBUTES = [:eventSchedule, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule, :hoursAvailable, :validitySchedule].freeze
     API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created'].freeze
-    API_NUMERIC_ATTRIBUTES = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople, :totalNumberOfBeds, :internalContentScore, :'dcls:meetingRoomMaxCapacity', :'dcls:numberOfMeetingRooms'].freeze
+    API_NUMERIC_ATTRIBUTES = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople, :totalNumberOfBeds, :internalContentScore, :'dcls:meetingRoomMaxCapacity', :'dcls:numberOfMeetingRooms', :length, :'dc:length', :duration, :'dc:duration'].freeze
 
     def list_api_request(contents = nil)
       contents ||= @contents
