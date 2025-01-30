@@ -44,7 +44,7 @@ module DataCycleCore
       end
 
       def self.string_to_string(value)
-        return '' if value.try(:strip_tags).blank?
+        return if value.try(:strip_tags).blank?
         value = value.encode('UTF-8') if value.encoding.name == 'ASCII-8BIT' # ActiveStorage generates ASCII-8BIT encoded URLs
         old_value = value
           &.unicode_normalize(:nfc)
