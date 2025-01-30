@@ -285,7 +285,12 @@ module DataCycleCore
 
         def advanced_numeric(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
-          num_range = "[#{value&.dig('min').presence&.to_f},#{value&.dig('max').presence&.to_f}]"
+          if [:equal, :not_equal].include?(comparison)
+            v = (value['equals'] || value['not_equals'])&.to_f
+            num_range = "[#{v},#{v}]"
+          else
+            num_range = "[#{value&.dig('min').presence&.to_f},#{value&.dig('max').presence&.to_f}]"
+          end
 
           case comparison
           when :equal
