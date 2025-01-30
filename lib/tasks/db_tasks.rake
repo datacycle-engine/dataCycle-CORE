@@ -15,6 +15,7 @@ namespace :db do
       ActiveRecord::Migrator.migrations_paths.concat(data_paths)
 
       Rake::Task['db:migrate'].invoke
+      Rake::Task['db:migrate'].reenable
     end
 
     desc 'check before migrations'
