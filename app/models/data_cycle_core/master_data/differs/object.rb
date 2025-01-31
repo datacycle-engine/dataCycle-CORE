@@ -29,17 +29,18 @@ module DataCycleCore
 
         def diff(a, b, template, partial_update)
           @diff_hash = {}
-          cleaned_a = a&.dc_deep_transform_values { |v| blank?(v) ? nil : v }
-          cleaned_b = b&.dc_deep_transform_values { |v| blank?(v) ? nil : v }
+          cleaned_a = DataCycleCore::DataHashService.normalize_datahash(a)
+          cleaned_b = DataCycleCore::DataHashService.normalize_datahash(b)
 
-          template.each do |key, key_item|
-            next if key_item&.dig('type')&.in?(['key'])
-            item_template = key_item['type'] == 'object' ? key_item&.dig('properties') : key_item
-            diff_key = basic_types[key_item['type']].new(cleaned_a&.dig(key), cleaned_b&.dig(key), item_template, '', partial_update).diff_hash
+          template.each do |key, value|
+            next if value&.dig('type')&.in?(['key'])
+
+            item_template = value['type'] == 'object' ? value&.dig('properties') : value
+            diff_key = basic_types[value['type']].new(cleaned_a&.dig(key), cleaned_b&.dig(key), item_template, '', partial_update).diff_hash
             @diff_hash[key] = diff_key if diff_key.present?
           end
 
-          diff_hash
+          @diff_hash
         end
       end
     end

@@ -129,7 +129,7 @@ module DataCycleCore
           if translations.present?
             translations.each do |l, locale_hash|
               I18n.with_locale(l) do
-                raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.slice(:current_user, :ui_locale, :prevent_history, :source, :force_update), data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})"))
+                raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.slice(:current_user, :ui_locale, :prevent_history, :source, :force_update), data_hash: locale_hash, update_search_all: false, version_name: version_name&.+(" (#{I18n.locale})"))
               end
             end
 

@@ -193,29 +193,54 @@ module DataCycleCore
       end
     end
 
-    def self.parse_translated_hash(datahash, allowed_locales = [])
+    def self.parse_translated_hash(datahash, allowed_locales = [], reject_blank = true)
       return {} unless datahash.is_a?(::Hash)
 
       neutral_hash = datahash.key?(:datahash) ? datahash[:datahash].to_h : datahash.except(:translations, :version_name).to_h
-      keep_locales = (find_locales_recursive(neutral_hash) + allowed_locales.map(&:to_s)).uniq
-      translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+      keep_locales = (find_locales_recursive(neutral_hash, [], reject_blank) + allowed_locales.map(&:to_s)).uniq
+
+      if reject_blank
+        translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+      else
+        translations = datahash[:translations]&.slice(*keep_locales).presence || { I18n.locale.to_s => {} }
+      end
 
       translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
     end
 
-    def self.find_locales_recursive(datahash, locales = [])
+    def self.normalize_datahash(data)
+      return if data.blank? && data != false
+
+      if data.is_a?(::Hash) && (data.key?('translations') || data.key?('datahash'))
+        d2 = data.dc_deep_dup.with_indifferent_access
+        d2['datahash']&.transform_values! { |v| normalize_datahash(v) }
+        d2['translations']&.transform_values! do |locale_hash|
+          locale_hash.transform_values { |v| normalize_datahash(v) }
+        end
+        d2
+      elsif data.is_a?(::Hash)
+        data.transform_values { |v| normalize_datahash(v) }.presence
+      elsif data.is_a?(::Array)
+        data.map { |v| normalize_datahash(v) }.presence
+      else
+        data.present? || data == false ? data : nil
+      end
+    end
+
+    def self.find_locales_recursive(datahash, locales = [], reject_blank = true)
+      return locales unless datahash.is_a?(::Hash)
       datahash&.each_value do |v|
         next unless v.is_a?(::Array)
 
         v.each do |h|
           next unless h.is_a?(::Hash)
 
-          find_locales_recursive(h['datahash'], locales) if h.key?('datahash')
+          find_locales_recursive(h['datahash'], locales, reject_blank) if h.key?('datahash')
 
           h['translations']&.each do |l, t|
-            find_locales_recursive(t, locales)
+            find_locales_recursive(t, locales, reject_blank)
 
-            locales.push(l) if locales.exclude?(l) && t.deep_reject { |_tk, tv| DataCycleCore::DataHashService.blank?(tv) }.present?
+            locales.push(l) if locales.exclude?(l) && (!reject_blank || t.deep_reject { |_tk, tv| DataCycleCore::DataHashService.blank?(tv) }.present?)
           end
         end
       end
