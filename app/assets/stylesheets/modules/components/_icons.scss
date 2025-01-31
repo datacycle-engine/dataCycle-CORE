@@ -37,11 +37,11 @@
       content: '\f2dc';
     }
 
-    &.funding::before{
+    &.funding::before {
       content: '\f0d6';
     }
-    
-    &.ideas_innovations::before{
+
+    &.ideas_innovations::before {
       content: '\f0eb';
     }
 
@@ -327,6 +327,18 @@
         content: '\f2cb';
       }
     }
+
+    &.parkplatz {
+      &::before {
+        content: '\f1b9';
+      }
+    }
+
+    &.tourist_destination {
+      &::before {
+        content: '\f024';
+      }
+    }
   }
 
   &.wetterstation,
@@ -448,7 +460,6 @@
   }
 
   &.property-icon {
-
     &.type-date::before,
     &.type-daterange::before,
     &.type-object.key-duration::before {
