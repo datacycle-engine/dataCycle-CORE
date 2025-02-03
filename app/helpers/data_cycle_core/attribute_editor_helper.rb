@@ -177,8 +177,7 @@ module DataCycleCore
     end
 
     def overlay_types(prop)
-      type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
-      versions = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(type)
+      versions = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(prop['type'])
       [
         MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX,
         MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX
