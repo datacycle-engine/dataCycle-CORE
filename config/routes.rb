@@ -424,6 +424,9 @@ DataCycleCore::Engine.routes.draw do
             end
           end
           namespace :config do
+            resources :common, only: [] do
+              match '/', action: :index, on: :collection, via: [:get, :post]
+            end
             resources :schema, only: [] do
               match '/:template_name', action: :show, on: :collection, as: :show, via: [:get, :post]
               match '/', action: :index, on: :collection, via: [:get, :post]
