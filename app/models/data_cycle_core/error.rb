@@ -141,9 +141,9 @@ module DataCycleCore
         end
       end
 
-      class UnionFilterRecursionError < StandardError
+      class FilterRecursionError < StandardError
         def message
-          'stored filters cannot filter on themselves inside union filters (infinite recursion)'
+          'stored filters cannot filter on themselves (infinite recursion)'
         end
       end
     end

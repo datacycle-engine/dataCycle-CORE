@@ -4,6 +4,8 @@ module DataCycleCore
   class PgDictMapping < ApplicationRecord
     attr_readonly :dict
 
+    has_many :searches, inverse_of: :pg_dict_mapping, dependent: false
+
     DICT_MAPPINGS = {
       'de'	=> 'german',
       'en'	=> 'english',

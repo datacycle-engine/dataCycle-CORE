@@ -298,27 +298,6 @@ module DataCycleCore
         thing.alias("th_#{SecureRandom.hex(5)}")
       end
 
-      def search_exists(query_string, fulltext_search = false)
-        search_query = search
-
-        search_query = search_query.join(pg_dict_mapping, Arel::Nodes::OuterJoin).on(pg_dict_mapping[:locale].eq(search[:locale])) if fulltext_search
-
-        if @locale.present?
-          search_query
-            .where(
-              search[:content_data_id].eq(thing[:id])
-                .and(query_string)
-                .and(search[:locale].in(@locale))
-            ).project(1).exists
-        else
-          search_query
-            .where(
-              search[:content_data_id].eq(thing[:id])
-                .and(query_string)
-            ).project(1).exists
-        end
-      end
-
       def reflect(query)
         self.class.new(
           locale: @locale,

@@ -7,33 +7,25 @@ module DataCycleCore
         def classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where(sub_query_for_classification_alias_ids(ids, false))
-          )
+          reflect(@query.where(sub_query_for_classification_alias_ids(ids, false)))
         end
 
         def not_classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where.not(sub_query_for_classification_alias_ids(ids, false))
-          )
+          reflect(@query.where.not(sub_query_for_classification_alias_ids(ids, false)))
         end
 
         def classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where(sub_query_for_classification_alias_ids(ids, true))
-          )
+          reflect(@query.where(sub_query_for_classification_alias_ids(ids, true)))
         end
 
         def not_classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where.not(sub_query_for_classification_alias_ids(ids, true))
-          )
+          reflect(@query.where.not(sub_query_for_classification_alias_ids(ids, true)))
         end
 
         def with_classification_paths(paths)
@@ -71,17 +63,13 @@ module DataCycleCore
         def classification_tree_ids(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where(sub_query_for_tree_label_ids(ids))
-          )
+          reflect(@query.where(sub_query_for_tree_label_ids(ids)))
         end
 
         def not_classification_tree_ids(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where.not(sub_query_for_tree_label_ids(ids))
-          )
+          reflect(@query.where.not(sub_query_for_tree_label_ids(ids)))
         end
 
         # Deprecated: replace with classification_alias_ids_with_subtree
@@ -118,24 +106,21 @@ module DataCycleCore
 
         def sub_query_for_classification_alias_ids(ids, direct = false)
           query = DataCycleCore::CollectedClassificationContent
-            .select(1)
-            .where(ccc_table[:thing_id].eq(thing[:id]))
             .where(classification_alias_id: ids)
-
           query = query.where(link_type: 'direct') if direct
-
-          query.arel.exists
+          query.where(ccc_table[:thing_id].eq(thing[:id]))
+            .select(1)
+            .arel.exists
         end
 
         def sub_query_for_tree_label_ids(ids, direct = false)
           query = DataCycleCore::CollectedClassificationContent
-            .select(1)
-            .where(ccc_table[:thing_id].eq(thing[:id]))
             .where(classification_tree_label_id: ids)
 
           query = query.where(link_type: 'direct') if direct
-
-          query.arel.exists
+          query.where(ccc_table[:thing_id].eq(thing[:id]))
+            .select(1)
+            .arel.exists
         end
       end
     end

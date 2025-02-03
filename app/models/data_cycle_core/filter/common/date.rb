@@ -18,8 +18,8 @@ module DataCycleCore
           from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from.is_a?(::Date) ? from.beginning_of_day : from)
           to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to.is_a?(::Date) ? to.end_of_day : to)
 
-          subquery = DataCycleCore::Schedule.select(1)
-            .where(schedule[:thing_id].eq(thing[:id]))
+          subquery = DataCycleCore::Schedule.where(schedule[:thing_id].eq(thing[:id]))
+
           if relation.present?
             subquery = subquery.where(relation: relation)
           else
@@ -28,9 +28,7 @@ module DataCycleCore
 
           subquery = subquery.where(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
 
-          reflect(
-            @query.where(subquery.arel.exists)
-          )
+          reflect(@query.where(subquery.select(1).arel.exists))
         end
 
         def validity_period(value = nil, mode = nil)

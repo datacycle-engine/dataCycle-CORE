@@ -31,16 +31,15 @@ module DataCycleCore
           return self if ids.blank?
 
           if Array.wrap(ids).all?(&:uuid?)
-            reflect(
-              @query.where(thing[:id].in(ids))
-            )
+            reflect(@query.where(id: ids))
           else
             reflect(
               @query.where(
-                DataCycleCore::Thing::Translation.where(
-                  thing_translations[:slug].in(ids)
-                    .and(thing[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
+                DataCycleCore::Thing::Translation
+                .where(slug: ids)
+                .where(thing[:id].eq(thing_translations[:thing_id]))
+                .select(1)
+                .arel.exists
               )
             )
           end
@@ -50,16 +49,15 @@ module DataCycleCore
           return self if ids.blank?
 
           if Array.wrap(ids).all?(&:uuid?)
-            reflect(
-              @query.where.not(thing[:id].in(ids))
-            )
+            reflect(@query.where.not(id: ids))
           else
             reflect(
               @query.where.not(
-                DataCycleCore::Thing::Translation.where(
-                  thing_translations[:slug].in(ids)
-                    .and(thing[:id].eq(thing_translations[:thing_id]))
-                ).arel.exists
+                DataCycleCore::Thing::Translation
+                .where(slug: ids)
+                .where(thing[:id].eq(thing_translations[:thing_id]))
+                .select(1)
+                .arel.exists
               )
             )
           end
@@ -104,15 +102,14 @@ module DataCycleCore
         def watch_list_ids_query(ids)
           return if ids.blank?
 
-          wldh_alias = watch_list_data_hash.alias("wldh#{SecureRandom.hex(5)}")
           watch_lists = ids.all?(DataCycleCore::WatchList) ? ids : DataCycleCore::WatchList.where(id: ids).to_a
 
-          subquery = DataCycleCore::WatchListDataHash.from(wldh_alias).except(*UNION_FILTER_EXCEPTS)
-          subquery = subquery.select(wldh_alias[:thing_id])
+          subquery = DataCycleCore::WatchListDataHash.except(*UNION_FILTER_EXCEPTS)
+          subquery = subquery.select(:thing_id)
 
           return subquery.where('1 = 0').to_sql if watch_lists.blank?
 
-          subquery.where(wldh_alias[:watch_list_id].in(watch_lists.pluck(:id))).to_sql
+          subquery.where(watch_list_id: watch_lists.pluck(:id)).to_sql
         end
 
         def filter_ids_query(ids)
@@ -125,11 +122,11 @@ module DataCycleCore
           filters.map { |f|
             f.things(skip_ordering: true)
               .except(*UNION_FILTER_EXCEPTS)
-              .select(thing[:id])
+              .select(:id)
               .to_sql
           }.join(' UNION ')
         rescue SystemStackError
-          raise DataCycleCore::Error::Filter::UnionFilterRecursionError
+          raise DataCycleCore::Error::Filter::FilterRecursionError
         end
 
         def collection_ids_query(ids)

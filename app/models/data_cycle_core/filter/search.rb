@@ -111,27 +111,31 @@ module DataCycleCore
       def watch_list_id(id = nil)
         return self if id.blank?
 
-        reflect(
-          @query.where(
-            watch_list_data_hash.where(watch_list_data_hash[:thing_id].eq(thing[:id]).and(watch_list_data_hash[:watch_list_id].eq(id))).exists
-          )
-        )
+        subquery = DataCycleCore::WatchListDataHash
+          .where(watch_list_id: id)
+          .where(watch_list_data_hash[:thing_id].eq(thing[:id]))
+          .select(1)
+          .arel.exists
+
+        reflect(@query.where(subquery))
       end
 
       def part_of(id = nil)
         return self if id.blank?
 
-        reflect(
-          @query.where(thing[:is_part_of].eq(id))
-        )
+        reflect(@query.where(is_part_of: id))
       end
 
       def relation(name = nil)
         return self if name.blank?
 
-        reflect(
-          @query.where(content_content.where(content_content[:content_a_id].eq(thing[:id]).and(content_content[:relation_a].eq(name))).exists)
-        )
+        subquery = DataCycleCore::ContentContent
+          .where(relation_a: name)
+          .where(content_content[:content_a_id].eq(thing[:id]))
+          .select(1)
+          .arel.exists
+
+        reflect(@query.where(subquery))
       end
 
       def like_relation_filter(filter = nil, name = nil)
@@ -140,9 +144,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_like_relation_filter(filter = nil, name = nil)
@@ -151,9 +153,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def related_through_attribute(value, relation_name)
@@ -171,9 +171,7 @@ module DataCycleCore
         subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.project(1).exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_exists_relation_filter(name = nil, inverse = false)
@@ -183,9 +181,7 @@ module DataCycleCore
         subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.project(1).exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def relation_filter(filter = nil, name = nil)
@@ -194,9 +190,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_relation_filter(filter = nil, name = nil)
@@ -205,9 +199,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def relation_filter_inv(filter = nil, name = nil)
@@ -216,9 +208,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name, true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_relation_filter_inv(filter = nil, name = nil)
@@ -227,9 +217,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name, true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def related_to(filter_id = nil)
@@ -238,9 +226,7 @@ module DataCycleCore
         subquery = related_to_query(filter_id, nil, true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_related_to(filter_id = nil)
@@ -249,9 +235,7 @@ module DataCycleCore
         subquery = related_to_query(filter_id, nil, true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def boolean(value, filter_method)
@@ -263,17 +247,16 @@ module DataCycleCore
       end
 
       def duplicate_candidates(value, score = nil)
-        sub_query = duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))
-        sub_query = sub_query.and(duplicate_candidate[:score].gteq(score.to_i)) if score.present?
+        subquery = DataCycleCore::Thing::DuplicateCandidate.where(false_positive: false)
+        subquery = subquery.where(score: score.to_i..) if score.present?
+        subquery = subquery.where(duplicate_candidate[:duplicate_id].eq(thing[:id]))
+          .select(1)
+          .arel.exists
 
         if value.to_s == 'true'
-          reflect(
-            @query.where(duplicate_candidate.project(1).where(sub_query).exists)
-          )
+          reflect(@query.where(subquery))
         else
-          reflect(
-            @query.where(duplicate_candidate.project(1).where(sub_query).exists.not)
-          )
+          reflect(@query.where.not(subquery))
         end
       end
 
@@ -343,14 +326,16 @@ module DataCycleCore
 
       def related_to_filter_query(filter)
         if filter.is_a?(Search)
-          filter.select(:id).except(:order)
+          filter.select(:id).except(*UNION_FILTER_EXCEPTS)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
-          stored_filter.things.select(:id).except(:order)
+          stored_filter.things.select(:id).except(*UNION_FILTER_EXCEPTS)
         elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-          collection.watch_list_data_hashes.select(:thing_id).except(:order)
+          collection.watch_list_data_hashes.select(:thing_id).except(*UNION_FILTER_EXCEPTS)
         else # in case filter is array of thing_ids
           Array.wrap(filter).presence
         end
+      rescue SystemStackError
+        raise DataCycleCore::Error::Filter::FilterRecursionError
       end
 
       def related_to_query(filter, name = nil, inverse = false)
@@ -360,11 +345,12 @@ module DataCycleCore
         thing_id, related_to_id = related_to_id, thing_id if inverse
         relation_name = inverse ? :relation_b : :relation_a
 
-        query = DataCycleCore::ContentContent.select(1)
-        query = query.where(relation_name => name) if name.present?
-        query.where(content_content[thing_id].eq(thing[:id]))
-          .where(related_to_id => filter_query)
-          .arel
+        subquery = DataCycleCore::ContentContent.all
+        subquery = subquery.where(relation_name => name) if name.present?
+        subquery = subquery.where(related_to_id => filter_query)
+          .where(content_content[thing_id].eq(thing[:id]))
+
+        subquery.select(1).arel.exists
       end
 
       ##
@@ -381,10 +367,11 @@ module DataCycleCore
         thing_id = :content_a_id
         thing_id = :content_b_id if inverse
 
-        query = DataCycleCore::ContentContent.select(1)
-        query = query.where(relation_a: name) if name.present?
-        query.where(content_content[thing_id].eq(thing[:id]))
-          .arel
+        subquery = DataCycleCore::ContentContent.all
+        subquery = subquery.where(relation_a: name) if name.present?
+        subquery = subquery.where(content_content[thing_id].eq(thing[:id]))
+
+        subquery.select(1).arel.exists
       end
 
       def default_query

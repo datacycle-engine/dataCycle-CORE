@@ -147,10 +147,11 @@ module DataCycleCore
         def equals_advanced_slug(value = nil, _attribute_path = nil)
           reflect(
             @query.where(
-              DataCycleCore::Thing::Translation.where(
-                thing_translations[:slug].eq(value[:equals])
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+              DataCycleCore::Thing::Translation
+                .where(slug: value[:equals])
+                .where(thing[:id].eq(thing_translations[:thing_id]))
+                .select(1)
+                .arel.exists
             )
           )
         end
@@ -161,11 +162,12 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+              DataCycleCore::Thing::Translation
+              .where(locale: @locale)
+              .where(in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s))
+              .where(thing[:id].eq(thing_translations[:thing_id]))
+              .select(1)
+              .arel.exists
             )
           )
         end
@@ -176,11 +178,12 @@ module DataCycleCore
 
           reflect(
             @query.where.not(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+              DataCycleCore::Thing::Translation
+                .where(locale: @locale)
+                .where(in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s))
+                .where(thing[:id].eq(thing_translations[:thing_id]))
+                .select(1)
+                .arel.exists
             )
           )
         end
@@ -191,11 +194,12 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+              DataCycleCore::Thing::Translation
+                .where(locale: @locale)
+                .where(in_json(thing_translations[:content], 'name').matches("%#{search_value}%"))
+                .where(thing[:id].eq(thing_translations[:thing_id]))
+                .select(1)
+                .arel.exists
             )
           )
         end
@@ -206,11 +210,12 @@ module DataCycleCore
 
           reflect(
             @query.where.not(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+              DataCycleCore::Thing::Translation
+                .where(locale: @locale)
+                .where(in_json(thing_translations[:content], 'name').matches("%#{search_value}%"))
+                .where(thing[:id].eq(thing_translations[:thing_id]))
+                .select(1)
+                .arel.exists
             )
           )
         end
@@ -220,11 +225,12 @@ module DataCycleCore
 
           reflect(
             @query.where.not(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').eq(nil)
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+              DataCycleCore::Thing::Translation
+                .where(locale: @locale)
+                .where(in_json(thing_translations[:content], 'name').eq(nil))
+                .where(thing[:id].eq(thing_translations[:thing_id]))
+                .select(1)
+                .arel.exists
             )
           )
         end
@@ -234,11 +240,12 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              DataCycleCore::Thing::Translation.where(
-                in_json(thing_translations[:content], 'name').eq(nil)
-                  .and(thing_translations[:locale].in(@locale))
-                  .and(thing[:id].eq(thing_translations[:thing_id]))
-              ).arel.exists
+              DataCycleCore::Thing::Translation
+              .where(locale: @locale)
+              .where(in_json(thing_translations[:content], 'name').eq(nil))
+              .where(thing[:id].eq(thing_translations[:thing_id]))
+              .select(1)
+              .arel.exists
             )
           )
         end
@@ -388,14 +395,12 @@ module DataCycleCore
         end
 
         def advanced_query(query_string, attribute_path, attribute_path_exists = true, skip_attribute_exists_query = false)
-          reflect(
-            @query
-              .where(
-                search_exists(
-                  Arel.sql(advanced_query_string(query_string, attribute_path, attribute_path_exists, skip_attribute_exists_query))
-                )
-              )
-          )
+          search_query = DataCycleCore::Search
+            .where(Arel.sql(advanced_query_string(query_string, attribute_path, attribute_path_exists, skip_attribute_exists_query)))
+            .where(search[:content_data_id].eq(thing[:id]))
+          search_query = search_query.where(locale: @locale) if @locale.present?
+
+          reflect(@query.where(search_query.select(1).arel.exists))
         end
 
         def advanced_query_string(query_string, attribute_path, attribute_path_exists, skip_attribute_exists_query)

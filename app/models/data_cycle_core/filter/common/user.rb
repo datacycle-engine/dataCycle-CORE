@@ -43,14 +43,14 @@ module DataCycleCore
           key = KEY_MAPPING[type.to_s]&.to_sym
           return like_editor(value) if key.blank?
 
-          sub_query = DataCycleCore::User
-            .select(1)
+          subquery = DataCycleCore::User
+            .where('users.email ILIKE ?', "%#{value['text']}%")
             .where(thing[key].eq(user_table[:id]))
-            .where(user_table[:email].matches("%#{value['text']}"))
+            .select(1)
             .arel
             .exists
 
-          reflect(@query.where(sub_query))
+          reflect(@query.where(subquery))
         end
 
         def not_like_user(value = nil, type = nil)
@@ -59,14 +59,14 @@ module DataCycleCore
           key = KEY_MAPPING[type.to_s]&.to_sym
           return not_like_editor(value) if key.blank?
 
-          sub_query = DataCycleCore::User
-            .select(1)
+          subquery = DataCycleCore::User
+            .where('users.email ILIKE ?', "%#{value['text']}%")
             .where(thing[key].eq(user_table[:id]))
-            .where(user_table[:email].matches("%#{value['text']}"))
+            .select(1)
             .arel
             .exists
 
-          reflect(@query.where.not(sub_query))
+          reflect(@query.where.not(subquery))
         end
 
         def not_user(ids = nil, type = nil)

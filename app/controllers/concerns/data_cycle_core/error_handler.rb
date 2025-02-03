@@ -13,7 +13,7 @@ module DataCycleCore
         rescue_from ActionController::BadRequest, with: :bad_request
         rescue_from ActiveRecord::RecordNotUnique, with: :conflict
         rescue_from DataCycleCore::Error::Filter::DateFilterRangeError, with: :stored_filter_error
-        rescue_from DataCycleCore::Error::Filter::UnionFilterRecursionError, with: :stored_filter_error
+        rescue_from DataCycleCore::Error::Filter::FilterRecursionError, with: :stored_filter_error
         rescue_from PG::StatementTooComplex, with: :bad_request
       end
 

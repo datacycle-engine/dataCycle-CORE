@@ -3,17 +3,17 @@
 namespace :dc do
   namespace :performance do
     desc 'override some files in project from core templates'
-    task compare_union_filter_strategies: :environment do
-      strategies = ['in', 'exists']
-      base_strategy = 'in'
+    task compare_filter_strategies: :environment do
+      strategies = [:filter_exists]
+      base_strategy = strategies.first
       repetitions = 3
-      endpoints = DataCycleCore::StoredFilter.where('collections.parameters::text ILIKE ?', '%union_filter_ids%').named.limit(100).order(name: :asc)
-      # endpoints = DataCycleCore::StoredFilter.named.order(name: :asc)
+      # endpoints = DataCycleCore::StoredFilter.where('collections.parameters::text ILIKE ?', '%union_filter_ids%').named.limit(100).order(name: :asc)
+      endpoints = DataCycleCore::StoredFilter.named.order(name: :asc)
 
-      puts "Comparing union filter strategies for #{endpoints.size} endpoints"
+      puts "Comparing filter strategies for #{endpoints.size} endpoints"
       puts '---'
 
-      CSV.open(Rails.public_path.join('union_filter_strategies.csv'), 'wb') do |csv|
+      CSV.open(Rails.public_path.join('filter_strategies.csv'), 'wb') do |csv|
         endpoints.each do |endpoint|
           puts "Endpoint: #{endpoint.name} (##{endpoint.id})"
           csv << ['Endpoint', endpoint.name, endpoint.id]
@@ -21,7 +21,6 @@ namespace :dc do
           strategy_times = {}
           base_counts = {}
           strategies.each do |strategy|
-            DataCycleCore.filter_strategy = strategy
             # warm up
             ids = endpoint.things.page(1).reload.map(&:id)
             count = endpoint.things.count
@@ -65,13 +64,13 @@ namespace :dc do
             end
 
             time_text = "#{avg.round}ms"
-            time_text = time_text.send(output_color) unless output_color.nil?
+            time_text = AmazingPrint::Colors.send(output_color, time_text) unless output_color.nil?
             count_time_text = "count: #{count_avg.round}ms"
-            count_time_text = count_time_text.send(output_color_count) unless output_color_count.nil?
+            count_time_text = AmazingPrint::Colors.send(output_color_count, count_time_text) unless output_color_count.nil?
 
             csv << [strategy, avg.round, count_avg.round]
-            full_text = "#{strategy.rjust(8)}: #{time_text} (#{count_time_text})"
-            full_text = full_text.send(full_output_color) unless full_output_color.nil?
+            full_text = "#{strategy.to_s.rjust(20)}: #{time_text} (#{count_time_text})"
+            full_text = AmazingPrint::Colors.send(full_output_color, full_text) unless full_output_color.nil?
 
             puts full_text
           end
@@ -79,11 +78,11 @@ namespace :dc do
           puts '----------------------'
         rescue StandardError => e
           csv << ['Error', endpoint.id, e.message]
-          puts "Error comparing union filter strategies for endpoint #{endpoint.id}: #{e.message}"
+          puts AmazingPrint::Colors.red "Error comparing filter strategies for endpoint #{endpoint.id}: #{e.message}"
         end
       end
 
-      puts 'Finished comparing union filter strategies'
+      puts AmazingPrint::Colors.green('[✔] ... Finished comparing filter strategies')
     end
   end
 end

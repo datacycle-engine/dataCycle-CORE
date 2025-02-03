@@ -35,9 +35,9 @@ module DataCycleCore
           return self if subquery.nil?
 
           if exclude
-            reflect(@query.where.not(subquery.exists))
+            reflect(@query.where.not(subquery))
           else
-            reflect(@query.where(subquery.exists))
+            reflect(@query.where(subquery))
           end
         end
 
@@ -54,9 +54,7 @@ module DataCycleCore
           query = query.where(relation: relation) if relation.present?
           query = query.where(related_to_id => filter_query) unless filter_query.nil?
 
-          # binding.pry
-
-          query.arel
+          query.arel.exists
         end
       end
     end
