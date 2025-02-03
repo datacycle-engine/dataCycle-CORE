@@ -7,7 +7,7 @@
   <ul class="no-bullet classification-radiobutton-list">
     <% unless definition.dig('validations', 'required') %>
       <li class="radiobutton-wrap" data-label="<%= t("common.no_selection", locale: active_ui_locale) %>">
-        <%= radio_button_tag key + '[]', '', true, id: sanitize_to_id(key + '[]') %>
+        <%= radio_button_tag key + '[]', '', true, id: sanitize_to_id(key + '[]'), disabled: !attribute_editable?(key, definition, options, content) %>
         <%= label_tag key + '[]', t("common.no_selection", locale: active_ui_locale) %>
       </li>
     <% end %>

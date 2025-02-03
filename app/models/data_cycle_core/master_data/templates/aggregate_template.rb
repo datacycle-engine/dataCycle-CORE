@@ -58,7 +58,7 @@ module DataCycleCore
         def self.key_allowed_for_aggregate?(key:, prop:)
           PROPS_WITHOUT_AGGREGATE.exclude?(key) &&
             !prop.key?(:virtual) &&
-            !prop.key?(:compute)
+            (!prop.key?(:compute) || prop.dig(:features, :aggregate, :allowed))
         end
 
         private
