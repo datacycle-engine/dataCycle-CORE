@@ -240,11 +240,11 @@ Die übergebene `language` wird auf Inhalte und Klassifizierungen angewendet.
 
 Standardmäßig werden alle Klassifizierungen eines Klassifizierungsbaums zurückgegeben, egal welche Filter angewendet werden. Filter haben nur Einfluss auf die Counts (`dc:thingCountWithSubtree` und `dc:thingCountWithoutSubtree`).
 
-Es gibt jedoch die Möglichkeit, die Ergebnismenge auf Ergebnisse zu beschränken, die eine Mindestanzahl an verknüpften Inhalten aufweisen (mit oder ohne Unterbaum). Das macht besonders bei sehr großen Klassifizierungsbäumen Sinn. Dazu können die Parameter `min_count_with_subtree` und `min_count_without_subtree` verwendet werden. Diese Parameter können auch in Kombination verwendet werden.
+Es gibt jedoch die Möglichkeit, die Ergebnismenge auf Ergebnisse zu beschränken, die eine Mindestanzahl an verknüpften Inhalten aufweisen (mit oder ohne Unterbaum). Das macht besonders bei sehr großen Klassifizierungsbäumen Sinn. Dazu können die Parameter `minCountWithSubtree` und `minCountWithoutSubtree` verwendet werden. Diese Parameter können auch in Kombination verwendet werden.
 
 #### HTTP-GET:
 
-\_/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID?token=YOUR_ACCESS_TOKEN&min_count_with_subtree=1
+\_/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID?token=YOUR_ACCESS_TOKEN&minCountWithSubtree=1
 
 #### HTTP-POST:
 
@@ -253,11 +253,11 @@ Es gibt jedoch die Möglichkeit, die Ergebnismenge auf Ergebnisse zu beschränke
 ```json
 {
   "token": "YOUR_ACCESS_TOKEN",
-  "min_count_with_subtree": 1
+  "minCountWithSubtree": 1
 }
 ```
 
-In diesem Beispiel werden nur Klassifizierungen zurückgegeben, die mindestens einen Inhalt direkt oder indirekt über einen Unterbaum verknüpft haben (with_subtree). Die Klassifizierungen, die keine verknüpften Inhalte haben, werden nicht zurückgegeben. Hinweis: `min_count_with_subtree` wird implizit immer auf den Wert von `min_count_without_subtree` gesetzt, wenn der Parameter nicht explizit gesetzt wird. Auch kann kann `min_count_with_subtree` nicht kleiner als `min_count_without_subtree` sein.
+In diesem Beispiel werden nur Klassifizierungen zurückgegeben, die mindestens einen Inhalt direkt oder indirekt über einen Unterbaum verknüpft haben (with_subtree). Die Klassifizierungen, die keine verknüpften Inhalte haben, werden nicht zurückgegeben. Hinweis: `minCountWithSubtree` wird implizit immer auf den Wert von `minCountWithoutSubtree` gesetzt, wenn der Parameter nicht explizit gesetzt wird. Auch kann kann `minCountWithSubtree` nicht kleiner als `minCountWithoutSubtree` sein.
 
 ### Sortierung
 

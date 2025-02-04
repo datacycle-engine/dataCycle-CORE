@@ -56,9 +56,10 @@ module DataCycleCore
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
           query = build_search_query
 
-          min_count_without_subtree = permitted_params[:min_count_without_subtree].to_i
+          min_count_without_subtree = (permitted_params[:min_count_without_subtree] || permitted_params[:minCountWithoutSubtree]).to_i
           min_count_without_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_without_subtree)
-          min_count_with_subtree = [permitted_params[:min_count_with_subtree].to_i, min_count_without_subtree].max
+          min_count_with_subtree = (permitted_params[:min_count_with_subtree] || permitted_params[:minCountWithSubtree]).to_i
+          min_count_with_subtree = [min_count_with_subtree, min_count_without_subtree].max
           min_count_with_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_with_subtree)
           join_type = min_count_with_subtree.positive? || min_count_without_subtree.positive? ? 'INNER' : 'LEFT'
 
@@ -133,7 +134,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :classification_id, :classification_ids, :classification_tree_label_id] + [permitted_filter_parameters]
+          super + [:id, :language, :classification_id, :classification_ids, :classification_tree_label_id, :min_count_with_subtree, :min_count_without_subtree, :minCountWithSubtree, :minCountWithoutSubtree] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
