@@ -5,7 +5,7 @@ class RebuildComputedVirtualThumbnailUrl < ActiveRecord::Migration[7.1]
   # disable_ddl_transaction!
 
   def up
-    DataCycleCore::RunTaskJob.perform_later('dc:update_data:computed_attributes', ['Audio|Video|Bild|PDF', false, 'virtual_content_url|virtual_thumbnail_url|virtual_web_url|virtual_web_small_url|virtual_dynamic_url'])
+    DataCycleCore::RunTaskJob.perform_later('dc:update_data:computed_attributes', ['Bild|PDF|ImageObject', false, 'virtual_content_url|virtual_thumbnail_url|virtual_web_url|virtual_web_small_url|virtual_dynamic_url'])
   end
 
   def down
