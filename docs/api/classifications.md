@@ -138,6 +138,30 @@ Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizieru
 
 Eine detaillierte Auflistung aller möglichen Filter und Sortierungen kann in der [Spezifikation](/docs/api/classifications/specification) nachgelesen werden.
 
+#### Filtern von Klassifizierungen nach `skos:broader` und `skos:ancestors`
+
+Es ist möglich die Ergebnismenge auf direkte Kinder bzw. Unterklassifizierungen von Klassifizierungen einzuschränken.
+
+```jsonc
+{
+  "filter": {
+    "attribute": {
+      "skos:ancestors": {
+        "in": [
+          "4ec1c188-ccf0-4979-8f3d-5e03f1ca5078" // Administrative Einheit > Österreich
+        ]
+      },
+      "skos:broader": {
+        "in": [
+          "null", // nur Top-Level Klassifizierungen
+          "4ec1c188-ccf0-4979-8f3d-5e03f1ca5078" // Administrative Einheit > Österreich
+        ]
+      }
+    }
+  }
+}
+```
+
 ## Facettensuche
 
 Es kann im Context eines Inhalts-Endpunktes in Kombination mit einem Klassifizierungsbaums eine Facettierung angefordert werden.
@@ -214,7 +238,7 @@ Die übergebene `language` wird auf Inhalte und Klassifizierungen angewendet.
 
 ### Einschränkung der Ergebnismenge
 
-Standardmäßig werden alle Klassifizierungen eines Klassifizierungsbaums zurückgegeben, egal welche Filter angewendet werden. Filter haben nur haben nur Einfluss auf die Counts (`dc:thingCountWithSubtree` und `dc:thingCountWithoutSubtree`).
+Standardmäßig werden alle Klassifizierungen eines Klassifizierungsbaums zurückgegeben, egal welche Filter angewendet werden. Filter haben nur Einfluss auf die Counts (`dc:thingCountWithSubtree` und `dc:thingCountWithoutSubtree`).
 
 Es gibt jedoch die Möglichkeit, die Ergebnismenge auf Ergebnisse zu beschränken, die eine Mindestanzahl an verknüpften Inhalten aufweisen (mit oder ohne Unterbaum). Das macht besonders bei sehr großen Klassifizierungsbäumen Sinn. Dazu können die Parameter `min_count_with_subtree` und `min_count_without_subtree` verwendet werden. Diese Parameter können auch in Kombination verwendet werden.
 
