@@ -300,9 +300,9 @@ module DataCycleCore
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,
               1 AS "occurrence_exists",
-              #{min_start_date} AS min_start_date
+              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
             FROM schedules a
-            INNER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
             WHERE things.id = a.thing_id
             GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
