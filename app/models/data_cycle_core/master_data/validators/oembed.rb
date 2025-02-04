@@ -17,29 +17,43 @@ module DataCycleCore
         end
 
         def validate(data, template, _strict = false)
-          uri = Addressable::URI.parse(data)
-          valid_url = uri.respond_to?(:scheme) && uri.respond_to?(:host) && uri&.scheme.present? && uri&.host.present? && ['https', 'http'].include?(uri.scheme) && uri.host.present?
-
-          if valid_url
-            data_valid = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_data?(data)
-            if data_valid[:success] == true
-              if template.key?('validations')
-                template['validations'].each_key do |key|
-                  method(key).call(data, template['validations'][key]) if oembed_keywords.include?(key)
-                end
-              end
-              (@error[:result][@template_key] ||= []) << data_valid[:oembed_url]
-            else
-              (@error[:error][@template_key] ||= []).concat(data_valid[:error]&.dig(:error)&.values&.flatten || [])
-            end
-
-          else
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.oembed_unsupported_url',
-              substitutions: {
-                oembed_url: data
+          if data.blank?
+            category = template.dig('validations', 'required') ? :error : (template.dig('validations', 'soft_required') ? :warning : :result)
+            if [:error, :warning].include?(category)
+              (@error[category][@template_key] ||= []) << {
+                path: 'validation.errors.oembed_no_url',
+                substitutions: {
+                  oembed_url: data
+                }
               }
-            }
+            end
+            @error[:result][@template_key] = [] if category == :result
+          else
+
+            uri = Addressable::URI.parse(data)
+            valid_url = uri.respond_to?(:scheme) && uri.respond_to?(:host) && uri&.scheme.present? && uri&.host.present? && ['https', 'http'].include?(uri.scheme) && uri.host.present?
+
+            if valid_url
+              data_valid = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_data?(data)
+              if data_valid[:success] == true
+                if template.key?('validations')
+                  template['validations'].each_key do |key|
+                    method(key).call(data, template['validations'][key]) if oembed_keywords.include?(key)
+                  end
+                end
+                @error[:result][@template_key] = Array.wrap(data_valid[:oembed_url])
+              else
+                (@error[:error][@template_key] ||= []).concat(data_valid[:error]&.dig(:error)&.values&.flatten || [])
+              end
+
+            else
+              (@error[:error][@template_key] ||= []) << {
+                path: 'validation.errors.oembed_unsupported_url',
+                substitutions: {
+                  oembed_url: data
+                }
+              }
+            end
           end
           @error
         end
