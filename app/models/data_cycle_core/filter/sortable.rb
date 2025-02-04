@@ -192,12 +192,8 @@ module DataCycleCore
         proximity_in_occurrence(ordering, value, true)
       end
 
-      def sort_proximity_in_occurrence_pia(ordering = '', value = {})
-        proximity_in_occurrence_pia(ordering, value, true)
-      end
-
-      def sort_proximity_occurrence_with_distance_pia(ordering = '', value = [])
-        proximity_occurrence_with_distance_pia(ordering, value, true)
+      def sort_proximity_in_occurrence_with_distance_pia(ordering = '', value = [])
+        proximity_occurrence_with_distance_pia(ordering, value, false)
       end
 
       def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
@@ -226,43 +222,47 @@ module DataCycleCore
         end
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
+        end_of_day = Time.zone.now.end_of_day
+        end_date_plus_1_year = [end_date, 1.year.from_now].max
         order_parameter_join = <<-SQL.squish
-          LEFT OUTER JOIN (
-            SELECT
-              a.thing_id,
-              1 AS "occurrence_exists",
-              #{min_start_date} as "min_start_date"
-            FROM
-              schedules a,
-              UNNEST(a.occurrences) so(occurrence)
-            WHERE so.occurrence && TSTZRANGE(?, ?)
-            GROUP BY
-              a.thing_id
+          LEFT OUTER JOIN LATERAL (
+            SELECT a.thing_id,
+              CASE
+                WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL
+                WHEN MIN(LOWER(so.occurrence)) FILTER (WHERE so.occurrence && TSTZRANGE(NOW(), '#{end_of_day}')) IS NOT NULL THEN 1
+                WHEN MIN(LOWER(so.occurrence)) FILTER (WHERE so.occurrence && TSTZRANGE(:start_date, :end_date)) IS NOT NULL THEN 2
+                ELSE 3
+              END as occurrence_exists,
+              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+            FROM schedules a
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_plus_1_year}')
+            WHERE things.id = a.thing_id
+            GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
-        join_tabel_name2 = "ohdc#{SecureRandom.hex(10)}"
-        order_parameter_join2 = <<-SQL.squish
-          LEFT OUTER JOIN (
-            SELECT 1 AS "closed_description_exists", cc.content_a_id
-            FROM content_contents cc
-            LEFT OUTER JOIN classification_contents clc ON clc.content_data_id = cc.content_b_id
-            LEFT OUTER JOIN concepts c ON c.id = clc.classification_id  AND c.internal_name = 'geschlossen'
-            LEFT OUTER JOIN concept_schemes cs ON cs.id = c.concept_scheme_id  AND cs.name = 'Öffnungszeiten'
-            LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
-            WHERE cc.relation_a = 'opening_hours_description'
-            AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
-          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
-        SQL
+        # join_tabel_name2 = "ohdc#{SecureRandom.hex(10)}"
+        # order_parameter_join2 = <<-SQL.squish
+        #   LEFT OUTER JOIN (
+        #     SELECT 1 AS "closed_description_exists", cc.content_a_id
+        #     FROM content_contents cc
+        #     LEFT OUTER JOIN classification_contents clc ON clc.content_data_id = cc.content_b_id
+        #     LEFT OUTER JOIN concepts c ON c.id = clc.classification_id  AND c.internal_name = 'geschlossen'
+        #     LEFT OUTER JOIN concept_schemes cs ON cs.id = c.concept_scheme_id  AND cs.name = 'Öffnungszeiten'
+        #     LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
+        #     WHERE cc.relation_a = 'opening_hours_description'
+        #     AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
+        #   ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
+        # SQL
 
         reflect(
           query_without_order
-            .joins(sanitize_sql([order_parameter_join, start_date, end_date]))
-            .joins(sanitize_sql([order_parameter_join2]))
+            .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
+            # .joins(sanitize_sql([order_parameter_join2]))
             .order(
-              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
-              sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              # sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
               sanitized_order_string(geo_order_string, ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
@@ -300,9 +300,9 @@ module DataCycleCore
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,
               1 AS "occurrence_exists",
-              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+              #{min_start_date} AS min_start_date
             FROM schedules a
-            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
+            INNER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
             WHERE things.id = a.thing_id
             GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
@@ -310,68 +310,11 @@ module DataCycleCore
 
         reflect(
           query_without_order
-            .joins(sanitize_sql([order_parameter_join, start_date, end_date]))
+            .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string(geo_order_string, ordering, true),
-              thing[:updated_at].desc,
-              thing[:id].desc
-            )
-        )
-      end
-
-      def proximity_in_occurrence_pia(ordering = '', value = {}, sort_by_date = true)
-        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
-
-        if start_date.nil? && end_date.nil?
-          start_date = Time.zone.now
-          end_date = 1.week.from_now.end_of_week
-        end
-        if sort_by_date
-          min_start_date = 'MIN(LOWER(so.occurrence))'
-        else
-          min_start_date = '1'
-        end
-
-        joined_table_name = "sch#{SecureRandom.hex(10)}"
-        order_parameter_join = <<-SQL.squish
-          LEFT OUTER JOIN (
-            SELECT
-              a.thing_id,
-              1 AS "occurrence_exists",
-              #{min_start_date} as "min_start_date"
-            FROM
-              schedules a,
-              UNNEST(a.occurrences) so(occurrence)
-            WHERE so.occurrence && TSTZRANGE(?, ?)
-            GROUP BY
-              a.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
-        SQL
-
-        join_tabel_name2 = "ohdc#{SecureRandom.hex(10)}"
-        order_parameter_join2 = <<-SQL.squish
-          LEFT OUTER JOIN (
-            SELECT 1 AS "closed_description_exists", cc.content_a_id
-            FROM content_contents cc
-            LEFT OUTER JOIN classification_contents clc ON clc.content_data_id = cc.content_b_id
-            LEFT OUTER JOIN concepts c ON c.id = clc.classification_id  AND c.internal_name = 'geschlossen'
-            LEFT OUTER JOIN concept_schemes cs ON cs.id = c.concept_scheme_id  AND cs.name = 'Öffnungszeiten'
-            LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
-            WHERE cc.relation_a = 'opening_hours_description'
-            AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
-          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
-        SQL
-
-        reflect(
-          query_without_order
-            .joins(sanitize_sql([order_parameter_join, start_date, end_date]))
-            .joins(sanitize_sql([order_parameter_join2]))
-            .order(
-              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
-              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
-              sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
             )
@@ -396,9 +339,9 @@ module DataCycleCore
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,
               1 AS "occurrence_exists",
-              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+              #{min_start_date} AS "min_start_date"
             FROM schedules a
-            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
+            INNER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
             WHERE things.id = a.thing_id
             GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
@@ -406,7 +349,7 @@ module DataCycleCore
 
         reflect(
           query_without_order
-            .joins(sanitize_sql([order_parameter_join, start_date, end_date]))
+            .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
