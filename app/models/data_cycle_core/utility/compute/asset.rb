@@ -74,6 +74,18 @@ module DataCycleCore
               asset.try(:dynamic, computed_definition.dig('compute', 'transformation'))&.url
             end
           end
+
+          def imgproxy_url(content:, computed_definition:, **_args)
+            variant = computed_definition&.dig('compute', 'transformation', 'version')
+            image_processing = computed_definition&.dig('compute', 'processing')
+            Virtual::Asset.send(:transform_gravity!, content, image_processing) if image_processing&.key?('gravity')
+
+            DataCycleCore::Feature::ImageProxy.process_image(
+              content:,
+              variant:,
+              image_processing:
+            )
+          end
         end
       end
     end

@@ -111,7 +111,7 @@ module DataCycleCore
         include_parameters = @include_parameters.select { |p| p.first == 'image' }.map { |p| p.except('image') }.compact_blank.flatten
         json_object = []
         json_object.push("'@id', things.id") if fields_parameters.blank? || fields_parameters.include?('@id')
-        json_object.push("'thumbnailUrl', things.metadata->>'thumbnail_url'") if fields_parameters.include?('thumbnailUrl') || include_parameters.include?('thumbnailUrl')
+        json_object.push("'thumbnailUrl', COALESCE(things.metadata->>'virtual_thumbnail_url', things.metadata->>'thumbnail_url')") if fields_parameters.include?('thumbnailUrl') || include_parameters.include?('thumbnailUrl')
 
         {
           identifier: '"image"',
