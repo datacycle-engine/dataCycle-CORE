@@ -95,16 +95,11 @@ module DataCycleCore
 
             schedule_array&.filter_map { |schedule| schedule.to_h.except(:thing_id) } || []
           elsif property_name == 'mapped_classifications'
-            classification_property_names&.filter_map { |classification_property_name|
-              classification_property_name_overlay = classification_property_name
-              classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
-              send(classification_property_name_overlay)&.map { |classification|
-                mapped_ids = classification.additional_classification_aliases.map(&:id)
-                preloaded['classifications']
-                  &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
-                  &.keys
-              }.presence&.flatten
-            }&.flatten
+            mapped_ids = related_classification_contents.map(&:classification_alias_id)
+
+            preloaded['classifications']
+              &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
+              &.keys
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
@@ -251,6 +246,7 @@ module DataCycleCore
                 :external_source,
                 :classification_content,
                 :schedules,
+                :related_classification_contents,
                 external_system_syncs: [:external_system],
                 asset_contents: [:asset],
                 full_classification_contents: [classification_alias: [:external_source, :classification_alias_path, {classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]}]]

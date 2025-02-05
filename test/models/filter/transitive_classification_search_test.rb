@@ -86,7 +86,7 @@ module DataCycleCore
         DataCycleCore::ClassificationAlias.for_tree(@tree2.name).with_internal_name('mapped 1').pluck(:id)
       )
 
-      assert_equal(1, items.query.size)
+      assert_equal(0, items.query.size)
     end
 
     test 'filter contents based on mapped (2 hops) classifications, excluding contents with target classification' do

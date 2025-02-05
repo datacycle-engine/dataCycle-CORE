@@ -221,18 +221,19 @@ module DataCycleCore
     end
 
     test 'serialize mapped classifications overwritten in overlay' do
+      # classifications can't be overwritten in overlay
       event = create_event_with_overlay_mapped_classifications
       serialized_event = event.to_sync_data
       assert_equal('Veranstaltung', event.data_type.first.name)
 
       assert_equal(1, serialized_event.dig('de', 'universal_classifications').size)
-      assert_equal(['Test2'], DataCycleCore::Classification.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
+      assert_equal(['Test1'], DataCycleCore::Classification.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
 
-      assert_equal(4, serialized_event['classifications'].size)
+      assert_equal(5, serialized_event['classifications'].size)
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('event_status') })
-      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
+      assert_equal(2, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
       assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.pluck('name').sort)
-      assert_equal(['Test2'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.pluck('name').sort)
+      assert_equal(['Test1', 'Test2'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.pluck('name').sort)
     end
   end
 end
