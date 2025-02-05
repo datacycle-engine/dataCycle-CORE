@@ -45,6 +45,26 @@ module DataCycleCore
             content&.send(computed_definition&.dig('compute', 'linked_attribute').to_s)
           end
 
+          def parent_classification_name(computed_parameters:, computed_definition:, **_args)
+            classifications = computed_parameters.values.flatten
+            return nil if classifications.blank?
+
+            tree_label = computed_definition.dig('compute', 'tree_label')
+            return nil if tree_label.blank?
+
+            DataCycleCore::Concept.for_tree(tree_label).find_by(classification_id: classifications)&.parent&.name
+          end
+
+          def classification_name(computed_parameters:, computed_definition:, **_args)
+            classifications = computed_parameters.values.flatten
+            return nil if classifications.blank?
+
+            tree_label = computed_definition.dig('compute', 'tree_label')
+            return nil if tree_label.blank?
+
+            DataCycleCore::Concept.for_tree(tree_label).find_by(classification_id: classifications)&.name
+          end
+
           private
 
           def recursive_char_count(data, parameters)
@@ -53,12 +73,16 @@ module DataCycleCore
             parameters.map do |parameter|
               if parameter.is_a?(::Hash)
                 parameter.map do |k, v|
-                  data.dig(k)&.map do |s|
+                  data[k]&.map do |s|
                     recursive_char_count(s, v)
                   end
                 end
               else
-                ActionController::Base.helpers.strip_tags((data.dig('translations', I18n.locale.to_s, parameter) || data.dig('datahash', parameter) || data.dig(parameter)).to_s).size
+                (
+                  data.dig('translations', I18n.locale.to_s, parameter) ||
+                  data.dig('datahash', parameter) ||
+                  data[parameter]
+                ).to_s.strip_tags.size
               end
             end
           end

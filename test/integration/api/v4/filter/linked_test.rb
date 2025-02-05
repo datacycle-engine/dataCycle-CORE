@@ -34,29 +34,29 @@ module DataCycleCore
 
             schedule_a = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 5.days.ago, 1.hour).serialize_schedule_object
             lat_long_a = {
-              'latitude': 1,
-              'longitude': 10
+              latitude: 1,
+              longitude: 10
             }
             @event_a = create_test_event(schedule_a, @cc_by.primary_classification.id, lat_long_a)
 
             schedule_b = DataCycleCore::TestPreparations.generate_schedule(5.days.ago.midday, 5.days.from_now, 1.hour).serialize_schedule_object
             lat_long_b = {
-              'latitude': 5,
-              'longitude': 5
+              latitude: 5,
+              longitude: 5
             }
             @event_b = create_test_event(schedule_b, @cc0.primary_classification.id, lat_long_b)
 
             schedule_c = DataCycleCore::TestPreparations.generate_schedule(Time.zone.now.beginning_of_day, 1.day.from_now, 1.hour).serialize_schedule_object
             lat_long_c = {
-              'latitude': 10,
-              'longitude': 1
+              latitude: 10,
+              longitude: 1
             }
             @event_c = create_test_event(schedule_c, @cc0.primary_classification.id, lat_long_c)
 
             schedule_d = DataCycleCore::TestPreparations.generate_schedule(5.days.from_now.midday, 10.days.from_now, 1.hour).serialize_schedule_object
             lat_long_d = {
-              'latitude': 1,
-              'longitude': 1
+              latitude: 1,
+              longitude: 1
             }
             @event_d = create_test_event(schedule_d, @cc_by.primary_classification.id, lat_long_d)
 
@@ -161,7 +161,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # all images with cc0
@@ -206,7 +206,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # events
@@ -244,7 +244,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # events
@@ -282,7 +282,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # events from today
@@ -293,7 +293,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 },
@@ -327,7 +327,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_data['@graph'].each do |res|
-              assert('Event', res.dig('@type'))
+              assert('Event', res['@type'])
             end
 
             # events start in 2days today
@@ -338,7 +338,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: 2.days.from_now.to_s(:iso8601)
+                      min: 2.days.from_now.to_fs(:iso8601)
                     }
                   }
                 },
@@ -371,12 +371,12 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@event_b.id, json_data['@graph'].first.dig('@id'))
+            assert_equal(@event_b.id, json_data['@graph'].first['@id'])
 
             # validate linked with 'dct:modified'
             image_test = @event_c.image.first
             orig_ts = image_test.updated_at
-            image_test.update_column(:updated_at, (Time.zone.now + 10.days))
+            image_test.update_column(:updated_at, 10.days.from_now)
 
             # events start in 2days today
             # with image cc0
@@ -386,7 +386,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: 15.days.ago.to_s(:iso8601)
+                      min: 15.days.ago.to_fs(:iso8601)
                     }
                   }
                 },
@@ -402,7 +402,7 @@ module DataCycleCore
                     attribute: {
                       'dct:modified': {
                         in: {
-                          min: (Time.zone.now + 5.days).to_s(:iso8601)
+                          min: 5.days.from_now.to_fs(:iso8601)
                         }
                       }
                     }
@@ -414,7 +414,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@event_c.id, json_data['@graph'].first.dig('@id'))
+            assert_equal(@event_c.id, json_data['@graph'].first['@id'])
             image_test.update_column(:updated_at, orig_ts)
           end
 

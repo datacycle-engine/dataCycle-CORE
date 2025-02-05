@@ -20,13 +20,23 @@
                 - Service
         :api:
           :v4:
-            :name: 'dc:linkedThing'
+            :name: "dc:linkedThing"
       :is_linked_to:
         :label: Verknüpft mit
         :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - Ort
+                - Veranstaltung
+                - Veranstaltungsserie
+                - Service
         :inverse_of: linked_thing
         :link_direction: inverse
         :global: true
         :api:
           :v4:
-            :name: 'dc:isLinkedTo'
+            :name: "dc:isLinkedTo"

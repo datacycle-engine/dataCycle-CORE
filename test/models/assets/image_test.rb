@@ -18,14 +18,14 @@ module DataCycleCore
         assert_equal(file_name, @image.name)
         assert_equal('DataCycleCore::Image', @image.type)
         assert(@image.metadata.is_a?(Hash))
-        assert(@image.duplicate_check.dig('phash').positive?)
+        assert(@image.duplicate_check['phash'].positive?)
       end
 
       test 'upload Image: rgb/jpg' do
         file_name = 'test_rgb.jpeg'
         @image = upload_image(file_name)
 
-        assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
+        assert_equal('sRGB', @image.metadata['ImColorSpace'])
         assert_equal('image/jpeg', @image.content_type)
 
         validate_image file_name
@@ -35,7 +35,7 @@ module DataCycleCore
         file_name = 'test_rgb_portrait.jpeg'
         @image = upload_image(file_name)
 
-        assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
+        assert_equal('sRGB', @image.metadata['ImColorSpace'])
         assert_equal('image/jpeg', @image.content_type)
 
         validate_image file_name
@@ -46,7 +46,7 @@ module DataCycleCore
         @image = upload_image(file_name)
 
         assert_equal('image/gif', @image.content_type)
-        assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
+        assert_equal('sRGB', @image.metadata['ImColorSpace'])
 
         validate_image file_name
       end
@@ -56,7 +56,7 @@ module DataCycleCore
         @image = upload_image(file_name)
 
         assert_equal('image/png', @image.content_type)
-        assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
+        assert_equal('sRGB', @image.metadata['ImColorSpace'])
 
         validate_image file_name
       end
@@ -66,7 +66,7 @@ module DataCycleCore
         @image = upload_image(file_name)
 
         assert_equal('image/jpeg', @image.content_type)
-        assert_equal('CMYK', @image.metadata.dig('ImColorSpace'))
+        assert_equal('CMYK', @image.metadata['ImColorSpace'])
 
         validate_image file_name
       end

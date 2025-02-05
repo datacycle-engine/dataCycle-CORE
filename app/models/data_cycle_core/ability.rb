@@ -50,7 +50,7 @@ module DataCycleCore
                         !DataCycleCore::ClassificationService.visible_classification_tree?(
                           concept_scheme(opts.definition['tree_label']),
                           opts.scope.to_s
-                        )
+                        ) && opts.attribute_name != 'universal_classifications'
 
           next false if opts.scope.to_s == 'update' && opts.definition&.dig('type') == 'linked' && opts.definition&.dig('link_direction') == 'inverse'
 

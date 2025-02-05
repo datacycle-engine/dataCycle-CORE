@@ -73,12 +73,11 @@ module DataCycleCore
 
             overlay_props.each do |key, prop|
               new_index = all_props.pluck(0).index(key) + 1
-              new_versions = []
               transform_prop_with_overlay!(prop)
               versions = Overlay.allowed_postfixes_for_type(prop['type'])
               versions.map! { |v| key + v }
-              versions.each do |version|
-                new_versions.push([version, overlay_version_prop(key, prop, version.delete_prefix("#{key}_"))])
+              new_versions = versions.map do |version|
+                [version, overlay_version_prop(key, prop, version.delete_prefix("#{key}_"))]
               end
 
               new_versions.push([key + VIRTUAL_OVERLAY_POSTFIX, overlay_prop(key, prop, versions)])

@@ -86,7 +86,7 @@ module DataCycleCore
     end
 
     def activity_details
-      type = permitted_params.dig(:type)
+      type = permitted_params[:type]
       case type
       when 'summary'
         activities = DataCycleCore::Activity.activity_stats
@@ -107,7 +107,7 @@ module DataCycleCore
     private
 
     def permitted_params
-      @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+      @permitted_params ||= params.permit(*permitted_parameter_keys).compact_blank
     end
 
     def permitted_parameter_keys

@@ -35,13 +35,13 @@ module DataCycleCore
     end
 
     test 'show and filter users index page' do
-      @test_group_ids = DataCycleCore::UserGroup.where(name: 'TestUserGroup').ids
+      @test_group_ids = DataCycleCore::UserGroup.where(name: 'TestUserGroup').pluck(:id)
       @guest = DataCycleCore::User.find_by(email: 'guest@datacycle.at')
       @guest.update(user_group_ids: @test_group_ids)
 
       get users_path, params: {
         q: 'guest datacycle',
-        roles: DataCycleCore::Role.where(name: 'guest').ids,
+        roles: DataCycleCore::Role.where(name: 'guest').pluck(:id),
         user_groups: @test_group_ids
       }
       assert_response :success
@@ -52,7 +52,7 @@ module DataCycleCore
       user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
         email: "tester_#{Time.now.getutc.to_i}@datacycle.at",
         role_id: DataCycleCore::Role.find_by(rank: 5)&.id,
-        confirmed_at: Time.zone.now - 1.day
+        confirmed_at: 1.day.ago
       })
 
       post create_user_users_path, params: {
@@ -67,7 +67,7 @@ module DataCycleCore
       assert_select 'li.grid-item .inner .description', user[:email]
       created_user = DataCycleCore::User.find_by(email: user[:email])
       assert_equal @current_user.id, created_user.creator.id
-      assert_equal [created_user.id], @current_user.created_users.ids
+      assert_equal [created_user.id], @current_user.created_users.pluck(:id)
     end
 
     test 'update existing user' do

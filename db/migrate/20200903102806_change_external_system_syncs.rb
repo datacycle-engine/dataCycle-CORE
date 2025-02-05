@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class ChangeExternalSystemSyncs < ActiveRecord::Migration[5.2]
+  # rubocop:disable Rails/BulkChangeTable
   def change
     rename_column :external_system_syncs, :last_push_at, :last_sync_at
     rename_column :external_system_syncs, :last_successful_push_at, :last_successful_sync_at
@@ -14,4 +15,5 @@ class ChangeExternalSystemSyncs < ActiveRecord::Migration[5.2]
 
     add_index :external_system_syncs, [:syncable_type, :syncable_id, :external_system_id, :sync_type, :external_key], name: :index_external_system_syncs_on_unique_attributes, unique: true
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

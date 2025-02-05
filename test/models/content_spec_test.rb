@@ -118,14 +118,14 @@ describe DataCycleCore::Content do
     it 'provides methods for all property names as string' do
       ['id', 'name', '1', '2', '3'].each do |item|
         assert(subject.respond_to?(item))
-        assert(subject.respond_to?("#{item}="))
+        assert(subject.respond_to?(:"#{item}="))
       end
     end
 
     it 'provides methods for all property names as symbol' do
       ['id', 'name', '1', '2', '3'].each do |item|
         assert(subject.respond_to?(item.to_sym))
-        assert(subject.respond_to?("#{item}=".to_sym))
+        assert(subject.respond_to?(:"#{item}="))
       end
     end
 
@@ -133,8 +133,8 @@ describe DataCycleCore::Content do
       ['abcd', 'jklm'].each do |item|
         assert_equal(subject.respond_to?(item), false)
         assert_equal(subject.respond_to?(item.to_sym), false)
-        assert_equal(subject.respond_to?("#{item}="), false)
-        assert_equal(subject.respond_to?("#{item}=".to_sym), false)
+        assert_equal(subject.respond_to?(:"#{item}="), false)
+        assert_equal(subject.respond_to?(:"#{item}="), false)
       end
     end
 
@@ -144,7 +144,7 @@ describe DataCycleCore::Content do
           subject.method(item).call
         end
         assert_raises NameError do
-          subject.method("#{item}=").call('test')
+          subject.method(:"#{item}=").call('test')
         end
       end
     end

@@ -2,11 +2,12 @@
 
 module DataCycleCore
   class ApplicationController < ActionController::Base
-    include DataCycleCore::ParamsResolver
-    include DataCycleCore::ErrorHandler
+    include ParamsResolver
+    include DryParams
+    include ErrorHandler
     include ActiveStorage::SetCurrent
-    include DataCycleCore::RendererWithUser
-    include DataCycleCore::UserRegistrationCheck if DataCycleCore::Feature::UserRegistration.enabled?
+    include RendererWithUser
+    include UserRegistrationCheck if DataCycleCore::Feature::UserRegistration.enabled?
 
     protect_from_forgery with: :exception
     before_action :load_watch_list, if: -> { params[:watch_list_id].present? }

@@ -13,9 +13,9 @@ module DataCycleCore
 
             @poi_d = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             lat_long_d = {
-              'name': 'poi_d',
-              'latitude': 1,
-              'longitude': 1
+              name: 'poi_d',
+              latitude: 1,
+              longitude: 1
             }
             @poi_d.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_d)
             @poi_d.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_d.longitude, @poi_d.latitude)
@@ -23,9 +23,9 @@ module DataCycleCore
 
             @poi_c = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             lat_long_c = {
-              'name': 'poi_c',
-              'latitude': 10,
-              'longitude': 1
+              name: 'poi_c',
+              latitude: 10,
+              longitude: 1
             }
             @poi_c.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_c)
             @poi_c.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_c.longitude, @poi_c.latitude)
@@ -33,9 +33,9 @@ module DataCycleCore
 
             @poi_b = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             lat_long_b = {
-              'name': 'poi_b',
-              'latitude': 5,
-              'longitude': 5
+              name: 'poi_b',
+              latitude: 5,
+              longitude: 5
             }
             @poi_b.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_b)
             @poi_b.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_b.longitude, @poi_b.latitude)
@@ -43,9 +43,9 @@ module DataCycleCore
 
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             lat_long_a = {
-              'name': 'poi_a',
-              'latitude': 1,
-              'longitude': 10
+              name: 'poi_a',
+              latitude: 1,
+              longitude: 10
             }
             @poi_a.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_a)
             @poi_a.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_a.longitude, @poi_a.latitude)
@@ -124,7 +124,7 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd', 'poi_a', 'poi_b', 'poi_c', 'poi_d'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd', 'poi_a', 'poi_b', 'poi_c', 'poi_d'], json_data['@graph'].pluck('name'))
           end
 
           test 'api/v4/things with implicit sorting' do
@@ -137,8 +137,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -149,7 +149,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
 
-            assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
 
             # default for search = similarity
             params = {
@@ -162,7 +162,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # default sorting: proximity.geographic ASC
             params = {
@@ -179,7 +179,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data['@graph'].pluck('name'))
           end
 
           test 'api/v4/things with explicit sorting' do
@@ -193,8 +193,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -205,7 +205,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd'], json_data['@graph'].pluck('name'))
 
             # proximity.occurrence
             params = {
@@ -214,8 +214,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -226,7 +226,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
 
             # similarity
             params = {
@@ -240,7 +240,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # proximity.geographic ASC
             params = {
@@ -258,7 +258,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data['@graph'].pluck('name'))
           end
 
           test 'api/v4/things with explicit over implicit sorting' do
@@ -270,8 +270,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -281,7 +281,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaaaaa', 'aaabbb'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # overrule sorting priority schedule -> location -> search: search -> schedule
             params = {
@@ -291,8 +291,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -303,7 +303,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaabbb', 'aaaaaa'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
           end
         end
       end

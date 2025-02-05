@@ -42,11 +42,9 @@ de:
     Trail: Tour
     GtfsStop: Haltestelle
     BodyOfWater: Badesee
-    MountainArea: Skigebiet
     MountainAreaDescription: Skigebiets-Beschreibung
     Recipe: Rezept
-    SkiSlope: Skipiste
-    SnowReportLocation: Schneehöhe - Messpunkt
+    AvalancheInfo: Lawineninfo
     Snowpark: Schneepark
     TouristDestination: Touristische Destination
     ContentPage: Inhaltsseite
@@ -99,6 +97,7 @@ de:
     en: englisch
     ar: arabisch
     bg: bulgarisch
+    bs: bosnisch
     cs: tschechisch
     da: dänisch
     es: spanisch
@@ -119,9 +118,13 @@ de:
     sv: schwedisch
     tr: türkisch
     uk: ukrainisch
+    "de-AT": deutsch-AT
+    "de-DE": deutsch-DE
     "de-CH": schweizer-deutsch
     "nl-BE": flämisch
     zh: chinesisch
+    sr: serbisch
+    ne: nepalesisch
 
   roles:
     super_admin: Super-Administrator
@@ -609,11 +612,11 @@ de:
     available_widgets: Verfügbare Widgets
     widgets:
       event_list: Events - Listenansicht
-      list: Listenansicht
-      map: Kartenansicht
-      events: Events
-      gallery: Bildergalerie
-      statistics: Statistik
+      list: Collection Widget
+      map: Karten Widget
+      events: Event Widget
+      gallery: Galerie Widget
+      statistics: Statistik Widget
     user_registration:
       terms_conditions: 'Ich akzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
@@ -685,6 +688,9 @@ de:
     switch: Original und Duplikat vertauschen
     duplicate: Duplikat
     original: Original
+    merge_warning_html: 'Das <span class="alert-color">Duplikat</span> (händisch erstellt) wird gelöscht,<br>das <span class="success-color">Original</span> (importiert) bleibt bestehen.<br>Fortfahren?'
+    duplicate_tooltip: Dieser Inhalt ist das Duplikat und wird beim Zusammenführen gelöscht
+    original_tooltip: Dieser Inhalt ist das Original und bleibt beim Zusammenführen bestehen
 
   tile_links:
     details: zur Detailansicht
@@ -808,6 +814,9 @@ de:
       downloads_content: Alle Downloads dieses Inhalts
       stored_searches_usage: Verwendung Gespeicherte Suchen
       watch_lists_usage: Verwendung Inhaltssammlungen
+      widget_usage: Verwendung Widgets
+      widget_usage_overview: Verwendung Widgets (Übersicht)
+      dzt_report: Fehlgeschlagene Syncs zum DZT Knowledge-Graph
       headings:
         id: ID
         name: Name
@@ -841,11 +850,22 @@ de:
         user_group_names: Benutzergruppen
         api_access: Für API freigegeben
         user_role: Benutzerrolle
+        access_count: Zugriffe (Gesamt inkl. Meta-Info)
+        true_count: Zugriffe (Widget Initialisierungen)
+        retention_count: Zugriffe (Nachladen von Inhalten)
+        combined_count: Zugriffe (Gesamt Widget Initialisierungen + Nachladen)
+        week: Woche
+        unique_domains: Einzigartige Domains
+        widget_type: Widget Typ
+        domain: Domain
+        url: URL
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
+          dzt_report: DZT-Synchronisation - Fehlerreport
         text_html:
           downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
+          dzt_report: Im Anhang finden Sie einen Report zu jenen Inhalten, bei denen die Synchronisation zum DZT Knowledge-Graph fehlgeschlagen ist.
       download_form:
         type: Format
 
@@ -907,6 +927,7 @@ de:
     created_at: Erstellungsdatum
     updated_at: Aktualisierungsdatum
     validity_period: Gültigkeitszeitraum
+    offer_period: Angebotszeitraum
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
@@ -1038,6 +1059,11 @@ de:
     max_altitude: Maximale Seehöhe (m)
     length: Länge (m)
     aggregate_filter: Aggregatstyp
+    user:
+      exists: ist Benutzer
+      not_exists: ist System
+      like: E-Mail enthält
+      not_like: E-Mail enthält nicht
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -1046,6 +1072,7 @@ de:
     external_source: nach externen Quellen filtern ...
     external_system: nach externen Systemen filtern ...
     validity_period: nach Gültigkeitszeitraum filtern ...
+    offer_period: nach Angebotszeitraum filtern ...
     date_range: nach Datum filtern ...
     boolean: nach booleschen Kriterien filtern ...
     advanced_attributes: nach Attributen filtern ...
@@ -1185,8 +1212,12 @@ de:
     finalize: Bearbeitung final abschließen
     finalize_agbs_text: AGBs
     finalize_combined_html: "%{finalize} und %{agbs} akzeptieren"
+    open_data: "%{data} öffnen"
+    copy: kopieren
+    copy_data: "%{data} kopieren"
     copy_to_clipboard: In die Zwischenablage kopieren
     copy_to_clipboard_data: "%{data} in die Zwischenablage kopieren"
+    copy_link_to_x_to_clipboard: Link zu %{data} in die Zwischenablage kopieren
     copy_webdav_to_clipboard: WebDAV Link in die Zwischenablage kopieren
     copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
     copied_to_clipboard: In Zwischenablage kopiert.
@@ -1275,6 +1306,7 @@ de:
       oembed_unsupported_url: "%{oembed_url} ist keine valide URL."
       oembed_no_provider: "Oembed-Provider für URL %{oembed_url} konnte nicht gefunden werden."
       oembed_too_many_providers: "Kein eindeutiger Oembed-Provider für URL %{oembed_url}gefunden werden. Mögliche Provider: %{oembed_found}."
+      oembed_thing_not_found: "Konnte dataCycle-Thing nicht als oembed darstellen: Thing-ID ungültig oder unterstützt kein oembed, oder Thing nicht gefunden."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
       geo_no_linestring: "Für diesen Typ müssen mindestens zwei Punkte angegeben werden"
       schedule:
@@ -1286,6 +1318,7 @@ de:
         relation: "relation ist ein Pflichtfeld."
         invalid: "Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine"
         until_missing: "Für den Eintrag mit Startzeitpunkt %{data} muss ein Endzeitpunkt angegeben werden"
+        until_too_far: "Endzeit für den Eintrag mit Startzeitpunkt %{data} liegt zu weit in der Zukunft, das könnte zu Problemen beim Speichern führen (Max: %{max})"
       number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
       no_data: "Keine Daten angegeben."
       no_validation: "Keine Validierungs-Daten angegeben."
@@ -1556,19 +1589,24 @@ de:
       data_cycle_core/collection:
         one: Inhaltssammlung/gespeicherte Suche
         other: Inhaltssammlungen/gespeicherte Suchen
+      data_cycle_core/feature/translate:
+        one: Übersetzung
+        other: Übersetzungen
     attributes:
       data_cycle_core/watch_list:
         manual_order: Manuelle Sortierung als Standard-Sortierung verwenden
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten
+        external_key: Externe ID
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: "Beschreibungstext"
         classification_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
         uri: Externe URI
-        external_keys: Externe Keys
+        external_key: Externe ID
+        external_keys: Externe IDs (selbst + mapped)
         mapped_to_string: Klassifizierungen gemapped von
         ui_configs: UI-Konfiguration
         ui_configs/color: Farbe
@@ -1576,6 +1614,8 @@ de:
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
+        shared_collection_ids: "%{collection} oder %{stored_filter}"
+        permissions: Berechtigungen
         classification_ids_markets: Märkte
         classification_ids_output_channels: Ausgabekanäle
       data_cycle_core/user:
@@ -1647,6 +1687,7 @@ de:
         name: Name
         file: Datei
         creator_id: Ersteller
+        content_url: Datei-URL
       data_cycle_core/external_source:
         name: Name
       data_cycle_core/external_system_sync:
@@ -1764,6 +1805,7 @@ de:
           specification: Spezifikation
           elevation_profile: Höhenprofil
           suggest: Autovervollständigung
+          performance: Performance Optimierungen
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
@@ -1790,6 +1832,7 @@ de:
     generic:
       description: Beschreibung
       text: Detailbeschreibung
+      snow_report: Schneebericht
     booking:
       hotel_important_information: Wichtige Informationen
       hotel_description: Kurzbeschreibung
@@ -1887,25 +1930,28 @@ de:
         difficulty_rating: Schwierigkeit
         panoramic_view_rating: Panoramaaussicht
     general_solutions:
-      place:
-        directions: Anfahrt
-        parking: Parken
-        hours_available: Öffnungszeiten
-        text: Beschreibung
-        price: Preis
-        description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-      tour:
-        text: Beschreibung
-        description: Kurzbeschreibung
-        instructions: Wegbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-        parking: Parken
-        route_start: Start
-        route_end: Ziel
+      directions: Anfahrt
+      parking: Parken
+      hours_available: Öffnungszeiten
+      text: Beschreibung
+      price: Preis
+      description: Kurzbeschreibung
+      directions_public_transport: Öffentliche Verkehrsmittel
+      instructions: Wegbeschreibung
+      route_start: Start
+      route_end: Ziel
+      importantInformation: Wichtige Informationen
+      equipment: Ausrüstung
+      authors_tip: Tipps
+      information_links: Weitere Informationen
+      road_quality: Wegbeschaffenheit
       ratings:
         difficulty_rating: Schwierigkeit
         priority_rating: Priorität
+        skill_rating: Fähigkeiten
+        stamina_rating: Kondition
+      tour:
+      poi:
     imx_platform:
       description: Beschreibung
       text: Detailbeschreibung
@@ -1923,6 +1969,23 @@ de:
       seasonDescription: Begehbare Monate
       Preis-Zusatzbeschreibung: Preis-Zusatzbeschreibung
       booking_link: Buchungslink
+      numberParkspaceOverall: Parkmöglichkeiten
+      numberParkspaceOutdoor: Parkmöglichkeiten im Freien
+      numberParkspaceGarage: Parkmöglichkeiten überdacht
+      numberRooms: Anzahl Zimmer
+      numberSingleRooms: Einzelzimmer
+      numberDoubleRooms: Doppelzimmer
+      numberSharedRooms: Mehrbettzimmer
+      numberSuiteRooms: Suiten
+      numberConferenceRooms: Konferenzräume
+      numberGroupRooms: Gruppenräume
+      numberAccessibleRooms: Barrierefreie Zimmer
+      opening_hours_special_types:
+        temporarilyClosed: Vorübergehend geschlossen
+        permanentlyClosed: Dauerhaft geschlossen
+        noOpeningHours: ohne Öffnungszeiten
+        permanentlyOpen: Jederzeit frei zugänglich
+        openOnRequest: geöffnet auf Anfrage
     gem2go:
       description: Beschreibung
     timm4:
@@ -1948,6 +2011,7 @@ de:
       currentInformation: Aktuelle Informationen
       additionalLocationInformation: Zusatzinformationen zum Veranstaltungsort
       additionalHostInformation: Zusatzinformationen zum Veranstalter
+      additionalMeetingPointInformation: Zusatzinformationen zum Treffpunkt
       directions: Anfahrt
       publicTransit: Öffentliche Verkehrsmittel
       parking: Parken
@@ -1963,18 +2027,19 @@ de:
       startpointGettingThere: Wegbeschreibung Startpunkt
       seasonDescription: Begehbare Monate
       price: Preisinformation
+      intro: Kurzbeschreibung
     destination_one:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag
       kitchen_spezialitaeten: Küche Spezialitäten
-      kitchen_zeiten: Küche Öffungszeiten
+      kitchen_zeiten: Küche Öffnungszeiten
       object_betriebsurlaub: Betriebsurlaub
       price_info: Preisinformation
       price_reducedinfo: Preisinformation Überblick
       room_sonstige: Raum Sonstiges
-      route_start: Route Start
+      route_start: Startpunkt
       route_start_ort: Route Startort
-      route_ziel: Route Ziel
+      route_ziel: Zielpunkt
       socialdescription: Socialdescription
       socialtitle: Socialtitle
       web_seo_beschreibung: web_seo_beschreibung
@@ -1990,7 +2055,7 @@ de:
       iframe_titel: iframe_title
       iframe_url: iframe_url
       moreinfo: Weitere Informationen
-      openings: Öffungszeiten
+      openings: Öffnungszeiten
       packagefeature: Pauschalangebot Details
       packagetripinfo: Pauschalangebot Informationen
       station: Bahnhof
@@ -2002,12 +2067,20 @@ de:
       Unsuitable: ungeeignet
       Depends: wetterabhängig
       Suitable: geeignet
+      tourmoreinfos_directions: Wegbeschreibung
+      tourmoreinfos_safetyguidelines: Sicherheitshinweise
+      tourmoreinfos_equipment: Ausrüstung
+      tourmoreinfos_tip: Tipp des Autors
+      tourmoreinfos_gettingthere: Anfahrt
+      tourmoreinfos_parking: Parken
     bierfinder:
       description: Beschreibung
       book: Detailbeschreibung
       tipp: Tip
       essenUndSpezial: Essen und Spezialitäten
       biersorten: Biersorten
+      classics: Klassiker
+      seasonalBeer: Saisonbier
     venus:
       accessibilityDescription: Barrierefreiheit
       arrivalDescription: Anfahrt
@@ -2055,7 +2128,7 @@ de:
       dependent: wetterabhängig
       roadmap: Streckenstichpunkte
     museumsportal:
-      opening_hours: Öffungszeiten Beschreibung
+      opening_hours: Öffnungszeiten Beschreibung
     oya_media:
       description: Beschreibung
       short_description: Teaser
@@ -2216,7 +2289,7 @@ de:
         other: "%{count} Jahren"
     prompts:
       day: Tag
-      hour: Stunden
+      hour: Stunde
       minute: Minute
       month: Monat
       second: Sekunde

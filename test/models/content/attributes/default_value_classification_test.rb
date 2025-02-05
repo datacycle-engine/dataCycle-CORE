@@ -15,6 +15,7 @@ module DataCycleCore
             template.schema['properties'][key]['default_value'] = value
           end
 
+          template.define_singleton_method(:readonly?) { false }
           template.update_column(:schema, template.schema) if template.is_a?(DataCycleCore::ThingTemplate)
           template.remove_instance_variable(:@default_value_property_names) if template.instance_variable_defined?(:@default_value_property_names)
         end
@@ -24,7 +25,7 @@ module DataCycleCore
 
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' })
 
-          assert_equal classification_id, content.data_type.ids.first
+          assert_equal classification_id, content.data_type.pick(:id)
         end
 
         test 'default classifications dont override existing values on new contents' do
@@ -32,7 +33,7 @@ module DataCycleCore
 
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1', data_type: [classification_id] })
 
-          assert_equal classification_id, content.data_type.ids.first
+          assert_equal classification_id, content.data_type.pick(:id)
         end
 
         test 'default classifications dont get set on existing contents with partial update' do
@@ -64,7 +65,7 @@ module DataCycleCore
 
           content.set_data_hash(data_hash: { name: 'Test Artikel 2' }, update_search_all: false, prevent_history: true, partial_update: true)
 
-          assert_equal classification_id, content.data_type.ids.first
+          assert_equal classification_id, content.data_type.pick(:id)
           assert_equal 'Test Artikel 2', content.name
         end
 
@@ -95,14 +96,14 @@ module DataCycleCore
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1' })
           classification_id = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Bild')
 
-          assert_equal classification_id, content.data_type.ids.first
+          assert_equal classification_id, content.data_type.pick(:id)
 
           set_default_value('Bild', 'data_type', 'Artikel', content)
 
           I18n.with_locale(:en) do
             content.set_data_hash(data_hash: { name: 'Test Bild 2' }, update_search_all: false, prevent_history: true, partial_update: true)
 
-            assert_equal classification_id, content.data_type.ids.first
+            assert_equal classification_id, content.data_type.pick(:id)
             assert_equal 'Test Bild 2', content.name
           end
         end

@@ -9,7 +9,7 @@ new_include = subtree_for(key_name, options[:include])
 
 object_options = { fields: new_fields, include: new_include, field_filter: options[:field_filter] }
 object_properties = {}
-object_properties['@type'] = api_property_definition.dig('type') if api_property_definition.dig('type').present?
+object_properties['@type'] = api_property_definition['type'] if api_property_definition['type'].present?
 
 ordered_api_properties(validation: definition).each do |o_key, o_definition|
   next if options[:field_filter] && new_fields.present? && !valid_key?(attribute_key(o_key, o_definition), object_options) && api_property_definition.dig('transformation', 'method') != 'merge_object'
@@ -21,7 +21,7 @@ ordered_api_properties(validation: definition).each do |o_key, o_definition|
   object_properties[key_new.camelize(:lower)] = data_value if data_value.present?
 end
 
-if api_property_definition.dig('transformation', 'method') == 'unwrap' || api_property_definition.dig('transformation', 'method') == 'merge_object'
+if ['unwrap', 'merge_object'].include?(api_property_definition.dig('transformation', 'method'))
   json.merge! object_properties
 else
   object_id = { '@id' => generate_uuid(content.id, key) }

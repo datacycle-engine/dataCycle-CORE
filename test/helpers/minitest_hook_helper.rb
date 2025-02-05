@@ -16,11 +16,11 @@ module DataCycleCore
         end
       end
 
+      # needed for config.active_job.queue_adapter = :test
+      # backtrace for failures is not working correctly with this block
       # around do |&block|
-      #   ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+      #   perform_enqueued_jobs do
       #     super(&block)
-      #   ensure
-      #     raise ActiveRecord::Rollback
       #   end
       # end
 

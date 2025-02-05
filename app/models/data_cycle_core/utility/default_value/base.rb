@@ -12,7 +12,7 @@ module DataCycleCore
 
             return if properties.blank?
 
-            return if properties['default_value'].is_a?(::Hash) && properties.dig('default_value', 'condition').present? && !properties.dig('default_value', 'condition').all? { |k, v| send("condition_#{k}", current_user, v, content) }
+            return if properties['default_value'].is_a?(::Hash) && properties.dig('default_value', 'condition').present? && !properties.dig('default_value', 'condition').all? { |k, v| send(:"condition_#{k}", current_user, v, content) }
 
             if properties['default_value'].is_a?(::String) && properties['type'] == 'classification'
               method_name = DataCycleCore::Utility::DefaultValue::Classification.method(:by_name)

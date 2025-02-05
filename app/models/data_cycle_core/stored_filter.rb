@@ -17,14 +17,17 @@ module DataCycleCore
 
     attr_accessor :query, :include_embedded
 
-    KEYS_FOR_EQUALITY = ['t', 'c', 'n'].freeze
+    KEYS_FOR_TYPE_EQUALITY = ['t', 'c', 'n', 'q'].freeze
 
     def things(query: nil, skip_ordering: false, watch_list: nil)
       apply(query:, skip_ordering:, watch_list:).query
     end
 
     def apply(query: nil, skip_ordering: false, watch_list: nil)
-      self.query = query || DataCycleCore::Filter::Search.new(language&.exclude?('all') ? language : nil, nil, include_embedded || false)
+      self.query = query || DataCycleCore::Filter::Search.new(
+        locale: language&.exclude?('all') ? language : nil,
+        include_embedded: include_embedded || false
+      )
 
       apply_filter_parameters
       apply_order_parameters(watch_list) unless skip_ordering
@@ -32,8 +35,17 @@ module DataCycleCore
       self.query
     end
 
-    def filter_equal?(filter1, filter2)
-      filter1.slice(*KEYS_FOR_EQUALITY) == filter2.slice(*KEYS_FOR_EQUALITY)
+    def filter_type_equal?(filter1, filter2, consider_context = true)
+      keys = KEYS_FOR_TYPE_EQUALITY
+      keys -= ['c'] unless consider_context
+      filter1.slice(*keys) == filter2.slice(*keys)
+    end
+
+    def filter_equal?(filter1, filter2, consider_context = true)
+      keys = KEYS_FOR_TYPE_EQUALITY
+      keys -= ['c'] unless consider_context
+      keys += ['v']
+      filter1.slice(*keys) == filter2.slice(*keys)
     end
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)
@@ -49,7 +61,7 @@ module DataCycleCore
     end
 
     def self.validate_by_duplicate_search(content, datahash, primary_key, _current_user, active_ui_locale)
-      return {} if datahash.blank? || primary_key.blank? || content.properties_for(primary_key).dig('type') != 'string'
+      return {} if datahash.blank? || primary_key.blank? || content.properties_for(primary_key)['type'] != 'string'
 
       value = datahash&.dig(primary_key)
 

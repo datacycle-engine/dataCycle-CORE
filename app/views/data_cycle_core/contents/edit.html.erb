@@ -17,7 +17,8 @@
 <% end %>
 
 <% content_for :title do %>
-  <%= "#{@content.translated_template_name(active_ui_locale)}: " +
-      "#{@content.title} " +
-      "<#{t('actions.edit', locale: active_ui_locale).upcase}>" %>
+  <%= safe_join([
+    safe_join([@content.translated_template_name(active_ui_locale), @content.title], ': '),
+    "[#{t('actions.edit', locale: active_ui_locale).upcase}]"
+  ], ' ') %>
 <% end %>

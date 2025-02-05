@@ -5,11 +5,15 @@ body {
 }
 
 .alert-color {
-  color: $alert-color;
+  color: var(--alert-color);
 }
 
 .warning-color {
-  color: $warning-color;
+  color: var(--warning-color);
+}
+
+.success-color {
+  color: var(--success-color);
 }
 
 .off-canvas-content {
@@ -648,6 +652,10 @@ ul.footer-links {
   &[data-auto-dismiss] {
     // dont rename slideOut. It is used in the javascript to determine when the toast is done animating
     animation: slideIn 0.5s ease-in-out both, slideOut 0.5s ease-in-out var(--_time) forwards;
+  }
+
+  &.fadeout {
+    animation: slideOut ease-in-out forwards;
   }
 
   min-height: 2.8rem;

@@ -12,12 +12,13 @@ module DataCycleCore
         ALLOWED_SORT_ATTRIBUTES = { 'dct:created' => 'created_at', 'dct:modified' => 'updated_at' }.freeze
         ALLOWED_FACET_SORT_ATTRIBUTES = { 'dc:thingCountWithSubtree' => 'thing_count_with_subtree', 'dc:thingCountWithoutSubtree' => 'thing_count_without_subtree' }.freeze
         VALIDATE_PARAMS_CONTRACT = MasterData::Contracts::ClassificationContract
+        NULL_REGEX = /^NULL$/i
 
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
 
           if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
             @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:'dct:deleted')
             @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
           end
@@ -41,7 +42,7 @@ module DataCycleCore
           end
 
           if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
             @classification_aliases = @classification_tree_label.classification_aliases_with_deleted if filter.key?(:'dct:deleted')
             @classification_aliases = apply_filters(@classification_aliases, filter)
           end
@@ -55,16 +56,17 @@ module DataCycleCore
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
           query = build_search_query
 
-          min_count_without_subtree = permitted_params[:min_count_without_subtree].to_i
+          min_count_without_subtree = (permitted_params[:min_count_without_subtree] || permitted_params[:minCountWithoutSubtree]).to_i
           min_count_without_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_without_subtree)
-          min_count_with_subtree = [permitted_params[:min_count_with_subtree].to_i, min_count_without_subtree].max
+          min_count_with_subtree = (permitted_params[:min_count_with_subtree] || permitted_params[:minCountWithSubtree]).to_i
+          min_count_with_subtree = [min_count_with_subtree, min_count_without_subtree].max
           min_count_with_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_with_subtree)
           join_type = min_count_with_subtree.positive? || min_count_without_subtree.positive? ? 'INNER' : 'LEFT'
 
           join_sql = <<~SQL.squish
             #{join_type} JOIN LATERAL (SELECT ccc1.classification_alias_id,
               COUNT(DISTINCT ccc1.thing_id) AS thing_count_with_subtree,
-              COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.direct = TRUE) AS thing_count_without_subtree
+              COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.link_type = 'direct') AS thing_count_without_subtree
               FROM collected_classification_contents ccc1
               WHERE EXISTS (#{query.query.where('things.id = ccc1.thing_id AND ccc1.classification_tree_label_id = ?',
                                                 @classification_tree_label.id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})
@@ -98,7 +100,7 @@ module DataCycleCore
             @classification_aliases = @classification_aliases.where(id: permitted_params[:classification_ids].split(','))
           end
 
-          @classification_aliases = apply_order_query(@classification_aliases, permitted_params.dig(:sort))
+          @classification_aliases = apply_order_query(@classification_aliases, permitted_params[:sort])
           @classification_aliases = apply_paging(@classification_aliases)
           @classification_aliases = @classification_aliases.includes(:classification_tree_label)
 
@@ -117,7 +119,7 @@ module DataCycleCore
             .primary_classification_aliases
 
           if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
             if filter.key?(:'dct:deleted')
               @classification_aliases = DataCycleCore::Classification
                 .by_external_key(@external_source_id, external_keys).with_deleted
@@ -132,7 +134,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :classification_id, :classification_ids, :classification_tree_label_id] + [permitted_filter_parameters]
+          super + [:id, :language, :classification_id, :classification_ids, :classification_tree_label_id, :min_count_with_subtree, :min_count_without_subtree, :minCountWithSubtree, :minCountWithoutSubtree] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
@@ -223,16 +225,16 @@ module DataCycleCore
         end
 
         def apply_broader_filter(query, attribute_path, k, v)
-          clean_ids = v.grep_v(MasterData::Contracts::ApiContract::NULL_REGEX)
+          clean_ids = v.grep_v(NULL_REGEX)
           query_strings = []
 
           if k == :in
             query_strings << "classification_trees.#{attribute_path} IN (?)" if clean_ids.present?
-            query_strings << "classification_trees.#{attribute_path} IS NULL" if v.any?(MasterData::Contracts::ApiContract::NULL_REGEX)
+            query_strings << "classification_trees.#{attribute_path} IS NULL" if v.any?(NULL_REGEX)
             where_part = query_strings.join(' OR ')
           elsif k == :notIn
             query_strings << "classification_trees.#{attribute_path} NOT IN (?)" if clean_ids.present?
-            if v.any?(MasterData::Contracts::ApiContract::NULL_REGEX)
+            if v.any?(NULL_REGEX)
               query_strings << "classification_trees.#{attribute_path} IS NOT NULL"
               where_part = query_strings.join(' AND ')
             else
@@ -256,12 +258,11 @@ module DataCycleCore
         end
 
         def apply_full_text_search(query, search)
-          query = query.search(search)
-          query
+          query.search(search)
         end
 
         def apply_ordering(query)
-          apply_order_query(query, permitted_params.dig(:sort), @full_text_search)
+          apply_order_query(query, permitted_params[:sort], @full_text_search)
         end
 
         def apply_order_query(query, order_params, full_text_search = '')
@@ -294,7 +295,7 @@ module DataCycleCore
           allowed_sort_attributes.merge!(ALLOWED_FACET_SORT_ATTRIBUTES) if action_name == 'facets'
 
           return unless allowed_sort_attributes.key?(key)
-          "#{allowed_sort_attributes.dig(key)} #{order} NULLS LAST, id ASC"
+          "#{allowed_sort_attributes[key]} #{order} NULLS LAST, id ASC"
         end
       end
     end

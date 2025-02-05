@@ -12,35 +12,36 @@ module DataCycleCore
           schedule_search(from_date, to_date, attribute_key)
         end
 
-        def schedule_search(from, to, relation = nil)
+        def schedule_search(from, to, relation = [])
           return self if from.blank? && to.blank?
 
           from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from.is_a?(::Date) ? from.beginning_of_day : from)
           to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to.is_a?(::Date) ? to.end_of_day : to)
 
-          reflect(
-            @query.where(
-              Arel::Nodes::Exists.new(
-                Arel::SelectManager.new(schedule)
-                  .project(1)
-                  .where(
-                    (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : schedule[:relation].not_in(DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions))
-                    .and(schedule[:thing_id].eq(thing[:id]))
-                    .and(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
-                  )
-              )
-            )
-          )
+          subquery = DataCycleCore::Schedule.where(schedule[:thing_id].eq(thing[:id]))
+
+          if relation.present?
+            subquery = subquery.where(relation: relation)
+          else
+            subquery = subquery.where.not(relation: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions)
+          end
+
+          subquery = subquery.where(overlap(tstzrange(from_node, to_node), schedule[:occurrences]))
+
+          reflect(@query.where(subquery.select(1).arel.exists))
         end
 
         def validity_period(value = nil, mode = nil)
           return if value.blank?
-          from_date, to_date = date_from_filter_object(value, mode)
 
-          date_range = "[#{from_date},#{to_date}]"
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
+          from_date, to_date = date_from_filter_object(value, mode)
+          from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
+          to_node = to_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to_date.is_a?(::Date) ? to_date.end_of_day : to_date)
+
           reflect(
-            @query.where(query_string)
+            @query.where(
+              in_range(thing[:validity_range], tstzrange(from_node, to_node))
+            )
           )
         end
 
@@ -53,46 +54,61 @@ module DataCycleCore
 
         def inactive_things(value = nil, mode = nil)
           return if value.blank?
-          from_date, to_date = date_from_filter_object(value, mode)
 
-          date_range = "[#{from_date},#{to_date}]"
-          # "interval 1 second" is required because upper(RANGE) 01-01-2000 23:59:59 in Ruby is 02-01-2000 00:00:00 in Postgresql
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['upper(things.validity_range) <> \'infinity\' AND (upper(things.validity_range) - interval \'1 second\') <@ ?::tstzrange', date_range])
+          from_date, to_date = date_from_filter_object(value, mode)
+          from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
+          to_node = to_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to_date.is_a?(::Date) ? to_date.end_of_day : to_date)
 
           reflect(
-            @query.where(query_string)
+            @query.where(
+              upper_range(thing[:validity_range]).not_eq(infinity)
+              .and(
+                contained_in_range(subtract(upper_range(thing[:validity_range]), interval('1 second')), tstzrange(from_node, to_node))
+              )
+            )
           )
         end
 
         def not_validity_period(value = nil, mode = nil)
           from_date, to_date = date_from_filter_object(value, mode)
+          from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
+          to_node = to_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to_date.is_a?(::Date) ? to_date.end_of_day : to_date)
 
-          date_range = "[#{from_date},#{to_date}]"
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
           reflect(
-            @query.where.not(query_string)
+            @query.where.not(
+              in_range(thing[:validity_range], tstzrange(from_node, to_node))
+            )
           )
+        end
+
+        def offer_period(value = nil, mode = nil)
+          return if value.blank?
+          from_date, to_date = date_from_filter_object(value, mode)
+
+          schedule_search(from_date, to_date, ['offer_period_schedules', 'offers'])
         end
 
         def date_range(d = nil, attribute_path = nil)
           from_date, to_date = date_from_filter_object(d, nil)
-
-          date_range = "[#{from_date},#{to_date}]"
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
+          from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_ts(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
+          to_node = to_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_ts(to_date.is_a?(::Date) ? to_date.end_of_day : to_date)
 
           reflect(
-            @query.where(query_string)
+            @query.where(
+              in_range(tsrange(from_node, to_node), thing[attribute_path.to_sym])
+            )
           )
         end
 
         def not_date_range(d = nil, attribute_path = nil)
           from_date, to_date = date_from_filter_object(d, nil)
-
-          date_range = "[#{from_date},#{to_date}]"
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
+          from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_ts(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
+          to_node = to_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_ts(to_date.is_a?(::Date) ? to_date.end_of_day : to_date)
 
           reflect(
-            @query.where.not(query_string)
+            @query.where.not(
+              in_range(tsrange(from_node, to_node), thing[attribute_path.to_sym])
+            )
           )
         end
 
@@ -125,16 +141,17 @@ module DataCycleCore
           DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
 
-        def date_from_filter_object(value, mode)
+        def date_from_filter_object(value, mode = nil)
           mode ||= 'absolute'
+          value ||= {}
           value.stringify_keys!
-          min = value.dig('from') || value.dig('min')
-          max = value.dig('until') || value.dig('max')
+          min = value['from'] || value['min']
+          max = value['until'] || value['max']
 
           if mode == 'absolute'
             from_date = date_from_single_value(min)
             to_date = date_from_single_value(max)
-            to_date = to_date.end_of_day if to_date&.to_s(:only_time) == '00:00'
+            to_date = to_date.end_of_day if to_date&.to_fs(:only_time) == '00:00'
           else
             from_date = relative_to_absolute_date(min)
             to_date = relative_to_absolute_date(max)
@@ -146,19 +163,29 @@ module DataCycleCore
         end
 
         def relative_to_absolute_date(value)
-          distance = value.dig('n')&.presence&.to_i
+          distance = value['n']&.presence&.to_i
 
           return if distance.blank?
 
-          unit = value.dig('unit') || 'day'
+          unit = value['unit'] || 'day'
 
-          if value.dig('mode') == 'p'
+          if value['mode'] == 'p'
             date = Time.zone.now + distance.send(unit)
           else
             date = Time.zone.now - distance.send(unit)
           end
 
           date
+        end
+
+        def from_as_time(from)
+          from_time = from.presence
+          from_time.is_a?(::Date) ? from_time.beginning_of_day : from_time
+        end
+
+        def to_as_time(to)
+          to_time = to.presence
+          to_time.is_a?(::Date) ? to_time.end_of_day : to_time
         end
 
         module_function :date_from_filter_object

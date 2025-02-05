@@ -12,6 +12,7 @@ module DataCycleCore
     has_many :things, -> { unscope(:order).distinct }, through: :concepts
 
     scope :by_external_systems_and_keys, -> { where(Array.new(_1.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *_1.pluck(:external_system_id, :external_key).flatten) }
+    scope :visible, ->(context) { where('? = ANY("concept_schemes"."visibility")', context) }
 
     delegate :insert_all_classifications_by_path, to: :classification_tree_label
     delegate :upsert_all_external_classifications, to: :classification_tree_label
@@ -53,10 +54,6 @@ module DataCycleCore
       visibility.include?(context)
     end
 
-    def self.visible(context)
-      where('? = ANY(visibility)', context)
-    end
-
     def first_available_locale(*)
       :de
     end
@@ -93,8 +90,8 @@ module DataCycleCore
     def to_sync_data
       Rails.cache.fetch("sync_api/v1/concept_scheme/#{id}/#{updated_at}", expires_in: 1.year + Random.rand(7.days)) do
         as_json(only: [:id, :name])
-        .merge({ 'external_system_identifier' => external_system&.identifier })
-        .compact_blank
+          .merge({ 'external_system_identifier' => external_system&.identifier })
+          .compact_blank
       end
     end
 

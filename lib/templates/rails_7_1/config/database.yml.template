@@ -1,0 +1,28 @@
+default: &default
+  adapter: postgis
+  encoding: unicode
+  schema_search_path: postgis, public
+  # enough for threads + global_thread_pool
+  pool: <%= ENV["PUMA_MAX_THREADS"]&.to_i&.*(2) || 10 %>
+  host: <%= ENV["POSTGRES_HOST"] || "localhost" %>
+  port: <%= ENV["POSTGRES_PORT"] || 5432 %>
+  username: <%= ENV["POSTGRES_USER"] || "developer" %>
+  password: <%= ENV["POSTGRES_PASSWORD"] || "password" %>
+  variables:
+    statement_timeout: 60000
+
+development:
+  <<: *default
+  database: <%= ENV["POSTGRES_DATABASE"] %>
+
+test:
+  <<: *default
+  database: <%= ENV["POSTGRES_DATABASE_TEST"] || "data-cycle-test" %>
+
+staging:
+  <<: *default
+  database: <%= ENV["POSTGRES_DATABASE"] %>
+
+production:
+  <<: *default
+  database: <%= ENV["POSTGRES_DATABASE"] %>

@@ -7,6 +7,15 @@ module DataCycleCore
   module Content
     module Extensions
       module SyncApi
+        RESERVED_KEYS = [
+          'external_source_id',
+          'external_source',
+          'last_sync_at',
+          'last_successful_sync_at',
+          'status',
+          'external_system_syncs'
+        ].freeze
+
         extend ActiveSupport::Concern
 
         def to_sync_data(locales: nil, translated: false, preloaded: {}, ancestor_ids: [], included: [], classifications: [], attribute_name: nil, linked_stored_filter: nil)
@@ -74,19 +83,19 @@ module DataCycleCore
             embedded_hash.presence
           elsif embedded_property_names.include?(property_name)
             return if property_name == overlay_name
-            translated = properties_for(property_name)['translated']
+            properties_for(property_name)['translated']
             embedded_array = send(property_name_with_overlay)
 
             translated = property_definitions[property_name]['translated']
-            embedded_array&.map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:) }&.compact || []
+            embedded_array&.filter_map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:) } || []
           elsif asset_property_names.include?(property_name)
           # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
             schedule_array = send(property_name_with_overlay)
 
-            schedule_array&.map { |schedule| schedule.to_h.except(:thing_id) }&.compact || []
+            schedule_array&.filter_map { |schedule| schedule.to_h.except(:thing_id) } || []
           elsif property_name == 'mapped_classifications'
-            classification_property_names&.map { |classification_property_name|
+            classification_property_names&.filter_map { |classification_property_name|
               classification_property_name_overlay = classification_property_name
               classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
               send(classification_property_name_overlay)&.map { |classification|
@@ -95,7 +104,7 @@ module DataCycleCore
                   &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
                   &.keys
               }.presence&.flatten
-            }&.compact&.flatten
+            }&.flatten
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
@@ -104,6 +113,8 @@ module DataCycleCore
         def add_sync_included_data(data:, preloaded:, ancestor_ids:, included:, classifications:, locales:, linked_stored_filter: nil)
           data&.each_value do |translation|
             translation&.each do |key, value|
+              next if RESERVED_KEYS.include?(key)
+
               if embedded_property_names.include?(key) && value.present?
                 value.each do |v|
                   embedded_id = v&.values&.first&.dig('id')
@@ -128,44 +139,44 @@ module DataCycleCore
                 end
               end
 
-              if classification_property_names.include?(key) && value.present?
-                value.each do |classification_id|
-                  existing = classifications.detect { |c| c['id'] == classification_id }
-                  c_data = preloaded.dig('classifications', classification_id)
+              next unless classification_property_names.include?(key) && value.present?
 
-                  next if c_data.blank?
+              value.each do |classification_id|
+                existing = classifications.detect { |c| c['id'] == classification_id }
+                c_data = preloaded.dig('classifications', classification_id)
 
-                  if existing.present?
-                    existing['attribute_name'].push(key) unless existing['attribute_name'].include?(key)
-                  else
-                    classifications.unshift(
-                      c_data[:classification_hash]&.merge({
-                        'ancestors' => c_data[:ancestors],
-                        'attribute_name' => [key]
-                      })
-                    )
-                  end
+                next if c_data.blank?
 
-                  mapped_ids = c_data[:classification].additional_classification_aliases.map(&:id)
-
-                  preloaded['classifications']
-                    .each_value do |v|
-                      next unless mapped_ids.include?(v[:classification_alias_id])
-
-                      existing = classifications.detect { |c| c['id'] == v.dig(:classification_hash, 'id') }
-
-                      if existing.present?
-                        existing['attribute_name'].push('universal_classifications') unless existing['attribute_name'].include?('universal_classifications')
-                      else
-                        classifications.unshift(
-                          v[:classification_hash]&.merge({
-                            'ancestors' => v[:ancestors],
-                            'attribute_name' => ['universal_classifications']
-                          })
-                        )
-                      end
-                    end
+                if existing.present?
+                  existing['attribute_name'].push(key) unless existing['attribute_name'].include?(key)
+                else
+                  classifications.unshift(
+                    c_data[:classification_hash]&.merge({
+                      'ancestors' => c_data[:ancestors],
+                      'attribute_name' => [key]
+                    })
+                  )
                 end
+
+                mapped_ids = c_data[:classification].additional_classification_aliases.map(&:id)
+
+                preloaded['classifications']
+                  .each_value do |v|
+                    next unless mapped_ids.include?(v[:classification_alias_id])
+
+                    existing = classifications.detect { |c| c['id'] == v.dig(:classification_hash, 'id') }
+
+                    if existing.present?
+                      existing['attribute_name'].push('universal_classifications') unless existing['attribute_name'].include?('universal_classifications')
+                    else
+                      classifications.unshift(
+                        v[:classification_hash]&.merge({
+                          'ancestors' => v[:ancestors],
+                          'attribute_name' => ['universal_classifications']
+                        })
+                      )
+                    end
+                  end
               end
             end
           end
@@ -185,7 +196,7 @@ module DataCycleCore
               last_sync_at: updated_at,
               last_successful_sync_at: updated_at,
               status: 'success',
-              external_system_syncs: external_system_syncs.map { |i|
+              external_system_syncs: external_system_syncs.filter_map do |i|
                 {
                   'external_key' => i.external_key || id,
                   'status' => i.status,
@@ -194,7 +205,7 @@ module DataCycleCore
                   'last_successful_sync_at' => i.last_successful_sync_at,
                   'name' => i.external_system&.identifier
                 }
-              }.compact
+              end
             })
           end
           sm
@@ -242,21 +253,21 @@ module DataCycleCore
                 :schedules,
                 external_system_syncs: [:external_system],
                 asset_contents: [:asset],
-                collected_classification_contents: [classification_alias: [:external_source, :classification_alias_path, classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]]]
+                full_classification_contents: [classification_alias: [:external_source, :classification_alias_path, {classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]}]]
               )
               .index_by(&:id)
 
             preloaded['content_contents'] = preloaded_content_contents.group_by(&:content_a_id).transform_values! { |v| v.group_by(&:relation_a).transform_values! { |cc| cc.map(&:content_b_id) } }
             overlay_templates = DataCycleCore::ThingTemplate.where(template_name: preloaded['contents'].values.map(&:overlay_template_name).uniq).index_by(&:template_name)
-            collected_classification_contents = preloaded['contents'].values.map!(&:collected_classification_contents).flatten!
+            collected_classification_contents = preloaded['contents'].values.map!(&:full_classification_contents).flatten!
             classification_aliases = collected_classification_contents&.map(&:classification_alias)&.index_by(&:id) || {}
             full_classification_aliases = classification_aliases.merge(
               DataCycleCore::ClassificationAlias
-                .where(id: classification_aliases.values.map(&:classification_alias_path).map!(&:ancestor_ids).flatten!)
+                .where(id: classification_aliases.values.filter_map(&:classification_alias_path).map!(&:ancestor_ids).flatten!)
                 .where.not(id: classification_aliases.keys)
                 .index_by(&:id)
             )
-            preloaded['classifications'] = collected_classification_contents&.map { |ccc|
+            preloaded['classifications'] = collected_classification_contents&.filter_map { |ccc|
               next if ccc.classification_alias.primary_classification.nil?
 
               {
@@ -273,10 +284,10 @@ module DataCycleCore
                   .values_at(*ccc.classification_alias.classification_alias_path.full_path_ids)
                   .map { |ca|
                     ca.as_json(only: [:id, :internal_name, :external_source_id, :external_key, :name_i18n, :description_i18n, :uri], include: { primary_classification: { only: [:id, :name, :external_source_id, :external_key, :description, :uri] } })
-                    .merge({
-                      'class_type' => 'DataCycleCore::ClassificationAlias',
-                      'external_system' => ca.external_source&.identifier
-                    })
+                      .merge({
+                        'class_type' => 'DataCycleCore::ClassificationAlias',
+                        'external_system' => ca.external_source&.identifier
+                      })
                   } +
                   [
                     ccc.classification_alias.classification_tree_label.as_json(only: [:id, :name]).merge({
@@ -285,11 +296,11 @@ module DataCycleCore
                     })
                   ]
               }
-            }&.compact&.index_by { |v| v[:classification].id } || {}
+            }&.index_by { |v| v[:classification].id } || {}
 
             preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_content).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
             preloaded['full_classifications'] = collected_classification_contents.group_by(&:thing_id).transform_values! do |v|
-              v.map { |ccc| ccc.classification_alias.primary_classification&.id }.compact
+              v.filter_map { |ccc| ccc.classification_alias.primary_classification&.id }
             end
 
             preloaded['contents'].each_value do |content|

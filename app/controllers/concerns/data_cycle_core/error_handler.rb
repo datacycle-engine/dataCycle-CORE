@@ -13,10 +13,12 @@ module DataCycleCore
         rescue_from ActionController::BadRequest, with: :bad_request
         rescue_from ActiveRecord::RecordNotUnique, with: :conflict
         rescue_from DataCycleCore::Error::Filter::DateFilterRangeError, with: :stored_filter_error
-        rescue_from DataCycleCore::Error::Filter::UnionFilterRecursionError, with: :stored_filter_error
+        rescue_from DataCycleCore::Error::Filter::FilterRecursionError, with: :stored_filter_error
+        rescue_from PG::StatementTooComplex, with: :bad_request
       end
 
       rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
+      rescue_from PG::QueryCanceled, with: :too_many_requests
       rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
       rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
 
@@ -41,10 +43,10 @@ module DataCycleCore
       api_errors = exception.data.map do |error|
         {
           source: {
-            parameter: error.dig(:parameter_path)
+            parameter: error[:parameter_path]
           },
-          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error.dig(:type)}", default: exception.message, locale: :en),
-          detail: error.dig(:detail)
+          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error[:type]}", default: exception.message, locale: :en),
+          detail: error[:detail]
         }
       end
       render json: { errors: api_errors }, layout: false, status: :bad_request
@@ -54,10 +56,10 @@ module DataCycleCore
       api_errors = exception.data.map do |error|
         {
           source: {
-            pointer: error.dig(:pointer_path)
+            pointer: error[:pointer_path]
           },
-          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error.dig(:type)}", default: exception.message, locale: :en),
-          detail: error.dig(:detail)
+          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error[:type]}", default: exception.message, locale: :en),
+          detail: error[:detail]
         }
       end
       render json: { errors: api_errors }, layout: false, status: :not_found

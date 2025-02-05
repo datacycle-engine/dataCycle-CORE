@@ -51,6 +51,9 @@
         :label: Slug Value
         :type: slug
         :storage_location: value
+        :default_value:
+          module: Slug
+          method: generate_slug
       :number_value:
         :label: Number Value
         :type: number

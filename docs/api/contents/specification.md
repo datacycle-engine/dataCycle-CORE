@@ -31,14 +31,14 @@
         "in": {
           "max": "Integer|Float|Date|DateTime",
           "min": "Integer|Float|Date|DateTime",
-          "equals": "String",
+          "equals": "Integer|Float|String",
           "like": "String",
           "bool": "Boolean"
         },
         "notIn": {
           "max": "Integer|Float|Date|DateTime",
           "min": "Integer|Float|Date|DateTime",
-          "equals": "String",
+          "equals": "Integer|Float|String",
           "like": "String",
           "bool": "Boolean"
         }

@@ -17,17 +17,17 @@ module DataCycleCore
     end
 
     test 'filter contents based on directly assigned classifications by id' do
-      items = DataCycleCore::Filter::Search.new(:de)
+      items = DataCycleCore::Filter::Search.new(locale: :de)
         .classification_alias_ids_without_subtree(fetch_classification_alias_ids('Tags', 'Tag 3'))
       assert_equal(2, items.count)
 
-      items = DataCycleCore::Filter::Search.new(:de)
+      items = DataCycleCore::Filter::Search.new(locale: :de)
         .classification_alias_ids_without_subtree(fetch_classification_alias_ids('Tags', 'Tag 2'))
       assert_equal(3, items.count)
     end
 
     test 'filter contents based on classification hierarchy by id' do
-      items = DataCycleCore::Filter::Search.new(:de)
+      items = DataCycleCore::Filter::Search.new(locale: :de)
         .classification_alias_ids_with_subtree(fetch_classification_alias_ids('Tags', 'Tag 3'))
       assert_equal(3, items.count)
 
@@ -39,13 +39,13 @@ module DataCycleCore
     end
 
     test 'filter contents based on classifications by name' do
-      items = DataCycleCore::Filter::Search.new(:de)
+      items = DataCycleCore::Filter::Search.new(locale: :de)
         .with_classification_aliases_and_treename({ 'treeLabel' => 'Tags', 'aliases' => ['Tag 3'] })
       assert_equal(3, items.count)
     end
 
     test 'filter contents by excluding classifications by id' do
-      items = DataCycleCore::Filter::Search.new(:de)
+      items = DataCycleCore::Filter::Search.new(locale: :de)
         .not_classification_alias_ids_with_subtree(fetch_classification_alias_ids('Tags', 'Tag 2'))
       assert_equal(5, items.count)
     end
@@ -55,7 +55,7 @@ module DataCycleCore
       article2 = create_content('Artikel', { name: 'ARTICLE 2', tags: fetch_classification_ids('Tags', ['Tag 1', 'Tag 2']) })
       article3 = create_content('Artikel', { name: 'ARTICLE 3', tags: fetch_classification_ids('Tags', ['Tag 1', 'Tag 3']) })
 
-      items = DataCycleCore::Filter::Search.new(:de)
+      items = DataCycleCore::Filter::Search.new(locale: :de)
         .with_classification_aliases_and_treename({ 'treeLabel' => 'Tags', 'aliases' => ['Tag 1'] })
       assert_equal(3, items.count)
 
@@ -63,7 +63,7 @@ module DataCycleCore
       update_content_partially(article2, { tags: fetch_classification_ids('Tags', ['Tag 2']) })
       update_content_partially(article3, { tags: fetch_classification_ids('Tags', ['Tag 3']) })
 
-      items = DataCycleCore::Filter::Search.new(:de)
+      items = DataCycleCore::Filter::Search.new(locale: :de)
         .with_classification_aliases_and_treename({ 'treeLabel' => 'Tags', 'aliases' => ['Tag 1'] })
       assert_equal(0, items.count)
     end

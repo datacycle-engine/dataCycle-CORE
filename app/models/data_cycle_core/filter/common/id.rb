@@ -15,9 +15,9 @@ module DataCycleCore
               sub_query = '1 = 0'
             end
           when 'external'
-            alias1 = "things_#{SecureRandom.hex(5)}"
+            alias1 = "th#{SecureRandom.hex(5)}"
             sub_query = <<-SQL.squish
-              things.id IN (
+              "things"."id" IN (
                 SELECT "ess"."syncable_id"
                 FROM "external_system_syncs" "ess"
                 WHERE "ess"."external_key" = :key_string
@@ -28,8 +28,8 @@ module DataCycleCore
               )
             SQL
           when 'all'
-            alias1 = "things_#{SecureRandom.hex(5)}"
-            alias2 = "things_#{SecureRandom.hex(5)}"
+            alias1 = "th#{SecureRandom.hex(5)}"
+            alias2 = "th#{SecureRandom.hex(5)}"
 
             base_query = <<-SQL.squish
               SELECT "ess"."syncable_id"
@@ -51,17 +51,14 @@ module DataCycleCore
             end
 
             sub_query = <<-SQL.squish
-              things.id IN (
+              "things"."id" IN (
                 #{base_query}
               )
             SQL
           end
 
           reflect(
-            @query.where(ActiveRecord::Base.send(:sanitize_sql_array, [
-                                                   sub_query,
-                                                   key_string:
-                                                 ]))
+            @query.where(sanitize_sql([sub_query, {key_string:}]))
           )
         end
       end

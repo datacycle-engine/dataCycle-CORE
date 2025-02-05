@@ -8,7 +8,7 @@
   <h5><%= t('common.available_widgets', locale: active_ui_locale) %></h5>
   <% DataCycleCore::Feature::Preview.available_widgets(content.id, active_ui_locale).each do |k, v| %>
     <div class="preview-link">
-      <a href="<%= v %>" title="<%= t("common.widgets.#{k}", locale: active_ui_locale) %>" class="copy-to-clipboard right" data-value="<%= v %>">
+      <a href="<%= v %>" title="<%= t("actions.copy_link_to_x_to_clipboard", data: t("common.widgets.#{k}", locale: active_ui_locale), locale: active_ui_locale) %>" class="copy-to-clipboard right" data-value="<%= v %>">
         <%= preview_icon(k) %>
         <%= t("common.widgets.#{k}", locale: active_ui_locale) %>
       </a>

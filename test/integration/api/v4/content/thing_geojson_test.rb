@@ -19,8 +19,8 @@ module DataCycleCore
 
             @test_poi = DataCycleCore::DummyDataHelper.create_data('poi')
             lat_long = {
-              'latitude': 46.123456789,
-              'longitude': 14.123456789
+              latitude: 46.123456789,
+              longitude: 14.123456789
             }
             @test_poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
             @test_poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@test_poi.longitude, @test_poi.latitude)
@@ -62,12 +62,12 @@ module DataCycleCore
             response.content_type = 'application/json; charset=utf-8'
             geojson_data = response.parsed_body
 
-            assert_equal('Feature', geojson_data.dig('type'))
-            assert_kind_of(Hash, geojson_data.dig('geometry'))
+            assert_equal('Feature', geojson_data['type'])
+            assert_kind_of(Hash, geojson_data['geometry'])
             assert_equal('MultiLineString', geojson_data.dig('geometry', 'type'))
             assert_kind_of(Array, geojson_data.dig('geometry', 'coordinates'))
-            assert_kind_of(Hash, geojson_data.dig('properties'))
-            assert_equal(@test_tour.id, geojson_data.dig('id'))
+            assert_kind_of(Hash, geojson_data['properties'])
+            assert_equal(@test_tour.id, geojson_data['id'])
             assert_equal('Test-TOUR', geojson_data.dig('properties', 'name'))
           end
 
@@ -172,9 +172,9 @@ module DataCycleCore
             response.content_type = 'application/json; charset=utf-8'
             geojson_data = response.parsed_body
 
-            assert_equal('Feature', geojson_data.dig('type'))
-            assert_nil(geojson_data.dig('geometry'))
-            assert_nil(geojson_data.dig('properties'))
+            assert_equal('Feature', geojson_data['type'])
+            assert_nil(geojson_data['geometry'])
+            assert_nil(geojson_data['properties'])
           end
         end
       end

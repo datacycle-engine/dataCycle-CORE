@@ -155,7 +155,7 @@ module DataCycleCore
       if content_for(:title).blank?
         base_title
       else
-        content_for(:title) + ' | ' + base_title
+        "#{content_for(:title)} | #{base_title}"
       end
     end
 
@@ -224,13 +224,13 @@ module DataCycleCore
       if Feature::Aggregate.enabled? && Feature::Aggregate.aggregate?(template)
         { 'name' => [MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME] }
       elsif DataCycleCore.new_dialog.key?(template&.template_name&.underscore_blanks)
-        DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) || {}
+        DataCycleCore.new_dialog[template&.template_name&.underscore_blanks] || {}
       elsif DataCycleCore.new_dialog.key?(template&.schema_type&.underscore_blanks)
-        DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) || {}
+        DataCycleCore.new_dialog[template&.schema_type&.underscore_blanks] || {}
       else
-        DataCycleCore.new_dialog.dig('default')
+        DataCycleCore.new_dialog['default']
       end.transform_values do |v|
-        v&.map { |t|
+        v&.filter_map do |t|
           key = Array.wrap(t).first
 
           next unless key.include?(filter.to_s)
@@ -242,7 +242,7 @@ module DataCycleCore
           else
             t&.remove('**list')&.squish
           end
-        }&.compact
+        end
       end
     end
 
@@ -346,7 +346,7 @@ module DataCycleCore
       partials = [
         key.attribute_name_from_key,
         definition&.dig('ui', 'show', 'type')&.underscore_blanks,
-        definition.dig('template_name')&.underscore_blanks,
+        definition['template_name']&.underscore_blanks,
         'thing',
         'default'
       ].compact_blank.map { |p| "data_cycle_core/contents/history/linked/#{p}" }
@@ -356,7 +356,7 @@ module DataCycleCore
 
     def render_asset_editor(key:, value:, definition:, parameters: {}, content: nil)
       partials = [
-        definition.dig('asset_type')&.underscore_blanks,
+        definition['asset_type']&.underscore_blanks,
         'default'
       ].compact_blank.map { |p| "data_cycle_core/contents/editors/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
@@ -500,12 +500,31 @@ module DataCycleCore
 
     private
 
-    def render_first_existing_partial(partials, parameters)
-      partials.each do |partial|
-        logger.debug("  Try partial #{partial} ... [NOT FOUND]") && next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+    def render_core_partial(partial_name, parameters)
+      core_renderer = view_renderer.dup
+      core_renderer.lookup_context = ActionView::LookupContext.new(
+        ActionController::Base.view_paths.filter { |p| p.path.include?('vendor/gems/data-cycle-core') },
+        locale: lookup_context.locale,
+        formats: lookup_context.formats,
+        variants: lookup_context.variants,
+        handlers: lookup_context.handlers
+      )
 
-        logger.debug "  Rendered #{partial}"
-        return render(partial, parameters)
+      core_renderer.render(self, partial: partial_name, locals: parameters)
+    end
+
+    def render_first_existing_partial(partials, parameters)
+      partials.each do |partial_name|
+        partial = lookup_context.find_all(
+          partial_name,
+          partial_name.start_with?('data_cycle_core') ? [] : lookup_context.prefixes,
+          true
+        ).first
+
+        next if partial.nil?
+
+        logger.debug "  Rendered #{partial.virtual_path}"
+        return render(partial_name, parameters)
       end
 
       nil
@@ -517,11 +536,12 @@ module DataCycleCore
       options[:data][:type] = alert_class
       options[:data][:id] = SecureRandom.hex(10)
 
-      if value.is_a?(::String)
+      case value
+      when ::String
         options[:data][:text] = value
-      elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)
+      when ::Hash
         options[:data][:text] = value.map { |k, v| "#{k.to_s.titleize}: #{v.join(', ')}" }.join('<br>')
-      elsif value.is_a?(::Array)
+      when ::Array
         options[:data][:text] = value.join('<br>')
       else
         options[:data][:text] = value.to_s

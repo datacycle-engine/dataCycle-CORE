@@ -15,7 +15,7 @@ module DataCycleCore
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: test_hash)
       assert_equal(test_hash.merge({ 'headline' => data_set.name }), data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-de")
-      assert_equal(data_set.cache_key_with_version.to_s, "data_cycle_core/things/#{data_set.id}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-de-#{data_set.updated_at.utc.to_s(:usec)}")
+      assert_equal(data_set.cache_key_with_version.to_s, "data_cycle_core/things/#{data_set.id}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-de-#{data_set.updated_at.utc.to_fs(:usec)}")
     end
 
     test 'save CreativeWork with sub-properties' do

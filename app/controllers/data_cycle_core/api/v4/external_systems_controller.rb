@@ -96,8 +96,6 @@ module DataCycleCore
           strategy, external_system = api_strategy
           @webhook_logger ||= ::Logger.new('./log/APIv4_webhook.log')
           @webhook_logger.info("[Request #{request.request_id}] Incoming webhook (APIv4) for external system '#{external_system.identifier}'. User #{current_user.id} #{current_user.email}. Payload: #{content_params}")
-          return_value = nil
-          status = nil
 
           return_logger = lambda { |return_status, data|
             @webhook_logger.info("[#{return_status}] [Request #{request.request_id}] Returning for webhook (APIv4). Return value: #{data}")
@@ -113,7 +111,7 @@ module DataCycleCore
           locale = params.dig(:@context, :@language)
           locale = I18n.available_locales.first if locale.blank?
           unless locale.to_sym.in?(I18n.available_locales)
-            return_value = { error: 'Invalid locale. Allowed are: ' + I18n.available_locales.join(', ') }
+            return_value = { error: "Invalid locale. Allowed are: #{I18n.available_locales.join(', ')}" }
             status = :bad_request
             return_logger.call(status, return_value)
             return return_value, status
@@ -154,13 +152,13 @@ module DataCycleCore
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
           endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(**credentials)
           search_data = endpoint.send(search_method)
-          if search_data&.first.try(:'[]', 'error').present?
+          if search_data&.first.try(:[], 'error').present?
             error = search_data.first['error']
           else
             live_data = search_data
-              .map { |i| { '@id' => DataCycleCore::Thing.find_by(external_key: i.dig('id'))&.id, 'minPrice' => i.dig('base_price') } }
-              .select { |i| i.dig('@id').present? }
-            content_ids = live_data.map { |i| i.dig('@id') }
+              .map { |i| { '@id' => DataCycleCore::Thing.find_by(external_key: i['id'])&.id, 'minPrice' => i['base_price'] } }
+              .select { |i| i['@id'].present? }
+            content_ids = live_data.pluck('@id')
             error = 'No suitable results found.' if content_ids.blank?
           end
 
@@ -189,7 +187,7 @@ module DataCycleCore
         def permitted_parameter_keys
           super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
                    :days, :units, :from, :to, :page_size, :start_index, :attribute,
-                   occupation: [:adults, :children, :units], filter: {}]
+                   {occupation: [:adults, :children, :units], filter: {}}]
         end
 
         def api_strategy

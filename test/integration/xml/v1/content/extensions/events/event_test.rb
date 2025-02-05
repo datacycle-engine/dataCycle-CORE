@@ -36,23 +36,23 @@ module DataCycleCore
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
                 # validate header
-                assert_equal('https://schema.org/', xml_data.dig('context'))
-                assert_equal('Event', xml_data.dig('type'))
-                assert_equal('Event', xml_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + xml_v1_thing_path(id: @content), xml_data.dig('id'))
-                assert_equal(@content.id, xml_data.dig('identifier'))
-                assert_equal(root_url[0...-1] + thing_path(@content), xml_data.dig('url'))
-                assert_equal('de', xml_data.dig('inLanguage'))
+                assert_equal('https://schema.org/', xml_data['context'])
+                assert_equal('Event', xml_data['type'])
+                assert_equal('Event', xml_data['contentType'])
+                assert_equal(root_url[0...-1] + xml_v1_thing_path(id: @content), xml_data['id'])
+                assert_equal(@content.id, xml_data['identifier'])
+                assert_equal(root_url[0...-1] + thing_path(@content), xml_data['url'])
+                assert_equal('de', xml_data['inLanguage'])
 
                 # startDate / endDate
-                assert_equal(@content.start_date.to_s, xml_data.dig('startDate'))
-                assert_equal(@content.end_date.to_s, xml_data.dig('endDate'))
+                assert_equal(@content.start_date.to_fs, xml_data['startDate'])
+                assert_equal(@content.end_date.to_s, xml_data['endDate'])
 
                 # content data
-                assert_equal(@content.name, xml_data.dig('name'))
-                assert_equal(@content.description, xml_data.dig('description'))
-                assert_equal(@content.url, xml_data.dig('sameAs'))
-                assert_equal(@content.same_as, xml_data.dig('link'))
+                assert_equal(@content.name, xml_data['name'])
+                assert_equal(@content.description, xml_data['description'])
+                assert_equal(@content.url, xml_data['sameAs'])
+                assert_equal(@content.same_as, xml_data['link'])
 
                 # TODO: check image rendering via minimal or linked
                 assert_equal(@content.image.first.id, xml_data.dig('image', 'thing', 'identifier'))
@@ -123,11 +123,11 @@ module DataCycleCore
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
                 # content data
-                assert_equal(event_schedule.dig('start_date').in_time_zone.to_s, xml_data.dig('startDate'))
-                assert_equal(event_schedule.dig('end_date').in_time_zone.to_s, xml_data.dig('endDate'))
-                assert_equal(data_hash.dig('overlay').first.dig('name'), xml_data.dig('name'))
-                assert_equal(data_hash.dig('overlay').first.dig('description'), xml_data.dig('description'))
-                assert_equal(data_hash.dig('overlay').first.dig('url'), xml_data.dig('sameAs'))
+                assert_equal(event_schedule['start_date'].in_time_zone.to_s, xml_data['startDate'])
+                assert_equal(event_schedule['end_date'].in_time_zone.to_s, xml_data['endDate'])
+                assert_equal(data_hash['overlay'].first['name'], xml_data['name'])
+                assert_equal(data_hash['overlay'].first['description'], xml_data['description'])
+                assert_equal(data_hash['overlay'].first['url'], xml_data['sameAs'])
                 assert_equal(overlay_image.id, xml_data.dig('image', 'thing', 'identifier'))
                 assert_equal(overlay_place.id, xml_data.dig('contentLocation', 'thing', 'identifier'))
               end
@@ -154,12 +154,12 @@ module DataCycleCore
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
                 # overwritten data
-                assert_equal(data_hash.dig('overlay').first.dig('name'), xml_data.dig('name'))
-                assert_equal(data_hash.dig('overlay').first.dig('description'), xml_data.dig('description'))
+                assert_equal(data_hash['overlay'].first['name'], xml_data['name'])
+                assert_equal(data_hash['overlay'].first['description'], xml_data['description'])
                 # not overwritten data
-                assert_equal(@content.start_date.to_s, xml_data.dig('startDate'))
-                assert_equal(@content.end_date.to_s, xml_data.dig('endDate'))
-                assert_equal(@content.url, xml_data.dig('sameAs'))
+                assert_equal(@content.start_date.to_s, xml_data['startDate'])
+                assert_equal(@content.end_date.to_s, xml_data['endDate'])
+                assert_equal(@content.url, xml_data['sameAs'])
                 assert_equal(@content.image.first.id, xml_data.dig('image', 'thing', 'identifier'))
                 assert_equal(@content.content_location.first.id, xml_data.dig('contentLocation', 'thing', 'identifier'))
               end
@@ -169,19 +169,19 @@ module DataCycleCore
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
-                assert_equal(@content.id, xml_data.dig('identifier'))
+                assert_equal(@content.id, xml_data['identifier'])
 
                 get(xml_v1_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
-                assert_equal(@content.id, xml_data.dig('identifier'))
+                assert_equal(@content.id, xml_data['identifier'])
 
                 get(xml_v1_events_path)
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
-                assert_equal(@content.id, xml_data.dig('identifier'))
+                assert_equal(@content.id, xml_data['identifier'])
               end
             end
           end

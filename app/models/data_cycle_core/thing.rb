@@ -3,14 +3,12 @@
 module DataCycleCore
   class Thing < Content::DataHash
     include Content::ContentLoader
-    include Content::Extensions::Thing
     include Content::Extensions::OptimizedContentContents
     include Content::ExternalData
     prepend Content::ContentOverlay
 
     class History < Content::Content
       include Content::ContentHistoryLoader
-      include Content::Extensions::Thing
       include Content::Restorable
       prepend Content::ContentOverlay
 
@@ -30,9 +28,7 @@ module DataCycleCore
       alias translated_locales available_locales
 
       def self.translated_locales
-        return DataCycleCore::Thing::History::Translation.none if all.is_a?(ActiveRecord::NullRelation)
-
-        DataCycleCore::Thing::History::Translation.where(translated_model: all).distinct.pluck(:locale).map(&:to_sym)
+        DataCycleCore::Thing::History::Translation.where(thing_history_id: pluck(:id)).distinct.pluck(:locale).map(&:to_sym)
       end
     end
 
@@ -44,14 +40,10 @@ module DataCycleCore
       belongs_to :thing_duplicate
 
       def self.thing_duplicates
-        return DataCycleCore::ThingDuplicate.none if all.is_a?(ActiveRecord::NullRelation)
-
         DataCycleCore::ThingDuplicate.where(id: pluck(:thing_duplicate_id))
       end
 
       def self.duplicates
-        return DataCycleCore::Thing.none if all.is_a?(ActiveRecord::NullRelation)
-
         DataCycleCore::Thing.where(id: pluck(:duplicate_id))
       end
 
@@ -98,10 +90,13 @@ module DataCycleCore
     has_many :external_systems, through: :external_system_syncs
 
     has_many :activities, as: :activitiable, dependent: :destroy
-    has_many :timeseries, class_name: 'DataCycleCore::Timeseries', dependent: :destroy, inverse_of: :thing
+    has_many :timeseries, class_name: 'DataCycleCore::Timeseries', dependent: :delete_all, inverse_of: :thing
 
     has_many :schedules
     has_many :collected_classification_contents
+    has_many :full_classification_contents, -> { without_broader }, inverse_of: false, class_name: 'DataCycleCore::CollectedClassificationContent'
+    has_many :full_classification_aliases, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationAlias', source: :classification_alias
+    has_many :full_classification_tree_labels, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationTreeLabel', source: :classification_tree_label
     has_many :content_collection_links, dependent: :delete_all
 
     scope :duplicate_candidates, -> { DataCycleCore::Thing::DuplicateCandidate.where(original_id: select(:id).reorder(nil)).where(false_positive: false).order(score: :desc) }
@@ -112,13 +107,11 @@ module DataCycleCore
     alias translated_locales available_locales
 
     def self.translated_locales
-      return DataCycleCore::Thing::Translation.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::Thing::Translation.where(translated_model: all).distinct.pluck(:locale)
+      DataCycleCore::Thing::Translation.where(thing_id: pluck(:id)).distinct.pluck(:locale)
     end
 
     def cache_key
-      [super, translations.in_locale(I18n.locale).cache_key].join('/') + '-' + I18n.locale.to_s
+      "#{[super, translations.in_locale(I18n.locale).cache_key].join('/')}-#{I18n.locale}"
     end
   end
 end

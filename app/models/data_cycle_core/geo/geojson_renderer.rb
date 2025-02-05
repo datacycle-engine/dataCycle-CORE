@@ -10,12 +10,9 @@ module DataCycleCore
         super || empty_geojson
       end
 
-      def contents_with_default_scope(query = @contents)
-        query = super(query)
-
-        query = query.where.not(geom_simple: nil)
-
-        query
+      def contents_with_default_scope(*)
+        q = super
+        q.where.not(geom_simple: nil)
       end
 
       def main_sql
@@ -60,9 +57,9 @@ module DataCycleCore
 
       def empty_geojson
         {
-          'type': 'Feature',
-          'geometry': nil,
-          'properties': nil
+          type: 'Feature',
+          geometry: nil,
+          properties: nil
         }.to_json
       end
     end

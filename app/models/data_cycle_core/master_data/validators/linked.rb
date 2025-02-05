@@ -32,7 +32,7 @@ module DataCycleCore
 
         def check_reference_array(data, template)
           converted_data = data.deep_dup
-          converted_data = converted_data.ids if data.is_a?(ActiveRecord::Relation)
+          converted_data = converted_data.pluck(:id) if data.is_a?(ActiveRecord::Relation)
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
@@ -58,7 +58,7 @@ module DataCycleCore
             return false
           end
 
-          linked_ids = DataCycleCore::Thing.where(id: data).ids
+          linked_ids = DataCycleCore::Thing.where(id: data).pluck(:id)
 
           return true if linked_ids.size == data.size && data.to_set == linked_ids.to_set
 

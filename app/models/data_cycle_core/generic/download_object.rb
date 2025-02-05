@@ -3,32 +3,39 @@
 module DataCycleCore
   module Generic
     class DownloadObject < GenericObject
-      attr_reader :external_source, :options, :endpoint, :source_object, :source_type, :credentials
+      TYPE = :download
+      FULL_MODES = ['full', 'reset'].freeze
 
-      def initialize(**options)
-        raise "Missing source_type for #{self.class}, options given: #{options}"       if options&.dig(:download, :source_type).blank?
-        raise "Missing external_source for #{self.class}, options given: #{options}"   if options&.dig(:external_source).blank?
+      def read_type(override_opts = {})
+        opts = options.deep_merge(override_opts)
+        return if opts&.dig(:download, :read_type).blank?
 
-        @options = options.with_indifferent_access
-        @external_source = options[:external_source]
-        @source_object = DataCycleCore::Generic::Collection
-        @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options.dig(:download, :source_type))
-        @credentials = options.dig(:credentials) || options[:external_source].credentials
+        Mongoid::PersistenceContext.new(
+          DataCycleCore::Generic::Collection,
+          collection: opts.dig(:download, :read_type)
+        )
+      end
+
+      def read_type_collection(opts = {})
+        read_type = read_type(opts)
+        mongo_host = ENV['MONGODB_HOST']
+        mongo_connection_string = "mongodb://#{mongo_host}:27017"
+
+        Mongo::Client.new(mongo_connection_string, database: read_type)
+      end
+
+      def endpoint(override_opts = {})
+        opts = options.deep_merge(override_opts)
+        return if opts&.dig(:download, :endpoint).blank?
+
         changed_from = external_source.last_successful_download
-        changed_from = nil if options.dig(:mode)&.in?(['full', 'reset'])
+        changed_from = nil if FULL_MODES.include?(mode.to_s)
+        endpoint_options_params = opts.except(:download, :credentials, :external_source).merge(changed_from:)
+        endpoint_params = opts[:credentials].symbolize_keys
+          .merge(read_type: read_type(opts) || {})
+          .merge(options: opts[:download].merge(params: endpoint_options_params))
 
-        if options&.dig(:download, :read_type).present?
-          read_type = { read_type: Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type]) }
-        else
-          read_type = {}
-        end
-
-        return if options&.dig(:download, :endpoint).blank? # for mark_deleted_from_data tasks
-        endpoint_options_params = options.except(:download, :credentials, :external_source).merge({ changed_from: })
-        endpoint_params = @credentials.symbolize_keys
-          .merge(read_type)
-          .merge(options: options.dig(:download).merge(params: endpoint_options_params))
-        @endpoint = options.dig(:download, :endpoint).constantize.new(**endpoint_params)
+        opts.dig(:download, :endpoint).constantize.new(**endpoint_params)
       end
     end
   end

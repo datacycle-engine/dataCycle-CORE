@@ -159,10 +159,8 @@ module DataCycleCore
 
             return [] if template.nil?
 
-            scores = []
-
-            objects.each do |value|
-              scores << (contents[value['id']] || template).calculate_content_score(nil, value)
+            scores = objects.map do |value|
+              (contents[value['id']] || template).calculate_content_score(nil, value)
             end
 
             scores.flatten!

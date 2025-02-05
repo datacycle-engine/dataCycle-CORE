@@ -11,7 +11,7 @@
         <tr>
           <td width="100%" style="width:100%;padding:0;height:24pt">
             <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
-              <%= t('feature.report_generator.mailer.text_html.downloads_popular', locale: DataCycleCore.ui_locales.first) %>
+              <%= t("feature.report_generator.mailer.text_html.#{@identifier || 'downloads_popular'}", locale: DataCycleCore.ui_locales.first) %>
             </span>
           </td>
         </tr>

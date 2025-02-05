@@ -26,8 +26,8 @@ module DataCycleCore
 
             assert_equal 8.days.ago.midday.to_date.iso8601, schedule['startDate']
             assert_equal 5.days.ago.to_date.iso8601, schedule['endDate']
-            assert_equal 8.days.ago.midday.to_s(:only_time), schedule['startTime']
-            assert_equal (8.days.ago.midday + 1.hour).to_s(:only_time), schedule['endTime']
+            assert_equal 8.days.ago.midday.to_fs(:only_time), schedule['startTime']
+            assert_equal (8.days.ago.midday + 1.hour).to_fs(:only_time), schedule['endTime']
             assert_equal 1.hour.iso8601, schedule['duration']
             assert_equal 'P1D', schedule['repeatFrequency']
             assert_equal 'Europe/Vienna', schedule['scheduleTimezone']
@@ -36,7 +36,7 @@ module DataCycleCore
           test 'api/v4/things schedule attribute with schedule without occurrences' do # rubocop:disable Minitest/MultipleAssertions
             @event_b = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             schedule_b = DataCycleCore::TestPreparations.generate_schedule('2023-05-25T15:00'.in_time_zone, '2023-05-30'.in_time_zone, 1.5.hours, frequency: 'weekly', week_days: [3]).serialize_schedule_object
-            @event_b.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [schedule_b.schedule_object.to_hash] })
+            @event_b.set_data_hash(prevent_history: true, data_hash: { event_schedule: [schedule_b.schedule_object.to_hash] })
 
             post api_v4_thing_path(id: @event_b.id), params: { include: 'eventSchedule', fields: 'eventSchedule' }
             json_data = response.parsed_body

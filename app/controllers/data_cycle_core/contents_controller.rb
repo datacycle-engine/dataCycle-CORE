@@ -9,9 +9,9 @@ module DataCycleCore
     before_action :set_watch_list, except: [:asset]
     before_action :set_return_to, only: [:show, :edit]
 
-    DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-      feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
-      include feature.controller_module if feature.enabled? && feature.controller_module
+    DataCycleCore.features.each_key do |key|
+      feature = DataCycleCore::Feature[key]
+      include feature.controller_module if feature&.enabled? && feature.controller_module
     end
 
     load_and_authorize_resource only: [:index, :show, :destroy]
@@ -21,7 +21,7 @@ module DataCycleCore
     end
 
     def bulk_create
-      new_thing_params = params.dig('thing')
+      new_thing_params = params['thing']
 
       return if new_thing_params.blank?
 
@@ -40,7 +40,7 @@ module DataCycleCore
 
           ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index + 1, items: item_count, error: content.try(:errors).full_messages.join(', '), id: content.id, field_id: thing_params[:uploader_field_id] })
         rescue StandardError => e
-          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index + 1, items: item_count, error: e.message, id: content.id, field_id: thing_params[:uploader_field_id] })
+          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index + 1, items: item_count, error: e.message, id: content&.id, field_id: thing_params[:uploader_field_id] })
         ensure
           index += 1
         end
@@ -116,7 +116,7 @@ module DataCycleCore
 
       content = content.try(:image)&.first unless content.respond_to?(:asset)
 
-      attribute = asset_proxy_params.dig(:type) == 'content' && ['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
+      attribute = asset_proxy_params[:type] == 'content' && ['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
@@ -173,7 +173,7 @@ module DataCycleCore
 
     def create
       template = DataCycleCore::Thing.new(template_name: params[:template])
-      authorize!(__method__, template, resolve_params(params, false).dig(:scope))
+      authorize!(__method__, template, resolve_params(params, false)[:scope])
 
       @object_browser_parent = content_by_id_or_template
 
@@ -204,8 +204,8 @@ module DataCycleCore
 
           format.json do
             render json: {
-              html: @content.present? ? render_to_string(formats: [:html], layout: false, locals: { :@objects => Array.wrap(@content) }).strip : nil,
-              detail_html: @content.present? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).strip : nil,
+              html: @content.present? ? render_to_string(formats: [:html], layout: false, assigns: { objects: Array.wrap(@content) }).strip : nil,
+              detail_html: @content.present? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, assigns: { object: @content }).strip : nil,
               ids: Array.wrap(@content&.id),
               **flash.discard.to_h
             }
@@ -398,8 +398,8 @@ module DataCycleCore
         render js: "document.location = '#{thing_path(@content)}'"
       else
         render json: {
-          html: render_to_string(formats: [:html], layout: false, action: 'create', locals: { :@objects => Array.wrap(@content) }).strip,
-          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).strip,
+          html: render_to_string(formats: [:html], layout: false, action: 'create', assigns: { objects: Array.wrap(@content) }).strip,
+          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, assigns: { object: @content }).strip,
           ids: Array.wrap(@content&.id),
           **flash.discard.to_h
         }
@@ -454,7 +454,7 @@ module DataCycleCore
     end
 
     def load_more_linked_objects
-      @content = DataCycleCore::Thing.find(linked_object_params[:content_id]) if linked_object_params[:content_type].present?
+      @content = DataCycleCore::Thing.find(linked_object_params[:content_id]) if linked_object_params[:content_id].present?
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
@@ -757,7 +757,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.transform_keys(&:underscore).permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, :hide_embedded, definition: {}, load_more_except: [], options: {})
+      params.transform_keys(&:underscore).permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :hide_embedded, definition: {}, load_more_except: [], options: {})
     end
 
     def life_cycle_params

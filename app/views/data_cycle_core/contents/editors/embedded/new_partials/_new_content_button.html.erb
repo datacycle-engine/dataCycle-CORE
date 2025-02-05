@@ -10,7 +10,7 @@
       <% templates.each do |template| %>
         <li class="option">
           <a class="add-content-object in-dropdown" href="#" data-template="<%= template.template_name %>">
-            <%= render 'data_cycle_core/shared/icon', icon_type: template.template_name&.underscore_blanks, icon_class: template&.class&.name&.demodulize&.underscore %>
+            <%= render 'data_cycle_core/shared/icon', icon_type: template&.icon_type, icon_class: template&.icon_class %>
             <%= template.translated_template_name(active_ui_locale) %>
           </a>
         </li>

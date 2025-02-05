@@ -3,22 +3,24 @@
 raise 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter#initialize_type_map is no longer available, check patch!' unless ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.private_method_defined? :initialize_type_map
 
 module PostgresCustomTypesExtension
-  def initialize_type_map(m)
-    # regconfig to tsvector
-    m.register_type('regconfig', ActiveRecord::Type::String.new)
+  extend ActiveSupport::Concern
 
-    # multirange types
-    m.register_type('int4multirange', ActiveRecord::Type::String.new)
-    m.register_type('int8multirange', ActiveRecord::Type::String.new)
-    m.register_type('nummultirange', ActiveRecord::Type::String.new)
-    m.register_type('datemultirange', ActiveRecord::Type::String.new)
-    m.register_type('tsmultirange', ActiveRecord::Type::String.new)
-    m.register_type('tstzmultirange', ActiveRecord::Type::String.new)
+  class_methods do
+    def initialize_type_map(m)
+      # regconfig to tsvector
+      m.alias_type 'regconfig', 'varchar'
 
-    super(m)
+      # multirange types
+      m.alias_type 'int8multirange', 'varchar'
+      m.alias_type 'int4multirange', 'varchar'
+      m.alias_type 'nummultirange', 'varchar'
+      m.alias_type 'datemultirange', 'varchar'
+      m.alias_type 'tsmultirange', 'varchar'
+      m.alias_type 'tstzmultirange', 'varchar'
+
+      super
+    end
   end
 end
 
-ActiveSupport.on_load(:active_record) do
-  ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.prepend PostgresCustomTypesExtension
-end
+ActiveSupport.on_load(:active_record_postgresqladapter) { prepend PostgresCustomTypesExtension }

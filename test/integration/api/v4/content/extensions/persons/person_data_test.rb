@@ -24,9 +24,9 @@ module DataCycleCore
                 }
                 post api_v4_thing_path(params)
                 json_data = response.parsed_body
-                json_validate = json_data.dup.dig('@graph').first
+                json_validate = json_data.dup['@graph'].first
 
-                assert_context(json_data.dig('@context'), 'de')
+                assert_context(json_data['@context'], 'de')
 
                 # test full event data
                 required_attributes = required_validation_attributes(@content)
@@ -224,9 +224,9 @@ module DataCycleCore
                 }
                 post api_v4_thing_path(params)
                 json_data = response.parsed_body
-                json_validate = json_data.dup.dig('@graph').first
+                json_validate = json_data.dup['@graph'].first
 
-                assert_context(json_data.dig('@context'), 'en')
+                assert_context(json_data['@context'], 'en')
 
                 # test full event data
                 required_attributes = required_validation_attributes(@content)
@@ -332,9 +332,9 @@ module DataCycleCore
                 }
                 post api_v4_thing_path(params)
                 json_data = response.parsed_body
-                json_validate = json_data.dup.dig('@graph').first
+                json_validate = json_data.dup['@graph'].first
 
-                assert_context(json_data.dig('@context'), params.dig(:language))
+                assert_context(json_data['@context'], params[:language])
 
                 # test full event data
                 required_attributes = required_validation_attributes(@content)
@@ -436,9 +436,9 @@ module DataCycleCore
                 }
                 post api_v4_thing_path(params)
                 json_data = response.parsed_body
-                json_validate = json_data.dup.dig('@graph').first
+                json_validate = json_data.dup['@graph'].first
 
-                assert_context(json_data.dig('@context'), 'de')
+                assert_context(json_data['@context'], 'de')
 
                 # test full event data
                 required_attributes = required_validation_attributes(@content)
@@ -551,9 +551,9 @@ module DataCycleCore
                 }
                 post api_v4_thing_path(params)
                 json_data = response.parsed_body
-                json_validate = json_data.dup.dig('@graph').first
+                json_validate = json_data.dup['@graph'].first
 
-                assert_context(json_data.dig('@context'), 'de')
+                assert_context(json_data['@context'], 'de')
 
                 # test full event data
                 required_attributes = required_validation_attributes(@content)
@@ -648,7 +648,10 @@ module DataCycleCore
                   }
                 end
 
-                assert_classifications(json_validate, (@content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values) + content_overlay.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values)))
+                assert_classifications(
+                  json_validate,
+                  @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values) + content_overlay.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values)
+                )
 
                 assert_equal([], required_attributes)
                 assert_equal({}, json_validate)

@@ -3,8 +3,7 @@
 module DataCycleCore
   module MasterData
     class NormalizeData
-      attr_accessor :logger
-      attr_accessor :endpoint
+      attr_accessor :logger, :endpoint
 
       def initialize(logger: nil, host: nil, end_point: nil, **)
         if logger.blank?
@@ -42,7 +41,7 @@ module DataCycleCore
 
       class << self
         def preprocess_data(template_hash, data_hash)
-          normalize_hash = normalizable_data(nil, template_hash.dig('properties'), data_hash)
+          normalize_hash = normalizable_data(nil, template_hash['properties'], data_hash)
           split_normalize_hash(normalize_hash)
         end
 
@@ -70,23 +69,23 @@ module DataCycleCore
         end
 
         def normalizable_data(root, template_hash, data_hash)
-          template_hash.map { |key, value|
-            if value.dig('properties').present?
-              normalizable_data([root, key].compact.join('/'), value.dig('properties'), data_hash&.dig(key))
-            elsif value.dig('normalize').present?
+          template_hash.filter_map { |key, value|
+            if value['properties'].present?
+              normalizable_data([root, key].compact.join('/'), value['properties'], data_hash&.dig(key))
+            elsif value['normalize'].present?
               { 'data_hash_path' => [root, key].compact.join('/'), 'id' => value.dig('normalize', 'id').upcase, 'type' => value.dig('normalize', 'type').upcase, 'content' => data_hash&.dig(key) }
             end
-          }.compact.flatten
+          }.flatten
         end
 
         def parse_normalizable_fields(root, template_hash)
-          template_hash.map { |key, value|
-            if value.dig('properties').present?
-              parse_normalizable_fields([root, key].compact.join('/'), value.dig('properties'))
-            elsif value.dig('normalize').present?
-              { 'id' => [root, key].compact.join('/'), 'type' => value.dig('normalize').upcase }
+          template_hash.filter_map { |key, value|
+            if value['properties'].present?
+              parse_normalizable_fields([root, key].compact.join('/'), value['properties'])
+            elsif value['normalize'].present?
+              { 'id' => [root, key].compact.join('/'), 'type' => value['normalize'].upcase }
             end
-          }.compact.flatten
+          }.flatten
         end
 
         def merge_street_streetnr(report)
@@ -97,18 +96,18 @@ module DataCycleCore
 
           index_street_nr = fields_list.find_index { |item| item['type'] == 'STREETNR' }
           street_nr = fields_list[index_street_nr]['content']
-          report['entry']['fields'] = fields_list.map { |item|
+          report['entry']['fields'] = fields_list.filter_map do |item|
             if item['type'] == 'STREET'
-              item['content'] += ' ' + street_nr
+              item['content'] += " #{street_nr}"
               item
             elsif item['type'] == 'STREETNR'
               nil
             else
               item
             end
-          }.compact
+          end
 
-          action_list = report.dig('actionList')
+          action_list = report['actionList']
           action_index = action_list.find_index { |item| item['taskType'] == 'SPLIT' && item['taskId'] == 'Split_StreetStreetnr' }
           action_entry = action_list[action_index]
           new_name = fields_list[fields_list.find_index { |item| item['type'] == 'STREET' }]['content']
@@ -148,7 +147,7 @@ module DataCycleCore
         def update_data(old_data, update_list)
           new_data = old_data.deep_dup || {}
           update_list.each do |item|
-            new_data = update_path(new_data, item.dig('id'), item.dig('content'))
+            new_data = update_path(new_data, item['id'], item['content'])
           end
           new_data
         end

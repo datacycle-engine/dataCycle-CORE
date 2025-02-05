@@ -265,6 +265,11 @@
         :inverse_of: about
         :link_direction: inverse
         :global: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: SchemaTypes
+              :aliases:
+                - CreativeWork
       :external_source_attributes:
         :type: mixin
         :name: external_source_attributes

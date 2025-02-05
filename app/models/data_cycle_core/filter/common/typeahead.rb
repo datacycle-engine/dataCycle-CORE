@@ -15,7 +15,7 @@ module DataCycleCore
                 @query
                   .except(:order)
                   .joins(:searches)
-                  .where('searches.locale = ?', locale)
+                  .where(searches: { locale: locale })
                   .select('searches.words_typeahead')
                   .to_sql
               }
@@ -24,8 +24,8 @@ module DataCycleCore
             LIMIT :limit
           SQL
 
-          ActiveRecord::Base.connection.execute(
-            ActiveRecord::Base.send(:sanitize_sql_array, [typeahead_query, word: normalized_search, limit:])
+          ActiveRecord::Base.connection.select_all(
+            sanitize_sql([typeahead_query, {word: normalized_search, limit:}])
           )
         end
 
@@ -50,14 +50,14 @@ module DataCycleCore
             ORDER BY s2.rank DESC NULLS LAST
           SQL
 
-          ActiveRecord::Base.connection.execute(
-            ActiveRecord::Base.send(:sanitize_sql_array, [
-                                      typeahead_query,
-                                      search: "#{normalized_name}%",
-                                      sort: normalized_name,
-                                      locale:,
-                                      limit:
-                                    ])
+          ActiveRecord::Base.connection.select_all(
+            sanitize_sql([
+                           typeahead_query,
+                           {search: "#{normalized_name}%",
+                            sort: normalized_name,
+                            locale:,
+                            limit:}
+                         ])
           ).to_a.pluck('headline').map(&:strip)
         end
 
@@ -97,13 +97,13 @@ module DataCycleCore
             ORDER BY s2.rank DESC NULLS LAST
           SQL
 
-          ActiveRecord::Base.connection.execute(
-            ActiveRecord::Base.send(:sanitize_sql_array, [
-                                      typeahead_query,
-                                      tsquery_value: normalized_name,
-                                      locale:,
-                                      limit:
-                                    ])
+          ActiveRecord::Base.connection.select_all(
+            sanitize_sql([
+                           typeahead_query,
+                           {tsquery_value: normalized_name,
+                            locale:,
+                            limit:}
+                         ])
           ).to_a.pluck('headline').map(&:strip)
         end
       end

@@ -10,10 +10,10 @@ module DataCycleCore
         errors = []
         paths ||= [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path]
         paths = paths&.flatten&.compact
-        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p + Rails.env + '*.yml' })).concat(Dir.glob(Array.wrap(paths&.map { |p| p + '*.yml' }))).uniq { |p| File.basename(p) }
+        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p.join(Rails.env, '*.yml') })).concat(Dir.glob(Array.wrap(paths&.map { |p| p.join('*.yml') }))).uniq { |p| File.basename(p) }
 
         if file_paths.blank?
-          puts 'INFO: no external systems found'
+          puts AmazingPrint::Colors.yellow('INFO: no external systems found')
           return
         end
 
@@ -33,7 +33,7 @@ module DataCycleCore
             errors.concat(error)
           end
         rescue StandardError => e
-          puts "could not access the YML File #{file_name}"
+          puts AmazingPrint::Colors.red("🔥 could not access the YML File #{file_name}")
           puts e.message
           puts e.backtrace
         end
@@ -53,10 +53,10 @@ module DataCycleCore
         errors = []
         paths = [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path]
         paths = paths&.flatten&.compact
-        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p + Rails.env + '*.yml' })).concat(Dir.glob(Array.wrap(paths&.map { |p| p + '*.yml' }))).uniq { |p| File.basename(p) }
+        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p.join(Rails.env, '*.yml') })).concat(Dir.glob(Array.wrap(paths&.map { |p| p.join('*.yml') }))).uniq { |p| File.basename(p) }
 
         if file_paths.blank?
-          puts 'INFO: no external systems found'
+          puts AmazingPrint::Colors.yellow('INFO: no external systems found')
           return
         end
 
@@ -64,7 +64,7 @@ module DataCycleCore
           data = YAML.safe_load(File.open(file_name), permitted_classes: [Symbol], aliases: true)
           errors.concat(validate(data.deep_symbolize_keys))
         rescue StandardError => e
-          puts "could not access the YML File #{file_name}"
+          puts AmazingPrint::Colors.red("🔥 could not access the YML File #{file_name}")
           puts e.message
           puts e.backtrace
         end
@@ -76,10 +76,8 @@ module DataCycleCore
         validation_hash = data_hash.deep_symbolize_keys
         validate_header = ExternalSystemHeaderContract.new
 
-        errors = []
-
-        validate_header.call(validation_hash).errors.each do |error|
-          errors.push("#{data_hash[:name]}.#{error.path.join('.')} => #{error.text}")
+        errors = validate_header.call(validation_hash).errors.map do |error|
+          "#{data_hash[:name]}.#{error.path.join('.')} => #{error.text}"
         end
 
         [:import_config, :download_config].each do |config_key|
@@ -108,8 +106,6 @@ module DataCycleCore
 
         # Regex for matching if a string can be interpreted as a valid ActiveSupport::Duration
         # Should match things like 1.day, 2.hours, 3.months, 5.year, ...
-        duration_regex = /\d+\.(?:#{Regexp.union(ActiveSupport::Duration::PARTS.map(&:to_s).flat_map { |unit| [unit, unit.chomp('s')] })})$/
-
         schema do
           required(:name) { str? }
           optional(:identifier) { str? }
@@ -118,8 +114,11 @@ module DataCycleCore
             optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
             optional(:error_notification).hash do
               optional(:emails).each { str? & format?(Devise.email_regexp) }
-              optional(:grace_period) { format?(duration_regex) }
+              optional(:grace_period) { str? }
             end
+            optional(:ai_model) { str? }
+            optional(:endpoint) { str? }
+            optional(:transformations) { str? }
           end
           optional(:config).hash do
             optional(:api_strategy) { str? }
@@ -149,10 +148,17 @@ module DataCycleCore
         end
 
         rule(:credentials).validate(:dc_array_or_hash)
+
+        rule(:credentials).validate(:dc_unique_credentials)
+        rule(:credentials).validate(:dc_credential_keys)
+
         rule(config: :api_strategy).validate(:dc_class)
 
         rule('config.export_config.endpoint').validate(:dc_class)
         rule('config.refresh_config.endpoint').validate(:dc_class)
+        rule('default_options.endpoint').validate(:dc_class)
+
+        rule('default_options.transformations').validate(:dc_module)
 
         rule('config.export_config.create.strategy').validate(:dc_module)
         rule('config.export_config.update.strategy').validate(:dc_module)
@@ -170,7 +176,7 @@ module DataCycleCore
         schema do
           optional(:read_type) { str? | (array? & each { str? }) }
           optional(:sorting) { int? & gt?(0) }
-          required(:source_type) { str? }
+          optional(:source_type) { str? }
           optional(:endpoint) { str? }
           optional(:import_strategy) { str? }
           optional(:download_strategy) { str? }
@@ -182,16 +188,23 @@ module DataCycleCore
           optional(:logging_strategy) { str? }
           optional(:transformations) { hash? }
           optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
+          optional(:data_id_transformation).hash do
+            required(:module) { str? }
+            required(:method) { str? }
+          end
         end
 
         rule(:endpoint).validate(:dc_class)
         rule(:download_strategy).validate(:dc_module)
         rule(:import_strategy).validate(:dc_module)
         rule(:logging_strategy).validate(:dc_logging_strategy)
+        rule(:data_id_transformation).validate(:dc_module_method)
 
         rule do
           base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)
         end
+
+        rule(:source_type).validate(:source_type_required)
       end
     end
   end

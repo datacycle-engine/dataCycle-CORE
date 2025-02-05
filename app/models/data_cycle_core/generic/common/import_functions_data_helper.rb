@@ -7,7 +7,7 @@ module DataCycleCore
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
 
-          template = load_template(config&.dig(:template) || default.dig(:template))
+          template = load_template(config&.dig(:template) || default[:template])
 
           raw_data = pre_process_data(raw_data:, config:, utility_object:)
 
@@ -17,11 +17,11 @@ module DataCycleCore
             utility_object
           ).with_indifferent_access
 
-          return if DataCycleCore::DataHashService.deep_blank?(data) || data.dig('external_key').blank?
+          return if DataCycleCore::DataHashService.deep_blank?(data) || data['external_key'].blank?
 
           data = post_process_data(data:, config:, utility_object:).slice(*template.properties, 'external_system_data')
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
-          external_key = data.dig('external_key')
+          external_key = data['external_key']
           external_source_id = utility_object.external_source.id
           external_hash = DataCycleCore::ExternalHash.find_or_initialize_by(external_key:, external_source_id:, locale: I18n.locale)
 
@@ -67,8 +67,8 @@ module DataCycleCore
                 'external_key' => data['external_key'],
                 'name' => utility_object.external_source.name,
                 'identifier' => utility_object.external_source.identifier,
-                'last_sync_at' => data.dig('updated_at'),
-                'last_successful_sync_at' => data.dig('updated_at')
+                'last_sync_at' => data['updated_at'],
+                'last_successful_sync_at' => data['updated_at']
               }]
               all_imported_external_system_data.each do |es|
                 next if Array(utility_object.external_source.default_options&.dig('current_instance_identifiers')).include?(es['identifier'] || es['name'])
@@ -125,26 +125,26 @@ module DataCycleCore
           if valid
             ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle', {
               external_system: utility_object.external_source,
-              external_type: utility_object.source_type.collection_name,
+              step_name: utility_object.step_name,
               template_name: content.template_name
             }
           else
             ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', {
               external_system: utility_object.external_source,
-              external_type: utility_object.source_type.collection_name,
+              step_name: utility_object.step_name,
               template_name: content.template_name
             }
 
             errors = content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', ')
+            step_label = utility_object.step_label({ locales: [I18n.locale] })
 
-            utility_object.logging&.error('Validating import data', data['external_key'], data, errors)
-            utility_object.external_source&.handle_import_error_notification(errors)
+            utility_object.logger.validation_error(step_label, global_data, errors)
 
             content.destroy_content(save_history: false) if created
             return
           end
 
-          data.dig('external_system_data')&.each do |es|
+          data['external_system_data']&.each do |es|
             next if Array(utility_object.external_source.default_options['current_instance_identifiers']).include?(es['identifier'] || es['name'])
 
             external_system = DataCycleCore::ExternalSystem.find_from_hash(es)
@@ -161,10 +161,9 @@ module DataCycleCore
         rescue DataCycleCore::Error::Import::TemplateMismatchError => e
           ActiveSupport::Notifications.instrument 'object_import_failed_template.datacycle', {
             exception: e,
-            namespace: 'importer'
+            namespace: 'importer',
+            external_system: utility_object&.external_source
           }
-          utility_object&.external_source&.handle_import_error_notification(e)
-          # puts 'Error: Template mismatch, expected: ' + e.expected_template_name + ', got: ' + e.template_name
         end
 
         def load_default_values(data_hash)
@@ -173,7 +172,7 @@ module DataCycleCore
           data_hash.each do |key, value|
             return_data[key] = default_classification(**value.symbolize_keys)
           end
-          return_data.reject { |_, value| value.blank? }
+          return_data.compact_blank
         end
 
         def load_template(template_name)
@@ -192,7 +191,7 @@ module DataCycleCore
 
         def merge_default_values(config, data_hash, utility_object)
           new_hash = {}
-          new_hash = load_default_values(config.dig(:default_values)) if config&.dig(:default_values).present?
+          new_hash = load_default_values(config[:default_values]) if config&.dig(:default_values).present?
           new_hash.merge!(data_hash)
 
           transform_external_system_data!(config, new_hash, utility_object)
@@ -205,11 +204,23 @@ module DataCycleCore
 
           return if data_hash['external_system_data'].blank?
 
-          transformation_config = utility_object.external_source.default_options&.[]('external_system_identifier_transformation')
+          options = utility_object.external_source.default_options || {}
 
-          return unless transformation_config&.key?('module') && transformation_config&.key?('method')
+          if (mapping = options['external_system_identifier_mapping']).present?
+            data_hash['external_system_data'].each do |d|
+              d['identifier'] = mapping[d['identifier']] || d['identifier']
+            end
+          end
 
-          data_hash['external_system_data'].each { |d| d['identifier'] = transformation_config['module'].safe_constantize.send(transformation_config['method'], d['identifier']) }
+          transformation_config = options['external_system_identifier_transformation']
+
+          return unless transformation_config&.key?('module') && transformation_config.key?('method')
+
+          data_hash['external_system_data'].each do |d|
+            t_module = transformation_config['module'].safe_constantize
+            t_method = transformation_config['method']
+            d['identifier'] = t_module.send(t_method, d['identifier'])
+          end
         end
 
         def pre_process_data(raw_data:, config:, utility_object:)
@@ -259,7 +270,7 @@ module DataCycleCore
         end
 
         def fixnum_max
-          (2**(0.size * 4 - 2) - 1)
+          ((2**((0.size * 4) - 2)) - 1)
         end
 
         def logging_delta

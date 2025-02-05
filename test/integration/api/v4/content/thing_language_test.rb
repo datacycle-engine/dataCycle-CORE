@@ -31,14 +31,14 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = response.parsed_body
-            json_data = json_data.dig('@graph').first
+            json_data = json_data['@graph'].first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content, languages)
             assert_equal(header.except('name'), data.except('name'))
-            assert_compact_classification_header(json_data.dig('dc:classification'))
-            assert_equal(['de', 'en'], json_data.dig('name').map { |item| item.dig('@language') }.sort)
-            assert_equal(['Test-POI', 'Test-POI-en'], json_data.dig('name').map { |item| item.dig('@value') }.sort)
+            assert_compact_classification_header(json_data['dc:classification'])
+            assert_equal(['de', 'en'], json_data['name'].pluck('@language').sort)
+            assert_equal(['Test-POI', 'Test-POI-en'], json_data['name'].pluck('@value').sort)
           end
         end
       end

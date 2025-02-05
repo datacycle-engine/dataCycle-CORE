@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AddDurationsToExternalSystem < ActiveRecord::Migration[6.1]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     add_column :external_systems, :last_successful_download_time, :interval
     add_column :external_systems, :last_download_time, :interval
@@ -14,4 +15,5 @@ class AddDurationsToExternalSystem < ActiveRecord::Migration[6.1]
     remove_column :external_systems, :last_download_time
     remove_column :external_systems, :last_successful_download_time
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

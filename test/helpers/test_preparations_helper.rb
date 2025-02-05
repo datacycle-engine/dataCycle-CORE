@@ -55,7 +55,8 @@ module DataCycleCore
     end
 
     def self.load_classifications(paths)
-      DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: paths)
+      importer = DataCycleCore::MasterData::Concepts::ConceptImporter.new(paths: paths)
+      importer.import
       # map classifications (Test1 mapped to Tag 1, Test2 mapped to Tag 2)
       test_alias = DataCycleCore::ClassificationAlias.find_by(name: 'Test1')
       return if test_alias.nil?
@@ -92,7 +93,7 @@ module DataCycleCore
     def self.load_dummy_data(paths)
       paths.each do |path|
         CONTENT_TABLES.each do |content_table_name|
-          files = path + content_table_name.to_s + '*.json'
+          files = path.join(content_table_name.to_s, '*.json')
 
           file_names = Dir[files]
           file_names.each do |file_name|
@@ -120,14 +121,14 @@ module DataCycleCore
         given_name: 'Administrator',
         password: 'PME_jeh0nek4tbf8mea',
         role_id: DataCycleCore::Role.order('rank DESC').first.id,
-        confirmed_at: Time.zone.now - 1.day
+        confirmed_at: 1.day.ago
       })
       @guest = DataCycleCore::User.where(email: 'guest@datacycle.at').first_or_create({
         given_name: 'Guest',
         family_name: 'User',
         password: 'vdr5pmx@juv9BMJ6ujt',
         role_id: DataCycleCore::Role.find_by(name: 'guest')&.id,
-        confirmed_at: Time.zone.now - 1.day
+        confirmed_at: 1.day.ago
       })
     end
 
@@ -184,11 +185,12 @@ module DataCycleCore
       end_time = dtstart + duration if duration.present?
       untildt = DataCycleCore::Schedule.until_as_utc(untild, dtstart)
       schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time:, duration: duration&.to_i }) do |s|
-        if frequency == 'daily'
+        case frequency
+        when 'daily'
           s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(untildt))
-        elsif frequency == 'weekly'
+        when 'weekly'
           s.add_recurrence_rule(IceCube::Rule.weekly.until(untildt).day(week_days))
-        elsif frequency == 'monthly'
+        when 'monthly'
           s.add_recurrence_rule(IceCube::Rule.monthly.until(untildt))
         end
       end

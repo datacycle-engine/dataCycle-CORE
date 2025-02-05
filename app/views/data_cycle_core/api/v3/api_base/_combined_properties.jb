@@ -2,19 +2,19 @@
 
 json ||= {}
 combined = {}
-options.dig(:combined_attributes).each do |property|
+options[:combined_attributes].each do |property|
   definition = content.properties_for(property)
   next if definition.blank?
   (combined[definition.dig('api', 'transformation', 'name')] ||= []) << [property, definition]
 end
 
 combined.each do |combined_key, combined_value|
-  json[combined_key] = combined_value.map { |key, definition|
+  json[combined_key] = combined_value.filter_map do |key, definition|
     if content.try(key.to_sym).present?
       partial_params = render_api_attribute(key:, definition:, value: content.try(key.to_sym), parameters: { options: }, content:)
       render(*partial_params) unless partial_params.nil?
     end
-  }&.compact
+  end
 end
 
 json

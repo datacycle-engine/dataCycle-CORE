@@ -2,7 +2,7 @@
 
 json ||= {}
 combined = {}
-options.dig(:combined_attributes).each do |property|
+options[:combined_attributes].each do |property|
   definition = content.properties_for(property)
   next if definition.blank?
   api_property_definition = api_definition(definition)
@@ -11,7 +11,7 @@ end
 
 combined.each do |combined_key, combined_value|
   json[combined_key] = combined_value.map { |key, definition|
-    value = load_value_object(content, key, content.try(key + '_overlay'), options[:languages], definition, options[:expand_language])
+    value = load_value_object(content, key, content.try("#{key}_overlay"), options[:languages], definition, options[:expand_language])
 
     next if DataCycleCore::DataHashService.blank?(value)
 
@@ -20,7 +20,7 @@ combined.each do |combined_key, combined_value|
     render(*partial_params) unless partial_params.nil?
   }&.compact_blank
 
-  if json.dig(combined_key).blank?
+  if json[combined_key].blank?
     json.delete(combined_key)
     next
   end

@@ -5,13 +5,14 @@ module DataCycleCore
     module Templates
       class AggregateTemplate
         BASE_AGGREGATE_POSTFIX = '_aggregate_for_override'
-        AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute', 'sorting'].freeze
+        AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute', 'sorting', 'inverse_of'].freeze
         AGGREGATE_PROPERTY_NAME = 'aggregate_for'
         AGGREGATE_INVERSE_PROPERTY_NAME = 'belongs_to_aggregate'
         ADDITIONAL_BASE_TEMPLATES_KEY = 'additional_base_templates'
         AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze # keys that should not be included in the aggregate definition
         PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type', 'slug'].freeze # keys that should not be aggregated
         ALLOWED_PROP_OVERRIDES = ['features', 'ui'].freeze
+        AGGREGATE_TEMPLATE_SUFFIX = ' (Aggregate)'
 
         def initialize(data:)
           @data = data
@@ -40,13 +41,14 @@ module DataCycleCore
           transform_aggregate_features!
           transform_aggregate_properties!
           transform_override_properties!
+          transform_inverse_properties!
           add_aggregate_property!
 
           @aggregate
         end
 
         def self.aggregate_template_name(name)
-          "#{name} (Aggregate)"
+          "#{name}#{AGGREGATE_TEMPLATE_SUFFIX}"
         end
 
         def self.aggregate_property_key(key)
@@ -55,10 +57,8 @@ module DataCycleCore
 
         def self.key_allowed_for_aggregate?(key:, prop:)
           PROPS_WITHOUT_AGGREGATE.exclude?(key) &&
-            !(prop[:type] == 'linked' && prop[:link_direction] == 'inverse') &&
             !prop.key?(:virtual) &&
-            !prop.key?(:compute) &&
-            !prop.dig(:features, :overlay, :allowed)
+            (!prop.key?(:compute) || prop.dig(:features, :aggregate, :allowed))
         end
 
         private
@@ -95,6 +95,13 @@ module DataCycleCore
           @aggregate[:properties] = props.to_h
         end
 
+        def transform_inverse_properties!
+          @aggregate[:properties].each_value do |prop|
+            next unless prop[:type] == 'linked' && prop[:link_direction] == 'inverse'
+            prop.except!(:inverse_of, :link_direction)
+          end
+        end
+
         def slug_definition(key:, prop:)
           new_prop = prop.dc_deep_dup
           new_prop[:compute] = {
@@ -111,6 +118,7 @@ module DataCycleCore
 
         def transform_aggregate_property(key:, prop:)
           return [] if AGGREGATE_KEY_EXCEPTIONS.include?(key)
+          return [] if prop.dig(:features, :overlay)&.key?(:overlay_for) || prop.dig(:features, :aggregate)&.key?(:aggregate_for)
           return slug_definition(key:, prop:) if key == 'slug'
           return [[key, prop]] unless self.class.key_allowed_for_aggregate?(key:, prop:)
 

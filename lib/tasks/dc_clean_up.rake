@@ -66,13 +66,13 @@ namespace :dc do
     desc 'Check all external_sources for orphaned data (does not modify the data)'
     task external_data_check: :environment do
       puts "checking ExternalSystems (#{DataCycleCore::ExternalSystem.count}) dependencies:"
-      linked_data = DataCycleCore::ExternalSystem.all.map { |item|
+      linked_data = DataCycleCore::ExternalSystem.all.filter_map do |item|
         name = CleanupHelper.identify_external_source(item)
         next if name.blank?
         linked = CleanupHelper.linked(name)
         next if linked.blank?
         { external_source_id: item.id, name: item.name, linked: }
-      }.compact
+      end
 
       dirty_data = []
 
@@ -109,7 +109,7 @@ namespace :dc do
           puts "#{task[:name].ljust(35)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_data#{ShellHelper.zsh? ? '\\' : ''}[#{task[:id]},\"#{task[:template].tr(' ', '\\ ')}\"#{ShellHelper.zsh? ? '\\' : ''}]"
         end
       else
-        puts "\n[done] ... looks good"
+        puts AmazingPrint::Colors.green("\n[✔] ... looks good 🚀")
       end
     end
 
@@ -132,7 +132,7 @@ namespace :dc do
       )
 
       items_to_delete = orphans.count
-      puts "Deleting #{items_to_delete.to_s.rjust(6)} #{('(template: ' + template.template_name + ')').ljust(32)} from #{external_source.name.ljust(50)} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
+      puts "Deleting #{items_to_delete.to_s.rjust(6)} #{"(template: #{template.template_name})".ljust(32)} from #{external_source.name.ljust(50)} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
 
       index = 0
       orphans.each do |orphan|
@@ -163,7 +163,7 @@ namespace :dc do
           puts "#{embedded.to_s.ljust(25)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:embedded#{ShellHelper.zsh? ? '\\' : ''}[\"#{embedded.tr(' ', '\\ ')}\"#{ShellHelper.zsh? ? '\\' : ''}]"
         end
       else
-        puts "\n[done] ... looks good"
+        puts AmazingPrint::Colors.green("\n[✔] ... looks good 🚀")
       end
     end
 
@@ -172,12 +172,12 @@ namespace :dc do
       embedded_template = args.fetch(:embedded)
       template = DataCycleCore::Thing.find_by(template_name: embedded_template)
       ShellHelper.error("Error: No embedded template found for #{embedded_template}") if template.blank?
-      ShellHelper.error("Error: #{embedded_template} is not an embedded template!") unless template.schema.dig('content_type') == 'embedded'
+      ShellHelper.error("Error: #{embedded_template} is not an embedded template!") unless template.schema['content_type'] == 'embedded'
 
       main_templates = embedded[embedded_template]
       orphans = CleanupHelper.orphaned_embedded(main_templates, embedded_template)
       items_to_delete = orphans.count
-      puts "#{('embedded: ' + embedded_template).ljust(25)} used in:  #{main_templates.map(&:to_s)}"
+      puts "#{"embedded: #{embedded_template}".ljust(25)} used in:  #{main_templates.map(&:to_s)}"
       puts "Deleting #{items_to_delete.to_s.rjust(6)} #{' ' * 88} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
 
       index = 0
@@ -207,7 +207,7 @@ namespace :dc do
 
       external_system.collection(collection_name) do |collection|
         things.each do |thing|
-          next unless collection.find({ 'external_id': thing.external_key }).count.zero?
+          next unless collection.find({ external_id: thing.external_key }).count.zero?
           # puts "item with external key: #{thing.external_key} not found in mongo collection\n"
           things_missing += 1
           things_missing_keys << thing

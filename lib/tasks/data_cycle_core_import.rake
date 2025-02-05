@@ -13,13 +13,13 @@ namespace :data_cycle_core do
 
     desc 'Download and import data from given data source'
     task :perform, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{}.merge(args.to_h).map do |k, v|
+      options = {}.merge(args.to_h).to_h do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      end]
+      end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       external_source.download(options)
@@ -28,13 +28,13 @@ namespace :data_cycle_core do
 
     desc 'Only download data from given data source'
     task :download, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{}.merge(args.to_h).map do |k, v|
+      options = {}.merge(args.to_h).to_h do |k, v|
         if k == :max_count && v
           [k, v.to_i]
         else
           [k, v]
         end
-      end]
+      end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       external_source.download(options)
@@ -42,13 +42,13 @@ namespace :data_cycle_core do
 
     desc 'Only import (without downloading) data from given data source'
     task :import, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{}.merge(args.to_h).map do |k, v|
+      options = {}.merge(args.to_h).to_h do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      end]
+      end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       external_source.import(options)
@@ -73,13 +73,13 @@ namespace :data_cycle_core do
 
     desc 'Download and import data from partial data source'
     task :perform_partial, [:external_source_id, :download_names, :import_names, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{}.merge(args.to_h).map do |k, v|
+      options = {}.merge(args.to_h).to_h do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      end]
+      end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       options[:download_names].presence.split(',').each do |download_name|
@@ -92,13 +92,15 @@ namespace :data_cycle_core do
 
     desc 'download data from partial data source'
     task :download_partial, [:external_source_id, :download_names, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{}.merge(args.to_h).map do |k, v|
+      abort('download_names is required') if args[:download_names].blank?
+
+      options = {}.merge(args.to_h).to_h do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      end]
+      end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       options[:download_names].presence.split(',').each do |download_name|
@@ -108,13 +110,13 @@ namespace :data_cycle_core do
 
     desc 'import data from partial data source'
     task :import_partial, [:external_source_id, :import_names, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{}.merge(args.to_h).map do |k, v|
+      options = {}.merge(args.to_h).to_h do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
           [k, v]
         end
-      end]
+      end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       options[:import_names].presence.split(',').each do |import_name|

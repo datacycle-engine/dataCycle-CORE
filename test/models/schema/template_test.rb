@@ -13,7 +13,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'All Simple Property Types' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'All Simple Property Types' }
       DataCycleCore::Schema::Template.new(template[:data].as_json)
     end
 
@@ -60,7 +60,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Simple Embedded Container' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Simple Embedded Container' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_ActingAsEmbeddedContainer')
     end
 
@@ -77,7 +77,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Simple Linked Entity One' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Simple Linked Entity One' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_SimpleEntityLinkedOne')
     end
 
@@ -101,7 +101,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Container' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Container' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_Container')
     end
 
@@ -122,6 +122,26 @@ describe DataCycleCore::Schema::Template do
 
       assert(string_property[:template_type], 'Thing_Container')
       assert(string_property[:data_type], '//schema.org/Number')
+    end
+  end
+
+  describe 'for simple linked inverse entites' do
+    subject do
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
+      )
+      template_importer.templates[:creative_works].find { |t| t[:name] == 'Simple Linked Entity Inverse' }
+    end
+
+    it 'should set correct visibilities for inverse linked properties' do
+      props = subject.dig(:data, :properties).select { |_, v| v[:link_direction] == 'inverse' }
+
+      assert(props.dig(:linked_with_template1_inverse, :ui, :edit, :disabled))
+      assert(props.dig(:linked_with_template2_inverse, :ui, :edit, :disabled))
+      assert_nil(props.dig(:linked_with_template3_inverse, :ui, :edit, :disabled))
+      assert(props.dig(:linked_with_template4_inverse, :ui, :edit, :disabled))
+      assert_nil(props.dig(:linked_with_template5_inverse, :ui, :edit, :disabled))
+      assert_equal(false, props.dig(:linked_with_template6_inverse, :ui, :edit, :disabled))
     end
   end
 end

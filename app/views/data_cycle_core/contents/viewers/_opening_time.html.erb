@@ -1,6 +1,17 @@
 <%= render 'data_cycle_core/contents/viewers/attribute', local_assigns do %>
 
-  <% objects = value.presence&.map(&:to_h)&.compact&.group_by { |s| [s[:dtstart]&.in_time_zone&.beginning_of_day, s.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day, s.dig(:rrules, 0, :exdates)] } %>
+  <% objects = value.presence
+      &.map(&:to_h)
+      &.compact
+      &.group_by { |s|
+        [
+          s[:dtstart]&.in_time_zone&.beginning_of_day,
+          s.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day,
+          s.dig(:rrules, 0, :exdates)
+        ]
+      }
+      &.sort %>
+
   <% objects&.each do |validity_period, opening_times| %>
     <div class="opening-time-group">
       <span class="opening-time-validity-period">

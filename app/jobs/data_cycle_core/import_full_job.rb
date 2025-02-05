@@ -5,7 +5,7 @@ module DataCycleCore
     REFERENCE_TYPE = 'import_full'
 
     def perform(uuid)
-      super(uuid) do |external_system|
+      super do |external_system|
         external_system.import({ mode: 'full' })
       end
     end

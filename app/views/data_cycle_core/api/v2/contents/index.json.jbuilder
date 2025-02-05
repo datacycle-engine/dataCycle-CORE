@@ -10,4 +10,4 @@ end
 
 json.partial! 'pagination_links',
               objects: @pagination_contents || @contents,
-              object_url: ->(params) { File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query }
+              object_url: ->(params) { "#{File.join("#{request.protocol}#{request.host}:#{request.port}", request.path)}?#{params.to_query}" }

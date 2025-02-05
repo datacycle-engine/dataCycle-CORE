@@ -3,9 +3,9 @@
 json ||= {}
 
 if @linked_stored_filter.present?
-  data = content.send(key + '_overlay', @linked_stored_filter)
+  data = content.send(:"#{key}_overlay", @linked_stored_filter)
 else
-  data = content.send(key + '_overlay')
+  data = content.send(:"#{key}_overlay")
 end
 
 if data.present?
@@ -16,7 +16,7 @@ if data.present?
   new_fields = subtree_for(key_new, options[:fields])
   new_include = subtree_for(key_new, options[:include])
 
-  json[key_new] = data.map { |item|
+  json[key_new] = data.filter_map { |item|
     if options[:field_filter] && new_fields.present?
       Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id), expires_in: 1.year + Random.rand(7.days)) do
         render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: options[:field_filter] }, options)
@@ -31,7 +31,7 @@ if data.present?
         render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: true }, options)
       end
     end
-  }.compact.presence
+  }.presence
 end
 
 json.compact

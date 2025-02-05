@@ -1,4 +1,5 @@
 import camelCase from "lodash/camelCase";
+import DurationHelpers from "../../helpers/duration_helpers";
 
 class AssetDetailLoader {
 	constructor(assetFile) {
@@ -68,11 +69,11 @@ class AssetDetailLoader {
 		);
 
 		try {
-			const video = this._addVideo(this.assetFile.fileUrl);
+			const video = await this._addVideo(this.assetFile.fileUrl);
 
 			window.URL.revokeObjectURL(video.src);
 
-			this.assetFile.mediaHtml = await this.fileMediaHTML(
+			this.assetFile.mediaHtml = await this.assetFile.fileMediaHTML(
 				`, ${video.videoWidth}x${
 					video.videoHeight
 				}px, ${DurationHelpers.seconds_to_human_time(video.duration)}`,

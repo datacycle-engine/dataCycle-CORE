@@ -11,8 +11,8 @@ module DataCycleCore
 
     before(:all) do
       @routes = Engine.routes
-      @default_tags = DataCycleCore::Classification.for_tree('Tags').where(name: ['Tag 1', 'Tag 2']).ids
-      @additional_tags = DataCycleCore::Classification.for_tree('Ausgabekanäle').where(name: 'Tag 3').ids
+      @default_tags = DataCycleCore::Classification.for_tree('Tags').where(name: ['Tag 1', 'Tag 2']).pluck(:id)
+      @additional_tags = DataCycleCore::Classification.for_tree('Ausgabekanäle').where(name: 'Tag 3').pluck(:id)
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel', tags: @default_tags })
       @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
       @current_user = User.find_by(email: 'tester@datacycle.at')
@@ -44,7 +44,7 @@ module DataCycleCore
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = response.parsed_body
-      assert_equal(1, json_data.dig('collections').count { |w| w['name'] == name })
+      assert_equal(1, json_data['collections'].count { |w| w['name'] == name })
     end
 
     test 'update Watchlist' do
@@ -108,13 +108,12 @@ module DataCycleCore
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = response.parsed_body
-      assert_equal json_data.dig('collections').size, 0
+      assert_equal json_data['collections'].size, 0
     end
 
     test 'add content to watch_list' do
       get add_item_watch_list_path(@watch_list), xhr: true, params: {
-        hashable_id: @content.id,
-        hashable_type: @content.class.name
+        thing_id: @content.id
       }, headers: {
         referer: root_path
       }
@@ -144,9 +143,9 @@ module DataCycleCore
 
       assert_response :success
       assert_equal DataCycleCore::WatchList.where(name: @watch_list.name).size, 1
-      assert @watch_list.things.ids.include?(@image_a.id)
-      assert @watch_list.things.ids.include?(@image_b.id)
-      assert_not @watch_list.things.ids.include?(@image_c.id)
+      assert @watch_list.things.pluck(:id).include?(@image_a.id)
+      assert @watch_list.things.pluck(:id).include?(@image_b.id)
+      assert_not @watch_list.things.pluck(:id).include?(@image_c.id)
 
       get watch_list_path(@watch_list)
       assert_response :success
@@ -173,9 +172,9 @@ module DataCycleCore
       watch_list = DataCycleCore::WatchList.find_by(name: 'TestWatchList2')
       assert_not_nil watch_list
 
-      assert watch_list.things.ids.include?(@image_a.id)
-      assert watch_list.things.ids.include?(@image_b.id)
-      assert_not watch_list.things.ids.include?(@image_c.id)
+      assert watch_list.things.pluck(:id).include?(@image_a.id)
+      assert watch_list.things.pluck(:id).include?(@image_b.id)
+      assert_not watch_list.things.pluck(:id).include?(@image_c.id)
 
       get watch_list_path(watch_list)
       assert_response :success
@@ -189,11 +188,10 @@ module DataCycleCore
     end
 
     test 'remove content from watch_list' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
 
       delete remove_item_watch_list_path(@watch_list), xhr: true, params: {
-        hashable_id: @content.id,
-        hashable_type: @content.class.name
+        thing_id: @content.id
       }, headers: {
         referer: root_path
       }
@@ -212,7 +210,7 @@ module DataCycleCore
     end
 
     test 'bulk delete all watch_list items' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       items_before = @watch_list.things.count
 
       delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
@@ -224,11 +222,11 @@ module DataCycleCore
     end
 
     test 'bulk delete all watch_list_items, fails because one item is external' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
       content2.external_source_id = ExternalSystem.first.id
       content2.save!
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: content2.id, hashable_type: content2.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: content2.id)
       items_before = @watch_list.things.count
 
       delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
@@ -238,7 +236,7 @@ module DataCycleCore
     end
 
     test 'bulk edit all watch_list items' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       shared_ordered_properties = @watch_list.things.shared_ordered_properties(@current_user).reject { |_, v| v.dig('ui', 'edit', 'disabled').to_s == 'true' }.keys
 
       get bulk_edit_watch_list_path(@watch_list), params: {}, headers: {
@@ -253,7 +251,7 @@ module DataCycleCore
     end
 
     test 'bulk update all watch_list items' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
       content_template = to_query_params(thing_template: generic_content(@watch_list).thing_template).to_json
 
@@ -309,7 +307,7 @@ module DataCycleCore
     end
 
     test 'bulk update all watch_list items - override classifications' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -341,11 +339,11 @@ module DataCycleCore
 
       assert_response :success
       assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
-      assert_equal @additional_tags.to_set, @content.tags.reload.ids.to_set
+      assert_equal @additional_tags.to_set, @content.tags.reload.pluck(:id).to_set
     end
 
     test 'bulk update all watch_list items - add classifications' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -377,11 +375,11 @@ module DataCycleCore
 
       assert_response :success
       assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
-      assert_equal (@default_tags + @additional_tags).to_set, @content.tags.reload.ids.to_set
+      assert_equal (@default_tags + @additional_tags).to_set, @content.tags.reload.pluck(:id).to_set
     end
 
     test 'bulk update all watch_list items - remove classification' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -413,11 +411,11 @@ module DataCycleCore
 
       assert_response :success
       assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
-      assert_equal [@default_tags.last].to_set, @content.tags.reload.ids.to_set
+      assert_equal [@default_tags.last].to_set, @content.tags.reload.pluck(:id).to_set
     end
 
     test 'validate (bulk update) watch_list items' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'
 
       post validate_watch_list_path(@watch_list), xhr: true, params: {
@@ -444,7 +442,7 @@ module DataCycleCore
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Zweiter Inhalt' })
       @watch_list.things << content2
 
-      assert @watch_list.things.ids.include?(content2.id)
+      assert @watch_list.things.pluck(:id).include?(content2.id)
 
       post add_to_watchlist_stored_filters_path, params: {
         f: {
@@ -461,12 +459,12 @@ module DataCycleCore
 
       assert_redirected_to root_path
       assert_equal I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:notice]
-      assert @watch_list.things.ids.include?(@content.id)
-      assert @watch_list.things.ids.include?(content2.id)
+      assert @watch_list.things.pluck(:id).include?(@content.id)
+      assert @watch_list.things.pluck(:id).include?(content2.id)
     end
 
     test 'clear watch_list' do
-      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
 
       assert_equal(1, @watch_list.things.count)
 

@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 class AddDeviseConfirmableToUsers < ActiveRecord::Migration[5.2]
-  def change
+  # rubocop:disable Rails/BulkChangeTable
+  def up
     add_column :users, :confirmation_token, :string
     add_column :users, :confirmed_at, :datetime
     add_column :users, :confirmation_sent_at, :datetime
     add_column :users, :unconfirmed_email, :string
 
-    DataCycleCore::User.connection.schema_cache.clear!
-    DataCycleCore::User.reset_column_information
-    DataCycleCore::User.with_deleted.update_all(confirmed_at: Time.zone.now - 1.day)
+    execute 'UPDATE users SET confirmed_at = created_at WHERE confirmed_at IS NULL'
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

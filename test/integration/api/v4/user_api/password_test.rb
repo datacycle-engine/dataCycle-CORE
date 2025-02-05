@@ -14,7 +14,7 @@ module DataCycleCore
             @current_user.update_column(:access_token, SecureRandom.hex)
             @new_user = DataCycleCore::User.create(DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
               email: "tester_#{Time.now.getutc.to_i}@datacycle.at",
-              confirmed_at: Time.zone.now - 1.day,
+              confirmed_at: 1.day.ago,
               role_id: DataCycleCore::Role.find_by(rank: 5)&.id
             }))
           end
@@ -83,7 +83,7 @@ module DataCycleCore
 
             assert response.content_type.include?('application/json')
             json_data = response.parsed_body
-            assert json_data.dig('token').present?
+            assert json_data['token'].present?
           end
 
           test 'PATCH /api/v4/users/password - change password for user - ok with password and confirmation' do
@@ -102,7 +102,7 @@ module DataCycleCore
 
             assert response.content_type.include?('application/json')
             json_data = response.parsed_body
-            assert json_data.dig('token').present?
+            assert json_data['token'].present?
           end
 
           test 'PUT /api/v4/users/password - change password for user - ok with single password' do
@@ -120,7 +120,7 @@ module DataCycleCore
 
             assert response.content_type.include?('application/json')
             json_data = response.parsed_body
-            assert json_data.dig('token').present?
+            assert json_data['token'].present?
           end
         end
       end

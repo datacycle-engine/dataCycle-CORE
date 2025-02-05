@@ -15,7 +15,7 @@ module DataCycleCore
         end
 
         def aggregate?(content = nil)
-          !!configuration(content).dig('aggregate')
+          !!configuration(content)['aggregate']
         end
 
         def aggregate_type_options(locale:)

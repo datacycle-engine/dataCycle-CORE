@@ -5,13 +5,13 @@ json = {
     {
       '@context': 'http://schema.org',
       '@type': item.schema.dig('api', 'type') || item.try(:schema_type) || item.class.name.demodulize,
-      'contentType': item.template_name,
+      contentType: item.template_name,
       id: item.id,
-      'deleted_at': item.deleted_at
+      deleted_at: item.deleted_at
     }
   end
 }
 
 json.merge! render 'pagination_links',
                    objects: @contents,
-                   object_url: ->(params) { File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query }
+                   object_url: ->(params) { "#{File.join("#{request.protocol}#{request.host}:#{request.port}", request.path)}?#{params.to_query}" }

@@ -59,7 +59,7 @@ class CollectionFilter {
 	setFilterInputValue(event, data) {
 		event.stopPropagation();
 
-		const filterValue = (data && data.q) || "";
+		const filterValue = data?.q || "";
 		this.filterInput.val(filterValue);
 
 		this.toggleResetButton(filterValue.length > 0);

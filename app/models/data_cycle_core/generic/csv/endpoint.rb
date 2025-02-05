@@ -14,9 +14,9 @@ module DataCycleCore
           Enumerator.new do |yielder|
             load_data(@csv_file, lang).each do |category_data|
               yielder << {
-                'id' => category_data.dig('key'),
-                'name' => category_data.dig('name'),
-                'parentId' => category_data.dig('parent').present? ? Digest::MD5.new.update(category_data.dig('parent')).hexdigest : nil
+                'id' => category_data['key'],
+                'name' => category_data['name'],
+                'parentId' => category_data['parent'].present? ? Digest::MD5.new.update(category_data['parent']).hexdigest : nil
               }
             end
           end

@@ -44,8 +44,8 @@ module DataCycleCore
 
           total = classification_tree.classification_trees.count
           pages = (total / 25.0).ceil
-          assert_equal({ 'total' => total, 'pages' => pages }, json_data.dig('meta'))
-          assert_equal(25, json_data.dig('data').count)
+          assert_equal({ 'total' => total, 'pages' => pages }, json_data['meta'])
+          assert_equal(25, json_data['data'].count)
         end
       end
     end

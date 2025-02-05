@@ -187,12 +187,12 @@ module DataCycleCore
     end
 
     def selected_filter_params(filter, config)
-      if config[:hidden_filter]&.any?(filter)
+      if filter['c'] == 'uf'
+        { buttons: false, container_classes: 'user-force-filter' }
+      elsif config[:hidden_filter]&.any?(filter)
         { buttons: 'h', container_classes: 'hidden-filter' }
       elsif filter['c'].in?(['a', 'u'])
         { buttons: 'a', container_classes: 'advanced-tags' }
-      elsif filter['c'] == 'uf'
-        { buttons: false, container_classes: 'user-force-filter' }
       elsif filter['c'] == 'p'
         { buttons: false }
       else
@@ -204,7 +204,7 @@ module DataCycleCore
       capture do
         if value.is_a?(::Array)
           value.each do |v|
-            concat filter_to_hidden_fields(key + '[]', v)
+            concat filter_to_hidden_fields("#{key}[]", v)
           end
         elsif value.is_a?(::Hash)
           value.each do |k, v|

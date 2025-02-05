@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class ContentLock < DataCycleCore::Activity
-    include DataCycleCore::Engine.routes.url_helpers
+    include DataCycleCore::Common::Routing
     include ActionView::Helpers::DateHelper
     include ActionView::Helpers::TagHelper
     include ActionView::Helpers::TranslationHelper

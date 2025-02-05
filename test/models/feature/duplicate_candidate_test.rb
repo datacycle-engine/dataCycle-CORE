@@ -45,10 +45,10 @@ module DataCycleCore
       assert_equal 3, content3.duplicate_candidates.reload.size
       assert_equal 3, content4.duplicate_candidates.reload.size
       assert_empty content5.duplicate_candidates.reload
-      assert_equal [content2.id, content3.id, content4.id].sort, content1.duplicates.ids.sort
-      assert_equal [content1.id, content3.id, content4.id].sort, content2.duplicates.ids.sort
-      assert_equal [content1.id, content2.id, content4.id].sort, content3.duplicates.ids.sort
-      assert_equal [content1.id, content2.id, content3.id].sort, content4.duplicates.ids.sort
+      assert_equal [content2.id, content3.id, content4.id].sort, content1.duplicates.pluck(:id).sort
+      assert_equal [content1.id, content3.id, content4.id].sort, content2.duplicates.pluck(:id).sort
+      assert_equal [content1.id, content2.id, content4.id].sort, content3.duplicates.pluck(:id).sort
+      assert_equal [content1.id, content2.id, content3.id].sort, content4.duplicates.pluck(:id).sort
     end
 
     test 'merge with duplicate' do
@@ -71,26 +71,26 @@ module DataCycleCore
       assert_nil DataCycleCore::Thing.find_by(id: image2.id)
 
       # FIXME: Destroying a content removes content_relations in the history entries
-      assert_equal [image1.id, image3.id], content1.image.ids
-      assert_equal [image1.id], content1.primary_image.ids
-      assert_equal [image1.id, image3.id], content1.logo.ids
-      # assert_equal [image1.id, image3.id], content1.histories.first.image.ids
-      # assert_equal [image1.id], content1.histories.first.primary_image.ids
-      # assert_equal [image1.id, image3.id], content1.histories.first.logo.ids
+      assert_equal [image1.id, image3.id], content1.image.pluck(:id)
+      assert_equal [image1.id], content1.primary_image.pluck(:id)
+      assert_equal [image1.id, image3.id], content1.logo.pluck(:id)
+      # assert_equal [image1.id, image3.id], content1.histories.first.image.pluck(:id)
+      # assert_equal [image1.id], content1.histories.first.primary_image.pluck(:id)
+      # assert_equal [image1.id, image3.id], content1.histories.first.logo.pluck(:id)
 
-      assert_equal [image1.id], content2.image.ids
-      assert_equal [image1.id], content2.primary_image.ids
-      assert_equal [image1.id], content2.logo.ids
-      # assert_equal [image1.id], content2.histories.first.image.ids
-      # assert_equal [image1.id], content2.histories.first.primary_image.ids
-      # assert_equal [image1.id], content2.histories.first.logo.ids
+      assert_equal [image1.id], content2.image.pluck(:id)
+      assert_equal [image1.id], content2.primary_image.pluck(:id)
+      assert_equal [image1.id], content2.logo.pluck(:id)
+      # assert_equal [image1.id], content2.histories.first.image.pluck(:id)
+      # assert_equal [image1.id], content2.histories.first.primary_image.pluck(:id)
+      # assert_equal [image1.id], content2.histories.first.logo.pluck(:id)
 
-      assert_equal [image1.id], content3.image.ids
-      assert_equal [image1.id], content3.primary_image.ids
-      assert_equal [image1.id], content3.logo.ids
-      # assert_equal [image1.id], content3.histories.first.image.ids
-      # assert_equal [image1.id], content3.histories.first.primary_image.ids
-      # assert_equal [image1.id], content3.histories.first.logo.ids
+      assert_equal [image1.id], content3.image.pluck(:id)
+      assert_equal [image1.id], content3.primary_image.pluck(:id)
+      assert_equal [image1.id], content3.logo.pluck(:id)
+      # assert_equal [image1.id], content3.histories.first.image.pluck(:id)
+      # assert_equal [image1.id], content3.histories.first.primary_image.pluck(:id)
+      # assert_equal [image1.id], content3.histories.first.logo.pluck(:id)
     end
 
     test 'duplicates marked as false_positive are not shown as duplicates' do

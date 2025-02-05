@@ -15,18 +15,19 @@ module DataCycleCore
         import Transformations::RatingTransformations
         import Transformations::AdditionalInformation
         import Transformations::Schedules
+        import Transformations::Credentials
         import DataReferenceTransformations
 
         def self.event_schedule(data_hash, sub_event_function)
-          return data_hash if data_hash.dig('event_period').blank?
+          return data_hash if data_hash['event_period'].blank?
           sub_event = sub_event_function.call(data_hash)
           schedule_hash = {}
           schedule_hash[:dtstart] = data_hash.dig('event_period', 'start_date')&.in_time_zone
           schedule_hash[:dtend] = data_hash.dig('event_period', 'end_date')&.in_time_zone
           if sub_event.present?
-            rdate = sub_event.map { |i| i.dig('event_period', 'start_date')&.in_time_zone || i.dig('start_date')&.in_time_zone }.compact
-            estart = sub_event.first.dig('event_period', 'start_date')&.in_time_zone || sub_event.first.dig('start_date')&.in_time_zone
-            eend = sub_event.first.dig('event_period', 'end_date')&.in_time_zone || sub_event.first.dig('end_date')&.in_time_zone
+            rdate = sub_event.filter_map { |i| i.dig('event_period', 'start_date')&.in_time_zone || i['start_date']&.in_time_zone }
+            estart = sub_event.first.dig('event_period', 'start_date')&.in_time_zone || sub_event.first['start_date']&.in_time_zone
+            eend = sub_event.first.dig('event_period', 'end_date')&.in_time_zone || sub_event.first['end_date']&.in_time_zone
             duration = eend.to_i - estart.to_i if eend.present? && estart.present?
             options = { duration: duration.presence&.to_i }.compact
             schedule_object = IceCube::Schedule.new(schedule_hash[:dtstart].in_time_zone.presence || Time.zone.now, options) do |s|
@@ -50,7 +51,7 @@ module DataCycleCore
           (data_hash || {}).merge({ 'event_schedule' => Array.wrap(schedule_hash.with_indifferent_access) })
         end
 
-        def self.local_asset(data_hash, attribute, asset_type, creator_id = nil)
+        def self.local_asset(data_hash, attribute, asset_type, creator_id = nil, raise_exception = false)
           return data_hash if data_hash[attribute].blank?
 
           begin
@@ -61,9 +62,11 @@ module DataCycleCore
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => e
+            data_hash.delete(attribute)
             logger = DataCycleCore::Generic::Logger::LogFile.new('asset_processing')
             logger.info(e, data_hash[attribute])
             logger.close
+            raise if raise_exception
           end
 
           data_hash
@@ -112,7 +115,7 @@ module DataCycleCore
           return data_hash unless DataCycleCore::Feature::Geocode.enabled?
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
 
-          address_params = data_hash.dig(DataCycleCore::Feature::Geocode.address_source)
+          address_params = data_hash[DataCycleCore::Feature::Geocode.address_source]
           return data_hash if address_params.blank? || address_params.values.all?(&:blank?)
 
           begin
@@ -132,14 +135,14 @@ module DataCycleCore
           data_hash.merge(attributes.deep_stringify_keys)
         end
 
-        def self.add_external_system_data(data, name, key)
+        def self.add_external_system_data(data, name, key, prefix = '')
           return data if (external_name = data.dig(*Array.wrap(name))).nil? || (external_key = data.dig(*Array.wrap(key))).nil?
 
           data['external_system_data'] ||= []
           data['external_system_data'].push(
             {
               'identifier' => external_name,
-              'external_key' => external_key,
+              'external_key' => prefix + external_key,
               'sync_type' => 'duplicate'
             }
           )

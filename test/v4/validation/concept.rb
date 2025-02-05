@@ -5,12 +5,12 @@ module DataCycleCore
     module Validation
       class Concept
         DEFAULT_HEADER = Dry::Schema.JSON do
-          required(:@id).value(:uuid_v4?)
+          required(:@id).value(:uuid?)
           required(:@type).value(:string)
         end
 
         IDENTIFIER_ATTRIBUTES = Dry::Schema.JSON do
-          required(:'@type').value(:string)
+          required(:@type).value(:string)
           required(:propertyID).value(:string)
           required(:value).value(:string)
         end
@@ -59,25 +59,23 @@ module DataCycleCore
         end
 
         def self.concept_scheme(params: {})
-          fields = params.dig(:fields)
-          include = params.dig(:include)
+          fields = params[:fields]
+          include = params[:include]
           attributes = build_concept_scheme_validation(fields, include)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
           end
-          validator
         end
 
         def self.concept(params: {})
-          fields = params.dig(:fields)
-          include = params.dig(:include)
+          fields = params[:fields]
+          include = params[:include]
           attributes = build_concept_validation(fields, include)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
           end
-          validator
         end
       end
     end

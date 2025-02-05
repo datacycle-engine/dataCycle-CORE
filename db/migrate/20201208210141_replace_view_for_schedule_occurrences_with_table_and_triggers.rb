@@ -6,7 +6,7 @@ class ReplaceViewForScheduleOccurrencesWithTableAndTriggers < ActiveRecord::Migr
   def up
     execute <<~SQL.squish
       DROP VIEW IF EXISTS schedule_occurrences;
-      
+
       CREATE TABLE schedule_occurrences (
       	id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
       	schedule_id UUID NOT NULL REFERENCES schedules(id) ON DELETE CASCADE,
@@ -14,13 +14,13 @@ class ReplaceViewForScheduleOccurrencesWithTableAndTriggers < ActiveRecord::Migr
       	duration INTERVAL,
       	occurrence TSTZRANGE NOT NULL
       );
-      
+
       CREATE OR REPLACE FUNCTION generate_schedule_occurences(schedule_ids UUID[]) RETURNS UUID[] LANGUAGE PLPGSQL AS $$
       DECLARE
       	schedule_occurrence_ids UUID[];
       BEGIN
       	DELETE FROM schedule_occurrences WHERE schedule_id || '{}'::UUID[] <@ schedule_ids;
-      
+
       	WITH occurences AS (
       		SELECT
       			schedules.id,
@@ -66,22 +66,22 @@ class ReplaceViewForScheduleOccurrencesWithTableAndTriggers < ActiveRecord::Migr
       		    tstzrange(occurences.occurence, occurences.occurence + occurences.duration) AS occurrence
       		FROM occurences
       		WHERE occurences.id || '{}'::UUID[] <@ schedule_ids;
-      
+
       	SELECT ARRAY_AGG(id) INTO schedule_occurrence_ids
       	FROM schedule_occurrences WHERE schedule_id || '{}'::UUID[] <@ schedule_ids;
-      
+
       	RETURN schedule_occurrence_ids;
       END;$$;
-      
+
       CREATE OR REPLACE FUNCTION generate_schedule_occurences_trigger() RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
       BEGIN
       	PERFORM generate_schedule_occurences(NEW.id || '{}'::UUID[]);
-      
+
       	RETURN NEW;
       END;$$;
-      
+
       CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT OR UPDATE ON schedules FOR EACH ROW EXECUTE FUNCTION generate_schedule_occurences_trigger();
-      
+
       SELECT generate_schedule_occurences(ARRAY_AGG(id)) FROM schedules WHERE schedules.relation::text = 'event_schedule'::text;
     SQL
     execute('ANALYZE schedule_occurrences;')

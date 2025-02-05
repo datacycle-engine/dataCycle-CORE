@@ -16,8 +16,8 @@ namespace :dc do
       Rake::Task['db:seed'].invoke
       Rake::Task['db:seed'].reenable
 
-      Rake::Task['data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['data_cycle_core:update:import_classifications'].reenable
+      Rake::Task['dc:concepts:import'].invoke
+      Rake::Task['dc:concepts:import'].reenable
 
       Rake::Task['dc:external_systems:import'].invoke
       Rake::Task['dc:external_systems:import'].reenable
@@ -29,12 +29,12 @@ namespace :dc do
     desc 'translate I18n locale files'
     task :translate_i18n, [:new_locale, :file_names] => :environment do |_, args|
       abort('MISSING_LOCALE') if args.new_locale.blank?
-      abort('TRANSLATE_FEATURE_DISABLED') unless DataCycleCore::Feature::Translate.enabled?
+      abort('TRANSLATE_FEATURE_DISABLED') unless DataCycleCore::Feature['Translate']&.enabled?
 
       new_locale = args.new_locale
       file_names = Regexp.new(args.file_names, 'i') if args.file_names.present?
       file_paths = Dir[DataCycleCore::Engine.root.join('config', 'locales', '{*.de,de}.yml')]
-      file_paths.concat(Dir[Rails.root.join('config', 'locales', '{*.de,de}.yml')])
+      file_paths.concat(Rails.root.glob('config/locales/{*.de,de}.yml'))
       file_paths.select! { |p| file_names.match?(File.basename(p)) } if file_names.present?
 
       puts 'AUTOMATIC I18N TRANSLATION STARTED...'
@@ -51,13 +51,13 @@ namespace :dc do
         new_translations = existing_translations.dc_deep_transform_values do |value|
           next value unless value.is_a?(String)
 
-          translated_value = DataCycleCore::Feature::Translate.translate_text({ 'text' => value, 'source_locale' => 'de', 'target_locale' => new_locale })
+          translated_value = DataCycleCore::Feature['Translate']&.translate_text({ 'text' => value, 'source_locale' => 'de', 'target_locale' => new_locale })
 
           if translated_value.try(:error).present?
             puts "ERROR: #{translated_value.try(:error)}"
             value
           else
-            translated_value.dig('text')
+            translated_value['text']
           end
         rescue Faraday::Error => e
           puts "FARADAY ERROR: #{e.message}"

@@ -40,8 +40,9 @@ module DataCycleCore
     delegate :visible?, to: :concept_scheme
 
     scope :in_context, ->(context) { includes(:concept_scheme).where('concept_schemes.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:concept_scheme) }
-    scope :search, ->(q) { includes(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (concepts.description_i18n ->> :locale) ILIKE :q OR (concepts.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" }).references(:classification_alias_path) }
-    scope :by_full_paths, ->(full_paths) { includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
+    scope :search, ->(q) { includes(:classification_alias_path).where("ARRAY_TO_STRING(ARRAY_REVERSE(full_path_names), ' > ') ILIKE :q OR (concepts.description_i18n ->> :locale) ILIKE :q OR (concepts.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q.squish.gsub(/\s/, '%')}%" }).references(:classification_alias_path) }
+    scope :by_full_paths, ->(full_paths) { full_paths.blank? ? none : includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
+    scope :assignable, -> { where(assignable: true) }
 
     scope :for_tree, ->(tree_name) { tree_name.blank? ? none : includes(:concept_scheme).where(concept_schemes: { name: tree_name }) }
     scope :from_tree, ->(tree_name) { for_tree(tree_name) }
@@ -58,11 +59,11 @@ module DataCycleCore
                                           "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)"
                                         }.join(' + ') + ' DESC'.to_s
                                       ),
-                                      term:
+                                      {term:}
                                     ]
                                   )
                                 }
-    scope :by_external_sources_and_keys, -> { where(Array.new(_1.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *_1.pluck(:external_source_id, :external_key).flatten) }
+    scope :by_external_sources_and_keys, -> { _1.blank? ? none : where(Array.new(_1.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *_1.pluck(:external_source_id, :external_key).flatten) }
 
     validate :validate_color_format
 
@@ -139,7 +140,7 @@ module DataCycleCore
     end
 
     def color
-      ui_configs.dig('color')
+      ui_configs['color']
     end
 
     def color?
@@ -164,15 +165,15 @@ module DataCycleCore
 
         as_json(
           only: [:id, :external_key, :uri, :order_a, :concept_scheme_id],
-          include: { mapped_concepts: { only: [:id, :external_key], methods: [:external_system_identifier] } },
+          include: { mapped_concepts: { only: [:id, :external_key], methods: [:external_system_identifier, :full_path] } },
           methods: [:parent_id, :name, :description, :external_system_identifier]
         )
-        .deep_compact_blank
+          .deep_compact_blank
       end
     end
 
     def self.to_sync_data
-      includes(:parent, :external_system, mapped_concepts: [:external_system]).map(&:to_sync_data).compact
+      includes(:parent, :external_system, mapped_concepts: [:external_system, :classification_alias_path]).filter_map(&:to_sync_data)
     end
 
     def parent_id

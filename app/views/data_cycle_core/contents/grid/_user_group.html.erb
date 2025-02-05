@@ -1,7 +1,7 @@
 <div class="inner content-link">
 
   <div class="infoRow">
-    <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks, icon_tooltip: DataCycleCore::UserGroup.model_name.human(locale: active_ui_locale) %>
+    <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class), icon_tooltip: DataCycleCore::UserGroup.model_name.human(locale: active_ui_locale) %>
     <span class="title"><%= DataCycleCore::UserGroup.model_name.human(locale: active_ui_locale) %> (<%= item.users.size %>)</span>
 
     <span class="flex-auto"></span>

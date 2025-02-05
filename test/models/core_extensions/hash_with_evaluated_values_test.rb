@@ -18,8 +18,8 @@ describe Hash do
           }
         }
 
-        assert(hash.with_evaluated_values.dig(:one), 1)
-        assert(hash.with_evaluated_values.dig(:two), 2)
+        assert(hash.with_evaluated_values[:one], 1)
+        assert(hash.with_evaluated_values[:two], 2)
         assert(hash.with_evaluated_values.dig(:three, :alpha), 'α')
         assert(hash.with_evaluated_values.dig(:three, :beta), 'β')
       end
@@ -32,8 +32,8 @@ describe Hash do
           two: '{{ 1 + 1 }}'
         }
 
-        assert(hash.with_evaluated_values.dig(:one), 1)
-        assert(hash.with_evaluated_values.dig(:two), 2)
+        assert(hash.with_evaluated_values[:one], 1)
+        assert(hash.with_evaluated_values[:two], 2)
       end
 
       it 'should return evaluated value for nested hashes' do
@@ -45,8 +45,8 @@ describe Hash do
           }
         }
 
-        assert(hash.with_evaluated_values.dig(:one), 1)
-        assert(hash.with_evaluated_values.dig(:two), 2)
+        assert(hash.with_evaluated_values[:one], 1)
+        assert(hash.with_evaluated_values[:two], 2)
         assert(hash.with_evaluated_values.dig(:three, :value), 3)
       end
 
@@ -67,7 +67,7 @@ describe Hash do
           value: '{{ 3.days.ago.to_date }}'
         }
 
-        assert(hash.with_evaluated_values.dig(:value), Time.zone.today - 3.days)
+        assert(hash.with_evaluated_values[:value], Time.zone.today - 3.days)
       end
 
       it 'should return evaluated values for mongo query' do
@@ -78,7 +78,7 @@ describe Hash do
                 '$ne': 'published'
               }
             }, {
-              'seen_at': {
+              seen_at: {
                 '$lt': '{{ 3.days.ago.to_date }}'
               }
             }

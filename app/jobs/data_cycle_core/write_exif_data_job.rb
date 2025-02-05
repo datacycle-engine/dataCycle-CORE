@@ -43,7 +43,7 @@ module DataCycleCore
 
       I18n.with_locale(thing.first_available_locale) do
         thing.exif_property_names.each do |property_name|
-          property_definition = thing.property_definitions.dig(property_name)
+          property_definition = thing.property_definitions[property_name]
           exif_keys = property_definition.dig('exif', 'keys')
           exif_value = thing.send(property_name)
 

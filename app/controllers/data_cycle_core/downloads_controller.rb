@@ -49,7 +49,7 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(permitted_download_params[:id])
       serialize_formats = permitted_download_params[:serialize_format]&.split(',')&.map(&:strip) || ['asset']
       languages = permitted_download_params[:language]&.split(',')
-      versions = params.permit(versions: {}).dig(:versions)&.to_h
+      versions = params.permit(versions: {})[:versions]&.to_h
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :zip], serialize_formats)
 
@@ -92,7 +92,7 @@ module DataCycleCore
     def download_thing_zip
       @object = DataCycleCore::Thing.find(permitted_download_params[:id])
       authorize! :download_zip, @object
-      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      serialize_formats = permitted_download_params[:serialize_format]&.select { |_, v| v.to_i.positive? }&.keys
       languages = permitted_download_params[:language]
 
       redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
@@ -108,7 +108,7 @@ module DataCycleCore
     def download_thing_indesign
       @object = DataCycleCore::Thing.find(permitted_download_params[:id])
       authorize! :download_indesign, @object
-      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      serialize_formats = permitted_download_params[:serialize_format]&.select { |_, v| v.to_i.positive? }&.keys
       languages = permitted_download_params[:language]
 
       redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
@@ -144,7 +144,7 @@ module DataCycleCore
     def download_stored_filter_zip
       @stored_filter = DataCycleCore::StoredFilter.find(permitted_download_params[:id])
       authorize! :download_zip, @stored_filter
-      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      serialize_formats = permitted_download_params[:serialize_format]&.select { |_, v| v.to_i.positive? }&.keys
       languages = permitted_download_params[:language]
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
@@ -167,7 +167,7 @@ module DataCycleCore
     def download_watch_list_zip
       @watch_list = DataCycleCore::WatchList.find(permitted_download_params[:id])
       authorize! :download_zip, @watch_list
-      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      serialize_formats = permitted_download_params[:serialize_format]&.select { |_, v| v.to_i.positive? }&.keys
       languages = permitted_download_params[:language]
 
       redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
@@ -185,7 +185,7 @@ module DataCycleCore
     def download_watch_list_indesign
       @watch_list = DataCycleCore::WatchList.find(permitted_download_params[:id])
       authorize! :download_indesign, @watch_list
-      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      serialize_formats = permitted_download_params[:serialize_format]&.select { |_, v| v.to_i.positive? }&.keys
       languages = permitted_download_params[:language]
 
       redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?

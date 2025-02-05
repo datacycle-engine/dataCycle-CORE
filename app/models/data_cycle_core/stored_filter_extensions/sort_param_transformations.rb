@@ -94,7 +94,7 @@ module DataCycleCore
         return sort_hash['m'].gsub('advanced_attribute_', ''), 'sort_advanced_attribute' if sort_hash['m'].starts_with?('advanced_attribute_')
         return watch_list.id, 'sort_collection_manual_order' if sort_hash['m'] == 'default' && watch_list&.manual_order
 
-        return sort_hash['v'].dup, 'sort_' + sort_hash['m']
+        return sort_hash['v'].dup, "sort_#{sort_hash['m']}"
       end
 
       def apply_order_parameters(watch_list)

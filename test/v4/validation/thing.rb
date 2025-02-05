@@ -5,18 +5,18 @@ module DataCycleCore
     module Validation
       class Thing
         DEFAULT_HEADER = Dry::Schema.JSON do
-          required(:@id).value(:uuid_v4?)
+          required(:@id).value(:uuid?)
           required(:@type) { array? | str? }
           optional(:name).value(:string)
         end
 
         DEFAULT_DELETED_HEADER = Dry::Schema.JSON do
-          required(:@id).value(:uuid_v4?)
+          required(:@id).value(:uuid?)
           required(:'dct:deleted').value(:date_time)
         end
 
         IDENTIFIER_ATTRIBUTES = Dry::Schema.JSON do
-          required(:'@type').value(:string)
+          required(:@type).value(:string)
           required(:propertyID).value(:string)
           required(:value).value(:string)
         end
@@ -48,13 +48,13 @@ module DataCycleCore
           end
           required(:eventSchedule).value(:array, min_size?: 1).each do
             hash do
-              required(:@id).value(:uuid_v4?)
+              required(:@id).value(:uuid?)
               required(:@type).value(:string)
             end
           end
           optional(:additionalProperty).value(:array).each do
             hash do
-              required(:@id).value(:uuid_v4?)
+              required(:@id).value(:uuid?)
               required(:@type).value(:string)
               required(:identifier).value(:string)
               required(:name).value(:string)
@@ -69,7 +69,7 @@ module DataCycleCore
           end
           optional(:potentialAction).value(:array).each do
             hash do
-              required(:@id).value(:uuid_v4?)
+              required(:@id).value(:uuid?)
               required(:@type).value(:array)
             end
           end
@@ -94,7 +94,7 @@ module DataCycleCore
           required(:jobTitle).value(:string)
           required(:description).value(:string)
           required(:address).hash do
-            required(:@id).value(:uuid_v4?)
+            required(:@id).value(:uuid?)
             required(:@type).value(:string)
             required(:streetAddress).value(:string)
             required(:postalCode).value(:string)
@@ -132,33 +132,30 @@ module DataCycleCore
         end
 
         def self.thing(params: {})
-          fields = params.dig(:fields)
-          include = params.dig(:include)
+          fields = params[:fields]
+          include = params[:include]
           attributes = build_thing_validation(fields, include)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
           end
-          validator
         end
 
         def self.deleted_thing
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_DELETED_HEADER)
           end
-          validator
         end
 
         def self.event(params: {})
-          fields = params.dig(:fields)
-          include = params.dig(:include)
+          fields = params[:fields]
+          include = params[:include]
           attributes = build_event_validation(fields, include)
-          validator = Dry::Validation.Contract do
+          Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
           end
-          validator
         end
       end
     end

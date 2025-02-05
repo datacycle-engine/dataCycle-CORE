@@ -16,7 +16,7 @@ module DataCycleCore
       return ALLOWED_PROPS if props.present? || body.blank?
       props = data.xpath('//propfind/prop')&.first
       return [] if props.blank?
-      props&.children&.map { |i| ALLOWED_PROPS.include?(i.name.downcase) ? i.name.downcase : nil }&.compact || []
+      props&.children&.filter_map { |i| ALLOWED_PROPS.include?(i.name.downcase) ? i.name.downcase : nil } || []
     end
 
     def parse_header(request)
@@ -63,7 +63,7 @@ module DataCycleCore
       (["#{thing.template_name} (#{thing.id})\n"] +
         thing
           .plain_property_names
-          .map { |i| thing.send(i).present? && !i.in?(EXCLUDE_THING_PROPERTIES) ? ["#{thing.properties_for(i).dig('label')}:", "#{thing.send(i)}\n"] : nil }
+          .map { |i| thing.send(i).present? && !i.in?(EXCLUDE_THING_PROPERTIES) ? ["#{thing.properties_for(i)['label']}:", "#{thing.send(i)}\n"] : nil }
           .flatten
           .compact +
         ['Klassifizierungen:'] +

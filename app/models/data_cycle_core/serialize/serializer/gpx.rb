@@ -5,7 +5,7 @@ module DataCycleCore
     module Serializer
       class Gpx < Base
         class << self
-          include DataCycleCore::Engine.routes.url_helpers
+          include DataCycleCore::Common::Routing
 
           def translatable?
             false
@@ -19,12 +19,8 @@ module DataCycleCore
             "#{content.id}_"
           end
 
-          def default_url_options
-            Rails.application.config.action_mailer.default_url_options
-          end
-
           def serialize_thing(content:, language:, **_options)
-            content = content.is_a?(Array) ? content : [content]
+            content = [content] unless content.is_a?(Array)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
                 .select { |item| serializable?(item) }
@@ -39,7 +35,7 @@ module DataCycleCore
               xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
                 xml.metadata do
                   xml.name content.title
-                  xml.desc ActionView::Base.full_sanitizer.sanitize(content.send('description')) if content.respond_to?('description')
+                  xml.desc ActionView::Base.full_sanitizer.sanitize(content.send(:description)) if content.respond_to?(:description)
                   if content.created_by_user&.name.present?
                     xml.author do
                       xml.name content.created_by_user&.name

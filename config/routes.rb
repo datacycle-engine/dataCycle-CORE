@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+CONTENT_TABLES_FALLBACK = ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
+CONTENT_TABLE = ['things'].freeze
+
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
                      controllers: {
@@ -14,6 +17,12 @@ DataCycleCore::Engine.routes.draw do
     root 'backend#index', as: :authenticated_root
   end
 
+  # feature routes
+  DataCycleCore.features.each_key do |key|
+    feature = DataCycleCore::Feature[key]
+    feature.routes_module.extend(self) if feature&.enabled? && feature.routes_module
+  end
+
   authenticate do
     post '/', to: 'backend#index'
     get  '/settings', to: 'backend#settings'
@@ -24,9 +33,6 @@ DataCycleCore::Engine.routes.draw do
   match '/409', to: 'exceptions#conflict_exception', via: :all, as: :conflict_exception
   match '/422', to: 'exceptions#unprocessable_entity_exception', via: :all, as: :unprocessable_entity_exception
   match '/500', to: 'exceptions#internal_server_error_exception', via: :all, as: :internal_server_error_exception
-
-  CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
-  CONTENT_TABLE ||= ['things'].freeze
 
   root to: redirect('users/sign_in')
 
@@ -44,6 +50,9 @@ DataCycleCore::Engine.routes.draw do
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
+    file: /.*/
+  }
+  get '/assets/:id(/:file)', to: 'missing_asset#show', as: 'local_blob', constraints: {
     file: /.*/
   }
   get '/processed/:klass/:id(/:file)', to: 'missing_asset#processed', constraints: {
@@ -83,7 +92,7 @@ DataCycleCore::Engine.routes.draw do
     end
 
     scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-      resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
+      resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things, except: :show) do
         post :import, on: :collection
         get 'history/:history_id', action: :history, on: :member, as: :history
         post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
@@ -114,7 +123,7 @@ DataCycleCore::Engine.routes.draw do
         post :create_external_connection, on: :member
         post :elevation_profile, on: :member
         delete :remove_external_connection, on: :member
-        post '/', on: :member, action: :show
+        match '/', on: :member, action: :show, via: [:get, :post], constraints: { id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ }
       end
     end
   end
@@ -346,7 +355,7 @@ DataCycleCore::Engine.routes.draw do
                 match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
                 match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
 
-                match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
+                match 'things', to: 'things#index', via: [:get, :post] if Rails.env.local?
                 match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
                 match 'things/:id/:timeseries(/:format)', to: 'things#timeseries', as: 'thing_timeseries', via: [:get, :post]
 
@@ -403,24 +412,34 @@ DataCycleCore::Engine.routes.draw do
                   match '/concepts(/:external_key)', via: [:get, :post], to: 'classification_trees#by_external_key', as: 'classification_trees_by_external_key'
                   match '/things/select(/:external_keys)', to: 'contents#select_by_external_keys', as: 'things_select_by_external_key', via: [:get, :post]
                   match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'
-                  match '', via: :post, to: 'external_systems#create'
+                  post '', to: 'external_systems#create'
                   match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
-                  match '(/:external_key)', via: [:delete], to: 'external_systems#destroy', as: 'external_sources_delete'
+                  delete '(/:external_key)', to: 'external_systems#destroy', as: 'external_sources_delete'
                   match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
                   match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
                 end
 
-                match 'external_systems/:external_system_id/things/:id', to: 'external_systems_export#show', via: :get
+                get 'external_systems/:external_system_id/things/:id', to: 'external_systems_export#show'
               end
             end
           end
           namespace :config do
+            resources :common, only: [] do
+              match '/', action: :index, on: :collection, via: [:get, :post]
+            end
             resources :schema, only: [] do
               match '/:template_name', action: :show, on: :collection, as: :show, via: [:get, :post]
               match '/', action: :index, on: :collection, via: [:get, :post]
             end
             resources :feature, only: [] do
               match '/', action: :index, on: :collection, via: [:get, :post]
+            end
+          end
+
+          if DataCycleCore::Feature['Translate']&.enabled?
+            namespace :translate do
+              match '/text', to: 'translate#translate_text', via: [:get, :post]
+              # match '/thing/:id', to: 'translate#translate_thing', via: [:get, :post]
             end
           end
         end

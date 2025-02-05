@@ -9,7 +9,7 @@ module DataCycleCore
         end
 
         def allowed?(content = nil)
-          enabled? && configuration(content).dig('module').present? && configuration(content).dig('method').present?
+          enabled? && configuration(content)['module'].present? && configuration(content)['method'].present?
         end
 
         def definition(key, content)

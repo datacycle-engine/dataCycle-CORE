@@ -89,7 +89,7 @@ const DataCycleHttpClient = {
 	httpRequest(url, options = {}, retries = 3) {
 		const [mergedUrl, mergedOptions] = this.mergeHttpOptions(url, options);
 
-		return fetch(mergedUrl, mergedOptions).then((res) => {
+		return fetch(mergedUrl, mergedOptions).then(async (res) => {
 			if (res.ok) {
 				return res.json().catch(() => undefined);
 			}
@@ -103,7 +103,10 @@ const DataCycleHttpClient = {
 					this.httpRequest(mergedUrl, mergedOptions, retries - 1),
 				);
 
-			throw new Error(res.status);
+      const error = new Error(res.status)
+      error.responseBody = await res.json().catch(() => undefined);
+
+			throw error;
 		});
 	},
 };

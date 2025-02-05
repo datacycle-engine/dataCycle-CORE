@@ -56,7 +56,7 @@ module DataCycleCore
           ActiveRecord::Base.transaction do
             created = new_content.new_record?
             new_content.save!
-            new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
+            new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ name: "DUPLICATE: #{content.title}" })
             valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user:, new_content: created)
 
             raise ActiveRecord::Rollback, 'dataHash errors found' unless valid
@@ -123,20 +123,21 @@ module DataCycleCore
 
     def self.get_params_from_hash(template_hash, translations = true)
       allowed_params = []
+      array_property_types = ['classification', 'linked', 'collection']
 
       template_hash['properties'].each do |key, value|
         next if value.key?('compute') || value.key?('virtual')
 
         if value['type'] == 'schedule'
-          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [:day_of_week, :day_of_month, day: [], day_of_month: [], day_of_week: {}]]]] }
+          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, {start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, {validations: [:day_of_week, :day_of_month, {day: [], day_of_month: [], day_of_week: {}}]}]}]] }
         elsif value['type'] == 'opening_time'
-          parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]]] }
+          parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, {time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]}]] }
         elsif value['type'] == 'embedded'
           object_schemas = Array.wrap(value['template_name']).map { |t| get_internal_template(t).schema }
           parameter = { key.to_sym => object_schemas.map { |os| get_params_from_hash(os) }.reduce({}) { |p1, p2| p1.deep_merge(p2) { |_k, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? (v1 + v2).uniq : v2 } } }
         elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
           parameter = { key.to_sym => get_params_from_hash(value, false) }
-        elsif value['type'] == 'classification' || value['type'] == 'linked' || value['type'] == 'collection'
+        elsif array_property_types.include?(value['type'])
           parameter = { key.to_sym => [] }
         else
           parameter = key.to_sym
@@ -192,29 +193,54 @@ module DataCycleCore
       end
     end
 
-    def self.parse_translated_hash(datahash, allowed_locales = [])
+    def self.parse_translated_hash(datahash, allowed_locales = [], reject_blank = true)
       return {} unless datahash.is_a?(::Hash)
 
       neutral_hash = datahash.key?(:datahash) ? datahash[:datahash].to_h : datahash.except(:translations, :version_name).to_h
-      keep_locales = (find_locales_recursive(neutral_hash) + allowed_locales.map(&:to_s)).uniq
-      translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+      keep_locales = (find_locales_recursive(neutral_hash, [], reject_blank) + allowed_locales.map(&:to_s)).uniq
+
+      if reject_blank
+        translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+      else
+        translations = datahash[:translations]&.slice(*keep_locales).presence || { I18n.locale.to_s => {} }
+      end
 
       translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
     end
 
-    def self.find_locales_recursive(datahash, locales = [])
+    def self.normalize_datahash(data)
+      return if data.blank? && data != false
+
+      if data.is_a?(::Hash) && (data.key?('translations') || data.key?('datahash'))
+        d2 = data.dc_deep_dup.with_indifferent_access
+        d2['datahash']&.transform_values! { |v| normalize_datahash(v) }
+        d2['translations']&.transform_values! do |locale_hash|
+          locale_hash.transform_values { |v| normalize_datahash(v) }
+        end
+        d2
+      elsif data.is_a?(::Hash)
+        data.transform_values { |v| normalize_datahash(v) }.presence
+      elsif data.is_a?(::Array)
+        data.map { |v| normalize_datahash(v) }.presence
+      else
+        data.present? || data == false ? data : nil
+      end
+    end
+
+    def self.find_locales_recursive(datahash, locales = [], reject_blank = true)
+      return locales unless datahash.is_a?(::Hash)
       datahash&.each_value do |v|
         next unless v.is_a?(::Array)
 
         v.each do |h|
           next unless h.is_a?(::Hash)
 
-          find_locales_recursive(h['datahash'], locales) if h.key?('datahash')
+          find_locales_recursive(h['datahash'], locales, reject_blank) if h.key?('datahash')
 
           h['translations']&.each do |l, t|
-            find_locales_recursive(t, locales)
+            find_locales_recursive(t, locales, reject_blank)
 
-            locales.push(l) if locales.exclude?(l) && t.deep_reject { |_tk, tv| DataCycleCore::DataHashService.blank?(tv) }.present?
+            locales.push(l) if locales.exclude?(l) && (!reject_blank || t.deep_reject { |_tk, tv| DataCycleCore::DataHashService.blank?(tv) }.present?)
           end
         end
       end
@@ -247,7 +273,7 @@ module DataCycleCore
                     v['translations'] = v['translations']&.transform_values { |t| flatten_recursive(t, e_schema) }
                   end)
                 else
-                  e_schema = object_schemas[object_value.dig('template_name')] || default_schema
+                  e_schema = object_schemas[object_value['template_name']] || default_schema
                   temp_value.push(flatten_recursive(object_value, e_schema))
                 end
               end
@@ -266,10 +292,10 @@ module DataCycleCore
             elsif type == 'opening_time'
               value = DataCycleCore::Schedule.to_h_from_opening_time_params value
             elsif value['value'].is_a?(::Array)
-              value['value'] = value['value'].reject(&:blank?)
+              value['value'] = value['value'].compact_blank
             end
           elsif value.is_a?(::Array)
-            value = value.reject(&:blank?).uniq
+            value = value.compact_blank.uniq
           elsif type == 'number' && properties.dig('validations', 'format') == 'float'
             value = value.blank? ? nil : value.to_f
           elsif type == 'number'

@@ -83,15 +83,12 @@ module DataCycleCore
         def self.import(utility_object:, iterator:, data_processor:, options:)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              importer_name = options.dig(:import, :name)
-              phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
-
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
+                step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                 begin
-                  logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+                  logging.phase_started(step_label)
                   source_filter = options&.dig(:import, :source_filter) || {}
                   source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
                   source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
@@ -120,17 +117,15 @@ module DataCycleCore
                         locale:,
                         options:
                       )
-                    rescue StandardError => e
-                      logging.info("E: #{e.message}")
-                      e.backtrace.each do |line|
-                        logging.info("E: #{line}")
-                      end
                     end
                     times << Time.current
-                    logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                    logging.phase_partial(step_label, item_count, times)
                   end
-                ensure
-                  logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count.to_s)
+
+                  logging.phase_finished(step_label, item_count)
+                rescue StandardError => e
+                  logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
+                  raise
                 end
               end
             end

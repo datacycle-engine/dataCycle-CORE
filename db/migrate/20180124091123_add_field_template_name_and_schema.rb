@@ -7,8 +7,8 @@ class AddFieldTemplateNameAndSchema < ActiveRecord::Migration[5.0]
 
       add_column table_name.to_sym, :template_name, :string
       add_column table_name.to_sym, :schema, :jsonb
-      add_column (table_name.singularize + '_histories').to_sym, :template_name, :string
-      add_column (table_name.singularize + '_histories').to_sym, :schema, :jsonb
+      add_column :"#{table_name.singularize}_histories", :template_name, :string
+      add_column :"#{table_name.singularize}_histories", :schema, :jsonb
     end
   end
 
@@ -18,8 +18,8 @@ class AddFieldTemplateNameAndSchema < ActiveRecord::Migration[5.0]
 
       remove_column table_name.to_sym, :template_name, :string
       remove_column table_name.to_sym, :schema, :jsonb
-      remove_column (table_name.singularize + '_histories').to_sym, :template_name, :string
-      remove_column (table_name.singularize + '_histories').to_sym, :schema, :jsonb
+      remove_column :"#{table_name.singularize}_histories", :template_name, :string
+      remove_column :"#{table_name.singularize}_histories", :schema, :jsonb
     end
   end
 end

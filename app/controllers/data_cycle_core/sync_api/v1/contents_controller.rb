@@ -5,6 +5,12 @@ module DataCycleCore
     module V1
       class ContentsController < ::DataCycleCore::SyncApi::V1::BaseController
         PUMA_MAX_TIMEOUT = 600
+        URL_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
+          optional(:id).filled(:uuid?)
+          optional(:content_id).filled(:uuid?)
+          optional(:uuids).filled(:uuid_or_list_of_uuid?)
+        end
+
         include DataCycleCore::FilterConcern
         before_action :prepare_url_parameters
 
@@ -63,7 +69,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :deleted_at, :updated_since, :uuids, :index_only, uuid: []]
+          super + [:id, :language, :deleted_at, :updated_since, :uuids, :index_only, {uuid: []}]
         end
 
         private
@@ -114,7 +120,7 @@ module DataCycleCore
         def api_plain_links(contents = nil)
           contents ||= @contents
           object_url = lambda do |params|
-            File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+            url_for(params_for(URL_PARAMS_SCHEMA).reverse_merge(params))
           end
           if request.request_method == 'POST'
             common_params = {}

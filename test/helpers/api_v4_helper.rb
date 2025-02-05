@@ -30,16 +30,16 @@ module DataCycleCore
     def assert_compact_header(array)
       array.each do |hash|
         assert_equal(['@id', '@type'], hash.keys)
-        assert(hash.dig('@id').present?)
-        assert(hash.dig('@type').present?)
+        assert(hash['@id'].present?)
+        assert(hash['@type'].present?)
       end
     end
 
     def assert_compact_classification_header(array)
       array.each do |hash|
         assert_equal(['@id', '@type'], hash.keys)
-        assert(hash.dig('@id').present?)
-        assert(hash.dig('@type').present?)
+        assert(hash['@id'].present?)
+        assert(hash['@type'].present?)
       end
     end
 

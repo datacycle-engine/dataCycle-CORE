@@ -4,7 +4,7 @@ class CleanupHelper
   class << self
     def identify_external_source(item)
       return nil if item.config.blank?
-      item.config.dig('download_config').first[1].dig('endpoint').split('::')[-2]
+      item.config['download_config'].first[1]['endpoint'].split('::')[-2]
     end
 
     def linked(external_source)
@@ -16,16 +16,16 @@ class CleanupHelper
         'OutdoorActive' => ['POI', 'Tour'],
         'VTicket' => ['Event'],
         'Xamoom' => ['Örtlichkeit']
-      }.dig(external_source)
+      }[external_source]
       return if core_data_templates.blank?
       core_data_templates&.map { |template|
         thing_template = DataCycleCore::Thing.new(template_name: template)
         thing_template.linked_property_names.map do |linked_item|
           properties = thing_template.properties_for(linked_item)
-          if properties.dig('template_name').present?
-            { relation: linked_item, template: properties.dig('template_name') }
-          elsif properties.dig('stored_filter').present?
-            properties.dig('stored_filter').first.dig('with_classification_aliases_and_treename', 'aliases').map do |item|
+          if properties['template_name'].present?
+            { relation: linked_item, template: properties['template_name'] }
+          elsif properties['stored_filter'].present?
+            properties['stored_filter'].first.dig('with_classification_aliases_and_treename', 'aliases').map do |item|
               { relation: linked_item, template: item }
             end
           end
@@ -39,10 +39,10 @@ class CleanupHelper
         main_temp = DataCycleCore::Thing.new(thing_template: main_thing_temp)
         main_temp.embedded_property_names.map do |embedded_item|
           properties = main_temp.properties_for(embedded_item)
-          if embedded_hash.key?(properties.dig('template_name'))
-            embedded_hash[properties.dig('template_name')].push(main_temp.template_name)
+          if embedded_hash.key?(properties['template_name'])
+            embedded_hash[properties['template_name']].push(main_temp.template_name)
           else
-            embedded_hash[properties.dig('template_name')] = [main_temp.template_name]
+            embedded_hash[properties['template_name']] = [main_temp.template_name]
           end
         end
       end
@@ -50,7 +50,7 @@ class CleanupHelper
     end
 
     def orphaned_embedded(template_array, embedded_name)
-      template_string = "'" + template_array.map(&:to_s).join("', '") + "'"
+      template_string = "'#{template_array.map(&:to_s).join("', '")}'"
       where_string = <<-SQL.squish
         things.id NOT IN (
           SELECT things.id FROM things

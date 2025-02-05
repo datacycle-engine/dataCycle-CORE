@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
+# For unknown reasons, the Collection2 class CANNOT inherit from DataCycleCore::Generic::Collection. If you do this, it wont work anymore.
 module DataCycleCore
   module Generic
     class Collection2
       include Mongoid::Document
 
-      attr_accessor :data_has_changed, :keep_seen_at
+      attr_accessor :data_has_changed, :external_system_has_changed, :keep_seen_at
 
       store_in collection: 'name'
 

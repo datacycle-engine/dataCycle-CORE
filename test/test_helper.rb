@@ -24,15 +24,14 @@ end
 
 Bundler.require(*Rails.groups)
 
-Dotenv::Railtie.load
+Dotenv::Rails.load
 
 require File.expand_path('../test/dummy/config/environment.rb', __dir__)
 # ActiveRecord::Migrator.migrations_paths = [File.expand_path("../../test/dummy/db/migrate", __FILE__)]
 # ActiveRecord::Migrator.migrations_paths << File.expand_path('../../db/migrate', __FILE__)
 
 # Rails 7.0
-# ActiveRecord.maintain_test_schema = false
-ActiveRecord::Base.maintain_test_schema = false
+ActiveRecord.maintain_test_schema = false
 
 require 'rails/test_help'
 require 'test_cases/active_support_test_case'
@@ -61,7 +60,7 @@ require 'helpers/mongo_helper'
 require 'helpers/api_v4_helper'
 require 'helpers/active_storage_helper'
 
-if DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
+if DataCycleCore::TestPreparations.cli_options[:ignore_preparations]
   Rails.backtrace_cleaner.remove_silencers!
 else
   # DataCycleCore::TestPreparations.load_dictionaries

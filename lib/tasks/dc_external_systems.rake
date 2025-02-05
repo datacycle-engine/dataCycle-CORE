@@ -8,9 +8,9 @@ namespace :dc do
       errors = DataCycleCore::MasterData::ImportExternalSystems.validate_all
 
       if errors.blank?
-        puts('[done] ... looks good')
+        puts(AmazingPrint::Colors.green('[✔] ... looks good 🚀'))
       else
-        puts 'the following errors were encountered during validation:'
+        puts AmazingPrint::Colors.red('🔥 the following errors were encountered during validation:')
         ap errors
         exit(-1)
       end
@@ -19,13 +19,13 @@ namespace :dc do
     desc 'import and update all template definitions'
     task import: :environment do
       tmp = Time.zone.now
-      puts "importing new external_system configs\n"
+      puts 'importing new external_system configs'
       errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
 
       if errors.blank?
-        puts("[done] ... looks good (Duration: #{(Time.zone.now - tmp).round} sec)")
+        puts(AmazingPrint::Colors.green("[✔] ... looks good 🚀 (Duration: #{(Time.zone.now - tmp).round} sec)"))
       else
-        puts 'the following errors were encountered during import:'
+        puts AmazingPrint::Colors.red('🔥 the following errors were encountered during import:')
         ap errors
         exit(-1)
       end

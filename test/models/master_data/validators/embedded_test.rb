@@ -40,20 +40,16 @@ describe DataCycleCore::MasterData::Validators::Embedded do
     end
 
     let(:bild1) do
-      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000000', template_name: 'Bild') do |item|
-        item.name = 'Bild1'
-      end
+      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Bild1' })
     end
 
     let(:bild2) do
-      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001', template_name: 'Bild') do |item|
-        item.name = 'Bild2'
-      end
+      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Bild2' })
     end
 
     after do
-      DataCycleCore::Thing.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
-      DataCycleCore::Thing.find_by(id: '00000000-0000-0000-0000-000000000001')&.destroy
+      DataCycleCore::Thing.where_translated_value(name: 'Bild1').find_by(template_name: 'Bild')&.destroy
+      DataCycleCore::Thing.where_translated_value(name: 'Bild2').find_by(template_name: 'Bild')&.destroy
     end
 
     it 'successfully validates embedded Bild' do
@@ -61,12 +57,6 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       validator = subject.new([{ 'id' => uuid }], template_hash, 'Bilder')
       assert_equal(0, validator.error[:error].size)
     end
-
-    # it 'produces a warning if no data are given' do
-    #   validator = subject.new(nil, template_hash.deep_dup)
-    #   assert_equal(0, validator.error[:error].size)
-    #   assert_equal(1, validator.error[:warning].size)
-    # end
 
     it 'produces no error if a wrong validations keyword is given' do
       new_template_hash = template_hash.deep_dup

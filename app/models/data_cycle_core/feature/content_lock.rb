@@ -12,12 +12,16 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::ContentLock
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::ContentLock
+        end
+
         def lock_length
-          configuration.dig('lock_length')
+          configuration['lock_length']
         end
 
         def lock_renew_before
-          configuration.dig('lock_renew_before')
+          configuration['lock_renew_before']
         end
       end
     end

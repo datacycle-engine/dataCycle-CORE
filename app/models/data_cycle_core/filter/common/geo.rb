@@ -11,7 +11,7 @@ module DataCycleCore
         end
 
         def not_geo_filter(value = nil, type = nil)
-          filter_type = "not_#{type}".to_sym
+          filter_type = :"not_#{type}"
           raise 'Unknown geo filter' unless respond_to?(filter_type)
           send(filter_type, value)
         end
@@ -41,19 +41,20 @@ module DataCycleCore
 
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
-          thing_alias = thing.alias
+
+          t_alias = generate_thing_alias
 
           reflect(
             @query
               .where.not(thing[:geom_simple].eq(nil))
               .where(
                 DataCycleCore::Thing.select(1).arel
-                .from(thing_alias)
+                .from(t_alias)
                 .where(
-                  thing[:id].eq(thing_alias[:id])
+                  t_alias[:id].eq(thing[:id])
                   .and(
                     st_dwithin(
-                      cast_geography(thing_alias[:geom_simple]),
+                      cast_geography(t_alias[:geom_simple]),
                       cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
                       distance
                     )
@@ -68,19 +69,20 @@ module DataCycleCore
 
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
-          thing_alias = thing.alias
+
+          t_alias = generate_thing_alias
 
           reflect(
             @query
               .where.not(thing[:geom_simple].eq(nil))
               .where.not(
                 DataCycleCore::Thing.select(1).arel
-                .from(thing_alias)
+                .from(t_alias)
                 .where(
-                  thing[:id].eq(thing_alias[:id])
+                  t_alias[:id].eq(thing[:id])
                   .and(
                     st_dwithin(
-                      cast_geography(thing_alias[:geom_simple]),
+                      cast_geography(t_alias[:geom_simple]),
                       cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
                       distance
                     )
@@ -163,11 +165,11 @@ module DataCycleCore
 
           geom_type = geom_type_filter_builder(value)
 
-          @query = @query.where(
-            'GeometryType(geom_simple) IN (?)', geom_type
+          reflect(
+            @query.where(
+              'GeometryType(geom_simple) IN (?)', geom_type
+            )
           )
-
-          reflect(@query)
         end
 
         def not_geo_type(value)

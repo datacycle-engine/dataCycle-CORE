@@ -39,106 +39,122 @@ namespace :dc do
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
       File.write(dir.join("#{endpoint.id}.jsonld.tmp"), '')
+      global_retries = 1
 
-      renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
-        http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
-        https: Rails.application.config.force_ssl
-      )
+      begin
+        renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
+          http_host: Rails.application.config.action_mailer.default_url_options[:host],
+          https: Rails.application.config.force_ssl
+        )
 
-      context = renderer.render_to_string(
-        template: 'data_cycle_core/api/v4/api_base/_context',
-        layout: false,
-        assigns: {
-          permitted_params: { section: { links: 0 } },
-          expand_language: false
-        },
-        locals: {
-          languages: locales
-        }
-      )
+        context = renderer.render_to_string(
+          template: 'data_cycle_core/api/v4/api_base/_context',
+          layout: false,
+          assigns: {
+            permitted_params: { section: { links: 0 } },
+            expand_language: false
+          },
+          locals: {
+            languages: locales
+          }
+        )
 
-      meta = renderer.render_to_string(
-        template: 'data_cycle_core/api/v4/api_base/_pagination_links',
-        layout: false,
-        assigns: {
-          permitted_params: { section: { links: 0 } },
-          watch_list:,
-          stored_filter:
-        },
-        locals: {
-          objects: contents
-        }
-      )
+        meta = renderer.render_to_string(
+          template: 'data_cycle_core/api/v4/api_base/_pagination_links',
+          layout: false,
+          assigns: {
+            permitted_params: { section: { links: 0 } },
+            watch_list:,
+            stored_filter:
+          },
+          locals: {
+            objects: contents
+          }
+        )
 
-      result = {
-        **JSON.parse(context),
-        **JSON.parse(meta),
-        '@graph' => []
-      }.to_json
+        result = {
+          **JSON.parse(context),
+          **JSON.parse(meta),
+          '@graph' => []
+        }.to_json
 
-      size = contents.total_count
-      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
-      progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
-
-      logger.info("[EXPORTING] #{size} things in endpoint: #{endpoint.id}")
-      puts "Exporting #{size} things in endpoint: #{endpoint.id}"
-
-      file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
-      file << result.delete_suffix(']}')
-
-      contents.each do |item|
-        queue.append do
-          data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
-            retries = 1
-            I18n.with_locale(item.first_available_locale(locales)) do
-              JSON.parse(renderer.render_to_string(
-                           template: 'data_cycle_core/api/v4/api_base/_content_details',
-                           layout: false,
-                           assigns: {
-                             url_parameters: {},
-                             include_parameters: [['full', 'recursive']],
-                             fields_parameters: [],
-                             field_filter: false,
-                             classification_trees_parameters: [],
-                             classification_trees_filter: false,
-                             section_parameters: { links: 0 },
-                             language: locales,
-                             api_subversion: nil,
-                             api_version: 4,
-                             contents:,
-                             permitted_params: { section: { links: 0 } },
-                             watch_list:,
-                             stored_filter:,
-                             api_context: 'api'
-                           },
-                           locals: {
-                             content: item,
-                             options: { languages: locales }
-                           }
-                         ))
-            rescue SystemStackError
-              raise unless retries < 5
-
-              logger.error("[RETRYING] for thing: #{item.id} (retry: #{retries})")
-              retries += 1
-              retry
-            end
-          end
-
-          file << data.to_json + ','
-
-          progress.increment
+        size = ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+          contents.total_count
         end
+        worker_pool_size = [ActiveRecord::Base.connection_pool.size - 2, 3].min
+        queue = DataCycleCore::WorkerPool.new(worker_pool_size)
+        progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
+
+        logger.info("[EXPORTING] #{size} things in endpoint: #{endpoint.id}")
+        puts "Exporting #{size} things in endpoint: #{endpoint.id}"
+
+        file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
+        file << result.delete_suffix(']}')
+
+        objects = ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+          objects = contents.to_a
+        end
+
+        objects.each do |item|
+          queue.append do
+            data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
+              retries = 1
+              I18n.with_locale(item.first_available_locale(locales)) do
+                JSON.parse(renderer.render_to_string(
+                             template: 'data_cycle_core/api/v4/api_base/_content_details',
+                             layout: false,
+                             assigns: {
+                               url_parameters: {},
+                               include_parameters: [['full', 'recursive']],
+                               fields_parameters: [],
+                               field_filter: false,
+                               classification_trees_parameters: [],
+                               classification_trees_filter: false,
+                               section_parameters: { links: 0 },
+                               language: locales,
+                               api_subversion: nil,
+                               api_version: 4,
+                               contents:,
+                               permitted_params: { section: { links: 0 } },
+                               watch_list:,
+                               stored_filter:,
+                               api_context: 'api'
+                             },
+                             locals: {
+                               content: item,
+                               options: { languages: locales }
+                             }
+                           ))
+              rescue SystemStackError, ActiveRecord::ConnectionTimeoutError
+                raise unless retries < 5
+
+                logger.error("[RETRYING] for thing: #{item.id} (retry: #{retries})")
+                retries += 1
+                retry
+              end
+            end
+
+            file << ("#{data.to_json},")
+
+            progress.increment
+          end
+        end
+
+        queue.wait!
+
+        file.truncate(file.size - 1)
+        file << ']}'
+        file.close
+
+        FileUtils.rm_f(dir.join("#{endpoint.id}.jsonld"))
+        File.rename(dir.join("#{endpoint.id}.jsonld.tmp"), dir.join("#{endpoint.id}.jsonld"))
+      rescue ActiveRecord::ConnectionTimeoutError
+        raise if global_retries >= 5
+        global_retries += 1
+        retry
       end
-
-      queue.wait!
-
-      file.truncate(file.size - 1)
-      file << ']}'
-      file.close
-
-      FileUtils.rm_f(dir.join("#{endpoint.id}.jsonld"))
-      File.rename(dir.join("#{endpoint.id}.jsonld.tmp"), dir.join("#{endpoint.id}.jsonld"))
 
       logger.info("[FINISHED EXPORT] for things in endpoint: #{endpoint.id}")
     end

@@ -35,13 +35,13 @@ module DataCycleCore
                         }
 
         DATA_RANGE_FILTERS.each do |key|
-          scope "date_range_#{key}".to_sym, ->(value) { date_range(value, key) }
-          scope "not_date_range_#{key}".to_sym, ->(value) { not_date_range(value, key) }
+          scope :"date_range_#{key}", ->(value) { date_range(value, key) }
+          scope :"not_date_range_#{key}", ->(value) { not_date_range(value, key) }
         end
 
         BOOLEAN_FILTERS.each do |key|
-          scope "boolean_#{key}".to_sym, ->(value) { boolean(value, key) }
-          scope "not_boolean_#{key}".to_sym, ->(value) { not_boolean(value, key) }
+          scope :"boolean_#{key}", ->(value) { boolean(value, key) }
+          scope :"not_boolean_#{key}", ->(value) { not_boolean(value, key) }
         end
       end
 

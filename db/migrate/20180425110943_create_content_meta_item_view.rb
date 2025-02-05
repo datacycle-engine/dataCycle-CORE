@@ -2,9 +2,9 @@
 
 class CreateContentMetaItemView < ActiveRecord::Migration[5.0]
   def up
-    query = 'CREATE VIEW content_meta_items AS ' +
-            ['creative_works', 'events', 'persons', 'places', 'organizations'].map { |table|
-              <<-SQL
+    query = 'CREATE VIEW content_meta_items AS '
+    query += ['creative_works', 'events', 'persons', 'places', 'organizations'].map { |table|
+      <<-SQL
                 SELECT
                   id,
                   'DataCycleCore::#{table.singularize.classify}' AS "content_type",
@@ -14,13 +14,13 @@ class CreateContentMetaItemView < ActiveRecord::Migration[5.0]
                   external_key
                 FROM #{table}
                 WHERE "template" IS FALSE
-              SQL
-            }.join(' UNION ')
+      SQL
+    }.join(' UNION ')
 
-    ActiveRecord::Base.connection.exec_query(query)
+    execute(query)
   end
 
   def down
-    ActiveRecord::Base.connection.exec_query('DROP VIEW content_meta_items')
+    execute('DROP VIEW content_meta_items')
   end
 end

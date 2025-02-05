@@ -17,9 +17,9 @@ module DataCycleCore
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
         definition['type'].underscore.to_s,
         'default'
-      ].reject(&:blank?)
+      ].compact_blank
 
-      xml_partials_prefix = "data_cycle_core/xml/v#{xml_version}/xml_base/attributes/"
+      xml_partials_prefix = "data_cycle_core/xml/v#{xml_version}/xml_base/attributes"
       return first_existing_xml_partial(partials, xml_partials_prefix), parameters.merge({ key:, definition:, value:, content:, cache: true })
     end
 
@@ -32,16 +32,21 @@ module DataCycleCore
         partial
       ]
       xml_version = @xml_version || 1
-      xml_partials_prefix = "data_cycle_core/xml/v#{xml_version}/xml_base/"
+      xml_partials_prefix = "data_cycle_core/xml/v#{xml_version}/xml_base"
 
       return first_existing_xml_partial(partials, xml_partials_prefix), parameters.merge(cache: true)
     end
 
     def first_existing_xml_partial(partials, prefix)
-      partials.each do |partial|
-        next unless lookup_context.exists?(partial, [prefix], true)
-        return prefix + partial
+      partials.each do |partial_name|
+        partial = lookup_context.find_all(partial_name, [prefix], true).first
+
+        next if partial.nil?
+
+        return partial.virtual_path.split('/').map { |s| s.delete_prefix('_') }.join('/')
       end
+
+      nil
     end
 
     def overwritten_properties(content, overlay_name)

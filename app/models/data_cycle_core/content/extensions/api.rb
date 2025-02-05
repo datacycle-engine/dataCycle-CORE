@@ -36,7 +36,7 @@ module DataCycleCore
         end
 
         def api_type
-          api_types = computed_schema_types.presence || [try(:schema_type) || self.class.name.demodulize, 'dcls:' + template_name].flatten
+          api_types = computed_schema_types.presence || [try(:schema_type) || self.class.name.demodulize, "dcls:#{template_name}"].flatten
           api_types.concat(Array.wrap(schema.dig('api', 'type'))).uniq! if schema.dig('api', 'type').present?
           api_types
         end

@@ -11,11 +11,12 @@
   </div>
 
   <% if local_assigns[:filter_advanced_type] == 'absolute' %>
+    <% from_date, to_date = DataCycleCore::Filter::Common::Date.date_from_filter_object(value, local_assigns[:filter_advanced_type]) %>
     <div class="advanced-filter-selector">
       <span class="separator"><%= t("terms.from", locale: active_ui_locale) %></span>
-      <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj', data: { initial_focus: true } } %>
+      <%= datetime_field_tag "f[#{identifier}][v][from]", value&.key?('from') ? from_date : local_assigns[:default_from], { placeholder: 'tt.mm.jjjj SS:MM', data: { initial_focus: true } } %>
       <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>
-      <%= date_field_tag "f[#{identifier}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
+      <%= datetime_field_tag "f[#{identifier}][v][until]", value&.key?('until') ? to_date : local_assigns[:default_until], { placeholder: 'tt.mm.jjjj SS:MM' } %>
     </div>
   <% else %>
     <div class="advanced-filter-selector">
@@ -33,12 +34,13 @@
 
       <%= select_tag "f[#{identifier}][v][from][unit]", options_for_select(
                 [
+                    [t("datetime.prompts.hour", locale: active_ui_locale), 'hour'],
                     [t("datetime.prompts.day", locale: active_ui_locale), 'day'],
                     [t("datetime.prompts.week", locale: active_ui_locale), 'week'],
                     [t("datetime.prompts.month", locale: active_ui_locale), 'month'],
                     [t("datetime.prompts.year", locale: active_ui_locale), 'year']
                 ],
-                value&.dig('from','unit')
+                value&.dig('from','unit') || 'day'
             ) %>
     </div>
     <div class="advanced-filter-selector">
@@ -56,12 +58,13 @@
 
       <%= select_tag "f[#{identifier}][v][until][unit]", options_for_select(
                 [
+                    [t("datetime.prompts.hour", locale: active_ui_locale), 'hour'],
                     [t("datetime.prompts.day", locale: active_ui_locale), 'day'],
                     [t("datetime.prompts.week", locale: active_ui_locale), 'week'],
                     [t("datetime.prompts.month", locale: active_ui_locale), 'month'],
                     [t("datetime.prompts.year", locale: active_ui_locale), 'year']
                 ],
-                value&.dig('until','unit')
+                value&.dig('until','unit') || 'day'
             ) %>
     </div>
   <% end %>

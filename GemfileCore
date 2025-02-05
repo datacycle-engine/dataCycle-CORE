@@ -9,7 +9,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'appsignal'
+gem 'appsignal', '>= 4.1.1'
 
 # Excel Generator
 gem 'caxlsx'
@@ -27,7 +27,7 @@ gem 'jb'
 
 # OmniAuth Authentication
 gem 'omniauth-rails_csrf_protection', '>= 1.0.1'
-gem 'omniauth-azure-activedirectory-v2'
+gem 'omniauth-entra-id'
 
 group :test do
   gem 'minitest-hooks'
@@ -50,14 +50,12 @@ group :development do
   gem 'awesome_print'
 
   gem 'prosopite'
-  gem 'pg_query'
+  # gem 'pg_query'
 end
 
 group :development, :test, :review do
   gem 'seed_dump'
   gem 'listen'
-  gem 'spring'
-  gem 'spring-watcher-listen'
 
   gem 'pry'
   gem 'pry-byebug'

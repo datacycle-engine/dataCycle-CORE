@@ -17,7 +17,7 @@ module DataCycleCore
           movie = nil
           content.asset.file.blob.open do |video|
             movie = FFMPEG::Movie.new(video.path)
-            movie.transcode(output_path, video_processing.dig('options'))
+            movie.transcode(output_path, video_processing['options'])
           end
           # @todo: trigger cache invalidation
           [
@@ -30,11 +30,11 @@ module DataCycleCore
         end
 
         def config
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:config)
+          DataCycleCore.features[name.demodulize.underscore.to_sym][:config]
         end
 
         def placeholder
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:placeholder)
+          DataCycleCore.features[name.demodulize.underscore.to_sym][:placeholder]
         end
 
         def processable?(content:, variant:)
@@ -46,8 +46,8 @@ module DataCycleCore
         def video_filename(content, variant)
           filename = content.asset.name
           filename = filename.split('.')[0...-1].join if filename.split('.').size > 1
-          filename_append = variant.dig('filename_append').present? ? "-#{variant.dig('filename_append')}" : ''
-          file_extension = variant.dig('file_ext')
+          filename_append = variant['filename_append'].present? ? "-#{variant['filename_append']}" : ''
+          file_extension = variant['file_ext']
           "#{filename.parameterize(separator: '_')}#{filename_append}.#{file_extension}"
         end
       end

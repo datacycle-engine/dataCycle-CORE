@@ -18,10 +18,9 @@ module DataCycleCore
       include Sortable
       include DataCycleCore::Common::TsQueryHelpers
 
-      def initialize(locale = ['de'], query = nil, include_embedded = false)
+      def initialize(locale: ['de'], query: nil, include_embedded: false)
         @locale = locale
         @include_embedded = include_embedded
-
         @query = query || default_query
       end
 
@@ -42,7 +41,9 @@ module DataCycleCore
         return self if id.blank?
 
         reflect(
-          @query.where(subscription.where(subscription[:subscribable_id].eq(thing[:id]).and(subscription[:user_id].eq(id))).exists)
+          @query.where(
+            subscription.where(subscription[:subscribable_id].eq(thing[:id]).and(subscription[:user_id].eq(id))).exists
+          )
         )
       end
 
@@ -61,15 +62,15 @@ module DataCycleCore
 
         raw_sql = <<-SQL.squish
           WITH RECURSIVE content_dependencies AS (
-            SELECT ARRAY[things.id] "content_ids"
+            SELECT ARRAY["things"."id"] "content_ids"
               FROM things AS t
-              WHERE t.id = things.id
+              WHERE t.id = "things"."id"
               AND t.updated_at >= ?
             UNION
             SELECT ARRAY[content_content_links.content_b_id, content_content_links.content_a_id] "content_ids"
               FROM content_content_links
               JOIN things AS t ON t.id = content_content_links.content_b_id
-              WHERE content_content_links.content_a_id = things.id
+              WHERE content_content_links.content_a_id = "things"."id"
               AND content_content_links.relation IS NOT NULL
               AND t.updated_at >= ?
             UNION
@@ -81,11 +82,11 @@ module DataCycleCore
               AND t.updated_at >= ?
             WHERE array_length(content_dependencies.content_ids, 1) < ?
               AND content_content_links.relation IS NOT NULL
-          ) SELECT 1 FROM content_dependencies WHERE content_ids[array_length(content_ids, 1)] = things.id
+          ) SELECT 1 FROM content_dependencies WHERE content_ids[array_length(content_ids, 1)] = "things"."id"
         SQL
 
         reflect(
-          @query.where("EXISTS (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, updated_since, updated_since, updated_since, iteration_depth])})")
+          @query.where("EXISTS (#{sanitize_sql([raw_sql, updated_since, updated_since, updated_since, iteration_depth])})")
         )
       end
 
@@ -95,12 +96,12 @@ module DataCycleCore
         sql = <<-SQL.squish
           (
             CASE WHEN thing_templates.computed_schema_types IS NOT NULL THEN thing_templates.computed_schema_types && ARRAY[:type]::VARCHAR[]
-            ELSE (schema -> :attribute_path)::jsonb ? :type
+            ELSE (thing_templates.schema -> :attribute_path)::jsonb ? :type
             END
           )
         SQL
 
-        query_string = Thing.send(:sanitize_sql_for_conditions, [sql, attribute_path: 'schema_type', type:])
+        query_string = sanitize_sql([sql, {attribute_path: 'schema_type', type:}])
 
         reflect(
           @query.left_outer_joins(:thing_template).where(Arel.sql(query_string))
@@ -110,25 +111,31 @@ module DataCycleCore
       def watch_list_id(id = nil)
         return self if id.blank?
 
-        reflect(
-          @query.where(watch_list_data_hash.where(watch_list_data_hash[:hashable_id].eq(thing[:id]).and(watch_list_data_hash[:watch_list_id].eq(id))).exists)
-        )
+        subquery = DataCycleCore::WatchListDataHash
+          .where(watch_list_id: id)
+          .where(watch_list_data_hash[:thing_id].eq(thing[:id]))
+          .select(1)
+          .arel.exists
+
+        reflect(@query.where(subquery))
       end
 
       def part_of(id = nil)
         return self if id.blank?
 
-        reflect(
-          @query.where(thing[:is_part_of].eq(id))
-        )
+        reflect(@query.where(is_part_of: id))
       end
 
       def relation(name = nil)
         return self if name.blank?
 
-        reflect(
-          @query.where(content_content.where(content_content[:content_a_id].eq(thing[:id]).and(content_content[:relation_a].eq(name))).exists)
-        )
+        subquery = DataCycleCore::ContentContent
+          .where(relation_a: name)
+          .where(content_content[:content_a_id].eq(thing[:id]))
+          .select(1)
+          .arel.exists
+
+        reflect(@query.where(subquery))
       end
 
       def like_relation_filter(filter = nil, name = nil)
@@ -137,9 +144,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_like_relation_filter(filter = nil, name = nil)
@@ -148,9 +153,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def related_through_attribute(value, relation_name)
@@ -163,22 +166,22 @@ module DataCycleCore
 
       def exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
+
+        # inverse can be non-boolean from DataCycleCore::StoredFilter.apply_filter_parameters, inverse == true is required
         subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.project(1).exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
+
+        # inverse can be non-boolean from DataCycleCore::StoredFilter.apply_filter_parameters, inverse == true is required
         subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.project(1).exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def relation_filter(filter = nil, name = nil)
@@ -187,9 +190,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_relation_filter(filter = nil, name = nil)
@@ -198,9 +199,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def relation_filter_inv(filter = nil, name = nil)
@@ -209,9 +208,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name, true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_relation_filter_inv(filter = nil, name = nil)
@@ -220,9 +217,7 @@ module DataCycleCore
         subquery = related_to_query(filter, name, true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def related_to(filter_id = nil)
@@ -231,9 +226,7 @@ module DataCycleCore
         subquery = related_to_query(filter_id, nil, true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        reflect(@query.where(subquery))
       end
 
       def not_related_to(filter_id = nil)
@@ -242,9 +235,7 @@ module DataCycleCore
         subquery = related_to_query(filter_id, nil, true)
         return self if subquery.nil?
 
-        reflect(
-          @query.where.not(subquery.exists)
-        )
+        reflect(@query.where.not(subquery))
       end
 
       def boolean(value, filter_method)
@@ -256,17 +247,16 @@ module DataCycleCore
       end
 
       def duplicate_candidates(value, score = nil)
-        sub_query = duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))
-        sub_query = sub_query.and(duplicate_candidate[:score].gteq(score.to_i)) if score.present?
+        subquery = DataCycleCore::Thing::DuplicateCandidate.where(false_positive: false)
+        subquery = subquery.where(score: score.to_i..) if score.present?
+        subquery = subquery.where(duplicate_candidate[:duplicate_id].eq(thing[:id]))
+          .select(1)
+          .arel.exists
 
         if value.to_s == 'true'
-          reflect(
-            @query.where(duplicate_candidate.where(sub_query).exists)
-          )
+          reflect(@query.where(subquery))
         else
-          reflect(
-            @query.where(duplicate_candidate.where(sub_query).exists.not)
-          )
+          reflect(@query.where.not(subquery))
         end
       end
 
@@ -334,30 +324,33 @@ module DataCycleCore
 
       private
 
-      def related_to_query(filter, name = nil, inverse = false)
+      def related_to_filter_query(filter)
         if filter.is_a?(Search)
-          filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
+          filter.select(:id).except(*UNION_FILTER_EXCEPTS)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
-          filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
+          stored_filter.things.select(:id).except(*UNION_FILTER_EXCEPTS)
         elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-          filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
+          collection.watch_list_data_hashes.select(:thing_id).except(*UNION_FILTER_EXCEPTS)
         else # in case filter is array of thing_ids
-          filter_query = Array.wrap(filter)
+          Array.wrap(filter).presence
         end
+      rescue SystemStackError
+        raise DataCycleCore::Error::Filter::FilterRecursionError
+      end
 
+      def related_to_query(filter, name = nil, inverse = false)
+        filter_query = related_to_filter_query(filter)
         thing_id = :content_a_id
         related_to_id = :content_b_id
         thing_id, related_to_id = related_to_id, thing_id if inverse
         relation_name = inverse ? :relation_b : :relation_a
 
-        sub_select = content_content[thing_id].eq(thing[:id])
-                                              .and(content_content[related_to_id].in(filter_query))
+        subquery = DataCycleCore::ContentContent.all
+        subquery = subquery.where(relation_name => name) if name.present?
+        subquery = subquery.where(related_to_id => filter_query)
+          .where(content_content[thing_id].eq(thing[:id]))
 
-        sub_select = sub_select.and(content_content[relation_name].eq(name)) if name.present?
-
-        Arel::SelectManager.new
-                           .from(content_content)
-                           .where(sub_select)
+        subquery.select(1).arel.exists
       end
 
       ##
@@ -374,21 +367,29 @@ module DataCycleCore
         thing_id = :content_a_id
         thing_id = :content_b_id if inverse
 
-        sub_select = content_content[thing_id].eq(thing[:id])
-        sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
+        subquery = DataCycleCore::ContentContent.all
+        subquery = subquery.where(relation_a: name) if name.present?
+        subquery = subquery.where(content_content[thing_id].eq(thing[:id]))
 
-        Arel::SelectManager.new
-          .from(content_content)
-          .where(sub_select)
+        subquery.select(1).arel.exists
       end
 
       def default_query
         query = DataCycleCore::Thing.default_scoped
-        query = query.where.not(content_type: 'embedded') unless @include_embedded
-        query = query.order(boost: :desc, updated_at: :desc, id: :desc)
-        query = query.where(DataCycleCore::Search.select(1).where('searches.content_data_id = things.id').where(locale: @locale).arel.exists) if @locale.present?
+        query = query.where.not(content_type: 'embedded') unless include_embedded
 
-        query
+        if @locale.present?
+          query = query.where(
+            DataCycleCore::Search
+              .select(1)
+              .where(search[:content_data_id].eq(thing[:id]))
+              .where(locale: @locale)
+              .arel
+              .exists
+          )
+        end
+
+        apply_default_sorting(query)
       end
     end
   end

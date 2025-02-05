@@ -37,12 +37,11 @@ module DataCycleCore
           assert_response(:success)
           assert_equal(response.content_type, 'application/xml; charset=utf-8')
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'collections')
-          assert_equal(1, xml_data.dig('collection').count { |w| w['name'] == name })
+          assert_equal(1, xml_data['collection'].count { |w| w['name'] == name })
 
           # add data to watchlist
           get(add_item_watch_list_path(@watch_list), xhr: true, params: {
-            hashable_id: @content.id,
-            hashable_type: @content.class.name
+            thing_id: @content.id
           }, headers: {
             referer: root_path
           })

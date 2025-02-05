@@ -182,7 +182,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, user_group_ids: [], additional_attributes: {}]
+      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, {user_group_ids: [], additional_attributes: {}}]
       allowed_params.push(:password, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present?
       params.require(controller_name.singularize.to_sym).permit(allowed_params)
     end
@@ -217,7 +217,7 @@ module DataCycleCore
 
       @filters&.each do |filter|
         filter_method = (filter['c'] == 'd' ? filter['n'] : filter['t']).dup
-        filter_method = +"#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?("#{filter['t']}_#{filter['n']}")
+        filter_method = "#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?(:"#{filter['t']}_#{filter['n']}")
         filter_method.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
 
         next unless query.respond_to?(filter_method)

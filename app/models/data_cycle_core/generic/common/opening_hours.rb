@@ -59,7 +59,7 @@ module DataCycleCore
                 }]
               }
             }
-            .select { |item| item.dig('day_of_week').size.positive? }
+            .select { |item| item['day_of_week'].size.positive? }
         end
 
         def empty?
@@ -70,28 +70,28 @@ module DataCycleCore
         def self.parse_opening_times(data, external_source_id, external_key, day_transformation = nil)
           return nil if data.blank?
 
-          transformed_data = Array.wrap(data).map { |item|
+          transformed_data = Array.wrap(data).filter_map do |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
             item['external_key'] = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             item
-          }.compact
+          end
 
           existing = DataCycleCore::Schedule.where(external_source_id:, external_key: transformed_data.pluck('external_key')).index_by(&:external_key)
 
-          transformed_data.map { |item|
+          transformed_data.filter_map do |item|
             preprocess_opening_time(item, external_source_id, item['external_key'], day_transformation, existing[item['external_key']]&.id)
-          }.compact
+          end
         end
 
         def self.parse_opening_times_reference(data, external_source_id, external_key, day_transformation = nil)
           return nil if data.blank?
 
-          Array.wrap(data).map { |item|
+          Array.wrap(data).filter_map do |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
             external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             schedule_id = DataCycleCore::Generic::Common::DataReferenceTransformations.get_external_schedule_references(item, external_source_id, ->(*) { external_schedule_key })&.first
             preprocess_opening_time(item, external_source_id, external_schedule_key, day_transformation, schedule_id)
-          }.compact
+          end
         end
 
         def self.preprocess_opening_time(data, external_source_id, external_key, day_transformation, schedule_id)
@@ -110,7 +110,7 @@ module DataCycleCore
           if (data['Holiday'] == true && (0...7).to_a.difference(days).present?) || data['Holiday'] == false
             holidays = Holidays
               .between(start_time, until_time, Array.wrap(DataCycleCore.holidays_country_code))
-              .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+              .map { |d| { time: "#{d[:date]} #{start_time.to_fs(:time)}".in_time_zone, zone: start_time.time_zone.name } }
           end
 
           DataCycleCore::Schedule.transform_data_for_data_hash({
@@ -139,7 +139,7 @@ module DataCycleCore
         def parse_google(data_hash)
           DAY_HASH
             .keys
-            .map { |day| data_hash&.dig(day)&.map { |interval| parse_google_interval(interval) }&.compact || [] }
+            .map { |day| data_hash&.dig(day)&.filter_map { |interval| parse_google_interval(interval) } || [] }
             .zip(DAY_HASH.keys)
             .map { |data_interval| { data_interval[1] => data_interval[0] } }
             .inject(&:merge)
@@ -156,7 +156,7 @@ module DataCycleCore
                 day =>
                   data_hash
                     .select { |record| record&.dig('day_of_week')&.include?(day_of_week_classification_ids[day]) }
-                    .map { |record| record.dig('time').map { |time| parse_opening_hours_interval(time) } }
+                    .map { |record| record['time'].map { |time| parse_opening_hours_interval(time) } }
                     .flatten
               }
             }
@@ -166,8 +166,8 @@ module DataCycleCore
         def simplify_all_ranges
           return if @data.blank?
           DAY_HASH.each_key do |day|
-            next if @data.dig(day).size < 2
-            @data[day] = simplify_ranges(@data.dig(day).sort_by(&:min))
+            next if @data[day].size < 2
+            @data[day] = simplify_ranges(@data[day].sort_by(&:min))
           end
           self
         end
@@ -197,15 +197,15 @@ module DataCycleCore
 
         def parse_google_interval(data)
           return nil if data&.dig('open').blank? || data&.dig('close').blank?
-          opens = data.dig('open')
-          closes = data.dig('close')
+          opens = data['open']
+          closes = data['close']
           parse_time_interval(opens, closes)
         end
 
         def parse_opening_hours_interval(data)
           return nil if data&.dig('opens')&.blank? || data&.dig('closes').blank?
-          opens = data.dig('opens')
-          closes = data.dig('closes')
+          opens = data['opens']
+          closes = data['closes']
           parse_time_interval(opens, closes)
         end
 
@@ -222,37 +222,31 @@ module DataCycleCore
 
         def convert_to_time_string(number)
           hh = number / (60 * 60)
-          mm = (number - hh * 60 * 60) / 60
+          mm = (number - (hh * 60 * 60)) / 60
           hh -= 24 if hh >= 24
           [hh.to_s, mm.to_s.rjust(2, '0')].join(':')
         end
 
         def convert_to_i(string, next_day = false)
-          if @options.dig(:wrong_time_format).present?
+          if @options[:wrong_time_format].present?
             string.split(':')
               .rotate(1)
               .map(&:to_i)
               .zip(next_day ? [24, 0, 0] : [0, 0, 0])
-              .map { |item| item.inject(&:+) }
-              .zip([60 * 60, 60, 1])
-              .map { |item| item.inject(&:*) }
-              .inject(&:+)
+              .map(&:sum)
+              .zip([60 * 60, 60, 1]).sum { |item| item.inject(&:*) }
           elsif string.split(':').size == 3
             string.split(':')
               .map(&:to_i)
               .zip(next_day ? [24, 0, 0] : [0, 0, 0])
-              .map { |item| item.inject(&:+) }
-              .zip([60 * 60, 60, 1])
-              .map { |item| item.inject(&:*) }
-              .inject(&:+)
+              .map(&:sum)
+              .zip([60 * 60, 60, 1]).sum { |item| item.inject(&:*) }
           elsif string.split(':').size == 2
             string.split(':')
               .map(&:to_i)
               .zip(next_day ? [24, 0] : [0, 0])
-              .map { |item| item.inject(&:+) }
-              .zip([60 * 60, 60])
-              .map { |item| item.inject(&:*) }
-              .inject(&:+)
+              .map(&:sum)
+              .zip([60 * 60, 60]).sum { |item| item.inject(&:*) }
           end
         end
 

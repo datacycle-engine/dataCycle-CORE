@@ -1,0 +1,32 @@
+- 'Basic Categories':
+    - 'Basic Subcategory 1.1'
+    - 'Basic Subcategory 1.2':
+        - 'Basic Sub-subcategory 1.2.1'
+        - 'Basic Sub-subcategory 1.2.2'
+
+- 'Descriptive Categories':
+    - 'Descriptive Subcategory 1.1 | Description for subcategory 1.1'
+    - 'Descriptive Subcategory 1.2 | Description for subcategory 1.2':
+        - 'Descriptive Sub-subcategory 1.2.1 | Description for sub-subcategory 1.2.1'
+        - 'Descriptive Sub-subcategory 1.2.2 | Description for sub-subcategory 1.2.2'
+
+- 'Internal Categories':
+    - '$$Internal Subcategory 1.1'
+    - '$$Internal Subcategory 1.2':
+        - '$$Internal Sub-subcategory 1.2.1'
+        - '$$Internal Sub-subcategory 1.2.2'
+
+- 'Categories with URI':
+    - 'URI Subcategory 1.1**http://example.com/subcategory1.1'
+    - 'URI Subcategory 1.2**http://example.com/subcategory1.2':
+        - 'URI Sub-subcategory 1.2.1**http://example.com/sub-subcategory1.2.1'
+        - 'URI Sub-subcategory 1.2.2**http://example.com/sub-subcategory1.2.2'
+
+- 'Mixed Categories':
+    - '$$Internal Mixed Subcategory 1.1 | Internal description**http://example.com/internal_subcategory1.1'
+    - 'Mixed Subcategory 1.2 | Description for subcategory 1.2**http://example.com/subcategory1.2':
+        - '$$Internal Mixed Sub-subcategory 1.2.1 | Internal description'
+        - 'Mixed Sub-subcategory 1.2.2 | Description for sub-subcategory 1.2.2**http://example.com/sub-subcategory1.2.2'
+    - '$$Internal Mixed Subcategory 1.3 | Another description**http://example.com/subcategory1.3':
+        - 'Mixed Sub-subcategory 1.3.1 | Another sub-description**http://example.com/sub-subcategory1.3.1'
+        - '$$Internal Mixed Sub-subcategory 1.3.2 | Internal sub-description**http://example.com/internal_sub-subcategory1.3.2'

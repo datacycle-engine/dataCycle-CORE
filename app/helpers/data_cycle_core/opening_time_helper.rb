@@ -20,7 +20,7 @@ module DataCycleCore
 
     def opening_time_ex_dates(opening_times)
       extimes = opening_times
-        .map { |o| o[:extimes]&.map { |e| e[:time] } }
+        .map { |o| o[:extimes]&.pluck(:time) }
         .flatten
         .compact
         .uniq
@@ -40,9 +40,9 @@ module DataCycleCore
 
     def opening_time_opening_hours(opening_times)
       days = [*(1..6), 0]
-      days.push(99) if opening_times.any? { |d| !d.dig(:holidays).nil? }
+      days.push(99) if opening_times.any? { |d| !d[:holidays].nil? }
 
-      safe_join(days.map { |v|
+      safe_join(days.filter_map do |v|
         (safe_join(
           opening_times.filter { |o| o.dig(:rrules, 0, :validations, :day)&.include?(v) || (v == 99 && o[:holidays]) }
             .sort_by { |o| o.dig(:start_time, :time) }
@@ -55,7 +55,7 @@ module DataCycleCore
           " #{t('common.and', locale: active_ui_locale)} "
         ).presence || tag.span(t('opening_time.closed', locale: active_ui_locale)))
           &.prepend(tag.span("#{v == 99 ? t('opening_time.holiday', locale: active_ui_locale) : t('date.day_names', locale: active_ui_locale)[v]}: ", class: 'opening-time-day'))
-      }.compact, tag.br)
+      end, tag.br)
     end
   end
 end

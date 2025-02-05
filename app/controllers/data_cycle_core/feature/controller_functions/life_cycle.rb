@@ -6,13 +6,6 @@ module DataCycleCore
       module LifeCycle
         extend ActiveSupport::Concern
 
-        included do
-          DataCycleCore::Engine.routes.append do
-            patch '/things/:id/update_life_cycle', action: :update_life_cycle, controller: 'things', as: 'update_life_cycle_thing' unless has_named_route?(:update_life_cycle_thing)
-          end
-          Rails.application.reload_routes!
-        end
-
         def update_life_cycle
           @object = DataCycleCore::Thing.find_by(id: params[:id])
           authorize! :set_life_cycle, @object, life_cycle_params

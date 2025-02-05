@@ -7,7 +7,7 @@ class AddColumnAndTriggerForSimplifiedGeometries < ActiveRecord::Migration[6.1]
     add_column :things, :geom_simple, :geometry, srid: 4326
     add_index :things, :geom_simple, name: 'index_things_on_geom_simple_spatial', using: :gist
 
-    ActiveRecord::Base.connection.execute('VACUUM ANALYZE things')
+    execute('VACUUM ANALYZE things')
 
     execute <<-SQL.squish
       CREATE OR REPLACE FUNCTION geom_simple_update () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$ BEGIN NEW.geom_simple := (

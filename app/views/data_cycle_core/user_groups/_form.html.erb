@@ -63,8 +63,7 @@
                     data: {
                       max: 20,
                       placeholder: '',
-                      search_path: search_users_path,
-                      close_on_select: false
+                      search_path: search_users_path
                     }
                   }
                 ) %>
@@ -88,14 +87,73 @@
                   data: {
                     tree_label: config['tree_label'],
                     allow_clear: true,
-                    placeholder: '',
-                    close_on_select: false,
+                    placeholder: ''
                   }
                 }
               ) %>
             </div>
           </div>
         <% end %>
+
+        <% if DataCycleCore::Feature::UserGroupSharedCollection.enabled? %>
+          <div class="form-element">
+            <%= f.label "user_group_shared_collection_ids_", DataCycleCore::UserGroup.human_attribute_name(
+              "shared_collection_ids",
+              collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+              stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+              locale: active_ui_locale
+            ) %>
+            <div class="v-select">
+              <% collections = DataCycleCore::Feature::UserGroupSharedCollection.whitelist
+              %>
+              <%= hidden_field_tag 'user_group[shared_collection_ids][]' %>
+              <%=
+                select_tag('user_group[shared_collection_ids][]',
+                options_for_select(collections.map { |c| c.to_select_option(active_ui_locale) }.map(&:to_option_for_select), content.shared_collection_ids),
+                {
+                  multiple: config.key?('multiple') ? config['multiple'] : true,
+                  include_blank: true,
+                  class: 'multi-select',
+                  data: {
+                    initial_focus: true,
+                    max: 20
+                  }
+                }
+              )
+              %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if DataCycleCore::Feature::UserGroupPermission.enabled? %>
+          <div class="form-element">
+            <%= f.label :permissions, DataCycleCore::UserGroup.human_attribute_name(
+              "permissions",
+              collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+              stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+              locale: active_ui_locale
+            ) %>
+            <div class="v-select">
+              <% abilities = DataCycleCore::Feature::UserGroupPermission.ability_selection(self)
+              %>
+              <%= hidden_field_tag 'user_group[permissions][]' %>
+              <%= select_tag('user_group[permissions][]',
+                             options_from_collection_for_select(abilities, "second", "first", content.permissions),
+                             {
+                               multiple: config.key?('multiple') ? config['multiple'] : true,
+                               include_blank: true,
+                               class: 'multi-select',
+                               data: {
+                                 initial_focus: true,
+                                 max: 20
+                               }
+                             }
+                  )
+              %>
+            </div>
+          </div>
+        <% end %>
+
       </div>
     </div>
   </div>

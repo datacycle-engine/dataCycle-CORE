@@ -25,16 +25,16 @@ module DataCycleCore
                     I18n.with_locale(language) do
                       DataCycleCore::ApplicationController.renderer_with_user(
                         user,
-                        http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+                        http_host: Rails.application.config.action_mailer.default_url_options[:host],
                         https: Rails.application.config.force_ssl
                       ).render_to_string(
                         formats: [:html],
                         layout: 'data_cycle_core/pdf',
-                        locals: { :@content => content },
+                        assigns: { content: content },
                         template: 'data_cycle_core/pdf/contents/show'
                       ).squish
                     end,
-                    root_url: Rails.application.config.action_mailer.default_url_options.dig(:host),
+                    root_url: Rails.application.config.action_mailer.default_url_options[:host],
                     protocol: Rails.application.config.force_ssl ? 'https' : 'http'
                   ).to_pdf,
                   mime_type:,

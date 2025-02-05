@@ -64,8 +64,7 @@ module DataCycleCore
         private
 
         def build_search_query
-          query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language) { 'de' })
-          query
+          DataCycleCore::Filter::Search.new(locale: permitted_params.fetch(:language, 'de'))
         end
 
         def prepare_url_parameters

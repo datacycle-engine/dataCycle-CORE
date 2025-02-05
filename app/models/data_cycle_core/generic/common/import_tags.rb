@@ -14,16 +14,16 @@ module DataCycleCore
               utility_object,
               options.dig(:import, :tree_label),
               method(:load_root_classifications).to_proc,
-              ->(_, _, _) { [] },
+              ->(_, _, _, _ = nil) { [] },
               ->(_, _, _) {},
               method(:extract_data).to_proc,
               options
             )
           end
 
-          def load_root_classifications(mongo_item, locale, options)
+          def load_root_classifications(mongo_item, locale, options, source_filter = nil)
             options = options.with_evaluated_values
-            source_filter = options.dig(:import, :source_filter) || {}
+            source_filter ||= options.dig(:import, :source_filter) || {}
 
             attribute_name = ['dump', locale, options.dig(:import, :tag_path) || options.dig(:import, :tag_id_path)].join('.')
             path_array = ['dump', locale.to_s, parse_common_tag_path(options)].flatten.join('.').split('.')
@@ -82,7 +82,7 @@ module DataCycleCore
           end
 
           def process_content(utility_object:, raw_data:, locale:, options:)
-            return if options&.blank? || options.dig(:import).blank?
+            return if options&.blank? || options[:import].blank?
             allowed_locales = options.dig(:import, :locales) || utility_object.external_source.try(:default_options)&.symbolize_keys&.dig(:locales) || [locale]
             return unless allowed_locales.include?(locale)
 

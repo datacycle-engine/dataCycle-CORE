@@ -8,7 +8,7 @@ require:
   - rubocop-rake
 
 AllCops:
-  TargetRubyVersion: 3.2.2
+  # TargetRubyVersion: 3.2.2
   # TargetRailsVersion: 5.2.3
   DisplayCopNames: true
   NewCops: enable
@@ -17,6 +17,8 @@ AllCops:
     - "tmp/**/*"
     - "cache/**/*"
     - "bash/**/*"
+    - "*/**/transformations.rb"
+
     # - "test/dummy/db/migrate_6_1/**/*"
     # - "test/dummy/db/migrate_7_0/**/*"
 
@@ -141,6 +143,9 @@ Style/OperatorMethodCall:
 
 Style/ArgumentsForwarding:
   Enabled: false
+
+Style/SafeNavigationChainLength:
+  Max: 10
 
 #######################################################
 ########## Metrics
@@ -278,3 +283,10 @@ Security/YAMLLoad:
     - "app/models/data_cycle_core/master_data/import_templates.rb"
     - "app/models/data_cycle_core/master_data/import_external_sources.rb"
     - "app/models/data_cycle_core/master_data/import_mixins.rb"
+
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - development
+    - test
+    - staging

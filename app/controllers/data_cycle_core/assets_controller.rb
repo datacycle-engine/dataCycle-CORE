@@ -12,11 +12,11 @@ module DataCycleCore
         @assets = DataCycleCore::Asset.includes(:thing).accessible_by(current_ability).order(type: :asc, updated_at: :desc)
         @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
         @assets = @assets.where(id: permitted_params[:asset_ids]) if permitted_params[:asset_ids].present?
-        @assets = @assets.limit(25).offset((@page - 1) * 25 - permitted_params[:delete_count].to_i)
+        @assets = @assets.limit(25).offset(((@page - 1) * 25) - permitted_params[:delete_count].to_i)
 
         @asset_details = @assets.includes(file_attachment: :blob).map do |a|
           a.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
-           .merge(a.warnings? ? { 'warning' => a.full_warnings(helpers.active_ui_locale) } : {})
+            .merge(a.warnings? ? { 'warning' => a.full_warnings(helpers.active_ui_locale) } : {})
         end
         @total = @assets.except(:limit, :offset).count
 
@@ -51,15 +51,7 @@ module DataCycleCore
         if @asset.save
           render json: @asset.attributes.merge(duplicateCandidates: Array.wrap(@asset.try(:duplicate_candidates)&.as_json(only: [:id], methods: :thumbnail_url))).merge(@asset.warnings? ? { 'warning' => @asset.full_warnings(helpers.active_ui_locale) } : {})
         else
-          render(json: {
-            error: @asset
-              .errors
-              .map { |e|
-                e.options.present? ? "#{@asset.class.human_attribute_name(e.attribute, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(e.options, helpers.active_ui_locale)}" : I18n.with_locale(helpers.active_ui_locale) { e.message }
-              }
-              .flatten
-              .join(', ')
-          })
+          render(json: { error: @asset.full_errors(helpers.active_ui_locale) })
         end
       rescue StandardError => e
         render(json: { error: I18n.t('validation.errors.asset_convert', locale: helpers.active_ui_locale), errorDetail: e.message }, status: :unprocessable_entity)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class RenameEditLinksToDataLinks < ActiveRecord::Migration[5.0]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     remove_column :edit_links, :read_only
     add_column :edit_links, :permissions, :string
@@ -12,4 +13,5 @@ class RenameEditLinksToDataLinks < ActiveRecord::Migration[5.0]
     add_column :data_links, :read_only, :boolean, default: false, null: false
     rename_table :data_links, :edit_links
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

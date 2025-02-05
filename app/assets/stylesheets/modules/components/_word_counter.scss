@@ -2,14 +2,15 @@
   &.warning {
     color: $warning-color;
   }
+
   &.error {
     color: $alert-color;
     font-weight: bold;
   }
+
   position: absolute;
   right: 10px;
   bottom: 0.3rem;
-  z-index: 1;
   text-align: right;
   font-style: italic;
   font-size: 0.9rem;

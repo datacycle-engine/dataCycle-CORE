@@ -53,7 +53,7 @@ module DataCycleCore
             if data_hash[attribute].blank?
               data_hash[attribute] = []
             else
-              data_hash[attribute] = DataCycleCore::Classification.includes(primary_classification_alias: [classification_tree: :classification_tree_label]).where('lower(classifications.name) IN (?)', data_hash[attribute]&.map(&:downcase)).where(primary_classification_alias: { classification_trees: { classification_tree_labels: { name: tree_label } } }).ids
+              data_hash[attribute] = DataCycleCore::Classification.includes(primary_classification_alias: [classification_tree: :classification_tree_label]).where('lower(classifications.name) IN (?)', data_hash[attribute]&.map(&:downcase)).where(primary_classification_alias: { classification_trees: { classification_tree_labels: { name: tree_label } } }).pluck(:id)
             end
             data_hash
           end
@@ -64,13 +64,13 @@ module DataCycleCore
             data_hash.merge(
               {
                 attribute =>
-                  data_list.call(data_hash)&.map { |item_data|
+                  data_list.call(data_hash)&.filter_map do |item_data|
                     search_params = {
                       external_source_id:,
-                      external_key: external_prefix + item_data.dig(key)
+                      external_key: external_prefix + item_data[key]
                     }
                     DataCycleCore::Classification.find_by(search_params)&.id
-                  }&.reject(&:nil?) || []
+                  end || []
               }
             )
           end

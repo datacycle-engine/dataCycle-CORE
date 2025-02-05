@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class ClassificationsController < ApplicationController
-    FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
+    FIXNUM_MAX = ((2**((0.size * 8) - 2)) - 1)
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
 
     def index
@@ -59,16 +59,16 @@ module DataCycleCore
             @classification_trees = @classification_trees.includes(:classification_alias_path)
           else
             @classification_trees = @classification_trees
-            .joins(:sub_classification_alias)
-            .includes(
-              sub_classification_alias: [
-                :classification_alias_path,
-                :classification_tree_label,
-                additional_classifications: [primary_classification_alias: :classification_alias_path],
-                primary_classification: [additional_classification_aliases: :classification_alias_path],
-                classifications: [primary_classification_alias: :classification_alias_path]
-              ]
-            )
+              .joins(:sub_classification_alias)
+              .includes(
+                sub_classification_alias: [
+                  :classification_alias_path,
+                  :classification_tree_label,
+                  {additional_classifications: [primary_classification_alias: :classification_alias_path],
+                   primary_classification: [additional_classification_aliases: :classification_alias_path],
+                   classifications: [primary_classification_alias: :classification_alias_path]}
+                ]
+              )
 
             @classification_polygon_counts = @classification_trees
               .joins(sub_classification_alias: :classification_polygons)
@@ -92,10 +92,13 @@ module DataCycleCore
                 DataCycleCore::ClassificationAlias.all
               end
 
-      I18n.with_locale(helpers.active_ui_locale) do
-        query = query.search(search_params[:q])
+      if search_params[:q].present?
+        I18n.with_locale(helpers.active_ui_locale) do
+          query = query.search(search_params[:q])
+        end
+        query = query.order_by_similarity(search_params[:q])
       end
-      query = query.order_by_similarity(search_params[:q])
+      query = query.assignable
       query = query.limit(search_params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
       query = query.where.not(id: search_params[:exclude]) if search_params[:exclude].present?
       if search_params[:exclude_tree_label].present?
@@ -105,7 +108,7 @@ module DataCycleCore
       query = query.preload(*Array.wrap(search_params[:preload])) if search_params[:preload].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
-      render plain: query.map { |a|
+      render plain: query.filter_map { |a|
         next if a.primary_classification.nil?
 
         {
@@ -116,14 +119,14 @@ module DataCycleCore
           dc_tooltip: helpers.classification_tooltip(a),
           disabled: search_params[:disabled_unless_any?].present? ? a.try(search_params[:disabled_unless_any?]).none? : !a.assignable
         }
-      }.compact.to_json, content_type: 'application/json'
+      }.to_json, content_type: 'application/json'
     end
 
     def find
       query = DataCycleCore::Classification.where(id: find_params[:ids]).preload(primary_classification_alias: :classification_alias_path)
       query = query.for_tree(find_params[:tree_label]) if find_params[:tree_label].present?
 
-      render plain: query.map { |c|
+      render plain: query.filter_map { |c|
         next if c.primary_classification_alias.nil?
 
         {
@@ -134,7 +137,7 @@ module DataCycleCore
           dc_tooltip: helpers.classification_tooltip(c.primary_classification_alias),
           disabled: !c.primary_classification_alias.assignable
         }
-      }.compact.to_json, content_type: 'application/json'
+      }.to_json, content_type: 'application/json'
     end
 
     def create
@@ -201,7 +204,18 @@ module DataCycleCore
         @object.save!
       end
 
-      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update', locals: { :@queue_classification_mappings => Delayed::Job.exists?(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: @object.id) ? [@object.id] : [] }).strip }.merge(flash.discard.to_h)
+      queued_job = Delayed::Job.exists?(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: @object.id)
+
+      render json: {
+        html: render_to_string(
+          formats: [:html],
+          layout: false,
+          action: 'update',
+          assigns: {
+            queue_classification_mappings: queued_job ? [@object.id] : []
+          }
+        ).strip
+      }.merge(flash.discard.to_h)
     rescue ActiveRecord::RecordInvalid
       render json: { error: I18n.with_locale(helpers.active_ui_locale) { @object.errors.full_messages.join(', ') } }
     end
@@ -239,7 +253,7 @@ module DataCycleCore
             raw_csv = object.to_csv
           end
 
-          send_data "sep=,\n" + raw_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace),
+          send_data "sep=,\n#{raw_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace)}",
                     type: 'text/csv; charset=iso-8859-1;',
                     filename: "#{object.name}.csv"
         end
@@ -317,8 +331,8 @@ module DataCycleCore
         normalize_names(params).permit(
           :classification_tree_label_id,
           :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: [], ui_configs: [:color]]
+          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
     end
@@ -331,8 +345,8 @@ module DataCycleCore
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
         normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: [], ui_configs: [:color]]
+          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
     end

@@ -14,9 +14,9 @@ module DataCycleCore
         from, to = get_validity_values(validity_hash)
         [
           '[',
-          from.is_a?(DateTime) ? from.to_s(:long_usec) : '',
+          from.is_a?(DateTime) ? from.to_fs(:long_usec) : '',
           ',',
-          to.is_a?(DateTime) ? to.to_s(:long_usec) : '',
+          to.is_a?(DateTime) ? to.to_fs(:long_usec) : '',
           ']'
         ].join
       end

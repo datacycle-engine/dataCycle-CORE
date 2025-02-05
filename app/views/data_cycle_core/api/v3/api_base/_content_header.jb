@@ -10,9 +10,9 @@ json = {}
 
 if options[:header_type] != :overlay && options[:header_type] != :embedded_to_linked
   json.merge! render('content_context', content:)
-  json['@id'] = send("api_v#{@api_version}_#{content.model_name.element.tableize.singularize}_url", @api_subversion, content, @language != I18n.available_locales.first.to_s ? { language: @language } : {})
+  json['@id'] = send(:"api_v#{@api_version}_#{content.model_name.element.tableize.singularize}_url", @api_subversion, content, @language == I18n.available_locales.first.to_s ? {} : { language: @language })
   json['identifier'] = content.id
-  json['url'] = send("#{content.model_name.element.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
+  json['url'] = send(:"#{content.model_name.element.tableize.singularize}_url", content, @language == I18n.available_locales.first.to_s ? {} : { locale: @language })
 end
 
 if options[:header_type] == :embedded_to_linked
@@ -29,8 +29,8 @@ if options[:header_type] == :full
 
   if @mode_parameters.include?('compact')
     classifications = content.classifications.includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
-  elsif content.respond_to?('data_type')
-    classifications = content.send('data_type')&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.uniq
+  elsif content.respond_to?(:data_type)
+    classifications = content.send(:data_type)&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.uniq
   end
 
   json.merge! render 'classifications', classification_aliases: classifications, key: 'classifications'

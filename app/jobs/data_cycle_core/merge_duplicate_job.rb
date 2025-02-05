@@ -62,10 +62,10 @@ module DataCycleCore
       ActiveRecord::Base.transaction do
         duplicate.original_id = original.id
         duplicate_sync_query(duplicate.id, original.id)
-        duplicate.destroy_content
+        duplicate.destroy
 
         if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
-          duplicate_external_key.split(';').reject(&:blank?).each do |d_external_key|
+          duplicate_external_key.split(';').compact_blank.each do |d_external_key|
             original.external_system_syncs.find_or_create_by!(external_system_id: duplicate_external_source_id, external_key: d_external_key, sync_type: DataCycleCore::ExternalSystemSync::DUPLICATE_SYNC_TYPE)
           end
         end
@@ -99,11 +99,11 @@ module DataCycleCore
         ON CONFLICT DO NOTHING
       SQL
 
-      ActiveRecord::Base.connection.execute(
+      ActiveRecord::Base.connection.exec_query(
         ActiveRecord::Base.send(:sanitize_sql_array, [
                                   insert_sql,
-                                  duplicate_id:,
-                                  model_name: DataCycleCore::Thing.model_name.to_s
+                                  {duplicate_id:,
+                                   model_name: DataCycleCore::Thing.model_name.to_s}
                                 ])
       )
     end

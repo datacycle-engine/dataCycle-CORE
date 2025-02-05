@@ -26,9 +26,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             # test full event data
             required_attributes = required_validation_attributes(@content)
@@ -205,9 +205,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             # test full event data
             required_attributes = required_validation_attributes(@content)
@@ -435,15 +435,15 @@ module DataCycleCore
             event_schedule_object = @content.event_schedule.first
             event_schedule_object_hash = event_schedule_object.to_h
             event_schedule_api_values = {
-              '@id' => event_schedule_object_hash.dig(:id),
+              '@id' => event_schedule_object_hash[:id],
               '@type' => 'Schedule',
               '@context' => 'https://schema.org/',
               'inLanguage' => 'de',
-              'startDate' => event_schedule_object_hash.dig(:dtstart).to_s(:only_date),
-              'startTime' => event_schedule_object_hash.dig(:dtstart).to_s(:only_time),
-              'endDate' => (event_schedule_object_hash.dig(:dtstart) + event_schedule_object.duration).to_s(:only_date),
-              'endTime' => (event_schedule_object_hash.dig(:dtstart) + event_schedule_object.duration).to_s(:only_time),
-              'duration' => event_schedule_object.iso8601_duration(event_schedule_object_hash.dig(:dtstart), event_schedule_object_hash.dig(:dtend)).iso8601,
+              'startDate' => event_schedule_object_hash[:dtstart].to_fs(:only_date),
+              'startTime' => event_schedule_object_hash[:dtstart].to_fs(:only_time),
+              'endDate' => (event_schedule_object_hash[:dtstart] + event_schedule_object.duration).to_fs(:only_date),
+              'endTime' => (event_schedule_object_hash[:dtstart] + event_schedule_object.duration).to_fs(:only_time),
+              'duration' => event_schedule_object.iso8601_duration(event_schedule_object_hash[:dtstart], event_schedule_object_hash[:dtend]).iso8601,
               'scheduleTimezone' => 'Europe/Vienna'
             }
             assert_attributes(json_validate, required_attributes, ['event_schedule']) do

@@ -23,7 +23,7 @@ module DataCycleCore
             a_uuid = nil
             a_data = nil
             if a_item.is_a?(::Hash)
-              a_uuid = a_item.dig('id')
+              a_uuid = a_item['id']
               a_data = a_item
             end
             if a_item.is_a?(DataCycleCore::Schedule) || a_item.is_a?(DataCycleCore::Schedule::History)
@@ -56,7 +56,7 @@ module DataCycleCore
             iuuid = nil
             if item.is_a?(::Hash)
               data = item
-              iuuid = item.dig('id') || item.dig(:id)
+              iuuid = item['id'] || item[:id]
             end
             if item.is_a?(DataCycleCore::Schedule) || item.is_a?(DataCycleCore::Schedule::History)
               data = item.to_hash
@@ -72,15 +72,15 @@ module DataCycleCore
           if a.blank?
             []
           elsif a.is_a?(::Array)
-            a.map { |item|
+            a.filter_map do |item|
               if item.is_a?(::Hash)
                 item&.dig('id') || item&.dig(:id) || "new_#{item.hash}"
               elsif item.is_a?(DataCycleCore::Schedule)
                 item.id
               end
-            }.compact || []
+            end || []
           elsif a.is_a?(ActiveRecord::Relation)
-            a.ids
+            a.pluck(:id)
           else
             raise ArgumentError, 'Error parsing uuids. Expected data to be an Array or an ActiveRecord::Relation.'
           end

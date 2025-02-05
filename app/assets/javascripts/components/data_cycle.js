@@ -1,5 +1,6 @@
 import ObserverHelpers from "../helpers/observer_helpers";
 import DataCycleHttpClient from "./data_cycle_http_client";
+import { nanoid } from "nanoid";
 
 class DataCycle {
 	constructor(config = {}) {
@@ -36,6 +37,8 @@ class DataCycle {
 
 		this.uiLocale = document.documentElement.lang;
 		this.globalPromises = {};
+		this.globals = {};
+		this.windowId = nanoid();
 
 		this.htmlObserver = {
 			observer: new MutationObserver(this._addToCallbackQueue.bind(this)),
@@ -123,9 +126,10 @@ class DataCycle {
 		}
 	}
 	_generateSelector(selector, identifier) {
-		const identifierFull = identifier.startsWith("dcjs-")
-			? identifier
-			: `dcjs-${identifier}`;
+		const identifierFull =
+			identifier.startsWith("dcjs-") || identifier.startsWith("dc-")
+				? identifier
+				: `dcjs-${identifier}`;
 
 		return [
 			identifierFull,

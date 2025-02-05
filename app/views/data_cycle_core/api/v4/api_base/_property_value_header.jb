@@ -4,11 +4,11 @@ json ||= {}
 key_name = attribute_key(key, definition)
 api_property_definition = api_definition(definition)
 
-json['@type'] = api_property_definition.dig('type') if api_property_definition.dig('type').present?
+json['@type'] = api_property_definition['type'] if api_property_definition['type'].present?
 json['@type'] = api_property_definition.dig('transformation', 'type') if api_property_definition.dig('transformation', 'type').present?
 json['identifier'] = key_name.camelize(:lower)
-json['name'] = definition.dig('label')
-json['unitCode'] = api_property_definition.dig('unit_code') if api_property_definition.dig('unit_code').present?
-json['unitText'] = api_property_definition.dig('unit_text') if api_property_definition.dig('unit_text').present?
+json['name'] = definition['label']
+json['unitCode'] = api_property_definition['unit_code'] if api_property_definition['unit_code'].present?
+json['unitText'] = api_property_definition['unit_text'] if api_property_definition['unit_text'].present?
 
 json

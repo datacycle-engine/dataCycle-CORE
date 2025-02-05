@@ -17,19 +17,13 @@ module DataCycleCore
             )
           end
 
-          def load_concept_schemes(mongo_item, locale, source_filter)
-            mongo_item.where(
-              I18n.with_locale(locale) { source_filter.with_evaluated_values }
-                .merge(
-                  "dump.#{locale}": { '$exists': true },
-                  "dump.#{locale}.deleted_at": { '$exists': false }
-                )
-            )
+          def load_concept_schemes(filter_object:)
+            filter_object.with_locale.without_deleted.query
           end
 
           def process_content(utility_object:, raw_data:, locale:, options:)
             return if raw_data.blank?
-            return if options&.blank? || options.dig(:import).blank?
+            return if options&.blank? || options[:import].blank?
             allowed_locales = (options.dig(:import, :locales) || utility_object.external_source.try(:default_options)&.symbolize_keys&.dig(:locales) || [locale]).map(&:to_s)
 
             return unless allowed_locales.include?(locale.to_s)
@@ -47,6 +41,9 @@ module DataCycleCore
               concept_scheme_name_mapping = options.dig(:import, :concept_scheme_name_mapping)&.stringify_keys
               name = concept_scheme_name_mapping&.dig(name) || name
               external_system_identifier = extract_property(raw_data, options, 'external_system_identifier')
+
+              return if external_system_identifier.in?(Array.wrap(options[:current_instance_identifiers]))
+
               external_key = extract_property(raw_data, options, 'external_key') if external_system_identifier.present?
               external_key = [external_id_prefix, external_id].compact_blank.join if external_key.blank?
 
@@ -67,7 +64,7 @@ module DataCycleCore
           end
 
           def extract_property(data, options, identifier)
-            path = options.dig(:import, "concept_scheme_#{identifier}_path".to_sym)
+            path = options.dig(:import, :"concept_scheme_#{identifier}_path")
             path.present? ? data.dig(*path.split('.')) : data[identifier]
           end
 

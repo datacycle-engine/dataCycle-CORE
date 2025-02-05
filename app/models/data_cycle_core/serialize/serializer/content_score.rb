@@ -53,21 +53,19 @@ module DataCycleCore
               writer = ZipTricks::BlockWrite.new(&yielder)
 
               ZipTricks::Streamer.open(writer) do |zip|
-                output_xlsx = nil
-
                 txt_writer = zip.write_stored_file('contents.csv')
                 txt_write = CSV(txt_writer)
                 txt_write << ['ID', 'Name', 'URL']
 
                 output_xlsx = DataCycleCore::ApplicationController.renderer_with_user(
                   user,
-                  http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+                  http_host: Rails.application.config.action_mailer.default_url_options[:host],
                   https: Rails.application.config.force_ssl
                 ).render(
                   handlers: [:axlsx],
                   formats: [:xlsx],
                   layout: false,
-                  locals: { :@contents => contents, :@txt_write => txt_write },
+                  assigns: { contents: contents, txt_write: txt_write },
                   template: 'data_cycle_core/contents/content_score'
                 )
 

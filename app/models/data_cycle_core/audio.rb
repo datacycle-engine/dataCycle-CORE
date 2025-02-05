@@ -11,7 +11,7 @@ module DataCycleCore
     before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
 
     def custom_validators
-      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+      DataCycleCore.uploader_validations[self.class.name.demodulize.underscore]&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
       end
     end
@@ -23,9 +23,9 @@ module DataCycleCore
     private
 
     def metadata_from_blob
-      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
+      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable[:io].present?
         # import from local disc
-        path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+        path_to_tempfile = attachment_changes['file'].attachable[:io].path
       else
         path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
       end

@@ -235,6 +235,8 @@ class BasicSelect2 {
 		if (target instanceof $) target = target[0];
 		if (!((source || data) && target)) return;
 
+		if (source?.disabled) target.classList.add("disabled");
+
 		if (source?.dataset.dcTooltip)
 			target.dataset.dcTooltip = source.dataset.dcTooltip;
 		else if (data.dc_tooltip) target.dataset.dcTooltip = data.dc_tooltip;

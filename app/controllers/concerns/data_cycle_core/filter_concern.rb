@@ -4,6 +4,18 @@ module DataCycleCore
   module FilterConcern
     extend ActiveSupport::Concern
     DEFAULT_PAGE_SIZE = 25
+    PAGE_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
+      optional(:page).filled(:integer)
+      optional(:tree_page).filled(:integer)
+    end
+    SORT_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
+      optional(:s).hash do
+        optional(:v).hash do
+          optional(:o).filled(:string, included_in?: ['DESC', 'ASC'])
+          optional(:m).maybe(:string)
+        end
+      end
+    end
 
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       @stored_filter ||= DataCycleCore::StoredFilter.new
@@ -13,8 +25,7 @@ module DataCycleCore
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
       @sort_params = @stored_filter.sort_parameters
-
-      @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
+      @stored_filter.apply_user_filter(current_user, user_filter, filter_reset?(@stored_filter)) if user_filter.present?
       query = @stored_filter.apply(query: query&.dup, skip_ordering: @count_only, watch_list:)
 
       # used on dashboard
@@ -57,11 +68,23 @@ module DataCycleCore
     end
 
     def pre_filters
-      @pre_filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
+      # @pre_filters is used to override pre_filters
+      @pre_filters ||= params
+        .to_unsafe_hash[:f]
+        .presence
+        &.values
+        &.reject do |f|
+          if f['v'].is_a?(Hash)
+            f['v'].all? { |_, v| v.blank? }
+          else
+            f['v'].blank?
+          end
+        end || []
     end
 
     def sort_params
-      @sort_params ||= params[:s].presence&.values&.reject { |s| s.is_a?(Hash) ? s.any? { |_, v| v.blank? } : s.blank? } || []
+      # @sort_params is used to override sort_params
+      @sort_params ||= Array.wrap(params_for(SORT_PARAMS_SCHEMA).dig(:s, :v)&.compact_blank.presence)
     end
 
     def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
@@ -79,8 +102,8 @@ module DataCycleCore
           @contents = get_filtered_results(query:, user_filter:)
             .part_of(@container.id)
           tmp_count = @contents.count
-          @contents = @contents.content_includes.page(params[:page])
-          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
+          @contents = @contents.content_includes.page(page_params[:page])
+          DataCycleCore::PreloadService.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -91,13 +114,13 @@ module DataCycleCore
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('classification_aliases.order_a')
-            .page(params[:tree_page])
+            .order('"classification_aliases"."order_a"')
+            .page(page_params[:tree_page])
           @contents = get_filtered_results(query:, user_filter:)
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count
-          @contents = @contents.content_includes.page(params[:page])
-          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
+          @contents = @contents.content_includes.page(page_params[:page])
+          PreloadService.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -109,8 +132,8 @@ module DataCycleCore
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('classification_aliases.order_a')
-            .page(params[:tree_page])
+            .order('"classification_aliases"."order_a"')
+            .page(page_params[:tree_page])
           get_filtered_results(query:, user_filter:) # set default parameters for filters
         end
 
@@ -119,8 +142,8 @@ module DataCycleCore
       else
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query:, user_filter:, watch_list:)
-        @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
-        ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
+        @contents = @contents.content_includes.page(page_params[:page]).per(page_size).without_count
+        DataCycleCore::PreloadService.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
       end
     end
 
@@ -157,8 +180,7 @@ module DataCycleCore
       query = query.fulltext_search(@full_text_search) if @full_text_search
 
       query = apply_filters(query, permitted_params&.dig(:filter))
-      query = append_filters(query, permitted_params)
-      query
+      append_filters(query, permitted_params)
     end
 
     def set_view_mode
@@ -216,8 +238,7 @@ module DataCycleCore
     end
 
     def load_previous_page?
-      DataCycleCore::Feature::MainFilter.autoload_last_filter? &&
-        request.format.html? &&
+      request.format.html? &&
         params.slice(:stored_filter, :f, :reset).blank? &&
         session[:return_to].present? &&
         request.path == Addressable::URI.parse(session[:return_to].to_s).path
@@ -225,6 +246,14 @@ module DataCycleCore
 
     def load_previous_page
       redirect_to(session.delete(:return_to)) && return
+    end
+
+    def filter_reset?(stored_filter)
+      params.permit(:reset)[:reset].present? || (!stored_filter.persisted? && params.slice(:stored_filter, :f).blank?)
+    end
+
+    def page_params
+      params_for(PAGE_PARAMS_SCHEMA)
     end
   end
 end

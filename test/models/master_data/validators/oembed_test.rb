@@ -47,9 +47,19 @@ describe DataCycleCore::MasterData::Validators::Oembed do
       { error: {}, warning: {}, result: {'' => ["https://www.youtube.com/oembed?url=#{url}"]} }
     end
 
-    it 'error on blank url' do
-      validator = subject.new(nil, template_hash)
+    it 'error on blank url if validation is required:true' do
+      validator = subject.new(nil, required_template_hash)
       assert_equal(1, validator.error[:error].size)
+    end
+
+    it 'warning on blank url if validation is soft_required:true' do
+      validator = subject.new(nil, soft_required_template_hash)
+      assert_equal(1, validator.error[:warning].size)
+    end
+
+    it 'no warning/error on blank url if validation is neither soft_required:true nor required:true' do
+      validator = subject.new(nil, soft_required_template_hash)
+      assert_equal(1, validator.error[:warning].size)
     end
 
     it 'works with a real values' do

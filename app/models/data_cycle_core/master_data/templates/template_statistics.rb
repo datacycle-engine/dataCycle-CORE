@@ -14,7 +14,7 @@ module DataCycleCore
 
         def update_statistics
           DataCycleCore::ThingTemplate
-            .where('updated_at < ?', @start_time.utc.to_s(:long_usec))
+            .where(updated_at: ...@start_time.utc.to_fs(:long_usec))
             .order(updated_at: :asc)
             .each do |template|
               @outdated_templates.push({
@@ -33,16 +33,16 @@ module DataCycleCore
 
         # rubocop:disable Rails/Output
         def render_statistics
-          puts "\nWARNING: things without template found: #{@contents_without_templates[:things]}" if @contents_without_templates[:things].positive?
-          puts "\nWARNING: thing_histories without template found: #{@contents_without_templates[:thing_histories]}" if @contents_without_templates[:thing_histories].positive?
+          puts AmazingPrint::Colors.yellow("🧐 WARNING: things without template found: #{@contents_without_templates[:things]}") if @contents_without_templates[:things].positive?
+          puts "WARNING: thing_histories without template found: #{@contents_without_templates[:thing_histories]}" if @contents_without_templates[:thing_histories].positive?
 
           return if @outdated_templates.blank?
 
-          puts "\nWARNING: the following templates were not updated:"
+          puts AmazingPrint::Colors.yellow('🧐 WARNING: the following templates were not updated:')
           puts "#{'template_name'.ljust(40)} | #{'cache_valid_since'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
           puts '-' * 112
           @outdated_templates.each do |value|
-            puts "#{value[:name].to_s.ljust(40)} | #{value[:cache_valid_since].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
+            puts "#{value[:name].to_s.ljust(40)} | #{value[:cache_valid_since].to_fs(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
           end
         end
         # rubocop:enable Rails/Output

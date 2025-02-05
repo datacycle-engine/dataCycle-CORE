@@ -53,7 +53,7 @@ module DataCycleCore
         end
 
         def phase_finished(label, total)
-          @log.info [(@kind.capitalize + 'ed').ljust(11), "#{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"].join
+          @log.info ["#{@kind.capitalize}ed".ljust(11), "#{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"].join
         end
 
         def close

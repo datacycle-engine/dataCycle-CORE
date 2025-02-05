@@ -7,11 +7,10 @@ module DataCycleCore
       include Enumerable
       include DataCycleCore::Common::ArelBuilder
 
-      attr_reader :query
-      def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
-      TERMINAL_METHODS = [:count, :pluck,
-                          :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
-      def_delegators :@query, *TERMINAL_METHODS
+      attr_reader :query, :include_embedded
+      def_delegators :query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
+      TERMINAL_METHODS = [:count, :size, :pluck, :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
+      def_delegators :query, *TERMINAL_METHODS
 
       def limit(number)
         reflect(@query.limit(number))
@@ -39,6 +38,10 @@ module DataCycleCore
 
       def order(*)
         reflect(@query.order(*))
+      end
+
+      def sanitize_sql(sql_array)
+        ActiveRecord::Base.send(:sanitize_sql_array, sql_array)
       end
 
       private
@@ -101,8 +104,16 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new('@>', range, date)
       end
 
+      def contained_in_range(range, date)
+        Arel::Nodes::InfixOperation.new('<@', range, date)
+      end
+
       def overlap(range_l, range_r)
         Arel::Nodes::InfixOperation.new('&&', range_l, range_r)
+      end
+
+      def subtract(value1, value2)
+        Arel::Nodes::Subtraction.new(value1, value2)
       end
 
       def in_json(json, key)
@@ -115,6 +126,22 @@ module DataCycleCore
 
       def tstzrange(ts_l, ts_h, border = '[]')
         Arel::Nodes::NamedFunction.new('tstzrange', [ts_l, ts_h, quoted(border)])
+      end
+
+      def tsrange(ts_l, ts_h, border = '[]')
+        Arel::Nodes::NamedFunction.new('tsrange', [ts_l, ts_h, quoted(border)])
+      end
+
+      def upper_range(range)
+        Arel::Nodes::NamedFunction.new('upper', [range])
+      end
+
+      def infinity
+        quoted('infinity')
+      end
+
+      def interval(interval)
+        Arel::Nodes::SqlLiteral.new("interval '#{interval}'")
       end
 
       def cast_rrule(rrule_string)
@@ -183,80 +210,6 @@ module DataCycleCore
         )
       end
 
-      def join_classification_alias
-        Arel::SelectManager.new
-          .project(thing[:id])
-          .from(thing)
-          .join(classification_content)
-          .on(thing[:id].eq(classification_content[:content_data_id]))
-          .join(classification)
-          .on(classification_content[:classification_id].eq(classification[:id]))
-          .join(classification_group)
-          .on(classification[:id].eq(classification_group[:classification_id]))
-          .join(classification_alias)
-          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .where(
-            classification[:deleted_at].eq(nil)
-              .and(classification_group[:deleted_at].eq(nil))
-              .and(classification_alias[:deleted_at].eq(nil))
-          )
-      end
-
-      def join_classification_trees
-        Arel::SelectManager.new
-          .project(thing[:id])
-          .from(thing)
-          .join(classification_content)
-          .on(thing[:id].eq(classification_content[:content_data_id]))
-          .join(classification)
-          .on(classification_content[:classification_id].eq(classification[:id]))
-          .join(classification_group)
-          .on(classification[:id].eq(classification_group[:classification_id]))
-          .join(classification_alias)
-          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .join(classification_tree)
-          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
-          .where(
-            classification[:deleted_at].eq(nil)
-              .and(classification_group[:deleted_at].eq(nil))
-              .and(classification_alias[:deleted_at].eq(nil))
-          )
-      end
-
-      def join_classification_trees_on_classification_content
-        Arel::SelectManager.new
-          .from(classification_content)
-          .join(classification)
-          .on(classification_content[:classification_id].eq(classification[:id]))
-          .join(classification_group)
-          .on(classification[:id].eq(classification_group[:classification_id]))
-          .join(classification_alias)
-          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .join(classification_tree)
-          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
-          .where(
-            classification[:deleted_at].eq(nil)
-              .and(classification_group[:deleted_at].eq(nil))
-              .and(classification_alias[:deleted_at].eq(nil))
-          )
-      end
-
-      def join_classification_alias_on_classification_content
-        Arel::SelectManager.new
-          .from(classification_content)
-          .join(classification)
-          .on(classification_content[:classification_id].eq(classification[:id]))
-          .join(classification_group)
-          .on(classification[:id].eq(classification_group[:classification_id]))
-          .join(classification_alias)
-          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .where(
-            classification[:deleted_at].eq(nil)
-              .and(classification_group[:deleted_at].eq(nil))
-              .and(classification_alias[:deleted_at].eq(nil))
-          )
-      end
-
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
       end
@@ -301,6 +254,10 @@ module DataCycleCore
         DataCycleCore::Thing.arel_table
       end
 
+      def thing_history_table
+        DataCycleCore::Thing::History.arel_table
+      end
+
       def thing_translations
         DataCycleCore::Thing::Translation.arel_table
       end
@@ -329,29 +286,24 @@ module DataCycleCore
         DataCycleCore::PgDictMapping.arel_table
       end
 
-      def search_exists(query_string, fulltext_search = false)
-        search_query = search
+      def user_table
+        DataCycleCore::User.arel_table
+      end
 
-        search_query = search_query.join(pg_dict_mapping, Arel::Nodes::OuterJoin).on(pg_dict_mapping[:locale].eq(search[:locale])) if fulltext_search
+      def ccc_table
+        DataCycleCore::CollectedClassificationContent.arel_table
+      end
 
-        if @locale.present?
-          search_query
-            .where(
-              search[:content_data_id].eq(thing[:id])
-                .and(query_string)
-                .and(search[:locale].in(@locale))
-            ).project(1).exists
-        else
-          search_query
-            .where(
-              search[:content_data_id].eq(thing[:id])
-                .and(query_string)
-            ).project(1).exists
-        end
+      def generate_thing_alias
+        thing.alias("th_#{SecureRandom.hex(5)}")
       end
 
       def reflect(query)
-        self.class.new(@locale, query, @include_embedded)
+        self.class.new(
+          locale: @locale,
+          query: query,
+          include_embedded: include_embedded
+        )
       end
     end
   end

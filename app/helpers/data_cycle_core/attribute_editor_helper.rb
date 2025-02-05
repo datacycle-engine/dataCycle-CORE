@@ -16,8 +16,15 @@ module DataCycleCore
     def schedule_duration_values(duration)
       duration = DataCycleCore::Schedule.iso8601_duration_to_parts(duration)
       duration_hash = DURATION_UNITS.to_h { |k, v| [k, { max: v, value: duration[k] }] }
-      duration_hash[:months][:value] = duration_hash[:months][:value].to_i + 12 * duration[:years] if duration.key?(:years)
+      duration_hash[:months][:value] = duration_hash[:months][:value].to_i + (12 * duration[:years]) if duration.key?(:years)
       duration_hash
+    end
+
+    def ai_lector_allowed?(key:, definition:, options:, content:, scope: :update, **args)
+      return false unless DataCycleCore::Feature['AiLector']&.allowed_attribute_key?(contextual_content(key:, definition:, options:, content:, **args), key)
+
+      attribute_editable?(key, definition, options, content, scope) &&
+        can?(:ai_lector, DataCycleCore::DataAttribute.new(key, definition, options, content, scope))
     end
 
     def attribute_editable?(key, definition, options, content, scope = :update)
@@ -95,7 +102,7 @@ module DataCycleCore
     def nested_definition(definition, options)
       return definition unless options&.dig(:readonly)
 
-      definition.deep_merge({ 'ui' => { 'edit' => { 'readonly' => options.dig(:readonly) } } })
+      definition.deep_merge({ 'ui' => { 'edit' => { 'readonly' => options[:readonly] } } })
     end
 
     def nested_options(definition, options)
@@ -105,20 +112,19 @@ module DataCycleCore
       new_options
     end
 
-    def attribute_editor_html_classes(key:, definition:, options:, content: nil, parent: nil, **_args)
-      html_classes = [
-        'clearfix',
-        'form-element',
-        key.attribute_name_from_key,
-        definition['type']&.underscore,
-        definition.dig('ui', 'edit', 'options', 'class')&.underscore,
-        options&.dig('class')
-      ]
+    def attribute_editor_html_classes(key:, definition:, options:, content: nil, parent: nil, html_classes: nil, **_args)
+      html_classes = Array.wrap(html_classes)
+      html_classes.push('clearfix')
+      html_classes.push('form-element')
+      html_classes.push(key.attribute_name_from_key)
+      html_classes.push(definition['type']&.underscore)
+      html_classes.push(definition.dig('ui', 'edit', 'options', 'class')&.underscore)
+      html_classes.push(options&.dig('class'))
 
       html_classes.push('disabled') unless attribute_editable?(key, definition, options, content)
       html_classes.push('validation-container') if definition.key?('validations')
       html_classes.push(definition.dig('ui', 'edit', 'type')&.underscore) if definition&.dig('ui', options[:edit_scope], 'partial').blank?
-      html_classes.push('is-embedded-title') if parent.is_a?(DataCycleCore::Thing) && parent.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
+      html_classes.push('is-embedded-title') if parent.is_a?(DataCycleCore::Thing) && parent.title_property_name.present? && key.attribute_name_from_key == parent.title_property_name
 
       html_classes.compact_blank!
       html_classes.uniq!
@@ -171,35 +177,30 @@ module DataCycleCore
     end
 
     def overlay_types(prop)
-      type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
-      versions = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(type)
-      check_boxes = [
+      versions = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(prop['type'])
+      [
         MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX,
         MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX
       ]
-      .intersection(versions)
-      .map do |v|
+        .intersection(versions)
+        .map do |v|
         CollectionHelper::CheckBoxStruct.new(
           v.delete_prefix('_'),
           t("common.bulk_update.check_box_labels.#{v.delete_prefix('_')}", locale: active_ui_locale)
         )
       end
-
-      check_boxes
     end
 
     def aggregate_types(_prop)
-      check_boxes = [
+      [
         MasterData::Templates::AggregateTemplate::BASE_AGGREGATE_POSTFIX
       ]
-      .map do |v|
+        .map do |v|
         CollectionHelper::CheckBoxStruct.new(
           v.delete_prefix('_'),
           t("feature.aggregate.check_box_labels.#{v.delete_prefix('_')}", locale: active_ui_locale)
         )
       end
-
-      check_boxes
     end
 
     def additional_attribute_partial_type_key(content, key)

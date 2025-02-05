@@ -10,14 +10,25 @@ module DataCycleCore
       raise 'NOT IMPLEMENTED'
     end
 
-    around_enqueue do |job, block|
-      block.call unless Delayed::Job.exists?(
-        queue: job.queue_name,
-        delayed_reference_type: job.delayed_reference_type,
-        delayed_reference_id: job.delayed_reference_id,
+    before_enqueue ->(job) { job.clear_previous_jobs }
+
+    # clear all previous jobs for the same reference
+    def clear_previous_jobs
+      previous_jobs = Delayed::Job.where(
+        queue: queue_name,
+        delayed_reference_id:,
+        delayed_reference_type:,
         locked_at: nil,
         failed_at: nil
       )
+        .order(run_at: :asc)
+
+      first_job = previous_jobs.first
+
+      return unless first_job
+
+      self.scheduled_at = first_job.run_at if first_job.run_at < Time.zone.now
+      previous_jobs.delete_all
     end
   end
 end

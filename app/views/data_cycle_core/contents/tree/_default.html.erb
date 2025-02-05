@@ -2,9 +2,7 @@
   <div class="inner-item">
     <div class="type <%= item.template_name.downcase %>">
       <span class="toggle-details">
-        <%= render 'data_cycle_core/shared/icon',
-                   icon_type: item.template_name.underscore_blanks,
-                   icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+        <%= render 'data_cycle_core/shared/icon', icon_type: item.try(:icon_type), icon_class: item.try(:icon_class) %>
 
         <%= render 'data_cycle_core/shared/template_title', content: item, languages: [I18n.locale.to_s] %>
 

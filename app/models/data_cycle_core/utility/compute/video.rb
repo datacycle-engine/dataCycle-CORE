@@ -35,13 +35,13 @@ module DataCycleCore
             thumb_url = nil
 
             if video&.file&.attached?
-              ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+              DataCycleCore::ActiveStorageService.with_current_options do
                 thumb_url = video.file.preview({}).processed.url
               end
             end
 
             thumb_url
-          rescue ActiveStorage::FileNotFoundError
+          rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
             nil
           end
 
@@ -50,10 +50,10 @@ module DataCycleCore
             thumb_url = nil
             if video&.file&.attached?
               begin
-                ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+                DataCycleCore::ActiveStorageService.with_current_options do
                   thumb_url = video.file.preview(resize_to_limit: [300, 300]).processed.url
                 end
-              rescue ActiveStorage::FileNotFoundError
+              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
                 return nil
               end
             end
@@ -62,14 +62,14 @@ module DataCycleCore
           end
 
           def transcode(**args)
-            content = args.dig(:content)
-            original_value = content.try(args.dig(:key))
+            content = args[:content]
+            original_value = content.try(args[:key])
             return original_value if original_value.present? && original_value != DataCycleCore::Feature::VideoTranscoding.placeholder
 
-            asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
+            asset = args[:computed_parameters]&.first || args[:content].try(:asset)
             return if asset.blank?
 
-            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
+            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args[:key])
             DataCycleCore::Feature::VideoTranscoding.placeholder
           end
 

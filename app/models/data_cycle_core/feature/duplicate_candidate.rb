@@ -21,6 +21,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::DuplicateCandidate
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::DuplicateCandidate
+        end
+
         def find_duplicates(content)
           duplicate_methods = duplicate_method(content)
           return if duplicate_methods.blank?
@@ -62,7 +66,7 @@ module DataCycleCore
         def duplicate_method(content)
           return unless enabled?
 
-          Array.wrap(configuration(content).dig('method'))
+          Array.wrap(configuration(content)['method'])
         end
 
         # specific implementiations of duplicatemethods
@@ -79,41 +83,57 @@ module DataCycleCore
             .where("thing_translations.content ->> 'name' = ?", content.name)
             .where.not(id: content.id)
             .pluck(:id)
-            .map { |d| { thing_duplicate_id: d, method: 'only_title', score: 83 } }
-            .compact
+            .filter_map { |d| { thing_duplicate_id: d, method: 'only_title', score: 83 } }
         end
 
         def data_metric_hamming(content)
           except = EXCEPT_PROPERTIES + content.linked_property_names + content.embedded_property_names + content.classification_property_names
           relevant_schema = content.schema.dup
-          relevant_schema['properties'] = relevant_schema.dig('properties').except(*except)
+          relevant_schema['properties'] = relevant_schema['properties'].except(*except)
           total = relevant_schema['properties'].size
-          DataCycleCore::Thing.where(
+          duplicates = DataCycleCore::Thing.where(
             template_name: content.template_name
           ).joins(:translations).where(
             "thing_translations.locale = 'de'"
           ).where( # prefilter with name
             "similarity(thing_translations.content ->> 'name', ?) > 0.8", content.name
-          ).where( # prefilter location
-            content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS})"
-          ).where.not(id: content.id)
-            .map { |d|
+          )
+
+          if content.location.present?
+            duplicates = duplicates.where(
+              "ST_DWithin(location, ST_GeographyFromText(?), #{DISTANCE_METERS})",
+              "SRID=4326;#{content.location}"
+            )
+          else
+            duplicates = duplicates.where(location: nil)
+          end
+
+          duplicates.where.not(id: content.id)
+            .filter_map do |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
-              score = [0, 100 * (total - diff.size * WEIGHTING) / total].max
+              score = [0, 100 * (total - (diff.size * WEIGHTING)) / total].max
               { thing_duplicate_id: d.id, method: 'data_metric_hamming', score: } if score > 80
-            }.compact
+            end
         end
 
         def data_metric_name_geo(content)
-          DataCycleCore::Thing.where(
+          duplicates = DataCycleCore::Thing.where(
             template_name: content.template_name,
             name: content.name
-          ).where( # prefilter location
-            content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS_NAME_GEO})"
-          ).where.not(id: content.id)
-          .pluck(:id)
-          .map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
-          .compact
+          )
+
+          if content.location.present?
+            duplicates = duplicates.where(
+              "ST_DWithin(location, ST_GeographyFromText(?), #{DISTANCE_METERS_NAME_GEO})",
+              "SRID=4326;#{content.location}"
+            )
+          else
+            duplicates = duplicates.where(location: nil)
+          end
+
+          duplicates.where.not(id: content.id)
+            .pluck(:id)
+            .filter_map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
         end
 
         def version_name_for_merge(duplicate, ui_locale = DataCycleCore.ui_locales.first)

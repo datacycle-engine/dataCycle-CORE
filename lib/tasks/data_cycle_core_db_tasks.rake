@@ -3,7 +3,7 @@
 require 'rake_helpers/db_helper'
 require 'rake_helpers/time_helper'
 
-DATABASE_DUMP_EXCLUDES ||= {
+DATABASE_DUMP_EXCLUDES = {
   'review' => [
     'delayed_jobs',
     'subscriptions',

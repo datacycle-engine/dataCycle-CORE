@@ -16,7 +16,7 @@
         - $$Gastronomischer Betrieb
         - $$Badeseen
         - $$Skigebiet
-        - $$freie Scheehöhenmesspunkte
+        - $$freie Schneehöhenmesspunkte
     - $$Text:
         - $$Artikel
         - $$Beschreibungstext
@@ -597,19 +597,19 @@
     - mittel
     - schwer
 
-- $$SchemaTypes:
+- $$SchemaTypes | show:
 
 - Gravity | show, edit, tile, api:
-  - SmartCrop **https://datacycle.info/terms/gravity#sm
-  - Zentriert **https://datacycle.info/terms/gravity#ce
-  - Norden (obere Kante) **https://datacycle.info/terms/gravity#no
-  - Süden (untere Kante) **https://datacycle.info/terms/gravity#so
-  - Osten (rechte Kante) **https://datacycle.info/terms/gravity#ea
-  - Westen (linke Kante) **https://datacycle.info/terms/gravity#we
-  - Nordosten (obere rechte Ecke) **https://datacycle.info/terms/gravity#noea
-  - Nordwesten (obere linke Ecke) **https://datacycle.info/terms/gravity#nowe
-  - Südosten (untere rechte Ecke) **https://datacycle.info/terms/gravity#soea
-  - Südwesten (untere linke Ecke) **https://datacycle.info/terms/gravity#sowe
+    - SmartCrop **https://datacycle.info/terms/gravity#sm
+    - Zentriert **https://datacycle.info/terms/gravity#ce
+    - Norden (obere Kante) **https://datacycle.info/terms/gravity#no
+    - Süden (untere Kante) **https://datacycle.info/terms/gravity#so
+    - Osten (rechte Kante) **https://datacycle.info/terms/gravity#ea
+    - Westen (linke Kante) **https://datacycle.info/terms/gravity#we
+    - Nordosten (obere rechte Ecke) **https://datacycle.info/terms/gravity#noea
+    - Nordwesten (obere linke Ecke) **https://datacycle.info/terms/gravity#nowe
+    - Südosten (untere rechte Ecke) **https://datacycle.info/terms/gravity#soea
+    - Südwesten (untere linke Ecke) **https://datacycle.info/terms/gravity#sowe
 
 - Rezeptkategorien | all:
     - Gebäck
@@ -624,16 +624,16 @@
 - Inhaltsarten | all:
 
 - Inhaltspools | api, xml, filter:
-  - $$Vorschläge
-  - $$Recherche
-  - $$Aktuelle Inhalte
-  - $$Archiv
+    - $$Vorschläge
+    - $$Recherche
+    - $$Aktuelle Inhalte
+    - $$Archiv
 
 - Release-Stati | all:
-  - $$freigegeben
-  - $$beim Partner
-  - $$in Review
-  - $$archiviert
+    - $$freigegeben
+    - $$beim Partner
+    - $$in Review
+    - $$archiviert
 
 - Übersetzungstyp | all:
     - $$Manuell

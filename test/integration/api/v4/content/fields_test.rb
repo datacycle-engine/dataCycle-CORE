@@ -58,7 +58,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_overlay, fields: fields.join(','))
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
-            response.parsed_body.dig('@graph').first
+            response.parsed_body['@graph'].first
           end
 
           def default_fields
@@ -76,8 +76,8 @@ module DataCycleCore
             json_data = load_api_data(fields)
 
             assert_equal((fields + default_fields).sort, json_data.keys.sort)
-            assert_equal(@event_period.dig('start_date'), json_data.dig('startDate'))
-            assert_equal(@event_period.dig('end_date'), json_data.dig('endDate'))
+            assert_equal(@event_period['start_date'], json_data['startDate'])
+            assert_equal(@event_period['end_date'], json_data['endDate'])
           end
 
           test 'testing EventOverlay with fields parameter (filtering additionalProperty)' do

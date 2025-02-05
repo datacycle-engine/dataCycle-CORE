@@ -27,7 +27,7 @@ module DataCycleCore
             WHERE u.id IN (\'#{params[:user_ids].join("', '")}\');
           SQL
 
-          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql, raw_query))
+          @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql, raw_query))
         end
       end
     end

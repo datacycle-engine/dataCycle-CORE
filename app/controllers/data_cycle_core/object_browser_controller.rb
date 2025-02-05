@@ -10,16 +10,22 @@ module DataCycleCore
       authorize! :show, :object_browser
 
       @content = content_by_id_or_template
+      @parent = DataCycleCore::Thing.find(permitted_params[:parent_id]) if permitted_params[:parent_id].present?
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-        @definition = permitted_params.dig(:definition)
-        template_names = Array.wrap(@definition.dig(:template_name)).map(&:to_s).compact_blank
-        stored_filter = @definition.dig(:stored_filter)
-        @language = Array(@definition.dig(:linked_language) == 'same' ? permitted_params.fetch(:locale) { current_user.default_locale } : 'all')
+        @definition = permitted_params[:definition]
+        template_names = Array.wrap(@definition[:template_name]).map(&:to_s).compact_blank
+        stored_filter = @definition[:stored_filter]
+        @language = Array(@definition[:linked_language] == 'same' ? permitted_params.fetch(:locale) { current_user.default_locale } : 'all')
 
         filter = DataCycleCore::StoredFilter.new
           .parameters_from_hash(stored_filter)
-          .apply_user_filter(current_user, { scope: 'object_browser', content_template: @content&.template_name, attribute_key: params[:key]&.attribute_name_from_key, template_name: stored_filter.blank? ? template_names : nil })
+          .apply_user_filter(current_user, {
+            scope: 'object_browser',
+            content: @content,
+            attribute_key: attribute_key_params[:key]&.attribute_name_from_key,
+            template_name: stored_filter.blank? ? template_names : nil
+          })
         filter.language = @language
         filter.parameters.concat Array.wrap(permitted_params.dig(:filter, :f)&.values)
 
@@ -53,6 +59,7 @@ module DataCycleCore
       return if permitted_params[:ids].blank?
 
       @content = content_by_id_or_template
+      @parent = DataCycleCore::Thing.find(permitted_params[:parent_id]) if permitted_params[:parent_id].present?
 
       I18n.with_locale(permitted_params[:locale]) do
         if permitted_params[:external]
@@ -76,7 +83,7 @@ module DataCycleCore
       I18n.with_locale(params[:locale]) do
         render json: {
           html: render_to_string('data_cycle_core/contents/create', formats: [:html], layout: false).strip,
-          detail_html: render_to_string(formats: [:html], layout: false, action: 'details', locals: { :@object => @objects.first }).strip,
+          detail_html: render_to_string(formats: [:html], layout: false, action: 'details', assigns: { object: @objects.first }).strip,
           ids: @objects.pluck(:id)
         }
       end
@@ -99,7 +106,11 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :external, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
+      [:per, :page, :id, :locale, :external, :parent_id, { filter_ids: [] }, { ids: [] }, { definition: {} }, {filter: {}, excluded: []}]
+    end
+
+    def attribute_key_params
+      params.permit(:key)
     end
 
     def count_only_params

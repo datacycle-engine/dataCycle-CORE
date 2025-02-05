@@ -130,7 +130,6 @@
 
 :main_filter:
   :enabled: true
-  :autoload_last_filter: true
   :config:
     :backend:
       :filter:
@@ -228,6 +227,10 @@
     :geo_type: false
   :aggregate_filter:
     :depends_on: DataCycleCore::Feature::Aggregate
+  :advanced_attributes:
+    :internal_content_score:
+      :type: numeric
+      :depends_on: DataCycleCore::Feature::ContentScore
   # :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
@@ -382,7 +385,6 @@
 
 :copy_embedded_locale:
   :enabled: false
-  :only_config: true
 
 :view_mode:
   :enabled: true
@@ -397,7 +399,6 @@
 
 :translatable:
   :enabled: true
-  :only_config: true
 
 :user_confirmation:
   :enabled: false
@@ -416,7 +417,6 @@
 
 :tile_border_color:
   :enabled: false
-  :only_config: true
   # :tree_label: Eyebase - Status
 
 :collection_group:
@@ -495,6 +495,30 @@
       :watch_lists_usage:
         :enabled: false
         :class: DataCycleCore::Report::Downloads::WatchListsUsage
+        :allowed_formats:
+          - "csv"
+          - "tsv"
+          - "json"
+          - "xlsx"
+      :widget_usage:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::WidgetUsage
+        :allowed_formats:
+          - "csv"
+          - "tsv"
+          - "json"
+          - "xlsx"
+      :widget_usage_overview:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::WidgetUsageOverview
+        :allowed_formats:
+          - "csv"
+          - "tsv"
+          - "json"
+          - "xlsx"
+      :dzt_report:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::DztReport
         :allowed_formats:
           - "csv"
           - "tsv"

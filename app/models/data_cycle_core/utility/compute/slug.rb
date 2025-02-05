@@ -10,7 +10,7 @@ module DataCycleCore
           def slug_value_from_first_existing_linked(computed_parameters:, computed_definition:, content:, key:, **args)
             value = Common.attribute_value_from_first_existing_linked(computed_parameters:, computed_definition:, content:, key:, **args)
 
-            content.convert_to_type('slug', value)
+            content.slugify(value)
           end
         end
       end

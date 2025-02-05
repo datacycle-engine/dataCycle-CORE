@@ -10,15 +10,15 @@ module DataCycleCore
         end
 
         def global_reports
-          config.dig('global').select { |_k, v| v.dig('enabled') == true }
+          config['global'].select { |_k, v| v['enabled'] == true }
         end
 
         def content_reports(content)
-          config(content).dig('content').select { |_k, v| v.dig('enabled') == true }
+          config(content)['content'].select { |_k, v| v['enabled'] == true }
         end
 
         def config(content = nil)
-          configuration(content).dig(:config)
+          configuration(content)[:config]
         end
       end
     end

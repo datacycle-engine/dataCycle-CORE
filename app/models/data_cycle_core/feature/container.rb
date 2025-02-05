@@ -12,6 +12,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::Container
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::Container
+        end
+
         def available_containers
           @available_containers ||= DataCycleCore::ThingTemplate.where(content_type: 'container').template_things.sort_by(&:template_name)
         end
@@ -27,7 +31,7 @@ module DataCycleCore
         end
 
         def allowed_templates(content)
-          configuration(content).dig('allowed_templates')
+          configuration(content)['allowed_templates']
         end
 
         def index_query_methods

@@ -30,7 +30,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be filled'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'api/v4/things with invalid parameters (invalid values)' do
@@ -52,7 +52,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be an integer'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
 
             params = {
               page: {
@@ -72,7 +72,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be greater than or equal to 1'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'api/v4/things with unknown parameter' do
@@ -94,7 +94,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
 
             params = {
               filter: {
@@ -114,7 +114,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
 
             params = {
               filter: {
@@ -140,7 +140,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'api/v4/things with invalid linked filter parameters' do
@@ -173,7 +173,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
 
             # invalid value
             params = {
@@ -204,7 +204,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be a string or must be an integer or must be a float'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'api/v4/things test multiple nested linked filter are not possible' do
@@ -241,7 +241,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'api/v4/things detail error for expired items' do
@@ -261,7 +261,7 @@ module DataCycleCore
               'title' => 'Content is expired',
               'detail' => 'is expired'
             }
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'api/v4/things detail error for random uuid items' do
@@ -280,7 +280,7 @@ module DataCycleCore
             json_data = response.parsed_body
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
 
             post api_v4_thing_path(params)
             assert_response :not_found
@@ -288,7 +288,7 @@ module DataCycleCore
             json_data = response.parsed_body
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'GET/POST /api/v4/endpoints/:uuid/ with random :uuid responds with 404' do
@@ -308,7 +308,7 @@ module DataCycleCore
             json_data = response.parsed_body
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
 
             post api_v4_stored_filter_path(params)
             assert_response :not_found
@@ -316,7 +316,7 @@ module DataCycleCore
             json_data = response.parsed_body
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'GET/POST /api/v4/collections/:uuid with random :uuid responds with 404' do
@@ -337,7 +337,7 @@ module DataCycleCore
             json_data = response.parsed_body
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
 
             post api_v4_collection_path(params)
             follow_redirect!
@@ -346,7 +346,7 @@ module DataCycleCore
             json_data = response.parsed_body
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
           end
 
           test 'GET/POST /api/v4/collections/:uuid without token' do
@@ -367,7 +367,7 @@ module DataCycleCore
             json_data = response.parsed_body
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
 
             post api_v4_collection_path(params)
             assert_response :unauthorized
@@ -375,7 +375,7 @@ module DataCycleCore
             json_data = response.parsed_body
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            assert_equal(error_object, json_data.dig('errors').first)
+            assert_equal(error_object, json_data['errors'].first)
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
         end

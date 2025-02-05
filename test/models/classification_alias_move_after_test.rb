@@ -9,22 +9,36 @@ module DataCycleCore
       @tree_label2 = DataCycleCore::ClassificationTreeLabel.create!(name: 'CLASSIFICATION TREE 2')
 
       [@tree_label1, @tree_label2].each.with_index do |tree_label, index|
-        instance_variable_set("@alias#{index}0", tree_label.create_classification_alias('A'))
-        instance_variable_set("@alias#{index}1", tree_label.create_classification_alias('A', '1'))
-        instance_variable_set("@alias#{index}2", tree_label.create_classification_alias('A', '2'))
-        instance_variable_set("@alias#{index}3", tree_label.create_classification_alias('A', '3'))
-        instance_variable_set("@alias#{index}4", tree_label.create_classification_alias('A', '3', '11'))
-        instance_variable_set("@alias#{index}5", tree_label.create_classification_alias('A', '3', '22'))
-        instance_variable_set("@alias#{index}6", tree_label.create_classification_alias('A', '3', '33'))
+        instance_variable_set(:"@alias#{index}0", tree_label.create_classification_alias('A'))
+        instance_variable_set(:"@alias#{index}1", tree_label.create_classification_alias('A', '1'))
+        instance_variable_set(:"@alias#{index}2", tree_label.create_classification_alias('A', '2'))
+        instance_variable_set(:"@alias#{index}3", tree_label.create_classification_alias('A', '3'))
+        instance_variable_set(:"@alias#{index}4", tree_label.create_classification_alias('A', '3', '11'))
+        instance_variable_set(:"@alias#{index}5", tree_label.create_classification_alias('A', '3', '22'))
+        instance_variable_set(:"@alias#{index}6", tree_label.create_classification_alias('A', '3', '33'))
 
-        instance_variable_set("@alias#{index}7", tree_label.create_classification_alias('B'))
-        instance_variable_set("@alias#{index}8", tree_label.create_classification_alias('B', '1'))
-        instance_variable_set("@alias#{index}9", tree_label.create_classification_alias('B', '2'))
-        instance_variable_set("@alias#{index}10", tree_label.create_classification_alias('B', '3'))
-        instance_variable_set("@alias#{index}11", tree_label.create_classification_alias('B', '3', '11'))
-        instance_variable_set("@alias#{index}12", tree_label.create_classification_alias('B', '3', '22'))
-        instance_variable_set("@alias#{index}13", tree_label.create_classification_alias('B', '3', '33'))
+        instance_variable_set(:"@alias#{index}7", tree_label.create_classification_alias('B'))
+        instance_variable_set(:"@alias#{index}8", tree_label.create_classification_alias('B', '1'))
+        instance_variable_set(:"@alias#{index}9", tree_label.create_classification_alias('B', '2'))
+        instance_variable_set(:"@alias#{index}10", tree_label.create_classification_alias('B', '3'))
+        instance_variable_set(:"@alias#{index}11", tree_label.create_classification_alias('B', '3', '11'))
+        instance_variable_set(:"@alias#{index}12", tree_label.create_classification_alias('B', '3', '22'))
+        instance_variable_set(:"@alias#{index}13", tree_label.create_classification_alias('B', '3', '33'))
       end
+    end
+
+    test 'all aliases have order_a set' do
+      2.times do |index|
+        13.times do |i|
+          assert_not_nil instance_variable_get(:"@alias#{index}#{i}").reload.order_a
+        end
+      end
+    end
+
+    test 'order_a is set after update' do
+      @alias01.classification_tree.update(parent_classification_alias_id: nil)
+
+      assert_not_nil @alias01.reload.order_a
     end
 
     test 'move_after on single level without parent_classification_alias' do
@@ -100,11 +114,11 @@ module DataCycleCore
       assert_equal 1, @alias00.reload.order_a
       assert_equal 8, @alias10.reload.order_a
       assert_equal 9, @alias11.reload.order_a
-      assert_equal 8, @alias07.reload.order_a
+      assert_equal 1, @alias07.reload.order_a
 
       @alias00.move_after(@tree_label1, nil, @alias09)
 
-      assert_equal 8, @alias10.reload.order_a
+      assert_equal 1, @alias10.reload.order_a
       assert_equal 4, @alias00.reload.order_a
       assert_equal 5, @alias01.reload.order_a
 

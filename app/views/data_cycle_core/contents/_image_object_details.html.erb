@@ -130,90 +130,89 @@
 
           <% if DataCycleCore::Feature::GravityEditor.enabled? &&
               content.respond_to?(DataCycleCore::Feature::GravityEditor.attribute_keys.first) &&
-              can?(:edit, content) && 
+              can?(:edit, content) &&
               can?(:update, DataCycleCore::DataAttribute.new(DataCycleCore::Feature::GravityEditor.attribute_keys.first, content.properties_for(DataCycleCore::Feature::GravityEditor.attribute_keys.first), {}, content, :update)) %>
-            <button 
-              class="button change-gravity-ui" 
-              data-thing-id="<%= content['id'] %>" 
+          <button
+              class="button change-gravity-ui"
+              data-thing-id="<%= content['id'] %>"
               data-gravity-info="<%= DataCycleCore::ClassificationAlias.for_tree("Gravity").map { |ca| { gravity: URI(ca.uri).fragment, id: ca.primary_classification.id, name: ca.name } }.to_json %>"
               data-gravity="<%= content.try(DataCycleCore::Feature::GravityEditor.attribute_keys.first)&.first&.id %>"
               data-editor-active-text="<%= I18n.t('actions.deactivate_gravity_editor',  locale: active_ui_locale) %>"
               >
-               <%= I18n.t('actions.set_gravity',  locale: active_ui_locale) %>
-            </button>
-            <p class="gravity-editor-hint">
-             <%= I18n.t("frontend.gravity_editor.hint", locale: active_ui_locale) %>
-            </p>
-          <% end %>
+            <%= I18n.t('actions.set_gravity',  locale: active_ui_locale) %>
+          </button>
+          <p class="gravity-editor-hint">
+            <%= I18n.t("frontend.gravity_editor.hint", locale: active_ui_locale) %>
+          </p>
+        <% end %>
 
-         
-        </div>
       </div>
+    </div>
 
-      <% if content.try(:encoding) %>
-        <%= render 'data_cycle_core/contents/viewers/image_variant',
+    <% if content.try(:encoding) %>
+      <%= render 'data_cycle_core/contents/viewers/image_variant',
                    key: 'encoding',
                    definition: content.properties_for('encoding'),
                    value: content.try(:encoding),
                    options: {},
                    content: content
         %>
-      <% end %>
+    <% end %>
 
-      <% if can? :show_exif_data, content %>
-        <div class="<%= embedded_viewer_html_classes(**local_assigns) %>" data-accordion="true" data-allow-all-closed="true">
-          <div class="detail-property embedded accordion-item" data-accordion-item="true">
-            <div class="accordion-title">
-              <h3>
-                <span class="title">
-                  <span title="<%= t('details.bild.exif_data', locale: active_ui_locale) %>"><%= t('details.bild.exif_data', locale: active_ui_locale) %></span>
-                </span>
-              </h3>
-            </div>
-            <div class="accordion-content" data-tab-content>
-              <% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
-              <div id="exif-details" data-exif="<%= meta_data.to_json %>">
-              </div>
+    <% if can? :show_exif_data, content %>
+      <div class="<%= embedded_viewer_html_classes(**local_assigns) %>" data-accordion="true" data-allow-all-closed="true">
+        <div class="detail-property embedded accordion-item" data-accordion-item="true">
+          <div class="accordion-title">
+            <h3>
+              <span class="title">
+                <span title="<%= t('details.bild.exif_data', locale: active_ui_locale) %>"><%= t('details.bild.exif_data', locale: active_ui_locale) %></span>
+              </span>
+            </h3>
+          </div>
+          <div class="accordion-content" data-tab-content>
+            <% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
+            <div id="exif-details" data-exif="<%= meta_data.to_json %>">
             </div>
           </div>
         </div>
-      <% end %>
-
-    </div>
+      </div>
+    <% end %>
 
   </div>
 
-  <div class="detail-content detail-content-wrapper">
-    <div class="row align-center">
-      <div class="type properties">
-        <% ordered_validation_properties(
+</div>
+
+<div class="detail-content detail-content-wrapper">
+  <div class="row align-center">
+    <div class="type properties">
+      <% ordered_validation_properties(
             validation: content.schema,
             content_area: local_assigns.dig(:options, :force_render).to_s == 'true' ? '' : 'content',
             scope: :show,
             exclude_types: local_assigns.dig(:options, :exclude_types)
           ).except(DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.first).each do |key, prop| %>
-          <% next if ['overlay', 'asset', 'thumbnail_url', 'alternative_headline', 'caption', 'description',
+        <% next if ['overlay', 'asset', 'thumbnail_url', 'alternative_headline', 'caption', 'description',
                       'content_location', 'comment', 'source', 'image_id', 'visibility', 'validity_schedule',
                       'copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer',
                       'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines',
                       'licensing_agreement', 'attribution_url', 'width', 'height', 'content_size', 'file_format',
                       'date_created', 'date_modified', 'upload_date', 'mandatory_license'].include?(key) %>
 
-          <% next if prop.dig('ui', 'show', 'disabled') || prop.dig('type') == 'attribute_group' %>
+        <% next if prop.dig('ui', 'show', 'disabled') || prop.dig('type') == 'attribute_group' %>
 
-          <% value = content.try(key.to_sym) %>
-          <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) && prop&.dig('type')&.in?(['linked', 'embedded']) %>
+        <% value = content.try(key.to_sym) %>
+        <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) && prop&.dig('type')&.in?(['linked', 'embedded']) %>
 
-          <%= render_attribute_viewer key: "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[#{key}]",
+        <%= render_attribute_viewer key: "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[#{key}]",
                                       definition: prop,
                                       value: value,
                                       parameters: {
                                         options: options
                                       },
                                       content: content %>
-        <% end %>
-      </div>
+      <% end %>
     </div>
   </div>
+</div>
 
 <% end %>

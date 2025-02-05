@@ -46,14 +46,14 @@ module DataCycleCore
 
           if variant == 'dynamic'
             return unless image_processing.is_a?(::Hash) && !image_processing.empty?
-            preset = image_processing.dig('preset') || 'default'
+            preset = image_processing['preset'] || 'default'
             target_url += [
               preset,
-              image_processing.dig('resize_type'),
-              image_processing.dig('width'),
-              image_processing.dig('height'),
-              image_processing.dig('enlarge'),
-              image_processing.dig('gravity')
+              image_processing['resize_type'],
+              image_processing['width'],
+              image_processing['height'],
+              image_processing['enlarge'],
+              image_processing['gravity']
             ]
           else
             target_url << variant
@@ -64,11 +64,11 @@ module DataCycleCore
         end
 
         def config
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:config)
+          DataCycleCore.features[name.demodulize.underscore.to_sym][:config]
         end
 
         def frontend_enabled?
-          enabled? && DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:frontend, :enabled)
+          enabled? && DataCycleCore.features[name.demodulize.underscore.to_sym].dig(:frontend, :enabled)
         end
 
         def supported_content_type?(content)
@@ -89,7 +89,7 @@ module DataCycleCore
 
         def image_file_extension(content, variant, processing)
           if processing&.dig('format').present?
-            ext_name = processing.dig('format')
+            ext_name = processing['format']
           elsif ['default', 'original'].include?(variant)
             orig_url = content.content_url
             ext_name = orig_url.present? ? File.extname(orig_url)&.split('.')&.last : ''
@@ -100,10 +100,10 @@ module DataCycleCore
         end
 
         def imgproxy_signature(content, processing, format)
-          raise 'Insufficient imgproxy credentials! Validate imgproxy_key and imgproxy_salt secrets!' unless Rails.application.secrets.imgproxy_key.present? && Rails.application.secrets.imgproxy_salt.present?
+          raise 'Insufficient imgproxy credentials! Validate imgproxy_key and imgproxy_salt secrets!' unless ENV['IMGPROXY_KEY'].present? && ENV['IMGPROXY_SALT'].present?
 
-          key = [Rails.application.secrets.imgproxy_key].pack('H*')
-          salt = [Rails.application.secrets.imgproxy_salt].pack('H*')
+          key = [ENV['IMGPROXY_KEY']].pack('H*')
+          salt = [ENV['IMGPROXY_SALT']].pack('H*')
 
           application_url = Addressable::URI.parse(Rails.application.config.asset_host)
 
@@ -116,19 +116,18 @@ module DataCycleCore
           ].join('/')
 
           cachebuster = content.cache_valid_since.to_i
-          preset = processing.dig('preset') || 'default'
-          resize_type = processing.dig('resize_type')
-          width = processing.dig('width')
-          height = processing.dig('height')
-          gravity = processing.dig('gravity')
-          enlarge = processing.dig('enlarge')
-          extension = processing.dig('format') || format
+          preset = processing['preset'] || 'default'
+          resize_type = processing['resize_type']
+          width = processing['width']
+          height = processing['height']
+          gravity = processing['gravity']
+          enlarge = processing['enlarge']
+          extension = processing['format'] || format
 
           path = "/cachebuster:#{cachebuster}/preset:#{preset}/resize:#{resize_type}:#{width}:#{height}:#{enlarge}/gravity:#{gravity}/filename:#{content.id}/plain/#{url}@#{extension}"
 
           digest = OpenSSL::Digest.new('sha256')
-          hmac = Base64.urlsafe_encode64(OpenSSL::HMAC.digest(digest, key, "#{salt}#{path}")).tr('=', '')
-          hmac
+          Base64.urlsafe_encode64(OpenSSL::HMAC.digest(digest, key, "#{salt}#{path}")).tr('=', '')
         end
       end
     end

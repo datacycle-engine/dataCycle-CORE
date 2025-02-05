@@ -4,13 +4,24 @@
     <span><%= t("filter.#{key}", default: title, locale: active_ui_locale) %></span>
   </span>
 
-  <% users = DataCycleCore::User.with_deleted.where(id: value).to_h { |c| [c.id, c.to_select_option(active_ui_locale)] } %>
+  <% if filter_method.in?(['p', 'b']) %>
+    <span>
+      <%= t("filter.#{local_assigns[:filter_type]}.#{DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter_method]&.delete_suffix('_')}", default: title, locale: active_ui_locale) %>
+    </span>
+  <% elsif filter_method.in?(['s', 'u']) %>
+    <span>
+      <%= t("filter.#{local_assigns[:filter_type]}.#{DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter_method]&.delete_suffix('_')}", default: title, locale: active_ui_locale) %>
+      <%= tag.span(value&.dig('text'), class: 'tag', data: { dc_tooltip: value&.dig('text') }) %>
+    </span>
+  <% else %>
+    <% users = DataCycleCore::User.with_deleted.where(id: value).to_h { |c| [c.id, c.to_select_option(active_ui_locale)] } %>
 
-  <span class="tags-container">
-    <% Array.wrap(value).each do |user_id| %>
-      <%= tag.span(users[user_id]&.name, class: 'tag', data: { dc_tooltip: users[user_id]&.dc_tooltip }) %>
-    <% end %>
-  </span>
+    <span class="tags-container">
+      <% Array.wrap(value).each do |user_id| %>
+        <%= tag.span(users[user_id]&.name, class: 'tag', data: { dc_tooltip: users[user_id]&.dc_tooltip }) %>
+      <% end %>
+    </span>
+  <% end %>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
 </span>

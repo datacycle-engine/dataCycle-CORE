@@ -39,7 +39,7 @@ months = content
 
 data =
   {
-    'schedule':
+    schedule:
     [
       {
         '@context': 'http://schema.org',
@@ -47,8 +47,8 @@ data =
           'Intangible',
           'Schedule'
         ],
-        'contentType': 'Schedule',
-        'byMonth': months.sort
+        contentType: 'Schedule',
+        byMonth: months.sort
       }
     ]
   }

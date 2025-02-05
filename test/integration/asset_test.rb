@@ -29,7 +29,7 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert(json_data.dig('assets').any? { |v| v['id'] == image.id })
+      assert(json_data['assets'].any? { |v| v['id'] == image.id })
     end
 
     test 'create new asset as current user' do

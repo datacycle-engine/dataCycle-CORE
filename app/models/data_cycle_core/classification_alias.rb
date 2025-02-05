@@ -19,12 +19,12 @@ module DataCycleCore
     default_scope { i18n }
     default_scope { order(order_a: :asc, id: :asc) }
     before_save :set_internal_data
-    after_destroy :clean_stored_filters
-    before_destroy :add_things_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
     after_update :update_primary_classification
     after_update :add_things_cache_invalidation_job, if: :cached_attributes_changed?
     after_update :add_things_search_update_job, if: :search_attributes_changed?
     after_update :add_things_webhooks_job_update, if: :webhook_attributes_changed?
+    before_destroy :add_things_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
+    after_destroy :clean_stored_filters
 
     attr_accessor :content_template, :prevent_webhooks
 
@@ -67,6 +67,8 @@ module DataCycleCore
 
     scope :in_context, ->(context) { includes(:classification_tree_label).where('classification_tree_labels.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:classification_tree_label) }
     scope :by_full_paths, ->(full_paths) { includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
+    scope :assignable, -> { where(assignable: true) }
+    scope :visible, ->(context) { joins(:classification_tree_label).merge(ClassificationTreeLabel.visible(context)) }
 
     validate :validate_color_format
 
@@ -131,7 +133,7 @@ module DataCycleCore
     end
 
     def self.search(q)
-      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q OR (classification_aliases.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
+      joins(:classification_alias_path).where("ARRAY_TO_STRING(ARRAY_REVERSE(full_path_names), ' > ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q OR (classification_aliases.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q.squish.gsub(/\s/, '%')}%" })
     end
 
     def self.order_by_similarity(term)
@@ -149,9 +151,7 @@ module DataCycleCore
     end
 
     def self.classification_polygons
-      return DataCycleCore::ClassificationPolygon.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::ClassificationPolygon.where(classification_alias_id: select(:id))
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: pluck(:id))
     end
 
     def primary_classification_id
@@ -218,12 +218,12 @@ module DataCycleCore
 
     def self.custom_find_by_full_path(full_path)
       includes(:classification_alias_path)
-      .where(
-        "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
-        full_path.split('>').reverse.map(&:strip).join(' < ')
-      )
-      .references(:classification_alias_paths)
-      .first
+        .where(
+          "ARRAY_TO_STRING(ARRAY_REVERSE(full_path_names), ' > ') ILIKE ?",
+          full_path
+        )
+        .references(:classification_alias_paths)
+        .first
     end
 
     def self.custom_find_by_full_path!(full_path)
@@ -255,6 +255,8 @@ module DataCycleCore
       return if ctl.nil?
 
       transaction do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
         if new_ca.nil?
           new_parent = ctl.create_classification_alias(*(new_path[1...-1].map { |c| { name: c } }))
 
@@ -297,6 +299,8 @@ module DataCycleCore
 
     def merge_with_children(new_classification_alias, destroy_children = false)
       transaction do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
         if destroy_children
           merge_children_into_self
         else
@@ -352,7 +356,7 @@ module DataCycleCore
     end
 
     def icon
-      icon = DataCycleCore.classification_icons[id] || DataCycleCore.classification_icons[classification_tree_label&.id]
+      icon = DataCycleCore.classification_icons[id] || DataCycleCore.classification_icons[classification_tree_label&.id] || DataCycleCore.classification_icons[external_key] || DataCycleCore.classification_icons[full_path]
 
       return if icon.blank?
 
@@ -393,19 +397,19 @@ module DataCycleCore
       return @search_attributes_changed if defined? @search_attributes_changed
 
       @search_attributes_changed = saved_changes.keys.intersect?(['internal_name']) ||
-                                   saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+                                   saved_changes['name_i18n']&.map(&:compact_blank)&.reject(&:blank?).present?
     end
 
     def cached_attributes_changed?
-      webhook_attributes_changed? || @classifications_changed || saved_changes.dig('ui_configs')&.map { |attr| attr&.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+      webhook_attributes_changed? || @classifications_changed || saved_changes['ui_configs']&.map { |attr| attr&.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
     end
 
     def webhook_attributes_changed?
       return @webhook_attributes_changed if defined? @webhook_attributes_changed
 
       @webhook_attributes_changed = saved_changes.keys.intersect?(['internal_name', 'uri']) ||
-                                    saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
-                                    saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+                                    saved_changes['name_i18n']&.map(&:compact_blank)&.reject(&:blank?).present? ||
+                                    saved_changes['description_i18n']&.map(&:compact_blank)&.reject(&:blank?).present?
     end
 
     def classifications_added(_classification = nil)
@@ -414,8 +418,8 @@ module DataCycleCore
 
     def classifications_removed(classification = nil)
       unless classification.nil?
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.ids)
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.ids) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.pluck(:id))
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.pluck(:id)) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
       end
 
       @classifications_changed = true
@@ -424,7 +428,7 @@ module DataCycleCore
     def add_things_webhooks_job_destroy
       return unless classification_tree_label&.change_behaviour&.include?('trigger_webhooks') && classifications.things.exists?
 
-      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classifications.things.ids)
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classifications.things.pluck(:id))
     end
 
     def add_things_webhooks_job_update
@@ -455,7 +459,7 @@ module DataCycleCore
         self.class.name,
         id,
         'invalidate_things_cache',
-        classifications.things.ids
+        classifications.things.pluck(:id)
       )
     end
 
@@ -468,7 +472,7 @@ module DataCycleCore
     end
 
     def clean_stored_filters
-      ActiveRecord::Base.connection.execute <<-SQL.squish
+      ActiveRecord::Base.connection.exec_query <<-SQL.squish
         WITH subquery AS
         (
             SELECT

@@ -36,7 +36,7 @@ module VirtualAttributeTestUtilities
 
         if klass == DataCycleCore::ClassificationAlias
           def name
-            name_i18n.dig(I18n.locale.to_s)
+            name_i18n[I18n.locale.to_s]
           end
         end
       }.new(klass:, **data.transform_values { |d| create_dummy(d, klass) })

@@ -14,26 +14,28 @@ module DataCycleCore
         'column' => 'column',
         'classification' => 'classification'
       }.freeze
-      WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks].freeze
+      WEBHOOK_ACCESSORS = [:webhook_as_of].freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       LINKED_PROPERTY_TYPES = ['linked'].freeze
       EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
       CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
       SCHEDULE_PROPERTY_TYPES = ['schedule', 'opening_time'].freeze
+      OPENING_TIME_PROPERTY_TYPES = ['opening_time'].freeze
       TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
       ASSET_PROPERTY_TYPES = ['asset'].freeze
       COLLECTION_PROPERTY_TYPES = ['collection'].freeze
       TABLE_PROPERTY_TYPES = ['table'].freeze
       OEMBED_PROPERTY_TYPES = ['oembed'].freeze
       SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
-      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS].freeze
+      SLUG_PROPERTY_TYPES = ['slug'].freeze
+      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
 
       after_initialize :add_template_properties, if: :new_record?
 
       self.abstract_class = true
 
-      enum aggregate_type: { default: 'default', aggregate: 'aggregate', belongs_to_aggregate: 'belongs_to_aggregate' }, _prefix: :aggregate_type
+      enum :aggregate_type, { default: 'default', aggregate: 'aggregate', belongs_to_aggregate: 'belongs_to_aggregate' }, prefix: :aggregate_type
 
       attr_accessor(*ATTR_ACCESSORS)
       attr_writer(*ATTR_WRITERS)
@@ -52,12 +54,14 @@ module DataCycleCore
       include Extensions::DefaultValue
       include Extensions::ComputedValue
       include Extensions::PropertyPreloader
-      prepend Extensions::Translation
-      prepend Extensions::Geo
+      include Extensions::Translation
+      include Extensions::Geo
+      include Extensions::Thing
+      include Extensions::Slug
 
-      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
-        include feature.content_module if feature.enabled? && feature.content_module
+      DataCycleCore.features.each_key do |key|
+        feature = DataCycleCore::Feature[key]
+        include feature.content_module if feature&.enabled? && feature.content_module
       end
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
@@ -83,7 +87,7 @@ module DataCycleCore
       def reload(options = nil)
         reload_memoized
 
-        super(options)
+        super
       end
 
       def generic_template?
@@ -124,6 +128,8 @@ module DataCycleCore
         root_name = method_name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
 
         property_names.include?(root_name) || super
+      rescue StandardError
+        super
       end
 
       def property?(property_name)
@@ -200,7 +206,7 @@ module DataCycleCore
       end
 
       def creatable?(scope)
-        schema.dig('content_type') != 'embedded' &&
+        schema['content_type'] != 'embedded' &&
           schema.dig('features', 'creatable', 'allowed') &&
           (
           schema.dig('features', 'creatable', 'scope').blank? ||
@@ -246,7 +252,7 @@ module DataCycleCore
       end
 
       def translated_columns
-        @translated_columns ||= (self.class.to_s + '::Translation').constantize.column_names
+        @translated_columns ||= "#{self.class}::Translation".constantize.column_names
       end
 
       def translatable_property?(property_name, property_definition = nil)
@@ -272,7 +278,7 @@ module DataCycleCore
           else
             definition.dig('api', 'transformation', 'method') == 'combine'
           end
-        }.sort_by { |_k, v| v.dig('sorting') }.to_h.keys
+        }.sort_by { |_k, v| v['sorting'] }.to_h.keys
       end
 
       def attribute_transformation_mapping(api_version = nil)
@@ -284,12 +290,16 @@ module DataCycleCore
             definition.dig('api', 'transformation', 'method') == 'unwrap'
           end
         }.to_h do |k, v|
-          [k, v.dig('properties').keys.map { |prop_key| prop_key.camelize(:lower) }]
+          [k, v['properties'].keys.map { |prop_key| prop_key.camelize(:lower) }]
         end
       end
 
       def plain_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| PLAIN_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def slug_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| SLUG_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def virtual_property_names(include_overlay = false)
@@ -360,12 +370,16 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| SCHEDULE_PROPERTY_TYPES.include?(definition['type']) }
       end
 
+      def opening_time_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| OPENING_TIME_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
       def timeseries_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| TIMESERIES_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def external_property_names
-        name_property_selector { |definition| definition.dig('external') }
+        name_property_selector { |definition| definition['external'] }
       end
 
       def relation_property_names(include_overlay = false)
@@ -377,7 +391,7 @@ module DataCycleCore
       end
 
       def untranslatable_embedded_property_names
-        name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition.dig('translated') }
+        name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition['translated'] }
       end
 
       def searchable_embedded_property_names
@@ -420,10 +434,8 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition.dig('features', 'overlay', 'allowed') }
       end
 
-      def embedded_title_property_name
-        return unless embedded?
-
-        @embedded_title_property_name ||=
+      def title_property_name
+        @title_property_name ||=
           name_property_selector { |definition| definition['type'] == 'string' && definition.dig('ui', 'is_title') == true }.first || 'name'
       end
 
@@ -576,31 +588,31 @@ module DataCycleCore
         }.inject(&:merge)
       end
 
-      def convert_to_type(type, value, definition = nil, content = nil)
-        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition, self || content)
+      def convert_to_type(type, value, definition = nil)
+        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition)
       end
 
-      def convert_to_string(type, value, content = nil)
-        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value, self || content)
+      def convert_to_string(type, value)
+        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
       end
 
       def parent_templates
         DataCycleCore::ThingTemplate
-        .from("thing_templates, jsonb_each(schema -> 'properties') property_name")
-        .where(
-          "property_name.value ->> 'type' = ? AND property_name.value ->> 'template_name' = ?",
-          'embedded',
-          template_name
-        )
-        .template_things
-        .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
-        .flatten
+          .from("thing_templates, jsonb_each(schema -> 'properties') property_name")
+          .where(
+            "property_name.value ->> 'type' = ? AND property_name.value ->> 'template_name' = ?",
+            'embedded',
+            template_name
+          )
+          .template_things
+          .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
+          .flatten
       end
 
       def feature_attributes(prefix = '')
         @feature_attributes ||= Hash.new do |h, key|
           h[key] = DataCycleCore.features
-            .select { |_, v| !v.dig(:only_config) == true }
+            .select { |_, v| !v[:only_config] == true }
             .keys
             .map { |f| ModuleService.safe_load_module("Feature::#{f.to_s.classify}", 'Datacycle').try("#{prefix}attribute_keys", self) }
             .flatten
@@ -663,10 +675,10 @@ module DataCycleCore
       def set_property_value(property_name, property_definition, value)
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
 
-        ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
+        ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}, caller: #{caller.join("\n")}") unless Rails.env.test?
 
         send(
-          NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
+          :"#{NEW_STORAGE_LOCATION[property_definition['storage_location']]}=",
           (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value })
         )
 
@@ -676,7 +688,7 @@ module DataCycleCore
       def set_memoized_attribute(key, value, filter = nil, overlay_flag = false)
         definition = properties_for(key)
 
-        return send("#{key}=", value) if definition['storage_location'] == 'column'
+        return send(:"#{key}=", value) if definition['storage_location'] == 'column'
 
         attibute_cache_key = attibute_cache_key(key, filter, overlay_flag)
 

@@ -28,7 +28,7 @@ module DataCycleCore
         args[:save_time] = Time.zone.now if args[:save_time].nil?
         args[:partial_update] = true # always use partial update
 
-        super(**args)
+        super
       end
     end
   end

@@ -2,16 +2,8 @@
 
 class AddOccurrencesToSchedule < ActiveRecord::Migration[6.1]
   def up
-    range_start, range_end = DataCycleCore.schedule_occurrences_range.values_at(:start, :end)
-
-    range_start = range_start.call if range_start.is_a?(Proc)
-    range_start = range_start.in_time_zone if range_start.is_a?(::String)
-    range_start = 1.year.ago if range_start.nil?
-    range_end = range_end.call if range_end.is_a?(Proc)
-    range_end = range_end.in_time_zone if range_end.is_a?(::String)
-    range_end = 5.years.from_now if range_end.nil?
-    range_start = range_start.to_date
-    range_end = range_end.to_date
+    range_start = 1.year.ago.to_date
+    range_end = 5.years.from_now.to_date
 
     execute <<-SQL.squish
       CREATE OR REPLACE FUNCTION generate_schedule_occurences_array(

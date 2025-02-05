@@ -9,9 +9,9 @@ module DataCycleCore
     devise :registerable if Feature::UserRegistration.enabled?
     devise :confirmable if Feature::UserConfirmation.enabled?
 
-    WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
+    WEBHOOK_ACCESSORS = [:raw_password, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, *WEBHOOK_ACCESSORS
+    attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, :synchronous_webhooks, :webhook_source, *WEBHOOK_ACCESSORS
     attr_writer :user_api_feature, :ability
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
@@ -73,7 +73,10 @@ module DataCycleCore
     delegate :can?, :cannot?, :can_attribute?, to: :ability
 
     after_create :execute_create_webhooks, unless: :skip_callbacks
-    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && u.saved_changes.keys.intersect?(u.allowed_webhook_attributes) }
+    after_update_commit :execute_update_webhooks, if: lambda { |u|
+      !u.skip_callbacks &&
+        u.saved_changes.keys.intersect?(u.allowed_webhook_attributes)
+    }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     default_scope { where(deleted_at: nil) }
@@ -136,11 +139,11 @@ module DataCycleCore
     end
 
     def has_rank?(rank)
-      self&.role&.rank&.>= rank
+      role&.rank&.>= rank
     end
 
     def is_rank?(rank)
-      self&.role&.rank == rank
+      role&.rank == rank
     end
 
     def is_role?(*role_names)
@@ -149,6 +152,14 @@ module DataCycleCore
 
     def has_user_group?(group_name)
       user_groups.any? { |ug| ug.name == group_name }
+    end
+
+    def has_user_group_permission?(permission_key)
+      user_groups_by_permission(permission_key).exists?
+    end
+
+    def user_groups_by_permission(permission_key)
+      user_groups.user_groups_with_permission(permission_key)
     end
 
     def locked?
@@ -160,7 +171,7 @@ module DataCycleCore
     end
 
     def include_groups_user_ids
-      user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
+      user_groups.map { |ug| ug.users.pluck(:id) }.flatten.uniq << id
     end
 
     def send_notification(content_ids)
@@ -177,7 +188,7 @@ module DataCycleCore
 
     def update_with_token(token)
       self.role = user_api_feature.allowed_role(token.dig(:user, :rank)) if user_api_feature.rank_allowed?(token.dig(:user, :rank))
-      self.attributes = user_api_feature.parsed_user_params(ActionController::Parameters.new(token.dig(:user) || {}))
+      self.attributes = user_api_feature.parsed_user_params(ActionController::Parameters.new(token[:user] || {}))
 
       save
 
@@ -228,8 +239,8 @@ module DataCycleCore
 
     def as_user_api_json
       as_json(user_api_feature.json_params)
-      .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*user_api_feature.json_additional_attributes) })
-      .deep_transform_keys { |k| k.to_s.camelize(:lower) }
+        .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*user_api_feature.json_additional_attributes) })
+        .deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
 
     def self.as_user_api_json
@@ -278,14 +289,14 @@ module DataCycleCore
 
     def log_request_activity(type:, data: {}, request: nil, activitiable: nil)
       data ||= {}
-      data = data.with_indifferent_access
-      data = data.merge(CONTROLLER_CONTEXT_SCHEMA.call(request&.params).to_h)
-      data[:format] = request&.format&.to_sym
-      data[:referer] = request&.referer
-      data[:origin] = request&.origin
+      data.deep_stringify_keys!
+      data.merge!(CONTROLLER_CONTEXT_SCHEMA.call(request&.params).to_h.deep_stringify_keys)
+      data['format'] = request&.format&.to_s
+      data['referer'] = request&.referer&.to_s
+      data['origin'] = request&.origin&.to_s
 
       CUSTOM_TRACKING_HEADERS.each do |key, header|
-        data[key] = request&.headers&.[](header)
+        data[key.to_s] = request&.headers&.[](header)&.to_s
       end
 
       transaction(joinable: true) do
@@ -327,6 +338,16 @@ module DataCycleCore
       update(attributes_hash)
     end
 
+    def reload(options = nil)
+      remove_instance_variable(:@ability) if instance_variable_defined?(:@ability)
+
+      super
+    end
+
+    def icon_class
+      organization? ? 'organization' : 'user'
+    end
+
     private
 
     def set_default_role
@@ -348,29 +369,11 @@ module DataCycleCore
     end
 
     def execute_update_webhooks
-      if synchronous_webhooks
-        DataCycleCore::Webhook::Update.execute_all(self)
-      else
-        DataCycleCore::WebhooksJob.perform_later(
-          id,
-          self.class.name,
-          'update',
-          WEBHOOK_ACCESSORS.index_with { |a| try(a) }.compact
-        )
-      end
+      DataCycleCore::Webhook::Update.execute_all(self)
     end
 
     def execute_create_webhooks
-      if synchronous_webhooks
-        DataCycleCore::Webhook::Create.execute_all(self)
-      else
-        DataCycleCore::WebhooksJob.perform_later(
-          id,
-          self.class.name,
-          'create',
-          WEBHOOK_ACCESSORS.index_with { |a| try(a) }.compact
-        )
-      end
+      DataCycleCore::Webhook::Create.execute_all(self)
     end
 
     def execute_delete_webhooks

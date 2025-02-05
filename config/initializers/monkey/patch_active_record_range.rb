@@ -28,7 +28,7 @@ module ActiveRecord
             to = type_cast_single extracted[:to]
 
             raise ArgumentError, "The Ruby Range object does not support excluding the beginning of a Range. (unsupported value: '#{value}')" if !infinity?(from) && extracted[:exclude_start]
-            if to.class == ::Time && from.class == ::Float
+            if to.instance_of?(::Time) && from.instance_of?(::Float)
               ::Range.new(Time::LONG_AGO, to, extracted[:exclude_end])
             else
               ::Range.new(from, to, extracted[:exclude_end])
@@ -42,11 +42,11 @@ module ActiveRecord
               to = type_cast_single_for_database(value.end)
               [
                 '[',
-                from.is_a?(Time) ? from.to_s(:long_usec) : from,
+                from.is_a?(Time) ? from.to_fs(:long_usec) : from,
                 ',',
-                to.is_a?(Time) ? to.to_s(:long_usec) : to,
+                to.is_a?(Time) ? to.to_fs(:long_usec) : to,
                 value.exclude_end? ? ')' : ']'
-              ].join('')
+              ].join
             else
               super
             end

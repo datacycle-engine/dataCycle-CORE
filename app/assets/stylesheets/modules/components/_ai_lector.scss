@@ -1,0 +1,35 @@
+.ai-lector-dropdown-button {
+  color: #639;
+
+  .fa {
+    font-size: 1.2rem;
+  }
+}
+
+.ai-lector-dropdown {
+  min-width: 400px;
+
+  .ai-lector-tip-container {
+    .ai-lector-tips-button {
+      margin: 0;
+      padding: 0;
+      text-align: left;
+    }
+
+    .ai-lector-result {
+      display: none;
+      line-height: 0.5rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--global-radius);
+      background-color: var(--nearly-white);
+      white-space: pre-line;
+      font-size: 0.9rem;
+
+      &.visible {
+        display: block;
+        margin-top: 0.5rem;
+        line-height: normal;
+      }
+    }
+  }
+}

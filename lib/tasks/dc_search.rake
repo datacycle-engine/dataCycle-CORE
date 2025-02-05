@@ -16,7 +16,7 @@ namespace :dc do
         DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: DataCycleCore::Thing.new(thing_template:), strategy:, transformation: nil)
       end
 
-      clean_up_query = DataCycleCore::Search.where('searches.updated_at < ?', temp_time)
+      clean_up_query = DataCycleCore::Search.where(searches: { updated_at: ...temp_time })
       clean_up_query = clean_up_query.where(data_type: template_names) if template_names.present?
       clean_up_count = clean_up_query.delete_all
 

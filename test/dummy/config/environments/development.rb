@@ -7,13 +7,15 @@ if defined?(BetterErrors)
   BetterErrors::Middleware.allow_ip! '192.168.0.0/16'
 end
 
+require 'active_support/core_ext/integer/time'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
-  config.cache_classes = false
+  config.enable_reloading = true
 
   # Do not eager load code on boot.
   config.eager_load = true
@@ -21,8 +23,8 @@ Rails.application.configure do
   # Show full error reports.
   config.consider_all_requests_local = true
 
-  # Enable server timing (rails 7.0)
-  # config.server_timing = true
+  # Enable server timing
+  config.server_timing = true
 
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
@@ -30,16 +32,17 @@ Rails.application.configure do
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
 
-    if Rails.application.secrets.dig(:redis_server).present?
+    if ENV['REDIS_SERVER'].present?
       config.cache_store = :redis_cache_store, {
-        url: "redis://#{Rails.application.secrets.redis_server}:#{Rails.application.secrets.redis_port}/#{Rails.application.secrets.redis_cache_database}",
-        namespace: Rails.application.secrets.redis_cache_namespace
+        url: "redis://#{ENV['REDIS_SERVER']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_CACHE_DATABASE']}",
+        namespace: ENV['REDIS_CACHE_NAMESPACE']
       }
     else
       config.cache_store = :memory_store
     end
+
     config.public_file_server.headers = {
-      'Cache-Control' => 'public, max-age=172800'
+      'Cache-Control' => "public, max-age=#{2.days.to_i}"
     }
   else
     config.action_controller.perform_caching = false
@@ -75,6 +78,12 @@ Rails.application.configure do
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
 
+  # Highlight code that enqueued background job in logs.
+  config.active_job.verbose_enqueue_logs = true
+
+  # Raise error when a before_action's only/except options reference missing actions
+  config.action_controller.raise_on_missing_callback_actions = true
+
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
@@ -82,6 +91,8 @@ Rails.application.configure do
 
   # Suppress logger output for asset requests.
   # config.assets.quiet = true
+
+  config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
@@ -99,14 +110,7 @@ Rails.application.configure do
 
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
 
-  # not required ?
-  # config.action_controller.asset_host = config.asset_host
-  # config.action_mailer.asset_host = config.asset_host
-  # obsolete ?
-  # config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
-  # config.action_controler.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
-
-  config.hosts.clear
+  # config.hosts.clear
 
   if ENV['RAILS_LOG_TO_STDOUT'].present?
     logger = ActiveSupport::Logger.new($stdout)

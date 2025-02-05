@@ -1,24 +1,19 @@
-import Counter from './word_counter';
+import Counter from "./word_counter";
 
 class QuillCounter extends Counter {
-  constructor(quill, _options) {
-    super(quill.container);
-    this.quill = quill;
+	constructor(quill, _options) {
+		super(quill.container);
+		this.quill = quill;
+		this.wrapperElem = this.quill.container.parentElement;
 
-    this.start();
-  }
-  addEventHandlers() {
-    this.quill.on('text-change', this.update.bind(this));
-  }
-  getText() {
-    return this.quill.getText();
-  }
-  setContainer() {
-    let parentElement = this.quill.container.parentElement;
-    if (parentElement.querySelector('.counter') == null)
-      parentElement.insertAdjacentHTML('beforeend', '<div class="counter"></div>');
-    this.container = parentElement.querySelector('.counter');
-  }
+		this.start();
+	}
+	addEventHandlers() {
+		this.quill.on("text-change", this.update.bind(this));
+	}
+	getText() {
+		return this.quill.getText();
+	}
 }
 
 export default QuillCounter;

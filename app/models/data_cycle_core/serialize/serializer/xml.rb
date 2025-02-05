@@ -30,7 +30,7 @@ module DataCycleCore
                   data:
                     Nokogiri::XML(
                       DataCycleCore::Xml::V1::WatchListsController.renderer.new(
-                        http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+                        http_host: Rails.application.config.action_mailer.default_url_options[:host],
                         https: Rails.application.config.force_ssl
                       ).render(
                         assigns: { watch_list:, language:, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
@@ -57,7 +57,7 @@ module DataCycleCore
                   data:
                     Nokogiri::XML(
                       DataCycleCore::Xml::V1::ContentsController.renderer.new(
-                        http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+                        http_host: Rails.application.config.action_mailer.default_url_options[:host],
                         https: Rails.application.config.force_ssl
                       ).render(
                         assigns: { contents: pagination_contents, language:, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
@@ -81,7 +81,7 @@ module DataCycleCore
               data:
                 Nokogiri::XML(
                   DataCycleCore::Xml::V1::ContentsController.renderer.new(
-                    http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+                    http_host: Rails.application.config.action_mailer.default_url_options[:host],
                     https: Rails.application.config.force_ssl
                   ).render(
                     assigns: { content:, language:, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },

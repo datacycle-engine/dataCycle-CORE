@@ -32,28 +32,28 @@ module DataCycleCore
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = response.parsed_body
 
-          assert(json_data.dig('data').present?)
-          assert_equal(1, json_data.dig('data').size)
+          assert(json_data['data'].present?)
+          assert_equal(1, json_data['data'].size)
 
-          data_hash = json_data.dig('data').first
-          assert_equal('http://schema.org', data_hash.dig('@context'))
-          assert_equal('Article', data_hash.dig('@type').last)
-          assert_equal('Artikel', data_hash.dig('contentType'))
-          assert(data_hash.dig('@id').present?)
-          assert_equal(@content.id, data_hash.dig('identifier'))
-          assert(data_hash.dig('url').present?)
-          assert(data_hash.dig('dateCreated').present?)
-          assert(data_hash.dig('dateModified').present?)
-          assert_equal('de', data_hash.dig('inLanguage'))
-          assert_equal('TestArtikel', data_hash.dig('headline'))
+          data_hash = json_data['data'].first
+          assert_equal('http://schema.org', data_hash['@context'])
+          assert_equal('Article', data_hash['@type'].last)
+          assert_equal('Artikel', data_hash['contentType'])
+          assert(data_hash['@id'].present?)
+          assert_equal(@content.id, data_hash['identifier'])
+          assert(data_hash['url'].present?)
+          assert(data_hash['dateCreated'].present?)
+          assert(data_hash['dateModified'].present?)
+          assert_equal('de', data_hash['inLanguage'])
+          assert_equal('TestArtikel', data_hash['headline'])
 
-          assert(data_hash.dig('classifications').present?)
-          assert_equal(1, data_hash.dig('classifications').size)
-          classification_hash = data_hash.dig('classifications').first
+          assert(data_hash['classifications'].present?)
+          assert_equal(1, data_hash['classifications'].size)
+          classification_hash = data_hash['classifications'].first
           assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
-          assert_equal('Artikel', classification_hash.dig('name'))
-          assert_equal(2, classification_hash.dig('ancestors').size)
-          assert_equal(['Inhaltstypen', 'Text'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
+          assert_equal('Artikel', classification_hash['name'])
+          assert_equal(2, classification_hash['ancestors'].size)
+          assert_equal(['Inhaltstypen', 'Text'], classification_hash['ancestors'].pluck('name').sort)
 
           assert(json_data['meta'].present?)
           assert_equal(1, json_data.dig('meta', 'total'))
@@ -110,10 +110,10 @@ module DataCycleCore
           v1_except = ['dateCreated', 'dateModified', 'classifications']
 
           v2_hash = {
-            '@context' => data_hash['@context'] + '/thing',
+            '@context' => "#{data_hash['@context']}/thing",
             'contentType' => data_hash['contentType'],
             '@id' => data_hash['@id'].split('/').last,
-            'identifier' => 'http://www.example.com/things/' + data_hash['identifier'],
+            'identifier' => "http://www.example.com/things/#{data_hash['identifier']}",
             'url' => data_hash['url'],
             'inLanguage' => data_hash['inLanguage'],
             'name' => data_hash['headline'],

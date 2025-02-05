@@ -37,54 +37,54 @@ module DataCycleCore
                 json_data = response.parsed_body
 
                 # validate header
-                assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('CreativeWork', json_data.dig('@type'))
-                assert_equal('Container', json_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + api_v3_thing_path(id: @content), json_data.dig('@id'))
-                assert_equal(@content.id, json_data.dig('identifier'))
-                assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
-                assert_equal(@content.updated_at.as_json, json_data.dig('dateModified'))
-                assert_equal(root_url[0...-1] + thing_path(@content), json_data.dig('url'))
+                assert_equal('http://schema.org', json_data['@context'])
+                assert_equal('CreativeWork', json_data['@type'])
+                assert_equal('Container', json_data['contentType'])
+                assert_equal(root_url[0...-1] + api_v3_thing_path(id: @content), json_data['@id'])
+                assert_equal(@content.id, json_data['identifier'])
+                assert_equal(@content.created_at.as_json, json_data['dateCreated'])
+                assert_equal(@content.updated_at.as_json, json_data['dateModified'])
+                assert_equal(root_url[0...-1] + thing_path(@content), json_data['url'])
 
                 # classifications
                 # TODO: (move to generic tests)
-                assert(json_data.dig('classifications').present?)
-                assert_equal(1, json_data.dig('classifications').size)
-                classification_hash = json_data.dig('classifications').first
+                assert(json_data['classifications'].present?)
+                assert_equal(1, json_data['classifications'].size)
+                classification_hash = json_data['classifications'].first
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
-                assert_equal('Container', classification_hash.dig('name'))
-                assert_equal(1, classification_hash.dig('ancestors').size)
-                assert_equal(['Inhaltstypen'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
+                assert_equal('Container', classification_hash['name'])
+                assert_equal(1, classification_hash['ancestors'].size)
+                assert_equal(['Inhaltstypen'], classification_hash['ancestors'].pluck('name').sort)
 
                 # language
-                assert_equal('de', json_data.dig('inLanguage'))
+                assert_equal('de', json_data['inLanguage'])
 
                 # content data
-                assert_equal(@content.name, json_data.dig('headline'))
-                assert_equal(@content.description, json_data.dig('description'))
+                assert_equal(@content.name, json_data['headline'])
+                assert_equal(@content.description, json_data['description'])
 
-                assert_equal(article_json_data.except('isPartOf'), json_data.dig('hasPart').first)
-                assert_equal(article_json_data.dig('isPartOf'), json_data.except('hasPart'))
+                assert_equal(article_json_data.except('isPartOf'), json_data['hasPart'].first)
+                assert_equal(article_json_data['isPartOf'], json_data.except('hasPart'))
               end
 
               test 'stored item can be found via different endpoints' do
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| item.dig('contentType') == 'Container' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| item['contentType'] == 'Container' }
+                assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| item.dig('contentType') == 'Container' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| item['contentType'] == 'Container' }
+                assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v3_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| item.dig('contentType') == 'Container' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| item['contentType'] == 'Container' }
+                assert_equal(@content.id, json_data['identifier'])
               end
 
               test 'APIv2 json equals APIv3 json result' do
@@ -101,8 +101,8 @@ module DataCycleCore
                 excepted_params = ['@id', 'author', 'about', 'image', 'contentLocation', 'hasPart']
 
                 assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
-                assert_equal(1, api_v3_json.dig('hasPart').count)
-                assert_equal(1, api_v2_json.dig('hasPart').count)
+                assert_equal(1, api_v3_json['hasPart'].count)
+                assert_equal(1, api_v2_json['hasPart'].count)
               end
             end
           end

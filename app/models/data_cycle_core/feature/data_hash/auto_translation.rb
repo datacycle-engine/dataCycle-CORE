@@ -90,10 +90,11 @@ module DataCycleCore
 
             tlocales.each do |target_locale|
               next if target_locale == source_locale
+
               I18n.with_locale(target_locale) do
                 if content.translation_type.present?
                   next if content.translation_type != 'automatic'
-                  next if source_data.dig('modified').blank? || content.modified >= source_data.dig('modified') # [TODO] check if source_data.dig('modified') should be allowed to be blank, and what should happen in this case
+                  next if source_data['modified'].blank? || content.modified >= source_data['modified'] # [TODO] check if source_data.dig('modified') should be allowed to be blank, and what should happen in this case
                 end
 
                 data = endpoint.translate({
@@ -108,7 +109,7 @@ module DataCycleCore
                     'description' => description,
                     'translation_type' => 'automatic',
                     'translated_classification' => translated_classification,
-                    'modified' => source_data.dig('modified'),
+                    'modified' => source_data['modified'],
                     'source_locale' => source_locale,
                     'about' => [id]
                   },
@@ -141,7 +142,7 @@ module DataCycleCore
         end
 
         def destroy_auto_translations
-          destroy_locales = translations.map { |i| i.locale if i.content['translation_type'] == 'manual' }.compact
+          destroy_locales = translations.filter_map { |i| i.locale if i.content['translation_type'] == 'manual' }
           if (available_locales.map(&:to_s) - destroy_locales).present?
             destroy_locales.each do |locale|
               I18n.with_locale(locale) { destroy_content(destroy_locale: true) }

@@ -51,7 +51,7 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert_equal(@content.name, response.parsed_body.dig('data').first.dig('headline'))
+                assert_equal(@content.name, response.parsed_body['data'].first['headline'])
               end
 
               test 'enable stored_filter json serializer and test downloads controller' do
@@ -65,7 +65,7 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert_equal(@content.name, response.parsed_body.dig('data').first.dig('headline'))
+                assert_equal(@content.name, response.parsed_body['data'].first['headline'])
               end
 
               def teardown

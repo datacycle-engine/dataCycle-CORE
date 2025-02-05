@@ -129,6 +129,11 @@
         :inverse_of: about
         :link_direction: inverse
         :global: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: SchemaTypes
+              :aliases:
+                - CreativeWork
       :data_type:
         :label: Inhaltstyp
         :type: classification

@@ -45,22 +45,24 @@ module DataCycleCore
           if type == 'all'
             reflect(
               @query.where(
-                external_system_sync.where(
-                  external_system_sync[:external_system_id].in(ids)
-                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
-                ).exists
-                .or(thing[:external_source_id].in(ids))
+                DataCycleCore::ExternalSystemSync
+                  .where(external_system_id: ids)
+                  .where(external_system_sync[:syncable_id].eq(thing[:id]))
+                  .select(1)
+                  .arel.exists
+              ).or(
+                @query.where(external_source_id: ids)
               )
             )
           else
             reflect(
               @query.where(
-                external_system_sync
-                  .where(
-                    external_system_sync[:external_system_id].in(ids)
-                      .and(external_system_sync[:syncable_id].eq(thing[:id]))
-                      .and(external_system_sync[:sync_type].eq(type))
-                  ).exists
+                DataCycleCore::ExternalSystemSync
+                  .where(external_system_id: ids)
+                  .where(sync_type: type)
+                  .where(external_system_sync[:syncable_id].eq(thing[:id]))
+                  .select(1)
+                  .arel.exists
               )
             )
           end
@@ -73,23 +75,26 @@ module DataCycleCore
           # this query performs well in all possible cases, things.id in (subquery) is worse in some cases with sorting (random)
           if type == 'all'
             reflect(
-              @query.where(
-                external_system_sync.where(
-                  external_system_sync[:external_system_id].in(ids)
-                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
-                ).exists.not
-                .and(thing[:external_source_id].not_in(ids).or(thing[:external_source_id].eq(nil)))
-              )
+              @query
+                .where.not(external_source_id: ids)
+                .or(@query.where(external_source_id: nil))
+                .where.not(
+                  DataCycleCore::ExternalSystemSync
+                  .where(external_system_id: ids)
+                  .where(external_system_sync[:syncable_id].eq(thing[:id]))
+                  .select(1)
+                  .arel.exists
+                )
             )
           else
             reflect(
-              @query.where(
-                external_system_sync
-                  .where(
-                    external_system_sync[:external_system_id].in(ids)
-                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
-                    .and(external_system_sync[:sync_type].eq(type))
-                  ).exists.not
+              @query.where.not(
+                DataCycleCore::ExternalSystemSync
+                  .where(external_system_id: ids)
+                  .where(sync_type: type)
+                  .where(external_system_sync[:syncable_id].eq(thing[:id]))
+                  .select(1)
+                  .arel.exists
               )
             )
           end

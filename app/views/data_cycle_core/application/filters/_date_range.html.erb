@@ -15,9 +15,10 @@
   </div>
 
   <div class="advanced-filter-selector">
-    <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj', data: { initial_focus: true } } %>
+    <% from_date, to_date = DataCycleCore::Filter::Common::Date.date_from_filter_object(value) %>
+    <%= datetime_field_tag "f[#{identifier}][v][from]", value&.key?('from') ? from_date : local_assigns[:default_from], { placeholder: 'tt.mm.jjjj SS:MM', data: { initial_focus: true } } %>
     <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>
-    <%= date_field_tag "f[#{identifier}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
+    <%= datetime_field_tag "f[#{identifier}][v][until]", value&.key?('until') ? to_date : local_assigns[:default_until], { placeholder: 'tt.mm.jjjj SS:MM' } %>
   </div>
 
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>

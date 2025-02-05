@@ -37,7 +37,7 @@ module DataCycleCore
             assert_equal('Merkliste 1', json_data.dig('meta', 'collection', 'name'))
             assert_equal(0, json_data.dig('meta', 'total'))
             assert_equal(0, json_data.dig('meta', 'pages'))
-            assert_equal(0, json_data.dig('@graph').length)
+            assert_equal(0, json_data['@graph'].length)
           end
 
           test '/api/v4/collections/ results with parameter user_email' do
@@ -50,7 +50,7 @@ module DataCycleCore
             assert_equal('Merkliste 1', json_data.dig('@graph', 0, 'name'))
             assert_equal(1, json_data.dig('meta', 'total'))
             assert_equal(1, json_data.dig('meta', 'pages'))
-            assert_equal(1, json_data.dig('@graph').length)
+            assert_equal(1, json_data['@graph'].length)
           end
 
           test '/api/v4/endpoints/:id default results and /api/v4/users/' do
@@ -89,7 +89,7 @@ module DataCycleCore
 
             assert_response :success
 
-            assert_equal @watch_list.things.ids, [article.id]
+            assert_equal @watch_list.things.pluck(:id), [article.id]
           end
 
           test '/api/v4/collections/:id/remove_item remove item to watch_list' do
@@ -100,7 +100,7 @@ module DataCycleCore
 
             assert_response :success
 
-            assert @watch_list.things.ids.blank?
+            assert @watch_list.things.pluck(:id).blank?
           end
         end
       end

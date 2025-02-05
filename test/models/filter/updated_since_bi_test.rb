@@ -10,7 +10,7 @@ module DataCycleCore
       test 'sanity check for updated_since' do
         _, timestamp = data_setup(bi: 2)
 
-        assert_equal(3, DataCycleCore::Thing.where('things.updated_at >= ?', timestamp).count)
+        assert_equal(3, DataCycleCore::Thing.where(things: { updated_at: timestamp.. }).count)
         assert_equal(0, DataCycleCore::Thing.where('things.updated_at > ?', Time.zone.now).count)
         assert_equal(3, DataCycleCore::Filter::Search.new.updated_since(timestamp - 1.minute).count)
         assert_equal(0, DataCycleCore::Filter::Search.new.updated_since(Time.zone.now).count)
@@ -103,7 +103,7 @@ module DataCycleCore
       private
 
       def data_setup(one: nil, bi: nil)
-        timestamp = Time.zone.now - 1.minute
+        timestamp = 1.minute.ago
         linked_objects = create_places(one, timestamp) if one&.positive?
         linked_bi_objects = create_places(bi, timestamp) if bi&.positive?
 

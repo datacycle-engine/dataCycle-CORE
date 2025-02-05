@@ -30,13 +30,13 @@
                  parent: local_assigns[:parent] do %>
 
         <div class="accordion-title">
-          <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore_blanks %>
+          <%= render 'data_cycle_core/shared/icon', icon_type: object.try(:icon_type), icon_class: object.try(:icon_class) %>
           <span class="title">
             <span class="embedded-type"><%= translated_attribute_label(key, definition, content, options) %></span>
-            <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
+            <%= tag.span(object.send(object.title_property_name), title: object.send(object.title_property_name), class: 'embedded-title') if object.title_property_name.present? && object.try(object.title_property_name).present? %>
           </span>
 
-          <%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale, hide_embedded: true, anchor: object.related_contents(embedded: true).ids.reverse.except(content.id).push(object.id).join('+')), class: 'edit-content-link', title: t('actions.edit', locale: active_ui_locale) if can?(:edit, content) %>
+          <%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale, hide_embedded: true, anchor: object.related_contents(embedded: true).pluck(:id).reverse.except(content.id).push(object.id).join('+')), class: 'edit-content-link', title: t('actions.edit', locale: active_ui_locale) if can?(:edit, content) %>
         </div>
 
         <div class="accordion-content remote-render" data-tab-content

@@ -30,7 +30,7 @@ module DataCycleCore
     end
 
     def render_markdown
-      root_paths = ROOT_PATHS.map { |p| p.join(@root_path, sanitized_path + '.{md,md.erb}') }
+      root_paths = ROOT_PATHS.map { |p| p.join(@root_path, "#{sanitized_path}.{md,md.erb}") }
       markdown_path = Dir.glob(root_paths).first
 
       raise ActiveRecord::RecordNotFound if markdown_path.nil?
@@ -40,7 +40,7 @@ module DataCycleCore
     end
 
     def sanitized_path
-      if params.dig('path').present?
+      if params['path'].present?
         sanitize(params['path'])
       else
         'overview'
@@ -48,7 +48,7 @@ module DataCycleCore
     end
 
     def sanitized_file
-      sanitize(params['file']) if params.dig('file').present?
+      sanitize(params['file']) if params['file'].present?
     end
 
     def sanitize(string)

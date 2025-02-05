@@ -37,7 +37,7 @@ module DataCycleCore
       content_with_timeline_item = DataCycleCore::TestPreparations.create_content(template_name: 'Zeitleiste', data_hash: {
         name: 'TestArtikelMitZeitleiste',
         timeline_item: [{
-          'name': 'Zeitleiste 1'
+          name: 'Zeitleiste 1'
         }]
       })
 

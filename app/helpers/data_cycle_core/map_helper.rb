@@ -25,7 +25,7 @@ module DataCycleCore
 
         (values[key_prefix][:features]).push(feature) unless feature.nil?
       end
-
+      values.reject! { |_, v| v[:features].blank? }
       values
     end
 
@@ -43,7 +43,7 @@ module DataCycleCore
       {
         type: 'Feature',
         geometry: RGeo::GeoJSON.encode(value),
-        properties: properties.reject { |_, v| v.blank? }.presence
+        properties: properties.compact_blank.presence
       }.compact
     end
 
@@ -96,26 +96,26 @@ module DataCycleCore
         .group_by { |c| c.parent_classification_alias&.id }
     end
 
-    def query_bounding_box(contents, filter_layers = {})
-      return contents.to_bbox if filter_layers.blank?
-
-      return unless filter_layers.key?('geo_within_classification')
-
-      DataCycleCore::ClassificationPolygon.where(classification_alias_id: filter_layers['geo_within_classification']).to_bbox
-    end
-
     def map_filter_layers(filters)
       filter_layers = {}
+      filter_bbox = nil
+      concept_ids = (
+        Array.wrap(filters&.select { |f| f['q'] == 'geo_within_classification' && f['t'] == 'geo_filter' }&.pluck('v')&.flatten) +
+        Array.wrap(filters&.select { |f| f['t'] == 'classification_alias_ids' }&.pluck('v')&.flatten)
+      ).uniq
 
-      if (geo_within_classification = filters&.select { |f| f['q'] == 'geo_within_classification' && f['t'] == 'geo_filter' }).present?
-        filter_layers['geo_within_classification'] = geo_within_classification.pluck('v').flatten.uniq
+      if concept_ids.present?
+        polygons = DataCycleCore::ClassificationPolygon.where(classification_alias_id: concept_ids)
+        existing_concept_ids = polygons.pluck(:classification_alias_id)
+        filter_bbox = polygons.to_bbox
+        filter_layers['concept_ids'] = existing_concept_ids
       end
 
       if (geo_radius = filters&.select { |f| f['q'] == 'geo_radius' && f['t'] == 'geo_filter' }).present?
         filter_layers['geo_radius'] = geo_radius.pluck('v').flatten.uniq
       end
 
-      filter_layers
+      return filter_layers, filter_bbox
     end
   end
 end

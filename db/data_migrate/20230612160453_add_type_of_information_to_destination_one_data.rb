@@ -18,7 +18,7 @@ class AddTypeOfInformationToDestinationOneData < ActiveRecord::Migration[6.1]
           external_source_id: es.id,
           template_name: 'Ergänzende Information',
           name: I18n.t('import.destination_one.teaser', default: ['teaser'])
-        ).ids
+        ).pluck(:id)
 
         if ids.present?
           data_array = ids.map do |id|
@@ -40,7 +40,7 @@ class AddTypeOfInformationToDestinationOneData < ActiveRecord::Migration[6.1]
           external_source_id: es.id,
           template_name: 'Ergänzende Information',
           name: I18n.t('import.destination_one.details', default: ['details'])
-        ).ids
+        ).pluck(:id)
 
         if ids.present?
           data_array = ids.map do |id|

@@ -16,6 +16,10 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::LifeCycle
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::LifeCycle
+        end
+
         def ordered_classifications(content = nil)
           @ordered_classifications ||= Hash.new do |h, k|
             h[k] = DataCycleCore::ClassificationAlias
@@ -31,7 +35,7 @@ module DataCycleCore
         end
 
         def ordered_items(content = nil)
-          configuration(content).dig('ordered')
+          configuration(content)['ordered']
         end
 
         def creatable_stages(content = nil)
@@ -41,7 +45,7 @@ module DataCycleCore
         end
 
         def tree_label(content = nil)
-          configuration(content).dig('tree_label')
+          configuration(content)['tree_label']
         end
 
         def default_alias_id(content)

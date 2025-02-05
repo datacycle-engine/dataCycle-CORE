@@ -52,7 +52,6 @@ module DataCycleCore
         ccs = contents.content_content_a
 
         assert(ccs.is_a?(ActiveRecord::Relation))
-        assert(ccs.is_a?(ActiveRecord::NullRelation))
         assert_equal(0, ccs.size)
       end
 

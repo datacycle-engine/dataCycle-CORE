@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class ChangeExternalSourcesToExternalSystems < ActiveRecord::Migration[5.2]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     add_column :external_systems, :last_download, :datetime
     add_column :external_systems, :last_successful_download, :datetime
@@ -80,4 +81,5 @@ class ChangeExternalSourcesToExternalSystems < ActiveRecord::Migration[5.2]
     remove_column :external_systems, :last_import
     remove_column :external_systems, :last_successful_import
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

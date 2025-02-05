@@ -1,0 +1,23 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+  local_assigns.merge(data_attributes: {
+    editor: 'string',
+    'diff-before': options.dig(:item_diff, 1),
+    'diff-after': options.dig(:item_diff, 2),
+    value: value
+  }) do %>
+
+  <% label = translated_attribute_label(key, definition, contextual_content(local_assigns), options, 1) %>
+
+  <span class="detail-content">
+    <span class="flex flex-row gap-4">
+      <%= link_to value, class: 'copy-to-clipboard button hollow flex flex-row gap-2 m-0', data: { value: value, dc_tooltip: t('actions.copy_data', data: label, locale: active_ui_locale) } do %>
+        <i class="fa fa-clipboard" aria-hidden="true"></i>
+        <span class="whitespace-nowrap overflow-hidden text-ellipsis"><%= t('actions.copy_data', data: label, locale: active_ui_locale) %></span>
+      <% end %>
+
+      <%= link_to value, class: 'button flex flex-row gap-2 m-0', target: :_blank, data: { dc_tooltip: t('actions.open_data', data: label, locale: active_ui_locale) } do %>
+        <i class="fa fa-external-link" aria-hidden="true"></i>
+        <span class="whitespace-nowrap overflow-hidden text-ellipsis"><%= t('actions.open_data', data: label, locale: active_ui_locale) %></span>
+      <% end %>
+    </span>
+  <% end %>

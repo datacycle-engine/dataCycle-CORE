@@ -6,10 +6,8 @@ module DataCycleCore
       module Classification
         class << self
           def concat(virtual_parameters:, content:, virtual_definition:, **_args)
-            values = []
-
-            virtual_parameters.each do |param|
-              values << classifcation_alias_value(content.send(param), virtual_definition.dig(:virtual, :key))
+            values = virtual_parameters.map do |param|
+              classifcation_alias_value(content.send(param), virtual_definition.dig(:virtual, :key))
             end
 
             values.compact_blank!
@@ -33,6 +31,36 @@ module DataCycleCore
             end
 
             aliases&.map { |ca| ca.send(key) || ca.internal_name }
+          end
+
+          # example config:
+          # :virtual:
+          #   :module: Classification
+          #   :method: value_by_concept_scheme
+          #   :key: uri
+          #   :concept_scheme: Lizenzen
+          def value_by_concept_scheme(content:, virtual_definition:, **_args)
+            concept_scheme = virtual_definition.dig('virtual', 'concept_scheme')
+            return if concept_scheme.blank?
+
+            key = virtual_definition.dig(:virtual, :key).presence || 'internal_name'
+
+            content.full_classification_aliases.for_tree(concept_scheme).pick(key)
+          end
+
+          # example config:
+          # :virtual:
+          #   :module: Classification
+          #   :method: values_by_concept_scheme
+          #   :key: uri
+          #   :concept_scheme: Lizenzen
+          def values_by_concept_scheme(content:, virtual_definition:, **_args)
+            concept_scheme = virtual_definition.dig('virtual', 'concept_scheme')
+            return if concept_scheme.blank?
+
+            key = virtual_definition.dig(:virtual, :key).presence || 'internal_name'
+
+            content.full_classification_aliases.for_tree(concept_scheme).pluck(key)
           end
 
           def to_mapped_value(virtual_parameters:, content:, virtual_definition:, **_args)

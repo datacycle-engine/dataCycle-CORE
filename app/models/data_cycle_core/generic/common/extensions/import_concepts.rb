@@ -8,25 +8,19 @@ module DataCycleCore
           def import_concept_schemes(utility_object:, iterator:, data_processor:, external_system_processor:, options:)
             init_logging(utility_object) do |logging|
               init_mongo_db(utility_object) do
-                importer_name = options.dig(:import, :name)
-                phase_name = utility_object.source_type.collection_name
-                logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
-
                 each_locale(utility_object.locales) do |locale|
                   I18n.with_locale(locale) do
                     item_count = 0
+                    step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                     begin
-                      logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
-
-                      source_filter = options&.dig(:import, :source_filter) || {}
-                      source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values(binding) }
-
+                      logging.phase_started(step_label)
                       times = [Time.current]
 
                       utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                        raw_data = iterator.call(mongo_item, locale, source_filter).to_a
-                        concept_scheme_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.compact.uniq
+                        filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
+                        raw_data = filtered_items(iterator, locale, filter_object).to_a
+                        concept_scheme_data = raw_data.filter_map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.uniq
 
                         concept_scheme_data = external_system_processor.call(data_array: concept_scheme_data, options:, utility_object:)
 
@@ -34,14 +28,13 @@ module DataCycleCore
 
                         item_count += upserted.count
                         times << Time.current
-
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                        logging.phase_partial(step_label, item_count, times)
                       end
+
+                      logging.phase_finished(step_label, item_count)
                     rescue StandardError => e
-                      logging.error("#{importer_name}(#{phase_name}) #{locale}", nil, nil, e.message)
+                      logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
                       raise
-                    ensure
-                      logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
                     end
                   end
                 end
@@ -49,54 +42,58 @@ module DataCycleCore
             end
           end
 
-          def import_concepts(utility_object:, iterator:, data_processor:, data_transformer:, data_mapping_processor:, options:)
+          def import_concepts(utility_object:, iterator:, data_processor:, data_transformer:, data_mapping_processor:, data_geom_processor:, options:)
             init_logging(utility_object) do |logging|
               init_mongo_db(utility_object) do
-                importer_name = options.dig(:import, :name)
-                phase_name = utility_object.source_type.collection_name
-                logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
-
                 each_locale(utility_object.locales) do |locale|
                   I18n.with_locale(locale) do
                     item_count = 0
                     mapping_count = 0
+                    step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                     begin
-                      logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
-
-                      source_filter = options&.dig(:import, :source_filter) || {}
-                      source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values(binding) }
-
+                      logging.phase_started(step_label)
                       times = [Time.current]
 
                       utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                        raw_data = iterator.call(mongo_item, locale, source_filter).to_a
+                        filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
+                        raw_data = filtered_items(iterator, locale, filter_object).to_a
                         concepts_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.compact_blank
 
                         transformed_concepts = data_transformer.call(data_array: concepts_data, options:)
                         transformed_concepts.each do |concept_scheme, concepts|
-                          next logging.error("#{importer_name}(#{phase_name}) #{locale}", nil, nil, 'ConceptScheme missing!') if concept_scheme.nil?
+                          next logging.error(step_label, nil, nil, 'ConceptScheme missing!') if concept_scheme.nil?
 
                           upserted = concept_scheme.upsert_all_external_classifications(concepts)
-                          item_count += upserted.count
+                          tree_item_count = upserted.count
                           times << Time.current
 
-                          logging.info("Imported   #{upserted.count.to_s.rjust(7)} items (#{concept_scheme.name}) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 0, 3)}")
+                          logging.phase_partial(step_label, tree_item_count, times, concept_scheme.name)
+
+                          item_count += tree_item_count
                         end
 
-                        concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:)
+                        additional_text = []
+
+                        # import new mappings
+                        concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:, options:)
                         mapped = DataCycleCore::ConceptLink.insert_all(concept_mappings, unique_by: :index_concept_links_on_parent_id_and_child_id, returning: :id)
                         mapping_count += mapped.count
+                        additional_text << "#{mapping_count} new mappings" if mapping_count.positive?
+
+                        # import new geoms
+                        concept_geoms = data_geom_processor.call(data_array: concepts_data, utility_object:, options:)
+                        geoms_count = DataCycleCore::ClassificationPolygon.upsert_all_geoms(concept_geoms)
+                        additional_text << "#{geoms_count} new geoms" if geoms_count.positive?
 
                         times << Time.current
-
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items (#{mapping_count} new mappings) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds")
+                        logging.phase_partial(step_label, item_count, times, additional_text.join(', '))
                       end
+
+                      logging.phase_finished(step_label, item_count, times.last - times.first)
                     rescue StandardError => e
-                      logging.error("#{importer_name}(#{phase_name}) #{locale}", nil, nil, e.message)
+                      logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
                       raise
-                    ensure
-                      logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
                     end
                   end
                 end

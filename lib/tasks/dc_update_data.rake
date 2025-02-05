@@ -16,10 +16,10 @@ namespace :dc do
 
       if template_names_or_collection_id.present? && DataCycleCore::ThingTemplate.where(template_name: template_names_or_collection_id).present?
         selected_thing_templates = selected_thing_templates.where(template_name: template_names_or_collection_id)
-      else
-        selected_thing_ids = DataCycleCore::Collection.find(template_names_or_collection_id).map { |collection| collection.things.map(&:id) }.flatten
-        selected_things = selected_things.where(id: selected_thing_ids)
-        selected_thing_templates = selected_thing_templates.where(template_name: selected_things.map(&:template_name))
+      elsif template_names_or_collection_id.present?
+        selected_thing_ids = DataCycleCore::Collection.where(id: template_names_or_collection_id).flat_map { |c| c.things.pluck(:id) }
+        selected_things = selected_things.where(id: selected_thing_ids.uniq)
+        selected_thing_templates = selected_thing_templates.where(template_name: selected_things.pluck(:template_name).uniq)
       end
 
       puts "ATTRIBUTES TO UPDATE: #{computed_names.present? ? computed_names.join(', ') : 'all'}"
@@ -27,7 +27,7 @@ namespace :dc do
       selected_thing_templates.find_each do |thing_template|
         template = DataCycleCore::Thing.new(thing_template:)
         next if template.computed_property_names.blank?
-        next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
+        next if computed_names.present? && computed_names.any? && !computed_names.intersect?(template.computed_property_names)
 
         items = selected_things.where(template_name: template.template_name)
         computed_keys = computed_names.presence || template.computed_property_names
@@ -96,7 +96,7 @@ namespace :dc do
       selected_thing_templates.find_each do |thing_template|
         template = DataCycleCore::Thing.new(thing_template:)
         next if template.default_value_property_names.blank?
-        next if default_value_names.present? && default_value_names.any? && (default_value_names & template.default_value_property_names).none?
+        next if default_value_names.present? && default_value_names.any? && !default_value_names.intersect?(template.default_value_property_names)
 
         items = selected_things.where(template_name: template.template_name)
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
@@ -149,7 +149,27 @@ namespace :dc do
 
       DataCycleCore::Feature::CustomAssetPreviewer.update_computed_for_templates(template_names:, webhooks:)
 
-      puts "[DONE] Updated computed previewer attributes for templates: #{template_names&.join(', ') || 'all'}"
+      puts AmazingPrint::Colors.green("[DONE] Updated computed previewer attributes for templates: #{template_names&.join(', ') || 'all'}")
+    end
+
+    desc 'add missing slugs'
+    task add_missing_slugs: :environment do
+      thing_translations = DataCycleCore::Thing::Translation
+        .includes(:translated_model)
+        .where(slug: [nil, ''])
+        .where.not(translated_model: { content_type: 'embedded' })
+
+      thing_translations.find_each do |thing_translation|
+        slug_properties = thing_translation.translated_model&.slug_property_names
+
+        next if slug_properties.blank?
+
+        I18n.with_locale(thing_translation.locale) do
+          data_hash = {}
+          thing_translation.translated_model.add_default_values(data_hash:, force: true, keys: slug_properties)
+          thing_translation.translated_model.set_data_hash(data_hash:)
+        end
+      end
     end
   end
 end

@@ -138,7 +138,7 @@ module DataCycleCore
           assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'classificationTree' })
 
           hash = Hash.from_xml(xml_data.to_xml)
-          test_classification = hash.dig('RDF', 'classificationTree').detect { |item| item['name'] == 'Tags' }.dig('id')
+          test_classification = hash.dig('RDF', 'classificationTree').detect { |item| item['name'] == 'Tags' }['id']
 
           get xml_v1_classification_tree_path(id: test_classification)
           assert_response :success

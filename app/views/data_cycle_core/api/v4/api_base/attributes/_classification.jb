@@ -15,4 +15,4 @@ new_options[:full] = included_attribute?(key_new, options[:include]) || included
 classification_aliases = load_value_object(content, key, value, options[:languages], api_property_definition, options[:expand_language])&.primary_classification_aliases
 
 json.merge! render 'classifications', classification_aliases:, key: key_new, definition: {}, options: new_options
-json.reject { |_k, v| v.blank? }
+json.compact_blank

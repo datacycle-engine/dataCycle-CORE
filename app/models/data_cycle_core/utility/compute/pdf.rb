@@ -18,10 +18,10 @@ module DataCycleCore
             thumb_url = nil
             if pdf&.file&.attached?
               begin
-                ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+                DataCycleCore::ActiveStorageService.with_current_options do
                   thumb_url = pdf.file.preview(resize_to_limit: [300, 300]).processed.url
                 end
-              rescue ActiveStorage::FileNotFoundError
+              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
                 # @todo: add some logging
                 return nil
               end
@@ -34,10 +34,10 @@ module DataCycleCore
             preview_url = nil
             if pdf&.file&.attached?
               begin
-                ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+                DataCycleCore::ActiveStorageService.with_current_options do
                   preview_url = pdf.file.preview({}).processed.url
                 end
-              rescue ActiveStorage::FileNotFoundError
+              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
                 # @todo: add some logging
                 return nil
               end

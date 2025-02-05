@@ -3,13 +3,15 @@ default: &default
   encoding: unicode
   # For details on connection pooling, see rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
-  pool: <%= Rails.application.secrets.dig(:puma_max_threads) || 5 %>
+  pool: <%= ENV["PUMA_MAX_THREADS"]&.to_i || 5 %>
 
   username: <%= ENV["POSTGRES_USER"] || "developer" %>
   password: <%= ENV["POSTGRES_PASSWORD"] || "password" %>
-  host:     <%= ENV["POSTGRES_HOST"] || "localhost" %>
-  port:     <%= ENV["POSTGRES_PORT"] || 5432 %>
+  host: <%= ENV["POSTGRES_HOST"] || "localhost" %>
+  port: <%= ENV["POSTGRES_PORT"] || 5432 %>
   schema_search_path: public, postgis
+  variables:
+    statement_timeout: 60000
 
 development:
   <<: *default
@@ -19,8 +21,8 @@ review:
   <<: *default
   username: <%= ENV["POSTGRES_USER"] || "data_cycle_core" %>
   password: <%= ENV["POSTGRES_PASSWORD"] || "password" %>
-  host:     <%= ENV["POSTGRES_HOST"] || "localhost" %>
-  port:     <%= ENV["POSTGRES_PORT"] || 5433 %>
+  host: <%= ENV["POSTGRES_HOST"] || "localhost" %>
+  port: <%= ENV["POSTGRES_PORT"] || 5433 %>
   database: <%= ENV["POSTGRES_DATABASE"] || "data-cycle-core_review" %>
 
 # Warning: The database defined as "test" will be erased and
@@ -38,4 +40,3 @@ staging:
 production:
   <<: *default
   database: data_cycle_core_production
-

@@ -6,7 +6,7 @@
 <%= tag.i class: "fa fa-exclamation-triangle validation-message #{content.valid? ? 'warning' : 'alert'}",
       aria_hidden: true,
       data: {
-        dc_tooltip: messages
+        dc_tooltip: messages.to_s
       } if messages.present? %>
 
 <%

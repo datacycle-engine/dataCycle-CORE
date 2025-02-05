@@ -15,8 +15,8 @@ module DataCycleCore
             image = DataCycleCore::V4::DummyDataHelper.create_data('image')
             @event_poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
-              'latitude': 3,
-              'longitude': 3
+              latitude: 3,
+              longitude: 3
             }
             @event_poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
             @event_poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@event_poi.longitude, @event_poi.latitude)
@@ -30,8 +30,8 @@ module DataCycleCore
 
             @poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
-              'latitude': 5,
-              'longitude': 5
+              latitude: 5,
+              longitude: 5
             }
             @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
             @poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi.longitude, @poi.latitude)
@@ -39,8 +39,8 @@ module DataCycleCore
 
             @poi2 = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
-              'latitude': 20,
-              'longitude': 20
+              latitude: 20,
+              longitude: 20
             }
             @poi2.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
             @poi2.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi2.longitude, @poi2.latitude)
@@ -133,19 +133,19 @@ module DataCycleCore
             )
 
             @watch_list_event_poi1 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList1')
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, hashable_id: @event.id, hashable_type: @event.class.name)
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, hashable_id: @poi.id, hashable_type: @poi.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, thing_id: @event.id)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, thing_id: @poi.id)
 
             @watch_list_poi2 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList2')
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_poi2.id, hashable_id: @poi2.id, hashable_type: @poi2.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_poi2.id, thing_id: @poi2.id)
 
             @watch_list_person_poi_poi2 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList3')
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @person.id, hashable_type: @person.class.name)
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi.id, hashable_type: @poi.class.name)
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi2.id, hashable_type: @poi2.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, thing_id: @person.id)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, thing_id: @poi.id)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, thing_id: @poi2.id)
 
             @watch_list_event_poi = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList4')
-            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi.id, hashable_id: @event_poi.id, hashable_type: @event_poi.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi.id, thing_id: @event_poi.id)
 
             # 4 Images
             # 3 POI's
@@ -173,7 +173,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -191,7 +191,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -205,7 +205,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -223,7 +223,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -313,7 +313,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -473,7 +473,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
             assert_api_count_result(1)
-            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+            assert(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -943,7 +943,7 @@ module DataCycleCore
 
           test 'api/v4/endpoints parameter combine with more filters' do
             orig_ts = @event.updated_at
-            @event.update_column(:updated_at, (Time.zone.now - 10.days))
+            @event.update_column(:updated_at, 10.days.ago)
             params = {
               filter: {
                 union: [
@@ -964,7 +964,7 @@ module DataCycleCore
                   attribute: {
                     'dct:modified': {
                       in: {
-                        max: (Time.zone.now - 5.days).to_s(:iso8601)
+                        max: 5.days.ago.to_fs(:iso8601)
                       }
                     }
                   }
@@ -978,7 +978,7 @@ module DataCycleCore
             @event.update_column(:updated_at, orig_ts)
 
             orig_ts = @event.updated_at
-            @event.update_column(:updated_at, (Time.zone.now - 10.days))
+            @event.update_column(:updated_at, 10.days.ago)
             params = {
               filter: {
                 union: [
@@ -998,7 +998,7 @@ module DataCycleCore
                     attribute: {
                       'dct:modified': {
                         in: {
-                          max: (Time.zone.now - 5.days).to_s(:iso8601)
+                          max: 5.days.ago.to_fs(:iso8601)
                         }
                       }
                     }
@@ -1013,7 +1013,7 @@ module DataCycleCore
             @event.update_column(:updated_at, orig_ts)
 
             orig_ts = @poi.updated_at
-            @poi.update_column(:updated_at, (Time.zone.now - 10.days))
+            @poi.update_column(:updated_at, 10.days.ago)
             params = {
               filter: {
                 union: [
@@ -1035,7 +1035,7 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }

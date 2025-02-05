@@ -8,7 +8,7 @@ module DataCycleCore
 
         def validate(data, template, _strict = false)
           if blank?(data)
-            true
+            return @error
           elsif data.is_a?(::Array) || data.is_a?(ActiveRecord::Relation) || data.is_a?(::String)
             check_reference_array(Array.wrap(data), template)
           else
@@ -43,7 +43,7 @@ module DataCycleCore
 
         def convert_data(data, template)
           converted_data = data.deep_dup
-          converted_data = converted_data.ids if data.first.is_a?(ActiveRecord::Base)
+          converted_data = converted_data.pluck(:id) if data.first.is_a?(ActiveRecord::Base)
 
           unless converted_data.all? { |d| d.is_a?(::String) && d.uuid? }
             (@error[:error][@template_key] ||= []) << {

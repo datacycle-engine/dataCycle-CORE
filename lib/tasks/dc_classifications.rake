@@ -26,28 +26,34 @@ namespace :dc do
           data = CSV.parse(file.encode_utf8!, skip_blanks: true, col_sep: separator)
           data.select! { |(ca_path, mapped_ca_path)| ca_path.to_s.include?('>') && mapped_ca_path.to_s.include?('>') }
             .map! { |(ca_path, mapped_ca_path)| [ca_path.to_s.strip, mapped_ca_path.to_s.strip] }
-          cas = DataCycleCore::ClassificationAlias.by_full_paths(data.flatten).includes(:primary_classification).index_by(&:full_path)
 
-          data.each do |(ca_path, mapped_ca_path)|
-            ca = cas[ca_path]
-            if ca.nil?
+          cas = DataCycleCore::ClassificationAlias.by_full_paths(data.uniq.flatten).includes(:primary_classification)
+
+          data.uniq.each do |(ca_path, mapped_ca_path)|
+            ca = cas.select { |c_alias| c_alias.full_path == ca_path }
+            if ca.blank?
               errors << "classification_alias not found (#{File.basename(file_path)}: '#{ca_path}' => '#{mapped_ca_path}')"
               print 'x'
               next
             end
 
-            mapped_ca = cas[mapped_ca_path]
-            if mapped_ca.nil? || mapped_ca.primary_classification.nil?
+            mapped_ca = cas.select { |c_alias| c_alias.full_path == mapped_ca_path }
+            if mapped_ca.blank? || mapped_ca.select(&:primary_classification).blank?
               errors << "mapped classification_alias not found (#{File.basename(file_path)}: '#{ca_path}' => '#{mapped_ca_path}')"
               print 'x'
               next
             end
 
-            to_insert.push({ classification_id: mapped_ca.primary_classification.id, classification_alias_id: ca.id, updated_at: })
-
-            print('.')
+            ca.each do |original|
+              mapped_ca.each do |mapped|
+                to_insert.push({ classification_id: mapped.primary_classification.id, classification_alias_id: original.id, updated_at: })
+                print('.')
+              end
+            end
           end
         end
+
+        abort('no mappings found!') if to_insert.blank?
 
         puts "\nstart inserting ... (#{to_insert.size})"
         inserted = DataCycleCore::ClassificationGroup.insert_all(to_insert.uniq, unique_by: :classification_groups_ca_id_c_id_uq_idx).pluck('id')
@@ -157,7 +163,7 @@ namespace :dc do
       desc 'create distinct classification tree with mappings'
       task :create_distinct_tree, [:from_tree_label, :to_tree_label] => [:environment] do |_, args|
         from_tree_label_name = args.from_tree_label.strip
-        to_tree_label_name = args.to_tree_label.strip
+        to_tree_label_name = args.to_tree_label&.strip.presence || "#{from_tree_label_name} (Distinct)"
 
         abort('missing from_tree_label!') if from_tree_label_name.blank?
         abort('missing to_tree_label!') if to_tree_label_name.blank?
@@ -194,7 +200,7 @@ namespace :dc do
 
         DataCycleCore::ClassificationGroup.insert_all(new_ca_groups, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
 
-        puts "[DONE] finished upserting in #{Time.zone.now - tmp}s."
+        puts AmazingPrint::Colors.green("[DONE] finished upserting in #{Time.zone.now - tmp}s.")
       end
     end
 

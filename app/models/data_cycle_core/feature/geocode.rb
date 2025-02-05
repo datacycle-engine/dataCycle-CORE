@@ -8,12 +8,16 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::Geocode
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::Geocode
+        end
+
         def address_source(content = nil)
           attribute_keys(content).first
         end
 
         def target_key(content = nil)
-          configuration(content).dig('target_key')
+          configuration(content)['target_key']
         end
 
         def target_key?(key, content = nil)
@@ -45,13 +49,13 @@ module DataCycleCore
         end
 
         def external_source
-          @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration.dig(:external_source))
+          @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration[:external_source])
         end
 
         def endpoint
           return if external_source.blank?
 
-          @endpoint ||= configuration.dig(:endpoint).constantize.new(**external_source.credentials.symbolize_keys)
+          @endpoint ||= configuration[:endpoint].constantize.new(**external_source.credentials.symbolize_keys)
         end
 
         def geocode_address(address_hash, locale = I18n.locale)

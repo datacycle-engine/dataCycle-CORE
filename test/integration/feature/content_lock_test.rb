@@ -10,7 +10,7 @@ module DataCycleCore
       before(:all) do
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
         @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
-        DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+        DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
         @current_user = User.find_by(email: 'tester@datacycle.at')
       end
 

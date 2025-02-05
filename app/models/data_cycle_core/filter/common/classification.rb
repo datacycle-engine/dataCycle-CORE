@@ -7,33 +7,25 @@ module DataCycleCore
         def classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where(sub_query_for_classification_alias_ids(ids, false))
-          )
+          reflect(@query.where(sub_query_for_classification_alias_ids(ids, false)))
         end
 
         def not_classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where.not(sub_query_for_classification_alias_ids(ids, false))
-          )
+          reflect(@query.where.not(sub_query_for_classification_alias_ids(ids, false)))
         end
 
         def classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where(sub_query_for_classification_alias_ids(ids, true))
-          )
+          reflect(@query.where(sub_query_for_classification_alias_ids(ids, true)))
         end
 
         def not_classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where.not(sub_query_for_classification_alias_ids(ids, true))
-          )
+          reflect(@query.where.not(sub_query_for_classification_alias_ids(ids, true)))
         end
 
         def with_classification_paths(paths)
@@ -50,38 +42,34 @@ module DataCycleCore
 
         def with_classification_aliases_and_treename(definition)
           return self if definition.blank?
-          raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
-          raise StandardError, 'Missing data definition: aliases' if definition.dig('aliases').blank?
+          raise StandardError, 'Missing data definition: treeLabel' if definition['treeLabel'].blank?
+          raise StandardError, 'Missing data definition: aliases' if definition['aliases'].blank?
 
           classification_alias_ids_with_subtree(DataCycleCore::ClassificationAlias
-            .for_tree(definition.dig('treeLabel'))
-            .with_internal_name(definition.dig('aliases')).pluck(:id))
+            .for_tree(definition['treeLabel'])
+            .with_internal_name(definition['aliases']).pluck(:id))
         end
 
         def not_with_classification_aliases_and_treename(definition)
           return self if definition.blank?
-          raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
-          raise StandardError, 'Missing data definition: aliases' if definition.dig('aliases').blank?
+          raise StandardError, 'Missing data definition: treeLabel' if definition['treeLabel'].blank?
+          raise StandardError, 'Missing data definition: aliases' if definition['aliases'].blank?
 
           not_classification_alias_ids_with_subtree(DataCycleCore::ClassificationAlias
-            .for_tree(definition.dig('treeLabel'))
-            .with_internal_name(definition.dig('aliases')).pluck(:id))
+            .for_tree(definition['treeLabel'])
+            .with_internal_name(definition['aliases']).pluck(:id))
         end
 
         def classification_tree_ids(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where(sub_query_for_tree_label_ids(ids))
-          )
+          reflect(@query.where(sub_query_for_tree_label_ids(ids)))
         end
 
         def not_classification_tree_ids(ids = nil)
           return self if ids.blank?
 
-          reflect(
-            @query.where.not(sub_query_for_tree_label_ids(ids))
-          )
+          reflect(@query.where.not(sub_query_for_tree_label_ids(ids)))
         end
 
         # Deprecated: replace with classification_alias_ids_with_subtree
@@ -117,29 +105,22 @@ module DataCycleCore
         private
 
         def sub_query_for_classification_alias_ids(ids, direct = false)
-          raw_query = <<-SQL.squish
-            SELECT 1
-          	FROM collected_classification_contents
-            WHERE collected_classification_contents.thing_id = things.id
-              AND collected_classification_contents.classification_alias_id IN (?)
-          SQL
-
-          raw_query << ' AND collected_classification_contents.direct = TRUE' if direct
-
-          Arel::Nodes::Exists.new(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, ids])))
+          query = DataCycleCore::CollectedClassificationContent
+            .where(classification_alias_id: ids)
+          query = query.where(link_type: 'direct') if direct
+          query.where(ccc_table[:thing_id].eq(thing[:id]))
+            .select(1)
+            .arel.exists
         end
 
         def sub_query_for_tree_label_ids(ids, direct = false)
-          raw_query = <<-SQL.squish
-            SELECT 1
-          	FROM collected_classification_contents
-            WHERE collected_classification_contents.thing_id = things.id
-              AND collected_classification_contents.classification_tree_label_id IN (?)
-          SQL
+          query = DataCycleCore::CollectedClassificationContent
+            .where(classification_tree_label_id: ids)
 
-          raw_query << ' AND collected_classification_contents.direct = TRUE' if direct
-
-          Arel::Nodes::Exists.new(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, ids])))
+          query = query.where(link_type: 'direct') if direct
+          query.where(ccc_table[:thing_id].eq(thing[:id]))
+            .select(1)
+            .arel.exists
         end
       end
     end

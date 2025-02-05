@@ -7,10 +7,10 @@ module DataCycleCore
         after_action :check_job_status, only: [:show]
 
         def show
-          external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params.dig(:id)))
+          external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params[:id]))
           raise unless external_system.identifier == 'outdooractive'
 
-          ids = permitted_params.dig(:ids).split(',')
+          ids = permitted_params[:ids].split(',')
           contents = DataCycleCore::Thing.where(id: ids)
 
           deleted_content_ids = (ids - contents.pluck(:id))
@@ -21,7 +21,7 @@ module DataCycleCore
             logger.info('controller show --> update_items', contents.map(&:id).join(', ')) if contents.map(&:id).size.positive?
           end
 
-          xml_content = DataCycleCore::Export::OutdoorActive::Transformations.to_xml(external_system, contents, deleted_content_ids)
+          xml_content = Datacycle::Connector::OutdooractiveV2::Export::Transformations.to_xml(external_system, contents, deleted_content_ids)
 
           render xml: xml_content
         end
@@ -64,8 +64,8 @@ module DataCycleCore
         end
 
         def check_job_status
-          external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params.dig(:id)))
-          ids = permitted_params.dig(:ids).split(',')
+          external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params[:id]))
+          ids = permitted_params[:ids].split(',')
           items = DataCycleCore::Thing.where(id: ids)
 
           init_logging do |logger|
@@ -73,7 +73,11 @@ module DataCycleCore
           end
 
           items.each do |item|
-            utility_object = DataCycleCore::Export::RefreshObject.new(external_system:)
+            utility_object = DataCycleCore::Export::PushObject.new(
+              external_system:,
+              action: :update
+            )
+
             job_id = item.external_system_data(external_system, 'export', nil, false)&.dig('job_id')
 
             init_logging do |logger|
@@ -81,7 +85,7 @@ module DataCycleCore
             end
 
             next if job_id.blank?
-            DataCycleCore::Export::OutdoorActive::JobStatus.process(utility_object:, options: { job_id: })
+            Datacycle::Connector::OutdooractiveV2::Export::JobStatus.process(utility_object:, options: { job_id: })
           end
         end
 

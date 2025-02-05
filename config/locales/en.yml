@@ -92,6 +92,8 @@ en:
     de-CH: Swiss-german
     nl-BE: Flemish
     zh: Chinese
+    sr: Serbian
+    ne: Nepali
   roles:
     super_admin: Administrator (DataCycle)
     admin: Administrator
@@ -589,10 +591,11 @@ en:
     available_widgets: Available widgets
     widgets:
       event_list: Events - List view
-      list: List view
-      map: Map view
-      gallery: Gallery view
-      statistics: Statistic
+      list: Collection Widget
+      map: Map Widget
+      events: Event Widget
+      gallery: Gallery Widget
+      statistics: Statistics Widget
     user_registration:
       terms_conditions:
         I accept the <a href="%{url}" target="_blank">general terms
@@ -671,6 +674,10 @@ en:
     switch: Swap original and duplicate
     duplicate: Duplicate
     original: Original
+    merge_warning_html: 'The <span class="alert-color">duplicate</span> (created manually) will be deleted,<br>the <span class="success-color">original</span> (imported) will remain.<br>Continue?'
+    duplicate_tooltip: This content is the duplicate and will be deleted when merging
+    original_tooltip: This content is the original and will remain when merging
+
   tile_links:
     details: to the detailed view
     full_size: open full-size
@@ -786,6 +793,9 @@ en:
       downloads_content: All downloads of this content
       stored_searches_usage: Usage of saved Searches
       watch_lists_usage: Usage of content collections
+      widget_usage: Usage of widgets
+      widget_usage_detail: Usage of widgets (Overview)
+      dzt_report: Failed syncs to DZT knowledge graph
       headings:
         id: ID
         name: Name
@@ -819,11 +829,22 @@ en:
         user_group_names: User groups
         api_access: accessible via API
         user_role: User role
+        access_count: Accesses (Total including meta-info)
+        true_count: Accesses (Widget initializations)
+        retention_count: Accesses (Load more button clicks)
+        combined_count: Accesses (Total widget initializations + load more button clicks)
+        week: Week
+        unique_domains: Unique Domains
+        widget_type: Widget type
+        domain: Domain
+        url: URL
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
+          dzt_report: DZT-Sync - Error report
         text_html:
           downloads_popular: Attached you will find the TOP 50 image downloads.
+          dzt_report: Please find attached a list of all items, for which recently the synchronization to the DZT knowledge graph failed
       download_form:
         type: Format
 
@@ -868,6 +889,7 @@ en:
     update_subject: Shared content collection has been updated
     notice: Note
     from: "%{from}"
+
   filter:
     add: Add filter
     language: Language
@@ -878,6 +900,7 @@ en:
     created_at: Creation date
     updated_at: Update date
     validity_period: Validity period
+    offer_period: Offer period
     upload_date: Upload date
     duplicate_candidates: Potential duplicates present
     not_duplicate_candidates: no potential duplicates available
@@ -993,6 +1016,11 @@ en:
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
     aggregate_filter: Aggregate type
+    user:
+      exists: is user
+      not_exists: is system
+      like: email contains
+      not_like: email does not contain
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -1001,6 +1029,7 @@ en:
     external_source: filter by external sources ...
     external_system: filter by external systems ...
     validity_period: filter by validity period ...
+    offer_period: filter by offer period ...
     date_range: filter by date ...
     boolean: filter by Boolean criteria ...
     id: filter by id ...
@@ -1130,8 +1159,12 @@ en:
     finalize: Finalize editing
     finalize_agbs_text: Terms & Conditions
     finalize_combined_html: "%{finalize} and accept %{agbs}"
+    open_data: "open %{data}"
+    copy: copy
+    copy_data: "copy %{data}"
     copy_to_clipboard: Copy to clipboard
     copy_to_clipboard_data: "Copy %{data} to clipboard"
+    copy_link_to_x_to_clipboard: Copy link to %{data} to clipboard
     copy_classification_alias_id_to_clipboard: Copy Classification-Alias-ID to clipboard
     copied_to_clipboard: Copied to clipboard.
     save: Save
@@ -1222,6 +1255,7 @@ en:
       oembed_unsupported_url: "%{oembed_url} is not a valid url."
       oembed_no_provider: "Could not find an oembed provider for url %{oembed_url}."
       oembed_too_many_providers: "Could not find unique Oembed-Provider for URL %{oembed_url}. Possible providers: %{oembed_found}."
+      oembed_thing_not_found: "Could not display dataCycle thing as oembed: Either thing id is invalid/does not support oembed or thing was not found."
       geo:
         Incorrect data type specified for %{template} (%{data}). Expect Geometric/Geographical
         type, or a WKT formatted string.
@@ -1243,6 +1277,7 @@ en:
         until_missing:
           An end time must be specified for the entry with start time
           %{data}.
+        until_too_far: "The end time for the entry with start time %{data} is too far in the future, this could create performance problems on save (max: %{max})."
       number: "%{template} is not a numeric value, but %{class} (value: %{data})."
       no_data: No data given.
       no_validation: No validation data specified.
@@ -1512,19 +1547,24 @@ en:
       data_cycle_core/permission:
         one: Permission
         other: Permissions
+      data_cycle_core/feature/translate:
+        one: Translation
+        other: Translations
     attributes:
       data_cycle_core/watch_list:
         manual_order: Use manual order as default order
       data_cycle_core/classification_tree_label:
         visibility: Visibility
         change_behaviour: Change behavior
+        external_key: external ID
       data_cycle_core/classification_alias:
         assignable: Assignable
         description: Description text
         classification_ids: Classification Mapping
         internal_name: Language neutral name
         uri: External URI
-        external_keys: External Keys
+        external_key: external ID
+        external_keys: external IDs (self + mapped)
         mapped_to_string: Classifications mapped from
         ui_configs: UI-Configuration
         ui_configs/color: Color
@@ -1532,6 +1572,8 @@ en:
       data_cycle_core/user_group:
         name: Name
         user_ids: User
+        shared_collection_ids: "%{collection} or %{stored_filter}"
+        permissions: Permissions
         classification_ids_markets: Markets
         classification_ids_output_channels: Output channels
       data_cycle_core/user:
@@ -1601,6 +1643,7 @@ en:
         name: Name
         file: File
         creator_id: Creator
+        content_url: File-URL
       data_cycle_core/external_source:
         name: Name
       data_cycle_core/external_system_sync:
@@ -1766,6 +1809,7 @@ en:
     generic:
       description: Description
       text: Detailed description
+      snow_report: Snow report
     booking:
       hotel_important_information: Important information
       hotel_description: Brief description
@@ -1856,25 +1900,28 @@ en:
         landscape_rating: Landscape
         difficulty_rating: Difficulty
     general_solutions:
-      place:
-        directions: Approach
-        parking: Parking
-        hours_available: Opening hours
-        text: Description
-        price: Price
-        description: Brief description
-        directions_public_transport: Public transport
-      tour:
-        text: Description
-        description: Brief description
-        instructions: Directions
-        directions_public_transport: Public transport
-        parking: Parking
-        route_start: Start
-        route_end: Destination
+      directions: Approach
+      parking: Parking
+      hours_available: Opening hours
+      text: Description
+      price: Price
+      description: Brief description
+      directions_public_transport: Public transport
+      instructions: Directions
+      route_start: Start
+      route_end: Destination
+      importantInformation: Important information
+      equipment: Equipment
+      authors_tip: Tips
+      information_links: Further information
+      road_quality: Road quality
       ratings:
         difficulty_rating: Difficulty
         priority_rating: Priority
+        skill_rating: Skill
+        stamina_rating: Stamina
+      tour:
+      poi:
     imx_platform:
       description: Description
       text: Detailed description
@@ -1892,6 +1939,23 @@ en:
       seasonDescription: Sesion
       Preis-Zusatzbeschreibung: Additional price description
       booking_link: Booking link
+      numberParkspaceOverall: Total parking spaces
+      numberParkspaceOutdoor: Outdoor parking spaces
+      numberParkspaceGarage: Garage parking spaces
+      numberRooms: Rooms
+      numberSingleRooms: Single rooms
+      numberDoubleRooms: Double rooms
+      numberSharedRooms: Shared rooms
+      numberSuiteRooms: Suite rooms
+      numberConferenceRooms: Conference rooms
+      numberGroupRooms: Group rooms
+      numberAccessibleRooms: Accessible rooms
+      opening_hours_special_types:
+        temporarilyClosed: Temporarily closed
+        permanentlyClosed: Permanently closed
+        noOpeningHours: Without opening hours
+        permanentlyOpen: Always accessible
+        openOnRequest: Open on request
     gem2go:
       description: Description
     timm4:
@@ -1917,6 +1981,7 @@ en:
       currentInformation: Current information
       additionalLocationInformation: Additional location information
       additionalHostInformation: Additional host information
+      additionalMeetingPointInformation: Additional meeting point information
       directions: Directions
       publicTransit: Public transit
       parking: Parking
@@ -1932,6 +1997,7 @@ en:
       startpointGettingThere: Start point getting there
       seasonDescription: Sesion
       price: Price information
+      intro: Short description
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement
@@ -1971,12 +2037,20 @@ en:
       Unsuitable: unsuitable
       Depends: depends
       Suitable: suitable
+      tourmoreinfos_directions: Directions
+      tourmoreinfos_safetyguidelines: Safety guidelines
+      tourmoreinfos_equipment: Equipment
+      tourmoreinfos_tip: Author tip
+      tourmoreinfos_gettingthere: Getting there
+      tourmoreinfos_parking: Parking
     bierfinder:
       description: Description
       book: Description
       tipp: Tip
       essenUndSpezial: Food and Specials
       biersorten: Brand of Beer
+      classics: Classics
+      seasonalBeer: Seasonal Beer
     venus:
       accessibilityDescription: Accessibility
       arrivalDescription: Arrival
@@ -2165,12 +2239,13 @@ en:
         other: "%{count} years"
     prompts:
       day: Day
-      hour: Hours
+      hour: Hour
       minute: Minute
       month: Month
       second: Second
       year: Year
       week: Week
+
   number:
     currency:
       format:

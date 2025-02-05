@@ -180,6 +180,7 @@ it:
       day: Giorno
       month: Mese
       year: Anno
+
   errors:
     format: "%{attribute} %{message}"
     messages:

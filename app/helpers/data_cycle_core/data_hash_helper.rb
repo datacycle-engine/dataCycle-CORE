@@ -13,7 +13,7 @@ module DataCycleCore
     ].freeze
 
     def object_from_definition(definition)
-      return nil if definition.blank? || definition.dig('template_name').nil?
+      return nil if definition.blank? || definition['template_name'].nil?
 
       template_name = definition['template_name']
       DataCycleCore::Thing.new(template_name:)
@@ -21,6 +21,7 @@ module DataCycleCore
 
     def attribute_group_title(content, key)
       label_html = ActionView::OutputBuffer.new
+      label_html << tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-object")
 
       if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", count: 1, locale: active_ui_locale)
         label_html << tag.span(I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", count: 1, locale: active_ui_locale))
@@ -30,7 +31,6 @@ module DataCycleCore
         return
       end
 
-      label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-object"))
       label_html << render('data_cycle_core/contents/helper_text', key:, content:)
 
       label_html
@@ -66,10 +66,10 @@ module DataCycleCore
         content:
       }
 
-      content.classification_content.preload(classification: [primary_classification_alias: [:classification_tree_label, :classification_alias_path]]).group_by(&:relation).each { |key, ccs| ccs.each { |cc| add_content_header_classification_alias(**parameters.merge(key:, classification_alias: cc.classification&.primary_classification_alias)) } }
+      content.classification_content.preload(classification: [primary_classification_alias: [:classification_tree_label, :classification_alias_path]]).group_by(&:relation).each { |key, ccs| ccs.each { |cc| add_content_header_classification_alias(**parameters, key:, classification_alias: cc.classification&.primary_classification_alias) } }
 
       content.mapped_classification_aliases.preload(:classification_tree_label, :classification_alias_path).find_each do |ca|
-        add_content_header_classification_alias(**parameters.merge(key: '', classification_alias: ca, type: :mapped_value))
+        add_content_header_classification_alias(**parameters, key: '', classification_alias: ca, type: :mapped_value)
       end
 
       classification_aliases.each_value do |v|

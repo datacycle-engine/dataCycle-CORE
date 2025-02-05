@@ -25,7 +25,7 @@ module DataCycleCore
       tour_data_hash.deep_stringify_keys!
 
       content = DataCycleCore::Thing.where(template_name: 'Tour').where_translated_value(tour_data_hash.slice('name')).first
-      return @content if @content.present?
+      return content if content.present?
 
       content = DataCycleCore::Thing.new(template_name: 'Tour')
       content.created_by = @user&.id

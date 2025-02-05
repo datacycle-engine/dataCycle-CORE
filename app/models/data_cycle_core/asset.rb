@@ -18,6 +18,7 @@ module DataCycleCore
     validate :file_extension_validation
 
     include AssetHelpers
+    include DataCycleCore::Common::Routing
 
     has_one :asset_content, dependent: :destroy
     has_one :thing, through: :asset_content
@@ -26,7 +27,7 @@ module DataCycleCore
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
 
     def custom_validators
-      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+      DataCycleCore.uploader_validations[self.class.name.demodulize.underscore]&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
       end
     end
@@ -72,10 +73,31 @@ module DataCycleCore
       extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
     end
 
+    def filename_without_extension
+      filename = (thing&.title.presence || name.presence || file.filename.to_s).to_slug
+      filename.delete_suffix("-#{file_extension}").delete_suffix(".#{file_extension}")
+    end
+
+    def filename
+      "#{filename_without_extension}.#{file_extension}"
+    end
+
+    def content_url
+      return unless file.attached?
+
+      local_blob_url(id: file.blob.id, file: filename)
+    end
+
+    def file_extension
+      return @file_extension if defined? @file_extension
+      return @file_extension = nil if file.blank?
+
+      @file_extension = MiniMime.lookup_by_content_type(file.content_type.to_s)&.extension
+    end
+
     def file_extension_validation
       if file.present?
-        extension = MiniMime.lookup_by_content_type(file.content_type.to_s)&.extension
-        return if self.class.content_type_white_list.include?(extension)
+        return if self.class.content_type_white_list.include?(file_extension)
 
         specific_mime_type = file.content_type&.then { |mt| [model_name.element, mt.split('/').last].join('/') }
         extension = MiniMime.lookup_by_content_type(specific_mime_type.to_s)&.extension
@@ -86,6 +108,7 @@ module DataCycleCore
       end
 
       errors.add :file,
+                 :invalid,
                  path: 'uploader.validation.format_not_supported',
                  substitutions: {
                    data: file.content_type
@@ -93,8 +116,9 @@ module DataCycleCore
     end
 
     def file_size_validation(options)
-      return unless file.blob.byte_size > options.dig(:max).to_i
+      return unless file.blob.byte_size > options[:max].to_i
       errors.add :file,
+                 :invalid,
                  path: 'uploader.validation.file_size.max',
                  substitutions: {
                    data: {
@@ -113,9 +137,9 @@ module DataCycleCore
         include_file = true
       end
 
-      hash = super(options)
+      hash = super
 
-      hash['file'] = { 'url' => Rails.application.routes.url_helpers.rails_storage_proxy_url(file, host: Rails.application.config.asset_host) } if include_file.present? && !file&.attachment&.blob.nil?
+      hash['file'] = { 'url' => content_url } if include_file.present?
 
       hash
     end
@@ -128,6 +152,15 @@ module DataCycleCore
       warnings
         .messages
         .map { |k, v| I18n.t("activerecord.warnings.messages.#{k}", default: k, locale:, warnings: Array.wrap(v).join(', ')) }
+        .join(', ')
+    end
+
+    def full_errors(locale)
+      errors
+        .map { |e|
+          e.options.present? ? "#{self.class.human_attribute_name(e.attribute, locale: locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(e.options, locale)}" : I18n.with_locale(locale) { e.message }
+        }
+        .flatten
         .join(', ')
     end
 

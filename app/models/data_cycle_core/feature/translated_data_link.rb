@@ -8,7 +8,7 @@ module DataCycleCore
       class << self
         def locales
           if configuration&.dig('locales').present?
-            available_locales_with_names.slice(*configuration.dig('locales').map(&:to_sym)).invert
+            available_locales_with_names.slice(*configuration['locales'].map(&:to_sym)).invert
           else
             available_locales_with_names.slice(*DataCycleCore.ui_locales.map(&:to_sym)).invert
           end

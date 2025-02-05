@@ -36,6 +36,8 @@ class DatePicker {
 		this.dateTimeOptions = {
 			altFormat: "d.m.Y H:i",
 			enableTime: true,
+			minuteIncrement: 1,
+			defaultHour: 0,
 		};
 		this.timeOptions = {
 			enableTime: true,
@@ -44,6 +46,8 @@ class DatePicker {
 			altFormat: "H:i",
 			onClose: null,
 			onDayCreate: null,
+			minuteIncrement: 1,
+			defaultHour: 0,
 		};
 		this.configs = {};
 		this.startKeys = {
@@ -78,6 +82,7 @@ class DatePicker {
 		this.isDateTime = this.elementIsDateTime(this.element);
 		this.element.dataset.isDateTime = this.isDateTime;
 		this.changeObserver = new MutationObserver(this.#checkIfEnabled.bind(this));
+		this.holidaysVersion = document.documentElement.dataset.holidaysCountryCode;
 
 		this.setup();
 	}
@@ -292,7 +297,12 @@ class DatePicker {
 
 		const holidays = (await promise) || [];
 
-		LocalStorageCache.set(this.cacheNamespace, year, holidays);
+		LocalStorageCache.set(
+			this.cacheNamespace,
+			year,
+			holidays,
+			this.holidaysVersion,
+		);
 		DataCycle.globalPromises[promiseKey] = undefined;
 
 		return holidays;
@@ -305,7 +315,11 @@ class DatePicker {
 	}
 	async markHoliday(dayElem, year) {
 		const promiseKey = `${this.cacheNamespace}/${year}`;
-		let holidays = LocalStorageCache.get(this.cacheNamespace, year);
+		let holidays = LocalStorageCache.get(
+			this.cacheNamespace,
+			year,
+			this.holidaysVersion,
+		);
 		if (!holidays && DataCycle.globalPromises[promiseKey])
 			holidays = await DataCycle.globalPromises[promiseKey];
 		else if (!holidays) holidays = await this.loadHolidays(year);
@@ -325,12 +339,24 @@ class DatePicker {
 		if (this.isDateTime || this.configs?.enableTime) {
 			this.isDateTime = true;
 			Object.assign(options, this.dateTimeOptions);
+			this.addTimeDefaults(options);
 		}
 
-		if (this.element.dataset.type === "timepicker")
+		if (this.element.dataset.type === "timepicker") {
 			Object.assign(options, this.timeOptions);
+			this.addTimeDefaults(options);
+		}
 
 		return options;
+	}
+	addTimeDefaults(options) {
+		if (this.calType === "start") {
+			options.defaultHour = 0;
+			options.defaultMinute = 0;
+		} else if (this.calType === "end") {
+			options.defaultHour = 23;
+			options.defaultMinute = 59;
+		}
 	}
 	async importData(event, data) {
 		event.stopImmediatePropagation();

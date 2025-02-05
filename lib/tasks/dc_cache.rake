@@ -59,5 +59,35 @@ namespace :dc do
 
       logger.info("[DONE] Finished Warmup (#{contents.size} Contents).")
     end
+
+    desc 'cache warmup for endpoint in cache_warmup.yml'
+    task :warm_up_endpoint, [:identifier] => :environment do |_, args|
+      abort('identifier missing!') if args.identifier.blank?
+      abort("config missing for identifier: #{args.identifier}") unless DataCycleCore.cache_warmup&.key?(args.identifier)
+
+      cache_config = DataCycleCore.cache_warmup[args.identifier]
+      tstart = Time.zone.now
+      logger = Logger.new('log/cache_warmup.log')
+      logger.info("Started Warmup for #{args.identifier} ...")
+
+      params = cache_config['parameters']&.symbolize_keys || {}
+
+      if params[:contents].present?
+        endpoint_id_or_slug = params[:contents]
+        stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(endpoint_id_or_slug).first
+        watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id_or_slug).first if stored_filter.nil?
+
+        abort('endpoint not found!') if stored_filter.nil? && watch_list.nil?
+
+        params[:contents] = stored_filter.nil? ? watch_list.things : stored_filter.apply.query
+        contents_count = params[:contents].size
+        params[:contents] = params[:contents].page(1).per(contents_count)
+      end
+
+      renderer = cache_config['renderer'].classify.safe_constantize&.new(**params)
+      renderer.render
+
+      logger.info("[DONE] Finished Warmup for #{args.identifier} (#{contents_count.to_i} items) in #{(Time.zone.now - tstart).round(2)}s.")
+    end
   end
 end

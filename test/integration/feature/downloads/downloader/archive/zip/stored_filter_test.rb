@@ -64,7 +64,7 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert_equal('application/zip', response.headers.dig('Content-Type'))
+                assert_equal('application/zip', response.headers['Content-Type'])
               end
 
               test 'enable content collection and test zip download via downloads controller' do
@@ -82,7 +82,7 @@ module DataCycleCore
 
                 get "/downloads/stored_filter_collections/#{@stored_filter.id}", params: { serialize_format: 'asset, json, xml' }
                 assert_response :success
-                assert_equal('application/zip', response.headers.dig('Content-Type'))
+                assert_equal('application/zip', response.headers['Content-Type'])
               end
 
               def teardown

@@ -5,15 +5,13 @@ module DataCycleCore
     validates :full_path, presence: true
 
     has_many :watch_list_data_hashes, dependent: :delete_all
-    has_many :things, through: :watch_list_data_hashes, source: :hashable, source_type: 'DataCycleCore::Thing'
+    has_many :things, through: :watch_list_data_hashes, source: :thing
 
     delegate :translated_locales, to: :things
     alias available_locales translated_locales
 
     def self.watch_list_data_hashes
-      return DataCycleCore::WatchListDataHash.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::WatchListDataHash.where(watch_list_id: select(:id))
+      DataCycleCore::WatchListDataHash.where(watch_list_id: pluck(:id))
     end
 
     def notify_subscribers(current_user, content_ids, type)
@@ -51,28 +49,28 @@ module DataCycleCore
     end
 
     def add_things_from_query(contents_query)
-      ids = ActiveRecord::Base.connection.execute <<-SQL.squish
-        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type)
-        #{contents_query.select("'#{id}', things.id, 'DataCycleCore::Thing'").to_sql}
+      result = ActiveRecord::Base.connection.exec_query <<-SQL.squish
+        INSERT INTO watch_list_data_hashes (watch_list_id, thing_id)
+        #{contents_query.select("'#{id}', things.id").to_sql}
         ON CONFLICT DO NOTHING
-        RETURNING hashable_id;
+        RETURNING thing_id;
       SQL
 
       update_column(:updated_at, Time.zone.now)
 
-      ids.pluck('hashable_id')
+      result.pluck('thing_id')
     end
 
     def delete_all_watch_list_data_hashes
-      ids = ActiveRecord::Base.connection.execute <<-SQL.squish
+      result = ActiveRecord::Base.connection.exec_query <<-SQL.squish
         DELETE FROM watch_list_data_hashes
         WHERE watch_list_data_hashes.watch_list_id = '#{id}'
-        RETURNING hashable_id;
+        RETURNING thing_id;
       SQL
 
       update_column(:updated_at, Time.zone.now)
 
-      ids.pluck('hashable_id')
+      result.pluck('thing_id')
     end
 
     def update_order_by_array(order_array)
@@ -82,8 +80,8 @@ module DataCycleCore
       update_column(:manual_order, true) unless manual_order
 
       watch_list_data_hashes
-        .where(hashable_id: order_array)
-        .update_all(['order_a = array_position(ARRAY[?]::uuid[], hashable_id)', order_array])
+        .where(thing_id: order_array)
+        .update_all(['order_a = array_position(ARRAY[?]::uuid[], thing_id)', order_array])
     end
 
     def path

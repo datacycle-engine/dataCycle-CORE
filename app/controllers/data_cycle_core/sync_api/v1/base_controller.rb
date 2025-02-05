@@ -11,6 +11,7 @@ module DataCycleCore
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
         include DataCycleCore::ApiBeforeActions
+        include DryParams
 
         wrap_parameters format: []
 
@@ -29,7 +30,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, page: {}]
+          [:api_subversion, :token, {page: {}}]
         end
 
         def page_parameters
@@ -62,10 +63,10 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.except('format')
-          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
-          @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:sync_api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
+          @language = parse_language(permitted_params[:language]).presence || Array(I18n.available_locales.first.to_s)
+          @api_subversion = permitted_params[:api_subversion] if DataCycleCore.main_config.dig(:sync_api, :v4, :subversions)&.include?(permitted_params[:api_subversion])
           @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
-          @updated_since = permitted_params.dig(:updated_since)&.try(:in_time_zone)
+          @updated_since = permitted_params[:updated_since]&.try(:in_time_zone)
           @api_version = 1
         end
 

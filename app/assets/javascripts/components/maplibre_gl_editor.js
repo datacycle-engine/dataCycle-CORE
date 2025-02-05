@@ -10,6 +10,7 @@ import UploadGpxControl from "./map_controls/maplibre_upload_gpx_control";
 import domElementHelpers from "../helpers/dom_element_helpers";
 import AdditionalValuesFilterControl from "./map_controls/maplibre_additional_values_filter_control";
 import ConfirmationModal from "./confirmation_modal";
+import ObjectUtilities from "../helpers/object_utilities";
 
 class MapLibreGlEditor extends MapLibreGlViewer {
 	constructor(container) {
@@ -57,6 +58,8 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			"address_locality",
 			"address_country",
 		];
+		this.addElevationPath = this.$container.data("addElevationPath");
+		this.thingId = this.value?.properties?.["@id"];
 	}
 	static isAllowedType(_type) {
 		return true;
@@ -431,9 +434,9 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
 		return this.shortenCoordinates(coords);
 	}
-	setNewCoordinates() {
+	async setNewCoordinates() {
 		this.setCoordinates();
-		this.setHiddenFieldValue(this.feature);
+		await this.setHiddenFieldValue(this.feature);
 		if (this.feature) this.updateMapPosition();
 	}
 	setCoordinates() {
@@ -471,16 +474,74 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			},
 		};
 	}
-	setHiddenFieldValue(geoJson) {
-		this.value = geoJson;
+	async setHiddenFieldValue(geoJson) {
+		const normalizedGeoJson = this.normalizeValue(geoJson);
 
-		if (geoJson?.geometry?.type?.startsWith("LineString")) {
-			geoJson.geometry.type = `Multi${geoJson.geometry.type}`;
-			geoJson.geometry.coordinates = [geoJson.geometry.coordinates];
+		if (this.addElevationPath)
+			this.value = await this.addElevationToGeoJson(normalizedGeoJson);
+		else this.value = normalizedGeoJson;
+
+		this.$locationField.val(JSON.stringify(this.value));
+		this.$locationField.trigger("change");
+	}
+	normalizeValue(geojson) {
+		if (!geojson) return geojson;
+
+		if (geojson?.geometry?.type?.startsWith("LineString")) {
+			geojson.geometry.type = `Multi${geojson.geometry.type}`;
+			geojson.geometry.coordinates = [geojson.geometry.coordinates];
 		}
 
-		this.$locationField.val(JSON.stringify(geoJson));
-		this.$locationField.trigger("change");
+		const allowedKeys = ["type"];
+		const allowedGeometryKeys = ["type", "coordinates"];
+
+		const value = {
+			...ObjectUtilities.pick(geojson, allowedKeys),
+			geometry: ObjectUtilities.pick(geojson.geometry, allowedGeometryKeys),
+		};
+
+		if (this.thingId) value.properties = { "@id": this.thingId };
+
+		return value;
+	}
+	async addElevationToGeoJson(geoJson) {
+		if (!this.isLineString()) return geoJson;
+		if (!this.elevationMissing(geoJson.geometry?.coordinates)) return geoJson;
+
+		const response = await DataCycle.httpRequest(this.addElevationPath, {
+			method: "POST",
+			body: { value: geoJson },
+		});
+
+		if (response?.error) {
+			document.body.insertAdjacentHTML(
+				"beforeend",
+				`<div data-type="error" data-text="${response.error}"></div>`,
+			);
+			return;
+		}
+
+		return response?.newValue;
+	}
+	elevationMissing(values) {
+		let elevationMissing = false;
+
+		if (!values) return elevationMissing;
+
+		for (const value of values) {
+			if (
+				Array.isArray(value) &&
+				Array.isArray(value[0]) &&
+				this.elevationMissing(value)
+			)
+				elevationMissing = true;
+
+			if (Array.isArray(value) && value.length === 3 && value[2] === 0)
+				elevationMissing = true;
+			if (Array.isArray(value) && value.length === 2) elevationMissing = true;
+		}
+
+		return elevationMissing;
 	}
 	resetHiddenFieldValue() {
 		this.value = null;

@@ -32,16 +32,16 @@ module DataCycleCore
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           assert(xml_data.dig('RDF', 'thing').present?)
-          data_hash = [xml_data.dig('RDF', 'thing')].flatten.detect { |item| item.dig('contentType') == 'Artikel' }
+          data_hash = [xml_data.dig('RDF', 'thing')].flatten.detect { |item| item['contentType'] == 'Artikel' }
 
-          assert_equal('https://schema.org/', data_hash.dig('context'))
-          assert_equal('CreativeWork', data_hash.dig('type'))
-          assert_equal('Artikel', data_hash.dig('contentType'))
-          assert(data_hash.dig('id').present?)
-          assert_equal(@content.id, data_hash.dig('identifier'))
-          assert(data_hash.dig('url').present?)
-          assert_equal('de', data_hash.dig('inLanguage'))
-          assert_equal('TestArtikel', data_hash.dig('name'))
+          assert_equal('https://schema.org/', data_hash['context'])
+          assert_equal('CreativeWork', data_hash['type'])
+          assert_equal('Artikel', data_hash['contentType'])
+          assert(data_hash['id'].present?)
+          assert_equal(@content.id, data_hash['identifier'])
+          assert(data_hash['url'].present?)
+          assert_equal('de', data_hash['inLanguage'])
+          assert_equal('TestArtikel', data_hash['name'])
         end
 
         test 'stored article can be found in different ways' do

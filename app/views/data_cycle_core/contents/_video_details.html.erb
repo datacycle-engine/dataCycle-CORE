@@ -95,37 +95,34 @@
 
             <% end %>
 
-            <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Video-URLs</dt>
-            <dd>
+            <% if content.try(:url).present? || content.try(:youtube_url).present? || content.try(:content_url).present? %>
+              <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Video-URLs</dt>
+              <dd>
 
-              <% if content.try(:url).present? %>
+                <% if content.try(:url).present? %>
+                  <a class="button button-small" href="<%= content.url %>" target="_blank">
+                    <i class="fa fa-external-link" aria-hidden="true"></i>
 
-                <a class="button button-small" href="<%= content.url %>" target="_blank">
-                  <i class="fa fa-external-link" aria-hidden="true"></i>
+                    <%= t('details.bild.open_url', locale: active_ui_locale) %>
+                  </a>
+                <% end %>
 
-                  <%= t('details.bild.open_url', locale: active_ui_locale) %>
-                </a>
-              <% end %>
+                <% if content.try(:youtube_url).present? %>
+                  <a class="button button-small" href="<%= content.youtube_url %>" target="_blank">
+                    <i class="fa fa-external-link" aria-hidden="true"></i>
 
-              <% if content.try(:youtube_url).present? %>
+                    <%= t('details.bild.open_youtube_url', locale: active_ui_locale) %>
+                  </a>
+                <% end %>
 
-                <a class="button button-small" href="<%= content.youtube_url %>" target="_blank">
-                  <i class="fa fa-external-link" aria-hidden="true"></i>
+                <%= render_attribute_viewer key: 'content_url',
+                                          definition: content.properties_for('content_url'),
+                                          value: content.try(:content_url),
+                                          parameters: { options: {} },
+                                          content: content %>
 
-                  <%= t('details.bild.open_youtube_url', locale: active_ui_locale) %>
-                </a>
-              <% end %>
-
-              <% if content.try(:content_url).present? %>
-
-                <a class="button button-small" href="<%= content.content_url %>" target="_blank">
-                  <i class="fa fa-external-link" aria-hidden="true"></i>
-
-                  <%= t('details.video.open_content_url', locale: active_ui_locale) %>
-                </a>
-              <% end %>
-
-            </dd>
+              </dd>
+            <% end %>
           </dl>
 
         </div>

@@ -49,7 +49,7 @@ module DataCycleCore
       end
 
       def sql_for_data_format(combined_format)
-        return send("#{combined_format}_#{@group_by}") if @group_by.present? && respond_to?("#{combined_format}_#{@group_by}")
+        return send(:"#{combined_format}_#{@group_by}") if @group_by.present? && respond_to?(:"#{combined_format}_#{@group_by}")
 
         return send(combined_format) if respond_to?(combined_format)
 
@@ -59,7 +59,7 @@ module DataCycleCore
       def transform_data(data_format)
         group_and_filter_query
 
-        ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.connection.select_all(
           Arel.sql(
             sql_for_data_format("#{data_format}_#{@data_format}")
           )
@@ -108,7 +108,7 @@ module DataCycleCore
 
       DEFAULT_AGGREGATE_FUNCTIONS.each do |aggregate_function|
         DEFAULT_GROUPS.each do |group|
-          define_method("#{aggregate_function.underscore}_#{group.underscore}") do
+          define_method(:"#{aggregate_function.underscore}_#{group.underscore}") do
             group_by_function(group, aggregate_function)
           end
         end

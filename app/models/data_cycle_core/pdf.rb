@@ -4,9 +4,9 @@ require 'pdf-reader'
 
 module DataCycleCore
   class Pdf < Asset
-    after_create_commit :enqueue_extract_text_content_job, if: -> { DataCycleCore.features.dig(:cancel_pdf_full_text_search, :enabled) != true }
-
     has_one_attached :file
+
+    after_create_commit :enqueue_extract_text_content_job, if: -> { DataCycleCore.features.dig(:cancel_pdf_full_text_search, :enabled) != true }
 
     cattr_reader :versions, default: { thumb_preview: {} }
     attr_accessor :remote_file_url
@@ -19,9 +19,9 @@ module DataCycleCore
     private
 
     def metadata_from_blob
-      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
+      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable[:io].present?
         # import from local disc
-        tempfile = attachment_changes['file'].attachable.dig(:io)
+        tempfile = attachment_changes['file'].attachable[:io]
       else
         tempfile = attachment_changes['file'].attachable.to_io
       end

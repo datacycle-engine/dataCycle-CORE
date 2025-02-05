@@ -9,9 +9,9 @@ module DataCycleCore
       define_model_callbacks :created_data_hash, only: :after
       define_model_callbacks :destroyed_data_hash, only: :after
 
-      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
-        prepend feature.data_hash_module if feature.enabled? && feature.data_hash_module
+      DataCycleCore.features.each_key do |key|
+        feature = DataCycleCore::Feature[key]
+        prepend feature.data_hash_module if feature&.enabled? && feature.data_hash_module
       end
 
       include CreateHistory
@@ -23,11 +23,17 @@ module DataCycleCore
         # inherit attributes if source content is present
         inherit_source_attributes(**options.to_h.slice(:data_hash, :source)) if options.new_content && !options.source.nil?
 
+        # remove empty slugs
+        remove_blank_slugs!(**options.to_h.slice(:data_hash)) if options.new_content && slug_property_names.present?
+
         # add default value
         add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if default_value_property_names.present?
 
+        # adjust slug if it already exists in database
+        transform_slugs(**options.to_h.slice(:data_hash)) if !embedded? && slug_property_names.intersect?(options.data_hash.keys)
+
         # add computed values
-        add_computed_values(data_hash: options.data_hash) if computed_property_names.present? && options.update_computed
+        add_computed_values(**options.to_h.slice(:data_hash, :current_user)) if computed_property_names.present? && options.update_computed
       end
 
       def after_save_data_hash(options)
@@ -117,13 +123,13 @@ module DataCycleCore
 
         transaction(joinable: false, requires_new: true) do
           I18n.with_locale(locale) do
-            raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.merge(data_hash: datahash, version_name: version_name&.+(" (#{I18n.locale})")))
+            raise ActiveRecord::Rollback unless set_data_hash(**options.to_h, data_hash: datahash, version_name: version_name&.+(" (#{I18n.locale})"))
           end
 
           if translations.present?
             translations.each do |l, locale_hash|
               I18n.with_locale(l) do
-                raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.slice(:current_user, :ui_locale, :prevent_history, :source, :force_update).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
+                raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.slice(:current_user, :ui_locale, :prevent_history, :source, :force_update), data_hash: locale_hash, update_search_all: false, version_name: version_name&.+(" (#{I18n.locale})"))
               end
             end
 
@@ -131,7 +137,11 @@ module DataCycleCore
             i18n_warnings.each_value { |w| w.delete(no_changes_key) } unless translations.keys.push(locale).all? { |l| i18n_warnings[l]&.include?(no_changes_key) }
           end
 
-          add_update_translated_computed_properties_job(available_locales.map(&:to_s) - translations.keys - [locale]) if computed_property_names.intersect?(translatable_property_names)
+          if computed_property_names.intersect?(translatable_property_names)
+            add_update_translated_computed_properties_job(
+              available_locales.map(&:to_s) - translations.keys - [locale]
+            )
+          end
         end
 
         i18n_valid?
@@ -146,31 +156,13 @@ module DataCycleCore
       def execute_create_webhooks
         return if prevent_webhooks.is_a?(TrueClass)
 
-        if synchronous_webhooks
-          DataCycleCore::Webhook::Create.execute_all(self)
-        else
-          DataCycleCore::WebhooksJob.perform_later(
-            id,
-            self.class.name,
-            'create',
-            WEBHOOK_ACCESSORS.index_with { |a| try(a) }.merge(webhook_data: webhook_data.to_h).compact
-          )
-        end
+        DataCycleCore::Webhook::Create.execute_all(self)
       end
 
       def execute_update_webhooks
         return if prevent_webhooks.is_a?(TrueClass)
 
-        if synchronous_webhooks
-          DataCycleCore::Webhook::Update.execute_all(self)
-        else
-          DataCycleCore::WebhooksJob.perform_later(
-            id,
-            self.class.name,
-            'update',
-            WEBHOOK_ACCESSORS.index_with { |a| try(a) }.merge(webhook_data: webhook_data.to_h).compact
-          )
-        end
+        DataCycleCore::Webhook::Update.execute_all(self)
       end
 
       def execute_delete_webhooks
@@ -285,8 +277,8 @@ module DataCycleCore
         value = options.data_hash[key]
         # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
-        when 'slug'
-          save_slug(key, value, options.data_hash)
+        when *SLUG_PROPERTY_TYPES
+          save_slug(key, value)
         when 'key'
           true # do nothing
         when *LINKED_PROPERTY_TYPES
@@ -308,8 +300,8 @@ module DataCycleCore
         end
       end
 
-      def save_slug(key, value, data_hash)
-        send("#{key}=", DataCycleCore::MasterData::DataConverter.string_to_slug(value, self, data_hash))
+      def save_slug(key, value)
+        send(:"#{key}=", convert_to_type('slug', value))
       end
 
       def save_values(key, value, properties)
@@ -326,7 +318,7 @@ module DataCycleCore
       def save_to_column(key, value, properties)
         save_data = normalize_value(value, properties)
         save_data = convert_to_type(properties['type'], save_data) if properties['type'].in?(['geographic', 'string'])
-        send("#{key}=", save_data)
+        send(:"#{key}=", save_data)
       end
 
       def normalize_value(value, properties)
@@ -341,7 +333,7 @@ module DataCycleCore
         save_data = convert_to_string(properties['type'], normalize_value(save_data, properties)) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
 
         if send(location.to_s).blank? # set to json field (could be empty)
-          send("#{location}=", { key => save_data })
+          send(:"#{location}=", { key => save_data })
         else
           send(location.to_s).method(:[]=).call(key, save_data)
         end
@@ -384,6 +376,8 @@ module DataCycleCore
         item_ids_before_update = send(field_name).pluck(:id)
         item_ids_after_update = parse_linked_ids(input_data)
 
+        raise ArgumentError, 'linked id cannot be the same as the id of the content' if item_ids_after_update.include?(id)
+
         if DataCycleCore::DataHashService.present?(item_ids_after_update)
           content_content_a.upsert_all(
             item_ids_after_update
@@ -405,7 +399,7 @@ module DataCycleCore
       def parse_linked_ids(a)
         return [] if is_blank?(a)
         data = a.is_a?(::String) ? [a] : a
-        data = a&.ids if data.is_a?(ActiveRecord::Relation)
+        data = a&.pluck(:id) if data.is_a?(ActiveRecord::Relation)
         raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
         data
       end
@@ -433,7 +427,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name, translated, options)
         updated_item_keys = []
-        available_update_item_keys = load_embedded_objects(field_name, nil, !translated).ids.uniq
+        available_update_item_keys = load_embedded_objects(field_name, nil, !translated).pluck(:id).uniq
         data = input_data || []
 
         data.each_index do |index|
@@ -536,7 +530,7 @@ module DataCycleCore
       def set_asset_id(asset_id, relation_name, asset_type)
         asset_id = asset_id.first.id if asset_id.is_a?(ActiveRecord::Relation) || asset_id.is_a?(::Array)
         asset_id = asset_id.id if asset_id.is_a?(DataCycleCore::Asset)
-        old_ids = load_asset_relation(relation_name).ids
+        old_ids = load_asset_relation(relation_name).pluck(:id)
         to_delete = old_ids - Array.wrap(asset_id)
 
         if to_delete.present?
@@ -558,7 +552,7 @@ module DataCycleCore
 
       def set_schedule(input_data, relation_name)
         updated_item_keys = []
-        available_items = load_schedule(relation_name).ids
+        available_items = load_schedule(relation_name).pluck(:id)
         data = input_data || []
 
         data.each do |item|

@@ -9,22 +9,41 @@ module DataCycleCore
         end
 
         def initialize(**options)
-          @host = options.dig(:host)
-          @token = options.dig(:token)
-          @token_type = options.dig(:token_type) || 'body'
+          @host = options[:host]
+          @token = options[:token]
+          @token_type = options[:token_type] || 'body'
         end
 
-        def content_request(path:, transformation:, utility_object:, data:, method: :post)
+        def content_request(utility_object:, data:)
+          method = utility_object.http_method
+          path = utility_object.transformed_path(data)
+          transformation = utility_object.transformation
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
           begin
+            if transformation.is_a?(Hash) && transformation.key?(:module) && transformation.key?(:method)
+              transformed_data = transformation[:module].send(transformation[:method], utility_object, data)
+            elsif transformation.is_a?(Proc)
+              transformed_data = transformation.call(utility_object, data)
+            else
+              transformed_data = transformations.try(transformation, utility_object, data)
+            end
+
             @response = Faraday.run_request(
               method,
               File.join(@host, path),
-              transformation.is_a?(Proc) ? transformation.call(utility_object, data) : transformations.try(transformation, utility_object, data),
-              { 'Content-Type' => 'application/json' }
+              transformed_data,
+              { 'Content-Type' => 'application/json' }.merge(utility_object.external_system.credentials(:export)&.dig('additional_headers') || {})
             ) do |req|
               req.params['token'] = @token if @token_type == 'url'
+
+              if @token_type == 'http_headers' && @token.is_a?(Hash)
+                @token.each do |k, v|
+                  req.headers[k] = v
+                end
+              elsif @token_type == 'x_api_key'
+                req.headers['X-API-KEY'] = @token
+              end
 
               utility_object.external_system.credentials(:export)&.dig('faraday_options')&.to_h&.each do |key, value|
                 req.options[key] = value
@@ -40,10 +59,6 @@ module DataCycleCore
           end
 
           @response
-        end
-
-        def path_transformation(data, external_system, path_type, type = '', path = nil)
-          format(path.presence || external_system.config.dig('export_config', path_type.to_s, 'path') || external_system.config.dig('export_config', 'path') || path_type.to_s, id: data&.id, type:)
         end
       end
     end

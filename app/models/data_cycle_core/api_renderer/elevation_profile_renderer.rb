@@ -37,7 +37,7 @@ module DataCycleCore
       end
 
       def transform_data
-        ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.connection.select_all(
           Arel.sql(
             sql_for_data_format("json_#{@data_format}")
           )

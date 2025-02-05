@@ -4,7 +4,7 @@ json = {}
 unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
   if @permitted_params.dig(:page, :limit)&.to_i&.positive?
     json['meta'] = {
-      total: objects.limit(nil).offset(nil).count
+      total: objects.total_count
     }
   else
     json['meta'] = {
@@ -36,4 +36,5 @@ unless @permitted_params.dig(:section, :links)&.to_i&.zero? || @permitted_params
   json['links']['prev'] = object_url.call(common_params.deep_merge(page: { number: objects.prev_page, size: objects.limit_value })) if objects.prev_page
   json['links']['next'] = object_url.call(common_params.deep_merge(page: { number: objects.next_page, size: objects.limit_value })) if objects.next_page
 end
+
 json

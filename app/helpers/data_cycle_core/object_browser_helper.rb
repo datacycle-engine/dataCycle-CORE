@@ -2,20 +2,36 @@
 
 module DataCycleCore
   module ObjectBrowserHelper
+    def extract_aliases(definition, type)
+      definition&.dig('stored_filter')&.flat_map { |v|
+        v&.values&.select { |c| c.is_a?(Hash) && c&.value?(type) }&.map { |c| c&.dig('aliases') }
+      }&.compact&.flatten
+    end
+
     def object_browser_new_form_parameters(form_parameters, definition)
       if definition&.dig('stored_filter').present?
-        creatable_ids = definition&.dig('stored_filter')&.map { |v| v&.values&.select { |c| c.is_a?(Hash) && c&.value?('Inhaltstypen') }&.map { |c| c&.dig('aliases') } }&.flatten&.compact
+        creatable_ids = extract_aliases(definition, 'Inhaltstypen')
+        creatable_schema_type_ids = extract_aliases(definition, 'SchemaTypes')
 
-        return if creatable_ids.blank?
+        return if creatable_ids.blank? && creatable_schema_type_ids.blank?
 
-        query_filter = {
-          query_methods: [{
-            method_name: 'with_default_data_type',
-            value: creatable_ids
-          }]
-        }
+        if creatable_ids.present?
+          query_filter = {
+            query_methods: [{
+              method_name: 'with_default_data_type',
+              value: creatable_ids
+            }]
+          }
+        elsif creatable_schema_type_ids.present?
+          query_filter = {
+            query_methods: [{
+              method_name: 'with_schema_type',
+              value: creatable_schema_type_ids
+            }]
+          }
+        end
 
-        creatable_templates = new_content_select_options(**query_filter.merge({ scope: 'object_browser' }))
+        creatable_templates = new_content_select_options(**query_filter, scope: 'object_browser')
 
         return if creatable_templates.blank?
 

@@ -15,9 +15,9 @@ module DataCycleCore
     end
 
     def dc_background_image_style
-      return if DataCycleCore.logo.dig('background_images').blank?
+      return if DataCycleCore.logo['background_images'].blank?
 
-      "--dc-background-image-url: url('#{dc_image_path(Array.wrap(DataCycleCore.logo.dig('background_images')).sample.to_s)}');"
+      "--dc-background-image-url: url('#{dc_image_path(Array.wrap(DataCycleCore.logo['background_images']).sample.to_s)}');"
     end
 
     def dc_stylesheet_tag(asset_name)
@@ -33,7 +33,7 @@ module DataCycleCore
 
       if ViteRuby.instance.dev_server_running?
         return send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}") unless File.file?(ViteRuby.config.vite_root_dir.join(asset_path))
-      elsif ViteRuby.instance.manifest.send(:lookup, asset_path)&.dig('file').blank?
+      elsif vite_manifest.send(:lookup, asset_path)&.dig('file').blank?
         return send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}")
       end
 

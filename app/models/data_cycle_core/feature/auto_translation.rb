@@ -12,8 +12,13 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::AutoTranslation
         end
 
+        def routes_module
+          DataCycleCore::Feature::Routes::AutoTranslation
+        end
+
         def allowed?(content = nil)
-          false if content.blank?
+          return false if content.blank?
+
           enabled? && content.respond_to?(:additional_information) && content.respond_to?(:subject_of)
         end
       end

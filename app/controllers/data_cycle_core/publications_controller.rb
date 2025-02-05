@@ -50,7 +50,7 @@ module DataCycleCore
 
       query2 = query2.where("(things.metadata ->> 'publish_at')::date <= ?", params[:publications_until]) if params[:publications_until].present?
 
-      @publication_classification_alias_ids = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' && @publication_classifications.values&.include?(f['n']) }
+      @publication_classification_alias_ids = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' && @publication_classifications.value?(f['n']) }
 
       if @publication_classification_alias_ids.present?
         content_ids = []

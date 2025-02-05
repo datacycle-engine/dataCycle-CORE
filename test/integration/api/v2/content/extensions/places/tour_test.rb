@@ -27,56 +27,56 @@ module DataCycleCore
                 json_data = response.parsed_body
 
                 # validate header
-                assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('Place', json_data.dig('@type'))
-                assert_equal('Tour', json_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + api_v2_thing_path(id: @content), json_data.dig('@id'))
-                assert_equal(@content.id, json_data.dig('identifier'))
-                assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
-                assert_equal(@content.updated_at.as_json, json_data.dig('dateModified'))
-                assert_equal(root_url[0...-1] + thing_path(@content), json_data.dig('url'))
+                assert_equal('http://schema.org', json_data['@context'])
+                assert_equal('Place', json_data['@type'])
+                assert_equal('Tour', json_data['contentType'])
+                assert_equal(root_url[0...-1] + api_v2_thing_path(id: @content), json_data['@id'])
+                assert_equal(@content.id, json_data['identifier'])
+                assert_equal(@content.created_at.as_json, json_data['dateCreated'])
+                assert_equal(@content.updated_at.as_json, json_data['dateModified'])
+                assert_equal(root_url[0...-1] + thing_path(@content), json_data['url'])
 
                 # classifications
-                assert(json_data.dig('classifications').present?)
-                assert_equal(1, json_data.dig('classifications').size)
-                classification_hash = json_data.dig('classifications').first
+                assert(json_data['classifications'].present?)
+                assert_equal(1, json_data['classifications'].size)
+                classification_hash = json_data['classifications'].first
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
-                assert_equal('Tour', classification_hash.dig('name'))
-                assert_equal(2, classification_hash.dig('ancestors').size)
-                assert_equal(['Inhaltstypen', 'Ort'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
+                assert_equal('Tour', classification_hash['name'])
+                assert_equal(2, classification_hash['ancestors'].size)
+                assert_equal(['Inhaltstypen', 'Ort'], classification_hash['ancestors'].pluck('name').sort)
 
                 # language
-                assert_equal('de', json_data.dig('inLanguage'))
+                assert_equal('de', json_data['inLanguage'])
 
                 # content
-                assert_equal(@content.name, json_data.dig('name'))
-                assert_equal(@content.description, json_data.dig('description'))
-                assert_equal([6], json_data.dig('schedule').first.dig('byMonth'))
+                assert_equal(@content.name, json_data['name'])
+                assert_equal(@content.description, json_data['description'])
+                assert_equal([6], json_data['schedule'].first['byMonth'])
 
                 # TODO: check image rendering via minimal or linked
-                assert_equal(@content.image.first.id, json_data.dig('image').first.dig('identifier'))
-                assert_equal(@content.primary_image.first.id, json_data.dig('primaryImage').first.dig('identifier'))
-                assert_equal(@content.logo.first.id, json_data.dig('logo').first.dig('identifier'))
+                assert_equal(@content.image.first.id, json_data['image'].first['identifier'])
+                assert_equal(@content.primary_image.first.id, json_data['primaryImage'].first['identifier'])
+                assert_equal(@content.logo.first.id, json_data['logo'].first['identifier'])
               end
 
               test 'stored item can be found via different endpoints' do
                 get(api_v2_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| item.dig('@type') == 'Place' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Place' }
+                assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| item.dig('@type') == 'Place' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Place' }
+                assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_places_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').first
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].first
+                assert_equal(@content.id, json_data['identifier'])
               end
             end
           end

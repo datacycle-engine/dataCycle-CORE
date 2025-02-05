@@ -30,7 +30,7 @@ module DataCycleCore
               data.reject! { |k, _| k == key } if leaf
               data.compact.presence
             in Array
-              data.map { |i| reject_attribute(i, path) }.compact.presence
+              data.filter_map { |i| reject_attribute(i, path) }.presence
             else
               data
             end
@@ -46,13 +46,13 @@ module DataCycleCore
               data
                 .select { |k, _| k.in?(keys) || k.starts_with?('@') }
                 .map { |k, v|
-                  next_level = list.select { |i| i[0] == k }.map { |i| i[1..-1].presence }.compact
+                  next_level = list.select { |i| i[0] == k }.filter_map { |i| i[1..-1].presence }
                   { k => select_attributes(v, next_level) }
                 }.reduce(&:merge)
                 &.compact
                 &.presence
             in Array
-              data.map { |i| select_attributes(i, list) }&.compact&.presence
+              data.filter_map { |i| select_attributes(i, list) }&.presence
             else
               nil
             end

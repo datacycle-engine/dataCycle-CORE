@@ -5,7 +5,7 @@ module DataCycleCore
     class Preview < Base
       class << self
         def available_widgets(endpoint, ui_locale = :de)
-          configuration.dig(:widgets)&.compact_blank&.transform_values do |url|
+          configuration[:widgets]&.compact_blank&.transform_values do |url|
             if url.is_a?(::Hash)
               send("url_to_v#{url[:version] || 2}", url[:url], endpoint, ui_locale)
             else

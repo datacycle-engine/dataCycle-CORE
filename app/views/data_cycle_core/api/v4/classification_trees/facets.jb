@@ -16,7 +16,7 @@ if @classification_tree_label.present?
   json.merge! render 'context', languages: options[:languages]
 
   if @classification_id.present?
-    unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+    unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
       json['@graph'] = []
       json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
         I18n.with_locale(@classification_aliases.first.first_available_locale(options[:languages])) do
@@ -25,20 +25,16 @@ if @classification_tree_label.present?
       end
     end
   else
-    queue = DataCycleCore::WorkerPool.new(@permitted_params.dig(:section, :meta)&.to_i&.zero? ? 1 : DataCycleCore::ApiService.allowed_thread_count)
-    queue.append do
-      json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options:, show_all_concepts: true
-    end
+    @classification_aliases.async_total_count unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
 
-    queue.append do
-      @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :order, :group, :limit, :offset).count)
+    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options:, show_all_concepts: true
 
-      json.merge! render 'pagination_links',
-                         objects: @classification_aliases,
-                         object_url: ->(params) { api_v4_facets_url(@api_subversion, params.merge(classification_id: @classification_id)) }
-    end
+    @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :order, :group, :limit, :offset).count)
 
-    queue.wait!
+    json.merge! render 'pagination_links',
+                       objects: @classification_aliases,
+                       object_url: ->(params) { api_v4_facets_url(@api_subversion, params.merge(classification_id: @classification_id)) }
+
   end
 
   aliases = @classification_aliases.index_by(&:id)

@@ -7,7 +7,8 @@ module DataCycleCore
         before_action :authorize_user, :prepare_url_parameters
 
         def index
-          features = Array.wrap(DataCycleCore.features)
+          features = DataCycleCore.features.deep_reject { |k, _| k == 'public_keys' }
+          features = Array.wrap(features)
           render json: api_response_format(features) { features }.to_json
         end
 

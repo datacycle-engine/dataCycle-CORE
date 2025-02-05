@@ -31,14 +31,16 @@
       </span>
     <% end %>
   <% else %>
-    <% if value&.dig('from').present? %>
+    <% from_date, to_date = DataCycleCore::Filter::Common::Date.date_from_filter_object(value, local_assigns[:filter_advanced_type]) %>
+
+    <% if from_date.present? %>
       <span class="tag-group-label"><%= t("terms.from", locale: active_ui_locale) %></span>
-      <span class="tag"><%= l(value['from'].to_date, locale: active_ui_locale) %></span>
+      <span class="tag"><%= l(from_date, locale: active_ui_locale, format: :edit) %></span>
     <% end %>
 
-    <% if value&.dig('until').present? %>
+    <% if to_date.present? %>
       <span class="tag-group-label"><%= t("terms.until", locale: active_ui_locale) %></span>
-      <span class="tag"><%= l(value['until'].to_date, locale: active_ui_locale) %></span>
+      <span class="tag"><%= l(to_date, locale: active_ui_locale, format: :edit) %></span>
     <% end %>
   <% end %>
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>

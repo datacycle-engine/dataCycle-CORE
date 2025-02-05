@@ -61,7 +61,7 @@ module DataCycleCore
 
     test 'extends existing template' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtension' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'EntityExtension' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -73,7 +73,7 @@ module DataCycleCore
 
     test 'overrides existing template' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -85,7 +85,7 @@ module DataCycleCore
 
     test 'extends multiple existing templates' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity2Extension' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity2Extension' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -98,7 +98,7 @@ module DataCycleCore
 
     test 'copies overlay flag to all mixin properties' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-3' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-3' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -112,7 +112,7 @@ module DataCycleCore
 
     test 'change position of propery with after' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtension' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'EntityExtension' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -121,7 +121,7 @@ module DataCycleCore
 
     test 'change position of propery with before' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -130,7 +130,7 @@ module DataCycleCore
 
     test 'disable property in all contexts' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -142,7 +142,7 @@ module DataCycleCore
 
     test 'enable property only in xml' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -154,7 +154,7 @@ module DataCycleCore
 
     test 'enable property only in api and show' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -166,7 +166,7 @@ module DataCycleCore
 
     test 'extend template in same folder' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtensionExtension' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'EntityExtensionExtension' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -181,7 +181,7 @@ module DataCycleCore
 
     test 'overlay for simple attribute has correct api name' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay3])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'TestOverlay' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -194,7 +194,7 @@ module DataCycleCore
 
     test 'overlay for simple attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'TestOverlay' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -226,7 +226,7 @@ module DataCycleCore
 
     test 'overlay for linked attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'TestOverlay' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -250,7 +250,7 @@ module DataCycleCore
 
     test 'overlay for classification attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'TestOverlay' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -273,7 +273,7 @@ module DataCycleCore
 
     test 'overlay for opening_time attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'TestOverlay' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -296,7 +296,7 @@ module DataCycleCore
 
     test 'overlay for schedule attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'TestOverlay' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -319,7 +319,7 @@ module DataCycleCore
 
     test 'overlay for date attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'TestOverlay' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -346,9 +346,9 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path, import_path4, aggregate_path1])
       template_names = ['Entity-With-Aggregate-Creative-Work-1', 'Entity-With-Aggregate-Creative-Work-2']
       agg_template_names = template_names.map { |tn| MasterData::Templates::AggregateTemplate.aggregate_template_name(tn) }
-      agg_templates = template_importer.templates.dig(:creative_works).select { |t| t[:name].in?(agg_template_names) }
-      additional_base_template1 = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
-      additional_base_template2 = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-2' }
+      agg_templates = template_importer.templates[:creative_works].select { |t| t[:name].in?(agg_template_names) }
+      additional_base_template1 = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      additional_base_template2 = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-2' }
 
       assert_equal(
         agg_templates.pluck(:name),
@@ -365,10 +365,10 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path, import_path4])
       template_name = 'Entity-With-Aggregate-Creative-Work-1'
       agg_template_name = MasterData::Templates::AggregateTemplate.aggregate_template_name(template_name)
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == template_name }
-      agg_template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == agg_template_name }
-      additional_base_template1 = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
-      additional_base_template2 = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-2' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == template_name }
+      agg_template = template_importer.templates[:creative_works].find { |t| t[:name] == agg_template_name }
+      additional_base_template1 = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      additional_base_template2 = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-2' }
 
       assert_empty(template_importer.errors)
       assert_empty(template_importer.errors)
@@ -424,7 +424,7 @@ module DataCycleCore
 
     test 'imports correct template when overwriting it from another folder' do
       template_importer = subject.new(template_paths: [import_path2, import_path5])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -436,7 +436,7 @@ module DataCycleCore
 
     test 'imports correct template when overwriting it from another folder in reverse order' do
       template_importer = subject.new(template_paths: [import_path5, import_path2])
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
@@ -450,7 +450,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_mixin_path1])
       assert_empty(template_importer.errors)
 
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Mixin-Set-1-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Mixin-Set-1-Creative-Work-1' }
       assert_not(template.nil?)
 
       assert(template.dig(:data, :properties)&.key?(:name))
@@ -464,10 +464,10 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [mixin_with_condition_path])
       assert_empty(template_importer.errors)
 
-      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Mixin-Condition-Creative-Work-1' }
+      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Mixin-Condition-Creative-Work-1' }
       assert_not(template.nil?)
 
-      embedded_template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Mixin-Condition-Embedded-1' }
+      embedded_template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Entity-Mixin-Condition-Embedded-1' }
       assert_not(embedded_template.nil?)
 
       assert(template.dig(:data, :properties)&.key?(:mixed_in_name1))

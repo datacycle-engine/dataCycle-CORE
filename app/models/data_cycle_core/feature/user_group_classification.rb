@@ -5,11 +5,11 @@ module DataCycleCore
     class UserGroupClassification < Base
       class << self
         def attribute_keys(content = nil)
-          Array.wrap(configuration(content).dig('attribute_keys')&.keys)
+          Array.wrap(configuration(content)['attribute_keys']&.keys)
         end
 
         def attribute_relations(content = nil)
-          configuration(content).dig('attribute_keys') || {}
+          configuration(content)['attribute_keys'] || {}
         end
       end
     end

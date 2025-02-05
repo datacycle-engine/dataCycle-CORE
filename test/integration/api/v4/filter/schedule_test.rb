@@ -54,7 +54,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now - 7.days).to_s(:iso8601)
+                      min: 7.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -69,7 +69,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now + 2.days).to_s(:iso8601)
+                      min: 2.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -84,8 +84,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now + 2.days).to_s(:iso8601),
-                      max: (Time.zone.now + 3.days).to_s(:iso8601)
+                      min: 2.days.from_now.to_fs(:iso8601),
+                      max: 3.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -100,7 +100,7 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      max: (Time.zone.now + 3.days).to_s(:iso8601)
+                      max: 3.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -115,8 +115,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -131,8 +131,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now + 9.days).to_s(:iso8601),
-                      max: (Time.zone.now + 20.days).to_s(:iso8601)
+                      min: 9.days.from_now.to_fs(:iso8601),
+                      max: 20.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -142,7 +142,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@event_d.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@event_d.id, json_data['@graph'].first['@id'])
 
             params = {
               fields: 'dct:modified,startDate,endDate',
@@ -150,8 +150,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now - 20.days).to_s(:iso8601),
-                      max: (Time.zone.now - 7.days).to_s(:iso8601)
+                      min: 20.days.ago.to_fs(:iso8601),
+                      max: 7.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -161,7 +161,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@event_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@event_a.id, json_data['@graph'].first['@id'])
           end
 
           test 'api/v4/things parameter filter[schedule]' do
@@ -170,7 +170,7 @@ module DataCycleCore
               filter: {
                 schedule: {
                   in: {
-                    min: (Time.zone.now - 7.days).to_s(:iso8601)
+                    min: 7.days.ago.to_fs(:iso8601)
                   }
                 }
               }
@@ -186,7 +186,7 @@ module DataCycleCore
                 attribute: {
                   openingHoursSpecification: {
                     in: {
-                      min: (Time.zone.now - 7.days).to_s(:iso8601)
+                      min: 7.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -203,7 +203,7 @@ module DataCycleCore
                 attribute: {
                   'dc:diningHoursSpecification': {
                     in: {
-                      min: (Time.zone.now - 7.days).to_s(:iso8601)
+                      min: 7.days.ago.to_fs(:iso8601)
                     }
                   }
                 }

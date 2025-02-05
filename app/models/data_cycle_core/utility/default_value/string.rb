@@ -6,7 +6,8 @@ module DataCycleCore
       module String
         class << self
           def substitution(content:, property_definition:, **_additional_args)
-            format(property_definition&.dig('default_value', 'substitute_string').to_s, id: content&.id).presence
+            identifier = property_definition&.dig('default_value', 'attribute').to_s == 'slug' ? content&.slug : content&.id
+            format(property_definition&.dig('default_value', 'substitute_string').to_s, id: identifier).presence
           end
 
           def current_user(current_user:, **_additional_args)

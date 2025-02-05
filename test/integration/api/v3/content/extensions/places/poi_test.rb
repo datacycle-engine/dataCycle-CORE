@@ -28,36 +28,36 @@ module DataCycleCore
                 json_data = response.parsed_body
 
                 # validate header
-                assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('TouristAttraction', json_data.dig('@type').last)
-                assert_equal('POI', json_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + api_v3_thing_path(id: @content), json_data.dig('@id'))
-                assert_equal(@content.id, json_data.dig('identifier'))
-                assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
-                assert_equal(@content.updated_at.as_json, json_data.dig('dateModified'))
-                assert_equal(root_url[0...-1] + thing_path(@content), json_data.dig('url'))
+                assert_equal('http://schema.org', json_data['@context'])
+                assert_equal('TouristAttraction', json_data['@type'].last)
+                assert_equal('POI', json_data['contentType'])
+                assert_equal(root_url[0...-1] + api_v3_thing_path(id: @content), json_data['@id'])
+                assert_equal(@content.id, json_data['identifier'])
+                assert_equal(@content.created_at.as_json, json_data['dateCreated'])
+                assert_equal(@content.updated_at.as_json, json_data['dateModified'])
+                assert_equal(root_url[0...-1] + thing_path(@content), json_data['url'])
 
                 # validity period
 
                 # classifications
-                assert(json_data.dig('classifications').present?)
-                assert_equal(1, json_data.dig('classifications').size)
-                classification_hash = json_data.dig('classifications').first
+                assert(json_data['classifications'].present?)
+                assert_equal(1, json_data['classifications'].size)
+                classification_hash = json_data['classifications'].first
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
-                assert_equal('POI', classification_hash.dig('name'))
-                assert_equal(2, classification_hash.dig('ancestors').size)
-                assert_equal(['Inhaltstypen', 'Ort'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
+                assert_equal('POI', classification_hash['name'])
+                assert_equal(2, classification_hash['ancestors'].size)
+                assert_equal(['Inhaltstypen', 'Ort'], classification_hash['ancestors'].pluck('name').sort)
 
                 # language
-                assert_equal('de', json_data.dig('inLanguage'))
+                assert_equal('de', json_data['inLanguage'])
 
                 # content data
-                assert_equal(@content.name, json_data.dig('name'))
-                assert_equal(@content.description, json_data.dig('description'))
+                assert_equal(@content.name, json_data['name'])
+                assert_equal(@content.description, json_data['description'])
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: additionalProperty
-                assert_equal(@content.text, json_data.dig('additionalProperty').detect { |item| item.dig('identifier') == 'text' }.dig('value'))
+                assert_equal(@content.text, json_data['additionalProperty'].detect { |item| item['identifier'] == 'text' }['value'])
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: address
@@ -67,7 +67,7 @@ module DataCycleCore
                   'latitude' => @content.latitude,
                   'elevation' => @content.elevation
                 }
-                assert_equal(geo, json_data.dig('geo'))
+                assert_equal(geo, json_data['geo'])
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: address
@@ -76,19 +76,19 @@ module DataCycleCore
                 address = { '@type' => 'PostalAddress' }.merge(postal_address).merge(contact_info)
                 address['addressCountry'] = 'AT'
 
-                assert_equal(address, json_data.dig('address'))
+                assert_equal(address, json_data['address'])
 
                 # TODO: check image rendering via minimal or linked
-                assert_equal(@content.image.first.id, json_data.dig('image').first.dig('identifier'))
-                assert_equal(@content.primary_image.first.id, json_data.dig('photo').first.dig('identifier'))
-                assert_equal(@content.logo.first.id, json_data.dig('logo').first.dig('identifier'))
+                assert_equal(@content.image.first.id, json_data['image'].first['identifier'])
+                assert_equal(@content.primary_image.first.id, json_data['photo'].first['identifier'])
+                assert_equal(@content.logo.first.id, json_data['logo'].first['identifier'])
 
                 # Validate OpeningHoursSpecification
                 expected_opening_hours_specification_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification_result')
                 expected_opening_hours_description_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description_result')
 
-                assert_equal(expected_opening_hours_specification_hash, json_data.dig('openingHoursSpecification'))
-                assert_equal(expected_opening_hours_description_hash, json_data.dig('dc:openingHoursDescription'))
+                assert_equal(expected_opening_hours_specification_hash, json_data['openingHoursSpecification'])
+                assert_equal(expected_opening_hours_description_hash, json_data['dc:openingHoursDescription'])
               end
 
               test 'testing PlaceOverlay' do
@@ -119,31 +119,31 @@ module DataCycleCore
                 json_data = response.parsed_body
 
                 # content data
-                assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
-                assert_equal(data_hash.dig('overlay').first.dig('description'), json_data.dig('description'))
-                assert_equal(1, json_data.dig('additionalProperty').size)
-                assert_equal(data_hash.dig('overlay').first.dig('text'), json_data.dig('additionalProperty').first.dig('value'))
-                assert_equal(overlay_image.id, json_data.dig('photo').first.dig('identifier'))
+                assert_equal(data_hash['overlay'].first['name'], json_data['name'])
+                assert_equal(data_hash['overlay'].first['description'], json_data['description'])
+                assert_equal(1, json_data['additionalProperty'].size)
+                assert_equal(data_hash['overlay'].first['text'], json_data['additionalProperty'].first['value'])
+                assert_equal(overlay_image.id, json_data['photo'].first['identifier'])
               end
 
               test 'stored item can be found via different endpoints' do
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| Array.wrap(item['@type']).last == 'TouristAttraction' }
+                assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].detect { |item| Array.wrap(item['@type']).last == 'TouristAttraction' }
+                assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v3_places_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = response.parsed_body.dig('data').first
-                assert_equal(@content.id, json_data.dig('identifier'))
+                json_data = response.parsed_body['data'].first
+                assert_equal(@content.id, json_data['identifier'])
               end
 
               test 'APIv2 json equals APIv3 json result' do
@@ -161,9 +161,9 @@ module DataCycleCore
                 excepted_params = ['@id', 'image', 'photo', 'logo', 'openingHoursSpecification', 'potentialAction', 'additionalInformation']
 
                 assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
-                assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))
-                assert_equal(api_v3_json.dig('photo').first.except(*excepted_params), api_v2_json.dig('photo').first.except(*excepted_params))
-                assert_equal(api_v3_json.dig('logo').first.except(*excepted_params), api_v2_json.dig('logo').first.except(*excepted_params))
+                assert_equal(api_v3_json['image'].first.except(*excepted_params), api_v2_json['image'].first.except(*excepted_params))
+                assert_equal(api_v3_json['photo'].first.except(*excepted_params), api_v2_json['photo'].first.except(*excepted_params))
+                assert_equal(api_v3_json['logo'].first.except(*excepted_params), api_v2_json['logo'].first.except(*excepted_params))
               end
             end
           end

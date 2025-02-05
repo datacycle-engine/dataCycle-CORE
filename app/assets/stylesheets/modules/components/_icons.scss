@@ -1,9 +1,30 @@
 .dc-type-icon {
+  position: relative;
+
   &::before {
     font-family: 'FontAwesome';
     position: relative;
     text-align: center;
     font-style: normal;
+  }
+
+  &.thing-aggregate-icon {
+    display: inline-flex;
+    min-width: 1.2rem;
+    align-items: center;
+    justify-content: center;
+
+    &::after {
+      font-family: 'FontAwesome';
+      position: absolute;
+      text-align: center;
+      font-style: normal;
+      content: '\f1c0';
+      right: -1px;
+      bottom: -1px;
+      font-size: 70%;
+      text-shadow: -1px 0px 0px white, 1px 0px 0px white, 0px -1px 0px white, 0px 1px 0px white;
+    }
   }
 
   &.thing-icon {
@@ -16,9 +37,22 @@
       content: '\f2dc';
     }
 
-    &.ski_slope::before {
-      content: '\f2dc';
+    &.funding::before {
+      content: '\f0d6';
     }
+
+    &.ideas_innovations::before {
+      content: '\f0eb';
+    }
+
+    &.ski_slope,
+    &.mountain_area,
+    &.snow_report_location {
+      &::before {
+        content: '\f2dc';
+      }
+    }
+
     &.thema_archiv,
     &.container_archiv {
       &::before {
@@ -178,7 +212,8 @@
     &.gesamtroute,
     &.donau_-_tour,
     &.etappe,
-    &.donau_tour {
+    &.donau_tour,
+    &.trail {
       &::before {
         content: '\f279';
       }
@@ -186,13 +221,13 @@
 
     &.ladestation {
       &::before {
-        content: '\f242'
+        content: '\f242';
       }
     }
 
     &.ski_resort {
       &::before {
-        content: '\f2dc'
+        content: '\f2dc';
       }
     }
 
@@ -290,6 +325,18 @@
     &.weather_station {
       &::before {
         content: '\f2cb';
+      }
+    }
+
+    &.parkplatz {
+      &::before {
+        content: '\f1b9';
+      }
+    }
+
+    &.tourist_destination {
+      &::before {
+        content: '\f024';
       }
     }
   }
@@ -413,7 +460,6 @@
   }
 
   &.property-icon {
-
     &.type-date::before,
     &.type-daterange::before,
     &.type-object.key-duration::before {

@@ -1,7 +1,7 @@
 <% breadcrumb :user, @user %>
 
 <% content_for :title do %>
-  <%= "#{@user.model_name.human(locale: active_ui_locale)}: #{@user.name}" %>
+  <%= safe_join([@user.model_name.human(locale: active_ui_locale), @user.name], ': ') %>
 <% end %>
 
 <% content_for :top_content do %>
@@ -74,7 +74,7 @@
 
       <div class="detail-header-info">
         <div class="type watchlist">
-          <%= render 'data_cycle_core/shared/icon', icon_class: @user&.class&.name&.demodulize&.underscore_blanks %>
+          <%= render 'data_cycle_core/shared/icon', icon_class: @user.try(:icon_class) %>
 
           <span class="title"><%= @user.model_name.human(count: 1, locale: active_ui_locale) %></span>
         </div>

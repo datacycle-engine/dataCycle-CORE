@@ -17,7 +17,7 @@ module DataCycleCore
 
           test 'api/v4/things parameter filter[dct:created]' do
             orig_ts = @food_establishment_a.created_at
-            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days))
+            @food_establishment_a.update_column(:created_at, 10.days.from_now)
 
             params = {}
             post api_v4_things_path(params)
@@ -29,7 +29,7 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -39,7 +39,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
             params = {
               fields: 'dct:modified',
@@ -47,8 +47,8 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -57,14 +57,14 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:created_at, (Time.zone.now - 10.days))
+            @food_establishment_a.update_column(:created_at, 10.days.ago)
             params = {
               fields: 'dct:modified',
               filter: {
                 attribute: {
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -73,14 +73,14 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days))
+            @food_establishment_a.update_column(:created_at, 10.days.from_now)
             params = {
               fields: 'dct:modified',
               filter: {
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -95,8 +95,8 @@ module DataCycleCore
                 attribute: {
                   'dct:created': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -105,17 +105,17 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count - 1)
 
-            @food_establishment_a.update_column(:created_at, (Time.zone.now - 10.days))
+            @food_establishment_a.update_column(:created_at, 10.days.ago)
             params = {
               fields: 'dct:modified',
               filter: {
                 attribute: {
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 15.days).to_s(:iso8601)
+                      max: 15.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -129,7 +129,7 @@ module DataCycleCore
 
           test 'api/v4/things parameter filter[:dct:modified]' do
             orig_ts = @food_establishment_a.updated_at
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days))
+            @food_establishment_a.update_column(:updated_at, 10.days.from_now)
 
             params = {}
             post api_v4_things_path(params)
@@ -141,7 +141,7 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -151,7 +151,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             json_data = response.parsed_body
-            assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
             params = {
               fields: 'dct:modified',
@@ -159,8 +159,8 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -169,14 +169,14 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now - 10.days))
+            @food_establishment_a.update_column(:updated_at, 10.days.ago)
             params = {
               fields: 'dct:modified',
               filter: {
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -185,14 +185,14 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days))
+            @food_establishment_a.update_column(:updated_at, 10.days.from_now)
             params = {
               fields: 'dct:modified',
               filter: {
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -207,8 +207,8 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     notIn: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -217,17 +217,17 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count - 1)
 
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now - 10.days))
+            @food_establishment_a.update_column(:updated_at, 10.days.ago)
             params = {
               fields: 'dct:modified',
               filter: {
                 attribute: {
                   'dct:modified': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 15.days).to_s(:iso8601)
+                      max: 15.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -241,7 +241,7 @@ module DataCycleCore
 
           test 'api/v4/things parameter filter[:dct:modified] + filter[:dct:created]' do
             orig_ts = @food_establishment_a.updated_at
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days))
+            @food_establishment_a.update_column(:updated_at, 10.days.from_now)
 
             params = {}
             post api_v4_things_path(params)
@@ -253,12 +253,12 @@ module DataCycleCore
                 attribute: {
                   'dct:modified': {
                     in: {
-                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: 5.days.from_now.to_fs(:iso8601)
                     }
                   },
                   'dct:created': {
                     in: {
-                      max: (Time.zone.now + 1.day).to_s(:iso8601)
+                      max: 1.day.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -290,7 +290,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: Time.zone.now.to_s(:iso8601)
+                      min: Time.zone.now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -307,15 +307,15 @@ module DataCycleCore
             end
 
             # make sure items ordered by deleted_at DESC
-            assert_equal(food_establishment_b_id, json_data['@graph'].first.dig('@id'))
-            assert_equal(food_establishment_a_id, json_data['@graph'].second.dig('@id'))
+            assert_equal(food_establishment_b_id, json_data['@graph'].first['@id'])
+            assert_equal(food_establishment_a_id, json_data['@graph'].second['@id'])
 
             params = {
               filter: {
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: (Time.zone.now - 5.days).to_s(:iso8601)
+                      min: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -329,7 +329,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      max: (Time.zone.now + 5.days).to_s(:iso8601)
+                      max: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -343,7 +343,7 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }
@@ -357,8 +357,8 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: (Time.zone.now - 5.days).to_s(:iso8601),
-                      max: (Time.zone.now + 5.days).to_s(:iso8601)
+                      min: 5.days.ago.to_fs(:iso8601),
+                      max: 5.days.from_now.to_fs(:iso8601)
                     }
                   }
                 }
@@ -372,10 +372,10 @@ module DataCycleCore
                 attribute: {
                   'dct:deleted': {
                     in: {
-                      min: (Time.zone.now - 5.days).to_s(:iso8601)
+                      min: 5.days.ago.to_fs(:iso8601)
                     },
                     notIn: {
-                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      max: 5.days.ago.to_fs(:iso8601)
                     }
                   }
                 }

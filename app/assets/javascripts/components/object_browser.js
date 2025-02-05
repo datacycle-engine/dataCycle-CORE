@@ -26,9 +26,9 @@ class ObjectBrowser {
 		this.type = this.$element.data("type");
 		this.locale = this.$element.data("locale");
 		this.key = this.$element.data("key");
-		this.hidden_field_id = this.$element.data("hidden-field-id");
-		this.object_id = this.$element.data("object-id");
-		this.object_key = this.$element.data("object-key");
+		this.hiddenFieldId = this.$element.data("hidden-field-id");
+		this.parentId = this.$element.data("parent-id");
+		this.objectKey = this.$element.data("object-key");
 		this.definition = this.$element.data("definition");
 		this.options = this.$element.data("options");
 		this.class = this.$element.data("class");
@@ -49,8 +49,7 @@ class ObjectBrowser {
 		this.selected = "";
 		this.excluded = [];
 		this.sortable;
-		this.content_id = this.$element.data("content-id");
-		this.content_type = this.$element.data("content-type");
+		this.contentId = this.$element.data("content-id");
 		this.prefix = this.$element.data("prefix");
 		this.activeRequest;
 		this.activeCountRequest;
@@ -428,7 +427,8 @@ class ObjectBrowser {
 			definition: this.definition,
 			editable: this.editable,
 			options: this.options,
-			content_id: this.content_id,
+			parent_id: this.parentId,
+			content_id: this.contentId,
 			content_template_name: this.templateName,
 			content_template: this.template,
 			class: this.class,
@@ -461,7 +461,8 @@ class ObjectBrowser {
 				definition: this.definition,
 				editable: this.editable,
 				options: this.options,
-				content_id: this.content_id,
+				parent_id: this.parentId,
+				content_id: this.contentId,
 				content_template_name: this.templateName,
 				content_template: this.template,
 				class: this.class,
@@ -544,7 +545,7 @@ class ObjectBrowser {
 		this.$element
 			.find("> .media-thumbs > .object-thumbs")
 			.html(
-				`<input type="hidden" id="${this.hidden_field_id}" name="${this.key}[]">`,
+				`<input type="hidden" id="${this.hiddenFieldId}" name="${this.key}[]">`,
 			);
 	}
 	findObjects(ids, external) {
@@ -560,8 +561,8 @@ class ObjectBrowser {
 				ids: ids,
 				editable: this.editable,
 				class: this.class,
-				content_id: this.content_id,
-				content_type: this.content_type,
+				parent_id: this.parentId,
+				content_id: this.contentId,
 				content_template_name: this.templateName,
 				content_template: this.template,
 				objects: this.chosen,
@@ -640,22 +641,11 @@ class ObjectBrowser {
 		if (this.chosen.length === 0) {
 			this.renderHiddenField();
 		} else {
-			const itemsToClone = this.$overlay.find(".chosen-items-container li.item");
-			const clonedItems = this.cloneHtml(itemsToClone);
-
-			clonedItems.each((item) => {
-				const elem = clonedItems[item];
-				// remove the disabled attribute from the input fields
-				elem.querySelectorAll("input[type='hidden']").forEach((input) => {
-					input.removeAttribute("disabled");
-				});
-			});
-
 			this.$element
 				.children(".media-thumbs")
 				.children(".object-thumbs")
 				.html(
-					this.cloneHtml(clonedItems),
+					this.cloneHtml(this.$overlay.find(".chosen-items-container li.item")),
 				);
 		}
 
@@ -699,19 +689,19 @@ class ObjectBrowser {
 	}
 	loadMore(_loaded_ids) {
 		const promise = DataCycle.httpRequest(
-			`/things/${this.content_id}/load_more_linked_objects`,
+			`/things/${this.contentId}/load_more_linked_objects`,
 			{
 				method: "POST",
 				body: {
-					key: this.object_key,
+					key: this.objectKey,
 					complete_key: this.key,
 					locale: this.locale,
 					definition: this.definition,
 					options: this.options,
 					class: this.class,
 					editable: this.editable,
-					content_id: this.content_id,
-					content_type: this.content_type,
+					parent_id: this.parentId,
+					content_id: this.contentId,
 					load_more_action: "object_browser",
 					load_more_type: "all",
 					load_more_except: undefined,
@@ -871,8 +861,8 @@ class ObjectBrowser {
 			objects: this.chosen,
 			editable: this.editable,
 			excluded: this.excluded,
-			content_id: this.content_id,
-			content_type: this.content_type,
+			parent_id: this.parentId,
+			content_id: this.contentId,
 			content_template_name: this.templateName,
 			content_template: this.template,
 			prefix: this.prefix,

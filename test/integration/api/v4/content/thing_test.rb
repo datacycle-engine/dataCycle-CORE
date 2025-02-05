@@ -19,9 +19,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             validator = DataCycleCore::V4::Validation::Thing.event
             assert_equal({}, validator.call(json_validate).errors.to_h)
@@ -35,9 +35,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             fields = Dry::Schema.JSON do
               required(:startDate).value(:date_time)
@@ -57,9 +57,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             fields = Dry::Schema.JSON do
               required(:image).value(:array, min_size?: 1).each do
@@ -82,9 +82,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             fields = Dry::Schema.JSON do
               required(:image).value(:array, min_size?: 1).each do
@@ -102,7 +102,7 @@ module DataCycleCore
               required(:eventSchedule).value(:array, min_size?: 1).each do
                 hash(
                   Dry::Schema.JSON do
-                    required(:@id).value(:uuid_v4?)
+                    required(:@id).value(:uuid?)
                     required(:@type).value(:string)
                     required(:startDate).value(:date_time)
                     required(:endDate).value(:date_time)
@@ -124,9 +124,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             fields = Dry::Schema.JSON do
               required(:description).value(:string)
@@ -158,9 +158,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             include = Dry::Schema.JSON do
               required(:organizer).value(:array, min_size?: 1).each do
@@ -182,9 +182,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             fields = Dry::Schema.JSON do
               required(:description).value(:string)
@@ -198,7 +198,7 @@ module DataCycleCore
                           DataCycleCore::V4::Validation::Thing::DEFAULT_HEADER.merge(
                             Dry::Schema.JSON do
                               required(:address).hash do
-                                required(:@id).value(:uuid_v4?)
+                                required(:@id).value(:uuid?)
                                 required(:@type).value(:string)
                                 required(:streetAddress).value(:string)
                                 required(:postalCode).value(:string)
@@ -233,9 +233,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = response.parsed_body
-            json_validate = json_data.dup.dig('@graph').first
+            json_validate = json_data.dup['@graph'].first
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             fields = Dry::Schema.JSON do
               required(:'dc:classification').value(:array, min_size?: 1).each do
@@ -265,7 +265,7 @@ module DataCycleCore
                               required(:givenName).value(:string)
                               required(:familyName).value(:string)
                               required(:address).hash do
-                                required(:@id).value(:uuid_v4?)
+                                required(:@id).value(:uuid?)
                                 required(:@type).value(:string)
                                 required(:streetAddress).value(:string)
                                 required(:postalCode).value(:string)
@@ -303,7 +303,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             fields = Dry::Schema.JSON do
               optional(:description).value(:string)
@@ -325,9 +325,9 @@ module DataCycleCore
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
-              thing_with_description = true if item.dig('description').present?
-              thing_with_thumbnail_url = true if item.dig('thumbnailUrl').present?
-              thing_with_image_thumbnail_url = true if item.dig('image')&.first&.dig('thumbnailUrl').present?
+              thing_with_description = true if item['description'].present?
+              thing_with_thumbnail_url = true if item['thumbnailUrl'].present?
+              thing_with_image_thumbnail_url = true if item['image']&.first&.dig('thumbnailUrl').present?
             end
             assert(thing_with_description)
             assert(thing_with_thumbnail_url)
@@ -347,7 +347,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
 
-            assert_context(json_data.dig('@context'), 'de')
+            assert_context(json_data['@context'], 'de')
 
             fields = Dry::Schema.JSON do
               optional(:'dc:classification').value(:array).each do
@@ -385,11 +385,11 @@ module DataCycleCore
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
-              thing_with_description = true if item.dig('description').present?
-              thing_with_thumbnail_url = true if item.dig('thumbnailUrl').present?
-              thing_with_image_thumbnail_url = true if item.dig('image')&.first&.dig('thumbnailUrl').present?
-              thing_with_classifications_in_scheme = true if item.dig('dc:classification')&.first&.dig('skos:inScheme')&.dig('skos:prefLabel').present?
-              thing_with_classifications_pref_label = true if item.dig('dc:classification')&.first&.dig('skos:prefLabel').present?
+              thing_with_description = true if item['description'].present?
+              thing_with_thumbnail_url = true if item['thumbnailUrl'].present?
+              thing_with_image_thumbnail_url = true if item['image']&.first&.dig('thumbnailUrl').present?
+              thing_with_classifications_in_scheme = true if item['dc:classification']&.first&.dig('skos:inScheme', 'skos:prefLabel').present?
+              thing_with_classifications_pref_label = true if item['dc:classification']&.first&.dig('skos:prefLabel').present?
             end
             assert(thing_with_description)
             assert(thing_with_thumbnail_url)

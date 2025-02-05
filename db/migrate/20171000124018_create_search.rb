@@ -55,7 +55,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
         FROM classification_#{item[:name]}s;
       EOS
       @connection.exec_query(sql_query)
-      drop_table "classification_#{item[:name]}s".to_sym
+      drop_table :"classification_#{item[:name]}s"
 
       sql_query = <<-EOS
         INSERT INTO classification_content_histories
@@ -69,7 +69,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
         FROM classification_#{item[:name]}_histories;
       EOS
       @connection.exec_query(sql_query)
-      drop_table "classification_#{item[:name]}_histories".to_sym
+      drop_table :"classification_#{item[:name]}_histories"
     end
   end
 
@@ -84,8 +84,8 @@ class CreateSearch < ActiveRecord::Migration[5.0]
     ]
 
     data_hash.each do |item|
-      create_table "classification_#{item[:name]}s".to_sym, id: :uuid do |t|
-        t.uuid "#{item[:name]}_id".to_sym
+      create_table :"classification_#{item[:name]}s", id: :uuid do |t|
+        t.uuid :"#{item[:name]}_id"
         t.uuid :classification_id
         t.boolean :tag, default: false, null: false
         t.boolean :classification, default: false, null: false

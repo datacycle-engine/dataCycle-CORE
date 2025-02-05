@@ -2,7 +2,7 @@
 
 if content.present?
   key_name = attribute_key(key, definition)
-  value = content.send(key + '_overlay')
+  value = content.send(:"#{key}_overlay")
 
   if value.present?
     json.set! key_name do

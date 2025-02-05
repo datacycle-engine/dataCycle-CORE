@@ -31,7 +31,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @collection.id, **params)
             json_data = response.parsed_body
 
-            assert_equal([@content5.id, @content4.id, @content3.id, @content2.id, @content.id], json_data.dig('@graph').pluck('@id'))
+            assert_equal([@content5.id, @content4.id, @content3.id, @content2.id, @content.id], json_data['@graph'].pluck('@id'))
           end
 
           test 'api/v4/endpoints with default sorting for manual order' do
@@ -41,7 +41,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @collection.id, **params)
             json_data = response.parsed_body
 
-            assert_equal([@content.id, @content2.id, @content3.id, @content4.id, @content5.id], json_data.dig('@graph').pluck('@id'))
+            assert_equal([@content.id, @content2.id, @content3.id, @content4.id, @content5.id], json_data['@graph'].pluck('@id'))
           end
 
           test 'api/v4/endpoints with default sorting for adjusted manual order' do
@@ -53,7 +53,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @collection.id, **params)
             json_data = response.parsed_body
 
-            assert_equal([@content3.id, @content5.id, @content.id, @content4.id, @content2.id], json_data.dig('@graph').pluck('@id'))
+            assert_equal([@content3.id, @content5.id, @content.id, @content4.id, @content2.id], json_data['@graph'].pluck('@id'))
           end
         end
       end

@@ -7,8 +7,8 @@ require 'mini_exiftool_vendored'
 
 module DataCycleCore
   class Image < Asset
-    after_create_commit :set_duplicate_hash
     has_one_attached :file
+    after_create_commit :set_duplicate_hash
 
     cattr_reader :versions, default: { original: {}, thumb_preview: {}, web: {}, default: {} }
     attr_accessor :remote_file_url
@@ -17,19 +17,20 @@ module DataCycleCore
     WEB_SAVE_MIME_TYPES = [
       'image/gif',
       'image/png',
-      'image/jpeg'
+      'image/jpeg',
+      'image/webp'
     ].freeze
 
     DEFAULT_MIME_TYPE = 'image/jpeg'
 
     def custom_validators
-      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+      DataCycleCore.uploader_validations[self.class.name.demodulize.underscore]&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
       end
     end
 
     def self.extension_white_list
-      DataCycleCore.uploader_validations.dig(:image, :format).presence || ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff']
+      DataCycleCore.uploader_validations.dig(:image, :format).presence || ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff', 'webp']
     end
 
     def dimensions_validation(options)
@@ -38,7 +39,7 @@ module DataCycleCore
       if attachment_changes.present?
         if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
           # import from local disc
-          path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+          path_to_tempfile = attachment_changes['file'].attachable[:io].path
         else
           path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
         end
@@ -56,37 +57,53 @@ module DataCycleCore
 
       if image.width >= image.height
         if image.width < options.dig(:landscape, :min, :width).to_i
-          errors.add :file, path: 'uploader.validation.dimensions.landscape.min.width',
-                            substitutions: { data: options.dig(:landscape, :min, :width).to_i }
+          errors.add :file,
+                     :invalid,
+                     path: 'uploader.validation.dimensions.landscape.min.width',
+                     substitutions: { data: options.dig(:landscape, :min, :width).to_i }
         end
         if image.height < options.dig(:landscape, :min, :height).to_i
-          errors.add :file, path: 'uploader.validation.dimensions.landscape.min.height',
-                            substitutions: { data: options.dig(:landscape, :min, :height).to_i }
+          errors.add :file,
+                     :invalid,
+                     :invalid, path: 'uploader.validation.dimensions.landscape.min.height',
+                               substitutions: { data: options.dig(:landscape, :min, :height).to_i }
         end
         if options.dig(:landscape, :max, :width).present? && image.width > options.dig(:landscape, :max, :width).to_i
-          errors.add :file, path: 'uploader.validation.dimensions.landscape.max.width',
-                            substitutions: { data: options.dig(:landscape, :max, :width).to_i }
+          errors.add :file,
+                     :invalid,
+                     path: 'uploader.validation.dimensions.landscape.max.width',
+                     substitutions: { data: options.dig(:landscape, :max, :width).to_i }
         end
         if options.dig(:landscape, :max, :height).present? && image.height > options.dig(:landscape, :max, :height).to_i
-          errors.add :file, path: 'uploader.validation.dimensions.landscape.max.height',
-                            substitutions: { data: options.dig(:landscape, :max, :height).to_i }
+          errors.add :file,
+                     :invalid,
+                     path: 'uploader.validation.dimensions.landscape.max.height',
+                     substitutions: { data: options.dig(:landscape, :max, :height).to_i }
         end
       else
         if image.width < options.dig(:portrait, :min, :width).to_i
-          errors.add :file, path: 'uploader.validation.dimensions.portrait.min.width',
-                            substitutions: { data: options.dig(:portrait, :min, :width).to_i }
+          errors.add :file,
+                     :invalid,
+                     path: 'uploader.validation.dimensions.portrait.min.width',
+                     substitutions: { data: options.dig(:portrait, :min, :width).to_i }
         end
         if image.height < options.dig(:portrait, :min, :height).to_i
-          errors.add :file, path: 'uploader.validation.dimensions.portrait.min.height',
-                            substitutions: { data: options.dig(:portrait, :min, :height).to_i }
+          errors.add :file,
+                     :invalid,
+                     path: 'uploader.validation.dimensions.portrait.min.height',
+                     substitutions: { data: options.dig(:portrait, :min, :height).to_i }
         end
         if options.dig(:portrait, :max, :width).present? && image.width > options.dig(:portrait, :max, :width).to_i
-          errors.add :file, path: 'uploader.validation.dimensions.portrait.max.width',
-                            substitutions: { data: options.dig(:portrait, :max, :width).to_i }
+          errors.add :file,
+                     :invalid,
+                     path: 'uploader.validation.dimensions.portrait.max.width',
+                     substitutions: { data: options.dig(:portrait, :max, :width).to_i }
         end
         if options.dig(:portrait, :max, :height).present? && image.height > options.dig(:portrait, :max, :height).to_i
-          errors.add :file, path: 'uploader.validation.dimensions.portrait.max.height',
-                            substitutions: { data: options.dig(:portrait, :max, :height).to_i }
+          errors.add :file,
+                     :invalid,
+                     path: 'uploader.validation.dimensions.portrait.max.height',
+                     substitutions: { data: options.dig(:portrait, :max, :height).to_i }
         end
       end
     end
@@ -118,59 +135,59 @@ module DataCycleCore
     end
 
     def thumb_preview(transformation = {})
-      thumb = nil
-      if file&.attached?
-        begin
-          thumb = file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format')), colorspace: 'sRGB', background: 'White', flatten: true).processed
-        rescue ActiveStorage::FileNotFoundError
-          # add some logging
-          return nil
-        end
-      end
-      thumb
+      return unless file&.attached?
+
+      file.variant(resize_to_fit: [300, 300], colourspace: 'srgb', format: format_for_transformation(transformation['format'])).processed
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument 'asset_version_generation_failed.datacycle', {
+        exception: e,
+        asset: self,
+        version: 'thumb_preview'
+      }
+      nil
     end
 
     def web(transformation = {})
-      web_version = nil
-      if file&.attached?
-        begin
-          web_version = file.variant(resize_to_limit: [2048, 2048], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
-        rescue ActiveStorage::FileNotFoundError
-          # add some logging
-          return nil
-        end
-      end
-      web_version
+      return unless file&.attached?
+
+      file.variant(resize_to_limit: [2048, 2048], format: format_for_transformation(transformation['format'])).processed
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument 'asset_version_generation_failed.datacycle', {
+        exception: e,
+        asset: self,
+        version: 'web'
+      }
+      nil
     end
 
     def default(transformation = {})
-      default_version = nil
-      if file&.attached?
-        begin
-          default_version = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
-        rescue ActiveStorage::FileNotFoundError
-          # add some logging
-          return nil
-        end
-      end
-      default_version
+      return unless file&.attached?
+
+      file.variant(format: format_for_transformation(transformation['format'])).processed
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument 'asset_version_generation_failed.datacycle', {
+        exception: e,
+        asset: self,
+        version: 'default'
+      }
+      nil
     end
 
     def dynamic(transformation = {})
-      dynamic = nil
-      if file&.attached?
-        begin
-          if transformation.dig('width').present? || transformation.dig('height').present?
-            dynamic = file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
-          else
-            dynamic = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
-          end
-        rescue ActiveStorage::FileNotFoundError
-          # add some logging
-          return nil
-        end
+      return unless file&.attached?
+
+      if transformation['width'].present? || transformation['height'].present?
+        file.variant(resize_to_fit: [transformation['width']&.to_i || nil, transformation['height']&.to_i || nil], format: format_for_transformation(transformation['format'])).processed
+      else
+        file.variant(format: format_for_transformation(transformation['format'])).processed
       end
-      dynamic
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument 'asset_version_generation_failed.datacycle', {
+        exception: e,
+        asset: self,
+        version: 'dynamic'
+      }
+      nil
     end
 
     private
@@ -182,9 +199,9 @@ module DataCycleCore
     end
 
     def metadata_from_blob
-      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
+      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable[:io].present?
         # import from local disc
-        tempfile = attachment_changes['file'].attachable.dig(:io)
+        tempfile = attachment_changes['file'].attachable[:io]
       else
         tempfile = attachment_changes['file'].attachable
       end
@@ -194,20 +211,27 @@ module DataCycleCore
       raise ActiveStorage::FileNotFoundError, 'Image path not found' if image_path.nil?
 
       image = ::MiniMagick::Image.new(image_path, tempfile)
-      exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: true })
+      exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: 'true' })
       exif_data = exif_data
         .to_hash
         .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
       exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip if image.path.present?
 
-      tempfile.rewind
-
       exif_data
+    rescue MiniMagick::Error
+      {}
+    ensure
+      tempfile.try(:rewind)
     end
 
     def set_duplicate_hash
       return if duplicate_check&.dig('phash').present? && duplicate_check&.dig('phash')&.positive?
-      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview({ 'format' => 'jpeg' }).key)).try(:compute_phash).try(:data) })
+
+      key = thumb_preview({ 'format' => 'jpeg' })&.key
+
+      return if key.blank?
+
+      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(key)).try(:compute_phash).try(:data) })
     end
   end
 end

@@ -13,7 +13,7 @@ module DataCycleCore
 
       @filters&.each do |filter|
         filter_method = (filter['c'] == 'd' ? filter['n'] : filter['t']).dup
-        filter_method = +"#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?("#{filter['t']}_#{filter['n']}")
+        filter_method = "#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?(:"#{filter['t']}_#{filter['n']}")
         filter_method.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
 
         next unless query.respond_to?(filter_method)
@@ -56,11 +56,13 @@ module DataCycleCore
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
       end
+
       redirect_back(fallback_location: root_path)
     end
 
     def update
       if @user_group.update(user_group_params)
+
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
 
         if Rails.env.development?
@@ -90,7 +92,14 @@ module DataCycleCore
     end
 
     def user_group_params
-      params.require(:user_group).permit(:name, user_ids: [], classification_ids: [])
+      ug_params = params.require(:user_group).permit(:name, user_ids: [], classification_ids: [], shared_collection_ids: [], permissions: [])
+
+      ug_params[:user_ids]&.compact_blank!
+      ug_params[:classification_ids]&.compact_blank!
+      ug_params[:shared_collection_ids]&.compact_blank!
+      ug_params[:permissions]&.compact_blank!
+
+      ug_params
     end
 
     def set_user_group

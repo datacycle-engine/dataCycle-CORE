@@ -10,6 +10,7 @@
   <%= hidden_field_tag "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[creator][]", content.created_by %>
   <%= hidden_field_tag :locale, @locale %>
   <%= content_for :additional_form_fields %>
+  <% merge_view = local_assigns[:link_action] == :merge_with_duplicate %>
 
   <div class="edit-form-content <%= 'flex-box' if split_source %>">
     <% if split_source %>
@@ -19,7 +20,7 @@
           data-id="<%= split_source.id %>"
           data-available-locales="<%= split_source.available_locales.to_json %>"
           data-embed-locale="<%= DataCycleCore.features.dig(:copy_embedded_locale, :enabled) %>"
-          data-enable-translate-buttons="<%= DataCycleCore::Feature::Translate.allowed?(content, @locale, I18n.locale, current_user) %>"
+          data-enable-translate-buttons="<%= DataCycleCore::Feature['Translate']&.allowed?(content, @locale, I18n.locale, current_user) %>"
           data-copy-all-translations="<%= split_source.translatable? && content.translatable? && I18n.available_locales&.many? %>">
           <%= hidden_field_tag 'splitview', true %>
 
@@ -27,8 +28,12 @@
 
           <div class="show-content">
             <div class="detail-header-info">
-              <%= tag.b(t('duplicate.duplicate', locale: active_ui_locale) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
-              <%= render 'meta_data', content: split_source %>
+              <%= tag.b(
+                t('duplicate.duplicate', locale: active_ui_locale) + ':',
+                class: 'meta-data-prefix alert-color',
+                data: { dc_tooltip: t('duplicate.duplicate_tooltip', locale: active_ui_locale) }
+              ) if merge_view %>
+              <%= render 'data_cycle_core/contents/meta_data', content: split_source, html_class: merge_view ? 'alert-color' : '' %>
               <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: split_source if show_external_connections?(split_source) %>
               <ul class="split-locales no-bullet">
                 <%= render 'split_locale_links',
@@ -51,8 +56,12 @@
       <div class="column">
         <div class="detail-header editor <%= content&.template_name&.underscore_blanks %>">
           <div class="detail-header-info">
-            <%= tag.b(t('duplicate.original', locale: active_ui_locale) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
-            <%= render 'meta_data', content: content %>
+            <%= tag.b(
+              t('duplicate.original', locale: active_ui_locale) + ':',
+              class: 'meta-data-prefix success-color',
+              data: { dc_tooltip: t('duplicate.original_tooltip', locale: active_ui_locale) }
+            ) if merge_view %>
+            <%= render 'data_cycle_core/contents/meta_data', content: content, html_class: merge_view ? 'success-color' : '' %>
             <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
           </div>
 

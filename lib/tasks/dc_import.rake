@@ -7,7 +7,7 @@ namespace :dc do
       external_source = DataCycleCore::ExternalSystem.find_by(name: args.fetch(:external_source_name))
       external_source ||= DataCycleCore::ExternalSystem.find_by!(identifier: args.fetch(:external_source_name))
 
-      run_now = args.fetch(:run_now, false) == 'true' || args.fetch(:run_now, false) == true
+      run_now = ['true', true].include?(args.fetch(:run_now, false))
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil)
         # do nothing
       elsif run_now && external_source.import_config.present?
@@ -31,10 +31,10 @@ namespace :dc do
          Delayed::Job.exists?(queue: 'importers', delayed_reference_type: "import_#{args[:download_names]}", delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil)
         # do nothing
       else
-        args[:download_names].presence.split(',').each do |download_name|
+        (args[:download_names].presence&.split(',') || []).each do |download_name|
           DataCycleCore::DownloadPartialJob.perform_later(external_source.id, download_name.squish.to_sym, args.fetch(:mode, nil))
         end
-        args[:import_names].presence.split(',').each do |import_name|
+        (args[:import_names].presence&.split(',') || []).each do |import_name|
           DataCycleCore::ImportPartialJob.perform_later(external_source.id, import_name.squish.to_sym, args.fetch(:mode, nil))
         end
       end
@@ -45,7 +45,7 @@ namespace :dc do
       external_source = DataCycleCore::ExternalSystem.find_by(name: args.fetch(:external_source_name))
       external_source ||= DataCycleCore::ExternalSystem.find_by!(identifier: args.fetch(:external_source_name))
 
-      run_now = args.fetch(:run_now, false) == 'true' || args.fetch(:run_now, false) == true
+      run_now = ['true', true].include?(args.fetch(:run_now, false))
 
       delayed_reference_type = 'download'
       delayed_reference_type = 'download_full' if args.fetch(:mode, nil) == 'full'

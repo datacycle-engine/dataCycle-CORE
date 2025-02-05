@@ -17,7 +17,7 @@ module DataCycleCore
         end
       end
 
-      include Rails.application.routes.url_helpers
+      include DataCycleCore::Common::Routing
 
       DEFAULT_CONTENT_TABLE = 'things'
 
@@ -56,8 +56,8 @@ module DataCycleCore
                 data_type: resolve_data_type(definition),
                 comment: definition['type'] == 'classification' ? definition['tree_label'] : nil,
                 comment_link: definition['tree_label'].present? ? DataCycleCore::ClassificationTreeLabel.find_by(name: definition['tree_label'])&.id : nil,
-                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false,
-                fulltext_search: definition.dig('search') == true,
+                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name'),
+                fulltext_search: definition['search'] == true,
                 embedded: definition['type'] == 'embedded'
               }
             end
@@ -90,7 +90,7 @@ module DataCycleCore
           elsif definition['stored_filter'].present?
             raise 'Cannot resolve linked templates without schema' if @schema.nil?
             @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
-              .map { |i| i.sub(/^Organisation$/, 'Organization') }.compact
+              .filter_map { |i| i.sub(/^Organisation$/, 'Organization') }
           else
             '//schema.org/Thing'
           end
@@ -163,9 +163,9 @@ module DataCycleCore
       tree_name = 'Inhaltstypen'
       aliases = DataCycleCore::ClassificationAlias.for_tree(tree_name).with_internal_name(names).with_descendants
 
-      aliases.map { |i|
+      aliases.filter_map { |i|
         i.classifications.first.things.first&.template_name || i.internal_name
-      }.compact.to_a.uniq
+      }.to_a.uniq
     end
 
     private

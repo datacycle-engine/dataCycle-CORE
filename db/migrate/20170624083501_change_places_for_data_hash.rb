@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class ChangePlacesForDataHash < ActiveRecord::Migration[5.0]
+  # rubocop:disable Rails/BulkChangeTable
   def change
     rename_column :places, :content, :metadata
     add_column :places, :template, :boolean, default: false, null: false
@@ -19,4 +20,5 @@ class ChangePlacesForDataHash < ActiveRecord::Migration[5.0]
     add_column :place_translations, :content, :jsonb
     add_column :place_translations, :properties, :jsonb
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

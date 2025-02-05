@@ -40,7 +40,7 @@ module DataCycleCore
         private
 
         def permitted_parameter_keys
-          super + [:id, :language, :search, filter: {}, meta: [collection: [:name]]]
+          super + [:id, :language, :search, {filter: {}, meta: [collection: [:name]]}]
         end
 
         def download_params

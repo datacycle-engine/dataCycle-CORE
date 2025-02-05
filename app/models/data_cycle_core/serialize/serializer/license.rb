@@ -17,7 +17,7 @@ module DataCycleCore
             content = Array.wrap(content)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
-                copyright_file(content, language, file_names_by_content_id(options.dig(:serialized_collections) || [])),
+                copyright_file(content, language, file_names_by_content_id(options[:serialized_collections] || [])),
                 introduction_file(language)
               ].compact_blank
             )
@@ -29,7 +29,7 @@ module DataCycleCore
             data = []
             content.each do |item|
               license_string = item.try(:copyright_notice_override).presence || item.try(:copyright_notice_computed).presence || item.name.to_s
-              (content_ids_with_filenames.dig(item.id) || []).each do |file_name|
+              (content_ids_with_filenames[item.id] || []).each do |file_name|
                 data << [file_name, license_string].join(': ')
               end
             end

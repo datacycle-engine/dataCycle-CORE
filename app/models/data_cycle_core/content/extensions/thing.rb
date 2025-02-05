@@ -68,12 +68,26 @@ module DataCycleCore
           "GPS: #{latitude.round(2)}, #{longitude.round(2)}" if latitude.present? && longitude.present?
         end
 
-        def translated_template_name(locale)
-          I18n.t("template_names.#{template_name}", default: template_name, locale:)
+        def icon_type
+          template_name.underscore_blanks
         end
 
-        def icon_class
-          self.class.name.demodulize.underscore_blanks
+        def base_template_name
+          template_name
+        end
+
+        # return all template_names, whose configuration is relevant for this thing
+        def relevant_template_names
+          [template_name]
+        end
+
+        # return all property_names, whose configuration might be relevant for given key
+        def relevant_property_names(key)
+          attribute_name = key&.attribute_name_from_key
+
+          return [] if attribute_name.blank? || !property?(attribute_name)
+
+          [attribute_name]
         end
 
         module ClassMethods

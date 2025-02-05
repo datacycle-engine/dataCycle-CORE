@@ -6,9 +6,10 @@ module DataCycleCore
 
     has_many :user_group_users, dependent: :destroy
     has_many :users, through: :user_group_users
+    attribute :permissions, :jsonb, default: -> { [] }
 
     has_many :collection_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
-    has_many :shared_collections, through: :collection_shares
+    has_many :shared_collections, through: :collection_shares, source: :collection
 
     has_many :classification_user_groups, dependent: :destroy
     has_many :classifications, through: :classification_user_groups
@@ -20,6 +21,8 @@ module DataCycleCore
                               where(search_term.to_s.split.map { |term| sanitize_sql_for_conditions(["concat_ws(' ', #{search_columns.join(', ')}) ILIKE ?", "%#{term.strip}%"]) }.join(' AND '))
                             }
 
+    scope :user_groups_with_permission, ->(key) { key.blank? ? none : where('permissions ? :key', key:) }
+
     DataCycleCore::Feature::UserGroupClassification.attribute_relations.each do |key, config|
       has_many key.to_sym, -> { for_tree(config['tree_label']) }, through: :classification_groups, source: :classification_alias
 
@@ -29,9 +32,11 @@ module DataCycleCore
     end
 
     def self.classification_aliases
-      return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
+      DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: pluck(:id) })
+    end
 
-      DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: select(:id) })
+    def self.shared_collections
+      DataCycleCore::Collection.includes(:collection_shares).where(collection_shares: { shareable_id: pluck(:id) })
     end
 
     def self.search_columns
@@ -39,9 +44,7 @@ module DataCycleCore
     end
 
     def self.users
-      return DataCycleCore::User.none if all.is_a?(ActiveRecord::NullRelation)
-
-      DataCycleCore::User.where(id: joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').select('user_group_users_user_groups.user_id'))
+      DataCycleCore::User.where(id: joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').pluck('user_group_users_user_groups.user_id'))
     end
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)

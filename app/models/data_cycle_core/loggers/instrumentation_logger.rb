@@ -3,25 +3,43 @@
 module DataCycleCore
   module Loggers
     class InstrumentationLogger < Logger
+      SEVERITIES = [:debug, :info, :warn, :error, :fatal].freeze
+
       def initialize(type:)
         log_file = "./log/#{type}.log"
-        @type = type
+        @kind_short = "[#{type.to_s[0].upcase}]"
         super(log_file)
       end
 
-      def dc_log(severity, message_or_data)
-        severity = :info unless [:debug, :info, :warn, :error, :fatal].include?(severity)
+      def dc_log(severity, data)
+        severity = :info unless SEVERITIES.include?(severity)
 
-        if message_or_data.is_a?(Array)
-          message = message_or_data.join("\n")
-        elsif message_or_data.is_a?(Hash)
-          message = message_or_data.dig(:logging_options, :logging_message) ||
-                    message_or_data.dig(:message) ||
-                    ([:error].include?(severity) ? "#{@type} #{message_or_data.dig(:external_system)&.name} failed" : nil)
-        elsif message_or_data.is_a?(String)
-          message = message_or_data
+        case data
+        when ::Array
+          message = data.join("\n")
+        when ::Hash
+          message = data[:message]
+
+          if severity == :error && message.blank?
+            message = [@kind_short]
+
+            if data[:step_label].present?
+              message.push(data[:step_label], '...', '[FAILED]')
+            else
+              message.push(data[:external_system]&.name, '...', '[FAILED]')
+            end
+
+            if data[:exception].present?
+              formatted_backtrace = data[:exception].backtrace.filter { |line| line.exclude?('/bundle') }.join("\n")
+              message.push("(Exception: #{data[:exception]}, Backtrace: #{formatted_backtrace})")
+            end
+            message.push("(Item-ID: #{data[:item_id]})") if data[:item_id].present?
+            message = message.join(' ')
+          end
+        when ::String
+          message = data
         else
-          message = message_or_data.to_json
+          message = data.to_json
         end
 
         send(severity, message) if message.present?

@@ -13,8 +13,13 @@ module DataCycleCore
 
       where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
     }
+    scope :with_schema_type, lambda { |schema_type|
+      where('thing_templates.computed_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
+    }
 
     after_initialize :add_template_properties, if: :new_record?
+
+    delegate :properties_for, to: :template_thing
 
     def readonly?
       true
@@ -25,7 +30,7 @@ module DataCycleCore
     end
 
     def schema_sorted
-      sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort_by { |i| i.values.first.dig('sorting') }.inject(&:merge)
+      sorted_properties = schema['properties'].map { |key, value| { key => value } }.sort_by { |i| i.values.first['sorting'] }.inject(&:merge)
       schema.deep_dup.merge({ 'properties' => sorted_properties })
     end
 
@@ -35,9 +40,11 @@ module DataCycleCore
     alias properties property_names
 
     def template_thing
-      tt = DataCycleCore::Thing.new(thing_template: self)
-      tt.readonly!
-      tt
+      @template_thing ||= begin
+        tt = DataCycleCore::Thing.new(thing_template: self)
+        tt.readonly!
+        tt
+      end
     end
 
     def all_templates
@@ -92,10 +99,10 @@ module DataCycleCore
       keys = attributes.is_a?(::Hash) ? attributes.keys : attributes
 
       DataCycleCore::ContentProperties.includes(:thing_template).where(property_name: keys).group_by(&:property_name)
-      .to_h do |key, cps|
+        .to_h do |key, cps|
         [
           key,
-          cps.map { |cp|
+          cps.filter_map { |cp|
             next unless attributes.is_a?(::Array) || attributes[cp.property_name]&.include?(cp.template_name)
 
             DataCycleCore::Thing.human_attribute_name(cp.property_name, {
@@ -106,7 +113,7 @@ module DataCycleCore
               count:,
               specific:
             })
-          }.compact.uniq.join(' / ')
+          }.uniq.join(' / ')
         ]
       end
     end
@@ -120,8 +127,8 @@ module DataCycleCore
               definition = t.properties_for(k)
               {
                 text: t.class.human_attribute_name(k, { base: t, locale:, definition:, locale_string: false }),
-                type: definition.dig('type'),
-                template: definition.dig('type') == 'embedded' ? definition.dig('template_name') : nil,
+                type: definition['type'],
+                template: definition['type'] == 'embedded' ? definition['template_name'] : nil,
                 embedded_template: t.embedded?
               }
             end

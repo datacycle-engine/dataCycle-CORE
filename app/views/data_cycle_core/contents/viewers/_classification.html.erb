@@ -1,6 +1,6 @@
 <%= render 'data_cycle_core/contents/viewers/attribute',
       local_assigns.merge(data_attributes: {
-        id: (value&.presence&.ids || [] ),
+        id: (value&.presence&.pluck(:id) || [] ),
         editor: "classification"
       }) do %>
   <span class="detail-content tags">

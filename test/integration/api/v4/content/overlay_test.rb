@@ -69,26 +69,26 @@ module DataCycleCore
 
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
-            json_data = response.parsed_body.dig('@graph').first
+            json_data = response.parsed_body['@graph'].first
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content_overlay)
             assert_equal(header.except('name'), data.except('name'))
 
             ['image', 'location'].each do |embedded|
-              assert_compact_header(json_data.dig(embedded.camelize(:lower)))
+              assert_compact_header(json_data[embedded.camelize(:lower)])
             end
 
             # content data
-            assert_equal(event_period['start_date'], json_data.dig('startDate'))
-            assert_equal(event_period['end_date'], json_data.dig('endDate'))
-            assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
-            assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
-            assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))
+            assert_equal(event_period['start_date'], json_data['startDate'])
+            assert_equal(event_period['end_date'], json_data['endDate'])
+            assert_equal(data_hash.dig('overlay', 0, 'name'), json_data['name'])
+            assert_equal(data_hash.dig('overlay', 0, 'description'), json_data['description'])
+            assert_equal(data_hash.dig('overlay', 0, 'url'), json_data['sameAs'])
             assert_equal(overlay_image.id, json_data.dig('image', 0, '@id'))
             assert_equal(overlay_place.id, json_data.dig('location', 0, '@id'))
 
             # attribute link is rendered in additionalProperty
-            assert(json_data.dig('additionalProperty').present?)
+            assert(json_data['additionalProperty'].present?)
             assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
             assert_equal('Link', json_data.dig('additionalProperty', 0, 'name'))
             assert_equal('link', json_data.dig('additionalProperty', 0, 'identifier'))

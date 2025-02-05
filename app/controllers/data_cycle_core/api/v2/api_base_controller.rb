@@ -24,7 +24,7 @@ module DataCycleCore
         before_action :set_default_response_format
 
         def permitted_params
-          @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+          @permitted_params ||= params.permit(*permitted_parameter_keys).compact_blank
         end
 
         def permitted_parameter_keys
@@ -32,7 +32,7 @@ module DataCycleCore
         end
 
         def apply_paging(query)
-          page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.reject { |_, v| v.blank? }.symbolize_keys)
+          page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.compact_blank.symbolize_keys)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
           query.page(page_params[:number].to_i).per(page_params[:size].to_i)
         end

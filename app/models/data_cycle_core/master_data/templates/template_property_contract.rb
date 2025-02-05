@@ -7,9 +7,8 @@ module DataCycleCore
         attr_accessor :property_name, :nested_property
 
         ALLOWED_OVERLAY_TYPES = ['string', 'text', 'number', 'boolean',
-                                 'datetime', 'date', 'geographic',
-                                 'embedded', 'linked', 'classification',
-                                 'schedule', 'opening_time'].freeze
+                                 'datetime', 'date', 'embedded', 'linked',
+                                 'classification', 'schedule', 'opening_time'].freeze
         OVERLAY_KEY_EXCEPTIONS = ['overlay', 'id', 'data_type', 'external_key', 'external_source_id'].freeze
         # validation in gitlab has no access to database, so we need to define the reserved property names here
         RESERVED_PROPERTY_NAMES = ['thing_id', 'locale', 'content', 'created_at', 'updated_at', 'metadata', 'template_name', 'external_source_id', 'created_by', 'updated_by', 'deleted_by', 'cache_valid_since', 'deleted_at', 'is_part_of', 'validity_range', 'boost', 'content_type', 'representation_of_id', 'version_name', 'last_updated_locale', 'write_history', 'geom_simple', 'aggregate_type'].freeze
@@ -122,15 +121,15 @@ module DataCycleCore
         rule(:type) do
           case value
           when 'object'
-            key.failure(:invalid_object) unless values.dig(:properties).present? && ['value', 'translated_value'].include?(values.dig(:storage_location))
+            key.failure(:invalid_object) unless values[:properties].present? && ['value', 'translated_value'].include?(values[:storage_location])
           when 'embedded'
-            key.failure(:invalid_embedded) unless values.dig(:template_name).present? || values.dig(:stored_filter).present?
+            key.failure(:invalid_embedded) unless values[:template_name].present? || values[:stored_filter].present?
           when 'linked'
-            key.failure(:invalid_linked) unless values.dig(:template_name).present? || values.dig(:stored_filter).present? || values.dig(:inverse_of).present?
+            key.failure(:invalid_linked) unless values[:template_name].present? || values[:stored_filter].present? || values[:inverse_of].present?
           when 'classification'
-            key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) != true
+            key.failure(:invalid_classification) if values[:tree_label].blank? && values[:universal] != true
           when 'asset'
-            key.failure(:invalid_asset) if values.dig(:asset_type).blank?
+            key.failure(:invalid_asset) if values[:asset_type].blank?
           end
         end
 
@@ -167,7 +166,7 @@ module DataCycleCore
         end
 
         rule(:properties) do
-          key.failure(:invalid_object) if key? && !(values.dig(:type) == 'object' && ['value', 'translated_value'].include?(values.dig(:storage_location)))
+          key.failure(:invalid_object) if key? && !(values[:type] == 'object' && ['value', 'translated_value'].include?(values[:storage_location]))
         end
 
         rule(:storage_location) do

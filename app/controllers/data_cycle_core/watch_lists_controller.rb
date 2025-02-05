@@ -92,7 +92,7 @@ module DataCycleCore
     def remove_item
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      @content_object = DataCycleCore::Thing.find(params[:hashable_id])
+      @content_object = DataCycleCore::Thing.find(params[:thing_id])
       @content_object.watch_lists.destroy(@watch_list) unless @content_object.nil? || @watch_list.nil?
 
       @watch_list.notify_subscribers(current_user, [@content_object.id], 'remove')
@@ -106,7 +106,7 @@ module DataCycleCore
     def add_item
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      @content_object = DataCycleCore::Thing.find(params[:hashable_id])
+      @content_object = DataCycleCore::Thing.find(params[:thing_id])
       @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil? || @watch_list.id.in?(@content_object.watch_list_ids)
 
       @watch_list.notify_subscribers(current_user, [@content_object.id], 'add')
@@ -156,14 +156,14 @@ module DataCycleCore
       authorize!(:bulk_edit, @watch_list)
 
       bulk_edit_types = bulk_update_type_params
-      bulk_edit_allowed_keys = Array.wrap(bulk_edit_types.dig(:datahash)&.keys).concat(Array.wrap(bulk_edit_types.dig(:translations)&.values&.map(&:keys)&.flatten))
+      bulk_edit_allowed_keys = Array.wrap(bulk_edit_types[:datahash]&.keys).concat(Array.wrap(bulk_edit_types[:translations]&.values&.map(&:keys)&.flatten))
 
       @object = DataCycleCore::Thing.new(thing_template: content_template, id: SecureRandom.uuid)
       @object.schema['properties'].slice!(*bulk_edit_allowed_keys)
 
       object_params = content_params(@object.schema)
 
-      if object_params.dig(:datahash).blank? && object_params.dig(:translations).blank?
+      if object_params[:datahash].blank? && object_params[:translations].blank?
         flash.now[:error] = I18n.t(:no_selected_attributes, scope: [:controllers, :error], locale: helpers.active_ui_locale)
         ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
         return head(:ok)
@@ -188,7 +188,7 @@ module DataCycleCore
         update_items.find_each.with_index do |content, index|
           specific_datahash = datahash.dc_deep_dup.with_indifferent_access
           allowed_translations = content.available_locales.map(&:to_s)
-          translations = Array.wrap(datahash.dig(:translations)&.keys)
+          translations = Array.wrap(datahash[:translations]&.keys)
           translations.difference(allowed_translations).each do |l|
             skip_update_count[l] ||= 0
             skip_update_count[l] += 1
@@ -352,7 +352,7 @@ module DataCycleCore
 
     def watch_list_params
       params.require(:watch_list).permit(:full_path, :description, :user_id, :manual_order, :api, :linked_stored_filter_id, shared_user_group_ids: [], shared_user_ids: [], shared_role_ids: [], classification_tree_labels: [])
-      .tap do |p|
+        .tap do |p|
         p[:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:description]) if p.key?(:description)
       end
     end
@@ -363,10 +363,6 @@ module DataCycleCore
 
     def search_params
       params.permit(:q)
-    end
-
-    def hashable_params
-      params.permit(:hashable_id, :hashable_type, serialize_format: [])
     end
 
     def bulk_update_type_params

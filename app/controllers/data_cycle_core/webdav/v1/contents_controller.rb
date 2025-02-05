@@ -14,7 +14,7 @@ module DataCycleCore
 
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            @collection = load_collection(permitted_params.dig(:id), current_user)
+            @collection = load_collection(permitted_params[:id], current_user)
             @contents =
               if @header['DEPTH'] == '0'
                 []
@@ -29,9 +29,9 @@ module DataCycleCore
         def show
           @props = parse_request(request.body)
           @header = parse_header(request)
-          @id = permitted_params.dig(:id)
+          @id = permitted_params[:id]
 
-          @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
+          @content = load_content(permitted_params[:id], permitted_params[:file_name], current_user)
 
           raise ActiveRecord::RecordNotFound if @content.blank?
           render 'show', status: :multi_status
@@ -40,9 +40,9 @@ module DataCycleCore
         def show_collection
           @props = parse_request(request.body)
           @header = parse_header(request)
-          @id = permitted_params.dig(:id)
+          @id = permitted_params[:id]
 
-          @collection = load_collection(permitted_params.dig(:id), current_user)
+          @collection = load_collection(permitted_params[:id], current_user)
           @contents = []
 
           render 'index', status: :multi_status
@@ -51,7 +51,7 @@ module DataCycleCore
         def download
           @props = parse_request(request.body)
           @header = parse_header(request)
-          @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
+          @content = load_content(permitted_params[:id], permitted_params[:file_name], current_user)
 
           if @content.assets.blank?
             send_data generate_file(@content), disposition: 'inline', filename: [@content.name, '.txt'].join, type: 'text/plain'

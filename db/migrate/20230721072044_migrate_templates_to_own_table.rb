@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class MigrateTemplatesToOwnTable < ActiveRecord::Migration[6.1]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     execute <<-SQL.squish
       CREATE TABLE IF NOT EXISTS thing_templates (
@@ -246,4 +247,5 @@ class MigrateTemplatesToOwnTable < ActiveRecord::Migration[6.1]
 
     drop_table :thing_templates, if_exists: true
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

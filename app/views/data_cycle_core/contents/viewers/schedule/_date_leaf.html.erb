@@ -2,7 +2,7 @@
   <% if object.try(:dtstart).present? %>
     <span class="leaf-duration"><%= l(object.dtstart, format: :time_only, locale: active_ui_locale) %>
 
-      <% if object.dtstart&.to_s(:only_date) == object.dtend&.to_s(:only_date) && object.dtstart&.to_s(:only_time) != object.dtend&.to_s(:only_time) %>
+      <% if object.dtstart&.to_formatted_s(:only_date) == object.dtend&.to_formatted_s(:only_date) && object.dtstart&.to_formatted_s(:only_time) != object.dtend&.to_formatted_s(:only_time) %>
         - <%= l(object.dtend, format: :time_only, locale: active_ui_locale) %>
       <% end %>
     </span>

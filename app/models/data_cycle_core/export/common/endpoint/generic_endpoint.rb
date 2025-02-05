@@ -6,15 +6,14 @@ module DataCycleCore
       module Endpoint
         class GenericEndpoint
           def initialize(**options)
-            @host = options.dig(:host)
+            @host = options[:host]
           end
 
           def connection
             raise 'Missing host to create connection' if @host.blank?
 
-            Faraday.new(@host) do |connection|
-              connection.use FaradayMiddleware::FollowRedirects, limit: 5
-              connection.adapter Faraday.default_adapter
+            Faraday.default_connection.dup.tap do |connection|
+              connection.url_prefix = @host
             end
           end
         end

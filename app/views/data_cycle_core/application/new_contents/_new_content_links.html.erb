@@ -17,7 +17,7 @@
   }) %>
 
   <a class="option" href="#" data-open="new_<%= template&.template_name&.underscore_blanks %>">
-    <%= render 'data_cycle_core/shared/icon', icon_type: template.template_name&.underscore_blanks, icon_class: template&.class&.name&.demodulize&.underscore %>
+    <%= render 'data_cycle_core/shared/icon', icon_type: template&.icon_type, icon_class: template&.icon_class %>
     <%= t('actions.new', data: template.translated_template_name(active_ui_locale), locale: active_ui_locale) %>
   </a>
 <% end %>

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'jsonpath'
+
 module DataCycleCore
   module Generic
     module Common
@@ -16,14 +17,8 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(
-            I18n.with_locale(locale) { source_filter.with_evaluated_values&.with_indifferent_access }
-              .merge(
-                "dump.#{locale}": { '$exists': true },
-                "dump.#{locale}.deleted_at": { '$exists': false }
-              )
-          )
+        def self.load_contents(filter_object:)
+          filter_object.with_locale.without_deleted.query
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
@@ -39,8 +34,8 @@ module DataCycleCore
               nested_content_filter_module = nested_contents_config.dig(:filter, :module)
               nested_content_filter_method = nested_contents_config.dig(:filter, :method)
 
-              if nested_contents_config.dig(:json_path).present?
-                nested_contents_items = JsonPath.new(nested_contents_config.dig(:json_path)).on(raw_data).flatten
+              if nested_contents_config[:json_path].present?
+                nested_contents_items = JsonPath.new(nested_contents_config[:json_path]).on(raw_data).flatten
               else
                 nested_contents_items = resolve_attribute_path(raw_data, nested_contents_config[:path])
               end
@@ -71,10 +66,37 @@ module DataCycleCore
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
+          transform_opts = []
+          transform_kwargs = {}
+
+          transform_req_params = transformation.parameters.select { |param| param[0] == :req }
+          transform_keyreq_params = transformation.parameters.select { |param| param[0] == :keyreq }
+
+          if transform_req_params.dig(0, 1).to_s.end_with?('_id')
+            transform_opts << utility_object.external_source.id
+          elsif transform_req_params.dig(0, 1).present?
+            transform_opts << utility_object.external_source
+          end
+          transform_opts << config.with_indifferent_access if transform_req_params.dig(1, 1).in? [:options, :config]
+
+          transform_keyreq_params.each do |param|
+            case param[1]
+            when :external_source_id
+              transform_kwargs[param[1]] = utility_object.external_source.id
+            when :external_source
+              transform_kwargs[param[1]] = utility_object.external_source
+            when :config
+              transform_kwargs[param[1]] = config.with_indifferent_access
+              # else
+              #   # provide a default value for keyreq params to avoid ArgumentError
+              #   transform_kwargs[param[1]] = nil
+            end
+          end
+
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object:,
             raw_data:,
-            transformation: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source),
+            transformation: transformation.call(*transform_opts, **transform_kwargs),
             default: { template: template_name },
             config:
           )

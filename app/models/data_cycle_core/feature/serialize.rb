@@ -5,20 +5,20 @@ module DataCycleCore
     class Serialize < Base
       class << self
         def available_serializers(content = nil)
-          configuration(content).dig('serializers').select { |k, _| enabled_serializers.dig(k) }
+          configuration(content)['serializers'].select { |k, _| enabled_serializers[k] }
         end
 
         def available_serializer?(content, serializer)
-          available_serializers(content).dig(serializer).present?
+          available_serializers(content)[serializer].present?
         end
 
         def enabled_serializers
-          configuration.dig('serializers').select { |_, v| v.present? }
+          configuration['serializers'].compact_blank
         end
 
         def enabled_serializer?(serializer)
           serializer&.each do |format|
-            return true if enabled_serializers.dig(format)
+            return true if enabled_serializers[format]
           end
           false
         end

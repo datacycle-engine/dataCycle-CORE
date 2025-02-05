@@ -2,9 +2,7 @@
 
   <div class="type <%= item.template_name.downcase %> <%= "has-parent" if item.try(:parent).present? %>">
     <div class="infoRow">
-      <%= render 'data_cycle_core/shared/icon',
-                 icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks,
-                 icon_type: "#{item.template_name.underscore_blanks}#{"_#{item.try(:life_cycle_stage)&.name&.underscore_blanks}" if DataCycleCore::Feature::LifeCycle.allowed?(item) && DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(item).present? && item.content_type?('container')}" %>
+      <%= render 'data_cycle_core/shared/icon', icon_type: item.try(:icon_type), icon_class: item.try(:icon_class) %>
 
       <%= render 'data_cycle_core/shared/template_title',
                  content: item %>

@@ -43,7 +43,7 @@ months = content
   end
 
 {
-  'schedule':
+  schedule:
   [
     {
       '@context': 'http://schema.org',
@@ -51,10 +51,10 @@ months = content
         'Intangible',
         'Schedule'
       ],
-      'contentType': 'Schedule',
-      'identifier': attribute_id,
-      'inLanguage': nil,
-      'byMonth': months.sort
+      contentType: 'Schedule',
+      identifier: attribute_id,
+      inLanguage: nil,
+      byMonth: months.sort
     }
   ]
 }

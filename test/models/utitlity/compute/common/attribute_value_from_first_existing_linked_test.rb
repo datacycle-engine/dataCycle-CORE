@@ -11,7 +11,7 @@ module DataCycleCore
       @collection = WatchList.create(name: 'test-watchlist')
       @tag1 = Concept.for_tree('Tags').first
       @start_time = Time.zone.now
-      @end_time = Time.zone.now + 1.day + 1.hour
+      @end_time = 1.day.from_now + 1.hour
       @schedule_value = [Schedule.transform_data_for_data_hash({
         start_time: { time: @start_time, zone: @start_time.time_zone.name },
         end_time: { time: @start_time + 1.hour, zone: @start_time.time_zone.name},
@@ -21,6 +21,7 @@ module DataCycleCore
         extimes: nil
       }.with_indifferent_access)]
       @new_content = TestPreparations.create_content(template_name: 'Computed-Common-attribute_value_from_first_existing_linked', data_hash: { name: 'test organization' })
+      @new_external_content = TestPreparations.create_content(template_name: 'Computed-Common-attribute_value_from_first_existing_linked', data_hash: { name: 'test organization external', external_key: SecureRandom.uuid, external_source_id: DataCycleCore::ExternalSystem.first.id })
       @content1 = TestPreparations.create_content(
         template_name: 'Computed-Common-attribute_value_from_first_existing_linked',
         data_hash: {
@@ -59,9 +60,9 @@ module DataCycleCore
       )
     end
 
-    def subject_method(attribute, override_parameters, parameters)
+    def subject_method(attribute, override_parameters, parameters, content = @new_content)
       DataCycleCore::Utility::Compute::Common.attribute_value_from_first_existing_linked(
-        content: @new_content,
+        content: content,
         key: attribute,
         computed_definition: {
           'compute' => {
@@ -393,6 +394,43 @@ module DataCycleCore
       assert_empty(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+      assert_empty(value)
+    end
+
+    test 'return embedded_value from first linked, with imported content' do
+      key = 'embedded_value'
+      value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id], @new_external_content).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+      assert_equal("#{@new_external_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
+      assert_nil(value['id'])
+
+      @new_external_content.set_data_hash(data_hash: { key => [value]})
+
+      value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id], @new_external_content).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+      assert_equal("#{@new_external_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
+      assert_equal(@new_external_content.try(key).first.id, value['id'])
+      assert_equal(@new_external_content.try(key).first.embedded_sub_value.first.id, value.dig('embedded_sub_value', 0, 'id'))
+      assert_equal("#{@new_external_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}_embedded_sub_value_#{Digest::SHA1.hexdigest(orig_value.dig('embedded_sub_value', 0).to_json)}", value.dig('embedded_sub_value', 0, 'external_key'))
+
+      value = subject_method(key, nil, [@content3.id, @content1.id], @new_external_content).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+
+      value = subject_method(key, nil, [@content1.id], @new_external_content).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+
+      value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id], @new_external_content).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+
+      value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id], @new_external_content)
+      assert_empty(value)
+
+      value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id], @new_external_content)
       assert_empty(value)
     end
   end

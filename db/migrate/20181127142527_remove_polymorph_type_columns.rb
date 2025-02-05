@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class RemovePolymorphTypeColumns < ActiveRecord::Migration[5.1]
+  # rubocop:disable Rails/BulkChangeTable
   def up
     remove_column :classification_contents, :content_data_type
     remove_column :classification_content_histories, :content_data_history_type
@@ -38,4 +39,5 @@ class RemovePolymorphTypeColumns < ActiveRecord::Migration[5.1]
     add_column :classification_content_histories, :content_data_history_type, :string, default: 'DataCycleCore::Thing::History', null: false
     add_column :classification_contents, :content_data_type, :string, default: 'DataCycleCore::Thing', null: false
   end
+  # rubocop:enable Rails/BulkChangeTable
 end

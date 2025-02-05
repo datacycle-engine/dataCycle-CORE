@@ -79,7 +79,7 @@ namespace :dc do
           properties.each do |property_name, property_definition|
             update_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, data_hash, image)
           end
-          update_hash['name'] = image.asset.metadata['Headline'] if image.asset.metadata.dig('Headline').present?
+          update_hash['name'] = image.asset.metadata['Headline'] if image.asset.metadata['Headline'].present?
           image.available_locales.each do |locale|
             I18n.with_locale(locale) { image.set_data_hash(data_hash: update_hash) }
           end
@@ -291,6 +291,29 @@ namespace :dc do
 
       puts 'END'
       puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+
+    desc 'rebuild checksums for blobs'
+    task rebuild_blob_checksums: :environment do
+      puts 'Rebuilding checksums for blobs...'
+
+      updated_count = 0
+
+      ActiveStorage::Blob.find_each do |blob|
+        io = StringIO.new(blob.download)
+        digest = blob.send(:compute_checksum_in_chunks, io)
+        io.close
+
+        next if blob.checksum == digest
+
+        blob.update_column(:checksum, digest)
+        updated_count += 1
+        print '.'
+      rescue StandardError => e
+        puts "Error: #{e.message} (blob_id: #{blob.id})"
+      end
+
+      puts AmazingPrint::Colors.green("[DONE] Rebuilt #{updated_count} checksums for blobs")
     end
   end
 end

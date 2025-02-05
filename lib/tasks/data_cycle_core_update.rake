@@ -9,9 +9,9 @@ namespace :data_cycle_core do
       puts 'importing new external_system configs'
       errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
       if errors.blank?
-        puts '[done] ... looks good'
+        puts AmazingPrint::Colors.green('[✔] ... looks good 🚀')
       else
-        puts 'the following errors were encountered during import:'
+        puts AmazingPrint::Colors.red('🔥 the following errors were encountered during import:')
         ap errors
       end
       puts "\n"
@@ -19,29 +19,8 @@ namespace :data_cycle_core do
 
     desc 'import classifications'
     task import_classifications: [:environment] do
-      before_import = Time.zone.now
-      puts 'importing new classification definitions'
-      imported_classifications = DataCycleCore::MasterData::ImportClassifications.import_all
-      if imported_classifications.size.positive?
-        puts("[done] ... looks good (Duration: #{(Time.zone.now - before_import).round} sec)")
-      else
-        exit(-1)
-      end
-
-      tmp = Time.zone.now
-      puts 'checking for unused <Inhaltstypen> classifications'
-      data = DataCycleCore::MasterData::ImportClassifications.updated_classification_statistics(before_import)
-      if data.present?
-        puts "\nWARNING: the following classification_aliases are not updated:"
-        puts 'name'.ljust(30) + ' | ' + 'last_seen'.ljust(38) + ' | ' + 'occurrence'
-        puts '-' * 82
-        data.each do |key, value|
-          puts "#{key.to_s.ljust(30)} |  #{value[:seen_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(7)}"
-        end
-      else
-        puts("[done] ... looks good (Duration: #{(Time.zone.now - tmp).round} sec)")
-      end
-      puts "\n"
+      Rake::Task['dc:concepts:import'].invoke
+      Rake::Task['dc:concepts:import'].reenable
     end
 
     desc 'delete history of a specific template_name'

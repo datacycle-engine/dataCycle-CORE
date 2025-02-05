@@ -15,7 +15,7 @@ module DataCycleCore
 
           @user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_#{Time.now.getutc.to_i}@datacycle.at",
-            confirmed_at: Time.zone.now - 1.day,
+            confirmed_at: 1.day.ago,
             role_id: DataCycleCore::Role.find_by(rank: 2)&.id
           })
           @new_user = DataCycleCore::User.create(@user_data)
@@ -32,7 +32,7 @@ module DataCycleCore
         test '/api/v4/auth/login - login without email returns 404' do
           post api_v4_authentication_login_path, params: {}, headers: {}
 
-          assert_response 401
+          assert_response :unauthorized
         end
 
         test '/api/v4/auth/login - login with token' do
@@ -154,7 +154,7 @@ module DataCycleCore
         test '/api/v4/users/create - create new user' do
           user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at",
-            confirmed_at: Time.zone.now - 1.day
+            confirmed_at: 1.day.ago
           })
 
           post api_v4_users_create_path, params: user_data.merge(token: @current_user.access_token).deep_transform_keys { |k| k.to_s.camelize(:lower) }, headers: {}
@@ -164,7 +164,7 @@ module DataCycleCore
           json_data = response.parsed_body
 
           assert json_data['token'].present?
-          assert_equal user_data['email'], json_data.dig('email')
+          assert_equal user_data['email'], json_data['email']
 
           new_token = json_data['token']
 
@@ -204,7 +204,7 @@ module DataCycleCore
         test '/api/v4/users - login or create user on authenticate' do
           user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_3_#{Time.now.getutc.to_i}@datacycle.at",
-            confirmed_at: Time.zone.now - 1.day
+            confirmed_at: 1.day.ago
           })
           rsa_private = generate_private_key
           token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) }, iss: 'datacycle.at' }, alg: 'RS256', key: rsa_private).token

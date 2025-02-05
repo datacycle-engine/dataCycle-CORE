@@ -21,10 +21,10 @@ module DataCycleCore
         private
 
         def parse_translated_hash(item)
-          return item.map { |v| v.is_a?(::Hash) ? DataCycleCore::DataHashService.parse_translated_hash(v)&.dig(I18n.locale.to_s) : v } if item.is_a?(::Array)
+          return item.map { |v| v.is_a?(::Hash) ? DataCycleCore::DataHashService.parse_translated_hash(v, [I18n.locale], false)&.dig(I18n.locale.to_s) : v } if item.is_a?(::Array)
           return item unless item.is_a?(::Hash)
 
-          DataCycleCore::DataHashService.parse_translated_hash(item)&.dig(I18n.locale.to_s)
+          DataCycleCore::DataHashService.parse_translated_hash(item, [I18n.locale], false)&.dig(I18n.locale.to_s)
         end
 
         def embedded_change(a, b, template, partial_update = false)
@@ -43,14 +43,14 @@ module DataCycleCore
           data_a.each do |a_item|
             a_uuid = nil
             a_uuid = a_item if a_item.is_a?(::String)
-            a_uuid = a_item.dig('id') if a_item.is_a?(::Hash)
+            a_uuid = a_item['id'] if a_item.is_a?(::Hash)
             next if a_uuid.nil?
             b_item = find_uuid(data_b, a_uuid)
             next if b_item.nil?
             next if a_item.is_a?(::String) && b_item.is_a?(::String)
             a_content = history_a ? load_content(a_item, a) : load_content(a_item, nil)
             b_content = history_b ? load_content(b_item, b) : load_content(b_item, nil)
-            embedded_template = load_template(template, b_content.dig('template_name'))
+            embedded_template = load_template(template, b_content['template_name'])
             if partial_update
               embedded_template.slice!(*b_content&.keys)
               a_content = a_content.slice(*b_content&.keys)
@@ -65,7 +65,7 @@ module DataCycleCore
           data.each do |item|
             item_uuid = nil
             item_uuid = item if item.is_a?(::String)
-            item_uuid = item.dig('id') if item.is_a?(::Hash)
+            item_uuid = item['id'] if item.is_a?(::Hash)
             next unless item_uuid == uuid
             return item
           end
@@ -73,19 +73,18 @@ module DataCycleCore
         end
 
         def load_template(def_hash, b_template_name)
-          template_name = def_hash.dig('template_name')
+          template_name = def_hash['template_name']
           template_name = b_template_name if template_name.is_a?(Array) && b_template_name.present? && template_name.include?(b_template_name)
           DataCycleCore::ThingTemplate
             .find_by(template_name:)
-            .schema
-            .dig('properties')
+            .schema['properties']
         end
 
         def load_content(data, relation)
           return relation.find_by(things_id: data).get_data_hash if relation.present?
           data_hash = data.is_a?(::String) ? { 'id' => data } : data
           return data_hash if (data_hash.keys - ['id']).size.positive?
-          DataCycleCore::Thing.find(data_hash.dig('id')).get_data_hash
+          DataCycleCore::Thing.find(data_hash['id']).get_data_hash
         end
 
         def parse_uuids(a)
@@ -102,7 +101,7 @@ module DataCycleCore
 
         def get_relation_ids(a)
           history = a.klass.to_s.split('::').include?('History')
-          history ? [a.pluck(:thing_id), history] : [a.ids, history]
+          history ? [a.pluck(:thing_id), history] : [a.pluck(:id), history]
         end
       end
     end

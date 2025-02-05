@@ -39,7 +39,7 @@ module DataCycleCore
             LIMIT :limit
           SQL
 
-          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, by_month:, by_year:, locale: @locale, limit:]))
+          @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, {by_month:, by_year:, locale: @locale, limit:}]))
         end
 
         private
@@ -48,9 +48,9 @@ module DataCycleCore
           by_month = @params&.dig(:by_month) || Time.zone.now.month
           by_year = @params&.dig(:by_year) || Time.zone.now.year
           by_month_string = DataCycleCore::MasterData::DataConverter.string_to_datetime([0o7, by_month, by_year].join('-'))
-          @data.fields.map do |key|
+          @data.columns.map do |key|
             if key == 'downloads_by_month'
-              I18n.t "feature.report_generator.headings.#{key}", default: key, date: I18n.localize(by_month_string, format: '%B %Y'), locale: @locale
+              I18n.t "feature.report_generator.headings.#{key}", default: key, date: I18n.l(by_month_string, format: '%B %Y'), locale: @locale
             else
               I18n.t "feature.report_generator.headings.#{key}", default: key, locale: @locale
             end

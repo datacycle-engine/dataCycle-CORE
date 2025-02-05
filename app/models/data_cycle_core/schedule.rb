@@ -28,67 +28,138 @@ module DataCycleCore
     delegate :iso8601_duration, to: :class
     delegate :parse_iso8601_duration, to: :class
 
+    def schedule_object_will_change!(*changed_properties)
+      remove_instance_variable(:@schedule_object) if instance_variable_defined?(:@schedule_object)
+      attribute_will_change!(:schedule_object)
+
+      changed_properties.each do |prop|
+        remove_instance_variable(:"@#{prop}") if instance_variable_defined?(:"@#{prop}")
+        send(:"#{prop}_will_change!")
+      end
+    end
+
+    def schedule_object_changed?
+      attribute_changed?(:schedule_object)
+    end
+
     def schedule_object
-      return @schedule_object if defined? @schedule_object
+      return @schedule_object if instance_variable_defined?(:@schedule_object)
 
       @schedule_object = load_schedule_object
     end
 
     def schedule_object=(value)
+      schedule_object_will_change!(:rrule, :dtstart, :duration, :dtend, :rdate, :exdate) if @schedule_object != value
+
       @schedule_object = value
-      reload_memoized
     end
 
-    def reload_memoized
-      remove_instance_variable(:@rrule) if instance_variable_defined?(:@rrule)
-      remove_instance_variable(:@dtstart) if instance_variable_defined?(:@dtstart)
-      remove_instance_variable(:@duration) if instance_variable_defined?(:@duration)
-      remove_instance_variable(:@dtend) if instance_variable_defined?(:@dtend)
-      remove_instance_variable(:@rdate) if instance_variable_defined?(:@rdate)
-      remove_instance_variable(:@exdate) if instance_variable_defined?(:@exdate)
+    def rrule=(value)
+      schedule_object_will_change!(:dtend, :dtstart) if @rrule != value
+      @rrule = super
     end
 
     def rrule
-      return @rrule if defined? @rrule
+      return @rrule if instance_variable_defined?(:@rrule)
 
-      @rrule = schedule_object&.recurrence_rules&.first&.to_ical
+      @rrule = if schedule_object_changed?
+                 schedule_object&.recurrence_rules&.first&.to_ical
+               else
+                 self[:rrule]
+               end
+    end
+
+    def dtstart=(value)
+      @dtstart = super
     end
 
     def dtstart
-      return @dtstart if defined? @dtstart
+      return @dtstart if instance_variable_defined?(:@dtstart)
 
-      @dtstart = schedule_object&.start_time
+      @dtstart = if schedule_object_changed?
+                   schedule_object&.start_time
+                 else
+                   self[:dtstart]
+                 end
+    end
+
+    def duration=(value)
+      schedule_object_will_change!(:dtend) if @duration != value
+      @duration = super
     end
 
     def duration
-      return @duration if defined? @duration
+      return @duration if instance_variable_defined?(:@duration)
 
-      if self[:duration].present?
-        @duration = self[:duration]
-      elsif schedule_object.present?
-        @duration = iso8601_duration(schedule_object.start_time, schedule_object.end_time)
-      else
-        @duration = nil
-      end
+      @duration = if schedule_object_changed? && schedule_object.present?
+                    iso8601_duration(schedule_object.start_time, schedule_object.end_time)
+                  elsif schedule_object_changed?
+                    nil
+                  else
+                    self[:duration]
+                  end
+    end
+
+    def dtend=(value)
+      @dtend = super
     end
 
     def dtend
-      return @dtend if defined? @dtend
-      return @dtend = nil if schedule_object.blank?
+      return @dtend if instance_variable_defined?(:@dtend)
 
-      @dtend = schedule_object.terminating? ? (schedule_object.last || schedule_object.start_time) + (duration || 0) : nil
+      @dtend = if (schedule_object_changed? || duration_changed?) && schedule_object&.terminating?
+                 end_date = schedule_object.last
+                 if end_date.blank?
+                   until_date = schedule_object.recurrence_rules.first&.to_hash&.dig(:until)
+
+                   if until_date.present?
+                     until_date = until_date[:time] if until_date.is_a?(::Hash)
+                     end_date = until_date.to_date.in_time_zone.change(
+                       hour: schedule_object.start_time.hour,
+                       min: schedule_object.start_time.min,
+                       sec: schedule_object.start_time.sec
+                     )
+                   else
+                     end_date = schedule_object.start_time
+                   end
+                 end
+
+                 end_date + (duration || 0)
+               elsif schedule_object_changed? || duration_changed?
+                 nil
+               else
+                 self[:dtend]
+               end
+    end
+
+    def rdate=(value)
+      schedule_object_will_change!(:dtend) if @rdate != value
+      @rdate = super
     end
 
     def rdate
-      return @rdate if defined? @rdate
+      return @rdate if instance_variable_defined?(:@rdate)
 
-      @rdate = schedule_object&.recurrence_times
+      @rdate = if schedule_object_changed?
+                 schedule_object&.recurrence_times
+               else
+                 self[:rdate]
+               end
+    end
+
+    def exdate=(value)
+      schedule_object_will_change!(:dtend) if @exdate != value
+      @exdate = super
     end
 
     def exdate
-      return @exdate if defined? @exdate
+      return @exdate if instance_variable_defined?(:@exdate)
 
-      @exdate = schedule_object&.extimes
+      @exdate = if schedule_object_changed?
+                  schedule_object&.extimes
+                else
+                  self[:exdate]
+                end
     end
 
     def to_h
@@ -99,7 +170,7 @@ module DataCycleCore
       item_hash[:id] = id
       item_hash[:relation] = relation
       item_hash[:dtstart] = dtstart if dtstart.present?
-      item_hash[:dtend] = dtend if dtstart.present?
+      item_hash[:dtend] = dtend if dtend.present?
       item_hash[:holidays] = holidays unless holidays.nil?
       item_hash[:external_key] = external_key if external_key.present?
       item_hash[:external_source_id] = external_source_id if external_source_id.present?
@@ -110,18 +181,20 @@ module DataCycleCore
       self.schedule_object = nil
       hash = hash.with_indifferent_access
       hash[:duration] = parse_iso8601_duration(hash[:duration]) if hash.key?(:duration)
+
       if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation, :duration).present?
         self.schedule_object = IceCube::Schedule.from_hash(
           hash.deep_dup.tap do |h|
             h[:end_time] = h.dig(:start_time, :time).in_time_zone(h.dig(:start_time, :zone))&.advance(h.delete(:duration)&.parts.to_h) if h.key?(:duration)
           end
         )
+      else
+        self.duration = hash[:duration] if hash.key?(:duration)
+        self.dtstart = hash[:dtstart] if hash.key?(:dtstart)
+        self.dtend = hash[:dtend] if hash.key?(:dtend)
       end
 
-      self.duration = hash[:duration]
-      self.dtstart = hash[:dtstart]
-      self.dtend = hash[:dtend]
-      self.holidays = hash[:holidays]
+      self.holidays = hash[:holidays] if hash.key?(:holidays)
       self.relation = hash[:relation] || relation
       self.external_key = hash[:external_key] if hash.key?(:external_key)
       self.external_source_id = hash[:external_source_id] if hash.key?(:external_source_id)
@@ -129,7 +202,7 @@ module DataCycleCore
     end
 
     def to_s
-      "#{schedule_object} (#{dtstart&.to_s(:only_date)} - #{dtend&.to_s(:only_date)} // #{dtstart&.to_s(:only_time)} - #{(dtstart + (duration || 0))&.to_s(:only_time)})"
+      "#{schedule_object} (#{dtstart&.to_fs(:only_date)} - #{dtend&.to_fs(:only_date)} // #{dtstart&.to_fs(:only_time)} - #{(dtstart + (duration || 0))&.to_fs(:only_time)})"
     end
 
     def dow(day)
@@ -139,9 +212,9 @@ module DataCycleCore
     def to_repeat_frequency(rule_hash)
       return if rule_hash[:interval].nil? || rule_hash[:rule_type].nil?
 
-      interval = rule_hash.dig(:interval).to_s
+      interval = rule_hash[:interval].to_s
 
-      case rule_hash.dig(:rule_type)
+      case rule_hash[:rule_type]
       when 'IceCube::YearlyRule'
         "P#{interval}Y"
       when 'IceCube::MonthlyRule'
@@ -170,8 +243,8 @@ module DataCycleCore
         '@type' => 'OpeningHoursSpecification',
         'validFrom' => r_hash[:dtstart]&.in_time_zone&.beginning_of_day&.to_date&.iso8601,
         'validThrough' => r_hash.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day&.to_date&.iso8601,
-        'opens' => r_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_time),
-        'closes' => r_hash.dig(:end_time, :time)&.in_time_zone&.to_s(:only_time),
+        'opens' => r_hash.dig(:start_time, :time)&.in_time_zone&.to_fs(:only_time),
+        'closes' => r_hash.dig(:end_time, :time)&.in_time_zone&.to_fs(:only_time),
         'dayOfWeek' => days.map { |day| dow(day) }.presence
       }.compact
     end
@@ -185,8 +258,8 @@ module DataCycleCore
 
     def to_schedule_schema_org
       # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
-      start_date = dtstart&.to_s(:only_date)
-      start_time = dtstart&.to_s(:only_time)
+      start_date = dtstart&.to_fs(:only_date)
+      start_time = dtstart&.to_fs(:only_time)
       end_date = nil
       end_time = nil
       repeat_count = nil
@@ -195,11 +268,12 @@ module DataCycleCore
       by_month = nil
       by_month_day = nil
       by_month_week = nil
+
       if schedule_object&.recurrence_rules&.first.present?
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = (schedule_object&.last&.in_time_zone || rule_hash.dig(:until))&.+(duration.presence || 0)&.to_s(:only_date) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.end_time&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = dtend&.to_fs(:only_date) if schedule_object.terminating?
+        end_time = schedule_object&.end_time&.to_fs(:only_time) if schedule_object.terminating?
         end_time = start_time if end_date.present? && end_time.blank?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
@@ -212,8 +286,8 @@ module DataCycleCore
         end
       else
         end_timestamp = dtstart&.+(duration.presence || 0)
-        end_date = end_timestamp&.to_s(:only_date)
-        end_time = end_timestamp&.to_s(:only_time)
+        end_date = end_timestamp&.to_fs(:only_date)
+        end_time = end_timestamp&.to_fs(:only_time)
       end
 
       {
@@ -241,8 +315,8 @@ module DataCycleCore
     def to_schedule_schema_org_api_v3
       return {} unless schedule_object.terminating?
       return {} unless schedule_object.all_occurrences.size.positive?
-      start_date = dtstart&.beginning_of_day&.to_s(:long_msec)
-      start_time = dtstart&.to_s(:only_time)
+      start_date = dtstart&.beginning_of_day&.to_fs(:long_msec)
+      start_time = dtstart&.to_fs(:only_time)
       end_date = nil
       end_time = nil
       repeat_count = nil
@@ -254,8 +328,8 @@ module DataCycleCore
         rule = schedule_object&.recurrence_rules&.first
         rule_ical = rule.to_ical
         rule_hash = rule.to_hash
-        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_fs(:long_msec) if end_date.blank? && schedule_object.terminating?
+        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_fs(:only_time) if end_time.blank? && schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = /FREQ=(.+?);/.match(rule_ical).try(:send, '[]', 1)&.downcase&.presence
         by_day = rule_hash.dig(:validations, :day)
@@ -288,8 +362,8 @@ module DataCycleCore
     def to_schedule_schema_org_api_v2
       return {} unless schedule_object.terminating?
       return {} unless schedule_object.all_occurrences.size.positive?
-      start_date = dtstart&.beginning_of_day&.to_s(:long_msec)
-      start_time = dtstart&.to_s(:only_time)
+      start_date = dtstart&.beginning_of_day&.to_fs(:long_msec)
+      start_time = dtstart&.to_fs(:only_time)
       end_date = nil
       end_time = nil
       repeat_count = nil
@@ -300,8 +374,8 @@ module DataCycleCore
       if schedule_object&.recurrence_rules&.first.present?
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_fs(:long_msec) if end_date.blank? && schedule_object.terminating?
+        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_fs(:only_time) if end_time.blank? && schedule_object.terminating?
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
@@ -333,8 +407,8 @@ module DataCycleCore
           '@context' => 'http://schema.org',
           '@type' => 'Event',
           'contentType' => 'SubEvent',
-          'startDate' => occurrence.start_time&.to_s(:long_msec),
-          'endDate' => occurrence.end_time&.to_s(:long_msec)
+          'startDate' => occurrence.start_time&.to_fs(:long_msec),
+          'endDate' => occurrence.end_time&.to_fs(:long_msec)
         }
       end
     end
@@ -353,8 +427,8 @@ module DataCycleCore
           '@type' => 'Event',
           'contentType' => 'SubEvent',
           'inLanguage' => I18n.locale.to_s,
-          'startDate' => occurrence.start_time.to_s(:long_msec),
-          'endDate' => occurrence.end_time.to_s(:long_msec)
+          'startDate' => occurrence.start_time.to_fs(:long_msec),
+          'endDate' => occurrence.end_time.to_fs(:long_msec)
         }
         sub_event_hash.merge({ 'identifier' => generate_uuid(sub_event_hash) })
       end
@@ -362,21 +436,25 @@ module DataCycleCore
 
     def to_event_dates
       return [] if schedule_object.blank?
+
       if schedule_object.terminating?
-        schedule_object.all_occurrences.to_a.map { |o| o.start_time.to_s(:long_msec) }
+        schedule_object.all_occurrences.to_a.map { |o| o.start_time.to_fs(:long_msec) }
       else
-        schedule_object.next_occurrences(10).to_a.map { |o| o.start_time.to_s(:long_msec) }
+        schedule_object.next_occurrences(10).to_a.map { |o| o.start_time.to_fs(:long_msec) }
       end
     end
 
+    # dependent on duration, dtstart, rrule, rdate, exdate
     def load_schedule_object
       options = { duration: self[:duration].presence }
 
       IceCube::Schedule.new(self[:dtstart].presence || Time.zone.now, options) do |s|
         s.add_recurrence_rule(IceCube::Rule.from_ical(self[:rrule])) if self[:rrule].present? # allow only one rrule!!
+
         self[:rdate].each do |rd|
           s.add_recurrence_time(rd)
         end
+
         self[:exdate].each do |exd|
           s.add_exception_time(exd)
         end
@@ -417,7 +495,7 @@ module DataCycleCore
       def to_h_from_schedule_params(value)
         return nil if value.blank? || value.values.blank?
 
-        value.values.map { |s|
+        value.values.filter_map do |s|
           s = s['datahash'] if s.key?('datahash')
           next nil if s.dig('start_time', 'time').blank?
 
@@ -439,8 +517,8 @@ module DataCycleCore
           s['rrules'][0]['validations'] ||= {}
           s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
-          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
-          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_fs(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_fs(:time)}".in_time_zone, zone: start_time.time_zone.name } }
 
           case s.dig('rrules', 0, 'rule_type')
           when 'IceCube::WeeklyRule'
@@ -477,7 +555,7 @@ module DataCycleCore
           end
 
           transform_data_for_data_hash(s.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }).merge(id: s['id'])
-        }.compact
+        end
       end
 
       def to_h_from_opening_time_params(value)
@@ -501,7 +579,7 @@ module DataCycleCore
             if s['valid_until'].present? && ((s['holiday'] == 'true' && (0...7).to_a.difference(days).present?) || s['holiday'] == 'false')
               holidays = Holidays
                 .between(start_time, s['valid_until'].in_time_zone.end_of_day, Array.wrap(DataCycleCore.holidays_country_code))
-                .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+                .map { |d| { time: "#{d[:date]} #{start_time.to_fs(:time)}".in_time_zone, zone: start_time.time_zone.name } }
             end
 
             transform_data_for_data_hash({
@@ -537,16 +615,16 @@ module DataCycleCore
       # for time only
       def time_to_duration(start_time, end_time)
         return 0 if start_time.blank? || end_time.blank?
-        start_time = start_time.to_datetime
+        start_time = start_time.in_time_zone
         if end_time > '24:00:00'
           et = end_time.split(':')
           et[0] = (et[0].to_i - 24).to_s
           end_time = et.join(':')
         end
-        end_time = end_time.to_datetime
+        end_time = end_time.in_time_zone
         end_time += 1.day if end_time < start_time
 
-        ((end_time - start_time) * 24 * 60 * 60)
+        end_time - start_time
       end
 
       def parts_to_iso8601_duration(duration_hash)
@@ -638,7 +716,7 @@ module DataCycleCore
           duration = parts_to_iso8601_duration(data)
           duration.zero? ? nil : duration.iso8601
         elsif data.is_a?(Numeric) && data.positive?
-          ActiveSupport::Duration.build(data).iso8601
+          ActiveSupport::Duration.build(data.to_i).iso8601
         elsif data.is_a?(String) && data != 'PT0S'
           duration = ActiveSupport::Duration.parse(data)
           duration.zero? ? nil : duration.iso8601
@@ -814,7 +892,12 @@ module DataCycleCore
       range_start = range_start.to_date
       range_end = range_end.to_date
 
-      ActiveRecord::Base.connection.execute(schedule_occurrences_sql(range_start:, range_end:))
+      ActiveRecord::Base.transaction do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+        ActiveRecord::Base.connection.exec_query(schedule_occurrences_sql(range_start:, range_end:))
+
+        unscoped.where.not(rrule: nil).update_all('rrule = rrule')
+      end
     end
 
     def self.schedule_occurrences_sql(range_start:, range_end:)
@@ -896,16 +979,12 @@ module DataCycleCore
         END;
 
         $$;
-
-        UPDATE schedules
-        SET rrule = rrule
-        WHERE rrule IS NOT NULL;
       SQL
 
       ActiveRecord::Base.send(:sanitize_sql_array, [
                                 sql,
-                                range_start:,
-                                range_end:
+                                {range_start:,
+                                 range_end:}
                               ])
     end
   end

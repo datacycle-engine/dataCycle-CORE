@@ -43,7 +43,7 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert_equal(@content.name, response.parsed_body.dig('headline'))
+                assert_equal(@content.name, response.parsed_body['headline'])
               end
 
               test 'enable json serializer and test downloads controller' do
@@ -56,7 +56,7 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert_equal(@content.name, response.parsed_body.dig('headline'))
+                assert_equal(@content.name, response.parsed_body['headline'])
               end
 
               def teardown

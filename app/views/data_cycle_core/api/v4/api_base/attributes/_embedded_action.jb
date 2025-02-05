@@ -2,7 +2,7 @@
 
 json ||= {}
 data = load_embedded_object(content, key, options[:languages], definition)
-translatable_embedded = content.properties_for(key).dig('translated') || false
+translatable_embedded = content.properties_for(key)['translated'] || false
 
 if data.present?
   api_property_definition = api_definition(definition)
@@ -12,7 +12,7 @@ if data.present?
   new_fields = subtree_for(key_new, options[:fields])
   new_include = subtree_for(key_new, options[:include])
 
-  json[key_new] = data.map { |item|
+  json[key_new] = data.filter_map { |item|
     if new_fields.present?
       Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
         render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: options[:field_filter], translatable_embedded: }, options)
@@ -22,7 +22,7 @@ if data.present?
         render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: false, translatable_embedded: }, options)
       end
     end
-  }.compact.presence
+  }.presence
   json[key_new]&.each { |h| h['@type'] = h['@type'].split('/').last }
   json.delete(key_new) if json[key_new]&.map { |h| h.except('@id') }.blank?
 end

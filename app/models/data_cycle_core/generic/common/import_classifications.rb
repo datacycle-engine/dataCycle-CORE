@@ -8,36 +8,33 @@ module DataCycleCore
           utility_object, tree_name, load_root_classifications, load_child_classifications,
           load_parent_classification_alias, extract_data, options
         )
-
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
           with_filters = options.dig(:import, :with_filters) || false
 
           external_source_id = utility_object.external_source.id
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              importer_name = options.dig(:import, :name)
-              phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
-
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
                   item_count = 0
+                  step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                   begin
-                    logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
-
-                    if with_filters
-                      source_filter = options&.dig(:import, :source_filter) || {}
-                      source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
-                      source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
-                    end
-
+                    logging.phase_started(step_label)
                     times = [Time.current]
 
                     utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                      filter_object = Import::FilterObject.new(nil, locale, mongo_item, binding)
+                      if with_filters
+                        filter_object.source_filter = options&.dig(:import, :source_filter)
+                        filter_object = filter_object.without_deleted.without_archived
+                      end
+
                       raw_classification_data_stack =
-                        if with_filters
-                          load_root_classifications.call(mongo_item, locale, options, source_filter).to_a
+                        if with_filters && !filter_object?(load_root_classifications)
+                          load_root_classifications.call(mongo_item, locale, options, filter_object.legacy_source_filter).to_a
+                        elsif filter_object?(load_root_classifications)
+                          load_root_classifications.call(filter_object:, options:).to_a
                         else
                           load_root_classifications.call(mongo_item, locale, options).to_a
                         end
@@ -55,8 +52,10 @@ module DataCycleCore
                         )
 
                         raw_classification_data_stack +=
-                          if with_filters
-                            load_child_classifications.call(mongo_item, raw_classification_data, locale, source_filter).to_a
+                          if with_filters && !filter_object?(load_child_classifications)
+                            load_child_classifications.call(mongo_item, raw_classification_data, locale, filter_object.legacy_source_filter).to_a
+                          elsif filter_object?(load_child_classifications)
+                            load_child_classifications.call(filter_object:, data: raw_classification_data).to_a
                           else
                             load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
                           end
@@ -70,17 +69,17 @@ module DataCycleCore
 
                         if (item_count % 100).zero?
                           times << Time.current
-                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                          logging.phase_partial(step_label, item_count, times)
                         end
 
                         break if options[:max_count] && item_count >= options[:max_count]
                       end
 
                       times << Time.current
-                      logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                      logging.phase_partial(step_label, item_count, times)
                     end
                   ensure
-                    logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
+                    logging.phase_finished(step_label, item_count)
                   end
                 end
               end
@@ -92,22 +91,18 @@ module DataCycleCore
           utility_object, tree_name, load_root_classifications, load_parent_classification_alias,
           extract_parent_data, extract_child_data, options
         )
-
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
 
           external_source_id = utility_object.external_source.id
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              importer_name = options.dig(:import, :name)
-              phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
-
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
                   item_count = 0
+                  step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
                   begin
-                    logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+                    logging.phase_started(step_label)
 
                     utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                       root_classifications = load_root_classifications.call(mongo_item, locale, options).to_a
@@ -143,7 +138,7 @@ module DataCycleCore
                       end
                     end
                   ensure
-                    logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
+                    logging.phase_finished(step_label, item_count)
                   end
                 end
               end
@@ -169,14 +164,16 @@ module DataCycleCore
             init_mongo_db(utility_object) do
               importer_name = options.dig(:import, :name)
               phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
 
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
-                  logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+                  step_label = utility_object.step_label(options.merge({ locales: [locale] }))
+                  logging.phase_started(step_label)
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     classification_processing.call(mongo_item, logging, utility_object, locale, tree_name, options.merge({ importer_name:, phase_name: }))
                   end
+                ensure
+                  logging.phase_finished(step_label)
                 end
               end
             end
@@ -184,12 +181,14 @@ module DataCycleCore
         end
 
         def import_classification(utility_object:, classification_data:, parent_classification_alias: nil)
-          return nil if classification_data[:name].blank?
+          return if classification_data[:name].blank?
 
           external_source_id = utility_object.external_source.id
           external_source_id = nil if utility_object.options.dig('import', 'no_external_source_id')
 
           ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+            ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
             if classification_data[:external_key].blank?
               classification = DataCycleCore::Classification
                 .find_or_initialize_by(
@@ -245,6 +244,7 @@ module DataCycleCore
               classification_tree = primary_classification_alias.classification_tree
 
               classification_tree.parent_classification_alias = primary_classification_alias.id == parent_classification_alias&.id ? nil : parent_classification_alias
+              classification_tree.classification_tree_label = parent_classification_alias.classification_tree_label unless parent_classification_alias.nil?
               classification_tree.save!
 
               classification_alias = primary_classification_alias

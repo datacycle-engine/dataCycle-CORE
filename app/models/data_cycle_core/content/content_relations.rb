@@ -56,7 +56,7 @@ module DataCycleCore
           belongs_to :parent, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :children, touch: false
           has_many :children, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
 
-          has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
+          has_many :watch_list_data_hashes, inverse_of: :thing, dependent: :destroy
           has_many :watch_lists, through: :watch_list_data_hashes
 
           has_many :subscriptions, as: :subscribable, dependent: :destroy
@@ -121,7 +121,7 @@ module DataCycleCore
 
         sub_queries = []
         sub_queries << data_links.thing_links.where(item_id: id).select(:id).reorder(nil).to_sql
-        sub_queries << data_links.joins(watch_list: :watch_list_data_hashes).where(watch_list_data_hashes: { hashable_id: id }).select(:id).reorder(nil).to_sql
+        sub_queries << data_links.joins(watch_list: :watch_list_data_hashes).where(watch_list_data_hashes: { thing_id: id }).select(:id).reorder(nil).to_sql
 
         DataLink.where("#{DataLink.table_name}.id IN (#{DataLink.send(:sanitize_sql_array, [sub_queries.join(' UNION ')])})").exists?
       end
@@ -135,14 +135,6 @@ module DataCycleCore
         else
           classification_aliases.includes(:classification_alias_path).in_context(context)
         end
-      end
-
-      def full_classification_aliases
-        full_ccc = collected_classification_contents.to_a
-        ActiveRecord::Associations::Preloader.new.preload(collected_classification_contents, classification_alias: [:classification_alias_path, :classification_tree_label])
-        full_ccc.reject! { |ccc| !ccc.direct && full_ccc.any? { |ccc2| ccc2.id != ccc.id && ccc2.classification_alias.full_path.include?(ccc.classification_alias.full_path) } }
-
-        DataCycleCore::ClassificationAlias.where(id: full_ccc.pluck(:classification_alias_id)).tap { |rel| rel.send(:load_records, full_ccc.flat_map(&:classification_alias)) }
       end
 
       def assigned_classification_aliases
@@ -205,8 +197,8 @@ module DataCycleCore
 
         query = self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                               tree_query,
-                                                                                              id:,
-                                                                                              content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                              {id:,
+                                                                                               content_type_embedded: CONTENT_TYPE_EMBEDDED}
                                                                                             ])})")
         query = query.where.not(content_type: CONTENT_TYPE_EMBEDDED) unless embedded
         query
@@ -237,7 +229,7 @@ module DataCycleCore
 
         self.class
           .where.not(content_type: 'embedded')
-          .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id:])})")
+          .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, {id:}])})")
       end
 
       def linked_contents
@@ -262,8 +254,8 @@ module DataCycleCore
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                       tree_query,
-                                                                                      id:,
-                                                                                      content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                      {id:,
+                                                                                       content_type_embedded: CONTENT_TYPE_EMBEDDED}
                                                                                     ])})")
       end
 
@@ -288,8 +280,8 @@ module DataCycleCore
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                       tree_query,
-                                                                                      id:,
-                                                                                      content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                      {id:,
+                                                                                       content_type_embedded: CONTENT_TYPE_EMBEDDED}
                                                                                     ])})")
       end
 
@@ -313,7 +305,7 @@ module DataCycleCore
           SELECT DISTINCT paths.content_a_id FROM paths
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id:, depth: DataCycleCore.cache_invalidation_depth])})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, {id:, depth: DataCycleCore.cache_invalidation_depth}])})")
       end
 
       private

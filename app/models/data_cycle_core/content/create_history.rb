@@ -6,7 +6,7 @@ module DataCycleCore
       def to_history(delete: false, all_translations: false)
         return if embedded?
 
-        ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.connection.exec_query(
           ActiveRecord::Base.send(
             :sanitize_sql_array,
             [

@@ -41,7 +41,7 @@
     <% else %>
       <%= select_tag(
           "f[#{identifier}][v]",
-          simple_classification_select_options(@selected_classification_aliases&.values_at(*value), classification_items.preload(:classification_polygons), DataCycleCore::ClassificationAlias, ->(ca){ ca.classification_polygons.none? }),
+          simple_classification_select_options(@selected_classification_aliases&.values_at(*value), classification_items.where.associated(:classification_polygons), DataCycleCore::ClassificationAlias),
           {
             multiple: true,
             class: 'multi-select',

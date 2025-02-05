@@ -46,6 +46,9 @@ class SimpleSelect2 extends BasicSelect2 {
 		return "";
 	}
 	matcher(params, data) {
+		// hide disabled entries
+		if (data.disabled) return null;
+
 		if (params.term === undefined || !params.term.trim().length) {
 			return data;
 		}

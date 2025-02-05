@@ -12,7 +12,7 @@
     <%= f.text_field :name, class: 'ca-input-field', disabled: !can?(:update, classification_tree_label), required: true %>
   </div>
 
-  <% if current_user&.is_role?('super_admin') %>
+  <% if can?(:update_internal, classification_tree_label) %>
     <div class="ca-input checkbox">
       <span class="dc-checkbox">
         <%= f.check_box :internal %>
@@ -44,7 +44,7 @@
     </div>
   </div>
 
-  <% if current_user&.is_role?('super_admin') %>
+  <% if can?(:update_change_behaviour, classification_tree_label) %>
     <div class="ca-input">
       <div class="ca-collection-checkboxes">
         <%= f.label :change_behaviour %>
@@ -64,6 +64,13 @@
           </span>
         <% end %>
       </div>
+    </div>
+  <% end %>
+
+  <% if classification_tree_label.persisted? && can?(:view_all, classification_tree_label) %>
+    <div class="ca-input">
+      <%= f.label :external_key, class: 'ca-label'%>
+      <%= f.text_field :external_key, class: 'ca-input-field', disabled: true %>
     </div>
   <% end %>
 

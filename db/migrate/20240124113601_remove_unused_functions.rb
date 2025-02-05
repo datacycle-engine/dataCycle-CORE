@@ -16,4 +16,7 @@ class RemoveUnusedFunctions < ActiveRecord::Migration[6.1]
     add_foreign_key :things, :thing_templates, column: :template_name, primary_key: :template_name, on_delete: :cascade, on_update: :cascade
     add_foreign_key :thing_histories, :thing_templates, column: :template_name, primary_key: :template_name, on_delete: :cascade, on_update: :cascade
   end
+
+  def down
+  end
 end

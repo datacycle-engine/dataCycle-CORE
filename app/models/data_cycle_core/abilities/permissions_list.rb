@@ -10,6 +10,7 @@ module DataCycleCore
       include Permissions::Roles::Standard
       include Permissions::Roles::Admin
       include Permissions::Roles::SuperAdmin
+      include Permissions::Roles::UserGroups
 
       def self.list
         unless defined? @list
@@ -40,6 +41,7 @@ module DataCycleCore
         load_standard_permissions
         load_admin_permissions
         load_super_admin_permissions
+        load_permissions_for_user_groups if DataCycleCore::Feature::UserGroupPermission.enabled?
       end
 
       def permit(condition, *actions, definition)
@@ -81,6 +83,13 @@ module DataCycleCore
         permit(segment(:UsersByUserGroup).new(group_name, roles), *, definition_to_segment(definition))
       end
 
+      def permit_user_group_by_permission_key(permission_key, roles, *actions, definition)
+        raise 'missing permission_key in permission' if permission_key.blank?
+        raise 'missing roles in permission' if roles.blank?
+
+        permit(segment(:UsersByUserGroupPermission).new(permission_key, roles), *actions, definition_to_segment(definition))
+      end
+
       def permit_user_group_with_api_token(group_name, roles, *, definition)
         raise 'missing user_group name in permission' if group_name.blank?
         raise 'missing roles in permission' if roles.blank?
@@ -94,9 +103,10 @@ module DataCycleCore
         DataCycleCore.permissions.dig(:roles, permissions)&.each_value do |permission|
           next if permission.blank?
           parameters = parse_parameters_from_yaml(permission[:parameters])
+          condition_segment = condition_to_segment(role, permission)
 
           permit(
-            segment(:UsersByRole).new(role),
+            condition_segment,
             *Array.wrap(permission[:actions]).map(&:to_sym),
             definition_to_segment({ permission[:segment].to_sym => Array.wrap(parameters) })
           )
@@ -106,7 +116,7 @@ module DataCycleCore
       def permit_user_groups_from_yaml(role)
         raise 'missing roles in permission' if role.blank?
 
-        DataCycleCore.permissions.dig(:user_groups)&.each do |group_name, permissions|
+        DataCycleCore.permissions[:user_groups]&.each do |group_name, permissions|
           raise 'missing user_group name in permission' if group_name.blank?
 
           permissions&.each_value do |permission|
@@ -122,12 +132,17 @@ module DataCycleCore
         end
       end
 
+      def self.parse_parameters_from_yaml(parameters)
+        new.parse_parameters_from_yaml(parameters)
+      end
+
       def parse_parameters_from_yaml(parameters)
-        if parameters.is_a?(::Array)
+        case parameters
+        when ::Array
           parameters.map { |v| parse_parameters_from_yaml(v) }
-        elsif parameters.is_a?(::String)
+        when ::String
           parameters.safe_constantize || parameters
-        elsif parameters.is_a?(::Hash)
+        when ::Hash
           parameters.transform_values { |v| parse_parameters_from_yaml(v) }
         else
           parameters
@@ -225,6 +240,16 @@ module DataCycleCore
 
           ability.send(*parameters, &definition.to_proc)
         end
+      end
+
+      private
+
+      def condition_to_segment(role, permission)
+        segment_name = permission.dig(:condition, :segment).presence || :UsersByRole
+        parameters = Array.wrap(parse_parameters_from_yaml(permission.dig(:condition, :parameters)))
+        parameters.unshift(role) if segment_name.to_s.include?('Role')
+
+        segment(segment_name).new(*parameters)
       end
     end
   end

@@ -5,5 +5,6 @@ module DataCycleCore
     self.abstract_class = true
 
     include Common::ByOrderedValues
+    include Common::UiExtensions
   end
 end

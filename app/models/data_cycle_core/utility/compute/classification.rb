@@ -8,11 +8,11 @@ module DataCycleCore
 
         class << self
           def keywords(computed_parameters:, **_args)
-            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.reject(&:blank?)).map(&:name).join(',').presence
+            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.compact_blank).map(&:name).join(',').presence
           end
 
           def description(computed_parameters:, **_args)
-            classification_ids = computed_parameters.values.flatten.reject(&:blank?)
+            classification_ids = computed_parameters.values.flatten.compact_blank
 
             return if classification_ids.blank?
 
@@ -57,10 +57,10 @@ module DataCycleCore
             return if values.empty?
 
             values.map { |value|
-              get_ids_from_geometry(tree_label: computed_definition.dig('tree_label'), geometry: value.to_s)
+              get_ids_from_geometry(tree_label: computed_definition['tree_label'], geometry: value.to_s)
             }.flatten
-            .compact_blank
-            .uniq
+              .compact_blank
+              .uniq
           end
 
           def copy_from_path(computed_parameters:, computed_definition:, **_args)
@@ -72,7 +72,7 @@ module DataCycleCore
           def from_embedded(computed_parameters:, computed_definition:, **_args)
             Array.wrap(computed_definition.dig('compute', 'parameters')&.map do |path|
               key_path = path.split('.')
-              get_values_from_embedded(key_path.drop(1), computed_parameters.dig(key_path.first))
+              get_values_from_embedded(key_path.drop(1), computed_parameters[key_path.first])
             end).flatten.compact_blank.uniq
           end
 
@@ -104,13 +104,44 @@ module DataCycleCore
               ORDER BY filtered_classifications.classification_id
             SQL
 
-            ActiveRecord::Base.connection.execute(
+            ActiveRecord::Base.connection.select_all(
               ActiveRecord::Base.send(:sanitize_sql_array, [
                                         query_sql,
-                                        tree_label:,
-                                        geo: geometry
+                                        {tree_label:,
+                                         geo: geometry}
                                       ])
-            ).values.flatten
+            ).rows.flatten
+          end
+
+          # example config:
+          # :compute:
+          # :module: Classification
+          # :method: by_concept_scheme_and_mapping
+          # :key: external_key
+          # :concept_scheme: Öffnungsstatus
+          # :source_concept_scheme: ODTA - Tourenstatus
+          # :mapping:
+          #   open: Open
+          #   closed: Closed
+          #   temporarily closed: Closed
+          #   closed off: Closed
+          # :parameters:
+          #   - odta_trail_status
+          def by_concept_scheme_and_mapping(computed_parameters:, computed_definition:, **_args)
+            ids = computed_parameters.values.flatten.compact_blank
+
+            return if ids.blank?
+
+            source_concepts = DataCycleCore::Concept.where(classification_id: ids)
+            source_concepts = source_concepts.for_tree(computed_definition.dig('compute', 'source_concept_scheme')) if computed_definition.dig('compute', 'source_concept_scheme').present?
+            mapping = computed_definition.dig('compute', 'mapping').to_h
+            key = computed_definition.dig('compute', 'key').presence || 'internal_name'
+            source_concepts = source_concepts.pluck(key.to_sym)
+            concepts = DataCycleCore::Concept.for_tree(computed_definition.dig('compute', 'concept_scheme')).to_h { |c| [c.send(key), c.classification_id] }
+
+            source_concepts.filter_map do |source_concept|
+              concepts[mapping[source_concept] || source_concept]
+            end
           end
 
           private
@@ -121,10 +152,10 @@ module DataCycleCore
             if values.is_a?(::Hash)
               key = key_path.first
 
-              if values.key?(key) || values.dig('datahash')&.key?(key) || values.dig('translations', I18n.locale.to_s)&.key?(key)
-                value = values.dig(key) || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
+              if values.key?(key) || values['datahash']&.key?(key) || values.dig('translations', I18n.locale.to_s)&.key?(key)
+                value = values[key] || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
               else
-                id = values.dig('id') || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
+                id = values['id'] || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
                 item = DataCycleCore::Thing.find_by(id:)
                 value = item.respond_to?(key) ? item.attribute_to_h(key) : nil
               end

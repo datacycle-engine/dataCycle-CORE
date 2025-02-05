@@ -49,26 +49,26 @@ namespace :data_cycle_core do
 
   namespace :reports do
     desc 'send download report via email'
-    task :send_report, [:recipient, :report_identifier, :format] => [:environment] do |_, args|
-      recipient = args.fetch(:recipient, nil)
-      unless recipient
+    task :send_report, [:recipients, :report_identifier, :format] => [:environment] do |_, args|
+      recipients = args.fetch(:recipients, nil)&.split('|')
+      unless recipients
         puts 'Recipient is required!'
         exit(-1)
       end
       DataCycleCore::ReportMailer.notify(
         args.fetch(:report_identifier, 'downloads_popular'),
         args.fetch(:format, 'xlsx'),
-        recipient
+        recipients
       ).deliver_now
     end
     desc 'send monthly download report from the last month via email'
-    task :send_monthly_report, [:recipient, :report_identifier, :format] => [:environment] do |_, args|
-      recipient = args.fetch(:recipient, nil)
-      unless recipient
+    task :send_monthly_report, [:recipients, :report_identifier, :format] => [:environment] do |_, args|
+      recipients = args.fetch(:recipients, nil)&.split('|')
+      unless recipients
         puts 'Recipient is required!'
         exit(-1)
       end
-      last_month = Time.zone.now - 1.month
+      last_month = 1.month.ago
       params = {
         by_month: last_month.month,
         by_year: last_month.year
@@ -77,7 +77,7 @@ namespace :data_cycle_core do
       DataCycleCore::ReportMailer.notify(
         args.fetch(:report_identifier, 'downloads_popular'),
         args.fetch(:format, 'xlsx'),
-        recipient,
+        recipients,
         params
       ).deliver_now
     end

@@ -18,7 +18,7 @@
       </section>
       <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
     </section>
-    <% dzt_data = content.external_system_syncs.find_by(external_system: DataCycleCore::ExternalSystem.find_by("identifier = 'dzt' OR identifier ILIKE 'onlim%' OR identifier ILIKE 'dzt%'")) %>
+    <% dzt_data = content.external_system_syncs.joins(:external_system).find_by("external_systems.identifier = 'dzt' OR external_systems.identifier ILIKE 'onlim%' OR external_systems.identifier ILIKE 'dzt%'") %>
     <% if dzt_data&.try(:data)&.dig('data_send').present? %>
       <section id="data-send" class="tabs-panel">
         <section class="data-send-nav">

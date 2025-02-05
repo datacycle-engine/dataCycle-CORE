@@ -3,7 +3,7 @@
   <div class="inner">
 
     <div class="infoRow">
-      <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+      <%= render 'data_cycle_core/shared/icon', icon_class: item.icon_class %>
       <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %></span>
     </div>
 

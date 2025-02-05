@@ -15,7 +15,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path
 
             json_data = response.parsed_body
-            json_context = json_data.dig('@context')
+            json_context = json_data['@context']
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
@@ -30,11 +30,11 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
 
             json_data = response.parsed_body
-            json_context = json_data.dig('@context')
+            json_context = json_data['@context']
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -45,11 +45,11 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
 
             json_data = response.parsed_body
-            json_context = json_data.dig('@context')
+            json_context = json_data['@context']
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -60,11 +60,11 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
 
             json_data = response.parsed_body
-            json_context = json_data.dig('@context')
+            json_context = json_data['@context']
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -75,11 +75,11 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
 
             json_data = response.parsed_body
-            json_context = json_data.dig('@context')
+            json_context = json_data['@context']
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -88,11 +88,11 @@ module DataCycleCore
             post api_v4_things_path(params)
 
             json_data = response.parsed_body
-            json_context = json_data.dig('@context')
+            json_context = json_data['@context']
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -103,11 +103,11 @@ module DataCycleCore
             post api_v4_things_path(params)
 
             json_data = response.parsed_body
-            json_context = json_data.dig('@context')
+            json_context = json_data['@context']
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -116,11 +116,11 @@ module DataCycleCore
             post api_v4_contents_deleted_path(params)
 
             json_data = response.parsed_body
-            json_context = json_data.dig('@context')
+            json_context = json_data['@context']
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
         end

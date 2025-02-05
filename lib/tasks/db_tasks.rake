@@ -15,6 +15,7 @@ namespace :db do
       ActiveRecord::Migrator.migrations_paths.concat(data_paths)
 
       Rake::Task['db:migrate'].invoke
+      Rake::Task['db:migrate'].reenable
     end
 
     desc 'check before migrations'
@@ -81,11 +82,13 @@ namespace :db do
       options = []
       options << 'FULL' if full
       options << 'ANALYZE'
-      sql = "VACUUM (#{options.join(', ')}) #{table_names}".squish + ';'
-      visibility_sql = "VACUUM (ANALYZE) #{table_names}".squish + ';'
+      sql = "#{"VACUUM (#{options.join(', ')}) #{table_names}".squish};"
+      visibility_sql = "#{"VACUUM (ANALYZE) #{table_names}".squish};"
 
-      ActiveRecord::Base.connection.execute(sql)
-      ActiveRecord::Base.connection.execute(visibility_sql) if full # fix visibility tables
+      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 0;')
+      ActiveRecord::Base.connection.exec_query(sql)
+      ActiveRecord::Base.connection.exec_query(visibility_sql) if full # fix visibility tables
+      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 60000;')
     end
 
     desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
@@ -101,6 +104,7 @@ namespace :db do
       function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'upsert_ca_paths_transitive' : 'upsert_ca_paths'
 
       ActiveRecord::Base.connection.execute <<-SQL.squish
+        SET LOCAL statement_timeout = 0;
         SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM concepts;
       SQL
 
@@ -208,7 +212,7 @@ namespace :db do
           end
         else
           puts "Too many files match the pattern '#{pattern}':"
-          puts ' ' + files.join("\n ")
+          puts " #{files.join("\n ")}"
           puts ''
           puts 'Try a more specific pattern'
           puts ''
@@ -217,8 +221,11 @@ namespace :db do
       unless cmd.nil?
         ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
         Rake::Task['db:clear_connections'].invoke
+        Rake::Task['db:clear_connections'].reenable
         Rake::Task['db:drop'].invoke
+        Rake::Task['db:drop'].reenable
         Rake::Task['db:create'].invoke
+        Rake::Task['db:create'].reenable
         puts cmd
         system cmd
         Rake::Task['db:maintenance:vacuum'].invoke
@@ -238,8 +245,9 @@ namespace :db do
     environments = [Rails.env]
     environments.unshift('test') if Rails.env.development?
 
-    ActiveRecord::Base.configurations.to_h.slice(*environments).each_value do |db|
+    Rails.application.config.database_configuration.slice(*environments).each_value do |db|
       ActiveRecord::Base.establish_connection(db)
+      ActiveRecord::Base.connection.exec_query "UPDATE pg_catalog.pg_database SET datallowconn=false WHERE datname='#{db['database']}'"
       ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{db['database']}' AND pid <> pg_backend_pid();"
     rescue ActiveRecord::NoDatabaseError => e
       puts e.try(:message)

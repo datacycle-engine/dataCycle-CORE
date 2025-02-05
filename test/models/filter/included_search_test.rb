@@ -37,13 +37,13 @@ module DataCycleCore
 
       stored_search = DataCycleCore::Search.where(self_contained: true).first
 
-      assert_includes(stored_search.advanced_attributes.dig('float_main'), content.float_main)
-      assert_includes(stored_search.advanced_attributes.dig('validity_period.valid_until'), content.validity_period.valid_until.as_json)
-      assert_includes(stored_search.advanced_attributes.dig('validity_period.valid_until'), content.validity_period.valid_until.as_json)
+      assert_includes(stored_search.advanced_attributes['float_main'], content.float_main)
+      assert_includes(stored_search.advanced_attributes['validity_period.valid_until'], content.validity_period.valid_until.as_json)
+      assert_includes(stored_search.advanced_attributes['validity_period.valid_until'], content.validity_period.valid_until.as_json)
       content.embedded_search.each do |embedded_search|
-        assert_includes(stored_search.advanced_attributes.dig('float_main'), embedded_search.float_main)
-        assert_includes(stored_search.advanced_attributes.dig('validity_period.valid_until'), content.validity_period.valid_until.as_json)
-        assert_includes(stored_search.advanced_attributes.dig('validity_period.valid_until'), content.validity_period.valid_until.as_json)
+        assert_includes(stored_search.advanced_attributes['float_main'], embedded_search.float_main)
+        assert_includes(stored_search.advanced_attributes['validity_period.valid_until'], content.validity_period.valid_until.as_json)
+        assert_includes(stored_search.advanced_attributes['validity_period.valid_until'], content.validity_period.valid_until.as_json)
       end
     end
   end

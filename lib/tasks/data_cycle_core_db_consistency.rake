@@ -8,12 +8,12 @@ namespace :data_cycle_core do
     task consistency: :environment do
       # check classification_contents
       DbHelper.status_relation(
-        DataCycleCore::ClassificationContent.left_joins(:classification).where('classifications.id IS NULL').count,
+        DataCycleCore::ClassificationContent.where.missing(:classification).count,
         'ClassificationContent',
         'classification_id'
       )
       DbHelper.status_relation(
-        DataCycleCore::ClassificationContent.left_joins(:content_data).where('things.id IS NULL').count,
+        DataCycleCore::ClassificationContent.left_joins(:content_data).where(things: { id: nil }).count,
         'ClassificationContent',
         'classification_id'
       )
@@ -38,12 +38,12 @@ namespace :data_cycle_core do
         'content_b_id IS NULL'
       )
       DbHelper.status_relation(
-        DataCycleCore::ContentContent.left_joins(:content_a).where('things.id IS NULL').count,
+        DataCycleCore::ContentContent.left_joins(:content_a).where(things: { id: nil }).count,
         'ContentContent',
         'content_a_id'
       )
       DbHelper.status_relation(
-        DataCycleCore::ContentContent.left_joins(:content_b).where('things.id IS NULL').count,
+        DataCycleCore::ContentContent.left_joins(:content_b).where(things: { id: nil }).count,
         'ContentContent',
         'content_b_id'
       )
@@ -58,7 +58,7 @@ namespace :data_cycle_core do
         'external_source_id valid'
       )
       DbHelper.status_relation(
-        DataCycleCore::ExternalSystemSync.joins("LEFT JOIN things ON things.id = external_system_syncs.syncable_id AND external_system_syncs.syncable_type = 'DataCycleCore::Thing'").where('things.id IS NULL').count,
+        DataCycleCore::ExternalSystemSync.joins("LEFT JOIN things ON things.id = external_system_syncs.syncable_id AND external_system_syncs.syncable_type = 'DataCycleCore::Thing'").where(things: { id: nil }).count,
         'ExternalSystemSync',
         'syncable_id (things)'
       )

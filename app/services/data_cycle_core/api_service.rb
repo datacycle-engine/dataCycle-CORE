@@ -4,7 +4,7 @@ module DataCycleCore
   module ApiService
     API_SCHEDULE_ATTRIBUTES = [:eventSchedule, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule, :hoursAvailable, :validitySchedule].freeze
     API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created'].freeze
-    API_NUMERIC_ATTRIBUTES = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople, :totalNumberOfBeds, :internalContentScore].freeze
+    API_NUMERIC_ATTRIBUTES = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople, :totalNumberOfBeds, :internalContentScore, :'dcls:meetingRoomMaxCapacity', :'dcls:numberOfMeetingRooms', :length, :'dc:length', :duration, :'dc:duration'].freeze
 
     def list_api_request(contents = nil)
       contents ||= @contents
@@ -48,7 +48,7 @@ module DataCycleCore
 
       return search if search.none? || query.content_ids(parameters[:content_id]).query.exists?
 
-      related_content_ids = search.first.cached_related_contents.ids
+      related_content_ids = search.first.cached_related_contents.pluck(:id)
 
       return new_thing_search(@language, nil) if related_content_ids.blank?
 
@@ -87,7 +87,7 @@ module DataCycleCore
         filter_prefix = operator == :notIn ? 'not_' : ''
         filter&.each do |k, v|
           param_to_classifications(v).each do |classifications|
-            query = query.send("#{filter_prefix}classification_alias_ids_#{k.to_s.underscore}", classifications)
+            query = query.send(:"#{filter_prefix}classification_alias_ids_#{k.to_s.underscore}", classifications)
           end
         end
       end
@@ -97,7 +97,7 @@ module DataCycleCore
     def apply_creator_filters(query, filters)
       query_method = 'creator'
       filters.each do |operator, values|
-        query_method = 'not_' + query_method if operator == :notIn
+        query_method = "not_#{query_method}" if operator == :notIn
         next unless query.respond_to?(query_method)
         values.each do |v|
           query = query.send(query_method, v.split(','))
@@ -146,7 +146,7 @@ module DataCycleCore
         attribute_path = attribute_path_mapping(attribute_key)
         operator.each do |k, v|
           query_method = query_method_mapping(attribute_key, v)
-          query_method = 'not_' + query_method if k == :notIn
+          query_method = "not_#{query_method}" if k == :notIn
           next unless query.respond_to?(query_method)
 
           v = transform_values_for_query(v, attribute_key)
@@ -184,7 +184,7 @@ module DataCycleCore
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
-          filter_method_name = ('apply_' + filter_k.to_s.underscore_blanks + '_filters')
+          filter_method_name = "apply_#{filter_k.to_s.underscore_blanks}_filters"
           next unless respond_to?(filter_method_name)
           union_query = send(filter_method_name, union_query, filter_v)
         end
@@ -192,8 +192,7 @@ module DataCycleCore
         all_filters += [union_query]
       end
 
-      query = query.union_filter(all_filters)
-      query
+      query.union_filter(all_filters)
     end
 
     def apply_content_id_filters(query, filters)
@@ -218,7 +217,7 @@ module DataCycleCore
 
     def apply_union_filter_methods(query, filters, query_method)
       filters.each do |operator, values|
-        query_method = 'not_' + query_method if operator == :notIn
+        query_method = "not_#{query_method}" if operator == :notIn
         next unless query.respond_to?(query_method)
         values.each do |v|
           query = query.send(query_method, v.split(','))
@@ -228,7 +227,7 @@ module DataCycleCore
     end
 
     def transform_values_for_query(value, key)
-      return { 'from' => value.dig(:min), 'until' => value.dig(:max) } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
+      return { 'from' => value[:min], 'until' => value[:max] } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
       return { 'text' => value.values.first } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'string' && value&.values&.first.present?
       value
     end
@@ -246,7 +245,7 @@ module DataCycleCore
     end
 
     def advanced_attribute_filter?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present? ||
+      DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present? ||
         API_NUMERIC_ATTRIBUTES.include?(key)
     end
 
@@ -272,7 +271,7 @@ module DataCycleCore
       elsif attribute_key.in?(API_SCHEDULE_ATTRIBUTES)
         'absolute'
       else
-        attribute_key.to_s.underscore
+        attribute_key.to_s.underscore.tr(':', '_')
       end
     end
 
@@ -371,7 +370,7 @@ module DataCycleCore
       raise 'API Bad Request Error' unless unpermitted_params.is_a?(Hash)
 
       validation_params = unpermitted_params&.deep_symbolize_keys
-      linked_params = validation_params.delete(:linked) if validation_params.dig(:linked).present?
+      linked_params = validation_params.delete(:linked) if validation_params[:linked].present?
 
       validation = validator.call(validation_params)
       validation_errors = validation.errors.to_h.present? ? api_errors(validation.errors) : []
@@ -384,7 +383,7 @@ module DataCycleCore
 
     # only used for classifications + deleted things endpoint
     def apply_timestamp_query_string(values, attribute_path)
-      date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
+      date_range = "[#{date_from_single_value(values[:min])&.beginning_of_day},#{date_from_single_value(values[:max])&.end_of_day}]"
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
@@ -393,8 +392,8 @@ module DataCycleCore
     end
 
     def self.order_value_from_params(key, full_text_search, raw_query_params)
-      schedule_order_params = order_constraints.dig(key)&.map { |c| raw_query_params.dig(*c) }&.compact
-      return schedule_order_params if schedule_order_params.present? && ['proximity.occurrence_with_distance', 'proximity.in_occurrence_with_distance'].include?(key)
+      schedule_order_params = order_constraints[key]&.filter_map { |c| raw_query_params.dig(*c) }
+      return schedule_order_params if schedule_order_params.present? && ['proximity.occurrence_with_distance', 'proximity.in_occurrence_with_distance', 'proximity.in_occurrence_with_distance_pia'].include?(key)
       return schedule_order_params.first if schedule_order_params.present?
       full_text_search if key == 'similarity' && full_text_search.present?
     end
@@ -421,6 +420,10 @@ module DataCycleCore
         'proximity.in_occurrence_with_distance' => [
           ['filter', 'geo', 'in', 'perimeter'],
           *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
+        ],
+        'proximity.in_occurrence_with_distance_pia' => [
+          ['filter', 'geo', 'in', 'perimeter'],
+          *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
         ]
       }
     end
@@ -444,14 +447,18 @@ module DataCycleCore
     end
 
     def self.allowed_thread_count
-      (ActiveRecord::Base.connection_pool.size / (Rails.application.secrets.dig(:puma_max_threads) || 5)).to_i
+      (ActiveRecord::Base.connection_pool.size / (ENV['PUMA_MAX_THREADS'] || 5)).to_i
     end
 
     private
 
     def new_thing_search(language, ids, embedded = false)
       DataCycleCore::Filter::Search
-        .new(language, ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.limit(1), embedded)
+        .new(
+          locale: language,
+          query: ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.limit(1),
+          include_embedded: embedded
+        )
         .content_ids(ids)
     end
 
@@ -483,7 +490,7 @@ module DataCycleCore
     # https://jsonapi.org/format/#errors
     def param_to_classifications(classification_string)
       classification_string.map { |classifications|
-        classifications.split(',').map(&:strip).reject(&:blank?)
+        classifications.split(',').map(&:strip).compact_blank
       }.reject(&:empty?)
     end
   end

@@ -6,13 +6,6 @@ module DataCycleCore
       module Container
         extend ActiveSupport::Concern
 
-        included do
-          DataCycleCore::Engine.routes.append do
-            post '/things/:id/set_parent', action: :set_parent, controller: 'things', as: 'set_parent_thing' unless has_named_route?(:set_parent_thing)
-          end
-          Rails.application.reload_routes!
-        end
-
         def set_parent
           @content = DataCycleCore::Thing.find(params[:id])
           authorize! :edit, @content

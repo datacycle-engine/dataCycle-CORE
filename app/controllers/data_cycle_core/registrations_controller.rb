@@ -34,7 +34,7 @@ module DataCycleCore
     protected
 
     def configure_permitted_parameters
-      update_attrs = [:given_name, :family_name, :name, user_group_ids: [], additional_attributes: {}]
+      update_attrs = [:given_name, :family_name, :name, {user_group_ids: [], additional_attributes: {}}]
       devise_parameter_sanitizer.permit :sign_up, keys: update_attrs
       devise_parameter_sanitizer.permit :account_update, keys: update_attrs
     end

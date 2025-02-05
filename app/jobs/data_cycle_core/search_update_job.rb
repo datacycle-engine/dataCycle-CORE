@@ -11,19 +11,19 @@ module DataCycleCore
     end
 
     def delayed_reference_id
-      "#{arguments[1]}_#{arguments[2].presence || 'all'}"
+      "#{arguments[0]}_#{arguments[1].presence || 'all'}"
     end
 
     def delayed_reference_type
-      arguments[0]
+      self.class.name.demodulize.underscore
     end
 
-    def perform(class_name, content_id, locale)
-      content = class_name.classify.constantize.find_by(id: content_id)
+    def perform(thing_id, locale = nil)
+      content = DataCycleCore::Thing.find(thing_id)
 
-      if content && locale.present?
+      if locale.present?
         content.update_search_languages(false, locale.to_sym)
-      elsif content
+      else
         content.update_search_languages(true, content.first_available_locale&.to_sym)
       end
     end

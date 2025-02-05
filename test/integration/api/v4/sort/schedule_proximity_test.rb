@@ -83,8 +83,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -95,7 +95,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
 
-            assert_equal(['D', 'C', 'B', 'A'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
             # default = proximity.inTime
             params = {
               fields: 'name',
@@ -103,8 +103,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -116,7 +116,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
 
-            assert_equal(['A', 'B', 'C', 'D'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
           end
 
           test 'api/v4/things with sort parameter: proximity.occurrence' do
@@ -127,8 +127,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
                     }
                   }
                 }
@@ -140,7 +140,7 @@ module DataCycleCore
 
             json_data = response.parsed_body
 
-            assert_equal(['D', 'C', 'B', 'A'], json_data.dig('@graph').pluck('name'))
+            assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
           end
         end
       end

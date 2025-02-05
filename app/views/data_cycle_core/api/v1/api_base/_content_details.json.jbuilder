@@ -12,7 +12,7 @@ json.partial! 'container_parent_properties', content: content, options: options 
 
 json.partial!('untranslated_properties', content:, locale: content.translations.first&.locale || I18n.locale, options:)
 
-if content.translations.reject { |t| t.id.nil? }.size == 1
+if content.translations.count { |t| !t.id.nil? } == 1
   json.set! 'inLanguage', content.translations.first&.locale || I18n.locale
   json.partial! 'translated_properties', content:, locale: content.translations.first&.locale || I18n.locale, options:
 else

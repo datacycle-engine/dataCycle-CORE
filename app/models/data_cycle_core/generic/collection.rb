@@ -5,7 +5,7 @@ module DataCycleCore
     class Collection
       include Mongoid::Document
 
-      attr_accessor :data_has_changed, :keep_seen_at
+      attr_accessor :data_has_changed, :external_system_has_changed, :keep_seen_at
 
       store_in collection: 'name'
 

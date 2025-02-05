@@ -20,7 +20,8 @@
     <%= attribute_viewer_label_tag(**local_assigns) do %>
       <%= tag.span((local_assigns.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %>
       <i>
-        <%= object.try(:schedule_object)&.terminating? ? "(#{object.schedule_object.all_occurrences.size})" : "#{t('schedule.ongoing', locale: active_ui_locale)}" %>
+        <% count = object.try(:schedule_object)&.terminating? ? object.schedule_object.first(100).size : nil %>
+        <%= count.nil? ? "#{t('schedule.ongoing', locale: active_ui_locale)}" : (count == 100 ? '99+' : count) %>
         <span class="schedule-duration"> / <b><%= t('schedule.duration.root', locale: active_ui_locale) %>:</b> <%= object.duration&.positive? ? distance_of_time_in_words(Time.zone.now, Time.zone.now + object.duration, locale: active_ui_locale) : ' - ' %></span>
       </i>
       <%= render 'data_cycle_core/shared/validation_messages', content: content, key: key, value: Array.wrap(object.to_h) if definition.key?('validations') %>
@@ -28,6 +29,7 @@
 
     <% next_occurrences = object.try(:schedule_object)&.next_occurrences(5) || [] %>
     <% previous_occurrence = object.try(:schedule_object)&.previous_occurrence(Time.zone.now) %>
+    <% has_more_occurrences = !object.try(:schedule_object)&.next_occurrence(next_occurrences.last).nil? %>
 
     <span class="detail-content events-calender-view">
       <%= link_to t('schedule.prev', locale: active_ui_locale),
@@ -50,7 +52,7 @@
             remote: true,
             data: {
               disable_with: "#{t('schedule.next', locale: active_ui_locale)} <i class='fa fa-spinner fa-fw fa-spin'></i>"
-            } if !object.try(:schedule_object)&.terminating? || (next_occurrences.present? && next_occurrences&.exclude?(object.try(:schedule_object)&.last) && object.try(:schedule_object)&.last > Time.zone.now) %>
+            } if !object.try(:schedule_object)&.terminating? || has_more_occurrences %>
     </span>
 
   <% end %>

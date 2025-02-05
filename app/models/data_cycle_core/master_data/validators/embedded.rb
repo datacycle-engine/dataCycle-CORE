@@ -111,7 +111,7 @@ module DataCycleCore
 
           (@error[:error][@template_key] ||= []) << { path: 'validation.errors.classification_conflict' } if parsed_values.any? do |item|
             parsed_values.any? do |other_item|
-              item != other_item && classification_keys.all? { |key| (Array.wrap(item[key]) & Array.wrap(other_item[key])).any? }
+              item != other_item && classification_keys.all? { |key| Array.wrap(item[key]).intersect?(Array.wrap(other_item[key])) }
             end
           end
         end

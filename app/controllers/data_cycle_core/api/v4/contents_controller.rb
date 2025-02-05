@@ -12,33 +12,34 @@ module DataCycleCore
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
 
-          ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-            ActiveRecord::Base.connection.execute(ActiveRecord::Base.sanitize_sql_for_conditions(['SET LOCAL statement_timeout = ?', puma_max_timeout * 1000]))
+          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+            query = build_search_query
 
-            Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-              query = build_search_query
+            if request.format.geojson?
+              raise ActiveRecord::RecordNotFound unless DataCycleCore.features.dig(:serialize, :serializers, :geojson) == true
 
-              if request.format.geojson?
-                raise ActiveRecord::RecordNotFound unless DataCycleCore.features.dig(:serialize, :serializers, :geojson) == true
+              render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s)
+              return
+            end
 
-                render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s)
-                return
-              end
+            @pagination_contents = apply_paging(query)
+            @contents = @pagination_contents
 
-              @pagination_contents = apply_paging(query)
-              @contents = @pagination_contents
-
-              if list_api_request?
-                render plain: list_api_request.to_json, content_type: 'application/json'
-              else
-                render 'index'
-              end
+            if list_api_request?
+              render plain: list_api_request.to_json, content_type: 'application/json'
+            else
+              renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
+                contents: @contents,
+                single_item: false,
+                **thing_renderer_v4_params
+              )
+              render json: renderer.render(:json)
             end
           end
         end
 
         def show
-          @content = DataCycleCore::Thing.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]]).find(permitted_params[:id])
+          @content = DataCycleCore::Thing.find(permitted_params[:id])
 
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
 
@@ -81,20 +82,16 @@ module DataCycleCore
         def elevation_profile
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
 
-          ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-            ActiveRecord::Base.connection.execute(ActiveRecord::Base.sanitize_sql_for_conditions(['SET LOCAL statement_timeout = ?', puma_max_timeout * 1000]))
+          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+            query = build_search_query
+            content = query.query.find(timeseries_params[:content_id])
 
-            Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-              query = build_search_query
-              content = query.query.find(timeseries_params[:content_id])
+            @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:, **timeseries_params.slice(:data_format).to_h.deep_symbolize_keys)
 
-              @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:, **timeseries_params.slice(:data_format).to_h.deep_symbolize_keys)
-
-              begin
-                render json: @renderer.render
-              rescue DataCycleCore::ApiRenderer::Error::RendererError => e
-                render json: { error: e.message }, status: e.status_code
-              end
+            begin
+              render json: @renderer.render
+            rescue DataCycleCore::ApiRenderer::Error::RendererError => e
+              render json: { error: e.message }, status: e.status_code
             end
           end
         end
@@ -165,7 +162,7 @@ module DataCycleCore
         def typeahead
           query = build_search_query
           result = query.typeahead(permitted_params[:search], @language, permitted_params[:limit] || 10)
-          words = result.to_a.map { |i| i.dig('word') } # score not needed
+          words = result.to_a.pluck('word') # score not needed
           render json: {
             '@context' => api_plain_context(@language),
             '@graph' => {
@@ -217,7 +214,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, :weight, uuid: [], filter: {}, 'dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, :weight, {uuid: [], filter: {}, 'dc:liveData': [:@id, :minPrice]}]
         end
 
         # @todo: remove obsolete method?
@@ -229,6 +226,11 @@ module DataCycleCore
         end
 
         private
+
+        def thing_renderer_v4_params
+          DataCycleCore::ApiRenderer::ThingRendererV4::JSON_RENDER_PARAMS
+            .index_with { |p| instance_variable_get(:"@#{p}") }
+        end
 
         def list_api_request?
           return true if @include_parameters.blank? && select_attributes(@fields_parameters).include?('dct:modified') && select_attributes(@fields_parameters).size == 1

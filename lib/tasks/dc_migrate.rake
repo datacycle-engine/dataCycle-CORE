@@ -474,7 +474,7 @@ namespace :dc do
       SQL
 
       ActiveRecord::Base.connection.execute(
-        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, relation: args.attribute_key])
+        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, {relation: args.attribute_key}])
       )
 
       query.delete_all
@@ -542,7 +542,7 @@ namespace :dc do
                                   external_key: [content.external_key, k].join(' - ')
                                 ).pick(:id),
                                 'external_key' => [content.external_key, k].join(' - '),
-                                'name' => I18n.t('import.outdoor_active.ratings.' + k, default: k),
+                                'name' => I18n.t("import.outdoor_active.ratings.#{k}", default: k),
                                 'rating_value' => v.to_i,
                                 'worst_rating' => 1,
                                 'best_rating' => k == 'difficulty_rating' ? 3 : 6
@@ -563,14 +563,14 @@ namespace :dc do
         DataCycleCore::ContentContent.where(content_a: content.id, relation_a: 'aggregate_rating').map(&:content_b).each do |rating|
           rating_key = [
             'technique_rating', 'condition_rating', 'experience_rating', 'landscape_rating', 'difficulty_rating'
-          ].find { |k| rating.name == I18n.t('import.outdoor_active.ratings.' + k, default: k) }
+          ].find { |k| rating.name == I18n.t("import.outdoor_active.ratings.#{k}", default: k) }
 
           next unless rating_key
 
           content.translations.map(&:locale).each do |locale|
             I18n.with_locale(locale) do
               rating.set_data_hash(data_hash: {
-                'name' => I18n.t('import.outdoor_active.ratings.' + rating_key, default: rating_key)
+                'name' => I18n.t("import.outdoor_active.ratings.#{rating_key}", default: rating_key)
               })
             end
           end
@@ -592,7 +592,7 @@ namespace :dc do
         { '$match': { 'dump.de.meta.externalId.id': { '$exists': true } } },
         { '$match': { 'dump.de.meta.externalSystem.name': /.*feratel.*/i } },
         { '$match': { 'dump.de.frontendtype': 'poi' } },
-        { '$project': { 'external_id': '$dump.de.id', 'external_key': '$dump.de.meta.externalId.id' } }
+        { '$project': { external_id: '$dump.de.id', external_key: '$dump.de.meta.externalId.id' } }
       ]
 
       places = outdoor_active.query('places') { |i| i.collection.aggregate(aggregation).to_a }.to_h { |p| [p['external_id'], p['external_key']] }

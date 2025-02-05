@@ -6,13 +6,6 @@ module DataCycleCore
       module NamedVersion
         extend ActiveSupport::Concern
 
-        included do
-          DataCycleCore::Engine.routes.prepend do
-            patch '/things/remove_version_name', action: :remove_version_name, controller: 'things', as: 'remove_version_name' unless has_named_route?(:remove_version_name)
-          end
-          Rails.application.reload_routes!
-        end
-
         def remove_version_name
           @content = version_name_params[:class_name].safe_constantize.find(version_name_params[:id])
           version_name_params[:class_name].safe_constantize.find(version_name_params[:id])

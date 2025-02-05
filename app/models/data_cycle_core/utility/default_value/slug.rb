@@ -6,8 +6,9 @@ module DataCycleCore
       module Slug
         class << self
           def generate_slug(content:, data_hash:, **_args)
-            value = content.title(data_hash:)&.to_slug
-            content.convert_to_type('slug', value || content.slug)
+            content.try(:slug).presence&.to_s&.to_slug ||
+              content&.title(data_hash:).presence&.to_slug ||
+              I18n.t('common.no_name')
           end
         end
       end

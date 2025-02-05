@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class String < BasicValidator
         def string_keywords
-          ['min', 'max', 'format', 'pattern', 'required', 'soft_required']
+          ['min', 'max', 'format', 'pattern', 'required', 'soft_required', 'soft_max', 'soft_min']
         end
 
         def string_formats
@@ -56,12 +56,12 @@ module DataCycleCore
 
         private
 
-        def min(data, value)
+        def min_for_type(data, value, type = :error)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
 
           return unless data.present? && text_length < value.to_i
 
-          (@error[:error][@template_key] ||= []) << {
+          (@error[type][@template_key] ||= []) << {
             path: 'validation.errors.min',
             substitutions: {
               data: nil,
@@ -71,12 +71,20 @@ module DataCycleCore
           }
         end
 
-        def max(data, value)
+        def min(data, value)
+          min_for_type(data, value, :error)
+        end
+
+        def soft_min(data, value)
+          min_for_type(data, value, :warning)
+        end
+
+        def max_for_type(data, value, type = :error)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
 
           return unless data.present? && text_length.to_i > value.to_i
 
-          (@error[:error][@template_key] ||= []) << {
+          (@error[type][@template_key] ||= []) << {
             path: 'validation.errors.max',
             substitutions: {
               data: nil,
@@ -86,7 +94,16 @@ module DataCycleCore
           }
         end
 
+        def max(data, value)
+          max_for_type(data, value, :error)
+        end
+
+        def soft_max(data, value)
+          max_for_type(data, value, :warning)
+        end
+
         def pattern(data, expression)
+          return if data.blank?
           regex = /#{expression[1..expression.length - 2]}/
           matched = data.match(regex)
 
@@ -146,7 +163,7 @@ module DataCycleCore
         end
 
         def telephone_din5008(data)
-          din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(\-\d+){0,1}$|^(0\d+) ([1-9]\d+)(\-\d+){0,1}$|^([1-9]\d+)(\-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(\-\d+){0,1}$/
+          din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(-\d+){0,1}$|^(0\d+) ([1-9]\d+)(-\d+){0,1}$|^([1-9]\d+)(-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(-\d+){0,1}$/
           check_telephone = !(data =~ din5008).nil?
 
           return if check_telephone

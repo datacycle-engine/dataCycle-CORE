@@ -9,13 +9,13 @@ def serialize_opening_hours_description_v4(description, filter, fields, options,
     data = {
       '@id' => description&.id,
       '@type' => description&.api_type,
-      'validFrom' => schedule_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_date),
+      'validFrom' => schedule_hash.dig(:start_time, :time)&.in_time_zone&.to_fs(:only_date),
       'validThrough' => (
         schedule_hash&.dig(:rrules, 0, :until) ||
         (
           schedule_hash&.dig(:end_time, :time)&.then { |t| t - 1.second } if schedule_hash.dig(:rrules, 0, :rule_type).blank? || schedule_hash.dig(:rrules, 0, :rule_type) == 'IceCube::SingleOccurrenceRule'
         )
-      )&.in_time_zone&.to_s(:only_date),
+      )&.in_time_zone&.to_fs(:only_date),
       'description' => description_values&.compact_blank&.first
     }.compact
 
@@ -42,7 +42,7 @@ if data.present?
   key_name = api_property_definition.dig('transformation', 'name') if api_property_definition.dig('transformation', 'method') == 'append'
   new_fields = subtree_for(key_name, options[:fields])
   new_include = subtree_for(key_name, options[:include])
-  translatable_embedded = content.properties_for(key).dig('translated') || false
+  translatable_embedded = content.properties_for(key)['translated'] || false
 
   json[key_name] = data.map do |description|
     if options[:field_filter] && new_fields.present?

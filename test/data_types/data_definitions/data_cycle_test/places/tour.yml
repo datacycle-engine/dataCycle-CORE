@@ -37,22 +37,6 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :trail_closed:
-        :label: Trail/Tour gesperrt
-        :type: boolean
-        :storage_location: value
-        :advanced_search: true
-        :default_value: "false"
-        :api:
-          :name: dc:trailClosed
-          :disabled: true
-        :xml:
-          :disabled: true
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :description:
         :label: Kurzbeschreibung
         :type: string
@@ -284,6 +268,11 @@
         :inverse_of: about
         :link_direction: inverse
         :global: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: SchemaTypes
+              :aliases:
+                - CreativeWork
       :data_type:
         :label: Inhaltstyp
         :type: classification

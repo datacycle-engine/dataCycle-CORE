@@ -31,7 +31,7 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
-    scope :by_names_or_identifiers, ->(value) { where('identifier IN (:value) OR name IN (:value)', value:) }
+    scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where('identifier IN (:value) OR name IN (:value)', value:) }
 
     validates :name, presence: true
 
@@ -47,17 +47,22 @@ module DataCycleCore
 
     def export_config
       return @export_config if defined? @export_config
-      @export_config = config&.dig('export_config')&.symbolize_keys
+      @export_config = config&.dig('export_config')&.with_indifferent_access
     end
 
     def refresh_config
       return @refresh_config if defined? @refresh_config
-      @refresh_config = config&.dig('refresh_config')&.symbolize_keys
+      @refresh_config = config&.dig('refresh_config')&.with_indifferent_access
     end
 
     def download_config
       return @download_config if defined? @download_config
-      @download_config = config&.dig('download_config')&.symbolize_keys
+      @download_config = config&.dig('download_config')&.with_indifferent_access
+    end
+
+    def import_config
+      return @import_config if defined? @import_config
+      @import_config = config&.dig('import_config')&.with_indifferent_access
     end
 
     def download_list
@@ -67,18 +72,13 @@ module DataCycleCore
 
     def download_list_ranked
       return @download_list_ranked if defined? @download_list_ranked
-      @download_list_ranked = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+      @download_list_ranked = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v['sorting'], k.to_sym] }
     end
 
     def download_pretty_list
       return @download_pretty_list if defined? @download_pretty_list
       @download_pretty_list = download_list_ranked
         &.map { |sorting, name| "#{sorting.to_s.ljust(4)}:#{name.to_sym}" }
-    end
-
-    def import_config
-      return @import_config if defined? @import_config
-      @import_config = config&.dig('import_config')&.symbolize_keys
     end
 
     def import_list
@@ -88,7 +88,7 @@ module DataCycleCore
 
     def import_list_ranked
       return @import_list_ranked if defined? @import_list_ranked
-      @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+      @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v['sorting'], k.to_sym] }
     end
 
     def import_pretty_list
@@ -104,14 +104,14 @@ module DataCycleCore
     def full_options(name, type = 'import', options = {})
       (default_options(type) || {})
         .deep_symbolize_keys
-        .deep_merge({ type.to_sym => send("#{type}_config").dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) })
+        .deep_merge({ type.to_sym => send(:"#{type}_config")[name].merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) })
         .deep_merge(options.deep_symbolize_keys)
     end
 
     def credentials(type = 'import')
       @credentials ||= Hash.new do |h, key|
         next h[key] = self[:credentials] unless self[:credentials].is_a?(Hash)
-        t_credentials = self[:credentials].dig(key) || {}
+        t_credentials = self[:credentials][key] || {}
         next h[key] = t_credentials if t_credentials.is_a?(Array)
         h[key] = self[:credentials].merge(t_credentials)&.except('import', 'export')
       end
@@ -121,51 +121,48 @@ module DataCycleCore
     def default_options(type = 'import')
       @default_options ||= Hash.new do |h, key|
         next h[key] = self[:default_options] unless self[:default_options].is_a?(Hash)
-        h[key] = self[:default_options].merge(self[:default_options].dig(key) || {}).except('import', 'export')
+        h[key] = self[:default_options].merge(self[:default_options][key] || {}).except('import', 'export')
       end
       @default_options[type.to_s]
     end
 
-    def handle_download_error_notification(last_exception = nil)
-      handle_error_notification('download', last_exception)
-    end
-
     def handle_import_error_notification(last_exception = nil)
-      handle_error_notification('import', last_exception)
     end
 
-    def handle_error_notification(failed_function = nil, last_exception = nil)
-      return if failed_function.nil?
+    def check_for_repeated_failure(type, exception = nil)
+      options = default_options(type.to_sym)
+      last_success = send(:"last_successful_#{type}")
 
-      options = default_options
-      last_success = failed_function == 'download' ? last_successful_download : last_successful_import
-
-      return if options.blank? || options.nil? || last_success.blank? || last_success.nil? || failed_function.nil? || failed_function.blank?
-
+      return if options.blank? || last_success.blank?
       return if options['error_notification'].blank?
 
-      grace_period_raw = options['error_notification']['grace_period'].split('.')
-      grace_period = grace_period_raw[0].to_i.send(grace_period_raw[1])
-      end_of_grace_period = last_success + grace_period
-      now = Time.zone.now
+      grace_period = ActiveSupport::Duration.parse(options.dig('error_notification', 'grace_period').to_s)
 
-      grace_period_exceeded = now > end_of_grace_period
+      return if Time.zone.now < last_success + grace_period
 
-      return unless grace_period_exceeded
+      error_text = "The #{type} for #{name} has been repeatedly failing for more than #{grace_period.inspect}.\n\nLast successful #{type}: #{last_success.strftime('%d.%m.%Y %H:%M')}."
+      error_text += "\n\nThe last exception was: #{exception}" if exception.present?
+      error = "DataCycleCore::Error::#{type.to_s.classify}::RepeatedFailureError".safe_constantize&.new(error_text)
+      error.set_backtrace(exception.backtrace) if exception.present?
 
-      ActiveSupport::Notifications.instrument "#{failed_function}_failed_repeatedly.datacycle", {
-        exception: "The #{failed_function} for external system '#{name}' (#{identifier} - #{id}) has been repeatedly failing for more than #{grace_period.inspect}. Last successful #{failed_function}: #{last_success}. #{last_exception.present? ? "The last exception was: #{last_exception}" : ''}",
-        namespace: "repeated_failure_#{failed_function}",
-        mailing_list: options['error_notification']['emails'],
-        trigger: failed_function,
-        external_source_info: {name:}
+      return if error.nil?
+
+      ActiveSupport::Notifications.instrument "#{type}_failed_repeatedly.datacycle", {
+        exception: error,
+        namespace: "repeated_failure_#{type}",
+        mailing_list: options.dig('error_notification', 'emails'),
+        type:,
+        external_system: self
       }
     end
 
     def refresh(options = {})
-      raise "Missing refresh_strategy for #{name}, options given: #{options}" if refresh_config.dig(:strategy).blank?
-      utility_object = DataCycleCore::Export::RefreshObject.new(external_system: self)
-      refresh_config.dig(:strategy).constantize.process(utility_object:, options:)
+      raise "Missing refresh_strategy for #{name}, options given: #{options}" if export_config.dig(:refresh, :strategy).blank?
+      utility_object = DataCycleCore::Export::PushObject.new(
+        external_system: self,
+        action: :update
+      )
+      export_config.dig(:refresh, :strategy).safe_constantize.process(utility_object:, options:)
     end
 
     def collections
@@ -204,13 +201,13 @@ module DataCycleCore
     def external_url(content)
       return if default_options&.dig('external_url').blank? || content&.external_key.blank?
 
-      format(default_options.dig('external_url'), locale: I18n.locale, external_key: content.external_key)
+      format(default_options['external_url'], locale: I18n.locale, external_key: content.external_key)
     end
 
     def external_detail_url(content)
       return if default_options&.dig('external_detail_url').blank? || content&.external_key.blank?
 
-      format(default_options.dig('external_detail_url'), locale: I18n.locale, external_key: content.external_key)
+      format(default_options['external_detail_url'], locale: I18n.locale, external_key: content.external_key)
     end
 
     def self.find_from_hash(data)
@@ -297,12 +294,12 @@ module DataCycleCore
 
       {
         import: external_systems.filter { |v| v.import_module? || v.webhook_module? }
-          .as_json(only: [:id, :name])
+          .as_json(only: [:id, :name, :identifier])
           .map { |es| es.with_indifferent_access.merge(additional_properties&.dig(es['id']) || { webhook_only: true }) }
           .sort_by { |v| [v[:deactivated] ? 1 : 0, v[:webhook_only] ? 1 : 0, v[:name].downcase] },
-        export: external_systems.filter(&:export_module?).as_json(only: [:id, :name]),
-        service: external_systems.filter(&:service_module?).as_json(only: [:id, :name]),
-        foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name])
+        export: external_systems.filter(&:export_module?).as_json(only: [:id, :name, :identifier]),
+        service: external_systems.filter(&:service_module?).as_json(only: [:id, :name, :identifier]),
+        foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name, :identifier])
       }.with_indifferent_access
     end
   end

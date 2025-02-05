@@ -7,6 +7,10 @@ module DataCycleCore
         def controller_module
           DataCycleCore::Feature::ControllerFunctions::GravityEditor
         end
+
+        def routes_module
+          DataCycleCore::Feature::Routes::GravityEditor
+        end
       end
     end
   end

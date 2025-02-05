@@ -691,9 +691,8 @@ select {
     text-align: left;
     display: flex;
     max-width: 100%;
-    opacity: 0.7;
-    transition: $opacity-transition;
     align-items: center;
+    color: var(--darker-gray);
 
     >* {
       position: relative;
@@ -2992,6 +2991,12 @@ input.normalized {
       display: block;
     }
   }
+
+  &.viewer:has(> .translatable-attribute.active:not(.remote-render):not(.remote-rendering):empty) {
+    display: none;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .available-attribute-locales {
@@ -4131,6 +4136,11 @@ form {
   }
 }
 
-.oembed-preview-spinner{
+.oembed-preview-spinner {
   min-height: 30px;
+  display: none;
+
+  &.visible {
+    display: block;
+  }
 }

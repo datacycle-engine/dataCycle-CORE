@@ -1,1 +1,1 @@
-<%= render 'data_cycle_core/application/filters/in_schedule', local_assigns.merge({ default_from: DateTime.current, default_until: DateTime.current, filter_type: :inactive_things }) %>
+<%= render 'data_cycle_core/application/filters/in_schedule', local_assigns.merge({ default_from: DateTime.current.beginning_of_day, default_until: DateTime.current.end_of_day, filter_type: :inactive_things }) %>

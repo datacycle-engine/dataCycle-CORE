@@ -18,8 +18,8 @@ module DataCycleCore
 
           def parse(normalize_report)
             actions = []
-            normalize_report.dig('actionList').each do |action|
-              raise ArgumentError, "Unknown taskType: #{action.dig('taskType')} | known types: #{action_type.keys}" unless action_type.key?(action.dig('taskType'))
+            normalize_report['actionList'].each do |action|
+              raise ArgumentError, "Unknown taskType: #{action['taskType']} | known types: #{action_type.keys}" unless action_type.key?(action['taskType'])
               entry = send(action_type[action['taskType']], action)
               actions << entry if entry.present?
             end
@@ -27,32 +27,27 @@ module DataCycleCore
           end
 
           def add(action)
-            action
-              .dig('fieldsAfter')
+            action['fieldsAfter']
               .map { |item| { item['id'] => ['+', item['content']] } }
           end
 
           def alter(action)
-            action
-              .dig('fieldsAfter')
-              .zip(action.dig('fieldsBefore'))
+            action['fieldsAfter']
+              .zip(action['fieldsBefore'])
               .map { |after, before| { after['id'] => ['~', after['content'], before['content']] } }
           end
 
           def delete(action)
-            action
-              .dig('fieldsBefore')
-              .map { |item| item['content'].blank? ? nil : { item['id'] => ['-', item['content']] } }
-              .compact
+            action['fieldsBefore']
+              .filter_map { |item| item['content'].blank? ? nil : { item['id'] => ['-', item['content']] } }
           end
 
           def split(action)
             return if action['taskId'] == 'Split_StreetStreetnr'
-            action
-              .dig('fieldsAfter')
-              .product(action.dig('fieldsBefore'))
+            action['fieldsAfter']
+              .product(action['fieldsBefore'])
               .map do |after, before|
-                if after.dig('id') == before.dig('id')
+                if after['id'] == before['id']
                   { after['id'] => ['~', after['content'], before['content']] }
                 else
                   { after['id'] => ['+', after['content']] }
@@ -62,8 +57,8 @@ module DataCycleCore
 
           def propose(action)
             [{
-              action.dig('fieldsProposed').first.dig('id') =>
-                ['?', action.dig('fieldsProposed').pluck('content')]
+              action['fieldsProposed'].first['id'] =>
+                ['?', action['fieldsProposed'].pluck('content')]
             }]
           end
 

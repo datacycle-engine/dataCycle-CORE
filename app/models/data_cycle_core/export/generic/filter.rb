@@ -33,13 +33,13 @@ module DataCycleCore
           endpoints.any? do |endpoint|
             query = endpoint.apply.query.except(:order)
 
-            next true if query.exists?(id: data)
+            next true if query.exists?(id: data.id)
 
-            if data.depending_contents.exists?
-              tmp = query.exists?(id: data.depending_contents)
+            if data.depending_contents&.exists?
+              tmp = query.exists?(id: data.depending_contents.pluck(:id))
 
               next tmp if endpoint.linked_stored_filter.nil?
-              next tmp && endpoint.linked_stored_filter.apply.except(:order).exists?(id: data)
+              next tmp && endpoint.linked_stored_filter.apply.except(:order).exists?(id: data.id)
             end
 
             false
@@ -48,7 +48,7 @@ module DataCycleCore
 
         def self.filter_presence(data:, external_system:, method_name:)
           presence_check = external_system.export_config_by_filter_key(method_name, 'presence')
-          presence_check = presence_check.is_a?(Hash) ? Array.wrap(presence_check.dig(data&.template_name)) : Array.wrap(presence_check)
+          presence_check = presence_check.is_a?(Hash) ? Array.wrap(presence_check[data&.template_name]) : Array.wrap(presence_check)
 
           presence_check.present? ? presence_check.all? { |p| data.try(p).present? } : true
         end
