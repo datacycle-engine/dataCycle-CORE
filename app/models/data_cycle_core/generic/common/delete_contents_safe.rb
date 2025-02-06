@@ -47,7 +47,6 @@ module DataCycleCore
               contents = contents.where(template_name: template_names)
             end
 
-
             contents.each do |content|
               if content.available_locales.one? && content.available_locales.include?(I18n.locale)
                 duplicates = content.external_system_syncs.where(sync_type: 'duplicate')
