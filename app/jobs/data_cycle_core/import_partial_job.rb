@@ -2,9 +2,7 @@
 
 module DataCycleCore
   class ImportPartialJob < ImportJob
-    def delayed_reference_type
-      "import_#{arguments[1]}"
-    end
+    REFERENCE_TYPE = 'import'
 
     def perform(uuid, import_name, mode = nil)
       super(uuid) do |external_system|

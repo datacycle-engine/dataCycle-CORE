@@ -466,9 +466,9 @@ module DataCycleCore
       if condition
         link_to(name, options, html_options, &block)
       elsif block
-        block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block)
+        tag.span(block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block))
       else
-        ERB::Util.html_escape(name)
+        tag.span(ERB::Util.html_escape(name), **html_options)
       end
     end
 

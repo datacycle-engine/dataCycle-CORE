@@ -59,30 +59,69 @@
   </div>
 <% else %>
   <div class="card-section buttons">
-    <%= link_to_condition(
-          data[:downloadable],
-          tag.span(t('dash_board.download_import', locale: active_ui_locale), class: 'button small download-import'),
-          admin_download_import_path(id: data[:uuid]),
-          class: 'download-import') %>
+    <div class="button-row <%= 'disabled' unless data[:downloadable] %>" data-dc-tooltip="<%= t('dash_board.download_import', locale: active_ui_locale) %>">
+      <%= tag.span(tag.i(class: 'fa fa-level-up'), class: 'icon') %>
+      <%= link_to_condition(
+            data[:downloadable],
+            tag.span(t('dash_board.delta', locale: active_ui_locale)),
+            admin_download_import_path(id: data[:uuid]),
+            class: 'button small download-import'
+          ) %>
 
-    <%= link_to_condition(
-          data[:downloadable],
-          tag.span(t('dash_board.download', locale: active_ui_locale), class: "button small"),
-          admin_download_path(id: data[:uuid])) %>
+      <%= link_to_condition(
+            data[:downloadable],
+            tag.span(t('dash_board.full', locale: active_ui_locale)),
+            admin_download_import_path(id: data[:uuid], mode: 'full'),
+            class: 'button small download-import-full'
+          ) %>
 
-    <%= link_to_condition(
-          data[:importable],
-          tag.span(t('dash_board.import', locale: active_ui_locale), class: "button small"),
-          admin_import_path(id: data[:uuid])) %>
+      <%= link_to_condition(
+            data[:downloadable],
+            tag.span(t('dash_board.reset', locale: active_ui_locale)),
+            admin_download_import_path(id: data[:uuid], mode: 'reset'),
+            class: 'button small download-import-reset'
+          ) %>
+    </div>
 
-    <%= link_to_condition(
-          data[:downloadable],
-          tag.span(t('dash_board.download_full', locale: active_ui_locale), class: "button small"),
-          admin_download_full_path(id: data[:uuid])) %>
+    <div class="button-row <%= 'disabled' unless data[:downloadable] %>" data-dc-tooltip="<%= t('dash_board.download', locale: active_ui_locale) %>">
+      <%= tag.span(tag.i(class: 'fa fa-long-arrow-down'), class: 'icon') %>
+      <%= link_to_condition(
+            data[:downloadable],
+            tag.span(t('dash_board.delta', locale: active_ui_locale)),
+            admin_download_path(id: data[:uuid]),
+            class: 'button small download'
+          ) %>
 
-    <%= link_to_condition(
-          data[:importable],
-          tag.span(t('dash_board.import_full', locale: active_ui_locale), class: "button small"),
-          admin_import_full_path(id: data[:uuid])) %>
+      <%= link_to_condition(
+            data[:downloadable],
+            tag.span(t('dash_board.full', locale: active_ui_locale)),
+            admin_download_path(id: data[:uuid], mode: 'full'),
+            class: 'button small download-full'
+          ) %>
+    </div>
+
+    <div class="button-row <%= 'disabled' unless data[:importable] %>" data-dc-tooltip="<%= t('dash_board.import', locale: active_ui_locale) %>">
+      <%= tag.span(tag.i(class: 'fa fa-long-arrow-right'), class: 'icon') %>
+      <%= link_to_condition(
+            data[:importable],
+            tag.span(t('dash_board.delta', locale: active_ui_locale)),
+            admin_import_path(id: data[:uuid]),
+            class: 'button small import'
+          ) %>
+
+      <%= link_to_condition(
+            data[:importable],
+            tag.span(t('dash_board.full', locale: active_ui_locale)),
+            admin_import_path(id: data[:uuid], mode: 'full'),
+            class: 'button small import-full'
+          ) %>
+
+      <%= link_to_condition(
+            data[:importable],
+            tag.span(t('dash_board.reset', locale: active_ui_locale)),
+            admin_import_path(id: data[:uuid], mode: 'reset'),
+            class: 'button small import-reset'
+          ) %>
+    </div>
   </div>
 <% end %>

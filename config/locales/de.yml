@@ -154,8 +154,9 @@ de:
     meta-data: Metadaten
 
   dash_board:
-    download_full: Download (full)
-    import_full: Import (full)
+    delta: Delta
+    full: Full
+    reset: Rebuild
     import: Import
     download: Download
     download_import: Download & Import

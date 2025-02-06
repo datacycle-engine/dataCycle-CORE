@@ -147,11 +147,12 @@ en:
     api: JSON API
     relations: Relations
   dash_board:
-    download_full: Download (full)
-    import_full: Import (full)
+    delta: delta
+    full: full
+    reset: rebuild
     import: Import
     download: Download
-    download_import: Download &amp; Import
+    download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
     maintenance:
