@@ -1244,7 +1244,9 @@ en:
     bulk_edit: process in bulk
     add_items_to_watch_list: add to %{data}
     add: add
-    delete_items_in_watch_list: Delete all contents of this content collection
+    delete_items_in_watch_list_tooltip: Delete all contents from this content collection
+    delete_items_in_watch_list: "Do you really want to delete all contents from this content collection? <b>This action cannot be undone and will permanently delete the contents from the system.</b>"
+    delete_items_in_watch_list_confirmation_text: "Delete all contents permanently"
     save_without_redirect: Save
     set_and_next: take over and continue
     set_all_attributes: apply for all
@@ -1253,7 +1255,8 @@ en:
     copyable_from: Apply %{data}
     copyable_from_clear: "%{data} discard"
     logout: Logout
-    clear: "remove all contents from %{data}"
+    clear_tooltip: "remove all contents from %{data}"
+    clear: "Do you really want to remove ALL contents from %{data}? This action does NOT delete the data from the system."
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
     set_gravity: "Set image gravity"
