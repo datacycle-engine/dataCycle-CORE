@@ -14,7 +14,7 @@ module DataCycleCore
 
             concepts = DataCycleCore::Concept.for_tree(property_definition&.dig('tree_label'))
               .with_internal_name(value)
-            concepts = concepts.limit(1) if property_definition.dig('validations', 'max') == 1
+            concepts = concepts.limit(property_definition.dig('validations', 'max').to_i) if property_definition.dig('validations', 'max').present?
             concepts.pluck(:classification_id)
           end
 
