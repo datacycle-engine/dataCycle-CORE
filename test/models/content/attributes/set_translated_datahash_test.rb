@@ -159,6 +159,14 @@ module DataCycleCore
           assert_equal(1, @content.offers.first.available_locales.size)
           assert_equal(1, @content.available_locales.size)
         end
+
+        test 'create content only in englisch' do
+          content = DataCycleCore::DataHashService.create_internal_object('Service', { translations: { de: { name: '' }, en: { name: 'Test Service 1' } } }, nil)
+
+          assert_equal([:en], content.available_locales)
+          assert_equal('Test Service 1', I18n.with_locale(:en) { content.name })
+          assert_equal(0, content.errors.size)
+        end
       end
     end
   end
