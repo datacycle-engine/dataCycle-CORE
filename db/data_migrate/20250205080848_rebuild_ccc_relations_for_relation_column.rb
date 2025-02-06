@@ -21,7 +21,7 @@ class RebuildCccRelationsForRelationColumn < ActiveRecord::Migration[7.1]
       SQL
     end
 
-    DataCycleCore::RunTaskJob.perform_later('db:maintenance:vacuum', [true, 'collected_classification_contents'])
+    DataCycleCore::RunTaskJob.set(wait_until: Time.zone.now.change(hour: 19), queue: 'importers').perform_later('db:maintenance:vacuum', [true, 'collected_classification_contents'])
   end
 
   def down
