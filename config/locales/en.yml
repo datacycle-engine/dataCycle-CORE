@@ -21,6 +21,34 @@ en:
 
   template_names:
     skos:Concept: Classification
+    Article: Article
+    AdditionalDescription: Additional description
+    AudioObject: Audio
+    ImageObject: Image
+    VideoObject: Video
+    MediaObject: Media
+    ExternalVideo: Video (external)
+    PDF: PDF
+    Event: Event
+    EventSeries: Event series
+    Organization: Organization
+    LocalBusiness: Local business
+    FoodEstablishment: Food Establishment
+    LodgingBusiness: Lodging Business
+    Person: Person
+    Place: Place
+    Accommodation: Accommodation
+    TouristAttraction: Tourist attraction
+    Trail: Trail
+    GtfsStop: Stop
+    BodyOfWater: Body of water
+    # MountainAreaDescription:
+    Recipe: Recipe
+    AvalancheInfo: Avalanche information
+    Snowpark: Snowpark
+    TouristDestination: Tourist destination
+    ContentPage: Content page
+
     # embedded
     ContentBlockTextImage: Text with Image
     ContentBlockAccordion: Accordion
@@ -58,6 +86,9 @@ en:
     aggregate_for_override: Aggregate base for
     overlay_override: (Overlay)
     overlay_add: (Appendix)
+    copyright_notice_computed: Copyright notice (automatically generated)
+    copyright_notice_override: Copyright notice (manually entered)
+    copyright_notice: Copyright notice
 
   footer_links:
     privacy_policy: Privacy policy
@@ -1584,7 +1615,7 @@ en:
         new_password: New password
         current_password: Current password
         email: Email
-        role_id: Roll
+        role_id: Role
         user_group_ids: User groups
         external: SSO
         notification_frequency: Subscription notification

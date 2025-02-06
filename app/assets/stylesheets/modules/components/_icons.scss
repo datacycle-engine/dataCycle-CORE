@@ -271,7 +271,8 @@
     }
 
     &.job_posting,
-    &.jobposting {
+    &.jobposting,
+    &.job_article {
       &::before {
         content: '\f0b1';
       }
