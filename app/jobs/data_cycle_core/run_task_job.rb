@@ -6,7 +6,7 @@ module DataCycleCore
   class RunTaskJob < UniqueApplicationJob
     PRIORITY = 0
 
-    REFERENCE_TYPE = 'rake_task'
+    REFERENCE_TYPE = 'RAKE_TASK'
 
     queue_as :default
 
@@ -15,11 +15,11 @@ module DataCycleCore
     end
 
     def delayed_reference_id
-      Array.wrap(arguments).join('_')
+      "args:#{Array.wrap(arguments)[1..].flatten.join('_')}"
     end
 
     def delayed_reference_type
-      REFERENCE_TYPE
+      "#{REFERENCE_TYPE}: #{Array.wrap(arguments).first}"
     end
 
     def perform(task, args = [])
