@@ -1439,6 +1439,7 @@ en:
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
     set_gravity: "Set image gravity"
+    deactivate_gravity_editor: "End editing"
     download_user_info_activity: "Download user activity"
   validation:
     errors:
