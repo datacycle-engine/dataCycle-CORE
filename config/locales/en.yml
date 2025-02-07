@@ -199,6 +199,7 @@ en:
     honorific_suffix: Title added after
     image: Image
     internal_content_score: Internal content score
+    internal_name: Working title
     is_linked_to: Linked to
     job_title: Job title
     keywords: Keywords
@@ -236,7 +237,7 @@ en:
     same_as: External links
     sd_date_published: Publication date
     sd_license: License URL
-    sd_publisher: Owber / Publisher
+    sd_publisher: Owner / Publisher
     street_address: Street
     subject_of: Theme of
     tags: Tags
@@ -268,6 +269,8 @@ en:
     virtual_web_url: Web URL
     width: Width
     work_translation: Translated by
+    valid_from: Valid from
+    valid_until: to
 
   footer_links:
     privacy_policy: Privacy policy
