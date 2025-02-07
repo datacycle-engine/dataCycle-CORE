@@ -101,6 +101,7 @@ module DataCycleCore
           object.is_part_of = is_part_of if is_part_of.present?
           object.created_at = save_time
           object.updated_at = save_time
+          object.cache_valid_since = save_time
           object.created_by = current_user&.id
           object.last_updated_locale = locale
           object.save(touch: false)

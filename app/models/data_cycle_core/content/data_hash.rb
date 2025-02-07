@@ -68,6 +68,9 @@ module DataCycleCore
 
         return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
+        # set cache_valid_since before callbacks for default_value and computed, so it can be used in the callbacks (e.g. for imgproxy_signature)
+        self.cache_valid_since = options.save_time
+
         before_save_data_hash(options)
 
         partial_schema = schema.deep_dup
@@ -93,7 +96,6 @@ module DataCycleCore
           set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
 
           self.updated_at = options.save_time
-          self.cache_valid_since = options.save_time
           self.updated_by = options.current_user&.id
           self.last_updated_locale = I18n.locale
           self.version_name = options.version_name.presence
