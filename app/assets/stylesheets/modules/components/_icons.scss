@@ -340,6 +340,25 @@
         content: '\f024';
       }
     }
+
+    &.potential_action,
+    &.action {
+      &::before {
+        content: '\f061';
+      }
+    }
+
+    &.url_action {
+      &::before {
+        content: '\f0c1';
+      }
+    }
+
+    &.ergaenzende_information {
+      &::before {
+        content: '\f0f6';
+      }
+    }
   }
 
   &.wetterstation,
