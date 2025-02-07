@@ -270,7 +270,9 @@ module DataCycleCore
     def to_csv_for_mappings
       CSV.generate do |csv|
         csv << ['Pfad zur Klassifizierung', 'Pfad zu gemappter Klassifizierung']
-        classification_aliases.includes(:classification_alias_path).map(&:full_path).sort.each { |fp| csv << [fp] }
+        classification_aliases.includes(:classification_alias_path).map(&:full_path).sort.each do |fp|
+          csv << [fp, nil]
+        end
       end
     end
 
