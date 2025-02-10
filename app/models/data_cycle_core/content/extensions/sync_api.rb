@@ -325,7 +325,7 @@ module DataCycleCore
                 content.classification_property_names.each do |k|
                   content.set_memoized_attribute(
                     k,
-                    content.overlay_property_names.include?(k) ? preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.overlay_content&.id, k)).pluck(:classification).presence || preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.id, k)).pluck(:classification) : preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.id, k)).pluck(:classification),
+                    content.overlay_property_names.include?(k) ? preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.overlay_content&.id, k)).pluck(:classification).presence || preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.id, k)).pluck(:classification) : preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.id, k)).compact.pluck(:classification),
                     nil,
                     content.overlay_property_names.include?(k)
                   )
