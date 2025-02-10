@@ -45,7 +45,8 @@ module DataCycleCore
               pg_size: DataCycleCore::StatsDatabase.new.load_all_stats.pg_size,
               pg_stats: DataCycleCore::StatsDatabase.new.load_all_stats.load_pg_stats
             },
-            mail_options: Rails.application.config.action_mailer.default_options
+            mail_options: Rails.application.config.action_mailer.default_options,
+            map_options: DataCycleCore.default_map_position['styles']
           }]
           render json: { '@graph' => configs }.to_json
         end
