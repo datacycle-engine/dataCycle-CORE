@@ -66,6 +66,8 @@ module DataCycleCore
         content['properties'][property_name]['embedded_schema'] = Array.wrap(content.dig('properties', property_name, 'template_name')).map { |et| all_templates[et].schema_as_json }
       end
 
+      content['template_paths'] = template_paths
+
       content
     end
 
