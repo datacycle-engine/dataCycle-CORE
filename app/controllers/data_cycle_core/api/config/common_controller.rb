@@ -37,7 +37,10 @@ module DataCycleCore
             templates: DataCycleCore.default_template_paths.map(&:to_s),
             external_systems: external_systems,
             gems: gems,
-            activities: DataCycleCore::Activity.count,
+            activities: {
+              count: DataCycleCore::Activity.count,
+              widgets: DataCycleCore::Activity.used_widgets
+            },
             database: {
               pg_size: DataCycleCore::StatsDatabase.new.load_all_stats.pg_size,
               pg_stats: DataCycleCore::StatsDatabase.new.load_all_stats.load_pg_stats
