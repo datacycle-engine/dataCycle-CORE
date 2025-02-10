@@ -223,7 +223,7 @@ module DataCycleCore
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         end_of_day = Time.zone.now.end_of_day
-        end_date_plus_1_year = [end_date, 1.year.from_now].max
+        end_date_extended = [end_date, 1.month.from_now.end_of_month].max
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,
@@ -235,7 +235,7 @@ module DataCycleCore
               END as occurrence_exists,
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
             FROM schedules a
-            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_plus_1_year}')
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
             WHERE things.id = a.thing_id
             GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
