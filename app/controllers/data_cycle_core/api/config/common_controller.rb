@@ -38,7 +38,10 @@ module DataCycleCore
             external_systems: external_systems,
             gems: gems,
             activities: DataCycleCore::Activity.count,
-            pg_size: DataCycleCore::StatsDatabase.new.load_all_stats.pg_size,
+            database: {
+              pg_size: DataCycleCore::StatsDatabase.new.load_all_stats.pg_size,
+              pg_stats: DataCycleCore::StatsDatabase.new.load_all_stats.load_pg_stats
+            },
             mail_options: Rails.application.config.action_mailer.default_options
           }]
           render json: { '@graph' => configs }.to_json
