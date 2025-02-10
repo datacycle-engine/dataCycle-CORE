@@ -6,6 +6,12 @@
       </section>
       <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
     </section>
+    <section id="template-paths" class="tabs-panel">
+      <section class="template-paths-nav">
+        <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.template_paths', locale: active_ui_locale)) %>
+      </section>
+      <pre id="admin_template_paths" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/template_path" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+    </section>
     <section id="datahash" class="tabs-panel">
       <section class="datahash-nav">
         <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.datahash', locale: active_ui_locale)) %>
@@ -48,6 +54,7 @@
   <ul class="tabs" data-active-collapse="true" data-tabs id="admin-icons">
     <li class="tabs-title"><a href="#test"><i class="fa fa-user-secret"></i></a></li>
     <li class="tabs-title"><a href="#schema"><i class="fa fa-code"></i></a></li>
+    <li class="tabs-title"><a href="#template-paths"><i class="fa fa-folder-open"></i></a></li>
     <li class="tabs-title"><a href="#datahash"><i class="fa fa-hashtag"></i></a></li>
     <li class="tabs-title"><a href="#json-api"><i class="fa">json</i></a></li>
     <% if dzt_data&.try(:data)&.dig('data_send').present? %>

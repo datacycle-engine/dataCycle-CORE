@@ -152,6 +152,7 @@ de:
     api: JSON API
     relations: Relationen
     meta-data: Metadaten
+    template_paths: Template-Pfade
 
   dash_board:
     delta: Delta

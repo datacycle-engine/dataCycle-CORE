@@ -328,6 +328,8 @@ en:
     datahash: Datahash
     api: JSON API
     relations: Relations
+    template_paths: Template paths
+
   dash_board:
     delta: delta
     full: full
