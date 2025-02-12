@@ -205,14 +205,17 @@
           <i class="fa fa-trash-o" aria-hidden="true"></i>
         <% end if can? :destroy, @watch_list %>
 
+        <%= render 'data_cycle_core/watch_lists/clear_button', watch_list: @watch_list if can? :remove_item, @watch_list %>
+
         <% if can?(:bulk_delete, @watch_list) %>
-          <span data-dc-tooltip="<%= t('actions.delete_items_in_watch_list', locale: active_ui_locale) %>">
+          <span data-dc-tooltip="<%= t('actions.delete_items_in_watch_list_tooltip', locale: active_ui_locale) %>">
             <%= button_to bulk_delete_watch_list_path(@watch_list),
                     method: :delete,
                     remote: true,
                     class: 'button-prime small alert bulk-delete-button',
                     data: {
-                      confirm: "#{t('actions.delete_items_in_watch_list', locale: active_ui_locale)}?",
+                      confirm: "#{t('actions.delete_items_in_watch_list', locale: active_ui_locale)}",
+                      confirmation_text: t('actions.delete_items_in_watch_list_confirmation_text', locale: active_ui_locale),
                       id: @watch_list.id,
                       disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
                         tag.span(class: 'progress-value') +
@@ -222,8 +225,6 @@
             <% end %>
           </span>
         <% end %>
-
-        <%= render 'data_cycle_core/watch_lists/clear_button', watch_list: @watch_list if can? :remove_item, @watch_list %>
 
       </div>
 

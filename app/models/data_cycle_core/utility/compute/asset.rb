@@ -75,16 +75,32 @@ module DataCycleCore
             end
           end
 
-          def imgproxy_url(content:, computed_definition:, **_args)
+          def imgproxy_url(content:, computed_parameters:, computed_definition:, **_args)
             variant = computed_definition&.dig('compute', 'transformation', 'version')
             image_processing = computed_definition&.dig('compute', 'processing')
             Virtual::Asset.send(:transform_gravity!, content, image_processing) if image_processing&.key?('gravity')
 
             DataCycleCore::Feature::ImageProxy.process_image(
-              content:,
+              content: thing_dummy(content:, computed_parameters:),
               variant:,
               image_processing:
             )
+          end
+
+          private
+
+          def thing_dummy(content:, computed_parameters:)
+            return if content.nil?
+
+            thing_dummy = content.thing_template.template_thing
+            thing_dummy.id = content.id
+            thing_dummy.cache_valid_since = content.cache_valid_since
+
+            computed_parameters&.each do |key, value|
+              thing_dummy.send(:"#{key}=", value)
+            end
+
+            thing_dummy
           end
         end
       end

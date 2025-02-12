@@ -28,15 +28,8 @@ module DataCycleCore
               external_key: external_keys
             )
 
-            template_names = Array.wrap(options.dig(:import, :template_name))
-            if template_names.present?
-              all_templates = DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').pluck(:template_name)
-
-              raise "Template names not found: #{template_names - all_templates}" if (template_names - all_templates).any?
-              contents = contents.where(template_name: template_names)
-            end
-
             # for all contents not found, clean up the external_system_sync
+            # do this before filtering by template_name so we prevent deleting to many ess
             external_keys_missing_contents = external_keys - contents.pluck(:external_key)
             ess = DataCycleCore::ExternalSystemSync.where(
               external_system_id: utility_object.external_source.id,
@@ -45,6 +38,14 @@ module DataCycleCore
               syncable_type: 'DataCycleCore::Thing'
             )
             ess.destroy_all
+
+            template_names = Array.wrap(options.dig(:import, :template_name))
+            if template_names.present?
+              all_templates = DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').pluck(:template_name)
+
+              raise "Template names not found: #{template_names - all_templates}" if (template_names - all_templates).any?
+              contents = contents.where(template_name: template_names)
+            end
 
             contents.each do |content|
               if content.available_locales.one? && content.available_locales.include?(I18n.locale)

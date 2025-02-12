@@ -44,9 +44,10 @@ module DataCycleCore
     def append_filters(query, parameters)
       return query if parameters&.dig(:content_id).blank?
 
-      search = new_thing_search(@language, parameters[:content_id], true)
+      content_id = parameters[:content_id]
+      search = new_thing_search(@language, content_id, true)
 
-      return search if search.none? || query.content_ids(parameters[:content_id]).query.exists?
+      return search if search.none? || query.content_ids(content_id).query.exists?
 
       related_content_ids = search.first.cached_related_contents.pluck(:id)
 
@@ -57,7 +58,7 @@ module DataCycleCore
 
         search
       elsif query.content_ids(related_content_ids).query.exists?
-        return new_thing_search(@language, nil) unless @linked_stored_filter.nil? || @linked_stored_filter.apply.content_ids(related_content_ids).query.exists?
+        return new_thing_search(@language, nil) unless @linked_stored_filter.nil? || @linked_stored_filter.apply.content_ids(content_id).query.exists?
 
         search
       else

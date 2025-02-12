@@ -215,7 +215,6 @@
 .card-section.buttons {
   display: grid;
   gap: 1rem;
-  grid-template-columns: 1fr 1fr;
   padding: 1rem;
   background-color: var(--light-gray);
 
@@ -223,8 +222,55 @@
     background-color: var(--nearly-white);
   }
 
-  .download-import {
-    grid-column: 1 / -1;
+  .button-row {
+    background-color: var(--primary-color);
+    border-radius: var(--global-radius);
+    display: grid;
+    grid-auto-flow: column;
+    color: var(--white);
+    grid-template-columns: 1fr 2fr 2fr 2fr;
+    overflow: hidden;
+
+    &.disabled {
+      opacity: 0.25;
+
+      >span.button {
+        cursor: not-allowed;
+
+        &:hover {
+          background-color: var(--primary-color);
+        }
+      }
+    }
+
+    .icon {
+      display: grid;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--dark-gray);
+
+      .fa-level-up {
+        transform: rotate(90deg);
+      }
+
+      .fa-long-arrow-down {
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .fa-long-arrow-right {
+        font-size: 0.9rem;
+        font-weight: bold;
+      }
+    }
+
+    >* {
+      border-radius: 0
+    }
+
+    >.button:not(:last-child) {
+      border-right: 1px solid var(--dark-blue);
+    }
   }
 
   .button {
@@ -235,6 +281,12 @@
     width: 100%;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
+    font-weight: 600;
+    gap: 0.3rem;
+
+    &.download-full {
+      grid-column: span 2;
+    }
   }
 
   .deactivated {

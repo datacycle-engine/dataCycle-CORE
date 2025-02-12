@@ -96,11 +96,17 @@ module DataCycleCore
         private
 
         def update_templates
+          # Get Mapping of Rails Engines and their root paths
+          # Rails.application.railties
+          #   .filter { |railtie| railtie.is_a?(::Rails::Engine) }
+          #   .to_h { |rt| [rt.root.to_s, rt.class.name.delete_suffix('::Engine')] }
+
           DataCycleCore::ThingTemplate.upsert_all(@templates.values.flatten.map do |t|
             {
               template_name: t[:name],
               schema: t[:data],
-              updated_at: Time.zone.now
+              updated_at: Time.zone.now,
+              template_paths: t[:paths]
             }
           end, unique_by: :template_name)
         end
@@ -140,7 +146,7 @@ module DataCycleCore
 
             data_templates.each do |template|
               @template_definitions.push({
-                path:,
+                paths: [path],
                 data: template[:data],
                 set:
               })
@@ -239,7 +245,7 @@ module DataCycleCore
 
           {
             name: transformed_data[:name],
-            path: data_template[:path],
+            paths: data_template[:paths],
             data: transformed_data,
             set: data_template[:set]
           }
@@ -252,7 +258,7 @@ module DataCycleCore
 
           {
             name: transformed_data[:name],
-            path: data_template[:path],
+            paths: data_template[:paths],
             data: transformed_data,
             set: data_template[:set],
             mixins: transformer.mixin_paths
@@ -327,11 +333,13 @@ module DataCycleCore
         def merge_duplicate_template!(data:, duplicate:)
           key = "#{data[:set]}.#{data[:name]}"
           @duplicates[key] ||= []
-          @duplicates[key].push(duplicate[:path])
-          @duplicates[key].push(data[:path])
+          @duplicates[key].concat(duplicate[:paths])
+          @duplicates[key].concat(data[:paths])
           @duplicates[key].uniq!
 
-          duplicate.merge!(data)
+          duplicate[:paths].concat(data[:paths])
+          duplicate[:paths].uniq!
+          duplicate.merge!(data.slice(:data, :set))
         end
       end
     end

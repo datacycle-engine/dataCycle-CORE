@@ -97,5 +97,23 @@ module DataCycleCore
         )
         .order('data_count DESC')
     end
+
+    def self.used_widgets
+      select(
+        'activities.data->>\'widgetIdentifier\' as request_widget_identifier',
+        'activities.data->>\'widgetType\' as request_widget_type',
+        'activities.data->>\'widgetVersion\' as request_widget_version'
+      )
+        .where(
+          'activities.data->>\'widgetIdentifier\' is not null',
+          'activities.data->>\'widgetType\' is not null',
+          'activities.data->>\'widgetVersion\' is not null'
+        )
+        .group(
+          'request_widget_identifier',
+          'request_widget_type',
+          'request_widget_version'
+        )
+    end
   end
 end

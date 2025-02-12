@@ -2,9 +2,7 @@
 
 module DataCycleCore
   class DownloadPartialJob < ImportJob
-    def delayed_reference_type
-      "download_#{arguments[1]}"
-    end
+    REFERENCE_TYPE = 'download'
 
     def perform(uuid, download_name, mode = nil)
       super(uuid) do |external_system|

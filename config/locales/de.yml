@@ -152,10 +152,12 @@ de:
     api: JSON API
     relations: Relationen
     meta-data: Metadaten
+    template_paths: Template-Pfade
 
   dash_board:
-    download_full: Download (full)
-    import_full: Import (full)
+    delta: Delta
+    full: Full
+    reset: Rebuild
     import: Import
     download: Download
     download_import: Download & Import
@@ -1264,7 +1266,9 @@ de:
     bulk_edit: im Bulk bearbeiten
     add_items_to_watch_list: "zu %{data} hinzufügen"
     add: hinzufügen
-    delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
+    delete_items_in_watch_list_tooltip: "Alle Inhalte aus dieser Inhaltssammlung löschen"
+    delete_items_in_watch_list: "Möchten Sie wirklich alle Inhalte aus dieser Inhaltssammlung aus dem System löschen? <b>Diese Aktion kann nicht rückgängig gemacht werden und löscht die Inhalte dauerhaft aus dem System.</b>"
+    delete_items_in_watch_list_confirmation_text: "Alle Inhalte dauerhaft löschen"
     save_without_redirect: Zwischenspeichern
     set_and_next: "übernehmen und weiter"
     set_all_attributes: "für alle übernehmen"
@@ -1273,7 +1277,8 @@ de:
     copyable_from: "%{data} übernehmen"
     copyable_from_clear: "%{data} verwerfen"
     logout: Abmelden
-    clear: "Alle Inhalte aus %{data} entfernen"
+    clear_tooltip: "Alle Inhalte aus %{data} entfernen"
+    clear: "Möchten Sie wirklich alle Inhalte aus %{data} entfernen? Diese Aktion entfernt die Daten NICHT aus dem System."
     remove_content_from: "%{name} aus %{collection} entfernen?"
     remove_from: "aus %{collection} entfernen"
     set_gravity: "Bildausschnitt festlegen (Gravity)"

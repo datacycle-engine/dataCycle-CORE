@@ -21,6 +21,34 @@ en:
 
   template_names:
     skos:Concept: Classification
+    Article: Article
+    AdditionalDescription: Additional description
+    AudioObject: Audio
+    ImageObject: Image
+    VideoObject: Video
+    MediaObject: Media
+    ExternalVideo: Video (external)
+    PDF: PDF
+    Event: Event
+    EventSeries: Event series
+    Organization: Organization
+    LocalBusiness: Local business
+    FoodEstablishment: Food Establishment
+    LodgingBusiness: Lodging Business
+    Person: Person
+    Place: Place
+    Accommodation: Accommodation
+    TouristAttraction: Tourist attraction
+    Trail: Trail
+    GtfsStop: Stop
+    BodyOfWater: Body of water
+    # MountainAreaDescription:
+    Recipe: Recipe
+    AvalancheInfo: Avalanche information
+    Snowpark: Snowpark
+    TouristDestination: Tourist destination
+    ContentPage: Content page
+
     # embedded
     ContentBlockTextImage: Text with Image
     ContentBlockAccordion: Accordion
@@ -49,6 +77,57 @@ en:
       aggregate_rating:
       one: Tour rating
       other: Tour ratings
+    Action:
+      url: URL
+    UrlAction:
+      url: URL
+    ContactPoint:
+      name: Title
+      url: Web
+    PostalAddress:
+      name: Contact Person
+      url: Web
+    RecipeIngredient:
+      name: Name and quantity
+    AdditionalInformation:
+      name: Name
+    RecipeComponent:
+      name: Name
+    ImageObjectVariant:
+      name: Name
+    Person:
+      name: Name
+    ContentBlock:
+      name: Headline
+      text: Text
+    Fact:
+      name: Headline
+      text: Text
+    Organization:
+      name: Company name
+    additionalInformation:
+      about: Linked content
+      alternative_headline: Alternative title
+    ImageObject: &image_object
+      author: Photographer
+      content_url: Image URL
+      description: Description (ALT label)
+      encoding: Image variants
+    Bild:
+      <<: *image_object
+    AudioObject:
+      content_url: Audio URL
+      description: Description (ALT label)
+    PDF:
+      content_url: PDF URL
+      description: Description (ALT label)
+      text: Content
+    VideoObject:
+      content_url: Video URL
+      description: Description (ALT label)
+      text: Text
+    ExternalVideo:
+      text: Text
     key_figures_container: Key figures
     universal_classifications: Classifications
     copyright_attributes_group: Copyright
@@ -58,6 +137,140 @@ en:
     aggregate_for_override: Aggregate base for
     overlay_override: (Overlay)
     overlay_add: (Appendix)
+    copyright_notice_computed: Copyright notice (automatically generated)
+    copyright_notice_override: Copyright notice (manually entered)
+    copyright_notice: Copyright notice
+    name: Title
+    about: Main topic
+    accountable_person: Responsible person
+    action_type: Action type
+    active: Active
+    address: Address
+    address_locality: City
+    administrative_unit_classifications: Administrative units
+    alternative_headline: Alternative name
+    api_gravity: Gravity
+    asset: File
+    attribution_name: Attribution
+    attribution_url: Attribution URL
+    audio_object: Audio
+    author: Author
+    canonical_url: URL (Canonical)
+    caption: Alt label
+    collection: Linked lists/collections
+    contact_info: Contact
+    contact_point: Contact
+    contained_in_place: Related to places
+    contains_place: Related places
+    content_block: Content block
+    content_location: Location
+    content_size: File size
+    content_url: URL (Content)
+    copyright_holder: Rights holder
+    copyright_holder_override: Rights holder (manually entered)
+    copyright_holder_computed: Rights holder (automatically generated)
+    copyright_year: Copyright year
+    country_code: Country code
+    customer: Customer
+    data_pool: Content pool
+    date_created: Creation date
+    date_deleted: Deletion date
+    date_modified: Modification date
+    dc_address: Address
+    dc_mobile: Mobile
+    dc_opening_state: Time series
+    description: Text
+    director: Director
+    duration: Duration
+    elevation: Altitude (m)
+    email: Email
+    external_status: External status
+    fact: Facts
+    family_name: Last name
+    fax_number: Fax
+    file_format: File format
+    file_type: File type - Classification
+    gender: Gender
+    given_name: First name
+    gravity: Gravity
+    headline: Headline
+    height: Height
+    honorific_prefix: Salutation / Title
+    honorific_suffix: Title added after
+    image: Image
+    internal_content_score: Internal content score
+    internal_name: Working title
+    is_linked_to: Linked to
+    job_title: Job title
+    keywords: Keywords
+    kind: Content type
+    latitude: Latitude
+    legal_name: Legal name
+    license: Copyright / License
+    license_classification: Licenses
+    linked_thing: Linked content
+    location: GPS coordinates
+    logo: Logo
+    longitude: Longitude
+    member: Members
+    member_of: Organization
+    nationality: Nationality
+    opening_hours_description: Opening hours description
+    opening_hours_specification: Opening hours
+    output_channel: Output channel
+    path: Path
+    pdf: PDF
+    postal_code: ZIP code
+    potential_action: Further links
+    preview_image_start_time: Thumbnail by second
+    preview_image_start_time_computed: Thumbnail by second (automatically generated)
+    preview_url: Preview URL
+    producer: Producer
+    provider: Service provider
+    publication_schedule: Publication schedule
+    publish_at: Publication date
+    recipe_category: Category
+    recipe_course: Course
+    recipe_ingredient: Ingredients
+    recipe_instructions: Instructions
+    recipe_yield: Yield
+    same_as: External links
+    sd_date_published: Publication date
+    sd_license: License URL
+    sd_publisher: Owner / Publisher
+    street_address: Street
+    subject_of: Theme of
+    tags: Tags
+    telephone: Phone
+    text: Body text
+    thumbnail_image: Thumbnail
+    thumbnail_url: Thumbnail URL
+    thumbnail_url_override: Thumbnail URL (manually entered)
+    total_time: Total time
+    transcoding_mp4: Label
+    transcoding_mp4_low: Label
+    transcoding_mp4_mid: Label
+    transcript: Transcript
+    translation_of_work: Translated by
+    type_of_information: Information type
+    upload_date: Upload date
+    url: Content URL
+    use_guidelines: Usage guidelines
+    validity_period: Validity period
+    validity_schedule: Publication plan
+    video_frame_size: Resolution
+    video_quality: Quality
+    virtual_content_url: Content URL (Virtual)
+    virtual_description: Description (Virtual)
+    virtual_dynamic_url: Content URL (Dynamic)
+    virtual_original_url: Original URL (Virtual)
+    virtual_thumbnail_url: Thumbnail URL (Virtual)
+    virtual_web_small_url: Web URL (Small)
+    virtual_web_url: Web URL
+    width: Width
+    work_translation: Translated by
+    valid_from: Valid from
+    valid_until: to
 
   footer_links:
     privacy_policy: Privacy policy
@@ -115,12 +328,15 @@ en:
     datahash: Datahash
     api: JSON API
     relations: Relations
+    template_paths: Template paths
+
   dash_board:
-    download_full: Download (full)
-    import_full: Import (full)
+    delta: delta
+    full: full
+    reset: rebuild
     import: Import
     download: Download
-    download_import: Download &amp; Import
+    download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
     maintenance:
@@ -1212,7 +1428,9 @@ en:
     bulk_edit: process in bulk
     add_items_to_watch_list: add to %{data}
     add: add
-    delete_items_in_watch_list: Delete all contents of this content collection
+    delete_items_in_watch_list_tooltip: Delete all contents from this content collection
+    delete_items_in_watch_list: "Do you really want to delete all contents from this content collection? <b>This action cannot be undone and will permanently delete the contents from the system.</b>"
+    delete_items_in_watch_list_confirmation_text: "Delete all contents permanently"
     save_without_redirect: Save
     set_and_next: take over and continue
     set_all_attributes: apply for all
@@ -1221,10 +1439,12 @@ en:
     copyable_from: Apply %{data}
     copyable_from_clear: "%{data} discard"
     logout: Logout
-    clear: "remove all contents from %{data}"
+    clear_tooltip: "remove all contents from %{data}"
+    clear: "Do you really want to remove ALL contents from %{data}? This action does NOT delete the data from the system."
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
     set_gravity: "Set image gravity"
+    deactivate_gravity_editor: "End editing"
     download_user_info_activity: "Download user activity"
   validation:
     errors:
@@ -1584,7 +1804,7 @@ en:
         new_password: New password
         current_password: Current password
         email: Email
-        role_id: Roll
+        role_id: Role
         user_group_ids: User groups
         external: SSO
         notification_frequency: Subscription notification

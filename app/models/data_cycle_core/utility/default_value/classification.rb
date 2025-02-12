@@ -12,7 +12,10 @@ module DataCycleCore
               value = property_definition&.dig('default_value')
             end
 
-            Array.wrap(DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), value))
+            concepts = DataCycleCore::Concept.for_tree(property_definition&.dig('tree_label'))
+              .with_internal_name(value)
+            concepts = concepts.limit(property_definition.dig('validations', 'max').to_i) if property_definition.dig('validations', 'max').present?
+            concepts.pluck(:classification_id)
           end
 
           def schema_types(property_definition:, content:, **_args)

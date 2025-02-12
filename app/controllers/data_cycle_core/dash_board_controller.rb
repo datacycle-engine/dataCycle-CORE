@@ -13,62 +13,49 @@ module DataCycleCore
     end
 
     def download
-      @external_source = ExternalSystem.find(params[:id])
-      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
+      @external_source = ExternalSystem.find(import_params[:id])
+      job = DownloadJob.new(@external_source.id, import_params[:mode])
+
+      if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
+        flash[:info] = I18n.t(:running, scope: [:controllers, :job], locale: helpers.active_ui_locale)
       else
-        DownloadJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
+        job.enqueue
+        flash[:success] = I18n.t(:added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
+
       redirect_to admin_path
     end
 
     def import
-      @external_source = ExternalSystem.find(params[:id])
-      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
-      else
-        ImportOnlyJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
-      end
-      redirect_to admin_path
-    end
+      @external_source = ExternalSystem.find(import_params[:id])
+      job = ImportOnlyJob.new(@external_source.id, import_params[:mode])
 
-    def import_full
-      @external_source = ExternalSystem.find(params[:id])
-      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import_full', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
+      if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
+        flash[:info] = I18n.t(:running, scope: [:controllers, :job], locale: helpers.active_ui_locale)
       else
-        ImportFullJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
+        job.enqueue
+        flash[:success] = I18n.t(:added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
-      redirect_to admin_path
-    end
 
-    def download_full
-      @external_source = ExternalSystem.find(params[:id])
-      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_full', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
-      else
-        DownloadFullJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
-      end
       redirect_to admin_path
     end
 
     def download_import
-      @external_source = ExternalSystem.find(params[:id])
-      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
+      @external_source = ExternalSystem.find(import_params[:id])
+      job = ImportJob.new(@external_source.id, import_params[:mode])
+
+      if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
+        flash[:info] = I18n.t(:running, scope: [:controllers, :job], locale: helpers.active_ui_locale)
       else
-        ImportJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
+        job.enqueue
+        flash[:success] = I18n.t(:added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
+
       redirect_to admin_path
     end
 
     def delete_queue
-      job = Delayed::Job.find(params[:id])
+      job = Delayed::Job.find(import_params[:id])
       job.destroy if job.present?
       redirect_to admin_path
     end
@@ -112,6 +99,10 @@ module DataCycleCore
 
     def permitted_parameter_keys
       [:type]
+    end
+
+    def import_params
+      params.permit(:id, :mode)
     end
   end
 end

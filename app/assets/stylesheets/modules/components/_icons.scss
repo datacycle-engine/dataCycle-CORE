@@ -271,7 +271,8 @@
     }
 
     &.job_posting,
-    &.jobposting {
+    &.jobposting,
+    &.job_article {
       &::before {
         content: '\f0b1';
       }
@@ -337,6 +338,25 @@
     &.tourist_destination {
       &::before {
         content: '\f024';
+      }
+    }
+
+    &.potential_action,
+    &.action {
+      &::before {
+        content: '\f061';
+      }
+    }
+
+    &.url_action {
+      &::before {
+        content: '\f0c1';
+      }
+    }
+
+    &.ergaenzende_information {
+      &::before {
+        content: '\f0f6';
       }
     }
   }

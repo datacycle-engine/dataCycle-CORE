@@ -9,6 +9,7 @@ module DataCycleCore
     belongs_to :concept_scheme, class_name: 'DataCycleCore::ConceptScheme', foreign_key: 'classification_tree_label_id', inverse_of: false
 
     scope :without_broader, -> { where(link_type: ['direct', 'related']) }
+    scope :related, -> { where(link_type: 'related') }
 
     def readonly?
       true

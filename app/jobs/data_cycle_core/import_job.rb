@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     def delayed_reference_type
-      self.class::REFERENCE_TYPE
+      [self.class::REFERENCE_TYPE, *arguments[1..]].compact_blank.join('_')
     end
 
     after_enqueue do |_|

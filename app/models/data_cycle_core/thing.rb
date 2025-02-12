@@ -94,6 +94,7 @@ module DataCycleCore
 
     has_many :schedules
     has_many :collected_classification_contents
+    has_many :related_classification_contents, -> { related }, inverse_of: false, class_name: 'DataCycleCore::CollectedClassificationContent'
     has_many :full_classification_contents, -> { without_broader }, inverse_of: false, class_name: 'DataCycleCore::CollectedClassificationContent'
     has_many :full_classification_aliases, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationAlias', source: :classification_alias
     has_many :full_classification_tree_labels, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationTreeLabel', source: :classification_tree_label
