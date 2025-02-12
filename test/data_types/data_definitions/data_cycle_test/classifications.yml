@@ -60,28 +60,133 @@
     - Männlich | Male **https://schema.org/Male
     - Weiblich | Female **https://schema.org/Female
 
-- Wochentage | all:
-    - Montag **https://schema.org/Monday
-    - Dienstag **https://schema.org/Tuesday
-    - Mittwoch **https://schema.org/Wednesday
-    - Donnerstag **https://schema.org/Thursday
-    - Freitag **https://schema.org/Friday
-    - Samstag **https://schema.org/Saturday
-    - Sonntag **https://schema.org/Sunday
+- name: Wochentage
+  concepts:
+    - name:
+        de: Montag
+        en: Monday
+        it: Lunedì
+        fr: Lundi
+        nl: Maandag
+      uri: https://schema.org/Monday
+    - name:
+        de: Dienstag
+        en: Tuesday
+        it: Martedì
+        fr: Mardi
+        nl: Dinsdag
+      uri: https://schema.org/Tuesday
+    - name:
+        de: Mittwoch
+        en: Wednesday
+        it: Mercoledì
+        fr: Mercredi
+        nl: Woensdag
+      uri: https://schema.org/Wednesday
+    - name:
+        de: Donnerstag
+        en: Thursday
+        it: Giovedì
+        fr: Jeudi
+        nl: Donderdag
+      uri: https://schema.org/Thursday
+    - name:
+        de: Freitag
+        en: Friday
+        it: Venerdì
+        fr: Vendredi
+        nl: Vrijdag
+      uri: https://schema.org/Friday
+    - name:
+        de: Samstag
+        en: Saturday
+        it: Sabato
+        fr: Samedi
+        nl: Zaterdag
+      uri: https://schema.org/Saturday
+    - name:
+        de: Sonntag
+        en: Sunday
+        it: Domenica
+        fr: Dimanche
+        nl: Zondag
+      uri: https://schema.org/Sunday
 
-- Monate | all:
-    - Januar
-    - Februar
-    - März
-    - April
-    - Mai
-    - Juni
-    - Juli
-    - August
-    - September
-    - Oktober
-    - November
-    - Dezember
+
+- name: Monate
+  concepts:
+    - name:
+        de: Januar
+        en: January
+        it: Gennaio
+        fr: Janvier
+        nl: Januari
+    - name:
+        de: Februar
+        en: February
+        it: Febbraio
+        fr: Février
+        nl: Februari
+    - name:
+        de: März
+        en: March
+        it: Marzo
+        fr: Mars
+        nl: Maart
+    - name:
+        de: April
+        en: April
+        it: Aprile
+        fr: Avril
+        nl: April
+    - name:
+        de: Mai
+        en: May
+        it: Maggio
+        fr: Mai
+        nl: Mei
+    - name:
+        de: Juni
+        en: June
+        it: Giugno
+        fr: Juin
+        nl: Juni
+    - name:
+        de: Juli
+        en: July
+        it: Luglio
+        fr: Juillet
+        nl: Juli
+    - name:
+        de: August
+        en: August
+        it: Agosto
+        fr: Août
+        nl: Augustus
+    - name:
+        de: September
+        en: September
+        it: Settembre
+        fr: Septembre
+        nl: September
+    - name:
+        de: Oktober
+        en: October
+        it: Ottobre
+        fr: Octobre
+        nl: Oktober
+    - name:
+        de: November
+        en: November
+        it: Novembre
+        fr: Novembre
+        nl: November
+    - name:
+        de: Dezember
+        en: December
+        it: Dicembre
+        fr: Décembre
+        nl: December
 
 - Märkte | all:
     - Markt 1
