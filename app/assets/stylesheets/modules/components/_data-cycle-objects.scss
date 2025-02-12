@@ -23,6 +23,9 @@
   .inner {
     .image-thumbnail {
       text-align: center;
+      display: grid;
+      align-items: center;
+      justify-content: center;
     }
 
     .infoRow {

@@ -3480,6 +3480,10 @@ button.button-prime.small.bulk-delete-button {
       visibility: visible;
       width: 20rem;
     }
+
+    .fa.fa-trash::before {
+      content: '\f1e2';
+    }
   }
 }
 

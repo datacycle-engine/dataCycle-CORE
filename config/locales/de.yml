@@ -1267,7 +1267,7 @@ de:
     add_items_to_watch_list: "zu %{data} hinzufügen"
     add: hinzufügen
     delete_items_in_watch_list_tooltip: "Alle Inhalte aus dieser Inhaltssammlung löschen"
-    delete_items_in_watch_list: "Möchten Sie wirklich alle Inhalte aus dieser Inhaltssammlung aus dem System löschen? <b>Diese Aktion kann nicht rückgängig gemacht werden und löscht die Inhalte dauerhaft aus dem System.</b>"
+    delete_items_in_watch_list: "Möchten Sie wirklich alle Inhalte aus dieser Inhaltssammlung aus dem System löschen?<br><b>Diese Aktion kann nicht rückgängig gemacht werden und löscht die Inhalte dauerhaft aus dem System.</b>"
     delete_items_in_watch_list_confirmation_text: "Alle Inhalte dauerhaft löschen"
     save_without_redirect: Zwischenspeichern
     set_and_next: "übernehmen und weiter"

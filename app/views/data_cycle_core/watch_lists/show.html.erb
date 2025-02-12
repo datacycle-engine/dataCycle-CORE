@@ -201,11 +201,11 @@
 
         <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: @watch_list if can?(:bulk_edit, @watch_list) %>
 
+        <%= render 'data_cycle_core/watch_lists/clear_button', watch_list: @watch_list if can? :remove_item, @watch_list %>
+
         <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?", dc_tooltip: t('actions.delete_with_data', data: @watch_list.model_name.human(locale: active_ui_locale), locale: active_ui_locale) } do %>
           <i class="fa fa-trash-o" aria-hidden="true"></i>
         <% end if can? :destroy, @watch_list %>
-
-        <%= render 'data_cycle_core/watch_lists/clear_button', watch_list: @watch_list if can? :remove_item, @watch_list %>
 
         <% if can?(:bulk_delete, @watch_list) %>
           <span data-dc-tooltip="<%= t('actions.delete_items_in_watch_list_tooltip', locale: active_ui_locale) %>">
