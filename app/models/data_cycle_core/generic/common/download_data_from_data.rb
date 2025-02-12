@@ -11,8 +11,9 @@ module DataCycleCore
             data_id: method(:data_id).to_proc.curry[options.dig(:download, :data_id_transformation)],
             data_name: method(:data_name).to_proc,
             options:,
-            iterate_credentials: false
-          )
+            iterate_credentials: false,
+            cleanup_data: method(:cleanup_data).to_proc.curry[options.dig(:download, :cleanup_data)]
+            )
         end
 
         def self.load_data_from_mongo(options:, locale:, source_filter:, **_keyword_args)
@@ -128,6 +129,12 @@ module DataCycleCore
 
         def self.data_name(data)
           data['name']
+        end
+
+        def self.cleanup_data(cleanup_data_config, data)
+          return data if cleanup_data_config.blank? || cleanup_data_config[:module].blank? || cleanup_data_config[:method].blank?
+
+          cleanup_data_config[:module].safe_constantize.public_send(cleanup_data_config[:method], data)
         end
       end
     end
