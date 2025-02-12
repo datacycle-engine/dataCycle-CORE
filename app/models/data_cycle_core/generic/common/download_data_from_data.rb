@@ -13,7 +13,7 @@ module DataCycleCore
             options:,
             iterate_credentials: false,
             cleanup_data: method(:cleanup_data).to_proc.curry[options.dig(:download, :cleanup_data)]
-            )
+          )
         end
 
         def self.load_data_from_mongo(options:, locale:, source_filter:, **_keyword_args)
