@@ -53,12 +53,6 @@ module DataCycleCore
 
           key.failure('the string given does not specify a valid logging class.') if temp == false && key?
         end
-
-        register_macro(:source_type_required) do
-          strategy = (values[:import_strategy] || values[:download_strategy])&.safe_constantize
-
-          key.failure('is missing') unless key? || strategy.try(:source_type?).is_a?(FalseClass)
-        end
       end
     end
   end

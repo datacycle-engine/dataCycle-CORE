@@ -115,8 +115,13 @@ module DataCycleCore
         end
 
         def self.data_id(data_id_transformation, data)
-          id = data['id'].to_s
-          id = data_id_transformation[:module].safe_constantize.public_send(data_id_transformation[:method], id) if data_id_transformation.present?
+          if data_id_transformation.present?
+            id = data_id_transformation[:module]
+              .safe_constantize
+              .public_send(data_id_transformation[:method], data)
+          else
+            id = data['id'].to_s
+          end
 
           id
         end

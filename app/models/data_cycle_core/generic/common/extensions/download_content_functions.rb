@@ -9,72 +9,22 @@ module DataCycleCore
           FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
           CONFIG_PROPS = [:tree_label, :external_id_prefix, :priority].freeze
 
-          def download_content(download_object:, cleanup_data: nil, credential: nil, iterator: nil, data_id: nil, **keyword_args)
+          def download_content(download_object:, iterator: nil, credential: nil, **keyword_args)
             credential ||= default_credential
-            with_logging(**keyword_args, download_object:, cleanup_data:, credential:, iterator:, data_id:) do |options, step_label|
-              locale = options[:locales].first
-              item_count = 0
-              times = [Time.current]
+            with_logging(**keyword_args, download_object:, iterator:, credential:) do |options, step_label|
+              items = items(iterator:, download_object:, options:, locale: options[:locales].first)
               credential_key = credential.call(options[:credentials]) if credential.present?
-              items = items(iterator:, download_object:, options:, locale:)
-              items.each_slice(DELTA) do |item_data_slice|
-                break if options[:max_count] && item_count >= options[:max_count]
 
-                download_object.source_object.with(download_object.source_type) do |mongo_item|
-                  mongo_ids = item_data_slice.map { |item_data| data_id.call(item_data)&.to_s }.compact_blank
-                  mongo_items = mongo_item.where(external_id: { '$in' => mongo_ids }).index_by(&:external_id)
-                  touch_ids = []
-
-                  item_data_slice.each do |item_data|
-                    next if item_data.blank?
-
-                    item_count += 1
-                    item_id = data_id.call(item_data)&.to_s
-                    item = mongo_items[item_id] || mongo_item.new(external_id: item_id)
-                    item.dump ||= {}
-                    local_item = item.dump[locale]
-
-                    next unless item_allowed?(local_item:, options:)
-
-                    if item_data.key?(:external_system)
-                      data_credential_keys = Array.wrap(item_data.dig(:external_system, :credential_keys))
-                      data_credential_keys.each { |key| add_credentials!(item:, credential_key: key) }
-                      item_data.delete(:external_system)
-                    end
-
-                    add_credentials!(item:, credential_key:) if credential_key.present?
-
-                    item_data = cleanup_data.call(item_data) if cleanup_data.present?
-
-                    unless local_item.as_json.eql?(item_data.as_json)
-                      item.dump[locale] = item_data
-                      item.data_has_changed = true
-                    end
-
-                    if item.data_has_changed || item.external_system_has_changed
-                      item.save!
-                    else
-                      touch_ids << item.external_id
-                    end
-                  end
-
-                  if touch_ids.present?
-                    mongo_item
-                      .where(external_id: { '$in' => touch_ids })
-                      .update_all(seen_at: Time.zone.now)
-                  end
-                end
-
-                times << Time.current
-                download_object.logger.phase_partial(step_label, item_count, times)
+              if items.is_a?(ParallelEnumerator)
+                download_in_parallel(**keyword_args, download_object:, items:, options:, step_label:, credential_key:)
+              else
+                download_in_sequence(**keyword_args, download_object:, items:, options:, step_label:, credential_key:)
               end
-
-              item_count
             end
           end
 
           def bulk_touch_items(download_object:, options:, iterator: nil, **keyword_args)
-            options[:mode] = 'full' # alwas full mode for touch
+            options[:mode] = 'full' # always full mode for touch
 
             with_logging(download_object:, iterator:, options:, **keyword_args) do |opts|
               locale = opts[:locales].first
@@ -100,7 +50,7 @@ module DataCycleCore
           end
 
           def bulk_mark_deleted(download_object:, options:, iterator: nil, **keyword_args)
-            options[:mode] = 'full' # alwas full mode for delete
+            options[:mode] = 'full' # always full mode for delete
 
             with_logging(download_object:, iterator:, options:, **keyword_args) do |opts|
               locale = opts[:locales].first
@@ -123,6 +73,119 @@ module DataCycleCore
                 result.modified_count
               end
             end
+          end
+
+          def download_in_sequence(download_object:, items:, options:, step_label:, cleanup_data: nil, credential_key: nil, data_id: nil, **_keyword_args)
+            locale = options[:locales].first
+            item_count = 0
+            times = [Time.current]
+
+            items.each_slice(DELTA) do |item_data_slice|
+              break if options[:max_count] && item_count >= options[:max_count]
+
+              download_object.source_object.with(download_object.source_type) do |mongo_item|
+                mongo_ids = item_data_slice.map { |item_data| data_id.call(item_data)&.to_s }.compact_blank
+                mongo_items = mongo_item.where(external_id: { '$in' => mongo_ids }).index_by(&:external_id)
+                touch_ids = []
+
+                item_data_slice.each do |item_data|
+                  next if item_data.blank?
+
+                  item_count += 1
+                  item_id = data_id.call(item_data)&.to_s
+                  item = mongo_items[item_id] || mongo_item.new(external_id: item_id)
+                  item.dump ||= {}
+                  local_item = item.dump[locale]
+
+                  next unless item_allowed?(local_item:, options:)
+
+                  if item_data.key?(:external_system)
+                    data_credential_keys = Array.wrap(item_data.dig(:external_system, :credential_keys))
+                    data_credential_keys.each { |key| add_credentials!(item:, credential_key: key) }
+                    item_data.delete(:external_system)
+                  end
+
+                  add_credentials!(item:, credential_key:) if credential_key.present?
+
+                  item_data = cleanup_data.call(item_data) if cleanup_data.present?
+
+                  unless local_item.as_json.eql?(item_data.as_json)
+                    item.dump[locale] = item_data
+                    item.data_has_changed = true
+                  end
+
+                  if item.data_has_changed || item.external_system_has_changed
+                    item.save!
+                  else
+                    touch_ids << item.external_id
+                  end
+                end
+
+                if touch_ids.present?
+                  mongo_item
+                    .where(external_id: { '$in' => touch_ids })
+                    .update_all(seen_at: Time.zone.now)
+                end
+              end
+
+              times << Time.current
+              download_object.logger.phase_partial(step_label, item_count, times)
+            end
+
+            item_count
+          end
+
+          def download_in_parallel(download_object:, items:, options:, step_label:, cleanup_data: nil, credential_key: nil, data_id: nil, **_keyword_args)
+            locale = options[:locales].first
+            item_count = 0
+            times = [Time.current]
+
+            items.each do |item_data|
+              break if options[:max_count] && item_count >= options[:max_count]
+              next if item_data.blank?
+
+              item_count += 1
+              current_count = item_count
+
+              init_mongo_db(download_object.database_name) do # required for concurrent processing
+                download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  item_id = data_id.call(item_data)&.to_s
+                  item = mongo_item.find_or_initialize_by(external_id: item_id)
+                  item.dump ||= {}
+                  local_item = item.dump[locale]
+
+                  next unless item_allowed?(local_item:, options:)
+
+                  if item_data.key?(:external_system)
+                    data_credential_keys = Array.wrap(item_data.dig(:external_system, :credential_keys))
+                    data_credential_keys.each { |key| add_credentials!(item:, credential_key: key) }
+                    item_data.delete(:external_system)
+                  end
+
+                  add_credentials!(item:, credential_key:) if credential_key.present?
+
+                  item_data = cleanup_data.call(item_data) if cleanup_data.present?
+
+                  unless local_item.as_json.eql?(item_data.as_json)
+                    item.dump[locale] = item_data
+                    item.data_has_changed = true
+                  end
+
+                  if item.data_has_changed || item.external_system_has_changed
+                    item.save!
+                  else
+                    item.set('seen_at' => Time.zone.now)
+                  end
+                end
+              end
+
+              next unless (current_count % DELTA).zero?
+
+              times << Time.current
+              download_object.logger.phase_partial(step_label, current_count, times)
+            end
+
+            item_count
           end
 
           protected

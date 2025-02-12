@@ -27,6 +27,9 @@ module DataCycleCore
             add_sorting!(data.dig('config', 'download_config'))
             add_sorting!(data.dig('config', 'import_config'))
 
+            add_source_type!(data.dig('config', 'download_config'))
+            add_source_type!(data.dig('config', 'import_config'))
+
             external_system.attributes = data.slice('name', 'identifier', 'credentials', 'config', 'default_options', 'deactivated').reverse_merge!({ 'name' => nil, 'identifier' => nil, 'credentials' => nil, 'config' => nil, 'default_options' => nil, 'deactivated' => false })
             external_system.save
           else
@@ -46,6 +49,19 @@ module DataCycleCore
 
         data.each_value.with_index(1) do |value, index|
           value['sorting'] ||= index
+        end
+      end
+
+      def self.add_source_type!(data)
+        return if data.blank?
+
+        data.each do |key, value|
+          next if value.key?('source_type')
+
+          strategy = (value['import_strategy'] || value['download_strategy'])&.safe_constantize
+          next if strategy.try(:source_type?).is_a?(FalseClass)
+
+          value['source_type'] = key
         end
       end
 
@@ -176,16 +192,15 @@ module DataCycleCore
         schema do
           optional(:read_type) { str? | (array? & each { str? }) }
           optional(:sorting) { int? & gt?(0) }
-          optional(:source_type) { str? }
-          optional(:endpoint) { str? }
-          optional(:import_strategy) { str? }
-          optional(:download_strategy) { str? }
-          optional(:logging_strategy) { str? }
+          optional(:source_type).filled(:str?)
+          optional(:endpoint).filled(:str?)
+          optional(:import_strategy).filled(:str?)
+          optional(:download_strategy).filled(:str?)
+          optional(:logging_strategy).filled(:str?)
           optional(:tree_label) { str? | (array? & each { str? }) }
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
-          optional(:external_id_prefix) { str? }
-          optional(:logging_strategy) { str? }
+          optional(:external_id_prefix).filled(:str?)
           optional(:transformations) { hash? }
           optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
           optional(:data_id_transformation).hash do
@@ -203,8 +218,6 @@ module DataCycleCore
         rule do
           base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)
         end
-
-        rule(:source_type).validate(:source_type_required)
       end
     end
   end

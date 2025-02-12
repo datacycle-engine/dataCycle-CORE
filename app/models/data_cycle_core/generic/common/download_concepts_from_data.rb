@@ -19,15 +19,15 @@ module DataCycleCore
           raise ArgumentError, 'missing read_type for download_concepts_from_data' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
           # either both concept_name_path and concept_id_path should be present or none, hence the fallbacks
-          concept_name = options.dig(:download, :concept_name_path)&.then { |v| ERB.new(v).result(binding) }
-          concept_id = options.dig(:download, :concept_id_path) || concept_name
+          concept_name = path_config(:name, options)&.then { |v| ERB.new(v).result(binding) }
+          concept_id = path_config(:id, options) || concept_name
           concept_name ||= concept_id
 
-          concept_parent_id = options.dig(:download, :concept_parent_id_path) || 'parent_id'
+          concept_parent_id = path_config(:parent_id, options) || 'parent_id'
           priority = options.dig(:download, :priority) || 5
-          concept_uri = options.dig(:download, :concept_uri_path) || 'uri'
+          concept_uri = path_config(:uri, options) || 'uri'
 
-          concept_path = options.dig(:download, :concept_path) || ''
+          concept_path = path_config(nil, options) || ''
           concept_path += '[]' unless concept_path.end_with?('[]')
           array_positions = concept_path.split('.').map { |x| x.include?('[]') ? 1 : 0 }
           concept_path = concept_path.gsub('[]', '')
@@ -116,7 +116,8 @@ module DataCycleCore
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
-              pipelines
+              pipelines,
+              allow_disk_use: true
             ).to_a
           end
         end
@@ -132,6 +133,12 @@ module DataCycleCore
 
         def self.data_name(data)
           data['name']
+        end
+
+        def self.path_config(key, options)
+          suffix = [key.to_s, 'path'].compact_blank.join('_')
+
+          options.dig(:download, :"concept_#{suffix}") || options.dig(:download, :"data_#{suffix}")
         end
       end
     end
