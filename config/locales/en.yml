@@ -2176,6 +2176,8 @@ en:
         noOpeningHours: Without opening hours
         permanentlyOpen: Always accessible
         openOnRequest: Open on request
+      seatsIndoor: Indoor seats
+      seatsOutdoor: Outdoor seats
     gem2go:
       description: Description
     timm4:

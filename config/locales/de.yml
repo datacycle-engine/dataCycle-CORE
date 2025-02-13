@@ -1991,6 +1991,8 @@ de:
         noOpeningHours: ohne Öffnungszeiten
         permanentlyOpen: Jederzeit frei zugänglich
         openOnRequest: geöffnet auf Anfrage
+      seatsIndoor: Sitzplätze innen
+      seatsOutdoor: Sitzplätze außen
     gem2go:
       description: Beschreibung
     timm4:
