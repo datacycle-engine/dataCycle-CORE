@@ -3046,6 +3046,10 @@ input.normalized {
 section.related-objects {
   margin-bottom: 3rem;
 
+  .add-items-to-watch-list {
+    padding: 0;
+  }
+
   .load-more-related-button {
     display: block;
     text-align: center;
@@ -3111,7 +3115,7 @@ section.related-objects {
 
     ul.children {
       >li {
-        border-left: 1px solid $medium-gray;
+        border-left: 1px solid var(--medium-dark-gray);
         margin: 0 0 0 2rem;
         line-height: 1;
 
@@ -3131,7 +3135,7 @@ section.related-objects {
             left: -1px;
             bottom: 30%;
             width: 0.75em;
-            border: 1px solid $medium-gray;
+            border: 1px solid var(--medium-dark-gray);
             border-top: 0 none transparent;
             border-right: 0 none transparent;
           }

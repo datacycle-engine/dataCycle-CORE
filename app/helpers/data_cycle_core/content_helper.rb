@@ -17,5 +17,25 @@ module DataCycleCore
 
       (width / height).to_r
     end
+
+    def grouped_related_contents(related_objects, content)
+      grouped_objects = related_objects.presence&.includes(:content_content_a, :thing_template)&.group_by(&:thing_template)
+
+      return if grouped_objects.blank?
+
+      grouped_objects.transform_values do |objects|
+        relation_groups = {}
+
+        objects.each do |object|
+          object.content_content_a.each do |cc|
+            next if cc.content_b_id != content.id
+
+            relation_groups.key?(cc.relation_a) ? relation_groups[cc.relation_a].push(object) : relation_groups[cc.relation_a] = [object]
+          end
+        end
+
+        relation_groups
+      end
+    end
   end
 end

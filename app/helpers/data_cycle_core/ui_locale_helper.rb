@@ -37,7 +37,7 @@ module DataCycleCore
       @available_locales_with_all[active_ui_locale]
     end
 
-    def translated_attribute_label(key, definition, content, options, count = 1)
+    def translated_attribute_label(key, definition, content, options = {}, count = 1)
       DataCycleCore::Thing.human_attribute_name(key.attribute_name_from_key.to_s, (options || {}).merge({ base: content, count:, definition:, locale: active_ui_locale }))
     end
 

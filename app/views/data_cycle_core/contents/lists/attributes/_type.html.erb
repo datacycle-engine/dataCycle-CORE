@@ -1,5 +1,4 @@
 <% if item.schema.present? && item.template_name.present? %>
-
   <div class="type <%= item.template_name.downcase %> <%= "has-parent" if item.try(:parent).present? %>">
     <div class="infoRow">
       <%= render 'data_cycle_core/shared/icon', icon_type: item.try(:icon_type), icon_class: item.try(:icon_class) %>
@@ -8,9 +7,7 @@
                  content: item %>
     </div>
   </div>
-
 <% else %>
-
   <div class="type">
     <div class="infoRow">
       <span class="icon">
@@ -19,5 +16,4 @@
       <span class="template-title">UNDEFINED_CONTENT</span>
     </div>
   </div>
-
 <% end %>

@@ -112,7 +112,7 @@
   <% if classification_alias.persisted? && can?(:view_all, classification_alias) %>
     <div class="ca-input">
       <%= f.label :external_keys, class: 'ca-label'%>
-      <%= f.text_field :external_keys, class: 'ca-input-field', disabled: true %>
+      <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true %>
     </div>
 
     <%# to show classifications mapped to this ClassificationAlias %>
