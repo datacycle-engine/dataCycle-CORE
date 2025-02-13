@@ -190,7 +190,8 @@ module DataCycleCore
                     if from.size == 2
                       target_prop = (oembed[from[0]&.to_sym] || oembed_output[from[0]&.to_sym])&.gsub(/[{}]/, '')&.split('|')&.find { |key| thing.respond_to?(key) && thing.send(key).present? }
                       target_url = target_prop&.then { |key| thing.send(key) }
-                      s = from_url(target_url, from[1]).to_s
+                      s = target_url.present? ? from_url(target_url, from[1]) : nil
+                      s = oembed["default_#{from[1]}"] if s.blank?
                     else
                       s = nil
                     end
@@ -227,7 +228,10 @@ module DataCycleCore
                   result
                 end
               end
-              oembed[k.to_sym] = replaced_value if replaced_value.present?
+
+              if replaced_value.present?
+                oembed[k.to_sym] = ['height', 'width'].include?(k) ? replaced_value.to_i : replaced_value
+              end
             end
             oembed = oembed.compact
 
@@ -264,6 +268,7 @@ module DataCycleCore
               next if endpoint['formats'].present? && endpoint['formats'].exclude?('json')
 
               hit = endpoint['schemes'].any? do |scheme|
+                next if scheme.class.name != 'String' || data.class.name != 'String'
                 Regexp.new("^#{Regexp.escape(scheme).gsub('\*', '.*')}", Regexp::IGNORECASE).match?(data)
               end
               provider['oembed_url'] = endpoint['url'] if hit
@@ -295,9 +300,9 @@ module DataCycleCore
           size = FastImage.size(url)
           case property
           when 'height'
-            res = size[1]
+            res = size.present? && size.size == 2 ? size[1] : nil
           when 'width'
-            res = size[0]
+            res = size.present? && size.size == 2 ? size[0] : nil
           else
             res = nil
           end
