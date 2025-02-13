@@ -47,6 +47,8 @@ module DataCycleCore
             @classification_aliases = apply_filters(@classification_aliases, filter)
           end
 
+          @classification_aliases = @classification_aliases.includes(:classification_polygons) if helpers.included_attribute?('geo', @fields_parameters + @include_parameters)
+
           @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
           @classification_aliases = apply_ordering(@classification_aliases)
           @classification_aliases = apply_paging(@classification_aliases)

@@ -286,5 +286,19 @@ module DataCycleCore
         end
       }.compact_blank.inject(&:merge) || {}
     end
+
+    def geoshape_as_json(geom)
+      return if geom.nil?
+
+      key = if geom.is_a?(RGeo::Feature::MultiPolygon) || geom.is_a?(RGeo::Feature::Polygon)
+              'polygon'
+            elsif geom.is_a?(RGeo::Feature::MultiLineString) || geom.is_a?(RGeo::Feature::LineString)
+              'line'
+            end
+
+      return if key.nil?
+
+      { key => geom.as_json }
+    end
   end
 end
