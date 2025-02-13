@@ -190,14 +190,14 @@ module DataCycleCore
                     if from.size == 2
                       target_prop = (oembed[from[0]&.to_sym] || oembed_output[from[0]&.to_sym])&.gsub(/[{}]/, '')&.split('|')&.find { |key| thing.respond_to?(key) && thing.send(key).present? }
                       target_url = target_prop&.then { |key| thing.send(key) }
-                      s = target_url.present? ? from_url(target_url, from[1]) : nil
-                      s = oembed["default_#{from[1]}"] if s.blank?
+                      s = target_url.present? ? from_url(target_url, from[1]) : oembed["default_#{from[1]}"]
                     else
                       s = nil
                     end
                   else
                     s = nil
                   end
+                  s
                 elsif s.present? && s.match(/^val:/)
                   s = s.sub('val:', '').strip
                   s.match?(/^\d+$/) ? s : oembed[s.to_sym].to_s
