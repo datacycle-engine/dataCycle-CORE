@@ -2320,6 +2320,8 @@ en:
       roadmap: Roadmap
     museumsportal:
       opening_hours: Opening hours description
+    digitize_the_planet:
+      area: Fläche
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
