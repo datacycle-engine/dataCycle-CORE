@@ -13,7 +13,7 @@ module DataCycleCore
         file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p.join(Rails.env, '*.yml') })).concat(Dir.glob(Array.wrap(paths&.map { |p| p.join('*.yml') }))).uniq { |p| File.basename(p) }
 
         if file_paths.blank?
-          puts AmazingPrint::Colors.yellow('INFO: no external systems found')
+          puts AmazingPrint::Colors.yellow('INFO: no external systems found') # rubocop:disable Rails/Output
           return
         end
 
@@ -70,7 +70,7 @@ module DataCycleCore
         file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p.join(Rails.env, '*.yml') })).concat(Dir.glob(Array.wrap(paths&.map { |p| p.join('*.yml') }))).uniq { |p| File.basename(p) }
 
         if file_paths.blank?
-          puts AmazingPrint::Colors.yellow('INFO: no external systems found')
+          puts AmazingPrint::Colors.yellow('INFO: no external systems found') # rubocop:disable Rails/Output
           return
         end
 

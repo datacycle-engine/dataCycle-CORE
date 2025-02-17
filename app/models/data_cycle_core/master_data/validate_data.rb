@@ -26,8 +26,8 @@ module DataCycleCore
           return @error
         end
 
-        ap data if verbose
-        ap validation_hash if verbose
+        ap data if verbose # rubocop:disable Rails/Output
+        ap validation_hash if verbose # rubocop:disable Rails/Output
 
         validation_object = Validators::Object.new(data, validation_hash['properties'], '', strict, @content)
         @error = validation_object.error

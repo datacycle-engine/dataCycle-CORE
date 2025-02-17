@@ -1,15 +1,12 @@
 # author: rainer@pixelpoint.at
 inherit_from: .rubocop_todo.yml
 
-require:
+plugins:
   - rubocop-performance
   - rubocop-rails
-  # - rubocop-minitest
   - rubocop-rake
 
 AllCops:
-  # TargetRubyVersion: 3.2.2
-  # TargetRailsVersion: 5.2.3
   DisplayCopNames: true
   NewCops: enable
   Exclude:
@@ -17,13 +14,6 @@ AllCops:
     - "tmp/**/*"
     - "cache/**/*"
     - "bash/**/*"
-    - "*/**/transformations.rb"
-
-    # - "test/dummy/db/migrate_6_1/**/*"
-    # - "test/dummy/db/migrate_7_0/**/*"
-
-#Rails:
-#  Enabled: true
 
 #######################################################
 ########## Bundler
@@ -103,8 +93,10 @@ Style/MixinUsage:
   Exclude:
     - "bin/setup"
     - "bin/update"
-    # - "test/dummy/bin/setup"
-    # - "test/dummy/bin/update"
+
+Rails/Output:
+  Exclude:
+    - "db/seeds.rb"
 
 Style/MultilineBlockChain:
   Enabled: false

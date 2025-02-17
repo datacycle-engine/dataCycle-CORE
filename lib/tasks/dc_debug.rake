@@ -35,11 +35,11 @@ namespace :dc do
       end
       overlays = bad_overlays.select { |i| i[1].blank? }.pluck(0)
       items = DataCycleCore::Thing.where(id: overlays)
-      DataCycleCore::ProgressBarService.for_shell(items.count, title: "remove Overlays without translations (#{items.count}):") do |pb|
-        items.find_each do |item|
-          pb.inc
-          item.destroy_content(save_history: false)
-        end
+      progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: 'remove Overlays without translations')
+
+      items.find_each do |item|
+        item.destroy_content(save_history: false)
+        progressbar.increment
       end
     end
 

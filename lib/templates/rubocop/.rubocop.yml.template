@@ -1,0 +1,21 @@
+# author: rainer@pixelpoint.at
+inherit_from:
+  - vendor/gems/data-cycle-core/.rubocop.yml
+
+AllCops:
+  Exclude:
+    - "*/**/node_modules/**/*"
+    - "*/**/tmp/**/*"
+    - "*/**/cache/**/*"
+    - "*/**/bash/**/*"
+    - "*/**/private/**/*"
+    - "*/**/public/**/*"
+    - "*/**/docker/**/*"
+    - "*/**/coverage/**/*"
+    - "*/**/.git/**/*"
+    - "vendor/gems/datacycle-*/**/*"
+
+Style/MixinUsage:
+  Exclude:
+    - "bin/setup"
+    - "bin/update"

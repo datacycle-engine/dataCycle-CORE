@@ -21,7 +21,7 @@ namespace :dc do
 
       desc 'run rubocop'
       task rubocop: :environment do
-        sh 'bundle exec rubocop -P'
+        sh 'bundle exec rubocop'
       end
 
       desc 'run fasterer'
