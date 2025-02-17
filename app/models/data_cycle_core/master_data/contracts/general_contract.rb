@@ -53,6 +53,11 @@ module DataCycleCore
 
           key.failure('the string given does not specify a valid logging class.') if temp == false && key?
         end
+
+        register_macro(:dc_template_names) do
+          # remove Rails.env.development?, when database is available in gitlab for validations
+          key.failure('the specified template_names do not exist in this project') if key? && Rails.env.development? && !DataCycleCore::ThingTemplate.exists?(template_name: value)
+        end
       end
     end
   end

@@ -194,6 +194,8 @@ module DataCycleCore
           optional(:download_strategy).filled(:str?)
           optional(:logging_strategy).filled(:str?)
           optional(:tree_label) { str? | (array? & each { str? }) }
+          optional(:template_name) { str? | (array? & each { str? }) }
+          optional(:linked_template_name) { str? | (array? & each { str? }) }
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
           optional(:external_id_prefix).filled(:str?)
@@ -210,6 +212,8 @@ module DataCycleCore
         rule(:import_strategy).validate(:dc_module)
         rule(:logging_strategy).validate(:dc_logging_strategy)
         rule(:data_id_transformation).validate(:dc_module_method)
+        rule(:template_name).validate(:dc_template_names)
+        rule(:linked_template_name).validate(:dc_template_names)
 
         rule do
           base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)
