@@ -127,7 +127,7 @@ module DataCycleCore
           if trim_name
             pipelines << {
               '$addFields' => {
-                'name' => { '$trim' => { 'input' => '$name' } }
+                'name' => { '$trim' => { 'input' => { '$toString' => '$name' } } }
               }
             }
           end
