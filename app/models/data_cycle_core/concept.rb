@@ -56,9 +56,7 @@ module DataCycleCore
 
                                   joins(:classification_alias_path).reorder(nil).order(
                                     [
-                                      Arel.sql(
-                                        order_string
-                                      ),
+                                      order_string,
                                       {term:}
                                     ]
                                   )

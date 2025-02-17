@@ -140,13 +140,14 @@ module DataCycleCore
       term = ActiveRecord::Base.connection.quote(term)
 
       max_cardinality = Path.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
-      order_string = (1..max_cardinality).map { |c| "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)" }.join(' + ')
+      order_string = (1..max_cardinality).map { |c| "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)" }.join(' + ')
       order_string += ' DESC'
 
       joins(:classification_alias_path).reorder(nil).order(
-        Arel.sql(
-          order_string
-        )
+        [
+          order_string,
+          {term:}
+        ]
       )
     end
 
