@@ -21,9 +21,13 @@ module DataCycleCore
           read_type = Mongoid::PersistenceContext.new(
             DataCycleCore::Generic::Collection2, collection: options[:download][:read_type]
           )
+          I18n.locale = locale.to_sym
 
           data_id = options[:download].key?(:data_id_path) ? options.dig(:download, :data_id_path) : 'id'
           data_name = options[:download].key?(:data_name_path) ? options.dig(:download, :data_name_path) : data_id
+          data_name = data_name&.then { |v| ERB.new(v).result(binding) }
+
+          data_name_fallback = Array.wrap(options.dig(:download, :data_name_path_fallback)).each { |v| ERB.new(v).result(binding) }
 
           data_path = options.dig(:download, :data_path)
           data_id_path = [data_id].compact_blank.join('.')
@@ -31,6 +35,7 @@ module DataCycleCore
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
 
           attribute_whitelist = Array.wrap(options.dig(:download, :attribute_whitelist)) + ['id', 'name'] if options.dig(:download, :attribute_whitelist).present?
+          attribute_blacklist = Array.wrap(options.dig(:download, :attribute_blacklist)) if options.dig(:download, :attribute_blacklist).present?
 
           full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
           full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
@@ -58,7 +63,7 @@ module DataCycleCore
             end
           end
 
-          additional_paths[:external_system] = '$external_system'
+          additional_paths['external_system'] = '$external_system'
 
           project_filter_stage.merge!(additional_paths)
 
@@ -67,10 +72,22 @@ module DataCycleCore
             ['$data', data_name_path].compact_blank.join('.')
           ] + additional_paths.values
 
+          name_fallback_fields = [
+            ['$data', data_name_path].compact_blank.join('.')
+          ] + data_name_fallback.map do |name|
+            ['$data', name].compact_blank.join('.')
+          end
+
           add_fields_stage = {
-            'data.id' => { '$ifNull' => id_fallback_fields},
-            'data.name' => ['$data', data_name_path].compact_blank.join('.')
+            'data.id' => { '$toString' => { '$ifNull' => id_fallback_fields } }
           }
+
+          if name_fallback_fields.length > 1
+            add_fields_stage['data.name'] = { '$ifNull' => name_fallback_fields }
+          else
+            add_fields_stage['data.name'] = name_fallback_fields.first
+          end
+
           additional_paths.each_key do |name|
             add_fields_stage["data.#{name}"] = "$#{name}"
           end
@@ -106,7 +123,21 @@ module DataCycleCore
             }
           ]
 
-          pipelines << { '$project' => attribute_whitelist.index_with { |_attr| 1 } } if attribute_whitelist.present?
+          trim_name = options[:download].key?(:trim_name) ? options.dig(:download, :trim_name) : true
+          if trim_name
+            pipelines << {
+              '$addFields' => {
+                'name' => { '$trim' => { 'input' => '$name' } }
+              }
+            }
+          end
+
+          raise ArgumentError, 'attribute_whitelist and attribute_blacklist cannot be present together' if attribute_whitelist.present? && attribute_blacklist.present?
+          if attribute_whitelist.present?
+            pipelines << { '$project' => attribute_whitelist.index_with { |_attr| 1 } }
+          elsif attribute_blacklist.present?
+            pipelines << { '$project' => attribute_blacklist.index_with { |_attr| 0 } }
+          end
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
