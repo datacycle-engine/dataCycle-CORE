@@ -36,9 +36,7 @@ module DataCycleCore
             errors.concat(error)
           end
         rescue StandardError => e
-          puts AmazingPrint::Colors.red("🔥 could not access the YML File #{file_name}")
-          puts e.message
-          puts e.backtrace
+          errors.push("#{file_name} => could not access the YML File (#{e.message})")
         end
 
         errors
@@ -80,9 +78,7 @@ module DataCycleCore
           data = YAML.safe_load(File.open(file_name), permitted_classes: [Symbol], aliases: true)
           errors.concat(validate(data.deep_symbolize_keys))
         rescue StandardError => e
-          puts AmazingPrint::Colors.red("🔥 could not access the YML File #{file_name}")
-          puts e.message
-          puts e.backtrace
+          errors.push("#{file_name} => could not access the YML File (#{e.message})")
         end
 
         errors
