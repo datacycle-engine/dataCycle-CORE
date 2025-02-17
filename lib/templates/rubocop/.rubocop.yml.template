@@ -4,15 +4,15 @@ inherit_from:
 
 AllCops:
   Exclude:
-    - "*/**/node_modules/**/*"
-    - "*/**/tmp/**/*"
-    - "*/**/cache/**/*"
-    - "*/**/bash/**/*"
-    - "*/**/private/**/*"
-    - "*/**/public/**/*"
-    - "*/**/docker/**/*"
-    - "*/**/coverage/**/*"
-    - "*/**/.git/**/*"
+    - "node_modules/**/*"
+    - "tmp/**/*"
+    - "cache/**/*"
+    - "bash/**/*"
+    - "private/**/*"
+    - "public/**/*"
+    - "docker/**/*"
+    - "coverage/**/*"
+    - ".git/**/*"
     - "vendor/gems/datacycle-*/**/*"
 
 Style/MixinUsage:
