@@ -1356,7 +1356,8 @@ CREATE TABLE public.thing_templates (
     boost numeric GENERATED ALWAYS AS (((schema -> 'boost'::text))::numeric) STORED,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
-    computed_schema_types character varying[] GENERATED ALWAYS AS (public.compute_thing_schema_types((schema -> 'schema_ancestors'::text), template_name)) STORED
+    computed_schema_types character varying[] GENERATED ALWAYS AS (public.compute_thing_schema_types((schema -> 'schema_ancestors'::text), template_name)) STORED,
+    template_paths character varying[] DEFAULT '{}'::character varying[]
 );
 
 
@@ -4827,6 +4828,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250210064926'),
 ('20250206071515'),
 ('20250205070634'),
 ('20250131084546'),

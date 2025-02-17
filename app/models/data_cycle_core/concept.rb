@@ -55,10 +55,15 @@ module DataCycleCore
                                   order_string += ' DESC'
 
                                   joins(:classification_alias_path).reorder(nil).order(
-                                    [
-                                      order_string,
-                                      {term:}
-                                    ]
+                                    Arel.sql(
+                                      ActiveRecord::Base.send(
+                                        :sanitize_sql_array,
+                                        [
+                                          order_string,
+                                          {term:}
+                                        ]
+                                      )
+                                    )
                                   )
                                 }
     scope :by_external_sources_and_keys, -> { _1.blank? ? none : where(Array.new(_1.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *_1.pluck(:external_source_id, :external_key).flatten) }

@@ -144,10 +144,15 @@ module DataCycleCore
       order_string += ' DESC'
 
       joins(:classification_alias_path).reorder(nil).order(
-        [
-          order_string,
-          {term:}
-        ]
+        Arel.sql(
+          ActiveRecord::Base.send(
+            :sanitize_sql_array,
+            [
+              order_string,
+              {term:}
+            ]
+          )
+        )
       )
     end
 
