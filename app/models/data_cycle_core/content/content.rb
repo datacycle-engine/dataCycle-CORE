@@ -592,9 +592,7 @@ module DataCycleCore
         DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition)
       end
 
-      def convert_to_string(type, value)
-        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
-      end
+      delegate :convert_to_string, to: :'DataCycleCore::MasterData::DataConverter'
 
       def parent_templates
         DataCycleCore::ThingTemplate
