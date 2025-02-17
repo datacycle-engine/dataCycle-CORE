@@ -48,6 +48,7 @@ de:
     Snowpark: Schneepark
     TouristDestination: Touristische Destination
     ContentPage: Inhaltsseite
+    WineSoil: Weinboden
     # embedded
     ContentBlockTextImage: Text mit Bild
     ContentBlockAccordion: Akkordion
@@ -1993,6 +1994,14 @@ de:
         openOnRequest: geöffnet auf Anfrage
       seatsIndoor: Sitzplätze innen
       seatsOutdoor: Sitzplätze außen
+      winery:
+        description: Weingutbeschreibung
+      winesoil:
+        percentage: Anteil
+        area: Rebfläche (in ha)
+        soilCharacteristics: Bodenbeschaffenheit
+        wineCharacteristics: Weineigenschaften
+        soilNumber: Bodennummer
     gem2go:
       description: Beschreibung
     timm4:

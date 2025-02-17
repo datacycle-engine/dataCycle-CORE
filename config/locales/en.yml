@@ -48,6 +48,7 @@ en:
     Snowpark: Snowpark
     TouristDestination: Tourist destination
     ContentPage: Content page
+    WineSoil: Wine soil
 
     # embedded
     ContentBlockTextImage: Text with Image
@@ -2178,6 +2179,18 @@ en:
         openOnRequest: Open on request
       seatsIndoor: Indoor seats
       seatsOutdoor: Outdoor seats
+      winery:
+        cellarer: Cellarer
+        companyNumber: Company number
+        memberNumber: Member number
+        area: Vineyard area
+        annualProduction: Annual production
+        description: Winery description
+      winesoil:
+        area: Vineyard area (in ha)
+        soilCharacteristics: Soil characteristics
+        wineCharacteristics: Wine characteristics
+        soilNumber: Soil number
     gem2go:
       description: Description
     timm4:

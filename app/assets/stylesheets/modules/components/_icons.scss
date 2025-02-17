@@ -359,6 +359,12 @@
         content: '\f0f6';
       }
     }
+
+    &.wine_soil {
+      &::before {
+        content: '\f18c';
+      }
+    }
   }
 
   &.wetterstation,
