@@ -134,4 +134,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'rexml' # used for Hash.from_xml
 
   s.add_dependency 'fastimage'
+
+  s.post_install_message = 'Please run `bundle update & rails dc:upgrade` after updating this gem.'
 end

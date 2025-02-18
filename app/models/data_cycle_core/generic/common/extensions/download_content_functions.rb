@@ -7,7 +7,7 @@ module DataCycleCore
         module DownloadContentFunctions
           DELTA = 100
           FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
-          CONFIG_PROPS = [:tree_label, :external_id_prefix, :priority].freeze
+          CONFIG_PROPS = [:tree_label, :external_id_prefix, :concept_scheme_name, :priority].freeze
 
           def download_content(download_object:, iterator: nil, credential: nil, **keyword_args)
             credential ||= default_credential
@@ -15,11 +15,7 @@ module DataCycleCore
               items = items(iterator:, download_object:, options:, locale: options[:locales].first)
               credential_key = credential.call(options[:credentials]) if credential.present?
 
-              if items.is_a?(ParallelEnumerator)
-                download_in_parallel(**keyword_args, download_object:, items:, options:, step_label:, credential_key:)
-              else
-                download_in_sequence(**keyword_args, download_object:, items:, options:, step_label:, credential_key:)
-              end
+              download_in_parallel(**keyword_args, download_object:, items:, options:, step_label:, credential_key:)
             end
           end
 
@@ -75,23 +71,18 @@ module DataCycleCore
             end
           end
 
-          def download_in_sequence(download_object:, items:, options:, step_label:, cleanup_data: nil, credential_key: nil, data_id: nil, **_keyword_args)
+          def download_item_slice(download_object:, item_data_slice:, options:, cleanup_data: nil, credential_key: nil, data_id: nil, **_keyword_args)
+            return if item_data_slice.blank?
+
             locale = options[:locales].first
-            item_count = 0
-            times = [Time.current]
 
-            items.each_slice(DELTA) do |item_data_slice|
-              break if options[:max_count] && item_count >= options[:max_count]
-
+            init_mongo_db(download_object.database_name) do
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 mongo_ids = item_data_slice.map { |item_data| data_id.call(item_data)&.to_s }.compact_blank
                 mongo_items = mongo_item.where(external_id: { '$in' => mongo_ids }).index_by(&:external_id)
                 touch_ids = []
 
                 item_data_slice.each do |item_data|
-                  next if item_data.blank?
-
-                  item_count += 1
                   item_id = data_id.call(item_data)&.to_s
                   item = mongo_items[item_id] || mongo_item.new(external_id: item_id)
                   item.dump ||= {}
@@ -127,65 +118,33 @@ module DataCycleCore
                     .update_all(seen_at: Time.zone.now)
                 end
               end
-
-              times << Time.current
-              download_object.logger.phase_partial(step_label, item_count, times)
             end
-
-            item_count
           end
 
-          def download_in_parallel(download_object:, items:, options:, step_label:, cleanup_data: nil, credential_key: nil, data_id: nil, **_keyword_args)
-            locale = options[:locales].first
-            item_count = 0
+          def download_in_parallel(download_object:, items:, options:, step_label:, **kw_args)
+            item_counts = []
+            slice_counts = []
             times = [Time.current]
+            queue = []
 
             items.each do |item_data|
-              break if options[:max_count] && item_count >= options[:max_count]
+              break if options[:max_count] && item_counts.sum >= options[:max_count]
               next if item_data.blank?
 
-              item_count += 1
-              current_count = item_count
+              item_counts << 1
+              queue << item_data
 
-              init_mongo_db(download_object.database_name) do # required for concurrent processing
-                download_object.source_object.with(download_object.source_type) do |mongo_item|
-                  item_id = data_id.call(item_data)&.to_s
-                  item = mongo_item.find_or_initialize_by(external_id: item_id)
-                  item.dump ||= {}
-                  local_item = item.dump[locale]
+              next unless queue.size >= DELTA
 
-                  next unless item_allowed?(local_item:, options:)
-
-                  if item_data.key?(:external_system)
-                    data_credential_keys = Array.wrap(item_data.dig(:external_system, :credential_keys))
-                    data_credential_keys.each { |key| add_credentials!(item:, credential_key: key) }
-                    item_data.delete(:external_system)
-                  end
-
-                  add_credentials!(item:, credential_key:) if credential_key.present?
-
-                  item_data = cleanup_data.call(item_data) if cleanup_data.present?
-
-                  unless local_item.as_json.eql?(item_data.as_json)
-                    item.dump[locale] = item_data
-                    item.data_has_changed = true
-                  end
-
-                  if item.data_has_changed || item.external_system_has_changed
-                    item.save!
-                  else
-                    item.set('seen_at' => Time.zone.now)
-                  end
-                end
-              end
-
-              next unless (current_count % DELTA).zero?
-
+              download_item_slice(item_data_slice: queue.shift(DELTA), download_object:, items:, options:, step_label:, **kw_args)
               times << Time.current
-              download_object.logger.phase_partial(step_label, current_count, times)
+              slice_counts << DELTA
+              download_object.logger.phase_partial(step_label, slice_counts.sum, times)
             end
 
-            item_count
+            download_item_slice(item_data_slice: queue, download_object:, items:, options:, step_label:, **kw_args)
+
+            item_counts.sum
           end
 
           protected
