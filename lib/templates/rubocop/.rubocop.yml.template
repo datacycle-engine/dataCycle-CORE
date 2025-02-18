@@ -19,3 +19,7 @@ Style/MixinUsage:
   Exclude:
     - "bin/setup"
     - "bin/update"
+
+Rails/Output:
+  Exclude:
+    - "db/seeds.rb"
