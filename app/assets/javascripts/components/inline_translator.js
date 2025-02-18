@@ -50,26 +50,30 @@ class InlineTranslator {
 
 		const value = this.getValue();
 
-		const { text, detected_source_language: detectedSourceLocale } =
-			await DataCycle.httpRequest("/things/translate_text", {
-				method: "POST",
-				body: {
-					text: typeof value === "string" ? value.trim() : value,
-					target_locale: this.item.dataset.locale,
-				},
-			}).catch(async (error) => {
-				let errorMessage = await I18n.translate(
-					"frontend.split_view.translate_error",
-					{
-						label: this.getLabel(),
+		try {
+			const { text, detected_source_language: detectedSourceLocale } =
+				await DataCycle.httpRequest("/things/translate_text", {
+					method: "POST",
+					body: {
+						text: typeof value === "string" ? value.trim() : value,
+						target_locale: this.item.dataset.locale,
 					},
-				);
-				if (error?.responseJSON?.error)
-					errorMessage += `<br><i>${error.responseJSON.error}</i>`;
-				CalloutHelpers.show(errorMessage, "alert");
-			});
+				});
 
-		this.setValue(text, detectedSourceLocale);
+			this.setValue(text, detectedSourceLocale);
+		} catch (error) {
+			let errorMessage = await I18n.translate(
+				"frontend.split_view.translate_error",
+				{
+					label: this.getLabel(),
+				},
+			);
+			const responseMessage =
+				error?.responseJSON?.error || error?.responseBody?.error;
+			if (responseMessage) errorMessage += `<br><i>${responseMessage}</i>`;
+
+			CalloutHelpers.show(errorMessage, "alert");
+		}
 
 		DataCycle.enableElement(this.item);
 	}

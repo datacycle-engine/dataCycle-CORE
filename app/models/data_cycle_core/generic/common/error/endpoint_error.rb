@@ -7,13 +7,19 @@ module DataCycleCore
         class EndpointError < GenericError
           attr_reader :response
 
-          def initialize(msg, response = nil)
+          def initialize(msg, response = nil, status = nil)
+            @response = response
+            @status = status
+
             if response.nil?
               super(msg)
             else
-              super(msg + "| #{response&.status}: #{response&.reason_phrase} | #{response&.body&.encode('utf-8', invalid: :replace, undef: :replace, replace: '_')}")
+              super(msg + "| #{status}: #{response&.reason_phrase} | #{response&.body&.encode('utf-8', invalid: :replace, undef: :replace, replace: '_')}")
             end
-            @response = response
+          end
+
+          def status
+            @response&.status || @status
           end
         end
       end
