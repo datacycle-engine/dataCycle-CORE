@@ -17,7 +17,12 @@ module DataCycleCore
             render(json: query.to_bbox) && return if permitted_params[:bbox]
 
             I18n.with_locale(@language.first || I18n.locale) do
-              render(plain: query.to_mvt(@x, @y, @z, @layer_name), content_type: request.format.to_s)
+              mvt = query.to_mvt(@x, @y, @z, @layer_name)
+              render(
+                plain: mvt,
+                content_type: request.format,
+                status: mvt.present? ? :ok : :no_content
+              )
             end
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request

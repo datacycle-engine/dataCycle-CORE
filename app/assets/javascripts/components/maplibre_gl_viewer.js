@@ -202,7 +202,10 @@ class MapLibreGlViewer {
 
 		if (isEmpty(bounds)) return;
 
-		if (this.filterLayers?.concept_ids && !isEmpty(this.defaultOptions.bounds))
+		if (
+			this.filterLayers?.concept_ids?.length &&
+			!isEmpty(this.defaultOptions.bounds)
+		)
 			bounds.extend(this.defaultOptions.bounds);
 
 		this.defaultOptions.bounds = bounds;
@@ -411,7 +414,7 @@ class MapLibreGlViewer {
 		this._addPopup();
 	}
 	drawFilterFeatures() {
-		if (this.filterLayers?.concept_ids) {
+		if (this.filterLayers?.concept_ids?.length) {
 			const key = "filter_concept_ids";
 			this.sources[key] = `filter_source_${key}`;
 			this._addVectorSource(

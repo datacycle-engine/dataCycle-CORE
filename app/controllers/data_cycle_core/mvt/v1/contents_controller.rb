@@ -15,22 +15,24 @@ module DataCycleCore
             render(json: query.query.to_bbox) && return if permitted_params[:bbox]
 
             I18n.with_locale(@language.first || I18n.locale) do
+              mvt = query.query.to_mvt(
+                @x,
+                @y,
+                @z,
+                layer_name: permitted_params[:layerName],
+                cluster_layer_name: permitted_params[:clusterLayerName],
+                include_parameters: @include_parameters,
+                fields_parameters: @fields_parameters,
+                classification_trees_parameters: @classification_trees_parameters,
+                cache: permitted_params[:cache].to_s != 'false',
+                cluster: permitted_params[:cluster].to_s == 'true',
+                cluster_lines: permitted_params[:clusterLines].to_s == 'true',
+                cluster_items: permitted_params[:clusterItems].to_s == 'true'
+              )
               render(
-                plain: query.query.to_mvt(
-                  @x,
-                  @y,
-                  @z,
-                  layer_name: permitted_params[:layerName],
-                  cluster_layer_name: permitted_params[:clusterLayerName],
-                  include_parameters: @include_parameters,
-                  fields_parameters: @fields_parameters,
-                  classification_trees_parameters: @classification_trees_parameters,
-                  cache: permitted_params[:cache].to_s != 'false',
-                  cluster: permitted_params[:cluster].to_s == 'true',
-                  cluster_lines: permitted_params[:clusterLines].to_s == 'true',
-                  cluster_items: permitted_params[:clusterItems].to_s == 'true'
-                ),
-                content_type: request.format
+                plain: mvt,
+                content_type: request.format,
+                status: mvt.present? ? :ok : :no_content
               )
             end
           end
@@ -47,22 +49,24 @@ module DataCycleCore
             render(json: query.to_bbox) && return if permitted_params[:bbox]
 
             I18n.with_locale(@language.first || I18n.locale) do
+              mvt = query.to_mvt(
+                @x,
+                @y,
+                @z,
+                layer_name: permitted_params[:layerName],
+                cluster_layer_name: permitted_params[:clusterLayerName],
+                include_parameters: @include_parameters,
+                fields_parameters: @fields_parameters,
+                classification_trees_parameters: @classification_trees_parameters,
+                cache: permitted_params[:cache].to_s != 'false',
+                cluster: permitted_params[:cluster].to_s == 'true',
+                cluster_lines: permitted_params[:clusterLines].to_s == 'true',
+                cluster_items: permitted_params[:clusterItems].to_s == 'true'
+              )
               render(
-                plain: query.to_mvt(
-                  @x,
-                  @y,
-                  @z,
-                  layer_name: permitted_params[:layerName],
-                  cluster_layer_name: permitted_params[:clusterLayerName],
-                  include_parameters: @include_parameters,
-                  fields_parameters: @fields_parameters,
-                  classification_trees_parameters: @classification_trees_parameters,
-                  cache: permitted_params[:cache].to_s != 'false',
-                  cluster: permitted_params[:cluster].to_s == 'true',
-                  cluster_lines: permitted_params[:clusterLines].to_s == 'true',
-                  cluster_items: permitted_params[:clusterItems].to_s == 'true'
-                ),
-                content_type: request.format.to_s
+                plain: mvt,
+                content_type: request.format,
+                status: mvt.present? ? :ok : :no_content
               )
             end
           else
@@ -74,9 +78,16 @@ module DataCycleCore
           @content = DataCycleCore::Thing
             .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:id])
+
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
 
-          render(plain: @content.to_mvt(@x, @y, @z, include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format)
+          mvt = @content.to_mvt(@x, @y, @z, include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters)
+
+          render(
+            plain: mvt,
+            content_type: request.format,
+            status: mvt.present? ? :ok : :no_content
+          )
         end
 
         def permitted_parameter_keys
