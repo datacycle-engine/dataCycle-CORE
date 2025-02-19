@@ -135,5 +135,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'fastimage'
 
-  s.post_install_message = 'Please run `bundle update & rails dc:upgrade` after updating this gem.'
+  s.post_install_message = 'run `bundle update & rails dc:upgrade` after updating this gem.'
 end
