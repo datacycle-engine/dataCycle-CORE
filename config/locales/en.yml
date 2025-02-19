@@ -2209,6 +2209,9 @@ en:
       timesComment: Entrance details
       menuDownload: Download menu
       recipeSuggestionDownload: Download suggested recipe
+      free_admission: Free admission
+      registration_required: Registration required
+      price_information: Price information
     toubiz:
       abstract: Abstract
       description: Description
@@ -2333,6 +2336,65 @@ en:
       roadmap: Roadmap
     museumsportal:
       opening_hours: Opening hours description
+      pimcore_ats:
+      description: Description
+      longDescription: Detailed descripton
+      shortDescription: Brief descripton
+      directions: Directions
+      parking: Parking
+      maps: Maps
+      shortText: Brief description
+      longText: Detailed description
+      additionalInformation: Additional Information
+      destination: Destination
+      gettingThere: Getting there
+      literature: Literature
+      startingPointDescr: Starting point description
+      tip: Tip
+      publicTransit: Public transit
+      equipment: Equipment
+      ratings:
+        difficulty_rating: Difficulty
+        condition_rating: Stamina
+        experience_rating: Experience
+        technique_rating: Technique
+    thue_cat:
+      description: Description
+      longDescription: Detailed descripton
+      shortDescription: Brief descripton
+      directions: Directions
+      parking: Parking
+      maps: Maps
+      shortText: Brief description
+      longText: Detailed description
+      additionalInformation: Additional Information
+      destination: Destination
+      gettingThere: Getting there
+      literature: Literature
+      startingPointDescr: Starting point description
+      tip: Tip
+      publicTransit: Public transit
+      equipment: Equipment
+      thuecat:distanceToPublicTransport: Distance to public transport
+      TrainStation: Train Station
+      MountainRailroad: Mountain Railway
+      BusTerminal: Bus Terminal
+      BicycleBus: Bicycle Bus
+      Coach: Long-Distance Bus
+      FerryEnum: Ferry Terminal
+      SchoolBus: School Bus
+      RegionalBus: Regional Bus
+      CityBus: City Bus
+      Streetcar: Streetcar
+      ForestRailroad: Forest Railway
+      HikingBus: Hiking Bus
+      Subway: Subway
+      thuecat:parkingFacility: Parking facilities
+      Thuecat:BusOrCoach: Bus or coach
+      thuecat:Car: Car
+      thuecat:HandicappedParking: Handicapped parking
+      thuecat:Motorcycle: Motorcycle
+      thuecat:ElectricVehicleCarChargingStationEnumMem: Electric car charging station
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

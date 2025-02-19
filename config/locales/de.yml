@@ -1959,7 +1959,7 @@ de:
       tour:
       poi:
     imx_platform:
-      description: Beschreibung
+      description: Kurzbeschreibung
       text: Detailbeschreibung
       startingPointDescr: Beschreibung Startpunkt
       destination: Ziel
@@ -2005,7 +2005,7 @@ de:
     gem2go:
       description: Beschreibung
     timm4:
-      intro: Beschreibung
+      intro: Kurzbeschreibung
       description: Detailbeschreibung
       positionDescription: Lage
       pricesDescription: Preisinformation
@@ -2020,6 +2020,70 @@ de:
       timesComment: Erläuterung Beginnzeiten
       menuDownload: Speisekarte herunterladen
       recipeSuggestionDownload: Rezept herunterladen
+      free_admission: Freier Eintritt
+      registration_required: Anmeldung erforderlich
+      price_information: Preisinformation
+    thue_cat:
+      description: Beschreibung
+      longDescription: Detailbeschreibung
+      shortDescription: Kurzbeschreibung
+      directions: Wegbeschreibung
+      parking: Parkmöglichkeiten
+      maps: Karten
+      shortText: Kurzbeschreibung
+      longText: Detailbeschreibung
+      additionalInformation: Zusätzliche Informationen
+      destination: Zielbeschreibung
+      gettingThere: Anfahrtsbeschreibung
+      literature: Literatur
+      startingPointDescr: Startpunktbeschreibung
+      tip: Tipps
+      publicTransit: Öffentliche Verkehrsmittel
+      equipment: Ausrüstung
+      seasonDescription: Begehbare Monate
+      safetyGuidelines: Sicherheitsvorschriften
+      thuecat:distanceToPublicTransport: Distanz zum nächsten öffentlichen Transportmittel
+      TrainStation: Bahnhof
+      MountainRailroad: Bergbahn
+      BusTerminal: Busbahnhof
+      BicycleBus: Fahrradbus
+      Coach: Fernbus
+      FerryEnum: Fährhafen
+      SchoolBus: Schulbus
+      RegionalBus: Regionalbus
+      CityBus: Stadtbus
+      Streetcar: Straßenbahn
+      ForestRailroad: Waldbahn
+      HikingBus: Wanderbus
+      Subway: U-Bahn
+      thuecat:parkingFacility: Parkmöglichkeiten
+      thuecat:BusOrCoach: Bus oder Reisebus
+      thuecat:Car: Auto
+      thuecat:HandicappedParking: Behindertenparkplatz
+      thuecat:Motorcycle: Motorrad
+      thuecat:ElectricVehicleCarChargingStationEnumMem: Ladestation für Elektrofahrzeuge
+    pimcore_ats:
+      description: Beschreibung
+      longDescription: Beschreibung
+      shortDescription: Kurzbeschreibung
+      directions: Wegbeschreibung
+      parking: Parkmöglichkeiten
+      maps: Karten
+      shortText: Kurzbeschreibung
+      longText: Detailbeschreibung
+      additionalInformation: Zusätzliche Informationen
+      destination: Zielbeschreibung
+      gettingThere: Anfahrtsbeschreibung
+      literature: Literatur
+      startingPointDescr: Startpunktbeschreibung
+      tip: Tipps
+      publicTransit: Öffentliche Verkehrsmittel
+      equipment: Ausrüstung
+      ratings:
+        difficulty_rating: Schwierigkeit
+        condition_rating: Kondition
+        experience_rating: Erlebnis
+        technique_rating: Technik
     toubiz:
       abstract: Zusammenfassung
       description: Beschreibung
@@ -2076,7 +2140,7 @@ de:
       packagetripinfo: Pauschalangebot Informationen
       station: Bahnhof
       subtitle: Untertitel
-      teaser: Teaser
+      teaser: Kurzbeschreibung
       Persons: Person
       season_header: Saison (Monat - Eignung)
       Season: Saison
@@ -2091,8 +2155,8 @@ de:
       tourmoreinfos_parking: Parken
     bierfinder:
       description: Beschreibung
-      book: Detailbeschreibung
-      tipp: Tip
+      book: Beschreibung
+      tipp: Tipp
       essenUndSpezial: Essen und Spezialitäten
       biersorten: Biersorten
       classics: Klassiker
@@ -2118,9 +2182,9 @@ de:
       anreisebeschreibung: Anreisebeschreibung
     pimcore:
       description: Beschreibung
-      text: Detailbeschreibung
+      text: Beschreibung
     lottaleben:
-      description: Beschreibung
+      description: Kurzbeschreibung
       text: Detailbeschreibung
     tramino:
       info: Kurzbeschreibung
@@ -2129,7 +2193,7 @@ de:
       text: Beschreibung
     jugendherberge:
       titel: Titel
-      teaser: Teaser
+      teaser: Kurzbeschreibung
       text: Detailbeschreibung
     green_solutions:
       TourMoreInfos_additionalInformation: Zusatzinformationen zur Tour
@@ -2147,9 +2211,12 @@ de:
       opening_hours: Öffnungszeiten Beschreibung
     oya_media:
       description: Beschreibung
-      short_description: Teaser
+      short_description: Kurzbeschreibung
       price_description: Preisbeschreibung
       price_from: Preis ab (€)
+    arcgis_cham:
+      BSR: Kurzbeschreibung
+      BSR_DE: Beschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">
