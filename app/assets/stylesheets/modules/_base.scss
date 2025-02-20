@@ -2057,7 +2057,9 @@ body .v-select {
 }
 
 a {
-  &[data-toggle] {
+
+  &[data-toggle],
+  &:has(img) {
     display: inline-block;
   }
 }

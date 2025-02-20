@@ -3,11 +3,11 @@
   <div class="inner">
     <div class="thumb">
       <% if content.try(:content_url).present? %>
-        <a href="<%= content.try(:content_url) %>" target="_blank">
-          <img class="lazyload" data-src="<%= value.try(:html_safe) %>" />
+        <a href="<%= content.try(:content_url) %>" target="_blank" class="link-to-image">
+          <img class="lazyload" data-src="<%= value.try(:html_safe) %>" style="aspect-ratio: <%= aspect_ratio(content) %>;" />
         </a>
       <% else %>
-        <img class="lazyload" data-src="<%= value.try(:html_safe) %>" />
+        <img class="lazyload" data-src="<%= value.try(:html_safe) %>" style="aspect-ratio: <%= aspect_ratio(content) %>;" />
       <% end %>
     </div>
   </div>

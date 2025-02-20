@@ -100,10 +100,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
 
-      &:not(:last-child):not(.has-parent) {
-        padding-bottom: 0.5rem;
-      }
-
       &.with-dropdown-pane {
         position: relative;
         overflow: unset;
@@ -125,7 +121,7 @@
     font-weight: normal;
 
     &.has-parent {
-      padding-bottom: 0;
+      margin-top: -0.5rem;
     }
 
     .parent {

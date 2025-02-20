@@ -15,7 +15,7 @@ module DataCycleCore
 
       return 16.to_r / 9 unless width&.positive? && height&.positive?
 
-      (width / height).to_r
+      (width / height).to_r.round(1)
     end
 
     def grouped_related_contents(related_objects, content)
