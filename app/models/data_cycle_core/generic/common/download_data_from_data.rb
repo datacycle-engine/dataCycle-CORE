@@ -56,6 +56,8 @@ module DataCycleCore
             end
           end
 
+          additional_paths['external_system'] = '$external_system'
+
           create_post_unwind_source_filter_stage = lambda do |n_path|
             source_filter_stage
               .deep_stringify_keys
@@ -69,18 +71,13 @@ module DataCycleCore
             project_stage = if index.zero?
                               {
                                 'data' => ["$#{current_full_name_path}"].compact_blank.join('.'),
-                                'external_system' => '$external_system'
-
-                              }.tap do |h|
-                                h['add_data'] = additional_paths if additional_paths.present?
-                              end
+                                'add_data' => additional_paths
+                              }
                             else
                               {
                                 'data' => ["$data.#{data_path.split('.')[index]}"].compact_blank.join('.'),
-                                'external_system' => '$external_system'
-                              }.tap do |h|
-                                h['add_data'] = '$add_data' if additional_paths.present?
-                              end
+                                'add_data' => '$add_data'
+                              }
                             end
 
             proj_match_unwind_phases << { '$project' => project_stage }
@@ -116,8 +113,12 @@ module DataCycleCore
           end
 
           additional_paths.each_key do |name|
-            # prevent overwriting of existing data fields
-            add_fields_stage["data.#{name}"] = { '$ifNull' => ["$data.#{name}", "$add_data.#{name}"] }
+            if name == 'external_system'
+              add_fields_stage["data.#{name}"] = "$#{name}"
+            else
+              # prevent overwriting of existing data fields
+              add_fields_stage["data.#{name}"] = { '$ifNull' => ["$data.#{name}", "$add_data.#{name}"] }
+            end
           end
 
           group_stage = {
