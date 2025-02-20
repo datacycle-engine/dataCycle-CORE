@@ -37,32 +37,13 @@ module DataCycleCore
 
           data_id_path = [data_id].compact_blank.join('.')
           data_name_path = [data_name].compact_blank.join('.')
-          additional_data_paths = options.dig(:download, :additional_data_paths) || []
-
-          attribute_whitelist = Array.wrap(options.dig(:download, :attribute_whitelist)) + ['id', 'name'] if options.dig(:download, :attribute_whitelist).present?
-          attribute_blacklist = Array.wrap(options.dig(:download, :attribute_blacklist)) if options.dig(:download, :attribute_blacklist).present?
 
           full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
           full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
           source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
-          create_post_unwind_source_filter_stage = lambda do |n_path|
-            source_filter_stage
-              .deep_stringify_keys
-              .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(n_path) }
-              .deep_transform_keys { |k| k.gsub(n_path, 'data') }
-          end
-
-          # post_unwind_source_filter_stage = source_filter_stage
-          #   .deep_stringify_keys
-          #   .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(full_data_path) }
-          #   .deep_transform_keys { |k| k.gsub(full_data_path, 'data') }
-
-          # project_filter_stage = {
-          #   'data' => ['$dump', locale, data_path].compact_blank.join('.')
-          # }
-
+          additional_data_paths = options.dig(:download, :additional_data_paths) || []
           additional_paths = {}
 
           if additional_data_paths.is_a?(Array)
@@ -73,6 +54,13 @@ module DataCycleCore
             additional_data_paths.each do |name, path|
               additional_paths[name.to_s] = ['$dump', locale, path].compact_blank.join('.')
             end
+          end
+
+          create_post_unwind_source_filter_stage = lambda do |n_path|
+            source_filter_stage
+              .deep_stringify_keys
+              .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(n_path) }
+              .deep_transform_keys { |k| k.gsub(n_path, 'data') }
           end
 
           proj_match_unwind_phases = []
@@ -106,17 +94,12 @@ module DataCycleCore
             ['$data', data_id_path].compact_blank.join('.'),
             ['$data', data_name_path].compact_blank.join('.')
           ].uniq
-          # ] + additional_paths.values
 
           name_fallback_fields = [
             ['$data', data_name_path].compact_blank.join('.')
           ] + data_name_fallback.map do |name|
             ['$data', name].compact_blank.join('.')
           end
-
-          # add_fields_stage = {
-          #   'data.id' => { '$toString' => { '$ifNull' => id_fallback_fields } }
-          # }
 
           add_fields_stage = {}
 
@@ -126,13 +109,14 @@ module DataCycleCore
             add_fields_stage['data.id'] = id_fallback_fields.first
           end
 
-          if name_fallback_fields.length > 1
+          if name_fallback_fields.many?
             add_fields_stage['data.name'] = { '$ifNull' => name_fallback_fields }
           else
             add_fields_stage['data.name'] = name_fallback_fields.first
           end
 
           additional_paths.each_key do |name|
+            # prevent overwriting of existing data fields
             add_fields_stage["data.#{name}"] = { '$ifNull' => ["$data.#{name}", "$add_data.#{name}"] }
           end
 
@@ -160,7 +144,7 @@ module DataCycleCore
           ]
 
           trim_name = options[:download].key?(:trim_name) ? options.dig(:download, :trim_name) : true
-          if trim_name
+          if trim_name == true
             pipelines << {
               '$addFields' => {
                 'name' => { '$trim' => { 'input' => { '$toString' => '$name' } } }
@@ -168,16 +152,17 @@ module DataCycleCore
             }
           end
 
+          attribute_whitelist = Array.wrap(options.dig(:download, :attribute_whitelist)) if options.dig(:download, :attribute_whitelist).present?
+          attribute_blacklist = Array.wrap(options.dig(:download, :attribute_blacklist)) if options.dig(:download, :attribute_blacklist).present?
+
           raise ArgumentError, 'attribute_whitelist and attribute_blacklist cannot be present together' if attribute_whitelist.present? && attribute_blacklist.present?
           if attribute_whitelist.present?
-            attribute_whitelist += additional_paths.keys
+            attribute_whitelist += ['id', 'name'] + additional_paths.keys
             attribute_whitelist.uniq!
             pipelines << { '$project' => attribute_whitelist.index_with { |_attr| 1 } }
           elsif attribute_blacklist.present?
             pipelines << { '$project' => attribute_blacklist.index_with { |_attr| 0 } }
           end
-
-          binding.pry
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
