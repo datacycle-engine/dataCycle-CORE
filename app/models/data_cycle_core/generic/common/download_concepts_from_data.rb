@@ -18,9 +18,11 @@ module DataCycleCore
         def self.load_concepts_from_mongo(options:, locale:, source_filter:, **_keyword_args)
           raise ArgumentError, 'missing read_type for download_concepts_from_data' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
-          I18n.locale = locale.to_sym
-          # either both concept_name_path and concept_id_path should be present or none, hence the fallbacks
-          concept_name = path_config(:name, options)&.then { |v| ERB.new(v).result(binding) }
+          concept_name = nil
+          I18n.with_locale(locale.to_sym) do
+            # either both concept_name_path and concept_id_path should be present or none, hence the fallbacks
+            concept_name = path_config(:name, options)&.then { |v| ERB.new(v).result(binding) }
+          end
           concept_id = path_config(:id, options) || concept_name
           concept_name ||= concept_id
 

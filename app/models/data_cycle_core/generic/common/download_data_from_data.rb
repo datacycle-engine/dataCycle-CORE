@@ -21,13 +21,14 @@ module DataCycleCore
           read_type = Mongoid::PersistenceContext.new(
             DataCycleCore::Generic::Collection2, collection: options[:download][:read_type]
           )
-          I18n.locale = locale.to_sym
 
+          data_name_fallback = []
           data_id = options[:download].key?(:data_id_path) ? options.dig(:download, :data_id_path) : 'id'
           data_name = options[:download].key?(:data_name_path) ? options.dig(:download, :data_name_path) : data_id
-          data_name = data_name&.then { |v| ERB.new(v).result(binding) }
-
-          data_name_fallback = Array.wrap(options.dig(:download, :data_name_path_fallback)).each { |v| ERB.new(v).result(binding) }
+          I18n.with_locale(locale.to_sym) do
+            data_name = data_name&.then { |v| ERB.new(v).result(binding) }
+            data_name_fallback = Array.wrap(options.dig(:download, :data_name_path_fallback)).each { |v| ERB.new(v).result(binding) }
+          end
 
           data_path = options.dig(:download, :data_path)
           data_id_path = [data_id].compact_blank.join('.')
