@@ -32,6 +32,7 @@ module DataCycleCore
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
     scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where('identifier IN (:value) OR name IN (:value)', value:) }
+    scope :by_names_identifiers_or_ids, ->(value) { value.blank? ? none : where('identifier IN (:value) OR name IN (:value) OR id IN (:value)', value:) }
 
     validates :name, presence: true
 
