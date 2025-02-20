@@ -30,7 +30,11 @@ module DataCycleCore
             data_name_fallback = Array.wrap(options.dig(:download, :data_name_path_fallback)).each { |v| ERB.new(v).result(binding) }
           end
 
-          data_path = options.dig(:download, :data_path)
+          data_path = options.dig(:download, :data_path) || ''
+          data_path += '[]' unless data_path.end_with?('[]')
+          array_positions = data_path.split('.').map { |x| x.include?('[]') ? 1 : 0 }
+          data_path = data_path.gsub('[]', '')
+
           data_id_path = [data_id].compact_blank.join('.')
           data_name_path = [data_name].compact_blank.join('.')
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
@@ -43,14 +47,21 @@ module DataCycleCore
           source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
-          post_unwind_source_filter_stage = source_filter_stage
-            .deep_stringify_keys
-            .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(full_data_path) }
-            .deep_transform_keys { |k| k.gsub(full_data_path, 'data') }
+          create_post_unwind_source_filter_stage = lambda do |n_path|
+            source_filter_stage
+              .deep_stringify_keys
+              .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(n_path) }
+              .deep_transform_keys { |k| k.gsub(n_path, 'data') }
+          end
 
-          project_filter_stage = {
-            'data' => ['$dump', locale, data_path].compact_blank.join('.')
-          }
+          # post_unwind_source_filter_stage = source_filter_stage
+          #   .deep_stringify_keys
+          #   .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(full_data_path) }
+          #   .deep_transform_keys { |k| k.gsub(full_data_path, 'data') }
+
+          # project_filter_stage = {
+          #   'data' => ['$dump', locale, data_path].compact_blank.join('.')
+          # }
 
           additional_paths = {}
 
@@ -64,14 +75,38 @@ module DataCycleCore
             end
           end
 
-          additional_paths['external_system'] = '$external_system'
+          proj_match_unwind_phases = []
+          array_positions.each_with_index do |position, index|
+            current_full_name_path = ["dump.#{locale}", data_path.split('.')[0..index].join('.')].compact_blank.join('.')
+            project_stage = if index.zero?
+                              {
+                                'data' => ["$#{current_full_name_path}"].compact_blank.join('.'),
+                                'external_system' => '$external_system'
 
-          project_filter_stage.merge!(additional_paths)
+                              }.tap do |h|
+                                h['add_data'] = additional_paths if additional_paths.present?
+                              end
+                            else
+                              {
+                                'data' => ["$data.#{data_path.split('.')[index]}"].compact_blank.join('.'),
+                                'external_system' => '$external_system'
+                              }.tap do |h|
+                                h['add_data'] = '$add_data' if additional_paths.present?
+                              end
+                            end
+
+            proj_match_unwind_phases << { '$project' => project_stage }
+
+            next unless position == 1
+            proj_match_unwind_phases << { '$unwind' => '$data' }
+            proj_match_unwind_phases << { '$match' => create_post_unwind_source_filter_stage.call(current_full_name_path) }
+          end
 
           id_fallback_fields = [
             ['$data', data_id_path].compact_blank.join('.'),
             ['$data', data_name_path].compact_blank.join('.')
-          ] + additional_paths.values
+          ].uniq
+          # ] + additional_paths.values
 
           name_fallback_fields = [
             ['$data', data_name_path].compact_blank.join('.')
@@ -79,9 +114,17 @@ module DataCycleCore
             ['$data', name].compact_blank.join('.')
           end
 
-          add_fields_stage = {
-            'data.id' => { '$toString' => { '$ifNull' => id_fallback_fields } }
-          }
+          # add_fields_stage = {
+          #   'data.id' => { '$toString' => { '$ifNull' => id_fallback_fields } }
+          # }
+
+          add_fields_stage = {}
+
+          if id_fallback_fields.many?
+            add_fields_stage['data.id'] = { '$ifNull' => id_fallback_fields }
+          else
+            add_fields_stage['data.id'] = id_fallback_fields.first
+          end
 
           if name_fallback_fields.length > 1
             add_fields_stage['data.name'] = { '$ifNull' => name_fallback_fields }
@@ -90,7 +133,7 @@ module DataCycleCore
           end
 
           additional_paths.each_key do |name|
-            add_fields_stage["data.#{name}"] = "$#{name}"
+            add_fields_stage["data.#{name}"] = { '$ifNull' => ["$data.#{name}", "$add_data.#{name}"] }
           end
 
           group_stage = {
@@ -100,16 +143,8 @@ module DataCycleCore
           pipelines = [
             {
               '$match' => source_filter_stage
-            },
-            {
-              '$project' => project_filter_stage
-            },
-            {
-              '$unwind' => '$data'
-            },
-            {
-              '$match' => post_unwind_source_filter_stage
-            },
+            }
+          ] + proj_match_unwind_phases + [
             {
               '$addFields' => add_fields_stage
             },
@@ -135,10 +170,14 @@ module DataCycleCore
 
           raise ArgumentError, 'attribute_whitelist and attribute_blacklist cannot be present together' if attribute_whitelist.present? && attribute_blacklist.present?
           if attribute_whitelist.present?
+            attribute_whitelist += additional_paths.keys
+            attribute_whitelist.uniq!
             pipelines << { '$project' => attribute_whitelist.index_with { |_attr| 1 } }
           elsif attribute_blacklist.present?
             pipelines << { '$project' => attribute_blacklist.index_with { |_attr| 0 } }
           end
+
+          binding.pry
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
