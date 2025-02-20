@@ -2226,8 +2226,8 @@ de:
       description_3: weitere Infos
       openings: Öffnungszeiten
       starting_point_description: Anfahrt
-      # sub_title:
-      # teaser_title:
+      sub_title: Untertitel
+      teaser_title: Alternativ Titel
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">
