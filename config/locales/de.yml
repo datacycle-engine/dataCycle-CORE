@@ -2153,6 +2153,8 @@ de:
       tourmoreinfos_tip: Tipp des Autors
       tourmoreinfos_gettingthere: Anfahrt
       tourmoreinfos_parking: Parken
+      tourmoreinfos_publictransit: Weitere Infos
+      tourmoreinfos_additionalinformation: Weitere Infos
     bierfinder:
       description: Beschreibung
       book: Beschreibung
@@ -2224,7 +2226,7 @@ de:
       description_3: weitere Infos
       openings: Öffnungszeiten
       starting_point_description: Anfahrt
-      # sub_title: 
+      # sub_title:
       # teaser_title:
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
