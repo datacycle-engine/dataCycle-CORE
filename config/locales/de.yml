@@ -2189,7 +2189,7 @@ de:
     tramino:
       info: Kurzbeschreibung
       intro: Kurzbeschreibung
-      slogan: Slogan
+      slogan: weitere Info
       text: Beschreibung
     jugendherberge:
       titel: Titel
@@ -2217,6 +2217,15 @@ de:
     arcgis_cham:
       BSR: Kurzbeschreibung
       BSR_DE: Beschreibung
+    makrohaus:
+      short_description: Kurzbeschreibung
+      description_1: Beschreibung
+      description_2: weitere Infos
+      description_3: weitere Infos
+      openings: Öffnungszeiten
+      starting_point_description: Anfahrt
+      # sub_title: 
+      # teaser_title:
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">
