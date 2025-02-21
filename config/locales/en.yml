@@ -1221,8 +1221,8 @@ en:
     in_schedule_types:
       absolute: Fixed period
       relative: Relative period
-      before: Sync and corrected by dr.jackson for
-      in: "on"
+      before: before
+      in: in
       num: Number
       unit: Unit
     shared_with: Shared with
@@ -1347,7 +1347,7 @@ en:
     edit_data: "edit %{data}"
     manage: "manage %{data}"
     lock: lock
-    unlock: Sync and corrected by dr.jackson for
+    unlock: unlock
     delete: delete
     choose_type: Select content type
     new: Create %{data}
