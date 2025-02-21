@@ -10,5 +10,19 @@
     </div>
   <% end %>
 
-  <%= render_linked_partial key: "duplicate_candidate_#{item.duplicate.id}", definition: { template_name: item.duplicate.template_name, type: 'linked' }.with_indifferent_access, content: content, parameters: { options: {}, object: item.duplicate, object_id: [item.duplicate.id], prefix: local_assigns[:prefix], tile_links: true } %>
+  <%= render_linked_partial(
+        key: "duplicate_candidate_#{item.duplicate.id}",
+        definition: {
+          template_name: item.duplicate.template_name,
+          type: 'linked'
+        }.with_indifferent_access,
+        content: content,
+        parameters: {
+          options: {},
+          object: item.duplicate,
+          object_id: [item.duplicate.id],
+          prefix: local_assigns[:prefix],
+          tile_links: true
+        }
+      ) %>
 <% end %>

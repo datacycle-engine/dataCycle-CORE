@@ -384,28 +384,6 @@ module DataCycleCore
       end
     end
 
-    def import
-      content = params[:data].as_json
-      external_source = DataCycleCore::ExternalSystem.find(content['source_key'])
-      api_strategy_class = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
-      api_strategy = api_strategy_class&.constantize&.new(external_source, 'thing', content.values.first['url'].split('/').last, nil)
-      @content = api_strategy.create(content.except('source_key'))
-      @content = @content.try(:first)
-
-      flash.now[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
-
-      if params[:render_html]
-        render js: "document.location = '#{thing_path(@content)}'"
-      else
-        render json: {
-          html: render_to_string(formats: [:html], layout: false, action: 'create', assigns: { objects: Array.wrap(@content) }).strip,
-          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, assigns: { object: @content }).strip,
-          ids: Array.wrap(@content&.id),
-          **flash.discard.to_h
-        }
-      end
-    end
-
     def render_embedded_object
       @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id]) || content_by_id_or_template
       @key = render_embedded_object_params[:key]
