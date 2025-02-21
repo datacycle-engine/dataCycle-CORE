@@ -54,8 +54,11 @@
       height: 3rem;
       padding: 0;
       overflow: hidden;
-      display: flex;
-      flex-direction: row;
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: max-content;
+      align-items: flex-end;
+      gap: 0.3rem;
 
       &.has-more:after {
         content: '...';
@@ -69,8 +72,6 @@
         height: auto;
         max-height: 3rem;
         display: flex;
-        margin-right: 3px;
-        max-width: 29%;
         border-radius: var(--small-radius);
       }
     }

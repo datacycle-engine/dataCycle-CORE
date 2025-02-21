@@ -144,4 +144,26 @@ describe DataCycleCore::Schema::Template do
       assert_equal(false, props.dig(:linked_with_template6_inverse, :ui, :edit, :disabled))
     end
   end
+
+  describe 'for extended templates, overwritten in project without extends' do
+    subject do
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [
+          Rails.root.join('..', 'data_types', 'parent_set1'),
+          Rails.root.join('..', 'data_types', 'child_set1'),
+          Rails.root.join('..', 'data_types', 'parent_set2'),
+          Rails.root.join('..', 'data_types', 'child_set2')
+        ]
+      )
+      template_importer.templates[:creative_works].find { |t| t[:name] == 'DummyTemplate' }
+    end
+
+    it 'should have the correct properties from project' do
+      props = subject.dig(:data, :properties)
+      assert(props.key?(:dummy2))
+      assert_not(props.key?(:dummy1))
+      assert_not(props.key?(:dummy_parent1))
+      assert_not(props.key?(:dummy_parent2))
+    end
+  end
 end
