@@ -64,12 +64,7 @@ module DataCycleCore
         }
         external_system.data ||= {}
         external_system.data["last_#{delayed_reference_type}_failed"] = true
-        external_system.data["last_#{delayed_reference_type}_exception"] = {
-          'message' => "#{e.message} (#{Time.zone.now})",
-          'backtrace' => e.backtrace,
-          'class' => e.class.to_s,
-          'type' => type
-        }
+        external_system.data["last_#{delayed_reference_type}_exception"] = e.to_yaml
         external_system.save!
       end
 
@@ -86,7 +81,12 @@ module DataCycleCore
         exception.set_backtrace(exception_hash['backtrace'])
         raise exception
       elsif exception_hash.is_a?(::String)
-        raise exception_hash
+        begin
+          exception = YAML.unsafe_load(exception_hash)
+          raise exception
+        rescue Psych::SyntaxError
+          raise exception_hash
+        end
       end
     end
   end
