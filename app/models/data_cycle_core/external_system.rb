@@ -31,8 +31,15 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
-    scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where('identifier IN (:value) OR name IN (:value)', value:) }
-    scope :by_names_identifiers_or_ids, ->(value) { value.blank? ? none : where('identifier IN (:value) OR name IN (:value) OR id IN (:value)', value:) }
+    scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where(identifier: value).or(where(name: value)) }
+    scope :by_names_identifiers_or_ids, lambda { |value|
+      return none if value.blank?
+
+      ids = Array.wrap(value).filter(&:uuid?)
+      query = where(identifier: value).or(where(name: value))
+      query = query.or(where(id: ids)) if ids.present?
+      query
+    }
 
     validates :name, presence: true
 
