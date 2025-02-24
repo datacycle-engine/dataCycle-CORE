@@ -17,6 +17,7 @@ module DataCycleCore
             allowed_template_names = DataCycleCore.oembed_providers['oembed_providers']
               &.pluck('output')
               &.flatten
+              &.select(&:present?)
               &.pluck('template_names')
               &.flatten || []
 
