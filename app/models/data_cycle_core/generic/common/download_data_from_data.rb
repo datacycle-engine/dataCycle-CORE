@@ -4,6 +4,8 @@ module DataCycleCore
   module Generic
     module Common
       module DownloadDataFromData
+        extend Extensions::DownloadFromData
+
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_content(
             download_object: utility_object,
@@ -16,57 +18,23 @@ module DataCycleCore
           )
         end
 
-        def self.load_data_from_mongo(options:, locale:, source_filter:, **_keyword_args)
-          raise ArgumentError, "missing read_type for #{options.dig(:download, :name)}" if options.dig(:download, :read_type).nil?
-          read_type = Mongoid::PersistenceContext.new(
-            DataCycleCore::Generic::Collection2, collection: options[:download][:read_type]
-          )
+        def self.create_aggregate_pipeline(options:, locale:, source_filter:)
+          paths = prepare_data_paths(options:, locale:)
 
-          data_name_fallback = []
-          data_id = options[:download].key?(:data_id_path) ? options.dig(:download, :data_id_path) : 'id'
-          data_name = options[:download].key?(:data_name_path) ? options.dig(:download, :data_name_path) : data_id
-          I18n.with_locale(locale.to_sym) do
-            data_name = data_name&.then { |v| ERB.new(v).result(binding) }
-            data_name_fallback = Array.wrap(options.dig(:download, :data_name_path_fallback)).each { |v| ERB.new(v).result(binding) }
-          end
+          data_path = paths[:data_path]
+          path_array_positions = paths[:path_array_positions]
+          data_id_path = paths[:data_id_path]
+          data_name_path = paths[:data_name_path]
+          data_name_path_fallback = paths[:data_name_path_fallback]
+          # full_data_path = paths[:full_data_path]
+          full_id_path = paths[:full_id_path]
+          additional_paths = paths[:additional_paths]
 
-          data_path = options.dig(:download, :data_path) || ''
-          data_path += '[]' unless data_path.end_with?('[]')
-          array_positions = data_path.split('.').map { |x| x.include?('[]') ? 1 : 0 }
-          data_path = data_path.gsub('[]', '')
-
-          data_id_path = [data_id].compact_blank.join('.')
-          data_name_path = [data_name].compact_blank.join('.')
-
-          full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
-          full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
           source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
-          additional_data_paths = options.dig(:download, :additional_data_paths) || []
-          additional_paths = {}
-
-          if additional_data_paths.is_a?(Array)
-            additional_data_paths.each do |attr|
-              additional_paths[attr[:name].to_s] = ['$dump', locale, attr[:path]].compact_blank.join('.')
-            end
-          elsif additional_data_paths.is_a?(Hash)
-            additional_data_paths.each do |name, path|
-              additional_paths[name.to_s] = ['$dump', locale, path].compact_blank.join('.')
-            end
-          end
-
-          additional_paths['external_system'] = '$external_system'
-
-          create_post_unwind_source_filter_stage = lambda do |n_path|
-            source_filter_stage
-              .deep_stringify_keys
-              .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(n_path) }
-              .deep_transform_keys { |k| k.gsub(n_path, 'data') }
-          end
-
           proj_match_unwind_phases = []
-          array_positions.each_with_index do |position, index|
+          path_array_positions.each_with_index do |position, index|
             current_full_name_path = ["dump.#{locale}", data_path.split('.')[0..index].join('.')].compact_blank.join('.')
             project_stage = if index.zero?
                               {
@@ -84,7 +52,7 @@ module DataCycleCore
 
             next unless position == 1
             proj_match_unwind_phases << { '$unwind' => '$data' }
-            proj_match_unwind_phases << { '$match' => create_post_unwind_source_filter_stage.call(current_full_name_path) }
+            proj_match_unwind_phases << { '$match' => create_post_unwind_match_stage(path: current_full_name_path, source_filter_stage:) }
           end
 
           id_fallback_fields = [
@@ -94,7 +62,7 @@ module DataCycleCore
 
           name_fallback_fields = [
             ['$data', data_name_path].compact_blank.join('.')
-          ] + data_name_fallback.map do |name|
+          ] + data_name_path_fallback.map do |name|
             ['$data', name].compact_blank.join('.')
           end
 
@@ -138,9 +106,6 @@ module DataCycleCore
             },
             {
               '$replaceRoot' => { 'newRoot' => '$data' }
-            },
-            {
-              '$match' => { 'id' => { '$ne' => nil } }
             }
           ]
 
@@ -165,33 +130,58 @@ module DataCycleCore
             pipelines << { '$project' => attribute_blacklist.index_with { |_attr| 0 } }
           end
 
-          DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
-            mongo.collection.aggregate(
-              pipelines, allow_disk_use: true
-            ).to_a
+          pipelines <<  {
+            '$match' => { 'id' => { '$ne' => nil } }
+          }
+
+          pipelines
+        end
+
+        def self.prepare_data_paths(options:, locale:)
+          paths = {}
+          data_name_path_fallback = []
+          data_id = options[:download].key?(:data_id_path) ? options.dig(:download, :data_id_path) : 'id'
+          data_name = options[:download].key?(:data_name_path) ? options.dig(:download, :data_name_path) : data_id
+          I18n.with_locale(locale.to_sym) do
+            data_name = data_name&.then { |v| ERB.new(v).result(binding) }
+            data_name_path_fallback = Array.wrap(options.dig(:download, :data_name_path_fallback)).map { |v| ERB.new(v).result(binding) }
           end
-        end
 
-        def self.data_id(data_id_transformation, data)
-          if data_id_transformation.present?
-            id = data_id_transformation[:module]
-              .safe_constantize
-              .public_send(data_id_transformation[:method], data)
-          else
-            id = data['id'].to_s
+          data_path = options.dig(:download, :data_path) || ''
+          data_path += '[]' unless data_path.end_with?('[]')
+          path_array_positions = data_path.split('.').map { |x| x.include?('[]') ? 1 : 0 }
+          data_path = data_path.gsub('[]', '')
+
+          data_id_path = [data_id].compact_blank.join('.')
+          data_name_path = [data_name].compact_blank.join('.')
+
+          full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
+          full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
+
+          additional_data_paths = options.dig(:download, :additional_data_paths) || []
+          additional_paths = {}
+
+          if additional_data_paths.is_a?(Array)
+            additional_data_paths.each do |attr|
+              additional_paths[attr[:name].to_s] = ['$dump', locale, attr[:path]].compact_blank.join('.')
+            end
+          elsif additional_data_paths.is_a?(Hash)
+            additional_data_paths.each do |name, path|
+              additional_paths[name.to_s] = ['$dump', locale, path].compact_blank.join('.')
+            end
           end
 
-          id
-        end
+          additional_paths['external_system'] = '$external_system'
 
-        def self.data_name(data)
-          data['name']
-        end
-
-        def self.cleanup_data(cleanup_data_config, data)
-          return data if cleanup_data_config.blank? || cleanup_data_config[:module].blank? || cleanup_data_config[:method].blank?
-
-          cleanup_data_config[:module].safe_constantize.public_send(cleanup_data_config[:method], data)
+          paths[:data_path] = data_path
+          paths[:path_array_positions] = path_array_positions
+          paths[:data_id_path] = data_id_path
+          paths[:data_name_path] = data_name_path
+          paths[:data_name_path_fallback] = data_name_path_fallback
+          paths[:full_data_path] = full_data_path
+          paths[:full_id_path] = full_id_path
+          paths[:additional_paths] = additional_paths
+          paths.with_indifferent_access
         end
       end
     end
