@@ -2116,24 +2116,20 @@ de:
       object_betriebsurlaub: Betriebsurlaub
       price_info: Preisinformation
       price_reducedinfo: Preisinformation Überblick
+      price_info_extra: Preisinformationen
+      price_presale_html: Vorverkauf
       room_sonstige: Raum Sonstiges
       route_start: Startpunkt
       route_start_ort: Route Startort
       route_ziel: Zielpunkt
-      socialdescription: Socialdescription
-      socialtitle: Socialtitle
-      web_seo_beschreibung: web_seo_beschreibung
-      web_seo_keywords: web_seo_keywords
-      web_seo_titel: web_seo_titel
       additionaltext_feature_barrierefreiheit: Barrierefreiheit
       additionaltext_feature_eignung: Eignung
       additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: Hygiene- und Infektionsmaßnahmen
       dayoff: Ruhetag
       details: Details
+      details_speech: Details
+      details_infotext: Details
       directions: Wegbeschreibung
-      iframe_height: iframe_height
-      iframe_titel: iframe_title
-      iframe_url: iframe_url
       moreinfo: Weitere Informationen
       openings: Öffnungszeiten
       packagefeature: Pauschalangebot Details
@@ -2155,6 +2151,8 @@ de:
       tourmoreinfos_parking: Parken
       tourmoreinfos_publictransit: Weitere Infos
       tourmoreinfos_additionalinformation: Weitere Infos
+      parking_fee: Parkgebühren
+      shuttle_service: Shuttle Service
     bierfinder:
       description: Beschreibung
       book: Beschreibung

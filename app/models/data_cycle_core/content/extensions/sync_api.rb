@@ -228,11 +228,8 @@ module DataCycleCore
               .select(:content_a_id, :relation_a, :content_b_id)
 
             if linked_stored_filter.present?
-              sub_query = <<-SQL.squish
-                things.content_type = 'embedded'
-                OR EXISTS (#{linked_stored_filter.apply(skip_ordering: true).except(:order).select(1).where('things.id = content_contents.content_b_id').to_sql})
-              SQL
-              preloaded_content_contents = preloaded_content_contents.joins(:content_b).where(send(:sanitize_sql_array, [sub_query]))
+              preloaded_content_contents = preloaded_content_contents.joins(:content_b)
+              preloaded_content_contents = preloaded_content_contents.where(content_b: { content_type: 'embedded' }).or(preloaded_content_contents.where(content_b: { id: linked_stored_filter.things(skip_ordering: true).reorder(nil).select(:id).where('things.id = content_contents.content_b_id') }))
             end
             preloaded_content_contents = preloaded_content_contents.to_a
 
