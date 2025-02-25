@@ -2244,24 +2244,20 @@ en:
       object_betriebsurlaub: Plant holidays
       price_info: Price information
       price_reducedinfo: Price reduced information
+      price_info_extra: Price information
+      price_presale_html: Presale
       room_sonstige: Room miscellaneous
       route_start: Route start
       route_start_ort: Route start place
       route_ziel: Route destination
-      socialdescription: Social description
-      socialtitle: Social title
-      web_seo_beschreibung: web_seo_beschreibung
-      web_seo_keywords: web_seo_keywords
-      web_seo_titel: web_seo_titel
       additionaltext_feature_barrierefreiheit: Accessibility
       additionaltext_feature_eignung: Accessibility levels
       additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: hygiene and anti infection measures
       dayoff: Day off
       details: Details
+      details_speech: Details
+      details_infotext: Details
       directions: Directions
-      iframe_height: iframe_height
-      iframe_titel: iframe_title
-      iframe_url: iframe_url
       moreinfo: Additional information
       openings: Opening hours
       packagefeature: Package feature
@@ -2281,6 +2277,8 @@ en:
       tourmoreinfos_tip: Author tip
       tourmoreinfos_gettingthere: Getting there
       tourmoreinfos_parking: Parking
+      parking_fee: Parking fee
+      shuttle_service: Shuttle Service
     bierfinder:
       description: Description
       book: Description
