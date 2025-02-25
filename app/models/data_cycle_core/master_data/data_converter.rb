@@ -56,6 +56,10 @@ module DataCycleCore
             &.gsub(%r{(<p>\s*(<br>)*\s*</p>)*$}, '') # remove empty lines from HTML-Editor at the end of the String
             &.gsub(%r{^(<p>\s*(<br>)*\s*</p>)*}, '') # remove empty lines from HTML-Editor at the start of the String
             &.gsub(/(\s*&nbsp;\s*)+/, '&nbsp;') # normalize multiple &nbsp; to a single one
+            &.gsub(/^\s*<br>\s*|\s*<br>\s*$/, '') # remove <br> (with whitespace) at the start and end of the String
+            &.gsub(/^&nbsp;|&nbsp;$/, '') # remove &nbsp; at the start and end of the String
+            &.gsub(/^\s*<br>\s*|\s*<br>\s*$/, '') # twice to remove if the previous line removed &nbsp;
+            &.gsub(/^&nbsp;|&nbsp;$/, '') # twice to remove if the previous line removed <br>
             &.squish
           break if new_value == old_value
           old_value = new_value
