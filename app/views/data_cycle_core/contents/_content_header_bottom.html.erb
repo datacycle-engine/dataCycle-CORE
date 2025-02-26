@@ -19,7 +19,7 @@
       button_class: 'small',
       scope: 'duplicate',
       template: content.content_template,
-      button_title: t('actions.create_from_existing', locale: active_ui_locale) if can?(:create, content, 'duplicate') && content.content_type?('entity') && !content.api_type&.include?('MediaObject') %>
+      button_title: t('actions.create_from_existing', locale: active_ui_locale) if can?(:create, content, 'duplicate') && content.content_type?('entity') && content.asset_property_names.blank? %>
 
   <% if can?(:move_content, content) && DataCycleCore::Feature::Container.enabled? && DataCycleCore::Feature::Container.allowed_container_templates(content).present? %>
     <%= link_to "#", class:'button-prime small', data: { open: 'move-to-container-overlay', click_open: false, dc_tooltip: t('actions.move_to_container', locale: active_ui_locale) } do %>
