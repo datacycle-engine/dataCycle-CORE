@@ -19,15 +19,17 @@ module DataCycleCore
       private
 
       def restore_content
+        content = DataCycleCore::Thing.create!(attributes.slice(*DataCycleCore::Thing.column_names).merge(
+                                                 'id' => thing_id,
+                                                 'version_name' => I18n.t('history.restored', date: I18n.l(Time.zone.now, format: :edit)),
+                                                 'created_at' => DataCycleCore::Thing::History.order(created_at: :asc).find_by(thing_id:)&.created_at
+                                               ))
+
         translations.each do |translated_entry|
           DataCycleCore::Thing::Translation.create!(translated_entry.attributes.slice(*DataCycleCore::Thing::Translation.column_names.except('id')).merge('thing_id' => thing_id))
         end
 
-        DataCycleCore::Thing.create!(attributes.slice(*DataCycleCore::Thing.column_names).merge(
-                                       'id' => thing_id,
-                                       'version_name' => I18n.t('history.restored', date: I18n.l(Time.zone.now, format: :edit)),
-                                       'created_at' => DataCycleCore::Thing::History.order(created_at: :asc).find_by(thing_id:)&.created_at
-                                     ))
+        content
       end
 
       def restore_classification_contents
