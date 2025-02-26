@@ -650,7 +650,7 @@ module DataCycleCore
         tree_label_names = ordered_properties.values.pluck('tree_label').compact.uniq
         tree_labels = DataCycleCore::ClassificationTreeLabel.where(name: tree_label_names).index_by(&:name) if tree_label_names.present?
 
-        ordered_properties = ordered_properties.keep_if do |_, v|
+        ordered_properties.keep_if do |_, v|
           v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(tree_labels[v['tree_label']], 'edit')
         end
 
