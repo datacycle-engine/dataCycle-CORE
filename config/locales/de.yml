@@ -2226,6 +2226,11 @@ de:
       starting_point_description: Anfahrt
       sub_title: Untertitel
       teaser_title: Alternativ Titel
+    digitize_the_planet:
+      abstract: Beschreibung
+      abstract_short: Kurzbeschreibung
+      geometry_source_organization: Quelle der Geometriedaten
+      legal_doc: Rechtsdokument
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

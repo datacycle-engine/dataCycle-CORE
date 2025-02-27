@@ -56,6 +56,18 @@ module DataCycleCore
 
             data_hash.merge({ 'geom' => RGeo::WKRep::WKBParser.new(factory).parse(geom) })
           end
+
+          def self.geom_from_geojson(data_hash)
+            return data_hash if data_hash&.dig('geometry').blank?
+            
+            @geo_factory_z = RGeo::Cartesian.simple_factory(srid: 4326, has_z_coordinate: true)
+
+            geom_decode = RGeo::GeoJSON.decode(data_hash['geometry'], geo_factory: @geo_factory_z)
+
+            return data_hash if geom_decode.blank?
+
+            data_hash.merge({ 'geom' => geom_decode })
+          end
         end
       end
     end

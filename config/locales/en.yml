@@ -2334,7 +2334,7 @@ en:
       roadmap: Roadmap
     museumsportal:
       opening_hours: Opening hours description
-      pimcore_ats:
+    pimcore_ats:
       description: Description
       longDescription: Detailed descripton
       shortDescription: Brief descripton
@@ -2393,6 +2393,11 @@ en:
       thuecat:HandicappedParking: Handicapped parking
       thuecat:Motorcycle: Motorcycle
       thuecat:ElectricVehicleCarChargingStationEnumMem: Electric car charging station
+    digitize_the_planet:
+      abstract: Description
+      abstract_short: Short description
+      geometry_source_organization: Geometry source
+      legal_doc: Legal document
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
