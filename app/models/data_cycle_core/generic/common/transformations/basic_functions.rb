@@ -59,7 +59,7 @@ module DataCycleCore
 
           def self.geom_from_geojson(data_hash)
             return data_hash if data_hash&.dig('geometry').blank?
-            
+
             @geo_factory_z = RGeo::Cartesian.simple_factory(srid: 4326, has_z_coordinate: true)
 
             geom_decode = RGeo::GeoJSON.decode(data_hash['geometry'], geo_factory: @geo_factory_z)
