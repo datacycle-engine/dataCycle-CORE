@@ -114,29 +114,21 @@ module DataCycleCore
       content = DataCycleCore::Thing.find(params[:id])
       raise ActiveRecord::RecordInvalid if ['Audio', 'AudioObject'].include?(content.template_name)
 
-      content = content.try(:image)&.first unless content.respond_to?(:asset)
+      content = content.try(:image)&.first unless content.respond_to?(:content_url) || content.respond_to?(:preview_url) || content.respond_to?(:thumbnail_url)
+      attributes = [:thumbnail_url]
 
-      attribute = asset_proxy_params[:type] == 'content' && ['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
-
-      raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
-
-      if content.try(:asset)&.file&.attached?
-        # active storage
-        if content.asset.instance_of?(::DataCycleCore::Image)
-          rendered_attribute = content.send(attribute)
-        else
-          content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
-          rendered_attribute = content.asset.file.preview_image.url
-        end
-      else
-        # external thing
-        rendered_attribute = content.send(attribute)
+      if asset_proxy_params[:type] == 'content'
+        attributes.unshift(:preview_url)
+        attributes.unshift(:content_url) if content.template_name.in?(['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'])
       end
 
+      attribute = attributes.find { |a| content.respond_to?(a) }
+      raise ActiveRecord::RecordNotFound if attribute.nil?
+
+      rendered_attribute = content.send(attribute)
       raise ActiveRecord::RecordNotFound if rendered_attribute.blank?
 
       uri = Addressable::URI.parse(rendered_attribute)
-      # used for local development and docker env.
       redirect_to(uri.to_s, allow_other_host: true)
     end
 
