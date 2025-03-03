@@ -367,7 +367,7 @@ en:
   user:
     user_not_confirmed: email address has not been confirmed yet
     confirm: confirm email
-    delete_user_html: delete user?
+    delete_user_html: really delete user <b>%{email}</b>?
     consents:
       header:
         terms_conditions: General Terms and Conditions (GTC) have been updated
@@ -706,8 +706,7 @@ en:
     height: Height
     width: Wide
     exclude: Exception
-    children_present_html:
-      "<br><br><b>Attention.</b><p>There are linked contents,
+    children_present_html: "<b>Attention.</b><p>There are linked contents,
       these are also deleted!</p>"
     creator: Creator
     abo_changed_title:
@@ -845,6 +844,14 @@ en:
     more_errors: "%{count} more errors"
     number: number
     preview_links: Preview links
+    or: or
+    irreversible: This action cannot be reversed.
+    thing_count: Number of affected contents
+    delete_all_translations_info: "All translations will be deleted.<br>This action cannot be undone."
+    delete_thing_linked_info: "Linked contents are not deleted."
+    delete_thing_translation_info_html: "Only the translation <b>(%{data})</b> is deleted."
+    delete_collection_info_html: "Only the %{type} is deleted.<br>The contents are NOT deleted from the system."
+    delete_collection_things_html: "This action cannot be undone.<br>The content is permanently deleted from the system."
 
   embedded:
     move_down: move down
@@ -1354,7 +1361,8 @@ en:
     lock: lock
     unlock: unlock
     delete: delete
-    choose_type: Select content type
+    choose_type: select content type
+    choose_data: "select %{data}"
     new: Create %{data}
     new_asset: Save %{data}
     generate: Generate %{data}
@@ -1410,15 +1418,15 @@ en:
     processing_asset: File is being processed ...
     processing_image: Image is being processed ...
     searching: search
-    next: Go to
-    back: Back
+    next: next
+    back: back
     add_files: Add files
     delete_file: Really delete the file?
     delete_files: Really delete files?
     delete_all_files: Really delete ALL files?
     uploaded: Uploaded
     back_to_select: Back to the selection
-    delete_translation: Delete translation (%{data})
+    delete_translation: delete translation
     delete_with_translated_html:
       Delete embedded record?<br><br>Existing translations
       of this embedded record will also be deleted!
@@ -1435,7 +1443,7 @@ en:
     add_items_to_watch_list: add to %{data}
     add: add
     delete_items_in_watch_list_tooltip: Delete all contents from this content collection
-    delete_items_in_watch_list: "Do you really want to delete all contents from this content collection?<br><b>This action cannot be undone and will permanently delete the contents from the system.</b>"
+    delete_items_in_watch_list: "Do you really want to <b>delete all</b> contents from this content collection?<br><b>This action cannot be undone and will permanently delete the contents from the system.</b>"
     delete_items_in_watch_list_confirmation_text: "Delete all contents permanently"
     save_without_redirect: Save
     set_and_next: take over and continue
@@ -1444,14 +1452,51 @@ en:
     remove_locks: Release content for editing (remove lock)
     copyable_from: Apply %{data}
     copyable_from_clear: "%{data} discard"
-    logout: Logout
+    logout: logout
     clear_tooltip: "remove all contents from %{data}"
-    clear: "Do you really want to remove ALL contents from %{data}? This action does NOT delete the data from the system."
+    clear: remove
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
     set_gravity: "Set image gravity"
     deactivate_gravity_editor: "End editing"
     download_user_info_activity: "Download user activity"
+    cancel: cancel
+    delete_translation_confirmation_html: "really delete translation <b>(%{data})</b> from %{template} <b>%{title}</b>?"
+    delete_confirmation_html: "really delete %{type} <b>%{name}</b>?"
+
+  concept_scheme_unlink:
+    link_title: Remove direct assignment to contents
+    submit_button: remove assignment
+    warning_html:
+      zero: "There are no directly assigned classifications from <b>%{name}</b> to contents from the selected %{collection} <b>%{collection_name}</b>."
+      one: "<p>The following, directly assigned classifications will be removed!</p><p>Please check the information:</p>"
+      other: "<p>The following, directly assigned classifications will be removed!</p><p>Please check the information:</p>"
+    error: The assignment could not be removed
+    finished:
+      one: The assignment of <b>%{name}</b> to <b>%{count}</b> content from %{collection} <b>%{collection_name}</b> has been removed
+      other: The assignment of <b>%{name}</b> to <b>%{count}</b> contents from %{collection} <b>%{collection_name}</b> has been removed
+    enqueued: A job to remove the assignment has been created
+    version_name: assigned classifications for %{data} have been removed
+    info_html: all direct assignments of classifications from <b>%{name}</b> to contents from the selected <b>%{collection}</b> will be removed.
+    disconnected: The connection to the server has been interrupted. Please try again.
+    post_submit_info_html: "The removal of the assignment is carried out in the background.<br>It may take a moment until the job is started."
+
+  concept_scheme_link:
+    link_title: directly assign mapped classifications to contents
+    submit_button: assign classifications
+    warning_html:
+      zero: "no classifications from <b>%{name}</b> are indirectly assigned to contents from the selected %{collection} <b>%{collection_name}</b>."
+      one: <p>The following classifications, which are linked to the content via mappings, will be directly assigned to the content!</p><p>Please check the information:</p>
+      other: <p>The following classifications, which are linked to contents via mappings, will be directly assigned to the contents!</p><p>Please check the information:</p>
+    version_name: "mapped classifications for %{data} have been directly assigned to the corresponding attribute"
+    error: The classifications could not be assigned
+    finished:
+      one: The classifications from <b>%{name}</b> have been directly assigned to <b>%{count}</b> content from %{collection} <b>%{collection_name}</b>
+      other: The classifications from <b>%{name}</b> have been directly assigned to <b>%{count}</b> contents from %{collection} <b>%{collection_name}</b>
+    info_html: All classifications of the classification tree <b>%{name}</b>, which are linked to contents via mappings with the selected <b>%{collection}</b>, will be directly assigned to the contents.
+    disconnected: The connection to the server has been interrupted. Please try again.
+    post_submit_info_html: "The assignment of the classifications is carried out in the background.<br>It may take a moment until the job is started."
+
   validation:
     errors:
       slug: "%{data} is already the slug of another record."
@@ -1958,6 +2003,7 @@ en:
       update_params: save and apply search parameters
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)
+      clear_warning: <p>Do you really want to delete all contents from this collection?</p><div class="callout primary">This action will NOT delete the contents from the system.</div>
       mailer:
         subject:
           one: "Contents were added/removed to/from a %{type}."
