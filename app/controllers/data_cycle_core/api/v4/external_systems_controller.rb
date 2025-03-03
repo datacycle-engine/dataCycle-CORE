@@ -109,7 +109,7 @@ module DataCycleCore
           end
 
           locale = params.dig(:@context, :@language)
-          locale = I18n.available_locales.first if locale.blank?
+          locale = I18n.default_locale if locale.blank?
           unless locale.to_sym.in?(I18n.available_locales)
             return_value = { error: "Invalid locale. Allowed are: #{I18n.available_locales.join(', ')}" }
             status = :bad_request

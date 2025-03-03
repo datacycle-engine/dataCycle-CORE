@@ -2,25 +2,20 @@
   <div class="row expanded">
     <div class="column">
       <ul>
-        <% breadcrumbs(display_single_fragment: true).tap do |links| %>
-          <% if links.any? %>
-            <% links.each do |link| %>
-              <li>
-                <% if link.current? %>
-                  <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
-                <% elsif link.authorized %>
-                  <%= link_to link.url, class: (link.current? ? "current" : nil) do %>
-                    <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
-                  <% end %>
-                <% else %>
-                  <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
-                <% end %>
-              </li>
+        <% breadcrumbs(display_single_fragment: true).each do |link| %>
+          <li>
+            <% if link.current? %>
+              <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
+            <% elsif link.authorized %>
+              <%= link_to link.url, class: (link.current? ? "current" : nil) do %>
+                <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
+              <% end %>
+            <% else %>
+              <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
             <% end %>
-          <% end %>
+          </li>
         <% end %>
       </ul>
-
     </div>
   </div>
 </section>

@@ -50,6 +50,10 @@ class RemoteRenderer {
 			if (DataCycle.config.remoteRenderFull) this.loadRemote(element);
 		});
 
+		element.addEventListener("dc:remote:reloadOnNextOpen", (e) =>
+			this.reloadOnNextOpen(e, e.detail),
+		);
+
 		if (element.classList.contains("translatable-attribute"))
 			this.addForceRenderTranslationHandler(element);
 
@@ -173,6 +177,7 @@ class RemoteRenderer {
 			target.innerHTML = trimmedHtml;
 			target.classList.add("remote-rendered");
 			target.classList.remove("remote-rendering");
+			target.dispatchEvent(new CustomEvent("dc:remote:rendered"));
 		}
 
 		this.renderQueue.length = 0;

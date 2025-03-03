@@ -151,7 +151,7 @@
               background: lighten($color: $primary-color, $amount: 15%);
               width: 0;
               min-width: 3rem;
-              transition: width 0.25s ease-out;
+              transition: width linear 100ms;
             }
           }
 

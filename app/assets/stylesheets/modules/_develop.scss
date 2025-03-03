@@ -1653,19 +1653,6 @@ a.email-link {
   }
 }
 
-.multi-step {
-  .form-element {
-    .v-select {
-      .select2 .select2-selection.select2-selection--single .select2-selection__arrow {
-        top: 1px;
-        height: 100%;
-        bottom: unset;
-        right: 1px;
-      }
-    }
-  }
-}
-
 .select2-container {
   color: $dark-gray;
   text-align: left;
@@ -2043,6 +2030,7 @@ select {
 .reveal-overlay {
   z-index: 1006;
   overflow-y: auto;
+  backdrop-filter: blur(5px);
 }
 
 .ol-control {
@@ -2665,7 +2653,7 @@ select {
 }
 
 .fa {
-  transition: text-shadow ease-out 0.25s, color ease-out 0.25s;
+  transition: text-shadow linear 100ms, color linear 100ms;
 }
 
 .has-tip,
@@ -3115,7 +3103,7 @@ section.related-objects {
 
     ul.children {
       >li {
-        border-left: 1px solid var(--medium-dark-gray);
+        border-left: 1px solid var(--dark-gray);
         margin: 0 0 0 2rem;
         line-height: 1;
 
@@ -3135,7 +3123,7 @@ section.related-objects {
             left: -1px;
             bottom: 30%;
             width: 0.75em;
-            border: 1px solid var(--medium-dark-gray);
+            border: 1px solid var(--dark-gray);
             border-top: 0 none transparent;
             border-right: 0 none transparent;
           }
@@ -3469,7 +3457,7 @@ button.button-prime.small.bulk-delete-button {
       background: lighten($color: $alert-color, $amount: 15%);
       width: 0;
       min-width: 2rem;
-      transition: width 0.25s ease-out;
+      transition: width linear 100ms;
     }
   }
 
@@ -3636,9 +3624,6 @@ button.button-prime.small.bulk-delete-button {
 }
 
 .download-content-reveal {
-  fieldset {
-    margin-bottom: 1rem;
-  }
 
   .active.version,
   .active.transformation {
@@ -4057,30 +4042,88 @@ body {
 }
 
 .callout {
+  text-align: left;
+
+  &:not(:has(.fa)) {
+    padding-left: 4rem;
+
+    &::after {
+      content: '\f05a';
+      color: var(--light-gray);
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      line-height: 2rem;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4rem;
+      height: 100%;
+    }
+  }
+
   &.primary {
-    border-color: $primary-color;
+    border-color: var(--primary-color);
+
+    &:not(:has(.fa))::after {
+      color: var(--primary-color);
+    }
   }
 
   &.secondary {
-    border-color: $secondary-color;
+    border-color: var(--secondary-color);
+
+    &:not(:has(.fa))::after {
+      color: var(--secondary-color);
+    }
   }
 
   &.success {
-    border-color: $success-color;
+    border-color: var(--success-color);
+
+    &:not(:has(.fa))::after {
+      color: var(--success-color);
+      content: '\f00c';
+    }
   }
 
   &.warning {
-    border-color: $warning-color;
+    border-color: var(--warning-color);
+
+    &:not(:has(.fa))::after {
+      color: var(--warning-color);
+      content: '\f071';
+    }
   }
 
   &.alert {
-    border-color: $alert-color;
+    border-color: var(--alert-color);
+
+    &:not(:has(.fa))::after {
+      color: var(--alert-color);
+      content: '\f071';
+    }
   }
 
   &.inline {
     display: inline-flex;
     margin: 0;
     padding: 0.1rem 0.3rem;
+    gap: 0.3rem;
+    align-items: center;
+    justify-content: start;
+
+    &:not(:has(.fa)) {
+      padding-right: 1rem;
+
+      &::after {
+        display: none;
+      }
+    }
   }
 }
 

@@ -4,7 +4,7 @@ import loadingIcon from "../templates/loadingIcon";
 
 export default function () {
 	DataCycle.registerAddCallback(
-		"form.multi-step",
+		"form.new-content-multi-step-form",
 		"new-content-dialog",
 		(e) => new NewContentDialog(e),
 	);

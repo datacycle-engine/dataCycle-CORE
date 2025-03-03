@@ -2,66 +2,82 @@
 <% namespace = SecureRandom.hex(10) %>
 
 <%= form_with(model: data_link, namespace: namespace, class: "data-link-form", local: true, data: { namespace: namespace }) do |form| %>
-  <p class="lead"><%= DataCycleCore::DataLink.model_name.human(locale: active_ui_locale).titleize %></p>
-  <%= form.hidden_field 'source_table', value: local_assigns[:split_source].class.table_name unless local_assigns[:split_source].blank? %>
-  <%= form.hidden_field 'source_id', value: local_assigns[:split_source].id unless local_assigns[:split_source].blank? %>
-  <%= form.hidden_field 'item_type', value: content.class.base_class.name %>
-  <%= form.hidden_field 'item_id', value: content.id %>
-
-  <%= render 'data_cycle_core/data_links/receiver_form', receiver: data_link.receiver || DataCycleCore::User.new, namespace: namespace %>
-
-  <div class="form-element">
-    <%= form.label :validity_period, DataCycleCore::DataLink.human_attribute_name("validity_period", locale: active_ui_locale) %>
-    <div class="form-element grid-x align-center">
-      <div class="cell"><%= form.date_field :valid_from, {placeholder: "tt.mm.jjjj", label: false} %></div>
-      <div class="cell no-grow">-</div>
-      <div class="cell"><%= form.date_field :valid_until, {placeholder: "tt.mm.jjjj", label: false} %></div>
-    </div>
+  <div class="reveal-header">
+    <%= DataCycleCore::DataLink.model_name.human(locale: active_ui_locale).titleize %>
   </div>
-  <div class="form-element">
-    <%= form.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: active_ui_locale) %>
-    <%= form.collection_radio_buttons(:permissions, data_link_modes(content), :type, :type, { checked: data_link.permissions&.to_sym || :read }) do |b| %>
-      <%= b.radio_button %>
-      <%= b.label { DataCycleCore::DataLink.human_attribute_name("permissions_#{b.text}", locale: active_ui_locale) } %>
-    <% end %>
-  </div>
+  <div class="reveal-body">
+    <%= form.hidden_field 'source_table', value: local_assigns[:split_source].class.table_name unless local_assigns[:split_source].blank? %>
+    <%= form.hidden_field 'source_id', value: local_assigns[:split_source].id unless local_assigns[:split_source].blank? %>
+    <%= form.hidden_field 'item_type', value: content.class.base_class.name %>
+    <%= form.hidden_field 'item_id', value: content.id %>
 
-  <div class="form-element">
-    <%= form.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", file_types: DataCycleCore::TextFile.extension_white_list.join(', '), locale: active_ui_locale) %>
-    <div class="v-select white">
-      <%= form.select :asset_id, options_for_select(DataCycleCore::TextFile.accessible_by(current_ability).or(DataCycleCore::TextFile.accessible_by(current_ability).except(:where).where(id: data_link.asset_id)).order(name: :asc).pluck(:name, :id), data_link.asset_id), { include_blank: true }, { class: 'single-select reloadable', data: { placeholder: '', reload_path: assets_path, type: 'DataCycleCore::TextFile' } } %>
-    </div>
+    <%= render 'data_cycle_core/data_links/receiver_form', receiver: data_link.receiver || DataCycleCore::User.new, namespace: namespace %>
 
-    <%= render 'data_cycle_core/contents/new/shared/content_uploader', type: 'text_file' %>
-  </div>
-
-  <% if DataCycleCore::Feature::TranslatedDataLink.enabled? %>
     <div class="form-element">
-      <%= form.label :locale, DataCycleCore::DataLink.human_attribute_name("locale", locale: active_ui_locale) %>
-      <%= form.select :locale, DataCycleCore::Feature::TranslatedDataLink.locales, { selected: data_link.locale.presence || active_ui_locale } %>
+      <%= form.label :validity_period, DataCycleCore::DataLink.human_attribute_name("validity_period", locale: active_ui_locale) %>
+      <div class="form-element grid-x align-center">
+        <div class="cell"><%= form.date_field :valid_from, {placeholder: "tt.mm.jjjj", label: false} %></div>
+        <div class="cell no-grow">-</div>
+        <div class="cell"><%= form.date_field :valid_until, {placeholder: "tt.mm.jjjj", label: false} %></div>
+      </div>
     </div>
-  <% end %>
+    <div class="form-element">
+      <%= form.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: active_ui_locale) %>
+      <%= form.collection_radio_buttons(:permissions, data_link_modes(content), :type, :type, { checked: data_link.permissions&.to_sym || :read }) do |b| %>
+        <%= b.radio_button %>
+        <%= b.label { DataCycleCore::DataLink.human_attribute_name("permissions_#{b.text}", locale: active_ui_locale) } %>
+      <% end %>
+    </div>
 
-  <div class="form-element">
-    <%= form.label :comment, DataCycleCore::DataLink.human_attribute_name("comment", locale: active_ui_locale) %>
-    <%= form.text_area :comment, class: "large-textfield", label: false %>
+    <div class="form-element">
+      <%= form.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", file_types: DataCycleCore::TextFile.extension_white_list.join(', '), locale: active_ui_locale) %>
+      <div class="v-select white">
+        <%= form.select :asset_id, options_for_select(DataCycleCore::TextFile.accessible_by(current_ability).or(DataCycleCore::TextFile.accessible_by(current_ability).except(:where).where(id: data_link.asset_id)).order(name: :asc).pluck(:name, :id), data_link.asset_id), { include_blank: true }, { class: 'single-select reloadable', data: { placeholder: '', reload_path: assets_path, type: 'DataCycleCore::TextFile' } } %>
+      </div>
+
+      <%= render 'data_cycle_core/contents/new/shared/content_uploader', type: 'text_file' %>
+    </div>
+
+    <% if DataCycleCore::Feature::TranslatedDataLink.enabled? %>
+      <div class="form-element">
+        <%= form.label :locale, DataCycleCore::DataLink.human_attribute_name("locale", locale: active_ui_locale) %>
+        <%= form.select :locale, DataCycleCore::Feature::TranslatedDataLink.locales, { selected: data_link.locale.presence || active_ui_locale } %>
+      </div>
+    <% end %>
+
+    <div class="form-element">
+      <%= form.label :comment, DataCycleCore::DataLink.human_attribute_name("comment", locale: active_ui_locale) %>
+      <%= form.text_area :comment, class: "large-textfield", label: false %>
+    </div>
   </div>
 
-  <div class="buttons">
-    <%= form.button t('actions.save_without_send', locale: active_ui_locale),
-      class: "button submit-button",
+  <div class="buttons reveal-footer">
+    <%= form.button safe_join([
+        t('actions.save_without_send', locale: active_ui_locale),
+        tag.i(class: 'fa fa-floppy-o')
+      ]),
+      class: "button submit-button hollow",
       name: :send,
       value: 0,
       data: {
-        disable_with: "#{t('actions.save_without_send', locale: active_ui_locale)} <i class='fa fa-spinner fa-spin fa-fw'></i>"
-      } %>
+        disable_with: safe_join([
+        t('actions.save_without_send', locale: active_ui_locale),
+        tag.i(class: 'fa fa-spinner fa-spin fa-fw')
+      ])
+    } %>
 
-    <%= form.button t('actions.save_and_send', locale: active_ui_locale),
-      class: "button submit-button",
+    <%= form.button safe_join([
+        t('actions.save_and_send', locale: active_ui_locale),
+        tag.i(class: 'fa fa-paper-plane')
+      ]),
+      class: "button submit-button success",
       name: :send,
       value: 1,
       data: {
-        disable_with: t('actions.save_and_send', locale: active_ui_locale)
+        disable_with: safe_join([
+          t('actions.save_and_send', locale: active_ui_locale),
+          tag.i(class: 'fa fa-paper-plane')
+        ])
       } %>
   </div>
 <% end %>

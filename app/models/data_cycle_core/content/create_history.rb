@@ -12,7 +12,7 @@ module DataCycleCore
             [
               'SELECT to_thing_history (?::UUID, ?::VARCHAR, ?::BOOLEAN, ?::BOOLEAN);',
               id,
-              last_updated_locale || I18n.available_locales.first.to_s,
+              last_updated_locale || I18n.default_locale.to_s,
               all_translations,
               delete
             ]

@@ -59,7 +59,7 @@
                 <% end %>
 
                 <div class="reveal update-search-form" id="update-search-form-<%= @stored_filter&.id %>" data-reveal>
-                  <h3><%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %></h3>
+                  <div class="reveal-header"><%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %></div>
                   <div class="remote-render"
                         data-remote-path="data_cycle_core/stored_filters/edit_form"
                         data-remote-options="<%= to_query_params({ stored_search: @stored_filter, update_params: true }).to_json %>">

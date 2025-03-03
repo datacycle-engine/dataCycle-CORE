@@ -52,7 +52,7 @@
     data: {
       dc_tooltip: tag.span(
         tag.span("#{item.class.human_attribute_name(:default_locale, locale: active_ui_locale)}:", class: 'user-default-locale-title') +
-        tag.span(t("locales.#{item.default_locale || I18n.available_locales.first}", locale: active_ui_locale), class: 'user-default-locale-value'),
+        tag.span(t("locales.#{item.default_locale || I18n.default_locale}", locale: active_ui_locale), class: 'user-default-locale-value'),
         class: 'user-default-locale'
       ) +
       tag.span(

@@ -16,8 +16,9 @@
       method: :delete,
       class:'alert delete-link',
       data: {
-        confirm: "#{item.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?",
-        dc_tooltip: t('actions.delete', locale: active_ui_locale)
+        confirm: "#{t('actions.delete_with_data', data: item.model_name.human(locale: active_ui_locale), locale: active_ui_locale)}?",
+        confirmation_text: t('actions.delete', locale: active_ui_locale) + tag.i(class: 'fa fa-trash-o'),
+        dc_tooltip: t('actions.delete_with_data', data: item.model_name.human(locale: active_ui_locale), locale: active_ui_locale)
       } %>
     <% end %>
   </div>

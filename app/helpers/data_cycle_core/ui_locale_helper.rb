@@ -151,5 +151,14 @@ module DataCycleCore
 
       tag.i(class: 'fa fa-info-circle', data: { dc_tooltip: helper_text })
     end
+
+    def collection_model_name_human(count: 1)
+      t(
+        'filter.relation_filter.placeholder.collection_or_stored_filter',
+        collection: DataCycleCore::WatchList.model_name.human(count:, locale: active_ui_locale),
+        stored_filter: DataCycleCore::StoredFilter.model_name.human(count:, locale: active_ui_locale),
+        locale: active_ui_locale
+      )
+    end
   end
 end

@@ -9,7 +9,9 @@ manage_subjects:
       - :cache
       - :report
       - DataCycleCore::ClassificationTreeLabel
+      - DataCycleCore::ConceptScheme
       - DataCycleCore::ClassificationAlias
+      - DataCycleCore::Concept
       - DataCycleCore::User
       - DataCycleCore::UserGroup
       - DataCycleCore::DataLink

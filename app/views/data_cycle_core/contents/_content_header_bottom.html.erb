@@ -71,8 +71,15 @@
               method: :delete,
               class:'button-prime small alert delete-content-link',
               data: {
-                  confirm: "#{content.template_name} #{t('actions.delete', locale: active_ui_locale)}? #{(content.try(:children)&.any? || content.try(:is_related?))? t('common.children_present_html', locale: active_ui_locale) : '' }",
-                  dc_tooltip:t('actions.delete', locale: active_ui_locale)
+                  confirm: safe_join([
+                    tag.p(t('actions.delete_confirmation_html', type: content.translated_template_name(active_ui_locale), name: content.try(:title), locale: active_ui_locale)),
+                    tag.div(t('common.delete_thing_linked_info', locale: active_ui_locale), class: 'callout primary'),
+                    tag.div(t('common.delete_all_translations_info', locale: active_ui_locale), class: 'callout warning'),
+                    content.try(:children)&.any? ? tag.div(t('common.children_present_html', locale: active_ui_locale), class: 'callout warning') : ''
+                  ].compact_blank),
+                  confirmation_text: t('actions.delete', locale: active_ui_locale) + tag.i(class: 'fa fa-trash-o'),
+                  confirmation_header_text: t('actions.delete_with_data', data: content.translated_template_name(active_ui_locale), locale: active_ui_locale),
+                  dc_tooltip:t('actions.delete_with_data', data: content.translated_template_name(active_ui_locale), locale: active_ui_locale)
               } do %>
     <i class="fa fa-trash-o" aria-hidden="true"></i>
   <% end if can? :destroy, content %>

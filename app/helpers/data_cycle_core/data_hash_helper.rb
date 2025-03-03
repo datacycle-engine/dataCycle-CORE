@@ -152,7 +152,7 @@ module DataCycleCore
       html_text = text.presence || ''
 
       out = []
-      out << tag.i(html_title.html_safe)
+      out << tag.span(html_title.html_safe)
       out << tag.b(html_text.html_safe)
       safe_join(out)
     end

@@ -8,17 +8,19 @@ class ConfirmationModal {
 		this.confirmationClass = config.confirmationClass || "";
 		this.cancelable = config.cancelable;
 		this.text = config.text || "";
-		this.confirmationText = config.confirmationText;
-		this.cancelText = config.cancelText;
+		this.confirmationHeaderText = config.confirmationHeaderText || "";
+		this.confirmationText = config.confirmationText || "";
+		this.cancelText = config.cancelText || "";
 		this.confirmationIndex = 1;
 		this.overlay;
 		this.closed = false;
 		this.section;
+		this.domParser = new DOMParser();
 
 		this.show();
 	}
 	async show() {
-		const sectionId = domElementHelpers.randomId("confirmation-section");
+		const sectionId = domElementHelpers.randomId();
 		const sectionHtml = await this.renderSectionHtml(sectionId);
 
 		window.requestAnimationFrame(() => {
@@ -57,20 +59,42 @@ class ConfirmationModal {
 	renderWrapperHtml() {
 		return '<div class="reveal confirmation-modal" data-multiple-opened="true" data-reveal data-initial-state="open"><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button></div>';
 	}
+	revealHeader() {
+		if (!this.confirmationHeaderText) return "";
+
+		return `<div class="reveal-header">${this.confirmationHeaderText}</div>`;
+	}
+	async cancelButton() {
+		if (!this.cancelable) return "";
+
+		let cancelText =
+			this.cancelText || (await I18n.translate("actions.cancel"));
+		const cancelTextDom = this.domParser.parseFromString(
+			cancelText,
+			"text/html",
+		);
+		if (!cancelTextDom.querySelector(".fa"))
+			cancelText = `<i class="fa fa-times"></i>${cancelText}`;
+
+		return `<a class="confirmation-cancel button hollow" aria-label="Cancel">${cancelText}</a>`;
+	}
+	async confirmationButton() {
+		let confirmationText = `<a class="confirmation-confirm button ${this.confirmationClass}" aria-label="Confirm">${this.confirmationText || (await I18n.translate("frontend.ok"))}`;
+		const confirmTextDom = this.domParser.parseFromString(
+			confirmationText,
+			"text/html",
+		);
+		if (!confirmTextDom.querySelector(".fa"))
+			confirmationText = `${confirmationText}<i class="fa fa-check"></i></a>`;
+
+		return confirmationText;
+	}
 	async renderSectionHtml(sectionId) {
-		return `<section id="${sectionId}" class="confirmation-section"><div class="confirmation-text">${
-			this.text
-		}</div><div class="confirmation-buttons">${
-			this.cancelable
-				? `<a class="confirmation-cancel button" aria-label="Cancel">${
-						this.cancelText || (await I18n.translate("frontend.cancel"))
-				  }</a>`
-				: ""
-		}<a class="confirmation-confirm button ${
-			this.confirmationClass
-		}" aria-label="Confirm">${
-			this.confirmationText || (await I18n.translate("frontend.ok"))
-		}</a></div></section>`;
+		const revealHeader = this.revealHeader();
+		const cancelButton = await this.cancelButton();
+		const confirmationButton = await this.confirmationButton();
+
+		return `<section id="${sectionId}" class="confirmation-section">${revealHeader}<div class="confirmation-text reveal-body">${this.text}</div><div class="reveal-footer confirmation-buttons">${cancelButton}${confirmationButton}</div></section>`;
 	}
 	updateConfirmationIndex(_event) {
 		this.overlay.querySelector(".confirmation-index").textContent =

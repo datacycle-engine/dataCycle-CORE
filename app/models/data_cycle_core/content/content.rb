@@ -58,6 +58,7 @@ module DataCycleCore
       include Extensions::Geo
       include Extensions::Thing
       include Extensions::Slug
+      include Extensions::ConceptTransformations
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
@@ -360,6 +361,10 @@ module DataCycleCore
 
       def classification_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def classification_properties(include_overlay = false)
+        property_selector(include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def asset_property_names

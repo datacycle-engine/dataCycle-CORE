@@ -212,6 +212,8 @@ DataCycleCore::Engine.routes.draw do
       get :download, on: :collection
       patch :move, on: :collection
       patch :merge, on: :collection
+      post :unlink_contents, on: :collection
+      post :link_contents, on: :collection
     end
   end
 

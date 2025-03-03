@@ -360,6 +360,10 @@ en:
     new_classification_tree_label: create new classificationtree
     new_classification: create new classification
 
+  version_names:
+    mapped_concepts_to_property: "mapped classifications for %{data} have been assigned to the corresponding attribute"
+    remove_concepts_by_scheme: "assigned classifications for #{data} have been removed"
+
   user:
     user_not_confirmed: email address has not been confirmed yet
     confirm: confirm email
@@ -409,7 +413,8 @@ en:
       remove_file: Remove file
       file: File
       confirm_single_to_all_html: "really apply %{label} to all %{template}?"
-      confirm_all_to_all_html: "<h5>Apply all attributes to all %{template}</h5><p>Should <b>%{label}</b> also be applied to all %{template}?</p>"
+      confirm_all_to_all_html: "Should <b>%{label}</b> also be applied to all %{template}?"
+      confirm_all_to_all_header: Apply all attributes to all %{template}
     cancel: Cancel
     ok: Okay
     content_lock:

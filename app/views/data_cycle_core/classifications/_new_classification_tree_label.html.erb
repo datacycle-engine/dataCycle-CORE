@@ -1,5 +1,5 @@
 <li class="new-classification-tree-label">
-  <a href="#" class="create button"><i class="fa fa-plus"></i> <%= t('classifications.new_classification_tree_label', locale: active_ui_locale) %></a>
+  <button type="button" class="create button hollow"><i class="fa fa-plus"></i> <%= t('classifications.new_classification_tree_label', locale: active_ui_locale) %></button>
 
   <%= tag.div(class: 'remote-render inverted classification-tree-label-form-container new', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: DataCycleCore::ClassificationTreeLabel.new).to_json })  %>
 </li>

@@ -3,6 +3,16 @@
 .top-bar ul {
   background: transparent;
 }
-.menu > li > a i {
+
+.menu>li>a i {
   margin-right: 0.5rem;
+}
+
+.progress {
+  height: 1.2rem;
+
+  .progress-meter {
+    transition: width linear 100ms;
+    will-change: width;
+  }
 }

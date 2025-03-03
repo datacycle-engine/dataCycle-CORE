@@ -35,7 +35,7 @@
                 data: {
                   dc_tooltip: tag.span(
                     tag.span("#{@user.class.human_attribute_name(:default_locale, locale: active_ui_locale)}:", class: 'user-default-locale-title') +
-                    tag.span(t("locales.#{@user.default_locale || I18n.available_locales.first}", locale: active_ui_locale), class: 'user-default-locale-value'),
+                    tag.span(t("locales.#{@user.default_locale || I18n.default_locale}", locale: active_ui_locale), class: 'user-default-locale-value'),
                     class: 'user-default-locale'
                   ) +
                   tag.span(
@@ -99,12 +99,29 @@
         <% end if can?(:edit, @user) %>
 
         <% if can?(:lock, @user) && !@user.access_locked? %>
-          <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true), lock_user_path(@user), method: :delete, class:'button-prime small alert lock-link', data: { confirm: "#{@user.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?", dc_tooltip: t('actions.lock', locale: active_ui_locale) } %>
+          <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true),
+                      lock_user_path(@user),
+                      method: :delete,
+                      class:'button-prime small alert lock-link',
+                      data: {
+                        confirm: "#{@user.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?",
+                        confirmation_text: t('actions.lock', locale: active_ui_locale) + tag.i(class: 'fa fa-lock'),
+                        dc_tooltip: t('actions.lock', locale: active_ui_locale)
+                      } %>
         <% elsif can?(:lock, @user) %>
           <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(@user), method: :post, class:'button-prime small success unlock-link', data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } %>
         <% end %>
 
-        <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true), user_path(@user), method: :delete, class:'button-prime small alert delete-user-link', data: { confirm: t('user.delete_user_html', locale: active_ui_locale), dc_tooltip: t('actions.delete', locale: active_ui_locale) } if can?(:destroy, @user) && !@user.deleted?  %>
+        <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true),
+                    user_path(@user),
+                    method: :delete,
+                    class:'button-prime small alert delete-user-link',
+                    data: {
+                      confirm: t('user.delete_user_html', email: CGI::escapeHTML(@user.full_name_with_email), locale: active_ui_locale),
+                      confirmation_text: t('actions.delete', locale: active_ui_locale) + tag.i(class: 'fa fa-trash-o'),
+                      confirmation_header_text: t('actions.delete_with_data', data: @user.model_name.human(locale: active_ui_locale), locale: active_ui_locale),
+                      dc_tooltip: t('actions.delete', locale: active_ui_locale)
+                    } if can?(:destroy, @user) && !@user.deleted?  %>
       </div>
     </div>
 

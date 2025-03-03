@@ -4,6 +4,12 @@ module DataCycleCore
   class ClassificationsController < ApplicationController
     FIXNUM_MAX = ((2**((0.size * 8) - 2)) - 1)
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
+    UNLINK_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
+      required(:concept_scheme_link).hash do
+        required(:id).filled(:uuid?)
+        required(:collection_id).filled(:uuid?)
+      end
+    end
 
     def index
       respond_to do |format|
@@ -296,6 +302,28 @@ module DataCycleCore
       render json: flash.discard.to_h
     end
 
+    def unlink_contents
+      collection = DataCycleCore::Collection.find(link_params[:collection_id])
+      concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
+
+      authorize! :unlink_contents, concept_scheme
+
+      DataCycleCore::ConceptSchemeUnlinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
+
+      render json: flash.discard.to_h
+    end
+
+    def link_contents
+      collection = DataCycleCore::Collection.find(link_params[:collection_id])
+      concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
+
+      authorize! :link_contents, concept_scheme
+
+      DataCycleCore::ConceptSchemeLinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
+
+      render json: flash.discard.to_h
+    end
+
     private
 
     def download_params
@@ -372,6 +400,10 @@ module DataCycleCore
         end
       end
       hash
+    end
+
+    def link_params
+      params_for(UNLINK_PARAMS_SCHEMA)&.dig(:concept_scheme_link)
     end
   end
 end
