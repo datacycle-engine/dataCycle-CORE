@@ -13,6 +13,11 @@ AllCops:
     - "docker/**/*"
     - "coverage/**/*"
     - ".git/**/*"
+    - ".bundle/**/*"
+    - ".ruby-lsp/**/*"
+    - ".insomnia/**/*"
+    - "coverage/**/*"
+    - "log/**/*"
     - "vendor/gems/datacycle-*/**/*"
 
 Style/MixinUsage:
