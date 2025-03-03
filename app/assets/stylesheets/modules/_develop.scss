@@ -891,24 +891,6 @@ select {
         }
       }
 
-      .copy-to-clipboard {
-        position: absolute;
-        right: 0.5rem;
-        top: 0.5rem;
-        cursor: pointer;
-        display: none;
-      }
-
-      .string {
-
-        &:hover,
-        &:focus {
-          .copy-to-clipboard {
-            display: block;
-          }
-        }
-      }
-
       .translate {
         margin-right: 0.1rem;
       }
@@ -3916,6 +3898,11 @@ body {
     min-width: auto !important;
     line-height: inherit !important;
   }
+}
+
+.dc-focus-field-placeholder {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .dc-focus-field {

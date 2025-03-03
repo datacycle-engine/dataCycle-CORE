@@ -228,11 +228,10 @@ class ConfirmationModal {
 
 			field.classList.add("dc-focus-field");
 			field.style.top = `${fieldOffset}px`;
+			const fieldRect = field.getBoundingClientRect();
+			this.addPlaceholder(field, fieldRect.height);
 
-			if (!multiple)
-				field.style.left = `calc(50% - ${
-					field.getBoundingClientRect().width
-				}px / 2)`;
+			if (!multiple) field.style.left = `calc(50% - ${fieldRect.width}px / 2)`;
 			else field.style.left = order === 0 ? "1.5rem" : "calc(50% + 1.5rem)";
 		});
 
@@ -254,12 +253,35 @@ class ConfirmationModal {
 			field.style.removeProperty("top");
 			field.style.removeProperty("left");
 			field.classList.remove("dc-focus-field");
+			this.removePlaceholder(field);
+
 			if (field.style.oldTopValue) field.style.top = field.dataset.oldTopValue;
 			if (field.style.oldOpacityValue)
 				field.style.opacity = field.dataset.oldOpacityValue;
 			if (field.style.oldLeftValue)
 				field.style.left = field.dataset.oldLeftValue;
 		}, 100);
+	}
+	addPlaceholder(field, height) {
+		const previous = field.previousElementSibling;
+		if (previous?.classList?.contains("dc-focus-field-placeholder")) return;
+
+		field.insertAdjacentHTML(
+			"beforebegin",
+			`<div class="dc-focus-field-placeholder" style="height: ${height}px"></div>`,
+		);
+	}
+	removePlaceholder(field) {
+		const placeholder = field.previousElementSibling;
+		if (placeholder?.classList?.contains("dc-focus-field-placeholder"))
+			placeholder.remove();
+
+		if (
+			field.previousElementSibling?.classList?.contains(
+				"dc-focus-field-placeholder",
+			)
+		)
+			this.removePlaceholder(field);
 	}
 }
 

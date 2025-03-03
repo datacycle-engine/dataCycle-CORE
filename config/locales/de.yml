@@ -1303,6 +1303,7 @@ de:
     submit_button: Zuweisung entfernen
     warning_html:
       zero: "Es sind keine direkten Zuweisungen von Klassifizierungen aus <b>%{name}</b> zu Inhalten aus der gewählten %{collection} <b>%{collection_name}</b> vorhanden."
+      one: "<p>Folgende, direkt zugewiesene, Klassifizierungen werden entfernt!</p><p>Bitte Überprüfen Sie die Angaben:</p>"
       other: "<p>Folgende, direkt zugewiesene, Klassifizierungen werden entfernt!</p><p>Bitte Überprüfen Sie die Angaben:</p>"
     error: Die Zuweisung konnte nicht entfernt werden
     finished:
@@ -1319,6 +1320,7 @@ de:
     submit_button: Klassifizierungen zuweisen
     warning_html:
       zero: "Keine Klassifizierungen aus <b>%{name}</b> sind über Mappings mit Inhalten aus der gewählten %{collection} <b>%{collection_name}</b> verknüpft."
+      one: "<p>Folgende Klassifizierungen, die über Mappings mit dem Inhalt verknüpft sind, werden direkt dem Inhalt zugewiesen!</p><p>Bitte Überprüfen Sie die Angaben:</p>"
       other: "<p>Folgende Klassifizierungen, die über Mappings mit Inhalten verknüpft sind, werden direkt den Inhalten zugewiesen!</p><p>Bitte Überprüfen Sie die Angaben:</p>"
     version_name: "gemappte Klassifizierungen für %{data} wurden dem entsprechenden Attribut zugewiesen"
     error: Die Klassifizierungen konnten nicht zugewiesen werden
