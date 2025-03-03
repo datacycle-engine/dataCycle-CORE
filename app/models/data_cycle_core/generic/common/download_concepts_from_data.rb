@@ -4,70 +4,51 @@ module DataCycleCore
   module Generic
     module Common
       module DownloadConceptsFromData
+        extend Extensions::DownloadFromData
+
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_content(
             download_object: utility_object,
-            iterator: method(:load_concepts_from_mongo).to_proc,
+            iterator: method(:load_data_from_mongo).to_proc,
             data_id: method(:data_id).to_proc.curry[options.dig(:download, :external_id_hash_method)],
             data_name: method(:data_name).to_proc,
             options:,
-            iterate_credentials: false
+            iterate_credentials: false,
+            cleanup_data: method(:cleanup_data).to_proc.curry[options.dig(:download, :cleanup_data)]
           )
         end
 
-        def self.load_concepts_from_mongo(options:, locale:, source_filter:, **_keyword_args)
-          raise ArgumentError, 'missing read_type for download_concepts_from_data' if options.dig(:download, :read_type).nil?
-          read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
-          concept_name = nil
-          I18n.with_locale(locale.to_sym) do
-            # either both concept_name_path and concept_id_path should be present or none, hence the fallbacks
-            concept_name = path_config(:name, options)&.then { |v| ERB.new(v).result(binding) }
-          end
-          concept_id = path_config(:id, options) || concept_name
-          concept_name ||= concept_id
+        def self.create_aggregate_pipeline(options:, locale:, source_filter:)
+          paths = prepare_data_paths(options:, locale:)
+          data_path = paths[:data_path]
+          path_array_positions = paths[:path_array_positions]
+          data_id_path = paths[:data_id_path]
+          data_name_path = paths[:data_name_path]
+          # full_data_path = paths[:full_data_path]
+          full_id_path = paths[:full_id_path]
+          concept_parent_id = paths[:concept_parent_id]
+          priority = paths[:priority]
+          concept_uri = paths[:concept_uri]
 
-          concept_parent_id = path_config(:parent_id, options) || 'parent_id'
-          priority = options.dig(:download, :priority) || 5
-          concept_uri = path_config(:uri, options) || 'uri'
-
-          concept_path = path_config(nil, options) || ''
-          concept_path += '[]' unless concept_path.end_with?('[]')
-          array_positions = concept_path.split('.').map { |x| x.include?('[]') ? 1 : 0 }
-          concept_path = concept_path.gsub('[]', '')
-
-          # full_concept_path = ["dump.#{locale}", concept_path].compact_blank.join('.')
-          concept_id_path = [concept_path, concept_id].compact_blank.join('.')
-          # concept_name_path = [concept_path, concept_name].compact_blank.join('.')
-          # concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
-          # concept_uri_path = [concept_path, concept_uri].compact_blank.join('.')
-
-          match_path = ['dump', locale, concept_id_path].compact_blank.join('.')
-          source_filter_stage = { match_path => { '$exists' => true } }.with_indifferent_access
+          source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
-          create_post_unwind_source_filter_stage = lambda do |c_path|
-            source_filter_stage
-              .deep_stringify_keys
-              .deep_reject { |k, _| !k.start_with?('$') && k.exclude?(c_path) }
-              .deep_transform_keys { |k| k.gsub(c_path, 'data') }
-          end
-
           final_projection_stage = {
-            'data.id' => ['$data', concept_id].compact_blank.join('.'),
-            'data.name' => ['$data', concept_name].compact_blank.join('.'),
+            'data.id' => ['$data', data_id_path].compact_blank.join('.'),
+            'data.name' => ['$data', data_name_path].compact_blank.join('.'),
             'data.parent_id' => ['$data', concept_parent_id].compact_blank.join('.'),
             'data.uri' => ['$data', concept_uri].compact_blank.join('.'),
             'data.priority' => priority
           }
 
           proj_match_unwind_phases = []
-          array_positions.each_with_index do |position, index|
-            current_full_concept_path = ["dump.#{locale}", concept_path.split('.')[0..index].join('.')].compact_blank.join('.')
+          path_array_positions.each_with_index do |position, index|
+            current_full_concept_path = ["dump.#{locale}", data_path.split('.')[0..index].join('.')].compact_blank.join('.')
             proj_match_unwind_phases << { '$project' => { 'data' => ["$#{current_full_concept_path}"].compact_blank.join('.')}} if index.zero?
-            proj_match_unwind_phases << { '$project' => { 'data' => ["$data.#{concept_path.split('.')[index]}"].compact_blank.join('.')}} unless index.zero?
+            proj_match_unwind_phases << { '$project' => { 'data' => ["$data.#{data_path.split('.')[index]}"].compact_blank.join('.')}} unless index.zero?
             next unless position == 1
             proj_match_unwind_phases << { '$unwind' => '$data' }
-            proj_match_unwind_phases << { '$match' => create_post_unwind_source_filter_stage.call(current_full_concept_path) }
+            proj_match_unwind_phases << { '$match' => create_post_unwind_match_stage(path: current_full_concept_path, source_filter_stage:) }
           end
 
           pipelines = []
@@ -87,9 +68,6 @@ module DataCycleCore
               '$replaceRoot' => { 'newRoot' => '$data' }
             },
             {
-              '$match' => { 'id' => { '$ne' => nil }, 'name' => { '$ne' => nil } }
-            },
-            {
               '$addFields' => {
                 'name' => { '$toString' => '$name'},
                 'id' => { '$toString' => '$id'}
@@ -106,8 +84,11 @@ module DataCycleCore
             }
           end
 
-          data_id_prefix = options.dig(:download, :data_id_prefix)
+          pipelines <<  {
+            '$match' => { 'id' => { '$ne' => nil }, 'name' => { '$ne' => nil } }
+          }
 
+          data_id_prefix = options.dig(:download, :data_id_prefix)
           raise ArgumentError, 'data_id_prefix and external_id_prefix cannot be present together' if data_id_prefix.present? && options.dig(:download, :external_id_prefix).present?
           if data_id_prefix.present?
             pipelines << {
@@ -116,26 +97,49 @@ module DataCycleCore
               }
             }
           end
-
-          DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
-            mongo.collection.aggregate(
-              pipelines,
-              allow_disk_use: true
-            ).to_a
-          end
+          pipelines
         end
 
-        def self.data_id(external_id_hash_method, data)
-          case external_id_hash_method
-          when 'MD5'
-            Digest::MD5.hexdigest(data['id'])
-          else
-            data['id']
-          end
-        end
+        def self.prepare_data_paths(options:, locale:)
+          paths = {}
 
-        def self.data_name(data)
-          data['name']
+          concept_name = nil
+          I18n.with_locale(locale.to_sym) do
+            concept_name = path_config(:name, options)&.then { |v| ERB.new(v).result(binding) }
+          end
+          # either both concept_name_path and concept_id_path should be present or none, hence the fallbacks
+          concept_id = path_config(:id, options) || concept_name
+          concept_name ||= concept_id
+
+          concept_parent_id = path_config(:parent_id, options) || 'parent_id'
+          priority = options.dig(:download, :priority) || 5
+          concept_uri = path_config(:uri, options) || 'uri'
+
+          concept_path = path_config(nil, options) || ''
+          concept_path += '[]' unless concept_path.end_with?('[]')
+          path_array_positions = concept_path.split('.').map { |x| x.include?('[]') ? 1 : 0 }
+          concept_path = concept_path.gsub('[]', '')
+
+          concept_id_path = [concept_id].compact_blank.join('.')
+          concept_name_path = [concept_name].compact_blank.join('.')
+          # concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
+          # concept_uri_path = [concept_path, concept_uri].compact_blank.join('.')
+
+          full_data_path = ["dump.#{locale}", concept_path].compact_blank.join('.')
+          full_id_path = [full_data_path, concept_id].compact_blank.join('.')
+
+          paths[:data_path] = concept_path
+          paths[:path_array_positions] = path_array_positions
+          # paths[:data_id] = concept_id
+          # paths[:data_name] = concept_name
+          paths[:data_id_path] = concept_id_path
+          paths[:data_name_path] = concept_name_path
+          paths[:full_data_path] = full_data_path
+          paths[:full_id_path] = full_id_path
+          paths[:concept_parent_id] = concept_parent_id
+          paths[:priority] = priority
+          paths[:concept_uri] = concept_uri
+          paths.with_indifferent_access
         end
 
         def self.path_config(key, options)
