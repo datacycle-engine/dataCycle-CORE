@@ -4,6 +4,7 @@ import {
 	offset,
 	shift,
 } from "@floating-ui/dom";
+import { inputFieldSelectors } from "../helpers/dom_element_helpers";
 
 class CopyToClipboard {
 	constructor(item) {
@@ -25,9 +26,12 @@ class CopyToClipboard {
 				.querySelector("pre code");
 
 		let text;
-		if ("json" in currentTarget.dataset) text = currentTarget.dataset.json;
-		else if ("value" in currentTarget.dataset)
+		if ("json" in currentTarget.dataset && currentTarget.dataset.json)
+			text = currentTarget.dataset.json;
+		else if ("value" in currentTarget.dataset && currentTarget.dataset.value)
 			text = currentTarget.dataset.value;
+		else if ("value" in currentTarget && currentTarget.value)
+			text = currentTarget.value;
 		else text = currentTarget.textContent;
 
 		if (!text) return console.warn("nothing to copy");
