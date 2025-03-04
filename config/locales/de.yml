@@ -1311,7 +1311,7 @@ de:
       other: Die Zuweisung von <b>%{name}</b> zu <b>%{count}</b> Inhalten aus %{collection} <b>%{collection_name}</b> wurde entfernt
     enqueued: Es wurde ein Job zum Entfernen der Zuweisung erstellt
     version_name: "zugewiesene Klassifizierungen für %{data} wurden entfernt"
-    info_html: Alle direkten Zuweisungen von Klassifizierungen aus <b>%{name}</b>zu Inhalten aus der gewählten <b>%{collection}</b> werden entfernt.
+    info_html: Alle direkten Zuweisungen von Klassifizierungen aus <b>%{name}</b> zu Inhalten aus der gewählten <b>%{collection}</b> werden entfernt.
     disconnected: Die Verbingung zum Server wurde unterbrochen. Bitte versuchen Sie es erneut.
     post_submit_info_html: "Das Entfernen der Zuweisung wird im Hintergrund durchgeführt.<br>Es kann einen Moment dauert, bis der Job gestartet wird."
 
