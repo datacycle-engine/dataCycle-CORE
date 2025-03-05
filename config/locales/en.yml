@@ -2141,6 +2141,15 @@ en:
       package:
         PackageShortText: Brief description
         Package: Description
+    tourdata:
+      OBJECT_TEXT_BESCHREIBUNG: Description
+      OBJECT_TEXT_TEASER: Short description
+      OBJECT_ANREISE: Arrival information
+      ROUTE_START: Starting point
+      ROUTE_ZIEL: Destination
+      ratings:
+        stamina_rating: Stamina
+        skill_rating: Skill
     outdoor_active:
       place:
         directions: Approach

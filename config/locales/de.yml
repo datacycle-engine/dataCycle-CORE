@@ -1950,7 +1950,16 @@ de:
       description: Kurzbeschreibung
     regiondo:
       text: Beschreibung
-      description: Kurzbeschreibung
+      description: Kurzbeschreibung#
+    tourdata:
+      OBJECT_TEXT_BESCHREIBUNG: Beschreibung
+      OBJECT_TEXT_TEASER: Kurzbeschreibung
+      OBJECT_ANREISE: Anreise
+      ROUTE_START: Ausgangspunkt
+      ROUTE_ZIEL: Zielpunkt
+      ratings:
+        stamina_rating: Kondition
+        skill_rating: Fähigkeiten
     outdoor_active:
       place:
         directions: Anfahrt
