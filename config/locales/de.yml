@@ -2059,6 +2059,8 @@ de:
         soilCharacteristics: Bodenbeschaffenheit
         wineCharacteristics: Weineigenschaften
         soilNumber: Bodennummer
+    imx_ausflugsticker:
+      description: Beschreibung
     gem2go:
       description: Beschreibung
     timm4:
