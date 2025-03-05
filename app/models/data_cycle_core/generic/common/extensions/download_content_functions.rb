@@ -269,6 +269,8 @@ module DataCycleCore
               success &&= with_logging(**keyword_args, options: opts, &block)
             end
 
+            keyword_args[:download_object]&.emtpy_item_cache
+
             success
           end
 

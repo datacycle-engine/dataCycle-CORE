@@ -6,6 +6,12 @@ module DataCycleCore
       TYPE = :download
       FULL_MODES = ['full', 'reset'].freeze
 
+      attr_accessor :item_cache
+
+      def emtpy_item_cache
+        self.item_cache = nil
+      end
+
       def read_type(override_opts = {})
         opts = options.deep_merge(override_opts)
         return if opts&.dig(:download, :read_type).blank?
@@ -35,7 +41,9 @@ module DataCycleCore
           .merge(read_type: read_type(opts) || {})
           .merge(options: opts[:download].merge(params: endpoint_options_params))
 
-        opts.dig(:download, :endpoint).constantize.new(**endpoint_params)
+        endpoint = opts.dig(:download, :endpoint).constantize.new(**endpoint_params)
+        endpoint.instance_variable_set(:@download_object, self) unless endpoint.instance_variable_defined?(:@download_object)
+        endpoint
       end
     end
   end
