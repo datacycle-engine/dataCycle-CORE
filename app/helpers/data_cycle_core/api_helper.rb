@@ -70,6 +70,10 @@ module DataCycleCore
       attribute_list.pluck(0).intersection(Array.wrap(name)).any?
     end
 
+    def included_attribute_not_full?(name, attribute_list)
+      included_attribute?(name, attribute_list) && !full_recursive?(attribute_list)
+    end
+
     def subtree_for(name, attribute_list)
       return attribute_list if full_recursive?(attribute_list)
 
