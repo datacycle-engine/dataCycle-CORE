@@ -78,7 +78,6 @@ module DataCycleCore
             transform_opts << utility_object.external_source
           end
           transform_opts << config.with_indifferent_access if transform_req_params.dig(1, 1).in? [:options, :config]
-
           transform_keyreq_params.each do |param|
             case param[1]
             when :external_source_id
@@ -86,7 +85,7 @@ module DataCycleCore
             when :external_source
               transform_kwargs[param[1]] = utility_object.external_source
             when :config
-              transform_kwargs[param[1]] = config.with_indifferent_access
+              transform_kwargs[param[1]] = config[:config]&.with_indifferent_access || {}
               # else
               #   # provide a default value for keyreq params to avoid ArgumentError
               #   transform_kwargs[param[1]] = nil
