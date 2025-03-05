@@ -93,7 +93,8 @@ module DataCycleCore
           if data_id_prefix.present?
             pipelines << {
               '$addFields' => {
-                'id' => { '$concat' => [data_id_prefix, '$id'] }
+                'id' => { '$concat' => [data_id_prefix, '$id'] },
+                **(concept_parent_id.present? ? { 'parent_id' => { '$concat' => [data_id_prefix, '$parent_id'] } } : {})
               }
             }
           end

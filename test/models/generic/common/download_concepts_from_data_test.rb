@@ -260,7 +260,23 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$addFields' => {'id' => {'$concat' => ['prefix_', '$id']}}}
+      exp = {'$addFields' => {'id' => {'$concat' => ['prefix_', '$id']}, 'parent_id' => {'$concat' => ['prefix_', '$parent_id']}}}
+      assert_equal exp, pipelines.last
+    end
+
+    test 'data_id_prefix is correctly added to parent_id' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dataPath',
+          concept_parent_id_path: 'some_parent_id_path',
+          data_id_prefix: 'prefix_'
+        }
+      }
+      locale = :de
+      pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
+      exp = {'$addFields' => {'id' => {'$concat' => ['prefix_', '$id']}, 'parent_id' => {'$concat' => ['prefix_', '$parent_id']}}}
       assert_equal exp, pipelines.last
     end
 
