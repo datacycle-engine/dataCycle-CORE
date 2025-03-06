@@ -66,41 +66,10 @@ module DataCycleCore
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
-          transform_opts = []
-          transform_kwargs = {}
-
-          transform_req_params = transformation.parameters.select { |param| param[0] == :req }
-          transform_keyreq_params = transformation.parameters.select { |param| param[0] == :keyreq }
-
-          if transform_req_params.dig(0, 1).to_s.end_with?('_id')
-            transform_opts << utility_object.external_source.id
-          elsif transform_req_params.dig(0, 1).present?
-            transform_opts << utility_object.external_source
-          end
-
-          transformation_config = (config&.deep_dup || {}).with_indifferent_access
-          transformation_config.merge!(transformation_config.delete(:transformation_config) || {}) if transformation_config.key?(:transformation_config)
-
-          transform_opts << transformation_config if transform_req_params.dig(1, 1).in? [:options, :config]
-
-          transform_keyreq_params.each do |param|
-            case param[1]
-            when :external_source_id
-              transform_kwargs[param[1]] = utility_object.external_source.id
-            when :external_source
-              transform_kwargs[param[1]] = utility_object.external_source
-            when :config
-              transform_kwargs[param[1]] = transformation_config
-              # else
-              #   # provide a default value for keyreq params to avoid ArgumentError
-              #   transform_kwargs[param[1]] = nil
-            end
-          end
-
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object:,
             raw_data:,
-            transformation: transformation.call(*transform_opts, **transform_kwargs),
+            transformation: transformation_with_args(transformation:, utility_object:, config:),
             default: { template: template_name },
             config:
           )
