@@ -124,35 +124,36 @@ module DataCycleCore
           optional(:credentials)
           optional(:default_options).hash do
             optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
+            optional(:namespace).filled(:ruby_module_or_class?)
             optional(:error_notification).hash do
               optional(:emails).each { str? & format?(Devise.email_regexp) }
               optional(:grace_period) { str? }
             end
             optional(:ai_model) { str? }
-            optional(:endpoint) { str? }
-            optional(:transformations) { str? }
+            optional(:endpoint).filled(:ruby_class?)
+            optional(:transformations).filled(:ruby_module?)
           end
           optional(:config).hash do
-            optional(:api_strategy) { str? }
+            optional(:api_strategy).filled(:ruby_class?)
             optional(:export_config).hash do
-              optional(:endpoint) { str? }
+              optional(:endpoint).filled(:ruby_class?)
               optional(:filter) { hash? }
               optional(:create).hash do
-                required(:strategy) { str? }
+                required(:strategy).filled(:ruby_module?)
                 optional(:filter) { hash? }
               end
               optional(:update).hash do
-                required(:strategy) { str? }
+                required(:strategy).filled(:ruby_module?)
                 optional(:filter) { hash? }
               end
               optional(:delete).hash do
-                required(:strategy) { str? }
+                required(:strategy).filled(:ruby_module?)
                 optional(:filter) { hash? }
               end
             end
             optional(:refresh_config).hash do
-              optional(:endpoint) { str? }
-              required(:strategy) { str? }
+              optional(:endpoint).filled(:ruby_class?)
+              required(:strategy).filled(:ruby_module?)
             end
             optional(:download_config) { hash? }
             optional(:import_config) { hash? }
@@ -163,20 +164,6 @@ module DataCycleCore
 
         rule(:credentials).validate(:dc_unique_credentials)
         rule(:credentials).validate(:dc_credential_keys)
-
-        rule(config: :api_strategy).validate(:dc_class)
-
-        rule('config.export_config.endpoint').validate(:dc_class)
-        rule('config.refresh_config.endpoint').validate(:dc_class)
-        rule('default_options.endpoint').validate(:dc_class)
-
-        rule('default_options.transformations').validate(:dc_module)
-
-        rule('config.export_config.create.strategy').validate(:dc_module)
-        rule('config.export_config.update.strategy').validate(:dc_module)
-        rule('config.export_config.delete.strategy').validate(:dc_module)
-
-        rule('config.refresh_config.strategy').validate(:dc_module)
 
         rule('config.export_config.filter').validate(:filter_config)
         rule('config.export_config.create.filter').validate(:filter_config)
@@ -189,9 +176,9 @@ module DataCycleCore
           optional(:read_type) { str? | (array? & each { str? }) }
           optional(:sorting) { int? & gt?(0) }
           optional(:source_type).filled(:str?)
-          optional(:endpoint).filled(:str?)
-          optional(:import_strategy).filled(:str?)
-          optional(:download_strategy).filled(:str?)
+          optional(:endpoint).filled(:ruby_class?)
+          optional(:import_strategy).filled(:ruby_module?)
+          optional(:download_strategy).filled(:ruby_module?)
           optional(:logging_strategy).filled(:str?)
           optional(:tree_label) { str? | (array? & each { str? }) }
           optional(:template_name) { str? | (array? & each { str? }) }
@@ -207,9 +194,6 @@ module DataCycleCore
           end
         end
 
-        rule(:endpoint).validate(:dc_class)
-        rule(:download_strategy).validate(:dc_module)
-        rule(:import_strategy).validate(:dc_module)
         rule(:logging_strategy).validate(:dc_logging_strategy)
         rule(:data_id_transformation).validate(:dc_module_method)
         rule(:template_name).validate(:dc_template_names)

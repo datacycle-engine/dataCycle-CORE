@@ -27,5 +27,17 @@ Rails.application.reloader.to_prepare do
     Dry::Logic::Predicates.predicate(:uuid?) do |value|
       value.is_a?(String) && format?(DataCycleCore::StringExtension::UUID_REGEX, value)
     end
+
+    Dry::Logic::Predicates.predicate(:ruby_module_or_class?) do |value|
+      value.is_a?(String) && value.safe_constantize&.class&.in?([Module, Class])
+    end
+
+    Dry::Logic::Predicates.predicate(:ruby_module?) do |value|
+      value.is_a?(String) && value.safe_constantize&.class == Module
+    end
+
+    Dry::Logic::Predicates.predicate(:ruby_class?) do |value|
+      value.is_a?(String) && value.safe_constantize&.class == Class
+    end
   end
 end
