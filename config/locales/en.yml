@@ -2211,6 +2211,8 @@ en:
     imx_platform:
       description: Description
       text: Detailed description
+      shortDesc: Short description
+      longDesc: Detailed description
       startingPointDescr: Starting point description
       destination: Destination
       gettingThere: Getting there

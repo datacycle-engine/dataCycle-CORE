@@ -2022,6 +2022,8 @@ de:
     imx_platform:
       description: Kurzbeschreibung
       text: Detailbeschreibung
+      shortDesc: Kurzbeschreibung
+      longDesc: Detailbeschreibung
       startingPointDescr: Beschreibung Startpunkt
       destination: Ziel
       gettingThere: Anreise
