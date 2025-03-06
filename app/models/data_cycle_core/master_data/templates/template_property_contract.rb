@@ -82,7 +82,7 @@ module DataCycleCore
           end
 
           optional(:default_value) do
-            str? | number? | (hash? & hash do
+            bool? | str? | number? | (hash? & hash do
               required(:module) { str? }
               required(:method) { str? }
               optional(:parameters) { array? }

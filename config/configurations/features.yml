@@ -289,9 +289,9 @@
   #     :attribute_keys:
   #       - live_date_from
   #       - live_date_until
-  #  :graph_filter:
-  #    :items_linked_to: true
-  #    :linked_items_in: true
+  # :graph_filter:
+  #   :items_linked_to: true
+  #   :linked_items_in: true
 
 :sortable:
   :enabled: false

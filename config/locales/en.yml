@@ -1251,6 +1251,7 @@ en:
       not_exists: is system
       like: email contains
       not_like: email does not contain
+    content_ids: Content
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -1829,6 +1830,8 @@ en:
         visibility: Visibility
         change_behaviour: Change behavior
         external_key: external ID
+        internal: internal (system classification tree)
+        mappable: Klassifizierungen dürfen gemapped werden
       data_cycle_core/classification_alias:
         assignable: Assignable
         description: Description text
@@ -1841,6 +1844,7 @@ en:
         ui_configs: UI-Configuration
         ui_configs/color: Color
         ui_configs/icon: Icon
+        internal: internal (system classification)
       data_cycle_core/user_group:
         name: Name
         user_ids: User

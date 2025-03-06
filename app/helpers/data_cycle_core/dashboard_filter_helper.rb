@@ -23,6 +23,8 @@ module DataCycleCore
     end
 
     def thing_ids_to_value(value)
+      return [] if value.blank?
+
       DataCycleCore::Thing.where(id: value)
         .where.not(content_type: 'embedded')
         .includes(:translations)

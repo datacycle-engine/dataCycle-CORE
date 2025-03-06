@@ -171,7 +171,7 @@ module DataCycleCore
 
       def content_template
         return @content_template if defined? @content_template
-        @content_template = DataCycleCore::Thing.new(template_name:)
+        @content_template = DataCycleCore::Thing.new(thing_template:)
       end
 
       def content_type?(*types)
@@ -267,9 +267,7 @@ module DataCycleCore
       def untranslatable_property_names
         return @untranslatable_property_names if defined? @untranslatable_property_names
 
-        @untranslatable_property_names = property_definitions.reject { |property_name, definition|
-          translatable_property?(property_name, definition)
-        }.keys
+        @untranslatable_property_names = property_names - translatable_property_names
       end
 
       def combined_property_names(api_version = nil)
@@ -304,7 +302,7 @@ module DataCycleCore
       end
 
       def virtual_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['virtual'].present? }
+        name_property_selector(include_overlay) { |definition| definition.key?('virtual') }
       end
 
       def table_property_names(include_overlay = false)
@@ -336,10 +334,7 @@ module DataCycleCore
       end
 
       def computed_property_names(include_overlay = false)
-        @computed_property_names ||= Hash.new do |h, key|
-          h[key] = name_property_selector(key) { |definition| definition['compute'].present? }
-        end
-        @computed_property_names[include_overlay]
+        name_property_selector(include_overlay) { |definition| definition.key?('compute') }
       end
 
       def resolved_computed_dependencies(key, datahash = {})
@@ -353,10 +348,7 @@ module DataCycleCore
       end
 
       def default_value_property_names(include_overlay = false)
-        @default_value_property_names ||= Hash.new do |h, key|
-          h[key] = name_property_selector(key) { |definition| definition['default_value'].present? }
-        end
-        @default_value_property_names[include_overlay]
+        name_property_selector(include_overlay) { |definition| definition.key?('default_value') }
       end
 
       def classification_property_names(include_overlay = false)

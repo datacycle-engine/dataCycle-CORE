@@ -48,11 +48,17 @@ module DataCycleCore
 
       finished = item_count == content_ids.size
 
+      sf = DataCycleCore::StoredFilter.create!(
+        user: current_user,
+        language: ['all'],
+        parameters: [{ content_ids: content_ids.pluck(:id) }]
+      )
+
       ActionCable.server.broadcast(
         "bulk_create_#{params[:overlay_id]}_#{current_user.id}",
         {
           created: finished,
-          redirect_path: finished ? root_path : nil,
+          redirect_path: finished ? root_path(stored_filter: sf.id) : nil,
           content_ids:,
           error: finished ? nil : I18n.t('controllers.error.bulk_created', count: item_count - content_ids.size, locale: helpers.active_ui_locale)
         }

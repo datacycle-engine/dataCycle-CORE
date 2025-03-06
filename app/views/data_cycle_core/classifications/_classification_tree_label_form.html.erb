@@ -8,7 +8,7 @@
   <%= f.hidden_field :id %>
 
   <div class="ca-input required">
-    <%= f.label :name, class: 'ca-label' %>
+    <%= f.label :name, classification_tree_label.class.human_attribute_name(:name, locale: active_ui_locale), class: 'ca-label' %>
     <%= f.text_field :name, class: 'ca-input-field', disabled: !can?(:update, classification_tree_label), required: true %>
   </div>
 
@@ -16,7 +16,16 @@
     <div class="ca-input checkbox">
       <span class="dc-checkbox">
         <%= f.check_box :internal %>
-        <%= f.label :internal %>
+        <%= f.label :internal, classification_tree_label.class.human_attribute_name(:internal, locale: active_ui_locale) %>
+      </span>
+    </div>
+  <% end %>
+
+  <% if can?(:update_mappable, classification_tree_label) %>
+    <div class="ca-input checkbox">
+      <span class="dc-checkbox">
+        <%= f.check_box :mappable %>
+        <%= f.label :mappable, classification_tree_label.class.human_attribute_name(:mappable, locale: active_ui_locale) %>
       </span>
     </div>
   <% end %>
@@ -25,7 +34,7 @@
 
   <div class="ca-input">
     <div class="ca-collection-checkboxes">
-      <%= f.label :visibility %>
+      <%= f.label :visibility, classification_tree_label.class.human_attribute_name(:visibility, locale: active_ui_locale) %>
       <%= f.collection_check_boxes :visibility,
         DataCycleCore.classification_visibilities.map { |v|
           OpenStruct.new(
@@ -38,7 +47,7 @@
         :title do |l| %>
         <span class="dc-checkbox">
           <%= l.check_box %>
-          <%= l.label %>
+          <%= I18n.with_locale(active_ui_locale) { l.label } %>
         </span>
       <% end %>
     </div>
@@ -47,7 +56,7 @@
   <% if can?(:update_change_behaviour, classification_tree_label) %>
     <div class="ca-input">
       <div class="ca-collection-checkboxes">
-        <%= f.label :change_behaviour %>
+        <%= f.label :change_behaviour, classification_tree_label.class.human_attribute_name(:change_behaviour, locale: active_ui_locale) %>
         <%= f.collection_check_boxes :change_behaviour,
           DataCycleCore.classification_change_behaviour.map { |v|
             OpenStruct.new(
@@ -60,7 +69,7 @@
           :title do |l| %>
           <span class="dc-checkbox">
             <%= l.check_box %>
-            <%= l.label %>
+            <%= I18n.with_locale(active_ui_locale) { l.label } %>
           </span>
         <% end %>
       </div>
@@ -69,7 +78,7 @@
 
   <% if classification_tree_label.persisted? && can?(:view_all, classification_tree_label) %>
     <div class="ca-input">
-      <%= f.label :external_key, class: 'ca-label'%>
+      <%= f.label :external_key, classification_tree_label.class.human_attribute_name(:external_key, locale: active_ui_locale), class: 'ca-label'%>
       <%= f.text_field :external_key, class: 'ca-input-field', disabled: true %>
     </div>
   <% end %>

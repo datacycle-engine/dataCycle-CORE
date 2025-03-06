@@ -123,7 +123,7 @@ module DataCycleCore
       html_classes = ['hollow button']
       html_classes = ['active'] if content.life_cycle_stage?(stage[:id])
 
-      html_classes.push('disabled') unless can?(:set_life_cycle, content, stage)
+      html_classes.push('disabled') unless content.life_cycle_editable? && can?(:set_life_cycle, content, stage)
       html_classes.push('before-active') if content.life_cycle_stage_index&.>(content.life_cycle_stage_index(stage[:id]))
       html_classes.push('after-active') if content.life_cycle_stage_index&.<(content.life_cycle_stage_index(stage[:id]))
 

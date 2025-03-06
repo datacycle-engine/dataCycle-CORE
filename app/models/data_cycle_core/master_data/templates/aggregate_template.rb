@@ -13,6 +13,7 @@ module DataCycleCore
         PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type', 'slug'].freeze # keys that should not be aggregated
         ALLOWED_PROP_OVERRIDES = ['features', 'ui'].freeze
         AGGREGATE_TEMPLATE_SUFFIX = ' (Aggregate)'
+        KEEP_PROP_FEATURES = ['life_cycle'].freeze # features that should be kept on the property
 
         def initialize(data:)
           @data = data
@@ -197,9 +198,8 @@ module DataCycleCore
 
         def add_feature_definition_for_prop!(prop:)
           override_props = prop.dig('features', 'aggregate')&.slice(*ALLOWED_PROP_OVERRIDES) || {}
-          prop[:features] = {
-            aggregate: { allowed: true }
-          }
+          keep_features = prop['features']&.slice(*KEEP_PROP_FEATURES) || {}
+          prop[:features] = keep_features.deep_merge({ aggregate: { allowed: true } })
           prop.deep_merge!(override_props)
         end
 

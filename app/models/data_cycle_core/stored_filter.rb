@@ -15,6 +15,8 @@ module DataCycleCore
     include StoredFilterExtensions::FilterParamsTransformations
     include StoredFilterExtensions::FilterParamsHashParser
 
+    attribute :parameters, :stored_filter_parameters_type
+
     attr_accessor :query, :include_embedded
 
     KEYS_FOR_TYPE_EQUALITY = ['t', 'c', 'n', 'q'].freeze

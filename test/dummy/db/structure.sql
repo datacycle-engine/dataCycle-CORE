@@ -560,7 +560,7 @@ CREATE FUNCTION public.insert_concept_links_trees_trigger_function() RETURNS tri
 
 CREATE FUNCTION public.insert_concept_schemes_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO concept_schemes( id, name, external_system_id, external_key, internal, visibility, change_behaviour, created_at, updated_at ) SELECT nctl.id, nctl.name, nctl.external_source_id, nctl.external_key, nctl.internal, nctl.visibility, nctl.change_behaviour, nctl.created_at, nctl.updated_at FROM new_classification_tree_labels nctl ON CONFLICT DO NOTHING; RETURN NULL; END; $$;
+    AS $$ BEGIN INSERT INTO concept_schemes( id, name, external_system_id, external_key, internal, mappable, visibility, change_behaviour, created_at, updated_at ) SELECT nctl.id, nctl.name, nctl.external_source_id, nctl.external_key, nctl.internal, nctl.mappable, nctl.visibility, nctl.change_behaviour, nctl.created_at, nctl.updated_at FROM new_classification_tree_labels nctl ON CONFLICT DO NOTHING; RETURN NULL; END; $$;
 
 
 --
@@ -722,7 +722,7 @@ CREATE FUNCTION public.update_concept_links_trees_trigger_function() RETURNS tri
 
 CREATE FUNCTION public.update_concept_schemes_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN UPDATE concept_schemes SET name = uctl.name, external_system_id = uctl.external_source_id, external_key = uctl.external_key, internal = uctl.internal, visibility = uctl.visibility, change_behaviour = uctl.change_behaviour, updated_at = uctl.updated_at FROM ( SELECT nctl.* FROM old_classification_tree_labels octl INNER JOIN new_classification_tree_labels nctl ON octl.id = nctl.id WHERE octl.name IS DISTINCT FROM nctl.name OR octl.external_source_id IS DISTINCT FROM nctl.external_source_id OR octl.external_key IS DISTINCT FROM nctl.external_key OR octl.internal IS DISTINCT FROM nctl.internal OR octl.visibility IS DISTINCT FROM nctl.visibility OR octl.change_behaviour IS DISTINCT FROM nctl.change_behaviour OR octl.updated_at IS DISTINCT FROM nctl.updated_at ) "uctl" WHERE uctl.id = concept_schemes.id; RETURN NULL; END; $$;
+    AS $$ BEGIN UPDATE concept_schemes SET name = uctl.name, external_system_id = uctl.external_source_id, external_key = uctl.external_key, internal = uctl.internal, mappable = uctl.mappable, visibility = uctl.visibility, change_behaviour = uctl.change_behaviour, updated_at = uctl.updated_at FROM ( SELECT nctl.* FROM old_classification_tree_labels octl INNER JOIN new_classification_tree_labels nctl ON octl.id = nctl.id WHERE octl.name IS DISTINCT FROM nctl.name OR octl.external_source_id IS DISTINCT FROM nctl.external_source_id OR octl.external_key IS DISTINCT FROM nctl.external_key OR octl.internal IS DISTINCT FROM nctl.internal OR octl.mappable IS DISTINCT FROM nctl.mappable OR octl.visibility IS DISTINCT FROM nctl.visibility OR octl.change_behaviour IS DISTINCT FROM nctl.change_behaviour OR octl.updated_at IS DISTINCT FROM nctl.updated_at ) "uctl" WHERE uctl.id = concept_schemes.id; RETURN NULL; END; $$;
 
 
 --
@@ -1089,7 +1089,8 @@ CREATE TABLE public.classification_tree_labels (
     deleted_at timestamp without time zone,
     visibility character varying[] DEFAULT '{}'::character varying[],
     change_behaviour character varying[] DEFAULT '{trigger_webhooks}'::character varying[],
-    external_key character varying
+    external_key character varying,
+    mappable boolean DEFAULT true NOT NULL
 );
 
 
@@ -1288,7 +1289,8 @@ CREATE TABLE public.concept_schemes (
     change_behaviour character varying[] DEFAULT '{}'::character varying[] NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    external_key character varying
+    external_key character varying,
+    mappable boolean DEFAULT true NOT NULL
 );
 
 
@@ -4828,6 +4830,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250304132522'),
 ('20250210064926'),
 ('20250206071515'),
 ('20250205070634'),

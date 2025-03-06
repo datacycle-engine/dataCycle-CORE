@@ -11,11 +11,9 @@ module DataCycleCore
           @method_names = Array.wrap(method_names).flatten(1).map { |m| Array.wrap(m) }
         end
 
-        # def include?(content, _scope = nil)
-        #   method_names.any? { |method_name| send(method_name, content) }
-        # end
-
         def include?(content, scope = nil)
+          return true if method_names.blank?
+
           method_names.any? do |m|
             method_name = m.first
             method_params = method(method_name).parameters

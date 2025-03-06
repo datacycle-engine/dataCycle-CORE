@@ -1126,7 +1126,6 @@ video {
     .content-pool-button {
       padding: 0.5rem 0.7rem;
       margin: 0;
-      font-weight: normal;
       color: inherit;
       display: flex;
       position: relative;
@@ -1173,6 +1172,7 @@ video {
 
       .content-pool-button {
         padding: 0.5rem 0;
+        font-weight: 600;
       }
     }
 

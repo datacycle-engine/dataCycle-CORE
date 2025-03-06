@@ -359,7 +359,7 @@ module DataCycleCore
         normalize_names(params).permit(
           :classification_tree_label_id,
           :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_tree_label: [:id, :name, :internal, :mappable, {visibility: [], change_behaviour: []}],
           classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
@@ -373,7 +373,7 @@ module DataCycleCore
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
         normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_tree_label: [:id, :name, :internal, :mappable, {visibility: [], change_behaviour: []}],
           classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end

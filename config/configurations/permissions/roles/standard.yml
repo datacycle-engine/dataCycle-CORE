@@ -62,8 +62,17 @@ thing_history:
   parameters: DataCycleCore::Thing::History
 
 thing_edit:
-  actions: [read, update, import, set_life_cycle, move_content]
+  actions: [read, update, import, move_content]
   segment: ContentIsEditable
+  parameters:
+    - - :content_not_external?
+      - :content_overlay_allowed?
+      - :content_global_property_names_present?
+
+life_cycle_actions:
+  actions:
+    - set_life_cycle
+  segment: LifeCycleIsEditable
   parameters:
     - - :content_not_external?
       - :content_overlay_allowed?

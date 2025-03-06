@@ -217,7 +217,7 @@ module DataCycleCore
         end
 
         def parse_concept_scheme_hash(data)
-          cs_data = data.slice('name', 'internal', 'visibility', 'external_source', 'external_key')
+          cs_data = data.slice('name', 'internal', 'mappable', 'visibility', 'external_source', 'external_key')
           cs_data['external_key'] = cs_data['name'] if cs_data['external_key'].blank?
           cs_data['concepts'] = parse_concepts(data['concepts'], cs_data['name'])
           cs_data.symbolize_keys

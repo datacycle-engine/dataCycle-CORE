@@ -371,6 +371,15 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
     end
 
+    def render_life_cycle_viewer(content:)
+      partials = [
+        content.try(:life_cycle_property_name)&.underscore_blanks,
+        'life_cycle'
+      ].compact_blank.map { |p| "data_cycle_core/contents/viewers/#{p}" }
+
+      render_first_existing_partial(partials, { content: })
+    end
+
     def render_content_tile(item:, parameters: {}, mode: 'grid')
       partials = [
         item.try(:template_name)&.underscore_blanks,

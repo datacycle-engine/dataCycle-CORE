@@ -1,0 +1,14 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-tags" aria-hidden="true"></i>
+    <span><%= t("filter.#{key}", default: title, locale: active_ui_locale) %></span>
+  </span>
+
+  <span class="tags-container">
+    <% thing_ids_to_value(value).each do |item| %>
+      <%= tag.span(item.name, class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) %>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+</span>

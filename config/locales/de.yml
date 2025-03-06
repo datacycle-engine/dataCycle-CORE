@@ -1076,6 +1076,7 @@ de:
       not_exists: ist System
       like: E-Mail enthält
       not_like: E-Mail enthält nicht
+    content_ids: Inhalt
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -1652,6 +1653,8 @@ de:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten
         external_key: Externe ID
+        internal: intern (Systemklassifizierungsbaum)
+        mappable: Klassifizierungen dürfen gemapped werden
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: "Beschreibungstext"
@@ -1664,6 +1667,7 @@ de:
         ui_configs: UI-Konfiguration
         ui_configs/color: Farbe
         ui_configs/icon: Icon
+        internal: intern (Systemklassifizierung)
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
