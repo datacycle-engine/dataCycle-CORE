@@ -17,11 +17,11 @@ module DataCycleCore
             end
           end
 
-          def transformation_with_args(transformation:, utility_object:, config: {})
-            transform_opts = transformation_args(transformation:, utility_object:, config:)
-            transform_kwargs = transformation_keyword_args(transformation:, utility_object:, config:)
+          def transformation_with_args(transformation_method:, utility_object:, config: {})
+            transform_opts = transformation_args(transformation_method:, utility_object:, config:)
+            transform_kwargs = transformation_keyword_args(transformation_method:, utility_object:, config:)
 
-            transformation.call(*transform_opts, **transform_kwargs)
+            transformation_method.call(*transform_opts, **transform_kwargs)
           end
 
           private
@@ -32,24 +32,24 @@ module DataCycleCore
             transformation_config
           end
 
-          def transformation_args(transformation:, utility_object:, config:)
+          def transformation_args(transformation_method:, utility_object:, config:)
             transform_opts = []
-            transform_req_params = transformation.parameters.select { |param| param[0] == :req }
+            transform_params = transformation_method.parameters.select { |param| param[0].in?([:req, :opt]) }
 
-            if transform_req_params.dig(0, 1).to_s.end_with?('_id')
+            if transform_params.dig(0, 1).to_s.end_with?('_id')
               transform_opts << utility_object.external_source.id
-            elsif transform_req_params.dig(0, 1).present?
+            elsif transform_params.dig(0, 1).present?
               transform_opts << utility_object.external_source
             end
 
-            transform_opts << transformation_config(config:) if transform_req_params.dig(1, 1).in? [:options, :config]
+            transform_opts << transformation_config(config:) if transform_params.dig(1, 1).in?([:options, :config])
 
             transform_opts
           end
 
-          def transformation_keyword_args(transformation:, utility_object:, config:)
+          def transformation_keyword_args(transformation_method:, utility_object:, config:)
             transform_kwargs = {}
-            transform_keyreq_params = transformation.parameters.select { |param| param[0] == :keyreq }
+            transform_keyreq_params = transformation_method.parameters.select { |param| param[0].in?([:key, :keyreq]) }
 
             transform_keyreq_params.each do |param|
               case param[1]
