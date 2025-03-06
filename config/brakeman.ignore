@@ -91,8 +91,30 @@
         89
       ],
       "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "ef972c13cd29d82c97a2678f6ae62c3d77f31c34771499273b36503804448b36",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `safe_constantize` called on model attribute",
+      "file": "app/controllers/data_cycle_core/api/v4/external_systems_controller.rb",
+      "line": 155,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "\"#{DataCycleCore::ExternalSystem.find_by(:id => permitted_params[:external_source_id]).default_options[\"namespace\"]}::Endpoint\".safe_constantize",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::Api::V4::ExternalSystemsController",
+        "method": "search_feratel_api"
+      },
+      "user_input": "DataCycleCore::ExternalSystem.find_by(:id => permitted_params[:external_source_id]).default_options",
+      "confidence": "Medium",
+      "cwe_id": [
+        470
+      ],
+      "note": ""
     }
   ],
-  "updated": "2024-03-14 16:16:40 +0100",
-  "brakeman_version": "6.0.1"
+  "brakeman_version": "7.0.0"
 }

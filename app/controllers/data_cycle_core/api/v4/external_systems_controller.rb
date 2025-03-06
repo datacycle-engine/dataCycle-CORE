@@ -150,8 +150,17 @@ module DataCycleCore
 
           feratel_params = [:days, :units, :from, :to, :page_size, :start_index, :occupation]
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
-          if external_system.default_options['namespace']
-            endpoint = "#{external_system.default_options['namespace']}::Endpoint".constantize.new(**credentials)
+
+          if external_system.default_options['namespace'].present?
+            endpoint_class = "#{external_system.default_options['namespace']}::Endpoint".safe_constantize
+
+            if endpoint_class.nil?
+              error = "Endpoint does not exist: #{external_system.default_options['namespace']}::Endpoint"
+              render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
+              return
+            end
+
+            endpoint = endpoint_class.new(**credentials)
           else
             endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(**credentials)
           end
