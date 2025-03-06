@@ -200,7 +200,8 @@ module DataCycleCore
         if update_params[:classification_alias]&.key?(:classification_ids)
           classification_ids = Array.wrap(update_params[:classification_alias].delete('classification_ids'))
 
-          if classification_ids.sort != @object.classification_ids&.sort
+          if classification_ids.sort != @object.classification_ids&.sort &&
+             @object.classification_tree_label.mappable
             DataCycleCore::ClassificationMappingJob.perform_later(@object.id, classification_ids - @object.classification_ids, @object.classification_ids - classification_ids)
             flash[:success] = I18n.t('controllers.success.classification_mappings_queued', locale: helpers.active_ui_locale)
           end
