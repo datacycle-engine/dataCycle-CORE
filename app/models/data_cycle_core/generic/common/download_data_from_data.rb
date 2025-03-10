@@ -65,6 +65,7 @@ module DataCycleCore
           ] + data_name_path_fallback.map do |name|
             ['$data', name].compact_blank.join('.')
           end
+          name_fallback_fields.uniq!
 
           add_fields_stage = {}
 
@@ -128,6 +129,16 @@ module DataCycleCore
             pipelines << { '$project' => attribute_whitelist.index_with { |_attr| 1 } }
           elsif attribute_blacklist.present?
             pipelines << { '$project' => attribute_blacklist.index_with { |_attr| 0 } }
+          end
+
+          data_id_prefix = options.dig(:download, :data_id_prefix)
+          raise ArgumentError, 'data_id_prefix and external_id_prefix cannot be present together' if data_id_prefix.present? && options.dig(:download, :external_id_prefix).present?
+          if data_id_prefix.present?
+            pipelines << {
+              '$addFields' => {
+                'id' => { '$concat' => [data_id_prefix, { '$toString' => '$id' }] }
+              }
+            }
           end
 
           pipelines <<  {

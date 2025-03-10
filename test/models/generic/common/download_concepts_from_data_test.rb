@@ -260,7 +260,7 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$addFields' => {'id' => {'$concat' => ['prefix_', '$id']}, 'parent_id' => {'$concat' => ['prefix_', '$parent_id']}}}
+      exp = {'$addFields' => {'id' => {'$concat' => [options.dig(:download, :data_id_prefix), '$id']}, 'parent_id' => {'$concat' => [options.dig(:download, :data_id_prefix), '$parent_id']}}}
       assert_equal exp, pipelines.last
     end
 
@@ -276,7 +276,7 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$addFields' => {'id' => {'$concat' => ['prefix_', '$id']}, 'parent_id' => {'$concat' => ['prefix_', '$parent_id']}}}
+      exp = {'$addFields' => {'id' => {'$concat' => [options.dig(:download, :data_id_prefix), '$id']}, 'parent_id' => {'$concat' => [options.dig(:download, :data_id_prefix), '$parent_id']}}}
       assert_equal exp, pipelines.last
     end
 

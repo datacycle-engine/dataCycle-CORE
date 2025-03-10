@@ -297,6 +297,21 @@ module DataCycleCore
       assert_nil relevant_pipeline&.dig('$addFields', 'name', '$trim')
     end
 
+    test 'data_id_prefix is correctly added to id' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dataPath',
+          data_id_prefix: 'prefix_'
+        }
+      }
+      locale = :de
+      pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
+      exp = {'$addFields' => {'id' => {'$concat' => [options.dig(:download, :data_id_prefix), { '$toString' => '$id' }]}}}
+      assert_equal exp, pipelines[-2]
+    end
+
     test 'assures that data with nil id are filtered out' do
       options = {
         download: {
