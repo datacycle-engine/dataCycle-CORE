@@ -266,9 +266,11 @@ class ConfirmationModal {
 		const previous = field.previousElementSibling;
 		if (previous?.classList?.contains("dc-focus-field-placeholder")) return;
 
+		const style = window.getComputedStyle(field);
+
 		field.insertAdjacentHTML(
 			"beforebegin",
-			`<div class="dc-focus-field-placeholder" style="height: ${height}px"></div>`,
+			`<div class="dc-focus-field-placeholder" style="height: ${height}px; margin: ${style.margin};"></div>`,
 		);
 	}
 	removePlaceholder(field) {

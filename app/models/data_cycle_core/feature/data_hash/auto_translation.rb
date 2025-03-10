@@ -70,8 +70,8 @@ module DataCycleCore
           data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
-          tlocales = (Feature::Translate.allowed_languages & I18n.available_locales.map(&:to_s))
-          endpoint = Feature::Translate.endpoint
+          tlocales = DataCycleCore::Feature['Translate'].allowed_target_languages
+          endpoint = DataCycleCore::Feature['Translate'].endpoint
 
           translations_done = {}
           additional_translations.each do |content|
