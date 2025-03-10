@@ -2087,6 +2087,8 @@ en:
       description: Description
       text: Detailed description
       snow_report: Snow report
+      valley: Valley
+      mountain: Mountain
     booking:
       hotel_important_information: Important information
       hotel_description: Brief description

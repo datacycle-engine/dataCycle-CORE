@@ -1891,6 +1891,8 @@ de:
       description: Beschreibung
       text: Detailbeschreibung
       snow_report: Schneebericht
+      valley: Tal
+      mountain: Berg
     booking:
       hotel_important_information: Wichtige Informationen
       hotel_description: Kurzbeschreibung
