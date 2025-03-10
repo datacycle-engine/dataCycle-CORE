@@ -225,7 +225,8 @@ module DataCycleCore
       alias properties property_names
 
       def properties_for(property_name, include_overlay = false)
-        include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name] : property_definitions[property_name]
+        return if property_name.blank?
+        include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name.to_s] : property_definitions[property_name.to_s]
       end
 
       def overlay_property_names_for(property_name, include_overlay = false)
