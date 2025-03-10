@@ -17,6 +17,18 @@ module DataCycleCore
             data.slice(*keys.flatten)
           end
 
+          def self.ensure_keys(data, keys)
+            data = Dry::Transformer::HashTransformations.accept_keys(data, keys)
+            ensure_nil_defaults(data, keys)
+          end
+
+          def self.ensure_nil_defaults(data, keys)
+            keys.each do |key|
+              data[key] = nil if data[key].blank?
+            end
+            data
+          end
+
           def self.compact(data_hash)
             data_hash.compact
           end
