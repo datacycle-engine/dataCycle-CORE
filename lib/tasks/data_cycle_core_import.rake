@@ -82,10 +82,10 @@ namespace :data_cycle_core do
       end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
-      options[:download_names].presence.split(',').each do |download_name|
+      options[:download_names].presence.split(/[,|]/).each do |download_name|
         external_source.download_single(download_name.squish.to_sym, options)
       end
-      options[:import_names].presence.split(',').each do |import_name|
+      options[:import_names].presence.split(/[,|]/).each do |import_name|
         external_source.import_single(import_name.squish.to_sym, options)
       end
     end
@@ -103,7 +103,7 @@ namespace :data_cycle_core do
       end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
-      options[:download_names].presence.split(',').each do |download_name|
+      options[:download_names].presence.split(/[,|]/).each do |download_name|
         external_source.download_single(download_name.squish.to_sym, options)
       end
     end
@@ -119,7 +119,7 @@ namespace :data_cycle_core do
       end
 
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
-      options[:import_names].presence.split(',').each do |import_name|
+      options[:import_names].presence.split(/[,|]/).each do |import_name|
         external_source.import_single(import_name.squish.to_sym, options)
       end
     end
