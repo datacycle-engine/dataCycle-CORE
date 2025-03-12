@@ -310,5 +310,11 @@ module DataCycleCore
         foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name, :identifier])
       }.with_indifferent_access
     end
+
+    def endpoint_module
+      return if module_base.blank?
+
+      MasterData::ImportExternalSystems.full_module_path(module_base, 'Endpoint')&.safe_constantize
+    end
   end
 end

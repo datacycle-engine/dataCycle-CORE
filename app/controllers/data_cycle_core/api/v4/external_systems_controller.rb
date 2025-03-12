@@ -151,11 +151,11 @@ module DataCycleCore
           feratel_params = [:days, :units, :from, :to, :page_size, :start_index, :occupation]
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
 
-          if external_system.default_options['namespace'].present?
-            endpoint_class = "#{external_system.default_options['namespace']}::Endpoint".safe_constantize
+          if external_system.module_base.present?
+            endpoint_class = external_system.endpoint_module
 
             if endpoint_class.nil?
-              error = "Endpoint does not exist: #{external_system.default_options['namespace']}::Endpoint"
+              error = 'Configured Endpoint Module not found.'
               render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
               return
             end
