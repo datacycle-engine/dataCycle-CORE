@@ -62,7 +62,7 @@ module DataCycleCore
             errors.concat(error)
           end
 
-          yield data if error.blank?
+          yield data if block_given? && error.blank?
         rescue StandardError => e
           errors.push("#{file_name} => could not access the YML File (#{e.message})")
         end
