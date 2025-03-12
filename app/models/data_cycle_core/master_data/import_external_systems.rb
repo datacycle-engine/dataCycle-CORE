@@ -37,7 +37,7 @@ module DataCycleCore
       end
 
       def self.validate_all(paths: nil)
-        load_all(paths:, validtion: true)
+        load_all(paths:, validation: true)
       end
 
       def self.load_all(paths: nil, validation: true)
