@@ -1,13 +1,14 @@
 <div class="translatable-attribute-container viewer" data-attribute-key="<%= key.attribute_name_from_key %>">
-  <%= tag.div(class: "translatable-attribute active #{I18n.locale}") do %>
-    <%= render_specific_translatable_attribute_viewer(
-          key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{I18n.locale.to_s}]"),
-          locale: I18n.locale,
-          definition: definition&.dc_deep_dup,
-          content: content,
-          parameters: local_assigns.dig(:parameters)&.slice(:parent, :options)
-        ) -%>
-  <% end %>
+  <%= tag.div(
+    render_specific_translatable_attribute_viewer(
+              key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{I18n.locale.to_s}]"),
+              locale: I18n.locale,
+              definition: definition&.dc_deep_dup,
+              content: content,
+              parameters: local_assigns.dig(:parameters)&.slice(:parent, :options)
+            ),
+    class: "translatable-attribute active #{I18n.locale}"
+  ) -%>
 
   <% content&.translated_locales&.except(I18n.locale)&.each do |a_locale| %>
     <%= tag.div(

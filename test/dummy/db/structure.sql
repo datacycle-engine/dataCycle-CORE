@@ -1741,7 +1741,8 @@ CREATE TABLE public.external_systems (
     last_successful_download_time interval,
     last_download_time interval,
     last_successful_import_time interval,
-    last_import_time interval
+    last_import_time interval,
+    module_base character varying
 );
 
 
@@ -4830,6 +4831,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250311144518'),
 ('20250304132522'),
 ('20250210064926'),
 ('20250206071515'),

@@ -185,5 +185,38 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
       assert(external_source_import_contract.call(test_hash.except(:data_template)).errors, {})
     end
+
+    it 'produces an appropriate config with full paths' do
+      DataCycleCore::MasterData::ImportExternalSystems.load_all(paths: import_path) do |data|
+        assert(data.is_a?(Hash))
+
+        next if data['name'] != 'Remote-System-with-partial-paths'
+
+        assert_equal(
+          data.dig('default_options', 'transformations'),
+          'DataCycleCore::Generic::Csv::Transformations'
+        )
+        assert_equal(
+          data.dig('config', 'download_config', 'images', 'endpoint'),
+          'DataCycleCore::Generic::Csv::Endpoint'
+        )
+        assert_equal(
+          data.dig('config', 'download_config', 'images', 'download_strategy'),
+          'DataCycleCore::Generic::Common::DownloadFunctions'
+        )
+        assert_equal(
+          data.dig('config', 'import_config', 'images', 'import_strategy'),
+          'DataCycleCore::Generic::Common::ImportTags'
+        )
+        assert_equal(
+          data.dig('config', 'import_config', 'places', 'import_strategy'),
+          'DataCycleCore::Generic::Common::ImportContents'
+        )
+        assert_equal(
+          data.dig('config', 'import_config', 'events', 'import_strategy'),
+          'DataCycleCore::Generic::Common::ImportContents'
+        )
+      end
+    end
   end
 end

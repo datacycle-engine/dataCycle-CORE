@@ -7,14 +7,6 @@ module DataCycleCore
         config.messages.default_locale = :en
         config.messages.backend = :i18n
 
-        register_macro(:dc_class) do
-          key.failure('the string given does not specify a valid ruby class.') if key? && value&.safe_constantize&.class != Class
-        end
-
-        register_macro(:dc_array_or_hash) do
-          key.failure('the value must be of type Array or Hash') if key? && !value.is_a?(Hash) && !value.is_a?(Array)
-        end
-
         register_macro(:dc_credential_keys) do
           if value.is_a?(Array)
             credential_keys = value.filter_map { |v| v[:credential_key] }
@@ -34,14 +26,6 @@ module DataCycleCore
             md5_hashes = value.map { |v| Digest::MD5.hexdigest(v.except(:credential_key).to_s) }
             key.failure('all credentials must be unique') if md5_hashes.uniq.size != md5_hashes.size
           end
-        end
-
-        register_macro(:dc_module) do
-          key.failure('the string given does not specify a valid ruby module.') if key? && value&.safe_constantize&.class != Module
-        end
-
-        register_macro(:dc_module_method) do
-          key.failure('the given module/method combination does not exist.') if key? && !value&.dig(:module)&.safe_constantize.respond_to?(value[:method])
         end
 
         register_macro(:dc_logging_strategy) do
