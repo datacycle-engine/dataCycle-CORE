@@ -93,7 +93,6 @@ DataCycleCore::Engine.routes.draw do
 
     scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
       resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things, except: :show) do
-        post :import, on: :collection
         get 'history/:history_id', action: :history, on: :member, as: :history
         post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
         get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
@@ -213,6 +212,8 @@ DataCycleCore::Engine.routes.draw do
       get :download, on: :collection
       patch :move, on: :collection
       patch :merge, on: :collection
+      post :unlink_contents, on: :collection
+      post :link_contents, on: :collection
     end
   end
 

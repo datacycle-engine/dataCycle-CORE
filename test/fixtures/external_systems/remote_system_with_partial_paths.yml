@@ -1,0 +1,33 @@
+---
+name: Remote-System-with-partial-paths
+identifier: remote-system-with-partial-paths
+module_base: DataCycleCore::Generic::Csv
+credentials:
+  host: HOST
+  token: TOKE
+  api_version: API_VERSION
+  api_subversion: API_SUBVERSION
+config:
+  download_config:
+    images:
+      source_type: contents
+      endpoint: Endpoint
+      download_strategy: DownloadFunctions
+  import_config:
+    images:
+      source_type: content
+      import_strategy: ImportTags
+      tree_label: Content - Tags
+      tag_id_path: "keywords"
+      tag_name_path: "keywords"
+      external_id_prefix: "Content - keyword - "
+    places: &places
+      import_strategy: ImportContents
+      main_content:
+        template: Place
+        transformation: to_place
+    events:
+      <<: *places
+      main_content:
+        template: Event
+        transformation: to_event

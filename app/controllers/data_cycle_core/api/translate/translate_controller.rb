@@ -38,8 +38,8 @@ module DataCycleCore
         def check_params(translate_params)
           errors = []
           errors << 'Source and target locale should be different' if translate_params[:source_locale] == translate_params[:target_locale] && [translate_params[:source_locale], translate_params[:target_locale]].all?(&:present?)
-          errors << 'Source locale not found in available locales' if translate_params[:source_locale].present? && DataCycleCore::Feature['Translate']&.allowed_languages&.exclude?(translate_params[:source_locale])
-          errors << 'Target locale not found in available locales' if translate_params[:target_locale].present? && DataCycleCore::Feature['Translate']&.allowed_languages&.exclude?(translate_params[:target_locale])
+          errors << 'Source locale not found in available locales' if translate_params[:source_locale].present? && !DataCycleCore::Feature['Translate']&.source_locale_allowed?(translate_params[:source_locale])
+          errors << 'Target locale not found in available locales' if translate_params[:target_locale].present? && !DataCycleCore::Feature['Translate']&.target_locale_allowed?(translate_params[:target_locale])
           errors
         end
       end

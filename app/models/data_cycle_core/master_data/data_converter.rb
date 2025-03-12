@@ -53,9 +53,12 @@ module DataCycleCore
 
         loop do # to get rid of more than one occurrence of the tags
           new_value = old_value
-            &.gsub(%r{(<p>\s*(<br>)*\s*</p>)*$}, '') # remove empty lines from HTML-Editor at the end of the String
-            &.gsub(%r{^(<p>\s*(<br>)*\s*</p>)*}, '') # remove empty lines from HTML-Editor at the start of the String
+            &.strip
+            &.gsub(%r{^(<p>\s*(<br>|&nbsp;)*\s*</p>)+|(<p>\s*(<br>|&nbsp;)*\s*</p>)+$}, '') # remove empty lines at the start and end of the String
             &.gsub(/(\s*&nbsp;\s*)+/, '&nbsp;') # normalize multiple &nbsp; to a single one
+            &.gsub(/^\s*<br>\s*|\s*<br>\s*$/, '') # remove <br> (with whitespace) at the start and end of the String
+            &.gsub(/^&nbsp;|&nbsp;$/, '') # remove &nbsp; at the start and end of the String
+            &.strip
             &.squish
           break if new_value == old_value
           old_value = new_value

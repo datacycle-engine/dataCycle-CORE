@@ -94,7 +94,7 @@ module DataCycleCore
 
     def add_content_header_classification_alias(allowed_properties:, classification_aliases:, key:, classification_alias:, scope:, context:, content:, options: {}, type: :value)
       return if classification_alias.nil?
-      return if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, DataCycleCore::Feature::LifeCycle.data_attribute(content)) && type == :value && key == DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first
+      return if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, content.try(:life_cycle_data_attribute)) && type == :value && key == DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first
 
       ui_config = content&.properties_for(key)&.[]('ui').to_h
       ui_config.merge!(ui_config[scope.to_s].to_h) if ui_config.present?
@@ -152,7 +152,7 @@ module DataCycleCore
       html_text = text.presence || ''
 
       out = []
-      out << tag.i(html_title.html_safe)
+      out << tag.span(html_title.html_safe)
       out << tag.b(html_text.html_safe)
       safe_join(out)
     end

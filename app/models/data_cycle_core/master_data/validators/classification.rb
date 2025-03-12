@@ -41,37 +41,34 @@ module DataCycleCore
           # validate references themself
           return if blank?(data)
 
+          uuids = []
+
           data.each do |key|
-            if key.is_a?(::String)
-              check_reference(key, template)
-            else
-              (@error[:error][@template_key] ||= []) << {
-                path: 'validation.errors.data_array_format',
-                substitutions: {
-                  key:,
-                  template: template['label']
-                }
+            next uuids.push(key) if key.is_a?(::String) && key.uuid?
+
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.data_array_format',
+              substitutions: {
+                key:,
+                template: template['label']
               }
-            end
+            }
           end
+
+          check_references(uuids, template)
         end
 
-        def check_reference(key, template)
-          return unless uuid?(key)
+        def check_references(data, template)
+          concepts = DataCycleCore::Concept.where(classification_id: data)
+          concepts = concepts.includes(:concept_scheme).where(concept_scheme: { name: template['tree_label'] }) unless template['universal']
+          concept_ids = concepts.pluck(:classification_id)
 
-          where_hash = { classifications: { id: key } }
-          where_hash[:classification_tree_labels] = { name: template['tree_label'] } if template['universal'].blank?
-          find_classification_alias = DataCycleCore::ClassificationTree
-            .joins(:classification_tree_label)
-            .joins(sub_classification_alias: [classification_groups: [:classification]])
-            .where(where_hash)
-
-          return unless find_classification_alias.count < 1
+          return if concept_ids.size == data.size && concept_ids.to_set == data.to_set
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.classification',
             substitutions: {
-              key:,
+              key: (data - concept_ids).join(', '),
               label: template['label'],
               tree_label: template['tree_label']
             }

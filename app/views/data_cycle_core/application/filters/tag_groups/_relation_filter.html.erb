@@ -7,7 +7,7 @@
 
   <% if filter_method.in?(['p', 'b']) %>
     <span>
-      <%= t("filter.#{local_assigns[:filter_type]}.#{DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter_method]&.delete_suffix('_')}", default: title, locale: active_ui_locale) %>
+      <%= t("filter.#{local_assigns[:filter_type]}.#{DataCycleCore::StoredFilterParametersType::FILTER_PREFIX[filter_method]&.delete_suffix('_')}", default: title, locale: active_ui_locale) %>
     </span>
   <% else %>
     <span class="tags-container">

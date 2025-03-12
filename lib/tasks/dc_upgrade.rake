@@ -2,6 +2,25 @@
 
 namespace :dc do
   namespace :upgrade do
+    desc 'copy core templates to project'
+    task :copy_templates, [:folder] => :environment do |_, args|
+      abort('Please provide a folder name') if args.folder.nil?
+
+      project_path = Rails.root
+      template_path = DataCycleCore::Engine.root.join('lib/templates', args.folder)
+
+      Dir.glob(template_path.join('**', '*'), File::FNM_DOTMATCH).each do |f|
+        next unless File.file?(f)
+
+        file_name = File.basename(f, '.template')
+        file_path = File.dirname(f)
+        dest_path = project_path.join(file_path.gsub(template_path.to_s, ''))
+
+        FileUtils.mkdir_p(dest_path)
+        FileUtils.cp(f, dest_path.join(file_name))
+      end
+    end
+
     desc 'override some files in project from core templates'
     task rails71: :environment do
       project_path = Rails.root
@@ -107,9 +126,11 @@ namespace :dc do
 
   desc 'run all available upgrades'
   task upgrade: :environment do
-    Rake::Task['dc:upgrade:rails71'].invoke
-    Rake::Task['dc:upgrade:rails71'].reenable
+    # Rake::Task['dc:upgrade:rails71'].invoke
+    # Rake::Task['dc:upgrade:rails71'].reenable
     Rake::Task['dc:upgrade:clean_configs'].invoke
     Rake::Task['dc:upgrade:clean_configs'].reenable
+    Rake::Task['dc:upgrade:copy_templates'].invoke('rubocop')
+    Rake::Task['dc:upgrade:copy_templates'].reenable
   end
 end

@@ -1,15 +1,13 @@
-<%= t('common.are_you_sure', locale: active_ui_locale) %>
+<p><%= t('actions.delete_confirmation_html', type: classification_tree_label.model_name.human(locale: active_ui_locale), name: classification_tree_label.name, locale: active_ui_locale) %></p>
 
 <% if classification_tree_label.things.exists? %>
-  <div class='warning'>
-    <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
+  <div class='warning callout'>
     <%= t('data_cycle_core.classification_tree_relations', locale: active_ui_locale) %>
   </div>
 <% end %>
 
 <% if classification_tree_label.concepts.exists? %>
-  <div class='warning'>
-    <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
+  <div class='warning callout'>
     <%= t('data_cycle_core.child_classification_relations_html',
           count: classification_tree_label.concepts.size,
           data: t('data_cycle_core.this_classification_tree', locale: active_ui_locale),

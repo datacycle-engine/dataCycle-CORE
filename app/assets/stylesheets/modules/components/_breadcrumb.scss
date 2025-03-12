@@ -1,7 +1,26 @@
 .breadcrumb {
   background-color: $dark-gray;
-  padding: 1rem 0.5rem; //box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.7);
+  padding: 1rem 0.5rem;
   height: 3.5rem;
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  >.row {
+    margin: 0;
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    max-width: 100%;
+
+    >.column {
+      display: grid;
+      grid-auto-flow: column;
+      align-items: center;
+    }
+  }
+
   ul {
     color: $white;
     font-size: 1rem;
@@ -9,24 +28,25 @@
     margin: 0;
     list-style: none;
     line-height: 1.4;
-    display: flex;
-    flex-flow: row;
+    display: grid;
+    grid-auto-flow: column;
     overflow: hidden;
     white-space: nowrap;
     justify-content: flex-start;
+    gap: 0.5rem;
 
     .fa {
       display: inline-block;
     }
+
     li {
-      flex: auto;
-      flex-grow: 0;
       overflow: hidden;
+      display: grid;
+      grid-auto-flow: column;
+      align-items: center;
+      gap: 0.5rem;
 
       &:not(:first-child) {
-        .breadcrumb-text {
-          max-width: calc(100% - 1rem);
-        }
         &::before {
           font-family: 'FontAwesome';
           content: '\f101';
@@ -37,28 +57,38 @@
           vertical-align: bottom;
         }
       }
+
       .breadcrumb-text {
-        display: inline-block;
-        vertical-align: middle;
         text-overflow: ellipsis;
         max-width: 100%;
         overflow: hidden;
-        padding: 0 0.5rem;
+        padding: 0;
+        font-weight: 300;
+        font-size: 1.1rem;
+
         i {
           font-style: italic;
           margin-right: 0.3rem;
+          font-weight: 300;
+
           &.fa {
             font-style: normal;
             margin-right: 0.3rem;
           }
         }
+
         b {
           font-weight: 600;
         }
       }
+
       a {
         color: $white;
-        font-weight: 200;
+        font-weight: 300;
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        font-size: 1.1rem;
       }
     }
   }

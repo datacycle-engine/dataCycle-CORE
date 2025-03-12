@@ -6,7 +6,7 @@
   </a>
 
   <div class="reveal new-external-connection-overlay" id="<%= html_id %>" data-reveal>
-    <h3><%= t('external_connections.new_form.title', locale: active_ui_locale) %></h3>
+    <div class="reveal-header"><%= t('external_connections.new_form.title', locale: active_ui_locale) %></div>
     <div class="remote-render"
           data-remote-path="data_cycle_core/contents/external_connections/new_external_connection_form"
           data-remote-options="<%= to_query_params({ content: content }).to_json %>">

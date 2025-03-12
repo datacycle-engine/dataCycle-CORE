@@ -3,7 +3,7 @@
 module DataCycleCore
   module Content
     module DestroyContent
-      def destroy(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_locale: false, destroy_linked: false, destroyed_ancestors: [])
+      def destroy(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_locale: false, destroy_linked: nil, destroyed_ancestors: [])
         return self if destroy_locale && available_locales.exclude?(I18n.locale)
         return self if destroyed_ancestors.include?(id)
 
@@ -23,7 +23,7 @@ module DataCycleCore
             after_save_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user:, save_time:)) unless history?
           else
             before_destroy_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user:, save_time:)) unless history?
-            destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:, destroyed_ancestors: new_destroyed_ancestors) if destroy_linked
+            destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:, destroyed_ancestors: new_destroyed_ancestors) if destroy_linked.is_a?(::Hash)
             super()
           end
         end
@@ -33,7 +33,7 @@ module DataCycleCore
 
       alias destroy_content destroy
 
-      def destroy_children(current_user: nil, save_time: Time.zone.now, destroy_linked: false, destroy_locale: false, destroyed_ancestors: [])
+      def destroy_children(current_user: nil, save_time: Time.zone.now, destroy_linked: nil, destroy_locale: false, destroyed_ancestors: [])
         embedded_property_names.each do |name|
           load_embedded_objects(name, nil, destroy_locale).each do |item|
             if destroy_locale && item.available_locales.many?
@@ -58,23 +58,26 @@ module DataCycleCore
       end
 
       def destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:, destroyed_ancestors: [])
-        linked_property_names.each do |name|
-          properties = properties_for(name)
-          next if properties['link_direction'] == 'inverse'
-          next if properties['cascade_delete'].to_s == 'false'
+        return if destroy_linked.blank?
 
-          load_linked_objects(name).each do |item|
-            next if number_of_unique_links(item.id) > 1
-            item.destroy(current_user:, save_time:, save_history:, destroy_linked:, destroyed_ancestors:)
+        collection_ids, template_names, external_system_ids = destroy_linked.with_indifferent_access.values_at(:collection_ids, :template_names, :external_system_ids)
+
+        return if collection_ids.blank? && template_names.blank?
+
+        content_b.includes(:content_content_b).find_each do |item|
+          next if item.content_content_b.any? { |cc| cc.content_a_id != id }
+
+          if collection_ids.present?
+            filter = DataCycleCore::StoredFilter.new.parameters_from_hash([union_filter_ids: collection_ids])
+            next unless filter.things.exists?(item.id)
+          else
+            next if template_names.exclude?(item.template_name)
+            next if external_system_ids.present? && external_system_ids.exclude?(item.external_source_id)
+            next if external_system_ids.blank? && item.external_source_id != external_source_id
           end
-        end
-      end
 
-      def number_of_unique_links(item_id)
-        (
-          DataCycleCore::ContentContent.where(content_a_id: item_id).pluck(:content_b_id) +
-          DataCycleCore::ContentContent.where(content_b_id: item_id).pluck(:content_a_id)
-        ).uniq.size
+          item.destroy(current_user:, save_time:, save_history:, destroy_linked:, destroyed_ancestors:)
+        end
       end
 
       def destroy_translation(locale)

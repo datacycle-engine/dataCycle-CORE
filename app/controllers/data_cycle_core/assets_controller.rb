@@ -2,36 +2,18 @@
 
 module DataCycleCore
   class AssetsController < ApplicationController
+    before_action :set_index_variables, only: :index
+
     def index
-      if permitted_params[:html_target].present?
-        @html_target = permitted_params[:html_target]
-        @selected = permitted_params[:selected]
-        @append = permitted_params[:append] || false
-        @page = (permitted_params[:page] || 1).to_i
-        @last_asset_type = permitted_params[:last_asset_type]
-        @assets = DataCycleCore::Asset.includes(:thing).accessible_by(current_ability).order(type: :asc, updated_at: :desc)
-        @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
-        @assets = @assets.where(id: permitted_params[:asset_ids]) if permitted_params[:asset_ids].present?
-        @assets = @assets.limit(25).offset(((@page - 1) * 25) - permitted_params[:delete_count].to_i)
-
-        @asset_details = @assets.includes(file_attachment: :blob).map do |a|
-          a.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
-            .merge(a.warnings? ? { 'warning' => a.full_warnings(helpers.active_ui_locale) } : {})
-        end
-        @total = @assets.except(:limit, :offset).count
-
-        render json: {
-          assets: @asset_details || [],
-          selected: @selected || [],
-          last_asset_type: @assets.last&.type&.to_s,
-          page: @page,
-          total: @total,
-          append: @append,
-          html: render_to_string(formats: [:html], layout: false)
-        }
-      else
-        render json: DataCycleCore::Asset.where(type: permitted_params[:type]).accessible_by(current_ability).order(name: :asc).pluck(:name, :id)
-      end
+      render json: {
+        assets: @asset_details || [],
+        selected: @selected || [],
+        last_asset_type: @assets.last&.type&.to_s,
+        page: @page,
+        total: @total,
+        append: @append,
+        html: render_to_string(formats: [:html], layout: false)
+      }
     end
 
     def create
@@ -122,6 +104,25 @@ module DataCycleCore
     end
 
     private
+
+    def set_index_variables
+      raise ActiveRecord::RecordNotFound if permitted_params[:html_target].blank?
+
+      @html_target = permitted_params[:html_target]
+      @selected = permitted_params[:selected]
+      @append = permitted_params[:append] || false
+      @page = (permitted_params[:page] || 1).to_i
+      @last_asset_type = permitted_params[:last_asset_type]
+      @assets = DataCycleCore::Asset.includes(:thing).accessible_by(current_ability).order(type: :asc, updated_at: :desc)
+      @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
+      @assets = @assets.where(id: permitted_params[:asset_ids]) if permitted_params[:asset_ids].present?
+      @assets = @assets.limit(25).offset(((@page - 1) * 25) - permitted_params[:delete_count].to_i)
+      @asset_details = @assets.includes(file_attachment: :blob).map do |a|
+        a.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
+          .merge(a.warnings? ? { 'warning' => a.full_warnings(helpers.active_ui_locale) } : {})
+      end
+      @total = @assets.except(:limit, :offset).count
+    end
 
     def asset_params
       params.require(:asset).permit(:id, :name, :file, :type)

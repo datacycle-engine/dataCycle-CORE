@@ -16,6 +16,7 @@
 @import 'modules/structure';
 @import 'modules/responsive';
 // load components
+@import 'modules/components/reveal';
 @import 'modules/components/breadcrumb';
 @import 'modules/components/filters';
 @import 'modules/components/stored_filters';
@@ -82,3 +83,4 @@
 @import 'modules/external_systems';
 @import 'modules/components/table_editor';
 @import 'modules/components/ai_lector';
+@import 'modules/components/multi_step_form'

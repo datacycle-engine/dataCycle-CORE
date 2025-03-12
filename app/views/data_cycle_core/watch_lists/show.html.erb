@@ -201,11 +201,22 @@
 
         <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: @watch_list if can?(:bulk_edit, @watch_list) %>
 
-        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?", dc_tooltip: t('actions.delete_with_data', data: @watch_list.model_name.human(locale: active_ui_locale), locale: active_ui_locale) } do %>
+        <%= render 'data_cycle_core/watch_lists/clear_button', watch_list: @watch_list if can? :remove_item, @watch_list %>
+
+        <%= link_to @watch_list,
+                    method: :delete,
+                    class:'button-prime small alert',
+                    data: {
+                      confirm: safe_join([
+                        tag.p(t('actions.delete_confirmation_html', type: @watch_list.model_name.human(locale: active_ui_locale), name: @watch_list.name, locale: active_ui_locale)),
+                        tag.div(t('common.delete_collection_info_html', type: @watch_list.model_name.human(locale: active_ui_locale), locale: active_ui_locale), class: 'callout primary'),
+                      ]),
+                      confirmation_text: t('actions.delete', locale: active_ui_locale) + tag.i(class: 'fa fa-trash-o'),
+                      confirmation_header_text: t('actions.delete_with_data', data: @watch_list.model_name.human(locale: active_ui_locale), locale: active_ui_locale),
+                      dc_tooltip: t('actions.delete_with_data', data: @watch_list.model_name.human(locale: active_ui_locale), locale: active_ui_locale)
+                    } do %>
           <i class="fa fa-trash-o" aria-hidden="true"></i>
         <% end if can? :destroy, @watch_list %>
-
-        <%= render 'data_cycle_core/watch_lists/clear_button', watch_list: @watch_list if can? :remove_item, @watch_list %>
 
         <% if can?(:bulk_delete, @watch_list) %>
           <span data-dc-tooltip="<%= t('actions.delete_items_in_watch_list_tooltip', locale: active_ui_locale) %>">
@@ -214,9 +225,13 @@
                     remote: true,
                     class: 'button-prime small alert bulk-delete-button',
                     data: {
-                      confirm: "#{t('actions.delete_items_in_watch_list', locale: active_ui_locale)}",
-                      confirmation_text: t('actions.delete_items_in_watch_list_confirmation_text', locale: active_ui_locale),
+                      confirm: safe_join([
+                        tag.p(t('actions.delete_items_in_watch_list', locale: active_ui_locale)),
+                        tag.div(t('common.delete_collection_things_html', locale: active_ui_locale), class: 'callout warning'),
+                      ]),
+                      confirmation_text: t('actions.delete_items_in_watch_list_confirmation_text', locale: active_ui_locale) + tag.i(class: 'fa fa-trash'),
                       id: @watch_list.id,
+                      confirmation_header_text: t('actions.delete_items_in_watch_list_tooltip', locale: active_ui_locale),
                       disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
                         tag.span(class: 'progress-value') +
                         tag.i(class: 'fa fa-spinner fa-spin fa-fw', aria_hidden: true)

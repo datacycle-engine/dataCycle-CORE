@@ -69,6 +69,7 @@ module DataCycleCore
                   extract_property(raw_data, options, 'concept_scheme_external_key')
                 ].compact_blank.join,
                 concept_scheme_name: extract_property(raw_data, options, 'concept_scheme_name').presence ||
+                  extract_property(raw_data, options, 'tree_label').presence ||
                   options.dig(:import, :concept_scheme).presence,
                 mapped_concepts: extract_property(raw_data, options, 'mapped_concepts'),
                 geom: extract_property(raw_data, options, 'geom')

@@ -49,7 +49,7 @@ module DataCycleCore
         render json: {
           last_page: @results.last_page?,
           has_contents: !@results.empty?,
-          html: render_to_string(formats: [:html], layout: false)
+          html: render_to_string(formats: [:html], layout: false, locals: ob_params)
         }
       end
     end
@@ -68,7 +68,7 @@ module DataCycleCore
           @objects = DataCycleCore::Thing.where(id: permitted_params[:ids])
         end
 
-        render json: { html: render_to_string(formats: [:html], layout: false).strip, ids: @objects.pluck(:id) }
+        render json: { html: render_to_string(formats: [:html], layout: false, locals: ob_params).strip, ids: @objects.pluck(:id) }
       end
     end
 
@@ -95,7 +95,7 @@ module DataCycleCore
       I18n.with_locale(permitted_params[:locale]) do
         @object = DataCycleCore::Thing.find(permitted_params[:id])
 
-        render json: { detail_html: render_to_string(formats: [:html], layout: false).strip }
+        render json: { detail_html: render_to_string(formats: [:html], layout: false, locals: ob_params).strip }
       end
     end
 
@@ -115,6 +115,10 @@ module DataCycleCore
 
     def count_only_params
       params.permit(:count_only)
+    end
+
+    def ob_params
+      params.permit(:locale, :editable, :key, :prefix, { objects: [] }, { definition: {} }, { options: {} }).to_h
     end
   end
 end

@@ -4,6 +4,12 @@ module DataCycleCore
   class ClassificationsController < ApplicationController
     FIXNUM_MAX = ((2**((0.size * 8) - 2)) - 1)
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
+    UNLINK_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
+      required(:concept_scheme_link).hash do
+        required(:id).filled(:uuid?)
+        required(:collection_id).filled(:uuid?)
+      end
+    end
 
     def index
       respond_to do |format|
@@ -194,7 +200,8 @@ module DataCycleCore
         if update_params[:classification_alias]&.key?(:classification_ids)
           classification_ids = Array.wrap(update_params[:classification_alias].delete('classification_ids'))
 
-          if classification_ids.sort != @object.classification_ids&.sort
+          if classification_ids.sort != @object.classification_ids&.sort &&
+             @object.classification_tree_label.mappable
             DataCycleCore::ClassificationMappingJob.perform_later(@object.id, classification_ids - @object.classification_ids, @object.classification_ids - classification_ids)
             flash[:success] = I18n.t('controllers.success.classification_mappings_queued', locale: helpers.active_ui_locale)
           end
@@ -296,6 +303,28 @@ module DataCycleCore
       render json: flash.discard.to_h
     end
 
+    def unlink_contents
+      collection = DataCycleCore::Collection.find(link_params[:collection_id])
+      concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
+
+      authorize! :unlink_contents, concept_scheme
+
+      DataCycleCore::ConceptSchemeUnlinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
+
+      render json: flash.discard.to_h
+    end
+
+    def link_contents
+      collection = DataCycleCore::Collection.find(link_params[:collection_id])
+      concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
+
+      authorize! :link_contents, concept_scheme
+
+      DataCycleCore::ConceptSchemeLinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
+
+      render json: flash.discard.to_h
+    end
+
     private
 
     def download_params
@@ -331,7 +360,7 @@ module DataCycleCore
         normalize_names(params).permit(
           :classification_tree_label_id,
           :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_tree_label: [:id, :name, :internal, :mappable, {visibility: [], change_behaviour: []}],
           classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
@@ -345,7 +374,7 @@ module DataCycleCore
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
         normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_tree_label: [:id, :name, :internal, :mappable, {visibility: [], change_behaviour: []}],
           classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
@@ -372,6 +401,10 @@ module DataCycleCore
         end
       end
       hash
+    end
+
+    def link_params
+      params_for(UNLINK_PARAMS_SCHEMA)&.dig(:concept_scheme_link)
     end
   end
 end

@@ -70,6 +70,10 @@ module DataCycleCore
       attribute_list.pluck(0).intersection(Array.wrap(name)).any?
     end
 
+    def included_attribute_not_full?(name, attribute_list)
+      included_attribute?(name, attribute_list) && !full_recursive?(attribute_list)
+    end
+
     def subtree_for(name, attribute_list)
       return attribute_list if full_recursive?(attribute_list)
 
@@ -285,6 +289,20 @@ module DataCycleCore
           { key => data[key].reject { |item| item['identifier'].in?(value.pluck('identifier')) } + overlay[key] }
         end
       }.compact_blank.inject(&:merge) || {}
+    end
+
+    def geoshape_as_json(geom)
+      return if geom.nil?
+
+      key = if geom.is_a?(RGeo::Feature::MultiPolygon) || geom.is_a?(RGeo::Feature::Polygon)
+              'polygon'
+            elsif geom.is_a?(RGeo::Feature::MultiLineString) || geom.is_a?(RGeo::Feature::LineString)
+              'line'
+            end
+
+      return if key.nil?
+
+      { key => geom.as_json }
     end
   end
 end

@@ -1,28 +1,17 @@
-<% grouped_objects = related_objects.presence&.includes(:content_content_a)&.group_by(&:template_name) %>
-<% grouped_objects&.each do |group| %>
-
-  <%
-    relation_groups = {}
-    group.second.presence&.each do |item|
-        item.content_content_a.each do |cc|
-            if cc.content_b_id == content.id
-                relation_groups.key?(cc.relation_a) ? relation_groups[cc.relation_a].push(item) : relation_groups[cc.relation_a] = [item]
-            end
-        end
-    end
-    %>
+<% grouped_related_contents(related_objects, content)&.each do |thing_template, relations| %>
+  <% template_name = thing_template.template_name %>
 
   <li>
     <span>
-      <%= render 'data_cycle_core/contents/lists/attributes/type', item: group.second.first %>
+      <%= render 'data_cycle_core/contents/lists/attributes/type', item: thing_template.template_thing %>
     </span>
     <ul class="children">
-      <% relation_groups.each do |items|%>
+      <% relations.each do |attribute_name, items|%>
         <li>
           <span class="inner-item">
-            <%= items.second.first&.schema&.dig("properties", items.first, 'label') || items.first.split('_').map(&:capitalize).join(' ') %> (<%= items.second.size %>)
+            <%= translated_attribute_label(attribute_name, nil, thing_template.template_thing) %> (<%= items.size %>)
 
-            <%= button_tag type: :button, id: "add-items-to-watch-list-#{group.first.underscore_blanks}-#{items.first}", data: { open: "add-items-to-watch-list-overlay-#{group.first.underscore_blanks}-#{items.first}", template_name: group.first, relation_a: items.first } do %>
+            <%= button_tag(type: :button, class: 'add-items-to-watch-list', id: "add-items-to-watch-list-#{template_name.underscore_blanks}-#{attribute_name}", data: { open: "add-items-to-watch-list-overlay-#{template_name.underscore_blanks}-#{attribute_name}", template_name: template_name, relation_a: attribute_name }) do %>
               <i class="fa fa-plus" aria-hidden="true"></i>
               <%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %>
             <% end if can?(:add_item, DataCycleCore::WatchList) %>
@@ -30,11 +19,9 @@
         </li>
 
         <% if can?(:add_item, DataCycleCore::WatchList) %>
-          <%= render 'data_cycle_core/contents/lists/add_items_to_watch_list', template_name: group.first, relation_a: items.first, content: content %>
+          <%= render 'data_cycle_core/contents/lists/add_items_to_watch_list', template_name: template_name, relation_a: attribute_name, content: content %>
         <% end %>
       <% end %>
     </ul>
-
   </li>
-
 <% end %>

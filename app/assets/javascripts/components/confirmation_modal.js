@@ -8,17 +8,19 @@ class ConfirmationModal {
 		this.confirmationClass = config.confirmationClass || "";
 		this.cancelable = config.cancelable;
 		this.text = config.text || "";
-		this.confirmationText = config.confirmationText;
-		this.cancelText = config.cancelText;
+		this.confirmationHeaderText = config.confirmationHeaderText || "";
+		this.confirmationText = config.confirmationText || "";
+		this.cancelText = config.cancelText || "";
 		this.confirmationIndex = 1;
 		this.overlay;
 		this.closed = false;
 		this.section;
+		this.domParser = new DOMParser();
 
 		this.show();
 	}
 	async show() {
-		const sectionId = domElementHelpers.randomId("confirmation-section");
+		const sectionId = domElementHelpers.randomId();
 		const sectionHtml = await this.renderSectionHtml(sectionId);
 
 		window.requestAnimationFrame(() => {
@@ -57,20 +59,42 @@ class ConfirmationModal {
 	renderWrapperHtml() {
 		return '<div class="reveal confirmation-modal" data-multiple-opened="true" data-reveal data-initial-state="open"><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button></div>';
 	}
+	revealHeader() {
+		if (!this.confirmationHeaderText) return "";
+
+		return `<div class="reveal-header">${this.confirmationHeaderText}</div>`;
+	}
+	async cancelButton() {
+		if (!this.cancelable) return "";
+
+		let cancelText =
+			this.cancelText || (await I18n.translate("actions.cancel"));
+		const cancelTextDom = this.domParser.parseFromString(
+			cancelText,
+			"text/html",
+		);
+		if (!cancelTextDom.querySelector(".fa"))
+			cancelText = `<i class="fa fa-times"></i>${cancelText}`;
+
+		return `<a class="confirmation-cancel button hollow" aria-label="Cancel">${cancelText}</a>`;
+	}
+	async confirmationButton() {
+		let confirmationText = `<a class="confirmation-confirm button ${this.confirmationClass}" aria-label="Confirm">${this.confirmationText || (await I18n.translate("frontend.ok"))}`;
+		const confirmTextDom = this.domParser.parseFromString(
+			confirmationText,
+			"text/html",
+		);
+		if (!confirmTextDom.querySelector(".fa"))
+			confirmationText = `${confirmationText}<i class="fa fa-check"></i></a>`;
+
+		return confirmationText;
+	}
 	async renderSectionHtml(sectionId) {
-		return `<section id="${sectionId}" class="confirmation-section"><div class="confirmation-text">${
-			this.text
-		}</div><div class="confirmation-buttons">${
-			this.cancelable
-				? `<a class="confirmation-cancel button" aria-label="Cancel">${
-						this.cancelText || (await I18n.translate("frontend.cancel"))
-				  }</a>`
-				: ""
-		}<a class="confirmation-confirm button ${
-			this.confirmationClass
-		}" aria-label="Confirm">${
-			this.confirmationText || (await I18n.translate("frontend.ok"))
-		}</a></div></section>`;
+		const revealHeader = this.revealHeader();
+		const cancelButton = await this.cancelButton();
+		const confirmationButton = await this.confirmationButton();
+
+		return `<section id="${sectionId}" class="confirmation-section">${revealHeader}<div class="confirmation-text reveal-body">${this.text}</div><div class="reveal-footer confirmation-buttons">${cancelButton}${confirmationButton}</div></section>`;
 	}
 	updateConfirmationIndex(_event) {
 		this.overlay.querySelector(".confirmation-index").textContent =
@@ -204,11 +228,10 @@ class ConfirmationModal {
 
 			field.classList.add("dc-focus-field");
 			field.style.top = `${fieldOffset}px`;
+			const fieldRect = field.getBoundingClientRect();
+			this.addPlaceholder(field, fieldRect.height);
 
-			if (!multiple)
-				field.style.left = `calc(50% - ${
-					field.getBoundingClientRect().width
-				}px / 2)`;
+			if (!multiple) field.style.left = `calc(50% - ${fieldRect.width}px / 2)`;
 			else field.style.left = order === 0 ? "1.5rem" : "calc(50% + 1.5rem)";
 		});
 
@@ -230,12 +253,37 @@ class ConfirmationModal {
 			field.style.removeProperty("top");
 			field.style.removeProperty("left");
 			field.classList.remove("dc-focus-field");
+			this.removePlaceholder(field);
+
 			if (field.style.oldTopValue) field.style.top = field.dataset.oldTopValue;
 			if (field.style.oldOpacityValue)
 				field.style.opacity = field.dataset.oldOpacityValue;
 			if (field.style.oldLeftValue)
 				field.style.left = field.dataset.oldLeftValue;
 		}, 100);
+	}
+	addPlaceholder(field, height) {
+		const previous = field.previousElementSibling;
+		if (previous?.classList?.contains("dc-focus-field-placeholder")) return;
+
+		const style = window.getComputedStyle(field);
+
+		field.insertAdjacentHTML(
+			"beforebegin",
+			`<div class="dc-focus-field-placeholder" style="height: ${height}px; margin: ${style.margin};"></div>`,
+		);
+	}
+	removePlaceholder(field) {
+		const placeholder = field.previousElementSibling;
+		if (placeholder?.classList?.contains("dc-focus-field-placeholder"))
+			placeholder.remove();
+
+		if (
+			field.previousElementSibling?.classList?.contains(
+				"dc-focus-field-placeholder",
+			)
+		)
+			this.removePlaceholder(field);
 	}
 }
 

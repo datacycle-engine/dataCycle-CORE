@@ -1,8 +1,11 @@
-<%= tag.div render('data_cycle_core/contents/editors/metadata/locales_list'), class: 'available-attribute-locales' if template.translatable? && I18n.available_locales&.many? %>
+<%
+  data_hash = content_uploader_data_hash(template, local_assigns[:asset])
+  new_dialog_config = new_dialog_config(template, template&.asset_property_names&.first)
+  has_translatable_properties = template.translatable_property_names.intersect?(new_dialog_config&.values&.flatten || [])
+%>
+<%= tag.div render('data_cycle_core/contents/editors/metadata/locales_list'), class: 'available-attribute-locales' if template.translatable? && I18n.available_locales&.many? && has_translatable_properties %>
 
-<% data_hash = content_uploader_data_hash(template, local_assigns[:asset]) %>
-
-<% new_dialog_config(template, template&.asset_property_names&.first)&.each_with_index do |(field_title, a_keys), index| %>
+<% new_dialog_config&.each_with_index do |(field_title, a_keys), index| %>
   <% content_for(:field_set_content, flush:true) do %>
     <%
       a_keys.presence&.each do |a_key|

@@ -1,0 +1,20 @@
+---
+- :data:
+    :name: DummyTemplate
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :dummy2:
+        :label: Dummy2
+        :type: string
+        :storage_location: value

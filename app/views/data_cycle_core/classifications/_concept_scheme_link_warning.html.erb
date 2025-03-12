@@ -1,0 +1,47 @@
+<%
+  collection = DataCycleCore::Collection.find_by(id: collection_id)
+  count = concept_scheme_ccc_count(concept_scheme, collection, link_type)
+  translated_text = t(
+    "concept_scheme_#{key}.warning_html",
+    name: concept_scheme.name,
+    collection: collection.model_name.human(locale: active_ui_locale),
+    collection_name: collection.name,
+    count: count,
+    locale: active_ui_locale
+  )
+%>
+<legend data-disable-submit="<%= count.zero? %>"><%= collection.name %></legend>
+
+<% if count.zero? %>
+  <div class="callout primary">
+    <%= t(
+    "concept_scheme_#{key}.warning_html",
+    name: concept_scheme.name,
+    collection: collection.model_name.human(locale: active_ui_locale),
+    collection_name: collection.name,
+    count: count,
+    locale: active_ui_locale
+  ) %>
+  </div>
+<% else %>
+  <span><%= translated_text %></span>
+  <table class="concept-link-result-table">
+    <thead>
+      <tr>
+        <th><i class="fa fa-sitemap" aria-hidden="true" data-dc-tooltip="<%= concept_scheme.model_name.human(locale: active_ui_locale) %>"></i></th>
+        <th><i class="fa fa-list-ul" aria-hidden="true" data-dc-tooltip="<%= DataCycleCore::WatchList.model_name.human(locale: active_ui_locale) %>"></i> / <i class="fa fa-filter" aria-hidden="true" data-dc-tooltip="<%= DataCycleCore::StoredFilter.model_name.human(locale: active_ui_locale) %>"></i></th>
+        <th><i class="fa fa-hashtag" aria-hidden="true" data-dc-tooltip="<%= t("common.thing_count", locale: active_ui_locale) %>"></i></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><%= concept_scheme.name %></td>
+        <td><%= collection.name %></td>
+        <td><%= count %></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout warning">
+    <%= t('common.irreversible', locale: active_ui_locale) %>
+  </div>
+<% end %>

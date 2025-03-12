@@ -24,6 +24,8 @@ module DataCycleCore
 
               visibilities = visibility == false ? VISIBILITIES : VISIBILITIES.except(*Array.wrap(visibility))
 
+              next value if visibilities.blank?
+
               visibilities.values.reduce(&:deep_merge).deep_merge(value).with_indifferent_access
             end
 

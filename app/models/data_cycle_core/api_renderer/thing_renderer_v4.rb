@@ -48,7 +48,7 @@ module DataCycleCore
         params[:field_filter] ||= false
         params[:classification_trees_parameters] ||= []
         params[:classification_trees_filter] ||= false
-        params[:language] ||= Array(I18n.available_locales.first.to_s)
+        params[:language] ||= Array(I18n.default_locale.to_s)
         params[:expand_language] ||= false
         params[:api_context] ||= 'api'
         params[:api_version] = 4

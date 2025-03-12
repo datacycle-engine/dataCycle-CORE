@@ -169,6 +169,10 @@ class NewContentDialog {
 					label: target.dataset.primaryAttributeLabel,
 					template: this.templateTranslationPlural,
 				}),
+				confirmationHeaderText: await I18n.translate(
+					"frontend.upload.confirm_all_to_all_header",
+					{ template: this.templateTranslationPlural },
+				),
 				confirmationText: await I18n.translate("common.yes"),
 				cancelText: await I18n.translate("common.no"),
 				confirmationClass: "warning",
@@ -457,24 +461,10 @@ class NewContentDialog {
 	}
 	updateForm() {
 		this.updateCrumbs();
-		this.updateWarningLevel();
 
 		const activeFieldset = this.$form.find("fieldset.active");
 
-		if (
-			!(
-				activeFieldset.hasClass("iframe") ||
-				activeFieldset.hasClass("no-search-warning")
-			) ||
-			activeFieldset.hasClass("template")
-		)
-			this.$form.find(".search-warning").show();
-		else this.$form.find(".search-warning").hide();
-
-		if (
-			activeFieldset.hasClass("template") ||
-			activeFieldset.hasClass("no-search-warning")
-		) {
+		if (activeFieldset.hasClass("template")) {
 			this.enableForm();
 		} else if (this.$form.hasClass("disabled")) {
 			this.disableForm();
@@ -541,18 +531,6 @@ class NewContentDialog {
 
 		this.updateForm();
 	}
-	updateWarningLevel() {
-		if (this.$form.find("fieldset.active").hasClass("template"))
-			this.$form
-				.find("> .search-warning")
-				.removeClass("alert")
-				.addClass("warning");
-		else
-			this.$form
-				.find("> .search-warning")
-				.removeClass("warning")
-				.addClass("alert");
-	}
 	updateCrumbs() {
 		this.crumbs.html(
 			this.$form
@@ -601,7 +579,6 @@ class NewContentDialog {
 		this.form.classList.remove("disabled");
 	}
 	renderContentForm() {
-		this.hideSearchWarning();
 		this.removeOldFormFields();
 		this.addLoadingSpinner();
 		this.disableForm();
@@ -632,14 +609,6 @@ class NewContentDialog {
 
 		return promise;
 	}
-	hideSearchWarning() {
-		this.form
-			.querySelector(".search-warning")
-			?.style.setProperty("display", "none");
-	}
-	showSearchWarning() {
-		this.form.querySelector(".search-warning")?.style.removeProperty("display");
-	}
 	renderNewFormHtml(template, data) {
 		const contentFields = this.form.querySelector("fieldset.content-fields");
 		if (!contentFields) return this.renderLoadError();
@@ -654,10 +623,8 @@ class NewContentDialog {
 
 		if (data?.enable) {
 			this.enableForm();
-			this.hideSearchWarning();
 		} else {
 			this.disableForm();
-			this.showSearchWarning();
 		}
 
 		this.updateForm();

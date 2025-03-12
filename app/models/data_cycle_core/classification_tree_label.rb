@@ -424,7 +424,7 @@ module DataCycleCore
       sets_assignable = filtered_attributes.any? { |row| row.key?(:assignable) }
 
       do_classifications = 'DO NOTHING'
-      if upsert && I18n.locale == I18n.available_locales.first
+      if upsert && I18n.locale == I18n.default_locale
         do_classifications = <<-SQL.squish
           DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, uri = EXCLUDED.uri, updated_at = NOW()
         SQL
@@ -440,7 +440,7 @@ module DataCycleCore
           updated_at = NOW()
         SQL
 
-        if I18n.locale == I18n.available_locales.first
+        if I18n.locale == I18n.default_locale
           do_classification_aliases += <<-SQL.squish
           , internal_name = EXCLUDED.internal_name
           SQL

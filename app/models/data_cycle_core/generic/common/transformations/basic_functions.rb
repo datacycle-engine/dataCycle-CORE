@@ -17,6 +17,18 @@ module DataCycleCore
             data.slice(*keys.flatten)
           end
 
+          def self.ensure_keys(data, keys)
+            data = Dry::Transformer::HashTransformations.accept_keys(data, keys)
+            ensure_nil_defaults(data, keys)
+          end
+
+          def self.ensure_nil_defaults(data, keys)
+            keys.each do |key|
+              data[key] = nil if data[key].blank?
+            end
+            data
+          end
+
           def self.compact(data_hash)
             data_hash.compact
           end
@@ -55,6 +67,18 @@ module DataCycleCore
             )
 
             data_hash.merge({ 'geom' => RGeo::WKRep::WKBParser.new(factory).parse(geom) })
+          end
+
+          def self.geom_from_geojson(data_hash)
+            return data_hash if data_hash&.dig('geometry').blank?
+
+            @geo_factory_z = RGeo::Cartesian.simple_factory(srid: 4326, has_z_coordinate: true)
+
+            geom_decode = RGeo::GeoJSON.decode(data_hash['geometry'], geo_factory: @geo_factory_z)
+
+            return data_hash if geom_decode.blank?
+
+            data_hash.merge({ 'geom' => geom_decode })
           end
         end
       end

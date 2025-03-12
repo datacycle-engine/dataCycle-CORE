@@ -2,8 +2,10 @@
             method: :delete,
             class:'button-prime small alert clear-collection-link',
             data: {
-              confirm: "#{t('actions.clear', data: watch_list.name, locale: active_ui_locale)}",
+              confirm: "#{t('data_cycle_core.watch_list.clear_warning', data: watch_list.name, locale: active_ui_locale)}",
+              confirmation_text: t('actions.clear', locale: active_ui_locale) + tag.span(tag.i(class: 'fa fa-stack-2x fa-list-ul') + tag.i(class: 'fa fa-stack-1x fa-times'), class: 'fa-stack clear-collection-icon'),
+              confirmation_header_text: t('actions.clear_tooltip', data: watch_list.name, locale: active_ui_locale),
               dc_tooltip: t('actions.clear_tooltip', data: watch_list.name, locale: active_ui_locale)
             } do %>
-  <i class="fa fa-times" aria-hidden="true"></i>
+  <%= tag.span(tag.i(class: 'fa fa-stack-2x fa-list-ul') + tag.i(class: 'fa fa-stack-1x fa-times'), class: 'fa-stack clear-collection-icon') %>
 <% end %>

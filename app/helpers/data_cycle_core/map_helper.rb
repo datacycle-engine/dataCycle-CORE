@@ -23,7 +23,7 @@ module DataCycleCore
 
         feature = value_to_geojson(c.try(paths['geo'].to_s), geojson_properties(c, paths))
 
-        (values[key_prefix][:features]).push(feature) unless feature.nil?
+        values[key_prefix][:features].push(feature) unless feature.nil?
       end
       values.reject! { |_, v| v[:features].blank? }
       values

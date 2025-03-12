@@ -31,3 +31,7 @@ en:
       uuid_or_null_string?: "must be a valid UUID or a 'null' string"
       uuid?: "must be a valid UUID"
       api_weight_string?: "must be a valid weight string"
+      ruby_module_or_class?: "must be a valid Ruby module or class"
+      ruby_module?: "must be a valid Ruby module"
+      ruby_class?: "must be a valid Ruby class"
+      ruby_module_and_method?: "must be a hash with a valid combination of a Ruby module and method"

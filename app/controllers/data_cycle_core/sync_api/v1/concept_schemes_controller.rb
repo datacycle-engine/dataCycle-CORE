@@ -27,7 +27,7 @@ module DataCycleCore
           @concepts = @concept_scheme.concepts
           @concepts = @concepts.where(concepts: { updated_at: permitted_params[:updated_since].in_time_zone.. }) if permitted_params[:updated_since].present?
           @concepts = apply_paging(@concepts).without_count
-          @language = permitted_params[:language].presence || I18n.available_locales.first.to_s
+          @language = permitted_params[:language].presence || I18n.default_locale.to_s
 
           render json: I18n.with_locale(@language) { sync_api_format(@concepts).to_json }
         end

@@ -50,6 +50,7 @@ module DataCycleCore
         config << include_name if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
         config << include_dc_classification if field_required?('dc:classification')
         config << include_image if field_required?('image')
+        config << include_internal_content_score if field_required?('dc:contentScore')
 
         config
       end
@@ -57,8 +58,8 @@ module DataCycleCore
       private
 
       def field_required?(key)
-        @include_parameters&.any? { |p| p.first == key } ||
-          @fields_parameters&.any? { |p| p.first == key }
+        @include_parameters&.any? { |p| p.first.underscore == key.underscore } ||
+          @fields_parameters&.any? { |p| p.first.underscore == key.underscore }
       end
 
       def include_type
@@ -125,6 +126,17 @@ module DataCycleCore
                   INNER JOIN things ON things.id = content_content_links.content_b_id
                 WHERE content_content_links.relation = 'image'
               ) AS tmp2 ON tmp2.thing_id = things.id"
+        }
+      end
+
+      def include_internal_content_score
+        {
+          identifier: '"dc:contentScore"',
+          select: "MAX((thing_translations.content ->> 'internal_content_score')::integer) FILTER (
+            WHERE thing_translations.content ->> 'internal_content_score' IS NOT NULL
+          )",
+          joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
+                      AND thing_translations.locale = '#{I18n.locale}'"
         }
       end
 

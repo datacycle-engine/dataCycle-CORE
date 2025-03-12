@@ -48,6 +48,8 @@ en:
     Snowpark: Snowpark
     TouristDestination: Tourist destination
     ContentPage: Content page
+    SpecialAnnouncement: Announcement
+    WineSoil: Wine soil
 
     # embedded
     ContentBlockTextImage: Text with Image
@@ -359,10 +361,14 @@ en:
     new_classification_tree_label: create new classificationtree
     new_classification: create new classification
 
+  version_names:
+    mapped_concepts_to_property: "mapped classifications for %{data} have been assigned to the corresponding attribute"
+    remove_concepts_by_scheme: "assigned classifications for #{data} have been removed"
+
   user:
     user_not_confirmed: email address has not been confirmed yet
     confirm: confirm email
-    delete_user_html: delete user?
+    delete_user_html: really delete user <b>%{email}</b>?
     consents:
       header:
         terms_conditions: General Terms and Conditions (GTC) have been updated
@@ -408,7 +414,8 @@ en:
       remove_file: Remove file
       file: File
       confirm_single_to_all_html: "really apply %{label} to all %{template}?"
-      confirm_all_to_all_html: "<h5>Apply all attributes to all %{template}</h5><p>Should <b>%{label}</b> also be applied to all %{template}?</p>"
+      confirm_all_to_all_html: "Should <b>%{label}</b> also be applied to all %{template}?"
+      confirm_all_to_all_header: Apply all attributes to all %{template}
     cancel: Cancel
     ok: Okay
     content_lock:
@@ -700,8 +707,7 @@ en:
     height: Height
     width: Wide
     exclude: Exception
-    children_present_html:
-      "<br><br><b>Attention.</b><p>There are linked contents,
+    children_present_html: "<b>Attention.</b><p>There are linked contents,
       these are also deleted!</p>"
     creator: Creator
     abo_changed_title:
@@ -839,6 +845,14 @@ en:
     more_errors: "%{count} more errors"
     number: number
     preview_links: Preview links
+    or: or
+    irreversible: This action cannot be reversed.
+    thing_count: Number of affected contents
+    delete_all_translations_info: "All translations will be deleted.<br>This action cannot be undone."
+    delete_thing_linked_info: "Linked contents are not deleted."
+    delete_thing_translation_info_html: "Only the translation <b>(%{data})</b> is deleted."
+    delete_collection_info_html: "Only the %{type} is deleted.<br>The contents are NOT deleted from the system."
+    delete_collection_things_html: "This action cannot be undone.<br>The content is permanently deleted from the system."
 
   embedded:
     move_down: move down
@@ -1220,8 +1234,8 @@ en:
     in_schedule_types:
       absolute: Fixed period
       relative: Relative period
-      before: Sync and corrected by dr.jackson for
-      in: "on"
+      before: before
+      in: in
       num: Number
       unit: Unit
     shared_with: Shared with
@@ -1237,6 +1251,7 @@ en:
       not_exists: is system
       like: email contains
       not_like: email does not contain
+    content_ids: Content
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -1346,9 +1361,10 @@ en:
     edit_data: "edit %{data}"
     manage: "manage %{data}"
     lock: lock
-    unlock: Sync and corrected by dr.jackson for
+    unlock: unlock
     delete: delete
-    choose_type: Select content type
+    choose_type: select content type
+    choose_data: "select %{data}"
     new: Create %{data}
     new_asset: Save %{data}
     generate: Generate %{data}
@@ -1404,15 +1420,15 @@ en:
     processing_asset: File is being processed ...
     processing_image: Image is being processed ...
     searching: search
-    next: Go to
-    back: Back
+    next: next
+    back: back
     add_files: Add files
     delete_file: Really delete the file?
     delete_files: Really delete files?
     delete_all_files: Really delete ALL files?
     uploaded: Uploaded
     back_to_select: Back to the selection
-    delete_translation: Delete translation (%{data})
+    delete_translation: delete translation
     delete_with_translated_html:
       Delete embedded record?<br><br>Existing translations
       of this embedded record will also be deleted!
@@ -1429,7 +1445,7 @@ en:
     add_items_to_watch_list: add to %{data}
     add: add
     delete_items_in_watch_list_tooltip: Delete all contents from this content collection
-    delete_items_in_watch_list: "Do you really want to delete all contents from this content collection? <b>This action cannot be undone and will permanently delete the contents from the system.</b>"
+    delete_items_in_watch_list: "Do you really want to <b>delete all</b> contents from this content collection?<br><b>This action cannot be undone and will permanently delete the contents from the system.</b>"
     delete_items_in_watch_list_confirmation_text: "Delete all contents permanently"
     save_without_redirect: Save
     set_and_next: take over and continue
@@ -1438,14 +1454,51 @@ en:
     remove_locks: Release content for editing (remove lock)
     copyable_from: Apply %{data}
     copyable_from_clear: "%{data} discard"
-    logout: Logout
+    logout: logout
     clear_tooltip: "remove all contents from %{data}"
-    clear: "Do you really want to remove ALL contents from %{data}? This action does NOT delete the data from the system."
+    clear: remove
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
     set_gravity: "Set image gravity"
     deactivate_gravity_editor: "End editing"
     download_user_info_activity: "Download user activity"
+    cancel: cancel
+    delete_translation_confirmation_html: "really delete translation <b>(%{data})</b> from %{template} <b>%{title}</b>?"
+    delete_confirmation_html: "really delete %{type} <b>%{name}</b>?"
+
+  concept_scheme_unlink:
+    link_title: Remove direct assignment to contents
+    submit_button: remove assignment
+    warning_html:
+      zero: "There are no directly assigned classifications from <b>%{name}</b> to contents from the selected %{collection} <b>%{collection_name}</b>."
+      one: "<p>The following, directly assigned classifications will be removed!</p><p>Please check the information:</p>"
+      other: "<p>The following, directly assigned classifications will be removed!</p><p>Please check the information:</p>"
+    error: The assignment could not be removed
+    finished:
+      one: The assignment of <b>%{name}</b> to <b>%{count}</b> content from %{collection} <b>%{collection_name}</b> has been removed
+      other: The assignment of <b>%{name}</b> to <b>%{count}</b> contents from %{collection} <b>%{collection_name}</b> has been removed
+    enqueued: A job to remove the assignment has been created
+    version_name: assigned classifications for %{data} have been removed
+    info_html: all direct assignments of classifications from <b>%{name}</b> to contents from the selected <b>%{collection}</b> will be removed.
+    disconnected: The connection to the server has been interrupted. Please try again.
+    post_submit_info_html: "The removal of the assignment is carried out in the background.<br>It may take a moment until the job is started."
+
+  concept_scheme_link:
+    link_title: directly assign mapped classifications to contents
+    submit_button: assign classifications
+    warning_html:
+      zero: "no classifications from <b>%{name}</b> are indirectly assigned to contents from the selected %{collection} <b>%{collection_name}</b>."
+      one: <p>The following classifications, which are linked to the content via mappings, will be directly assigned to the content!</p><p>Please check the information:</p>
+      other: <p>The following classifications, which are linked to contents via mappings, will be directly assigned to the contents!</p><p>Please check the information:</p>
+    version_name: "mapped classifications for %{data} have been directly assigned to the corresponding attribute"
+    error: The classifications could not be assigned
+    finished:
+      one: The classifications from <b>%{name}</b> have been directly assigned to <b>%{count}</b> content from %{collection} <b>%{collection_name}</b>
+      other: The classifications from <b>%{name}</b> have been directly assigned to <b>%{count}</b> contents from %{collection} <b>%{collection_name}</b>
+    info_html: All classifications of the classification tree <b>%{name}</b>, which are linked to contents via mappings with the selected <b>%{collection}</b>, will be directly assigned to the contents.
+    disconnected: The connection to the server has been interrupted. Please try again.
+    post_submit_info_html: "The assignment of the classifications is carried out in the background.<br>It may take a moment until the job is started."
+
   validation:
     errors:
       slug: "%{data} is already the slug of another record."
@@ -1777,6 +1830,8 @@ en:
         visibility: Visibility
         change_behaviour: Change behavior
         external_key: external ID
+        internal: internal (system classification tree)
+        mappable: Klassifizierungen dürfen gemapped werden
       data_cycle_core/classification_alias:
         assignable: Assignable
         description: Description text
@@ -1789,6 +1844,7 @@ en:
         ui_configs: UI-Configuration
         ui_configs/color: Color
         ui_configs/icon: Icon
+        internal: internal (system classification)
       data_cycle_core/user_group:
         name: Name
         user_ids: User
@@ -1952,6 +2008,7 @@ en:
       update_params: save and apply search parameters
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)
+      clear_warning: <p>Do you really want to delete all contents from this collection?</p><div class="callout primary">This action will NOT delete the contents from the system.</div>
       mailer:
         subject:
           one: "Contents were added/removed to/from a %{type}."
@@ -2030,6 +2087,8 @@ en:
       description: Description
       text: Detailed description
       snow_report: Snow report
+      valley: Valley
+      mountain: Mountain
     booking:
       hotel_important_information: Important information
       hotel_description: Brief description
@@ -2088,6 +2147,15 @@ en:
       package:
         PackageShortText: Brief description
         Package: Description
+    tourdata:
+      OBJECT_TEXT_BESCHREIBUNG: Description
+      OBJECT_TEXT_TEASER: Short description
+      OBJECT_ANREISE: Arrival information
+      ROUTE_START: Starting point
+      ROUTE_ZIEL: Destination
+      ratings:
+        stamina_rating: Stamina
+        skill_rating: Skill
     outdoor_active:
       place:
         directions: Approach
@@ -2145,6 +2213,8 @@ en:
     imx_platform:
       description: Description
       text: Detailed description
+      shortDesc: Short description
+      longDesc: Detailed description
       startingPointDescr: Starting point description
       destination: Destination
       gettingThere: Getting there
@@ -2176,6 +2246,20 @@ en:
         noOpeningHours: Without opening hours
         permanentlyOpen: Always accessible
         openOnRequest: Open on request
+      seatsIndoor: Indoor seats
+      seatsOutdoor: Outdoor seats
+      winery:
+        cellarer: Cellarer
+        companyNumber: Company number
+        memberNumber: Member number
+        area: Vineyard area
+        annualProduction: Annual production
+        description: Winery description
+      winesoil:
+        area: Vineyard area (in ha)
+        soilCharacteristics: Soil characteristics
+        wineCharacteristics: Wine characteristics
+        soilNumber: Soil number
     gem2go:
       description: Description
     timm4:
@@ -2194,6 +2278,9 @@ en:
       timesComment: Entrance details
       menuDownload: Download menu
       recipeSuggestionDownload: Download suggested recipe
+      free_admission: Free admission
+      registration_required: Registration required
+      price_information: Price information
     toubiz:
       abstract: Abstract
       description: Description
@@ -2225,25 +2312,21 @@ en:
       kitchen_zeiten: Kitchen opening hours
       object_betriebsurlaub: Plant holidays
       price_info: Price information
-      price_reducedinfo: Price reduced information
+      price_reducedinfo: Discounts
+      price_info_extra: Price information
+      price_presale_html: Presale
       room_sonstige: Room miscellaneous
       route_start: Route start
       route_start_ort: Route start place
       route_ziel: Route destination
-      socialdescription: Social description
-      socialtitle: Social title
-      web_seo_beschreibung: web_seo_beschreibung
-      web_seo_keywords: web_seo_keywords
-      web_seo_titel: web_seo_titel
       additionaltext_feature_barrierefreiheit: Accessibility
       additionaltext_feature_eignung: Accessibility levels
       additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: hygiene and anti infection measures
       dayoff: Day off
       details: Details
+      details_speech: Details
+      details_infotext: Details
       directions: Directions
-      iframe_height: iframe_height
-      iframe_titel: iframe_title
-      iframe_url: iframe_url
       moreinfo: Additional information
       openings: Opening hours
       packagefeature: Package feature
@@ -2263,6 +2346,8 @@ en:
       tourmoreinfos_tip: Author tip
       tourmoreinfos_gettingthere: Getting there
       tourmoreinfos_parking: Parking
+      parking_fee: Parking fee
+      shuttle_service: Shuttle Service
     bierfinder:
       description: Description
       book: Description
@@ -2318,6 +2403,70 @@ en:
       roadmap: Roadmap
     museumsportal:
       opening_hours: Opening hours description
+    pimcore_ats:
+      description: Description
+      longDescription: Detailed descripton
+      shortDescription: Brief descripton
+      directions: Directions
+      parking: Parking
+      maps: Maps
+      shortText: Brief description
+      longText: Detailed description
+      additionalInformation: Additional Information
+      destination: Destination
+      gettingThere: Getting there
+      literature: Literature
+      startingPointDescr: Starting point description
+      tip: Tip
+      publicTransit: Public transit
+      equipment: Equipment
+      ratings:
+        difficulty_rating: Difficulty
+        condition_rating: Stamina
+        experience_rating: Experience
+        technique_rating: Technique
+    thue_cat:
+      description: Description
+      longDescription: Detailed descripton
+      shortDescription: Brief descripton
+      directions: Directions
+      parking: Parking
+      maps: Maps
+      shortText: Brief description
+      longText: Detailed description
+      additionalInformation: Additional Information
+      destination: Destination
+      gettingThere: Getting there
+      literature: Literature
+      startingPointDescr: Starting point description
+      tip: Tip
+      publicTransit: Public transit
+      equipment: Equipment
+      thuecat:distanceToPublicTransport: Distance to public transport
+      TrainStation: Train Station
+      MountainRailroad: Mountain Railway
+      BusTerminal: Bus Terminal
+      BicycleBus: Bicycle Bus
+      Coach: Long-Distance Bus
+      FerryEnum: Ferry Terminal
+      SchoolBus: School Bus
+      RegionalBus: Regional Bus
+      CityBus: City Bus
+      Streetcar: Streetcar
+      ForestRailroad: Forest Railway
+      HikingBus: Hiking Bus
+      Subway: Subway
+      thuecat:parkingFacility: Parking facilities
+      Thuecat:BusOrCoach: Bus or coach
+      thuecat:Car: Car
+      thuecat:HandicappedParking: Handicapped parking
+      thuecat:Motorcycle: Motorcycle
+      thuecat:ElectricVehicleCarChargingStationEnumMem: Electric car charging station
+    digitize_the_planet:
+      abstract: Description
+      abstract_short: Short description
+      geometry_source_organization: Geometry source
+      legal_doc: Legal document
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

@@ -1,0 +1,107 @@
+<div class="reveal-header"><%= t("concept_scheme_#{key}.link_title", locale: active_ui_locale) %></div>
+<div>
+  <%= form_for(:concept_scheme_link, url: send(:"#{key}_contents_classifications_path"), class: "concept-scheme-#{key}-form multi-step", namespace: "#{concept_scheme.id}_#{key}") do |f| %>
+    <div class="multi-step-crumbs"></div>
+    <%= f.hidden_field :id, value: concept_scheme.id %>
+
+    <fieldset class="active reveal-body">
+      <legend><%= t('actions.choose_data', data: DataCycleCore::Collection.model_name.human(locale: active_ui_locale), locale: active_ui_locale) %></legend>
+
+      <div class="form-element">
+        <span class="form-element-label"><%= DataCycleCore::ConceptScheme.model_name.human(count: 1, locale: active_ui_locale) %>:</span>
+        <span class="form-element-value"><b><%= concept_scheme.name %></b></span>
+      </div>
+
+      <div class="form-element">
+        <%= f.label :collection_id, safe_join([
+            DataCycleCore::Collection.model_name.human(locale: active_ui_locale),
+            tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) })
+          ]) %>
+        <div class="v-select white">
+          <%= f.select(
+              :collection_id,
+              [],
+              {
+                required: true
+              },
+              {
+                class: 'async-select',
+                data: {
+                  max: 20,
+                  placeholder: DataCycleCore::Collection.model_name.human(locale: active_ui_locale),
+                  search_path: select_search_or_collection_stored_filters_path
+                }
+              }) %>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <%= t("concept_scheme_#{key}.info_html", name: concept_scheme.name, collection: DataCycleCore::Collection.model_name.human(locale: active_ui_locale), locale: active_ui_locale) %>
+      </div>
+    </fieldset>
+
+    <fieldset class="reveal-body remote-render"
+              data-remote-path="data_cycle_core/classifications/concept_scheme_link_warning"
+              data-remote-options="<%= to_query_params({ concept_scheme:, key:, link_type: }).to_json %>"
+              data-step-identifier="warning">
+    </fieldset>
+
+    <div class="post-submit reveal-body step">
+      <div class="step-label"><%= t("concept_scheme_#{key}.submit_button", locale: active_ui_locale) %></div>
+      <div class="post-submit-text">
+        <div class="callout primary">
+          <%= t("concept_scheme_#{key}.post_submit_info_html", locale: active_ui_locale) %>
+        </div>
+      </div>
+
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+        <span class="progress-meter" style="width: 0%">
+          <span class="progress-meter-text">0%</span>
+        </span>
+      </div>
+
+      <table class="concept-link-result-table post-submit-result">
+        <thead>
+          <tr>
+            <th><i class="fa fa-sitemap" aria-hidden="true" data-dc-tooltip="<%= concept_scheme.model_name.human(locale: active_ui_locale) %>"></i></th>
+            <th><i class="fa fa-list-ul" aria-hidden="true" data-dc-tooltip="<%= DataCycleCore::WatchList.model_name.human(locale: active_ui_locale) %>"></i> / <i class="fa fa-filter" aria-hidden="true" data-dc-tooltip="<%= DataCycleCore::StoredFilter.model_name.human(locale: active_ui_locale) %>"></i></th>
+            <th><i class="fa fa-hashtag" aria-hidden="true" data-dc-tooltip="<%= t("common.thing_count", locale: active_ui_locale) %>"></i></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody class="post-submit-result-body"></tbody>
+      </table>
+    </div>
+
+    <div class="buttons reveal-footer">
+      <button class="prev" type="button" data-disable>
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        <%= t('actions.back', locale: active_ui_locale) %>
+      </button>
+
+      <button class="button hollow" data-close type="button" data-disable>
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <%= t('actions.cancel', locale: active_ui_locale) %>
+      </button>
+
+      <button class="button next" type="button" data-disable>
+        <%= t('actions.next', locale: active_ui_locale) %>
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </button>
+
+      <button class="button submit <%= key.include?('unlink') ? 'alert' : 'success' %>" type="submit" data-disable>
+        <%= t("concept_scheme_#{key}.submit_button", locale: active_ui_locale) %>
+        <i class="fa fa-link" aria-hidden="true"></i>
+      </button>
+
+      <button class="button post-submit" data-close type="button" data-disable>
+        <%= t('frontend.ok', locale: active_ui_locale) %>
+        <i class="fa fa-check" aria-hidden="true"></i>
+      </button>
+    </div>
+  <% end %>
+</div>
+
+<button class="close-button" data-close aria-label="Close modal" type="button">
+  <span aria-hidden="true">&times;</span>
+</button>

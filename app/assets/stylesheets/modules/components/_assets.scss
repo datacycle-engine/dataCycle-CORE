@@ -713,7 +713,7 @@ ul.asset-list>li .inner span.asset-file-links {
       height: 100%;
       width: 0;
       background: $primary-color;
-      transition: $global-transition;
+      transition: all linear 100ms;
     }
   }
 
@@ -900,7 +900,8 @@ ul.asset-list>li .inner span.asset-file-links {
 .new-content-reveal {
   .file-for-upload {
     border: none;
-    margin: -1rem -1rem 1rem -1rem;
+    margin: 0;
+    padding: 0;
 
     .new-asset-attributes {
       .file-info {

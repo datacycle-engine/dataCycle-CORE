@@ -40,12 +40,8 @@ module DataCycleCore
             ess.destroy_all
 
             template_names = Array.wrap(options.dig(:import, :template_name))
-            if template_names.present?
-              all_templates = DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').pluck(:template_name)
-
-              raise "Template names not found: #{template_names - all_templates}" if (template_names - all_templates).any?
-              contents = contents.where(template_name: template_names)
-            end
+            contents = contents.where(template_name: template_names) if template_names.present?
+            linked_template_names = Array.wrap(options.dig(:import, :linked_template_name))
 
             contents.each do |content|
               if content.available_locales.one? && content.available_locales.include?(I18n.locale)
@@ -60,7 +56,7 @@ module DataCycleCore
               end
 
               if oldest_import_duplicate.nil?
-                content.try(:destroy_content, save_history: true, destroy_linked: true, destroy_locale: true) # delete only a particular translation!
+                content.try(:destroy_content, save_history: true, destroy_linked: { template_names: linked_template_names }, destroy_locale: true) # delete only a particular translation!
               else
                 content.update_columns(external_source_id: oldest_import_duplicate.external_system_id, external_key: oldest_import_duplicate.external_key) unless DataCycleCore::Thing.exists?(
                   external_source_id: oldest_import_duplicate.external_system_id,

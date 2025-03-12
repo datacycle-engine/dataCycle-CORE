@@ -36,10 +36,9 @@ module DataCycleCore
           allowed_types_transformed = allowed_types[type.to_s].presence || allowed_types[type.to_s.sub('_type', '')]
           case data.dig(:data, :advancedType)
           when 'geo_radius'
-            allowed_types_transformed['geo_radius']
+            allowed_types_transformed.key?('geo_radius')
           when 'geo_within_classification'
-            Array.wrap(allowed_types_transformed['geo_within_classification'])
-              .include?(data.dig(:data, :name))
+            Array.wrap(allowed_types_transformed['geo_within_classification']).include?(data.dig(:data, :name))
           else
             false
           end
@@ -55,8 +54,13 @@ module DataCycleCore
 
         def default_type(type, data, *_args, key: :advancedType)
           allowed_types_transformed = allowed_types[type.to_s].presence || allowed_types[type.to_s.sub('_type', '')]
+          return true if allowed_types.key?(type.to_s) && allowed_types_transformed.nil?
           return true if ['all', true].include?(allowed_types_transformed)
           Array.wrap(allowed_types_transformed).include?(data.dig(:data, key))
+        end
+
+        def boolean_type(data, *args)
+          default_type(__method__, data, *args, key: :name)
         end
       end
     end

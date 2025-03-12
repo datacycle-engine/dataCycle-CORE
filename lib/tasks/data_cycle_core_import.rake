@@ -21,7 +21,7 @@ namespace :data_cycle_core do
         end
       end
 
-      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
       external_source.download(options)
       external_source.import(options)
     end
@@ -36,7 +36,7 @@ namespace :data_cycle_core do
         end
       end
 
-      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
       external_source.download(options)
     end
 
@@ -50,14 +50,14 @@ namespace :data_cycle_core do
         end
       end
 
-      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
       external_source.import(options)
     end
 
     desc 'Import a specific data_set from a given source'
     task :import_one, [:external_source_id, :stage, :external_key, :mode] => [:environment] do |_, args|
       options = args.to_h.symbolize_keys
-      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
       puts "importing from #{external_source.name} (#{external_source.id}) with external_key: #{options[:external_key]}"
       # puts 'Be aware that the data_set might not be updated if the data_hash detects that the old and the new data are the same!'
       external_source.import_one(options[:stage].to_sym, options[:external_key], {}, options[:mode] || 'full')
@@ -66,7 +66,7 @@ namespace :data_cycle_core do
     desc 'Download a specific data_set from a given source that supports it'
     task :download_one, [:external_source_id, :stage, :external_key] => [:environment] do |_, args|
       options = args.to_h.symbolize_keys
-      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
       puts "downloading from #{external_source.name} (#{external_source.id}) with external_key: #{options[:external_key]}"
       external_source.download_single(options[:stage].to_sym, { external_keys: Array.wrap(options[:external_key]), mode: 'full' })
     end
@@ -81,11 +81,11 @@ namespace :data_cycle_core do
         end
       end
 
-      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
-      options[:download_names].presence.split(',').each do |download_name|
+      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
+      options[:download_names].presence.split(/[,|]/).each do |download_name|
         external_source.download_single(download_name.squish.to_sym, options)
       end
-      options[:import_names].presence.split(',').each do |import_name|
+      options[:import_names].presence.split(/[,|]/).each do |import_name|
         external_source.import_single(import_name.squish.to_sym, options)
       end
     end
@@ -102,8 +102,8 @@ namespace :data_cycle_core do
         end
       end
 
-      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
-      options[:download_names].presence.split(',').each do |download_name|
+      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
+      options[:download_names].presence.split(/[,|]/).each do |download_name|
         external_source.download_single(download_name.squish.to_sym, options)
       end
     end
@@ -118,8 +118,8 @@ namespace :data_cycle_core do
         end
       end
 
-      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
-      options[:import_names].presence.split(',').each do |import_name|
+      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
+      options[:import_names].presence.split(/[,|]/).each do |import_name|
         external_source.import_single(import_name.squish.to_sym, options)
       end
     end

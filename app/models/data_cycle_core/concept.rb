@@ -51,16 +51,19 @@ module DataCycleCore
     scope :without_name, ->(*names) { where.not(name: names.flatten) }
     scope :order_by_similarity, lambda { |term|
                                   max_cardinality = ClassificationAlias::Path.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
+                                  order_string = (1..max_cardinality).map { |c| "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)" }.join(' + ')
+                                  order_string += ' DESC'
 
                                   joins(:classification_alias_path).reorder(nil).order(
-                                    [
-                                      Arel.sql(
-                                        (1..max_cardinality).map { |c|
-                                          "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)"
-                                        }.join(' + ') + ' DESC'.to_s
-                                      ),
-                                      {term:}
-                                    ]
+                                    Arel.sql(
+                                      ActiveRecord::Base.send(
+                                        :sanitize_sql_array,
+                                        [
+                                          order_string,
+                                          {term:}
+                                        ]
+                                      )
+                                    )
                                   )
                                 }
     scope :by_external_sources_and_keys, -> { _1.blank? ? none : where(Array.new(_1.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *_1.pluck(:external_source_id, :external_key).flatten) }

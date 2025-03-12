@@ -43,9 +43,9 @@ module DataCycleCore
             orientation = exif_value(image, ['Orientation'])
 
             if orientation&.include?('90') || orientation&.include?('270')
-              exif_value(image, ['ImageHeight'])&.to_i
-            else
               exif_value(image, ['ImageWidth'])&.to_i
+            else
+              exif_value(image, ['ImageHeight'])&.to_i
             end
           end
 

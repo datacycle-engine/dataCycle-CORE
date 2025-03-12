@@ -113,7 +113,7 @@ module DataCycleCore
           @classification_trees_filter = @classification_trees_parameters.present?
           @live_data = permitted_params[:'dc:liveData']
           @section_parameters = section_parameters
-          @language = parse_language(permitted_params[:language]).presence || Array(I18n.available_locales.first.to_s)
+          @language = parse_language(permitted_params[:language]).presence || Array(I18n.default_locale.to_s)
           @expand_language = false # TODO: language_mode = 'expanded' --> true, 'compact' --> false
           @api_subversion = permitted_params[:api_subversion] if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params[:api_subversion])
           @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)

@@ -359,6 +359,24 @@
         content: '\f0f6';
       }
     }
+
+    &.wine_soil {
+      &::before {
+        content: '\f18c';
+      }
+    }
+
+    &.special_announcement {
+      &::before {
+        content: '\f0a1';
+      }
+    }
+
+    &.occupancy_rate {
+      &::before {
+        content: '\f080';
+      }
+    }
   }
 
   &.wetterstation,

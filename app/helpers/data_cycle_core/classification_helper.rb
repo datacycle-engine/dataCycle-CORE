@@ -231,5 +231,13 @@ module DataCycleCore
         .to_h
         .transform_values { |tree_labels| tree_labels.sort_by { |ctl| ctl.name.to_s.downcase } }
     end
+
+    def concept_scheme_ccc_count(concept_scheme, collection, link_type)
+      DataCycleCore::CollectedClassificationContent.where(
+        link_type:,
+        classification_tree_label_id: concept_scheme.id,
+        thing_id: collection.things.reorder(nil).select(:id)
+      ).distinct.count(:thing_id)
+    end
   end
 end

@@ -97,7 +97,7 @@ module DataCycleCore
 
         assert_equal I18n.available_locales.size, test_image.translations.size
 
-        I18n.with_locale(I18n.available_locales.first) do
+        I18n.with_locale(I18n.default_locale) do
           test_image.destroy_content(destroy_locale: true)
         end
 

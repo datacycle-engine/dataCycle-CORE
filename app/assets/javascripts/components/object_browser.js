@@ -58,7 +58,6 @@ class ObjectBrowser {
 			submitWithoutRedirect: this.submitWithoutRedirectHandler.bind(this),
 			setContentIds: this.setContentIdsHandler.bind(this),
 			breadcrumbClick: this.breadcrumbClickHandler.bind(this),
-			import: this.import.bind(this),
 		};
 		this.overlayInitObserver = new MutationObserver(
 			this.initOverlay.bind(this),
@@ -773,10 +772,6 @@ class ObjectBrowser {
 		this.setPreselected();
 		this.updateChosenCounter();
 
-		$(window).on(
-			"message.object_browser onmessage.object_browser",
-			this.eventHandlers.import,
-		);
 		const loaded = $.map(
 			this.$element.find("> .media-thumbs > .object-thumbs > li.item"),
 			(val, i) => $(val).data("id"),
@@ -786,10 +781,6 @@ class ObjectBrowser {
 	}
 	closeOverlay(_ev) {
 		$(window).off("beforeunload", this.eventHandlers.pageLeave);
-		$(window).off(
-			"message.object_browser onmessage.object_browser",
-			this.eventHandlers.import,
-		);
 		$("#asset-upload-reveal-default").off("closed.zf.reveal");
 	}
 	breadcrumbClickHandler(event) {
@@ -803,30 +794,6 @@ class ObjectBrowser {
 			e.returnValue = "";
 
 			return e.returnValue;
-		}
-	}
-	// import media from media_archive reveal
-	import(event) {
-		if (event.originalEvent?.data?.action === "import") {
-			const promise = DataCycle.httpRequest("/things/import", {
-				method: "POST",
-				body: {
-					type: `${this.type}_object`,
-					data: event.originalEvent.data.data,
-					locale: this.locale,
-					key: this.key,
-					prefix: this.prefix,
-					definition: this.definition,
-					options: this.options,
-					editable: this.editable,
-					objects: this.chosen,
-				},
-			});
-			promise
-				.then(this.renderNewItems.bind(this))
-				.catch(this.renderLoadError.bind(this));
-
-			return promise;
 		}
 	}
 	filterItems(event = null) {

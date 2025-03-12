@@ -13,6 +13,7 @@ namespace :data_cycle_core do
       else
         puts AmazingPrint::Colors.red('🔥 the following errors were encountered during import:')
         ap errors
+        exit(-1)
       end
       puts "\n"
     end

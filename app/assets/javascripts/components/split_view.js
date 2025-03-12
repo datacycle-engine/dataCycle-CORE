@@ -572,7 +572,7 @@ class SplitView {
 		let sourceId;
 
 		if (sourceElement) {
-			sourceId = DomElementHelpers.randomId("focus-field");
+			sourceId = DomElementHelpers.randomId();
 			sourceElement.dataset.focusId = sourceId;
 		}
 

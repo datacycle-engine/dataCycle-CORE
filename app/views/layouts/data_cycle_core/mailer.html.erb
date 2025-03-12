@@ -2,7 +2,7 @@
 <% footer = render 'data_cycle_core/application/mailer/footer' %>
 
 <!DOCTYPE html>
-<html lang="<%= (@locale || I18n.available_locales.first).to_s %>">
+<html lang="<%= (@locale || I18n.default_locale).to_s %>">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">

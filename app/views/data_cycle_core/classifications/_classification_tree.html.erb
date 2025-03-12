@@ -12,7 +12,8 @@
                   dc_tooltip: classification_tree.sub_classification_alias.full_path
                 } %>
 
-    <%= link_to tag.i(class: 'fa fa-pencil'), '#',
+    <%= button_tag tag.i(class: 'fa fa-pencil'),
+                type: 'button',
                 class: 'edit',
                 data: {
                   dc_tooltip: t('actions.edit_data', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
@@ -23,16 +24,21 @@
                 class: 'destroy',
                 data: {
                   confirm: tag.div(class: 'remote-render', data: { remote_path: 'data_cycle_core/classifications/classification_alias_removal_warning', remote_options: CGI::escapeHTML(to_query_params(classification_alias: classification_tree.sub_classification_alias).to_json) }),
+                  confirmation_text: t('actions.delete', locale: active_ui_locale) + tag.i(class: 'fa fa-trash-o'),
+                  confirmation_header_text: t('actions.delete_with_data', data: tag.b(classification_tree.sub_classification_alias.full_path), locale: active_ui_locale),
                   disable_with: tag.i(class: 'fa fa-spinner fa-spin'),
                   dc_tooltip: t('actions.delete_with_data', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
                 } if can?(:destroy, classification_tree) %>
 
     <% if @classification_polygon_counts&.key?(classification_tree.sub_classification_alias.id) %>
       <% overlay_id = SecureRandom.hex(10) %>
-      <%= link_to tag.i(class: 'fa fa-map'), '#', class: 'polygon-map-link', data: {
-                    open: overlay_id,
-                    dc_tooltip: t('classification_administration.classification_polygon.link_tooltip', locale: active_ui_locale)
-                  } %>
+      <%= button_tag tag.i(class: 'fa fa-map'),
+                    type: 'button',
+                    class: 'polygon-map-link',
+                    data: {
+                      open: overlay_id,
+                      dc_tooltip: t('classification_administration.classification_polygon.link_tooltip', locale: active_ui_locale)
+                    } %>
 
       <div class="reveal classification-polygon-reveal" id="<%= overlay_id %>" data-reveal data-delayed-init>
         <h3><%= classification_title(classification_tree.sub_classification_alias) %></h3>
@@ -48,20 +54,6 @@
       </div>
     <% end %>
 
-    <%= link_to tag.i(class: 'fa fa-hashtag'), '#',
-              class: 'copy-to-clipboard',
-              data: {
-                value: classification_tree.sub_classification_alias.try(:id),
-                dc_tooltip: t('actions.copy_classification_alias_id_to_clipboard', locale: active_ui_locale)
-              } if can?(:copy_to_clipboard, classification_tree.sub_classification_alias) %>
-
-    <%= link_to tag.i(class: 'fa fa-clipboard'), '#',
-              class: 'copy-to-clipboard',
-              data: {
-                value: classifications_api_v4_concept_scheme_url(id: classification_tree_label.id, classification_id: classification_tree.sub_classification_alias.try(:id)),
-                dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale))
-              } if can?(:copy_api_link, classification_tree.sub_classification_alias) %>
-
     <%= link_to tag.i(class: 'fa fa-list'),
               root_path(mode: 'tree', ctl_id: classification_tree_label.id, reset: true, anchor: (Array.wrap(ancestors) + [classification_tree.id]).join('+')),
               class: 'contents-list',
@@ -69,6 +61,49 @@
               data: {
                 dc_tooltip: t('data_cycle_core.show_contents_for_tree_label', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
               } %>
+
+    <% content_for(:overflow_buttons, flush: true) do %>
+      <%= tag.li(
+            button_tag(
+              tag.i(class: 'fa fa-hashtag icon') + tag.span(t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: 'ID'), class: 'text'),
+              type: 'button',
+              class: 'copy-to-clipboard',
+              data: {
+                value: classification_tree.sub_classification_alias.try(:id),
+                dc_tooltip: t('actions.copy_classification_alias_id_to_clipboard', locale: active_ui_locale)
+              }
+            )
+          ) if can?(:copy_to_clipboard, classification_tree.sub_classification_alias) %>
+
+      <%= tag.li(
+            button_tag(
+              tag.i(class: 'fa fa-clipboard icon') + tag.span(t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale)), class: 'text'),
+              type: 'button',
+              class: 'copy-to-clipboard',
+              data: {
+                value: classifications_api_v4_concept_scheme_url(id: classification_tree_label.id, classification_id: classification_tree.sub_classification_alias.try(:id)),
+                dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale))
+              }
+            )
+          ) if can?(:copy_api_link, classification_tree.sub_classification_alias) %>
+    <% end %>
+
+    <% if content_for?(:overflow_buttons) %>
+      <div class="overflow-button-container">
+        <%= button_tag tag.i(class: 'fa fa-ellipsis-v '),
+                  type: 'button',
+                  class: 'overflow-dropdown-link',
+                  data: {
+                    toggle: "overflow-dropdown-#{classification_tree.id}"
+                  } %>
+
+        <div id="<%= "overflow-dropdown-#{classification_tree.id}" %>" class="overflow-dropdown-container dropdown-pane" data-dropdown>
+          <ul class="no-bullet list-items">
+            <%= yield_content!(:overflow_buttons) %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
 
     <%= tag.span(class: 'classification-color-icon copy-to-clipboard', style: classification_style(classification_tree.sub_classification_alias), data: { dc_tooltip: DataCycleCore::ClassificationAlias.human_attribute_name("ui_configs/color", locale: active_ui_locale), value: classification_tree.sub_classification_alias.color }) if classification_tree.sub_classification_alias.color? %>
 

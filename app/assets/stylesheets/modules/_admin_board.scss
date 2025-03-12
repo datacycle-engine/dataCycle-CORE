@@ -169,11 +169,11 @@
 
 .accordion.card.import-module {
   &.deactivated {
-    border-color: var(--nearly-white);
+    border-color: var(--very-light-gray);
 
     .card-divider {
-      border-color: var(--nearly-white);
-      background-color: var(--nearly-white);
+      border-color: var(--very-light-gray);
+      background-color: var(--very-light-gray);
 
       h5 {
         text-decoration: line-through;
@@ -225,7 +225,7 @@
   background-color: var(--light-gray);
 
   &.deactivated {
-    background-color: var(--nearly-white);
+    background-color: var(--very-light-gray);
   }
 
   .button-row {

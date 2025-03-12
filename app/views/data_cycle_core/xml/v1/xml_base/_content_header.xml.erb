@@ -11,4 +11,4 @@ options = default_options.merge(defined?(options) ? options || {} : {})
   <%= render *content_partial('context', content: content) %>
   <id><%=xml_v1_thing_url(id: content)%></id>
   <identifier><%=content.id%></identifier>
-  <url><%=send("#{content.model_name.element.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})%></url>
+  <url><%=send("#{content.model_name.element.tableize.singularize}_url", content, @language != I18n.default_locale.to_s ? { locale: @language } : {})%></url>

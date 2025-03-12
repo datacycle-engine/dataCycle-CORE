@@ -1,10 +1,11 @@
 <div class="reveal" id="<%= html_id %>" data-reveal>
-  <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h3>
+  <div class="reveal-header"><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></div>
   <%= form_with url: add_to_watchlist_stored_filters_path, local: true, namespace: SecureRandom.hex(10), class: 'add-items-to-watch-list-form' do |f| %>
-    <div class="validation-container form-element">
-      <%= f.label :watch_list_id, ActionView::OutputBuffer.new("#{DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
-      <div class="v-select white">
-        <%= f.select(:watch_list_id,
+    <div class="reveal-body">
+      <div class="validation-container form-element">
+        <%= f.label :watch_list_id, ActionView::OutputBuffer.new("#{DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
+        <div class="v-select white">
+          <%= f.select(:watch_list_id,
           [],
           {},
           {
@@ -17,14 +18,21 @@
               search_path: search_watch_lists_path
             }
           }) %>
+        </div>
       </div>
+      <div class="search-form-data"></div>
     </div>
-    <div class="search-form-data"></div>
-    <div class="buttons">
-      <%= f.button t('actions.add', locale: active_ui_locale),
+    <div class="buttons reveal-footer">
+      <%= f.button safe_join([
+          t('actions.add', locale: active_ui_locale),
+          tag.i(class: 'fa fa-plus')
+        ]),
         class: 'button primary',
         data: {
-          disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.add', locale: active_ui_locale)}"
+          disable_with: safe_join([
+            t('actions.add', locale: active_ui_locale),
+            tag.i(class: 'fa fa-spinner fa-spin fa-fw')
+          ])
         },
         type: :submit %>
     </div>

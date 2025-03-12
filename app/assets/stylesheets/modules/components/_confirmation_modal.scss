@@ -1,7 +1,10 @@
-.confirmation-modal {
-  padding: 3rem 0 0;
+.reveal.confirmation-modal {
   min-width: 20rem;
   word-wrap: break-word;
+
+  &:not(:has(.reveal-header)):has(.close-button) {
+    padding-top: 2rem;
+  }
 
   section.confirmation-section {
     display: none;
@@ -13,30 +16,11 @@
 
   .confirmation-text {
     text-align: center;
-    padding: 0 2rem;
   }
 
   .confirmation-info {
     position: absolute;
     top: 1rem;
     left: 1rem;
-  }
-
-  .confirmation-buttons {
-    width: 100%;
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(0, 1fr);
-    grid-gap: 1px;
-    margin-top: 2rem;
-    padding: 1px;
-
-    button,
-    .button {
-      line-height: 2rem;
-      position: relative;
-      font-weight: bold;
-      margin: 0;
-    }
   }
 }

@@ -81,7 +81,7 @@ module DataCycleCore
       alias sort_dct_created sort_created_at
 
       def sort_translated_name(ordering)
-        locale = @locale&.first || I18n.available_locales.first.to_s
+        locale = @locale&.first || I18n.default_locale.to_s
 
         reflect(
           query_without_order
@@ -95,7 +95,7 @@ module DataCycleCore
       alias sort_name sort_translated_name
 
       def sort_advanced_attribute(ordering, attribute_path)
-        locale = @locale&.first || I18n.available_locales.first.to_s
+        locale = @locale&.first || I18n.default_locale.to_s
 
         reflect(
           query_without_order
@@ -361,7 +361,7 @@ module DataCycleCore
 
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
-        locale = @locale&.first || I18n.available_locales.first.to_s
+        locale = @locale&.first || I18n.default_locale.to_s
         normalized_value = DataCycleCore::MasterData::DataConverter.string_to_string(value)
         return self if normalized_value.blank?
         search_string = normalized_value.split.join('%')
@@ -391,7 +391,7 @@ module DataCycleCore
         return self if value.blank?
 
         q = text_to_websearch_tsquery(value)
-        locale = @locale&.first || I18n.available_locales.first.to_s
+        locale = @locale&.first || I18n.default_locale.to_s
 
         reflect(
           query_without_order

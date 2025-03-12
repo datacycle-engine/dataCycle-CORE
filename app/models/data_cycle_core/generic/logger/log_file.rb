@@ -56,9 +56,7 @@ module DataCycleCore
           @log.info ["#{@kind.capitalize}ed".ljust(11), "#{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"].join
         end
 
-        def close
-          @log.close
-        end
+        delegate :close, to: :@log
       end
     end
   end

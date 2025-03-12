@@ -25,9 +25,11 @@ module DataCycleCore
             meta_value(computed_parameters.values.first, ['format', 'duration'])&.to_f
           end
 
-          def preview_image_start_time(content:, **_args)
-            content&.asset&.file&.blob&.preview_image&.purge
-            nil
+          def preview_image_start_time(computed_parameters:, **_args)
+            return if computed_parameters['asset'].blank?
+
+            video = DataCycleCore::Video.find_by(id: computed_parameters['asset'])
+            video&.file&.blob&.preview_image&.purge
           end
 
           def preview_url(computed_parameters:, **_args)

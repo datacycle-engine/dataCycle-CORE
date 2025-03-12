@@ -3,14 +3,15 @@
 <%= form_with(model: stored_search, namespace: SecureRandom.hex(10), local: true, url: stored_filters_path, method: :post, class: 'update-stored-search-form', data: {
   update_params: local_assigns[:update_params]
 }) do |f| %>
-  <% if local_assigns[:update_params].to_s == 'true' %>
-    <%= hidden_field_tag :update_filter_parameters, true %>
-    <div class="search-form-data"></div>
+  <div class="reveal-body">
+    <% if local_assigns[:update_params].to_s == 'true' %>
+      <%= hidden_field_tag :update_filter_parameters, true %>
+      <div class="search-form-data"></div>
 
-    <div class="form-element">
-      <%= f.label :id, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
-      <div class="v-select white">
-        <%= f.select(
+      <div class="form-element">
+        <%= f.label :id, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
+        <div class="v-select white">
+          <%= f.select(
             :id,
             stored_search.name.present? ? [stored_search.to_select_option&.to_option_for_select].compact : [],
             {
@@ -27,45 +28,45 @@
               }
             }
           ) %>
-      </div>
-    </div>
-  <% else %>
-    <div class="form-element">
-      <%= f.hidden_field :id %>
-
-      <%= f.label :name, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
-      <%= f.text_field :name, required: true %>
-    </div>
-  <% end %>
-
-  <div class="dynamic-form-parts">
-    <% if can?(:update_description, stored_search) %>
-      <div class="form-element description" data-key="stored_filter[description]">
-        <div class="editor-block">
-          <%= f.label :description %>
-          <% description_id = [f.options[:namespace], f.object_name, 'description'].compact.join('_') %>
-          <%= f.hidden_field :description %>
-
-          <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="none" data-default-value="<%= stored_search&.description %>">
-            <%= stored_search&.description&.html_safe %>
-          </div>
         </div>
+      </div>
+    <% else %>
+      <div class="form-element">
+        <%= f.hidden_field :id %>
+
+        <%= f.label :name, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
+        <%= f.text_field :name, required: true %>
       </div>
     <% end %>
 
-    <div class="form-element slug" data-key="stored_filter[slug]">
-      <%= f.label :slug do %>
-        <%= DataCycleCore::StoredFilter.human_attribute_name(:slug, locale: active_ui_locale) %>
+    <div class="dynamic-form-parts">
+      <% if can?(:update_description, stored_search) %>
+        <div class="form-element description" data-key="stored_filter[description]">
+          <div class="editor-block">
+            <%= f.label :description %>
+            <% description_id = [f.options[:namespace], f.object_name, 'description'].compact.join('_') %>
+            <%= f.hidden_field :description %>
+
+            <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="none" data-default-value="<%= stored_search&.description %>">
+              <%= stored_search&.description&.html_safe %>
+            </div>
+          </div>
+        </div>
       <% end %>
 
-      <%= f.text_field :slug %>
-    </div>
+      <div class="form-element slug" data-key="stored_filter[slug]">
+        <%= f.label :slug do %>
+          <%= DataCycleCore::StoredFilter.human_attribute_name(:slug, locale: active_ui_locale) %>
+        <% end %>
 
-    <% if can? :change_owner, stored_search %>
-      <div class="form-element owner">
-        <%= f.label :user_id, DataCycleCore::StoredFilter.human_attribute_name(:user_id, locale: active_ui_locale) %>
-        <div class="v-select white">
-          <%= f.select(
+        <%= f.text_field :slug %>
+      </div>
+
+      <% if can? :change_owner, stored_search %>
+        <div class="form-element owner">
+          <%= f.label :user_id, DataCycleCore::StoredFilter.human_attribute_name(:user_id, locale: active_ui_locale) %>
+          <div class="v-select white">
+            <%= f.select(
                   :user_id,
                   Array.wrap(stored_search.user).map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
                   {},
@@ -79,19 +80,19 @@
                     }
                   }
                 ) %>
+          </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
 
-    <div class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
-      <% if can?(:share, stored_search) %>
-        <fieldset class="accordion-item" data-accordion-item>
-          <a class="accordion-title"><%= t('data_cycle_core.stored_searches.form.shares', locale: active_ui_locale) %></a>
-          <div class="accordion-content" data-tab-content>
-            <div class="form-element shared_users">
-              <%= f.label :shared_user_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_users, locale: active_ui_locale) %>
-              <div class="v-select white">
-                <%= f.select(
+      <div class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+        <% if can?(:share, stored_search) %>
+          <fieldset class="accordion-item" data-accordion-item>
+            <a class="accordion-title"><%= t('data_cycle_core.stored_searches.form.shares', locale: active_ui_locale) %></a>
+            <div class="accordion-content" data-tab-content>
+              <div class="form-element shared_users">
+                <%= f.label :shared_user_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_users, locale: active_ui_locale) %>
+                <div class="v-select white">
+                  <%= f.select(
                   :shared_user_ids,
                   stored_search.shared_users.map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
                   {
@@ -107,13 +108,13 @@
                     }
                   }
                 ) %>
+                </div>
               </div>
-            </div>
 
-            <div class="form-element shared_user_groups">
-              <%= f.label :shared_user_group_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
-              <div class="v-select white">
-                <%= f.select(
+              <div class="form-element shared_user_groups">
+                <%= f.label :shared_user_group_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
+                <div class="v-select white">
+                  <%= f.select(
                     :shared_user_group_ids,
                     DataCycleCore::UserGroup.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
                     {
@@ -127,13 +128,13 @@
                       }
                     }
                   ) %>
+                </div>
               </div>
-            </div>
 
-            <div class="form-element shared_roles">
-              <%= f.label :shared_role_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
-              <div class="v-select white">
-                <%= f.select(
+              <div class="form-element shared_roles">
+                <%= f.label :shared_role_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
+                <div class="v-select white">
+                  <%= f.select(
                     :shared_role_ids,
                     DataCycleCore::Role.all.order(rank: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
                     {
@@ -147,27 +148,27 @@
                       }
                     }
                   ) %>
+                </div>
               </div>
             </div>
-          </div>
-        </fieldset>
-      <% end %>
+          </fieldset>
+        <% end %>
 
-      <% if can?(:create_api, stored_search) %>
-        <fieldset class="accordion-item" data-accordion-item>
-          <a class="accordion-title"><%= t('data_cycle_core.stored_searches.form.api', locale: active_ui_locale) %></a>
-          <div class="accordion-content" data-tab-content>
+        <% if can?(:create_api, stored_search) %>
+          <fieldset class="accordion-item" data-accordion-item>
+            <a class="accordion-title"><%= t('data_cycle_core.stored_searches.form.api', locale: active_ui_locale) %></a>
+            <div class="accordion-content" data-tab-content>
 
-            <div class="form-element dc-checkbox">
-              <%= f.check_box :api %>
-              <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
-            </div>
+              <div class="form-element dc-checkbox">
+                <%= f.check_box :api %>
+                <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
+              </div>
 
-            <% if can?(:share, stored_search) %>
-              <div class="form-element">
-                <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
-                <div class="v-select white">
-                  <%= f.select(
+              <% if can?(:share, stored_search) %>
+                <div class="form-element">
+                  <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
+                  <div class="v-select white">
+                    <%= f.select(
                     :linked_stored_filter_id,
                     [stored_search.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
                     {
@@ -182,13 +183,13 @@
                       }
                     }
                   ) %>
+                  </div>
                 </div>
-              </div>
 
-              <div class="form-element">
-                <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
-                <div class="v-select white">
-                  <%= f.select(
+                <div class="form-element">
+                  <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
+                  <div class="v-select white">
+                    <%= f.select(
                     :classification_tree_labels,
                     DataCycleCore::ClassificationTreeLabel.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
                     {
@@ -202,19 +203,27 @@
                       }
                     }
                   ) %>
+                  </div>
                 </div>
-              </div>
-            <% end %>
-          </div>
-        </fieldset>
-      <% end %>
+              <% end %>
+            </div>
+          </fieldset>
+        <% end %>
+      </div>
     </div>
   </div>
 
-  <div class="buttons">
-    <%= f.button t(local_assigns[:update_params].to_s == 'true' ? 'data_cycle_core.stored_searches.update_params' : 'actions.save', locale: active_ui_locale),
+  <div class="buttons reveal-footer">
+    <% save_text = t(local_assigns[:update_params].to_s == 'true' ? 'data_cycle_core.stored_searches.update_params' : 'actions.save', locale: active_ui_locale) %>
+    <%= f.button safe_join([
+          save_text,
+          tag.i(class: 'fa fa-check')
+        ]),
         data: {
-          disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.save', locale: active_ui_locale)}"
+          disable_with: safe_join([
+            save_text,
+            tag.i(class: 'fa fa-spinner fa-spin fa-fw')
+          ])
         },
         class: "success button",
         type: :submit %>

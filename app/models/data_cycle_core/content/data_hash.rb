@@ -504,7 +504,7 @@ module DataCycleCore
       end
 
       def set_classification_relation_ids(ids, relation_name, _tree_label, default_value, not_translated, _universal)
-        return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
+        return if not_translated && I18n.default_locale != I18n.locale && default_value.blank?
 
         present_relation_ids = send(relation_name).pluck(:id)
         ids = Array.wrap(ids).uniq

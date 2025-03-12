@@ -57,9 +57,9 @@ module DataCycleCore
             end
 
             options = options&.symbolize_keys || {}
-            options[:definition] ||= options[:base].properties_for(attribute)
+            options[:definition] = options[:base].properties_for(attribute) if options[:definition].blank?
             options[:ui_scope] = options[:ui_scope].to_s
-            options[:locale] ||= I18n.locale
+            options[:locale] = I18n.locale if options[:locale].blank?
             options[:count] ||= 1
             options[:locale_string] = true if options[:locale_string].nil?
 

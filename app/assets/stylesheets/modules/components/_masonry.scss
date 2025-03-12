@@ -61,28 +61,27 @@
 
     .content-link {
       padding: 0.9rem 1rem;
-      display: flex;
-      flex-flow: column nowrap;
+      display: grid;
       min-height: 100%;
     }
 
     .inner {
-      flex: auto;
-      display: flex;
-      flex-flow: column nowrap;
+      display: grid;
       width: 100%;
+      gap: 0.5rem;
 
       >* {
-        flex: auto;
-
         &.grid-thumbnails {
-          display: flex;
+          display: grid;
+          grid-auto-flow: column;
           align-items: flex-end;
+          grid-auto-columns: max-content;
           gap: 0.3rem;
         }
 
         &.tags {
-          display: flex;
+          display: grid;
+          grid-auto-flow: column;
           align-items: center;
         }
 

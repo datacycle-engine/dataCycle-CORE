@@ -112,7 +112,7 @@ module DataCycleCore
                     last_download = download_object.external_source.last_successful_try
                     if modified.present? && last_download.present?
                       updated_at = modified.call(item_data)
-                      item.data_has_changed = updated_at > last_download ? true : nil if updated_at.present?
+                      item.data_has_changed = updated_at > last_download || nil if updated_at.present?
                     end
                   end
 

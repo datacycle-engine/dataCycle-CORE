@@ -162,5 +162,8 @@ module DataCycleCore
         end
       end
     end
+
+    class NoValidClassificationAttributeError < StandardError
+    end
   end
 end

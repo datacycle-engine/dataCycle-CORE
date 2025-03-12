@@ -31,7 +31,15 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
-    scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where('identifier IN (:value) OR name IN (:value)', value:) }
+    scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where(identifier: value).or(where(name: value)) }
+    scope :by_names_identifiers_or_ids, lambda { |value|
+      return none if value.blank?
+
+      ids = Array.wrap(value).filter(&:uuid?)
+      query = where(identifier: value).or(where(name: value))
+      query = query.or(where(id: ids)) if ids.present?
+      query
+    }
 
     validates :name, presence: true
 
@@ -322,6 +330,12 @@ module DataCycleCore
         service: external_systems.filter(&:service_module?).as_json(only: [:id, :name, :identifier]),
         foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name, :identifier])
       }.with_indifferent_access
+    end
+
+    def endpoint_module
+      return if module_base.blank?
+
+      MasterData::ImportExternalSystems.full_module_path(module_base, 'Endpoint')&.safe_constantize
     end
   end
 end

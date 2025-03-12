@@ -70,7 +70,8 @@ module DataCycleCore
       private
 
       def translated_headings
-        @data.columns.map { |key| I18n.t "feature.report_generator.headings.#{key}", default: key, locale: @locale }
+        keys = Array.wrap(@data.is_a?(PG::Result) ? @data.fields : @data.columns)
+        keys.map { |key| I18n.t "feature.report_generator.headings.#{key}", default: key, locale: @locale }
       end
     end
   end

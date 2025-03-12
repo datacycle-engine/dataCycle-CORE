@@ -58,6 +58,7 @@ module DataCycleCore
       include Extensions::Geo
       include Extensions::Thing
       include Extensions::Slug
+      include Extensions::ConceptTransformations
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
@@ -170,7 +171,7 @@ module DataCycleCore
 
       def content_template
         return @content_template if defined? @content_template
-        @content_template = DataCycleCore::Thing.new(template_name:)
+        @content_template = DataCycleCore::Thing.new(thing_template:)
       end
 
       def content_type?(*types)
@@ -224,7 +225,8 @@ module DataCycleCore
       alias properties property_names
 
       def properties_for(property_name, include_overlay = false)
-        include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name] : property_definitions[property_name]
+        return if property_name.blank?
+        include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name.to_s] : property_definitions[property_name.to_s]
       end
 
       def overlay_property_names_for(property_name, include_overlay = false)
@@ -266,9 +268,7 @@ module DataCycleCore
       def untranslatable_property_names
         return @untranslatable_property_names if defined? @untranslatable_property_names
 
-        @untranslatable_property_names = property_definitions.reject { |property_name, definition|
-          translatable_property?(property_name, definition)
-        }.keys
+        @untranslatable_property_names = property_names - translatable_property_names
       end
 
       def combined_property_names(api_version = nil)
@@ -303,7 +303,7 @@ module DataCycleCore
       end
 
       def virtual_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['virtual'].present? }
+        name_property_selector(include_overlay) { |definition| definition.key?('virtual') }
       end
 
       def table_property_names(include_overlay = false)
@@ -335,10 +335,7 @@ module DataCycleCore
       end
 
       def computed_property_names(include_overlay = false)
-        @computed_property_names ||= Hash.new do |h, key|
-          h[key] = name_property_selector(key) { |definition| definition['compute'].present? }
-        end
-        @computed_property_names[include_overlay]
+        name_property_selector(include_overlay) { |definition| definition.key?('compute') }
       end
 
       def resolved_computed_dependencies(key, datahash = {})
@@ -352,14 +349,15 @@ module DataCycleCore
       end
 
       def default_value_property_names(include_overlay = false)
-        @default_value_property_names ||= Hash.new do |h, key|
-          h[key] = name_property_selector(key) { |definition| definition['default_value'].present? }
-        end
-        @default_value_property_names[include_overlay]
+        name_property_selector(include_overlay) { |definition| definition.key?('default_value') }
       end
 
       def classification_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def classification_properties(include_overlay = false)
+        property_selector(include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def asset_property_names
@@ -592,9 +590,7 @@ module DataCycleCore
         DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition)
       end
 
-      def convert_to_string(type, value)
-        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
-      end
+      delegate :convert_to_string, to: :'DataCycleCore::MasterData::DataConverter'
 
       def parent_templates
         DataCycleCore::ThingTemplate
@@ -652,7 +648,7 @@ module DataCycleCore
         tree_label_names = ordered_properties.values.pluck('tree_label').compact.uniq
         tree_labels = DataCycleCore::ClassificationTreeLabel.where(name: tree_label_names).index_by(&:name) if tree_label_names.present?
 
-        ordered_properties = ordered_properties.keep_if do |_, v|
+        ordered_properties.keep_if do |_, v|
           v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(tree_labels[v['tree_label']], 'edit')
         end
 

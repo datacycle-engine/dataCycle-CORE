@@ -4,6 +4,7 @@ module DataCycleCore
   module Generic
     module Logger
       class Console
+        # rubocop:disable Rails/Output
         def initialize(kind)
           @kind = kind
         end
@@ -41,6 +42,7 @@ module DataCycleCore
         def phase_finished(label, total)
           puts ["#{@kind.capitalize}ed".ljust(10), "#{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"].join
         end
+        # rubocop:enable Rails/Output
       end
     end
   end

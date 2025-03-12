@@ -77,8 +77,8 @@ $global-radius: 5px;
 $global-text-direction: ltr;
 $global-flexbox: false;
 $print-transparent-backgrounds: true;
-$color-transition: color 0.1s ease;
-$opacity-transition: opacity 0.25s ease-out;
+$color-transition: color 100ms linear;
+$opacity-transition: opacity 150ms ease;
 $border-color-transition: border-color 0.25s ease-out;
 $global-transition: all 0.25s ease-out;
 $global-backdrop-filter: saturate(0.5) blur(5px);
@@ -111,11 +111,10 @@ $gray: #666666;
   --alert-color: #{$alert-color};
   --light-gray: #{$light-gray};
   --medium-gray: #{$medium-gray};
-  --medium-dark-gray: #bbbbbb;
+  --medium-dark-gray: #cccccc;
   --dark-gray: #{$dark-gray};
   --darker-gray: #666666;
   --dark-gray-05: rgba(157, 157, 157, 0.5);
-  --nearly-white: #f3f3f3;
   --black: #{$black};
   --white: #{$white};
   --violet: #{$violet};
@@ -143,6 +142,11 @@ $gray: #666666;
   --medium-radius: 5px;
   --large-radius: 10px;
   --attribute-label-color: #666666;
+  --absolute-black: #000000;
+  --very-light-gray: #efefef;
+  --nearly-white: #f8f8f8;
+  --absolute-white: #ffffff;
+  --black03: rgba($black, 0.3);
 }
 
 // 2. Breakpoints

@@ -1,0 +1,104 @@
+.multi-step {
+
+  fieldset,
+  .step {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+
+    &:not(.active) {
+      display: none;
+    }
+
+    &.active:not(.post-submit)~.buttons {
+      button.post-submit {
+        display: none;
+      }
+    }
+
+    &.active:first-of-type~.buttons {
+      button.prev {
+        display: none;
+      }
+    }
+
+    &.active:not(:last-of-type)~.buttons {
+      button.submit {
+        display: none;
+      }
+    }
+
+    &.active:last-of-type~.buttons {
+      button.next {
+        display: none;
+      }
+    }
+
+    &.active.post-submit~.buttons {
+      > :not(button.post-submit) {
+        display: none;
+      }
+    }
+
+    legend,
+    .step-label {
+      display: none;
+    }
+
+    .form-element {
+
+      .form-element-label,
+      .form-element-value {
+        font-size: 1rem;
+      }
+
+      .v-select.white {
+        margin-bottom: 0;
+      }
+    }
+
+    *:last-child {
+      margin-bottom: 0;
+    }
+
+    >* {
+      margin-bottom: 0;
+    }
+  }
+
+  .form-element {
+    .v-select {
+      .select2 .select2-selection.select2-selection--single .select2-selection__arrow {
+        top: 1px;
+        height: 100%;
+        bottom: unset;
+        right: 1px;
+      }
+    }
+  }
+
+  button.prev {
+    margin-right: auto;
+    font-weight: normal;
+  }
+
+  .multi-step-crumbs {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: start;
+    font-weight: 300;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.1rem;
+    font-weight: 300;
+    padding: 0.7rem 1rem;
+
+    a {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}

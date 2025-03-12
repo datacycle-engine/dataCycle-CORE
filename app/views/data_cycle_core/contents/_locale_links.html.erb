@@ -14,9 +14,16 @@
                       method: :delete,
                       class:'delete-translation-link',
                       data: {
-                          confirm: "#{t('actions.delete_translation', data: locale.first, locale: active_ui_locale)}?"
+                        confirm: safe_join([
+                          tag.p(t('actions.delete_translation_confirmation_html', template: content.translated_template_name(active_ui_locale), title: content.try(:title), data: locale.first, locale: active_ui_locale)),
+                          tag.div(t('common.delete_thing_translation_info_html', data: locale.first, locale: active_ui_locale), class: 'callout primary'),
+                          tag.div(t('common.irreversible', locale: active_ui_locale), class: 'callout warning')
+                        ].compact_blank),
+                        confirmation_text: t('actions.delete_translation', locale: active_ui_locale) + tag.i(class: 'fa fa-trash-o'),
+                        confirmation_header_text: t('actions.delete_translation', locale: active_ui_locale),
+                        dc_tooltip: t('actions.delete_translation', locale: active_ui_locale).capitalize
                       },
-                      title: t('actions.delete_translation', data: locale.first, locale: active_ui_locale).capitalize, aria_haspopup: true do %>
+                      aria_haspopup: true do %>
                 <i class="fa fa-trash-o" aria-hidden="true"></i>
               <% end %>
             </span>

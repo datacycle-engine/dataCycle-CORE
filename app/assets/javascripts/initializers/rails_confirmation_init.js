@@ -1,20 +1,21 @@
-import ConfirmationModal from './../components/confirmation_modal';
+import ConfirmationModal from "./../components/confirmation_modal";
 
 export default function () {
-  Rails.confirm = function (message, element) {
-    if (element.dataset.confirmed) return true;
+	Rails.confirm = (message, element) => {
+		if (element.dataset.confirmed) return true;
 
-    new ConfirmationModal({
-      text: message,
-      confirmationText: element.dataset.confirmationText,
-      confirmationClass: 'alert',
-      cancelable: true,
-      confirmationCallback: () => {
-        element.dataset.confirmed = true;
-        element.click();
-      }
-    });
+		new ConfirmationModal({
+			text: message,
+			confirmationText: element.dataset.confirmationText,
+			confirmationHeaderText: element.dataset.confirmationHeaderText,
+			confirmationClass: "alert",
+			cancelable: true,
+			confirmationCallback: () => {
+				element.dataset.confirmed = true;
+				element.click();
+			},
+		});
 
-    return false;
-  };
+		return false;
+	};
 }

@@ -170,7 +170,11 @@ module DataCycleCore
               data_template = @template_definitions.shift
               template = data_template[:data]
 
-              next @template_definitions.push(data_template) unless template_dependencies_ready?(template)
+              unless template_dependencies_ready?(template)
+                additional_templates = @template_definitions.extract! { |dt| dt.dig(:data, :name) == template[:name] }
+                @template_definitions.push(data_template, *additional_templates)
+                next
+              end
 
               data = extend_template_data(template:, data_template:)
               next if data.nil?
@@ -315,7 +319,7 @@ module DataCycleCore
         def template_dependencies_ready?(template)
           return true unless template.key?(:extends)
 
-          extends_templates = Array.wrap(template[:extends])
+          extends_templates = Array.wrap(template[:extends]).dup
 
           # check if all BaseTemplates for extends templates exist
           return false unless base_templates_exist?(extends_templates)
