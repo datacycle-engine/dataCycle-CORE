@@ -28,7 +28,7 @@ module DataCycleCore
         opts = options.deep_merge(override_opts)
         return if opts&.dig(:download, :endpoint).blank?
 
-        changed_from = external_source.last_successful_download
+        changed_from = external_source.last_try_successful
         changed_from = nil if FULL_MODES.include?(mode.to_s)
         endpoint_options_params = opts.except(:download, :credentials, :external_source).merge(changed_from:)
         endpoint_params = opts[:credentials].symbolize_keys

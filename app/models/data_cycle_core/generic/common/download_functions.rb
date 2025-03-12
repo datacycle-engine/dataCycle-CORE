@@ -109,7 +109,7 @@ module DataCycleCore
                   item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
 
                   if item.data_has_changed.nil?
-                    last_download = download_object.external_source.last_successful_download
+                    last_download = download_object.external_source.last_try_successful
                     if modified.present? && last_download.present?
                       updated_at = modified.call(item_data)
                       item.data_has_changed = updated_at > last_download ? true : nil if updated_at.present?
@@ -198,7 +198,7 @@ module DataCycleCore
                       item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
 
                       if item.data_has_changed.nil? && modified.present?
-                        last_download = download_object.external_source.last_successful_download
+                        last_download = download_object.external_source.last_try_successful
                         if last_download.present?
                           updated_at = modified.call(item_data)
                           item.data_has_changed = updated_at > last_download if updated_at.present?
@@ -276,7 +276,7 @@ module DataCycleCore
 
                   data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                   item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(language, 'mark_for_update').present?
-                  item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
+                  item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_try_successful
 
                   data_hash = cleanup_data.call(data_hash) if cleanup_data.present?
                   item.data_has_changed = diff?(item.dump[language].as_json, data_hash.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
@@ -330,7 +330,7 @@ module DataCycleCore
                     item.data_has_changed = nil if item.data_has_changed == false # reset data_has_changed if it was false in previous
                     data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                     item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(key, 'mark_for_update').present?
-                    item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
+                    item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_try_successful
                     data_hash = cleanup_data.call(data_hash) if cleanup_data.present?
                     item.data_has_changed = diff?(item.dump[key].as_json, data_hash.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                     item.dump[key] = data_hash
@@ -391,7 +391,7 @@ module DataCycleCore
 
         def self.mark_deleted(download_object:, data_id:, **keyword_args)
           with_logging(download_object:, data_id:, **keyword_args) do |options, _step_label|
-            deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
+            deleted_from = download_object.external_source.last_try_successful || Time.zone.local(2010)
             locale = options[:locales].first
             item_count = 0
 
@@ -498,7 +498,7 @@ module DataCycleCore
           with_logging(download_object:, iterator:, dependent_keys:, iterate_locales: false, **keyword_args) do |options, step_label|
             fixnum_max = ((2**((0.size * 4) - 2)) - 1)
             locales = (options[:locales] || I18n.available_locales).map(&:to_s)
-            deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
+            deleted_from = download_object.external_source.last_try_successful || Time.zone.local(2010)
             item_count = 0
             affected_keys = {}
             endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s

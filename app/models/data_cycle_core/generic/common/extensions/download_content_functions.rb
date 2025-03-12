@@ -164,7 +164,7 @@ module DataCycleCore
 
           def source_filter(download_object:, options:, locale:)
             source_filter = source_filter_base(download_object: download_object, options: options, locale: locale)
-            last_download = download_object.external_source.last_successful_download
+            last_download = download_object.external_source.last_try_successful
             source_filter[:updated_at] = { '$gte': last_download } if last_download.present? && FULL_MODES.exclude?(options[:mode].to_s)
 
             source_filter.with_indifferent_access
