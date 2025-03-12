@@ -146,6 +146,8 @@ module DataCycleCore
       def import_step(name, options = {}, config = {})
         raise "missing config for name: #{name}" if config.blank?
 
+        last_start = Time.zone.now
+
         type = config.key?('import_strategy') ? :import : :download
         full_options = options_for_step(name, options, config, type)
         strategy = full_options.dig(type, :"#{type}_strategy")&.safe_constantize
@@ -153,7 +155,25 @@ module DataCycleCore
 
         strategy_method = strategy.respond_to?(:import_data) ? :import_data : :download_content
         utility_object = utility_object_for_step(type, full_options)
-        strategy.send(strategy_method, utility_object:, options: full_options)
+
+        merge_last_import_step_time_info(name, {last_try: last_start})
+        update_columns(last_import_step_time_info: last_import_step_time_info)
+
+        success = strategy.send(strategy_method, utility_object:, options: full_options)
+      ensure
+        duration = Time.zone.now - last_start
+        update_info = {
+          last_try_time: duration
+        }
+        if success
+          update_info = update_info.merge({
+            last_try_successful: last_start,
+            last_try_successful_time: duration
+          })
+        end
+
+        merge_last_import_step_time_info(name, update_info)
+        update_columns(last_import_step_time_info: last_import_step_time_info)
       end
 
       def import_one(name, external_key, options = {}, mode = 'full')
