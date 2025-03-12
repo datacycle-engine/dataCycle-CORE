@@ -6,7 +6,8 @@ module DataCycleCore
       PROPERTIES_WITH_MODULE_PATHS = [
         'endpoint',
         'download_strategy',
-        'import_strategy'
+        'import_strategy',
+        'module'
       ].freeze
 
       DEFAULTS = {
@@ -119,9 +120,22 @@ module DataCycleCore
         return if value.blank? || module_base.blank?
 
         value.each do |key, v|
-          next unless v.is_a?(String) && PROPERTIES_WITH_MODULE_PATHS.include?(key)
+          value[key] = transform_module_paths(key, v, module_base)
+        end
+      end
 
-          value[key] = full_module_path(module_base, v)
+      def self.transform_module_paths(key, value, module_base)
+        return value if value.blank? || module_base.blank?
+
+        case value
+        when Hash
+          value.to_h { |k, v| [k, transform_module_paths(k, v, module_base)] }
+        when Array
+          value.map { |v| transform_module_paths(nil, v, module_base) }
+        when String
+          key&.in?(PROPERTIES_WITH_MODULE_PATHS) ? full_module_path(module_base, value) : value
+        else
+          value
         end
       end
 
@@ -129,16 +143,14 @@ module DataCycleCore
         return module_name if module_base.blank?
         return module_name if module_name.safe_constantize&.class&.in?([Module, Class])
 
-        module_path = "#{module_base}::#{module_name}"
-        return module_path if module_path.safe_constantize&.class&.in?([Module, Class])
+        first_existing_module_path?(module_name, [module_base, "#{module_base}::#{namespace}", DEFAULT_MODULE_BASE]) || module_name
+      end
 
-        module_path = "#{module_base}::#{namespace}::#{module_name}"
-        return module_path if module_path.safe_constantize&.class&.in?([Module, Class])
-
-        module_path = "#{DEFAULT_MODULE_BASE}::#{module_name}"
-        return module_path if module_path.safe_constantize&.class&.in?([Module, Class])
-
-        module_name
+      def self.first_existing_module_path?(module_name, module_bases)
+        module_bases.reduce do |_, module_base|
+          module_path = "#{module_base}::#{module_name}"
+          break module_path if module_path.safe_constantize&.class&.in?([Module, Class])
+        end
       end
 
       def self.validate(data_hash)
