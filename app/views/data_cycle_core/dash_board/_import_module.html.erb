@@ -41,18 +41,18 @@
             <% data[:last_import_step_time_info].each do |key, value| %>
               <%= key %>:
               <ul class="no-bullet import-data-timestamps">
-                <% if value.dig('last_try_successful').present? && value.dig('last_try') != value.dig('last_try_successful') %>                
-                  <li class="last-successful-download check-icon" >
-                    <%= import_data_time(Time.parse(value.dig('last_try_successful'))) %>
-                    <% if value.dig('last_try_successful').present? %>
-                      (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_successful_time'), locale: active_ui_locale)%>)
+                <% if value.dig('last_successful_try').present? && value.dig('last_try') != value.dig('last_successful_try') %>                
+                  <li class="last-successful-import check-icon" >
+                    <%= import_data_time(Time.parse(value.dig('last_successful_try'))) %>
+                    <% if value.dig('last_successful_try_time').present? %>
+                      (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_successful_try_time'), locale: active_ui_locale)%>)
                     <% end %>
                   </li>
                 <% end %>
-                <li class="last-download <%= value.dig('last_try_class') %>" >
+                <li class="last-import <%= value.dig('last_try_class') %>" >
                   <%= import_data_time(Time.parse(value.dig('last_try'))) %>
-                  <% if data.dig(:last_successful_download_time).present? %>
-                    (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_successful_time'), locale: active_ui_locale)%>)
+                  <% if data.dig('last_try_time').present? %>
+                    (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_time'), locale: active_ui_locale)%>)
                   <% end %>
                 </li>
               </ul>

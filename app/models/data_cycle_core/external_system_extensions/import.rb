@@ -167,8 +167,8 @@ module DataCycleCore
         }
         if success
           update_info = update_info.merge({
-            last_try_successful: last_start,
-            last_try_successful_time: duration
+            last_successful_try: last_start,
+            last_successful_try_time: duration
           })
         end
 

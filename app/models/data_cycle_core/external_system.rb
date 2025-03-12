@@ -105,16 +105,16 @@ module DataCycleCore
       last_import_step_time_info.dig(step, 'last_try')
     end
 
-    def last_try_successful(step)
-      last_import_step_time_info.dig(step, 'last_try_successful')
+    def last_successful_try(step)
+      last_import_step_time_info.dig(step, 'last_successful_try')
     end
 
     def last_try_time(step)
       last_import_step_time_info.dig(step, 'last_try_time')
     end
 
-    def last_try_successful_time(step)
-      last_import_step_time_info.dig(step, 'last_try_successful_time')
+    def last_successful_try_time(step)
+      last_import_step_time_info.dig(step, 'last_successful_try_time')
     end
 
     def merge_last_import_step_time_info(step, values = {})

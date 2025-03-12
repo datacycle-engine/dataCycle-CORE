@@ -72,9 +72,9 @@ describe DataCycleCore::ExternalSystem do
     end
 
     assert(subject.last_try('places').present?)
-    assert(subject.last_try_successful('places').present?)
     assert(subject.last_try_time('places').present?)
-    assert(subject.last_try_successful_time('places').present?)
+    assert(subject.last_successful_try('places').present?)
+    assert(subject.last_successful_try_time('places').present?)
   end
 
   it 'import step fails' do
@@ -88,8 +88,8 @@ describe DataCycleCore::ExternalSystem do
 
     assert(subject.last_try('places').present?)
     assert(subject.last_try_time('places').present?)
-    assert(subject.last_try_successful('places').nil?)
-    assert(subject.last_try_successful_time('places').nil?)
+    assert(subject.last_successful_try('places').nil?)
+    assert(subject.last_successful_try_time('places').nil?)
   end
 
   it 'import step error' do
@@ -106,8 +106,8 @@ describe DataCycleCore::ExternalSystem do
 
     assert(subject.last_try('places').present?)
     assert(subject.last_try_time('places').present?)
-    assert(subject.last_try_successful('places').nil?)
-    assert(subject.last_try_successful_time('places').nil?)
+    assert(subject.last_successful_try('places').nil?)
+    assert(subject.last_successful_try_time('places').nil?)
   end
 
   it 'download successful' do
@@ -121,13 +121,13 @@ describe DataCycleCore::ExternalSystem do
 
     assert(subject.last_try('places').present?)
     assert(subject.last_try_time('places').present?)
-    assert(subject.last_try_successful('places').present?)
-    assert(subject.last_try_successful_time('places').present?)
+    assert(subject.last_successful_try('places').present?)
+    assert(subject.last_successful_try_time('places').present?)
 
     assert(subject.last_try('places_detail').present?)
     assert(subject.last_try_time('places_detail').present?)
-    assert(subject.last_try_successful('places_detail').present?)
-    assert(subject.last_try_successful_time('places_detail').present?)
+    assert(subject.last_successful_try('places_detail').present?)
+    assert(subject.last_successful_try_time('places_detail').present?)
   end
 
   it 'import successful' do
@@ -141,12 +141,12 @@ describe DataCycleCore::ExternalSystem do
 
     assert(subject.last_try('keywords').present?)
     assert(subject.last_try_time('keywords').present?)
-    assert(subject.last_try_successful('keywords').present?)
-    assert(subject.last_try_successful_time('keywords').present?)
+    assert(subject.last_successful_try('keywords').present?)
+    assert(subject.last_successful_try_time('keywords').present?)
 
     assert(subject.last_try('places').present?)
     assert(subject.last_try_time('places').present?)
-    assert(subject.last_try_successful('places').present?)
-    assert(subject.last_try_successful_time('places').present?)
+    assert(subject.last_successful_try('places').present?)
+    assert(subject.last_successful_try_time('places').present?)
   end
 end
