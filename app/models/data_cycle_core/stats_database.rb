@@ -126,7 +126,8 @@ module DataCycleCore
         tables: mongo_data,
         languages: external_source.default_options&.dig('locales'),
         credentials: external_source.credentials.is_a?(::Array) ? number_with_delimiter(external_source.credentials.size) : 1,
-        updated_at: external_source.updated_at
+        updated_at: external_source.updated_at,
+        last_import_step_time_info: last_try(external_source)
       }.merge(last_download_and_import(external_source))
 
       client.close
@@ -174,6 +175,14 @@ module DataCycleCore
       }
     end
 
+    def last_try(external_source)
+      external_source.last_import_step_time_info.each do |key, value|
+        last_try_class = value['last_try_successful'] == value['last_try'] ? 'success-color' : 'alert-color' if !external_source.deactivated && (value['last_try'].present? || value['last_try_successful'].present?)
+        last_try_class = 'primary-color' if last_try_class == 'alert-color' && Delayed::Job.where("delayed_reference_type ILIKE '%import%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
+        external_source.last_import_step_time_info[key]['last_try_class'] = last_try_class
+      end
+    end
+
     def load_mongo_data
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
@@ -188,7 +197,8 @@ module DataCycleCore
           downloadable: external_source.download_config.present?,
           importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
           name: external_source.name,
-          identifier: external_source.identifier
+          identifier: external_source.identifier,
+          last_import_step_time_info: external_source.last_import_step_time_info
         }.merge(last_download_and_import(external_source))
       end
     end

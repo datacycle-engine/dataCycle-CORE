@@ -9,17 +9,58 @@
     <%= tag.li("updated: #{data[:updated_at]&.then { |t| t.is_a?(Time) ? l(t, locale: active_ui_locale, format: :edit) : t }}") %>
   </ul>
 </div>
-<div class="card-section">
-  Collections: <br />
-  <ul>
-    <% if data[:tables].blank? %>
-      <%= tag.li("no collections found") %>
-    <% else %>
-      <% data[:tables].each do |key, value| %>
-        <%= tag.li("#{key}: #{value[0]} #{value[1]}") %>
-      <% end %>
-    <% end %>
-  </ul>
+<div class="card-section accordion" data-accordion data-allow-all-closed="true">
+  <div class="accordion-item is-active" data-accordion-item>
+    <div class="accordion-title">
+      <div class="subheader">
+        <h5 class="identifier">Collections</h5>
+      </div>
+    </div>
+    <div class="accordion-content indented" data-tab-content>
+      <ul>
+        <% if data[:tables].blank? %>
+          <%= tag.li("no collections found") %>
+        <% else %>
+          <% data[:tables].each do |key, value| %>
+            <%= tag.li("#{key}: #{value[0]} #{value[1]}") %>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="card-section accordion" data-accordion data-allow-all-closed="true">
+  <div class="accordion-item is-active" data-accordion-item>
+    <div class="accordion-title">
+      <div class="subheader">
+        <h5 class="identifier">import and download:</h5>
+      </div>
+    </div>
+    <div class="accordion-content indented" data-tab-content>
+      <% if data.dig(:last_import_step_time_info).present? %>
+            <% data[:last_import_step_time_info].each do |key, value| %>
+              <%= key %>:
+              <ul class="no-bullet import-data-timestamps">
+                <% if value.dig('last_try_successful').present? && value.dig('last_try') != value.dig('last_try_successful') %>                
+                  <li class="last-successful-download check-icon" >
+                    <%= import_data_time(Time.parse(value.dig('last_try_successful'))) %>
+                    <% if value.dig('last_try_successful').present? %>
+                      (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_successful_time'), locale: active_ui_locale)%>)
+                    <% end %>
+                  </li>
+                <% end %>
+                <li class="last-download <%= value.dig('last_try_class') %>" >
+                  <%= import_data_time(Time.parse(value.dig('last_try'))) %>
+                  <% if data.dig(:last_successful_download_time).present? %>
+                    (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_successful_time'), locale: active_ui_locale)%>)
+                  <% end %>
+                </li>
+              </ul>
+            <% end %>
+        <% else %>
+        <% end %>
+    </div>
+  </div>
 </div>
 <div class="card-section">
   download:
@@ -41,6 +82,7 @@
   <ul class="no-bullet import-data-timestamps">
     <% if data.dig(:last_import) != data.dig(:last_successful_import) %>
       <li class="last-successful-import <%= 'check-icon' if data.dig(:last_successful_import) != 'never' %>">
+        test
         <%= import_data_time(data.dig(:last_successful_import)) %>
         <% if data.dig(:last_successful_import_time).present? %>
           (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + data.dig(:last_successful_import_time), locale: active_ui_locale)%>)

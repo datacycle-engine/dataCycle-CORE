@@ -200,7 +200,13 @@
     }
   }
 
-  .accordion-content:not(.remote-render):not(.remote-rendering) {
+  .accordion-content.indented {
+    padding: 1rem;
+    border-left: 1px solid #e6e6e6;
+    border-right: 1px solid #e6e6e6;
+  }
+
+  .accordion-content:not(.remote-render):not(.remote-rendering):not(.indented) {
     padding: 0;
   }
 }
