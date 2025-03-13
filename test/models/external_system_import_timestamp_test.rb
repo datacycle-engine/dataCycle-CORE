@@ -63,7 +63,7 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'import step successful' do
-    collect_arguments = lambda do |*args|
+    collect_arguments = lambda do |*_args|
       true
     end
 
@@ -78,7 +78,7 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'import step fails' do
-    collect_arguments = lambda do |*args|
+    collect_arguments = lambda do |*_args|
       false
     end
 
@@ -93,7 +93,7 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'import step error' do
-    collect_arguments = lambda do |*args|
+    collect_arguments = lambda do |*_args|
       # forced error to check behaviour of last_try entries if import has an exception
       raise 'forced error'
     end
@@ -111,7 +111,7 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'download successful' do
-    collect_arguments = lambda do |*args|
+    collect_arguments = lambda do |*_args|
       true
     end
 
@@ -131,7 +131,7 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'import successful' do
-    collect_arguments = lambda do |*args|
+    collect_arguments = lambda do |*_args|
       true
     end
 
