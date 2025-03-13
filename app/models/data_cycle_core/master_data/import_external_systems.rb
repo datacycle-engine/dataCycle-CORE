@@ -147,7 +147,7 @@ module DataCycleCore
       end
 
       def self.first_existing_module_path?(module_name, module_bases)
-        module_bases.reduce do |_, module_base|
+        module_bases.reduce(nil) do |_, module_base|
           module_path = "#{module_base}::#{module_name}"
           break module_path if module_path.safe_constantize&.class&.in?([Module, Class])
         end
