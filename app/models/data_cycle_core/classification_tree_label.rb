@@ -31,6 +31,10 @@ module DataCycleCore
 
     scope :visible, ->(context) { where('? = ANY("classification_tree_labels"."visibility")', context) }
 
+    def self.search(q)
+      where('classification_tree_labels.name ILIKE :q', { q: "%#{q.squish.gsub(/\s/, '%')}%" })
+    end
+
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
       classification_attributes.map { |attributes|
