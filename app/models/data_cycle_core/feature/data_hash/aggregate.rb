@@ -27,6 +27,15 @@ module DataCycleCore
 
           DataCycleCore::Thing.where(id: changed_aggregates['+']).update_all(cache_valid_since: Time.zone.now, aggregate_type: 'belongs_to_aggregate') if changed_aggregates['+'].present?
           DataCycleCore::Thing.where(id: changed_aggregates['-']).update_all(cache_valid_since: Time.zone.now, aggregate_type: 'default') if changed_aggregates['-'].present?
+
+          return unless options.new_content
+
+          missing_locales = aggregate_for.flat_map(&:translated_locales).uniq - translated_locales
+          missing_locales.each do |locale|
+            I18n.with_locale(locale) do
+              set_data_hash(data_hash: { aggregate_for: aggregate_for.map(&:id) })
+            end
+          end
         end
       end
     end

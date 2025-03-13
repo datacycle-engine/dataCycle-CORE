@@ -108,6 +108,7 @@ module DataCycleCore
           new_prop[:compute] = {
             module: 'Slug',
             method: 'slug_value_from_first_existing_linked',
+            fallback: false,
             parameters: [
               "#{self.class.aggregate_property_key(key)}.#{key}",
               "#{AGGREGATE_PROPERTY_NAME}.#{key}"
@@ -189,6 +190,7 @@ module DataCycleCore
           prop[:compute] = {
             module: 'Common',
             method: 'attribute_value_from_first_existing_linked',
+            fallback: false,
             parameters: [
               "#{self.class.aggregate_property_key(key)}.#{key}",
               "#{AGGREGATE_PROPERTY_NAME}.#{key}"
