@@ -30,10 +30,8 @@ module DataCycleCore
     has_many :things, -> { unscope(:order).distinct }, through: :concepts
 
     scope :visible, ->(context) { where('? = ANY("classification_tree_labels"."visibility")', context) }
-
-    def self.search(q)
-      where('classification_tree_labels.name ILIKE :q', { q: "%#{q.squish.gsub(/\s/, '%')}%" })
-    end
+    scope :search, ->(q) { where('classification_tree_labels.name ILIKE :q', { q: "%#{q.squish.gsub(/\s/, '%')}%" }) }
+    scope :order_by_similarity, ->(term) { order([Arel.sql('similarity(classification_tree_labels.name, ?) DESC'), term]) }
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil

@@ -144,6 +144,7 @@ module DataCycleCore
           if action_name == 'index'
             {
               filter: [
+                :search,
                 :q,
                 {
                   attribute: {
@@ -279,8 +280,7 @@ module DataCycleCore
 
           if order_query.blank?
             query = query.reorder(nil)
-
-            query = query.order_by_similarity(full_text_search) if full_text_search.present? && @permitted_params[:search].present?
+            query = query.order_by_similarity(full_text_search) if full_text_search.present?
             query = case query
                     when DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_AssociationRelation), DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_Relation)
                       query.order(order_a: :asc, id: :asc)
