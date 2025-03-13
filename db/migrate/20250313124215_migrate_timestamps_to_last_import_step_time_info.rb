@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MigrateTimestampsToLastImportStepTimeInfo < ActiveRecord::Migration[7.1]
   def up
     external_systems = DataCycleCore::ExternalSystem.all

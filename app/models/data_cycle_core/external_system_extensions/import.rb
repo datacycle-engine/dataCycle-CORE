@@ -157,7 +157,7 @@ module DataCycleCore
         strategy_method = strategy.respond_to?(:import_data) ? :import_data : :download_content
         utility_object = utility_object_for_step(type, full_options)
 
-        merge_last_import_step_time_info(json_key_prefix+name, {last_try: last_start})
+        merge_last_import_step_time_info(json_key_prefix + name, {last_try: last_start})
         update_columns(last_import_step_time_info: last_import_step_time_info)
 
         success = strategy.send(strategy_method, utility_object:, options: full_options)
@@ -173,7 +173,7 @@ module DataCycleCore
           })
         end
 
-        merge_last_import_step_time_info(json_key_prefix+name, update_info)
+        merge_last_import_step_time_info(json_key_prefix + name, update_info)
         update_columns(last_import_step_time_info: last_import_step_time_info)
       end
 
