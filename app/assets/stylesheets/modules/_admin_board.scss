@@ -76,6 +76,12 @@
       margin: 1rem;
     }
   }
+
+  &.indented {
+    padding: 0.5rem;
+    border-left: 1px solid #e6e6e6;
+    border-right: 1px solid #e6e6e6;
+  }
 }
 
 .card .card-divider h5 {
@@ -198,12 +204,6 @@
         gap: 0.1rem;
       }
     }
-  }
-
-  .accordion-content.indented {
-    padding: 1rem;
-    border-left: 1px solid #e6e6e6;
-    border-right: 1px solid #e6e6e6;
   }
 
   .accordion-content:not(.remote-render):not(.remote-rendering):not(.indented) {
@@ -405,5 +405,17 @@ ul.import-data-timestamps li {
 .maintenance-administration {
   a>.fa {
     font-size: 0.9rem;
+  }
+}
+
+.card-section {
+  .accordion-item .accordion-title {
+    padding: 0;
+
+    h6 {
+      padding: 0.5rem;
+      margin: 0;
+      color: #000
+    }
   }
 }
