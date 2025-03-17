@@ -88,6 +88,55 @@ module DataCycleCore
 
             assert_equal(add_default(['image', 'location', 'name']), json_data.keys.sort)
           end
+
+          # only fields in main/default object, no additional included data
+          test 'testing wildcard field filter fields=* (only fields in main object, no incuded data)' do
+            fields = ['*']
+            json_data = load_api_data(fields, nil)
+
+            assert_equal(add_default(['dc:slug', 'description', 'endDate', 'eventSchedule', 'image', 'location', 'name', 'sameAs', 'startDate']), json_data.keys.sort)
+          end
+
+          # adds image to main object and includes image data on first level
+          test 'testing wildcard field filter fields=image.* (main object and first level image)' do
+            fields = ['image.*']
+            json_data = load_api_data(fields, nil)
+
+            assert_equal(add_default(['image']), json_data.keys.sort)
+            assert_equal(add_header(['name', 'caption', 'description', 'contentUrl', 'thumbnailUrl', 'sameAs', 'width', 'height', 'contentSize', 'fileFormat', 'uploadDate', 'mandatoryLicense', 'dc:webUrl', 'dc:slug']), json_data.dig('image', 0).keys.sort)
+            assert_equal(@overlay_image.id, json_data.dig('image', 0, '@id'))
+            assert_equal(@overlay_image.name, json_data.dig('image', 0, 'name'))
+          end
+
+          # only fields in main/default object, no additional included data
+          test 'testing wildcard field filter fields=*.* (only fields in main object, no incuded data)' do
+            fields = ['*.*']
+            json_data = load_api_data(fields, nil)
+
+            assert_equal(add_default(['dc:slug', 'description', 'endDate', 'eventSchedule', 'image', 'location', 'name', 'sameAs', 'startDate']), json_data.keys.sort)
+            assert_equal(add_header([]), json_data.dig('image', 0).keys.sort)
+            assert_equal(@overlay_image.id, json_data.dig('image', 0, '@id'))
+          end
+
+          # only fields in main/default object, no additional included data
+          test 'testing wildcard field filter fields=*.*.* (only fields in main object, no incuded data)' do
+            fields = ['*.*']
+            json_data = load_api_data(fields, nil)
+
+            assert_equal(add_default(['dc:slug', 'description', 'endDate', 'eventSchedule', 'image', 'location', 'name', 'sameAs', 'startDate']), json_data.keys.sort)
+            assert_equal(add_header([]), json_data.dig('image', 0).keys.sort)
+            assert_equal(@overlay_image.id, json_data.dig('image', 0, '@id'))
+          end
+
+          # only fields in main/default object, no additional included data
+          test 'testing wildcard field filter *.name (only fields in main object, no incuded data)' do
+            fields = ['*.copyrightHolder']
+            json_data = load_api_data(fields, nil)
+
+            assert_equal(add_default(['dc:slug', 'description', 'endDate', 'eventSchedule', 'image', 'location', 'name', 'sameAs', 'startDate']), json_data.keys.sort)
+            assert_equal(add_header([]), json_data.dig('image', 0).keys.sort)
+            assert_equal(@overlay_image.id, json_data.dig('image', 0, '@id'))
+          end
         end
       end
     end
