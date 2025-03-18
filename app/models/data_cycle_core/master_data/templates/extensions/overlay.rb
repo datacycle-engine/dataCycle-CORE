@@ -81,10 +81,17 @@ module DataCycleCore
               end
 
               new_versions.push([key + VIRTUAL_OVERLAY_POSTFIX, overlay_prop(key, prop, versions)])
+              disable_original_attribute!(prop)
               all_props.insert(new_index, *new_versions)
             end
 
             properties.clear.merge!(all_props.to_h)
+          end
+
+          def disable_original_attribute!(prop)
+            prop['api'] ||= {}
+            prop['api']['disabled'] = true
+            prop['api']['v4']['disabled'] = true if prop.dig('api', 'v4')&.key?('disabled')
           end
 
           def transform_prop_with_overlay!(prop)
