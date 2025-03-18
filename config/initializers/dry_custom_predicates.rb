@@ -39,9 +39,5 @@ Rails.application.reloader.to_prepare do
     Dry::Logic::Predicates.predicate(:ruby_class?) do |value|
       value.is_a?(String) && value.safe_constantize&.class == Class
     end
-
-    Dry::Logic::Predicates.predicate(:ruby_module_and_method?) do |value|
-      value.is_a?(Hash) && value&.dig(:module)&.safe_constantize.respond_to?(value[:method])
-    end
   end
 end

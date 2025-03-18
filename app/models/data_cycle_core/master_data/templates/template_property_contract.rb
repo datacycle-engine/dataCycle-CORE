@@ -133,37 +133,10 @@ module DataCycleCore
           end
         end
 
-        rule(:default_value) do
-          next unless key? && value.present? && value.is_a?(::Hash)
-
-          key.failure(:invalid_default_value) unless DataCycleCore::ModuleService.load_module(value[:module].classify, 'Utility::DefaultValue').respond_to?(value[:method])
-        rescue NameError
-          key.failure(:invalid_default_value)
-        end
-
-        rule(:compute) do
-          next unless key? && value.present?
-
-          key.failure(:invalid_computed) unless DataCycleCore::ModuleService.load_module(value[:module].classify, 'Utility::Compute').respond_to?(value[:method])
-        rescue NameError
-          key.failure(:invalid_computed)
-        end
-
-        rule(:virtual) do
-          next unless key? && value.present?
-
-          key.failure(:invalid_virtual) unless DataCycleCore::ModuleService.load_module(value[:module].classify, 'Utility::Virtual').respond_to?(value[:method])
-        rescue NameError
-          key.failure(:invalid_virtual)
-        end
-
-        rule(:content_score) do
-          next unless key? && value.present?
-
-          key.failure(:invalid_content_score) unless DataCycleCore::ModuleService.load_module(value[:module].classify, 'Utility::ContentScore').respond_to?(value[:method])
-        rescue NameError
-          key.failure(:invalid_content_score)
-        end
+        rule(:default_value).validate(ruby_module_and_method: 'Utility::DefaultValue')
+        rule(:compute).validate(ruby_module_and_method: 'Utility::Compute')
+        rule(:virtual).validate(ruby_module_and_method: 'Utility::Virtual')
+        rule(:content_score).validate(ruby_module_and_method: 'Utility::ContentScore')
 
         rule(:properties) do
           key.failure(:invalid_object) if key? && !(values[:type] == 'object' && ['value', 'translated_value'].include?(values[:storage_location]))
