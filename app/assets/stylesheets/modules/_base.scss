@@ -324,8 +324,12 @@ footer {
 }
 
 .detail-header-wrapper {
+  margin: 1rem 0.9375rem 0 0.9375rem;
+  padding: 0;
+  border-radius: 5px;
+
   >.detail-header {
-    margin-bottom: 1.5rem;
+    margin: 0 0 1.5rem 0;
     border-top-left-radius: $global-radius;
     border-top-right-radius: $global-radius;
 
@@ -1117,7 +1121,7 @@ footer {
         &.remote-render,
         &.remote-rendering,
         &.remote-render-failed {
-          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+          box-shadow: 0 0 0 1px var(--dark-gray-05) inset;
           padding: 2.5rem 1rem 1.2rem 1rem;
           border-radius: $global-radius;
           min-height: 5rem;

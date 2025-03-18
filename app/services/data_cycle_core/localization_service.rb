@@ -22,10 +22,9 @@ module DataCycleCore
       end
 
       if translation_object.key?(:path)
-        I18n.t(
-          translation_object[:path],
-          **substitutions, locale:
-        )
+        path = translation_object[:path]
+        path = "#{path}_html" if I18n.exists?("#{path}_html", locale:)
+        ActiveSupport::SafeBuffer.new(I18n.t(path, **substitutions, locale:))
       elsif translation_object.key?(:method)
         view_helpers.send(
           translation_object[:method],

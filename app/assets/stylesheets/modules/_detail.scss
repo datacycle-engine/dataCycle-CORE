@@ -113,7 +113,7 @@
             &.remote-render,
             &.remote-rendering,
             &.remote-render-failed {
-              box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+              box-shadow: 0 0 0 1px var(--dark-gray-05) inset;
               padding: 2.2rem 1rem 1rem 1rem;
               border-radius: $global-radius;
               min-height: 4.7rem;
@@ -152,7 +152,7 @@
 
         .detail-type {
           position: relative;
-          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+          box-shadow: 0 0 0 1px var(--dark-gray-05) inset;
           padding: 2.2rem 1rem 1rem 1rem;
           border-radius: $global-radius;
           min-width: 150px;
@@ -341,7 +341,7 @@
       display: flex;
       background: rgba($light-gray, 0.5);
       padding: 1rem;
-      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+      box-shadow: 0 0 0 1px var(--dark-gray-05) inset;
       border-radius: $global-radius;
 
       .meta-data-splitter {
