@@ -328,6 +328,7 @@ en:
   admin_panel:
     schema: Scheme
     datahash: Datahash
+    thing_history_links: Merged with current content
     api: JSON API
     relations: Relations
     template_paths: Template paths

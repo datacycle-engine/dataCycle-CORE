@@ -21,6 +21,7 @@ module DataCycleCore
 
       belongs_to :thing
       has_many :content_collection_link_histories, dependent: :delete_all, foreign_key: :thing_history_id, inverse_of: :thing_history
+      has_many :thing_history_links, dependent: :nullify, foreign_key: :thing_history_id, inverse_of: :thing_history
 
       def available_locales
         I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
@@ -79,6 +80,8 @@ module DataCycleCore
     has_many :thing_originals, class_name: 'DataCycleCore::ThingDuplicate', foreign_key: :thing_duplicate_id, dependent: :destroy, inverse_of: :original
 
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
+
+    has_many :thing_history_links, dependent: :nullify, class_name: 'DataCycleCore::ThingHistoryLink', inverse_of: :thing
 
     extend ::Mobility
     translates :slug, :content, backend: :table

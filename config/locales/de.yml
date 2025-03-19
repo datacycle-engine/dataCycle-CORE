@@ -151,6 +151,7 @@ de:
   admin_panel:
     schema: Schema
     datahash: Datahash
+    thing_history_links: Mit aktuellem Inhalt zusammengeführt
     api: JSON API
     relations: Relationen
     meta-data: Metadaten
