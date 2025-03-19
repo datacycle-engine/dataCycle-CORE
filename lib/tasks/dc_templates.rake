@@ -141,8 +141,10 @@ namespace :dc do
                     JOIN classifications AS cl1 ON cl1.id = c1.classification_id
                     JOIN classifications as cl2 ON cl2.description = cl1.name
                     JOIN concepts AS co2 ON co2.classification_id = cl2.id
-                    JOIN concept_schemes AS cs ON co.concept_scheme_id = cs.id AND cs.name = '#{from_concept_scheme_name}'
-                    JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id AND cs2.name = '#{to_concept_scheme_name}'
+                    JOIN concept_schemes AS cs ON co.concept_scheme_id = cs.id
+                      AND cs.name = '#{from_concept_scheme_name}'
+                    JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+                      AND cs2.name = '#{to_concept_scheme_name}'
                     WHERE c1.content_data_id = th.id
                       AND th.template_name = '#{template_name}'
                       AND c1.relation = '#{relation}'
