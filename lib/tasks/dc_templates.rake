@@ -93,49 +93,75 @@ namespace :dc do
         SQL
       end
 
-      # countries => country_codes - move
-      desc 'update countries to corresponding country codes'
-      task :country_to_country_codes, [:debug] => :environment do |_, _args|
-        puts "starting to migrate countries to their corresponding country codes\n"
+      # switches classification_id in classification_contents according to their classification_tree_labels
+      desc 'changes classification_id for things according to old and new tree_label'
+      task :update_classification_contents_based_on_similarity, [:from, :to, :template, :relation, :debug] => :environment do |_, args|
+        puts "Starting to migrate countries to their corresponding country codes\n"
+        from_concept_scheme_name = args[:from]
+        to_concept_scheme_name = args[:to]
+        template_name = args[:template]
+        relation = args[:relation]
 
         # Count the amount of datasets, where not country_code is used but country for nationality
         rows_to_update = ActiveRecord::Base.connection.execute <<-SQL.squish
-                SELECT 1 FROM classification_contents t1
-                JOIN classifications AS t2 ON t1.classification_id = t2.id
-                JOIN things AS t4 ON t1.content_data_id = t4.ID AND t4.template_name = 'Person'
-                JOIN classifications as t3 ON t2.name = t3.description AND t3.external_key LIKE 'Ländercodes%'
-                WHERE t1.relation = 'nationality'
+            SELECT 1 from things as th
+              JOIN classification_contents as cc ON th.id = cc.content_data_id
+              JOIN classifications as cl ON cc.classification_id = cl.id
+              JOIN concepts AS co ON cl.id = co.classification_id
+              JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id#{' '}
+                AND cs.name = '#{from_concept_scheme_name}'
+              JOIN concept_schemes AS cs2 ON cs2.name = '#{to_concept_scheme_name}'
+              JOIN concepts AS co2 ON cs2.id = co2.concept_scheme_id
+              JOIN classifications as cl2 ON cl2.id = co2.classification_id#{' '}
+                AND cl2.description = cl.name
+              WHERE
+                cc.relation = '#{relation}'
+              AND th.template_name = '#{template_name}'
         SQL
         puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
         # Update the classification id in classification_contents from the old country to the new country_codes id
         rows_affected = ActiveRecord::Base.connection.execute <<-SQL.squish
-                UPDATE classification_contents as t1
+            UPDATE classification_contents as c1
                 SET classification_id = (
-                  SELECT t3.id from classifications AS t2
-                  JOIN classifications AS t3 ON t3.description = t2.name AND t3.external_key LIKE 'Ländercodes%'
-                  WHERE t1.classification_id = t2.id
+                SELECT cl2.id from classifications as cl
+                  JOIN concepts AS co ON cl.id = co.classification_id
+                  JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+                    AND cs.name = '#{from_concept_scheme_name}'
+                  JOIN concept_schemes AS cs2 ON cs2.name = '#{to_concept_scheme_name}'
+                  JOIN concepts AS co2 ON cs2.id = co2.concept_scheme_id
+                  JOIN classifications as cl2 ON cl2.id = co2.classification_id
+                    AND cl2.description = cl.name
+                  WHERE c1.classification_id = cl.id
                 )
-                WHERE EXISTS (
-                  SELECT 1 from things AS t4
-                  WHERE t1.content_data_id = t4.ID AND t4.template_name = 'Person' AND t1.relation = 'nationality'
+                WHERE
+                EXISTS (
+                  SELECT 1 from things AS th
+                    JOIN concepts AS co ON c1.classification_id = co.classification_id
+                    JOIN classifications AS cl1 ON cl1.id = c1.classification_id
+                    JOIN classifications as cl2 ON cl2.description = cl1.name
+                    JOIN concepts AS co2 ON co2.classification_id = cl2.id
+                    JOIN concept_schemes AS cs ON co.concept_scheme_id = cs.id AND cs.name = '#{from_concept_scheme_name}'
+                    JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id AND cs2.name = '#{to_concept_scheme_name}'
+                    WHERE c1.content_data_id = th.id
+                      AND th.template_name = '#{template_name}'
+                      AND c1.relation = '#{relation}'
                 )
+                RETURNING c1.content_data_id
         SQL
         puts "Datasets migrated:  #{rows_affected.cmd_tuples}\n"
 
-        # Delete all of the old classifications
-        if _args[:delete_old]
-          puts "Deleting old classifications\n"
-          deleted_rows = ActiveRecord::Base.connection.execute <<-SQL.squish
-                  DELETE FROM classifications as c1
-                  USING classifications as c2
-                  WHERE
-                    c2.description = c1.name
-                    AND c2.external_key LIKE 'Ländercodes%'
-                    AND c1.external_key LIKE 'Länder > %'
-                    AND c1.external_key NOT LIKE 'Ländercodes >%'
+        # valid things -> update things column
+        content_data_ids = rows_affected.map { |row| "'#{row['content_data_id']}'" }.join(',')
+        if content_data_ids.present?
+          rows_affected = ActiveRecord::Base.connection.execute <<-SQL.squish
+          UPDATE things AS th
+          SET cache_valid_since = null
+          WHERE
+            th.id IN (#{content_data_ids})
           SQL
-          puts "Amount of deleted rows: #{deleted_rows.cmd_tuples}\n"
+          puts "Cache Valid Timestamp removed for #{rows_affected.cmd_tuples} rows.\n"
+
         end
       end
     end
