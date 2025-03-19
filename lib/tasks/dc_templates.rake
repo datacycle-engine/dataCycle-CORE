@@ -92,26 +92,51 @@ namespace :dc do
           WHERE things.template_name IN ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo')
         SQL
       end
-      desc 'test_bla'
-      task :test_bla, [:debug] => :environment do |_, _args|
-        puts "migrate media objects ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo') to use translated urls\n"
 
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          UPDATE thing_translations AS t1
-          SET content = jsonb_set(
-            t1.content,
-            '{canonical_url}',
-            (SELECT things.metadata->'attribution_url' from things where things.id = t1.thing_id)
-          )
-          WHERE EXISTS (
-              SELECT 1
-              FROM things
-              WHERE things.id = t1.thing_id AND things.metadata->'attribution_url' IS NOT NULL
-          );
+      # countries => country_codes - move
+      desc 'update countries to corresponding country codes'
+      task :country_to_country_codes, [:debug] => :environment do |_, _args|
+        puts "starting to migrate countries to their corresponding country codes\n"
 
-          UPDATE things
-          SET metadata = metadata - 'attribution_url'
+        # Count the amount of datasets, where not country_code is used but country for nationality
+        rows_to_update = ActiveRecord::Base.connection.execute <<-SQL.squish
+                SELECT 1 FROM classification_contents t1
+                JOIN classifications AS t2 ON t1.classification_id = t2.id
+                JOIN things AS t4 ON t1.content_data_id = t4.ID AND t4.template_name = 'Person'
+                JOIN classifications as t3 ON t2.name = t3.description AND t3.external_key LIKE 'Ländercodes%'
+                WHERE t1.relation = 'nationality'
         SQL
+        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+
+        # Update the classification id in classification_contents from the old country to the new country_codes id
+        rows_affected = ActiveRecord::Base.connection.execute <<-SQL.squish
+                UPDATE classification_contents as t1
+                SET classification_id = (
+                  SELECT t3.id from classifications AS t2
+                  JOIN classifications AS t3 ON t3.description = t2.name AND t3.external_key LIKE 'Ländercodes%'
+                  WHERE t1.classification_id = t2.id
+                )
+                WHERE EXISTS (
+                  SELECT 1 from things AS t4
+                  WHERE t1.content_data_id = t4.ID AND t4.template_name = 'Person' AND t1.relation = 'nationality'
+                )
+        SQL
+        puts "Datasets migrated:  #{rows_affected.cmd_tuples}\n"
+
+        # Delete all of the old classifications
+        if _args[:delete_old]
+          puts "Deleting old classifications\n"
+          deleted_rows = ActiveRecord::Base.connection.execute <<-SQL.squish
+                  DELETE FROM classifications as c1
+                  USING classifications as c2
+                  WHERE
+                    c2.description = c1.name
+                    AND c2.external_key LIKE 'Ländercodes%'
+                    AND c1.external_key LIKE 'Länder > %'
+                    AND c1.external_key NOT LIKE 'Ländercodes >%'
+          SQL
+          puts "Amount of deleted rows: #{deleted_rows.cmd_tuples}\n"
+        end
       end
     end
   end
