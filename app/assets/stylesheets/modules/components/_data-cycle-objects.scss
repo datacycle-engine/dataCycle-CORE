@@ -25,7 +25,10 @@
       text-align: center;
       display: grid;
       align-items: center;
-      justify-content: center;
+
+      img {
+        width: 100%;
+      }
     }
 
     .infoRow {
@@ -149,6 +152,7 @@
     font-weight: 200;
     color: $black;
     overflow: hidden;
+    word-wrap: anywhere;
 
     &.working-title {
       font-size: 1rem;
