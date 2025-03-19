@@ -92,26 +92,108 @@ namespace :dc do
           WHERE things.template_name IN ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo')
         SQL
       end
-      desc 'test_bla'
-      task :test_bla, [:debug] => :environment do |_, _args|
-        puts "migrate media objects ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo') to use translated urls\n"
 
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          UPDATE thing_translations AS t1
-          SET content = jsonb_set(
-            t1.content,
-            '{canonical_url}',
-            (SELECT things.metadata->'attribution_url' from things where things.id = t1.thing_id)
-          )
-          WHERE EXISTS (
-              SELECT 1
-              FROM things
-              WHERE things.id = t1.thing_id AND things.metadata->'attribution_url' IS NOT NULL
-          );
+      # value => translated_value (copy vs move)
+      desc 'value => translated (copy/move) | templates as one space seperated string'
+      task :value_to_translated, [:from, :to, :operation, :templates, :debug] => :environment do |_, _args|
+        field_from = _args[:from]
+        field_to = _args[:to]
+        templates = _args[:templates].split.map { |word| "'#{word}'" }.join(',')
+        puts "migrate #{field_from} to translated #{field_to} for templates #{templates} | Operation: #{_args[:operation]}\n"
 
-          UPDATE things
-          SET metadata = metadata - 'attribution_url'
+        # count how many rows should be affected by the migration
+        rows_to_update = ActiveRecord::Base.connection.execute <<-SQL.squish
+                 SELECT 1
+                   FROM things AS t1
+                   JOIN thing_translations ON t1.id = thing_translations.thing_id
+                   WHERE t1.metadata->'#{field_from}' IS NOT NULL
+                   #{"AND t1.template_name IN (#{templates})" if templates.present?}
         SQL
+        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+
+        # migrate data
+        rows_updated = ActiveRecord::Base.connection.execute <<-SQL.squish
+                 UPDATE thing_translations AS t1
+                 SET content = jsonb_set(
+                   t1.content,
+                   '{#{field_to}}',
+                   (SELECT things.metadata->'#{field_from}' from things where things.id = t1.thing_id)
+                 )
+                 WHERE EXISTS (
+                     SELECT 1
+                     FROM things
+                     WHERE things.id = t1.thing_id AND things.metadata->'#{field_from}' IS NOT NULL
+                     #{"AND things.template_name IN (#{templates})" if templates.present?}
+                 );
+        SQL
+        puts "Datasets migrated:  #{rows_updated.cmd_tuples}\n"
+
+        # remove old fields from metadata json, if operation equals move
+        if _args[:operation] == 'move'
+          count_deleted = ActiveRecord::Base.connection.execute <<-SQL.squish
+                   UPDATE things
+                   SET metadata = metadata - '#{field_from}'
+                   WHERE things.metadata->'#{field_from}' IS NOT NULL
+          SQL
+          puts "Original values deleted: #{count_deleted.cmd_tuples}\n"
+        end
+      end
+
+      # Todo - 1:n relation - discuss which value should be moved/copied
+      # translated => simple_value (copy/move)
+      desc 'translated => value (copy/move)'
+      task :translated_to_value, [:from, :to, :locale, :operation, :templates, :debug] => :environment do |_, _args|
+        field_from = _args[:from]
+        field_to = _args[:to]
+        locale = _args[:locale]
+        templates = _args[:templates].split.map { |word| "'#{word}'" }.join(',')
+        puts "migrate translated #{field_from} to #{field_to} for templates #{templates} | Operation: #{_args[:operation]}\n"
+
+        # count how many rows should be affected by the migration
+        rows_to_update = ActiveRecord::Base.connection.execute <<-SQL.squish
+                 SELECT 1
+                   FROM thing_translations AS t1
+                   JOIN things AS t2 ON t1.thing_id = t2.id
+                   WHERE t1.content->'#{field_from}' IS NOT NULL
+                   AND t1.locale = '#{locale}'
+                   #{"AND t2.template_name IN (#{templates})" if templates.present?}
+        SQL
+        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+
+        # migrate data
+        rows_updated = ActiveRecord::Base.connection.execute <<-SQL.squish
+                 UPDATE things AS t1
+                 SET metadata = jsonb_set(
+                   t1.metadata,
+                   '{#{field_to}}',
+                   (SELECT t2.content->'#{field_from}' from thing_translations as t2 where t1.id = t2.thing_id AND t2.locale = '#{locale}')
+                 )
+                 WHERE EXISTS (
+                     SELECT 1
+                     FROM thing_translations as t3
+                     WHERE t1.id = t3.thing_id
+                     AND t3.content->'#{field_from}' IS NOT NULL
+                     AND t3.locale = '#{locale}'
+                     #{"AND t1.template_name IN (#{templates})" if templates.present?}
+                 );
+        SQL
+        puts "Datasets migrated:  #{rows_updated.cmd_tuples}\n"
+
+        # remove old fields from metadata json, if operation equals move
+        if _args[:operation] == 'move'
+          count_deleted = ActiveRecord::Base.connection.execute <<-SQL.squish
+                   UPDATE thing_translations t1
+                   SET content = content - '#{field_from}'
+                   WHERE EXISTS (
+                     SELECT 1 FROM things as t2
+                     WHERE t1.thing_id = t2.id
+                     AND t2.metadata->'#{field_to}' IS NOT NULL
+                   )
+                   AND t1.content->'#{field_from}' IS NOT NULL
+
+          SQL
+          puts "Original values deleted: #{count_deleted.cmd_tuples}\n"
+        end
       end
     end
   end
