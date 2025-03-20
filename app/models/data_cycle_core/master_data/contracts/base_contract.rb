@@ -42,7 +42,7 @@ module DataCycleCore
         BASE_JSON_API = Dry::Schema.Params do
           optional(:language).filled(:string)
           optional(:sort).filled(:api_sort_parameter?)
-          optional(:fields).filled(:string)
+          optional(:fields).filled(:fields_wildcard?)
           optional(:include).filled(:string)
           optional(:classification_trees) { (str? & uuid?) | (array? & each(:uuid?)) }
         end
