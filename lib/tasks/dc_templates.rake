@@ -102,69 +102,55 @@ namespace :dc do
         template_name = args[:template]
         relation = args[:relation]
 
-        # Count the amount of datasets, where not country_code is used but country for nationality
-        rows_to_update = ActiveRecord::Base.connection.execute <<-SQL.squish
-            SELECT 1 from things as th
-              JOIN classification_contents as cc ON th.id = cc.content_data_id
-              JOIN classifications as cl ON cc.classification_id = cl.id
-              JOIN concepts AS co ON cl.id = co.classification_id
-              JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id#{' '}
-                AND cs.name = '#{from_concept_scheme_name}'
-              JOIN concept_schemes AS cs2 ON cs2.name = '#{to_concept_scheme_name}'
-              JOIN concepts AS co2 ON cs2.id = co2.concept_scheme_id
-              JOIN classifications as cl2 ON cl2.id = co2.classification_id#{' '}
-                AND cl2.description = cl.name
-              WHERE
-                cc.relation = '#{relation}'
-              AND th.template_name = '#{template_name}'
+        # Count the amount of datasets that need to be updated
+        select_cc = <<-SQL.squish
+          SELECT co2.classification_id AS new_classification_id, cc.id FROM classification_contents AS cc
+          JOIN concepts AS co ON cc.classification_id = co.classification_id
+          JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+            AND cs.name = ?
+          JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
+          JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+            AND cs2.name = ?
+          JOIN things AS th ON th.id = cc.content_data_id
+            AND th.template_name = ?
+          WHERE
+            cc.relation = ?
         SQL
+        sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
+        rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_cc)
         puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
-        # Update the classification id in classification_contents from the old country to the new country_codes id
-        rows_affected = ActiveRecord::Base.connection.execute <<-SQL.squish
+        # Update the classification id in classification_contents old to new classification_ids
+        update_cc = <<-SQL.squish
+          WITH classification_contents_update AS (
             UPDATE classification_contents as c1
-                SET classification_id = (
-                SELECT cl2.id from classifications as cl
-                  JOIN concepts AS co ON cl.id = co.classification_id
-                  JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
-                    AND cs.name = '#{from_concept_scheme_name}'
-                  JOIN concept_schemes AS cs2 ON cs2.name = '#{to_concept_scheme_name}'
-                  JOIN concepts AS co2 ON cs2.id = co2.concept_scheme_id
-                  JOIN classifications as cl2 ON cl2.id = co2.classification_id
-                    AND cl2.description = cl.name
-                  WHERE c1.classification_id = cl.id
-                )
-                WHERE
-                EXISTS (
-                  SELECT 1 from things AS th
-                    JOIN concepts AS co ON c1.classification_id = co.classification_id
-                    JOIN classifications AS cl1 ON cl1.id = c1.classification_id
-                    JOIN classifications as cl2 ON cl2.description = cl1.name
-                    JOIN concepts AS co2 ON co2.classification_id = cl2.id
-                    JOIN concept_schemes AS cs ON co.concept_scheme_id = cs.id
-                      AND cs.name = '#{from_concept_scheme_name}'
-                    JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
-                      AND cs2.name = '#{to_concept_scheme_name}'
-                    WHERE c1.content_data_id = th.id
-                      AND th.template_name = '#{template_name}'
-                      AND c1.relation = '#{relation}'
-                )
-                RETURNING c1.content_data_id
-        SQL
-        puts "Datasets migrated:  #{rows_affected.cmd_tuples}\n"
-
-        # valid things -> update things column
-        content_data_ids = rows_affected.map { |row| "'#{row['content_data_id']}'" }.join(',')
-        if content_data_ids.present?
-          rows_affected = ActiveRecord::Base.connection.execute <<-SQL.squish
+              SET classification_id = cl_update.new_classification_id
+            FROM (
+              SELECT co2.classification_id AS new_classification_id, cc.id FROM classification_contents AS cc
+              JOIN concepts AS co ON cc.classification_id = co.classification_id
+              JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+                AND cs.name = ?
+              JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
+              JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+                AND cs2.name = ?
+              JOIN things AS th ON th.id = cc.content_data_id
+                AND th.template_name = ?
+              WHERE
+                cc.relation = ? ) as cl_update
+            WHERE
+              c1.id = cl_update.id
+              RETURNING c1.content_data_id
+          )
           UPDATE things AS th
-          SET cache_valid_since = null
+            SET cache_valid_since = null
           WHERE
-            th.id IN (#{content_data_ids})
-          SQL
-          puts "Cache Valid Timestamp removed for #{rows_affected.cmd_tuples} rows.\n"
+            th.id IN (SELECT content_data_id FROM classification_contents_update)
 
-        end
+        SQL
+
+        sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
+        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
+        puts "Datasets migrated:  #{rows_updated}\n"
       end
     end
   end
