@@ -2,12 +2,14 @@
 
 module DataCycleCore
   class Thing < Content::DataHash
+    include Content::ContentRelations
     include Content::ContentLoader
     include Content::Extensions::OptimizedContentContents
     include Content::ExternalData
     prepend Content::ContentOverlay
 
     class History < Content::Content
+      include Content::ContentRelations
       include Content::ContentHistoryLoader
       include Content::Restorable
       prepend Content::ContentOverlay
@@ -16,7 +18,6 @@ module DataCycleCore
       translates :slug, :content, backend: :table
       default_scope { i18n.includes(:thing_template) }
 
-      content_relations table_name: 'things', postfix: 'history'
       has_many :scheduled_history_data, class_name: 'DataCycleCore::Schedule::History', foreign_key: 'thing_history_id', dependent: :destroy, inverse_of: :thing_history
 
       belongs_to :thing
@@ -86,8 +87,6 @@ module DataCycleCore
     extend ::Mobility
     translates :slug, :content, backend: :table
     default_scope { i18n.includes(:thing_template) }
-
-    content_relations(table_name:)
 
     has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
     has_many :external_systems, through: :external_system_syncs
