@@ -1,16 +1,5 @@
 # frozen_string_literal: true
 
-def include_valid_key?(keys, options)
-  keys.each do |key|
-    return true if valid_key?(key, options)
-  end
-  false
-end
-
-def valid_key?(key, options)
-  api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:fields]).include?('*') || select_attributes(options[:include]).include?(key)
-end
-
 json ||= {}
 
 unless content.schema.nil?
@@ -24,13 +13,13 @@ unless content.schema.nil?
 
     if options[:field_filter].present?
       is_valid_key = false
-      is_valid_key = true if ['nest', 'merge_object'].include?(api_property_definition.dig('transformation', 'method')) && property_name.present? && valid_key?(property_name, options)
+      is_valid_key = true if ['nest', 'merge_object'].include?(api_property_definition.dig('transformation', 'method')) && property_name.present? && attribute_visible?(property_name, options)
 
       validation_keys = [attribute_key(key, prop)]
       validation_keys += options.dig(:transformation_mapping, key) if options.dig(:transformation_mapping, key).present?
       validation_keys += [api_property_definition.dig('transformation', 'name')] if api_property_definition.dig('transformation', 'method') == 'append'
 
-      is_valid_key = true if include_valid_key?(validation_keys, options)
+      is_valid_key = true if validation_keys.any? { |k| attribute_visible?(k, options) }
 
       next unless is_valid_key
     end

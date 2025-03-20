@@ -94,7 +94,7 @@ module DataCycleCore
             fields = ['*']
             json_data = load_api_data(fields, nil)
 
-            assert_equal(add_default(['dc:slug', 'description', 'endDate', 'eventSchedule', 'image', 'location', 'name', 'sameAs', 'startDate']), json_data.keys.sort)
+            assert_equal(add_default(['dc:multilingual', 'dc:translation', 'dc:slug', 'description', 'endDate', 'eventSchedule', 'image', 'location', 'name', 'sameAs', 'startDate', 'additionalProperty']), json_data.keys.sort)
           end
 
           # adds image to main object and includes image data on first level

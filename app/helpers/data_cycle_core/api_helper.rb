@@ -5,8 +5,10 @@ module DataCycleCore
     include DataHashHelper
     include ContentHelper
 
+    API_DEFAULT_ATTRIBUTES = ['@id', '@type'].freeze
+
     def api_default_attributes
-      ['@id', '@type']
+      API_DEFAULT_ATTRIBUTES
     end
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
@@ -64,20 +66,35 @@ module DataCycleCore
     end
 
     def included_attribute?(name, attribute_list)
+      return true if API_DEFAULT_ATTRIBUTES.include?(name)
       return false if attribute_list.blank?
       return true if full_recursive?(attribute_list)
 
       attribute_list.pluck(0).intersection(Array.wrap(name)).any?
     end
 
+    def fields_attribute?(name, attribute_list)
+      return true if attribute_wildcard?(attribute_list)
+
+      included_attribute?(name, attribute_list)
+    end
+
     def included_attribute_not_full?(name, attribute_list)
       included_attribute?(name, attribute_list) && !full_recursive?(attribute_list)
+    end
+
+    def attribute_visible?(name, options)
+      included_attribute?(name, options[:include]) || fields_attribute?(name, options[:fields])
     end
 
     def subtree_for(name, attribute_list)
       return attribute_list if full_recursive?(attribute_list)
 
       attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.compact_blank
+    end
+
+    def attribute_wildcard?(attribute_list)
+      attribute_list&.pluck(0)&.include?('*')
     end
 
     def full_recursive?(attribute_list)
