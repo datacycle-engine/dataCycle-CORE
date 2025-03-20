@@ -35,6 +35,22 @@ module DataCycleCore
         assert_equal st, @content.schema_types.pluck(:id)
       end
 
+      test 'change template to article and reload' do
+        tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel').template_thing
+        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
+        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
+
+        @content.update(template_name: 'Artikel')
+        @content.reload
+
+        assert_equal 100.0, @content.boost
+        assert_equal 'entity', @content.content_type
+        assert_equal tt.translatable_property_names, @content.translatable_property_names
+        assert_equal tt.untranslatable_property_names, @content.untranslatable_property_names
+        assert_equal dt, @content.data_type.pluck(:id)
+        assert_equal st, @content.schema_types.pluck(:id)
+      end
+
       test 'change template to embedded Action' do
         tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Action').template_thing
         @content.template_name = 'Action'
@@ -58,6 +74,22 @@ module DataCycleCore
 
         @content.save!
 
+        assert_equal dt, @content.data_type.pluck(:id)
+        assert_equal st, @content.schema_types.pluck(:id)
+      end
+
+      test 'change thing_template to Artikel and reload' do
+        tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel')
+        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
+        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
+
+        @content.update(thing_template: tt)
+        @content.reload
+
+        assert_equal 100.0, @content.boost
+        assert_equal 'entity', @content.content_type
+        assert_equal tt.template_thing.translatable_property_names, @content.translatable_property_names
+        assert_equal tt.template_thing.untranslatable_property_names, @content.untranslatable_property_names
         assert_equal dt, @content.data_type.pluck(:id)
         assert_equal st, @content.schema_types.pluck(:id)
       end
