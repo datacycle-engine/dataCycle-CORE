@@ -104,10 +104,10 @@ namespace :dc do
         # count how many rows should be affected by the migration
         select_th_qry = <<-SQL.squish
           SELECT 1
-            FROM things AS t1
+          FROM things AS t1
             JOIN thing_translations ON t1.id = thing_translations.thing_id
-            WHERE t1.metadata->? IS NOT NULL
-              #{'AND t1.template_name IN (?)' if templates.present?}
+          WHERE t1.metadata->? IS NOT NULL#{' '}
+            #{'AND t1.template_name IN (?)' if templates.present?}
         SQL
         sanitized_select_th_qry = ActiveRecord::Base.sanitize_sql_array([select_th_qry, field_from, templates])
         rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_th_qry)
@@ -117,16 +117,21 @@ namespace :dc do
         update_tt_qry = <<-SQL.squish
           UPDATE thing_translations AS t1
           SET content = jsonb_set(
-            t1.content,
-            ?,
-            (SELECT things.metadata->? from things where things.id = t1.thing_id)
-          )
+              t1.content,
+              ?,
+              (
+                SELECT things.metadata->?
+                from things
+                where things.id = t1.thing_id
+              )
+            )
           WHERE EXISTS (
-            SELECT 1
-            FROM things
-            WHERE things.id = t1.thing_id AND things.metadata->? IS NOT NULL
-              #{'AND things.template_name IN (?)' if templates.present?}
-          );
+              SELECT 1
+              FROM things
+              WHERE things.id = t1.thing_id
+                AND things.metadata->? IS NOT NULL#{' '}
+                  #{'AND things.template_name IN (?)' if templates.present?}
+            )
         SQL
         sanitized_update_tt_qry = ActiveRecord::Base.sanitize_sql_array([update_tt_qry, "{#{field_to}}", field_from, field_from, templates])
         rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_tt_qry)
@@ -137,7 +142,7 @@ namespace :dc do
           remove_metadata_fields_qry = <<-SQL.squish
             UPDATE things
             SET metadata = metadata - ?
-            WHERE things.metadata->? IS NOT NULL
+            WHERE things.metadata->? IS NOT NULL#{' '}
               #{'AND things.template_name IN (?)' if templates.present?}
           SQL
           sanitized_remove_metadata_fields_qry = ActiveRecord::Base.sanitize_sql_array([remove_metadata_fields_qry, field_from, field_from, templates])
@@ -157,11 +162,10 @@ namespace :dc do
         # count how many rows should be affected by the migration
         select_tt_qry = <<-SQL.squish
           SELECT 1
-            FROM thing_translations AS t1
+          FROM thing_translations AS t1
             JOIN things AS t2 ON t1.thing_id = t2.id
-            WHERE t1.content->? IS NOT NULL
-              AND t1.locale = 'de'
-              #{'AND t2.template_name IN (?)' if templates.present?}
+          WHERE t1.content->? IS NOT NULL
+            AND t1.locale = 'de' #{'AND t2.template_name IN (?)' if templates.present?}
         SQL
         sanitized_select_tt_qry = ActiveRecord::Base.sanitize_sql_array([select_tt_qry, field_from, templates])
         rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_tt_qry)
@@ -171,18 +175,23 @@ namespace :dc do
         update_th_qry = <<-SQL.squish
           UPDATE things AS t1
           SET metadata = jsonb_set(
-            t1.metadata,
-            ?,
-            (SELECT t2.content->? from thing_translations as t2 where t1.id = t2.thing_id AND t2.locale = 'de')
-          )
+              t1.metadata,
+              ?,
+              (
+                SELECT t2.content->?
+                from thing_translations as t2
+                where t1.id = t2.thing_id
+                  AND t2.locale = 'de'
+              )
+            )
           WHERE EXISTS (
               SELECT 1
               FROM thing_translations as t3
               WHERE t1.id = t3.thing_id
                 AND t3.content->? IS NOT NULL
-                AND t3.locale = 'de'
-                #{'AND t1.template_name IN (?)' if templates.present?}
-          )
+                AND t3.locale = 'de'#{' '}
+                  #{'AND t1.template_name IN (?)' if templates.present?}
+            )
         SQL
         sanitized_update_th_qry = ActiveRecord::Base.sanitize_sql_array([update_th_qry, "{#{field_to}}", field_from, field_from, templates])
         rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_th_qry)
@@ -194,12 +203,12 @@ namespace :dc do
             UPDATE thing_translations t1
             SET content = content - ?
             WHERE EXISTS (
-              SELECT 1 FROM things as t2
-              WHERE t1.thing_id = t2.id
-              AND t2.metadata->? IS NOT NULL
-              #{'AND t2.template_name IN (?)' if templates.present?}
-            )
-            AND t1.content->? IS NOT NULL
+                SELECT 1 FROM things as t2
+                WHERE t1.thing_id = t2.id
+                  AND t2.metadata->? IS NOT NULL
+                  #{'AND t2.template_name IN (?)' if templates.present?}
+              )
+              AND t1.content->? IS NOT NULL
           SQL
           sanitized_remove_metadata_fields_qry = ActiveRecord::Base.sanitize_sql_array([remove_metadata_fields_qry, field_from, field_to, templates, field_from])
           deleted = ActiveRecord::Base.connection.exec_update(sanitized_remove_metadata_fields_qry)
