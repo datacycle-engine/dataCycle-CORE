@@ -22,20 +22,14 @@
 <% end %>
 
 <% contents&.each do |content| %>
-  <%= tag.li(class: [
-    'grid-item',
-    'data-cycle-object',
-    content.is_a?(DataCycleCore::Thing) ? content&.template_name&.underscore : nil,
-    content.respond_to?(:is_valid?) && !content.try(:is_valid?) ? 'expired-item' : nil,
-    DataCycleCore::Feature::TileBorderColor.class_string(content),
-    thing_content_score_class(content),
-  ].compact_blank.join(' '),
-  id: content.id,
-  data: {
+  <%= tag.li(
+    class: content_tile_class(content, 'grid'),
     id: content.id,
-    page: contents.current_page,
-    content_score: content.try(:internal_content_score)&.round
-  }) do %>
+    data: {
+      id: content.id,
+      page: contents.current_page,
+      content_score: content.try(:internal_content_score)&.round
+    }) do %>
     <%= render 'data_cycle_core/application/watch_lists', content: content if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
 
     <% if content.is_a?(DataCycleCore::Thing) %>

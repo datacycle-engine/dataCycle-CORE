@@ -1,17 +1,19 @@
+<%
+    thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
+    web_url = object.try(:asset_web_url) || thumbnail_url
+    render_locale = I18n.locale
+    random_id = SecureRandom.hex(10)
+%>
+<% content_for(:tile_header_buttons, render_linked_content_warnings(content, { content: object, locale: render_locale })) %>
+
 <%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'image asset') do %>
-  <%
-      thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
-      web_url = object.try(:asset_web_url) || thumbnail_url
-      render_locale = I18n.locale
-      random_id = SecureRandom.hex(10)
-  %>
+
   <% I18n.with_locale(object.first_available_locale) do %>
     <div class="thumbnail media item lazyload <%= local_assigns[:class] %>" data-open="<%= random_id %>" data-bg="<%= thumbnail_url %>">
       <div class="description">
         <%= render_translatable_linked_field(content, 'data_cycle_core/contents/grid/compact/attributes/title', { object: object }) %>
       </div>
       <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && attribute_editable?(key, definition, options, content) %>
-      <%= render_linked_content_warnings(content, { content: object, locale: render_locale }) %>
     </div>
 
     <div class="width-content reveal media-preview" id="<%= random_id %>" data-reveal>

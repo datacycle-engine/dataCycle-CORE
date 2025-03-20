@@ -33,7 +33,7 @@ module DataCycleCore
       end
 
       def restore_classification_contents
-        classification_content_history.where.not(classification_id: nil).find_each do |clc_history|
+        classification_content_histories.where.not(classification_id: nil).find_each do |clc_history|
           DataCycleCore::ClassificationContent.create!(clc_history.attributes.slice(*DataCycleCore::ClassificationContent.column_names.except('id')).merge('content_data_id' => thing_id))
         rescue ActiveRecord::RecordNotUnique
           nil

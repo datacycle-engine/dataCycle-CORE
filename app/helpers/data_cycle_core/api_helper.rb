@@ -17,8 +17,10 @@ module DataCycleCore
       api_property_definition = api_definition(definition)
       api_version = @api_version || 2
       if api_version == 4
+
         partials = [
           "#{definition&.dig('type')&.underscore}_#{key.underscore}",
+          definition.dig('features', 'overlay', 'overlay_for')&.then { |overlay_for| "#{definition&.dig('type')&.underscore}_#{overlay_for.underscore}" },
           (api_property_definition&.dig('partial').present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
           api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,

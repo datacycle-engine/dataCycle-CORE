@@ -13,14 +13,7 @@
 <% end %>
 
 <% contents&.each do |content| %>
-  <%= tag.li(class: [
-    'list-item',
-    'data-cycle-object',
-    content.is_a?(DataCycleCore::Thing) ? content&.template_name&.underscore : nil,
-    content.respond_to?(:is_valid?) && !content.try(:is_valid?) ? 'expired-item' : nil,
-    DataCycleCore::Feature::TileBorderColor.class_string(content),
-    thing_content_score_class(content),
-  ].compact_blank.join(' '),
+  <%= tag.li(class: content_tile_class(content, 'grid'),
   id: content.id,
   data: {
     id: content.id,

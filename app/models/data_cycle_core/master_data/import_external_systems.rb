@@ -256,7 +256,7 @@ module DataCycleCore
           optional(:external_id_prefix).filled(:str?)
           optional(:transformations) { hash? }
           optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
-          optional(:data_id_transformation).filled(:ruby_module_and_method?).hash do
+          optional(:data_id_transformation).hash do
             required(:module) { str? }
             required(:method) { str? }
           end
@@ -265,6 +265,7 @@ module DataCycleCore
         rule(:logging_strategy).validate(:dc_logging_strategy)
         rule(:template_name).validate(:dc_template_names)
         rule(:linked_template_name).validate(:dc_template_names)
+        rule(:data_id_transformation).validate(:ruby_module_and_method)
 
         rule do
           base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)

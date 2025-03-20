@@ -4,13 +4,12 @@ const MapboxDrawLoader = () =>
 import MaplibreDrawControl from "./map_controls/maplibre_draw_control";
 import MaplibreDrawRoutingMode from "./map_controls/maplibre_draw_routing_mode";
 import turfFlatten from "@turf/flatten";
-
 import isEmpty from "lodash/isEmpty";
 import UploadGpxControl from "./map_controls/maplibre_upload_gpx_control";
 import domElementHelpers from "../helpers/dom_element_helpers";
 import AdditionalValuesFilterControl from "./map_controls/maplibre_additional_values_filter_control";
-import ConfirmationModal from "./confirmation_modal";
 import ObjectUtilities from "../helpers/object_utilities";
+import { showCallout } from "../helpers/callout_helpers";
 
 class MapLibreGlEditor extends MapLibreGlViewer {
 	constructor(container) {
@@ -49,9 +48,9 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		this.$locationField = this.$parentContainer
 			.siblings("input.location-data:hidden")
 			.first();
-		this.$geoCodeButton = this.$mapInfoContainer
-			.find(".geocode-address-button")
-			.first();
+		this.geoCodeButton = this.$mapInfoContainer.find(
+			".geocode-address-button",
+		)[0];
 		this.geoCodeAttributes = [
 			"street_address",
 			"postal_code",
@@ -149,8 +148,13 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		this.$latitudeField.on("change", this.updateMapMarker.bind(this));
 		this.$longitudeField.on("change", this.updateMapMarker.bind(this));
 
-		if (this.$geoCodeButton)
-			this.$geoCodeButton.on("click", this.geoCodeAddress.bind(this));
+		if (this.geoCodeButton) {
+			DataCycle.enableElement(this.geoCodeButton);
+			this.geoCodeButton.addEventListener(
+				"click",
+				this.geoCodeAddress.bind(this),
+			);
+		}
 
 		this.container.addEventListener("clear", this.clear.bind(this));
 	}
@@ -313,7 +317,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		return elem.querySelector(`option[value="${value}"]`)?.textContent;
 	}
 	getAddressFromAttributes() {
-		const locale = this.$geoCodeButton[0].dataset.locale;
+		const locale = this.geoCodeButton.dataset.locale;
 		const address = {
 			locale: locale,
 		};
@@ -340,33 +344,25 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	geoCodeAddress(event) {
 		event.preventDefault();
 
-		if (this.$geoCodeButton.hasClass("disabled")) return;
-
-		this.$geoCodeButton.append(' <i class="fa fa-spinner fa-spin fa-fw"></i>');
-		this.$geoCodeButton.addClass("disabled");
+		const disabledText = `${this.geoCodeButton.textContent} <i class="fa fa-spinner fa-spin fa-fw"></i>`;
+		console.log("geoCodeAddress", disabledText);
+		DataCycle.disableElement(this.geoCodeButton, disabledText);
 
 		const address = this.getAddressFromAttributes();
-
 		const promise = DataCycle.httpRequest("/things/geocode_address", {
 			body: address,
 		});
 
 		promise
 			.then((data) => {
-				if (data.error) {
-					new ConfirmationModal({
-						text: data.error,
-					});
-				} else if (data && data.length === 2) {
-					this.setGeocodedValue(data);
-				}
+				if (data.error) showCallout(data.error, "error");
+				else if (data && data.length === 2) this.setGeocodedValue(data);
 			})
 			.catch((_jqxhr, textStatus, error) => {
 				console.error(`${textStatus}, ${error}`);
 			})
 			.finally(() => {
-				this.$geoCodeButton.find("i.fa").remove();
-				this.$geoCodeButton.removeClass("disabled");
+				DataCycle.enableElement(this.geoCodeButton);
 			});
 
 		return promise;

@@ -25,10 +25,11 @@ module DataCycleCore
         :linked_stored_filter
       ].freeze
 
-      def initialize(contents:, single_item: false, **params)
+      def initialize(contents: nil, content: nil, template: nil, **params)
+        @content = content
         @contents = contents
-        @single_item = single_item
         @params = params
+        @template = template
       end
 
       def render(render_format = :json)
@@ -36,7 +37,10 @@ module DataCycleCore
       end
 
       def json_template
-        @single_item ? 'data_cycle_core/api/v4/contents/show' : 'data_cycle_core/api/v4/contents/index'
+        return @template if @template
+        return 'data_cycle_core/api/v4/contents/show' if @content
+
+        'data_cycle_core/api/v4/contents/index'
       end
 
       def json_params
@@ -45,24 +49,24 @@ module DataCycleCore
         params[:section_parameters] ||= {}
         params[:include_parameters] ||= []
         params[:fields_parameters] ||= []
-        params[:field_filter] ||= false
+        params[:field_filter] = params[:fields_parameters].present?
         params[:classification_trees_parameters] ||= []
-        params[:classification_trees_filter] ||= false
+        params[:classification_trees_filter] = params[:classification_trees_parameters].present?
         params[:language] ||= Array(I18n.default_locale.to_s)
         params[:expand_language] ||= false
         params[:api_context] ||= 'api'
         params[:api_version] = 4
         params[:permitted_params] ||= {}
 
-        if @single_item
-          params[:content] = @contents.first
-        else
+        params[:content] = @content if @content
+
+        if @contents
           params[:contents] = @contents
           params[:pagination_contents] = @contents
           params[:count] = @count
         end
 
-        params
+        params.merge(@params[:additional_params] || {})
       end
 
       def render_json

@@ -11,8 +11,9 @@ module DataCycleCore
           }.tap do |w|
             DataCycleCore.content_warnings.slice('Common', template_name).presence&.each do |key, value|
               value.presence&.each do |k, v|
-                warning_class = (v[:class]&.classify || "DataCycleCore::Warning::#{key.classify}").constantize
-                next unless warning_class.try(k, v.except(:active, :hard, :class), self, context)
+                warning_class = DataCycleCore::ModuleService.safe_load_module(v[:module] || key.classify, 'Warning')
+
+                next unless warning_class.try(k, v.except(:active, :hard, :module), self, context)
 
                 w[v[:hard] ? :hard : :soft].push(warning_class.try("#{k}_message", k, self, context) || warning_class.message(k, self, context))
               end

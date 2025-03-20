@@ -30,7 +30,6 @@ module DataCycleCore
             else
               renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
                 contents: @contents,
-                single_item: false,
                 **thing_renderer_v4_params
               )
               render json: renderer.render(:json)
@@ -51,6 +50,12 @@ module DataCycleCore
 
             render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && return
           end
+
+          renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
+            content: @content,
+            **thing_renderer_v4_params
+          )
+          render json: renderer.render(:json)
         end
 
         def timeseries

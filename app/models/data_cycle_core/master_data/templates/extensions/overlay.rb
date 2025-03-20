@@ -96,6 +96,18 @@ module DataCycleCore
           def self.allowed_postfixes_for_type(type)
             Array.wrap(OVERLAY_POSTFIXES[type].dup || [BASE_OVERLAY_POSTFIX])
           end
+
+          def self.disable_original_property!(prop)
+            prop['api'] ||= {}
+            prop['api']['disabled'] = true
+            prop['api']['v4']['disabled'] = true if prop.dig('api', 'v4')&.key?('disabled')
+          end
+
+          def self.disable_original_properties!(properties)
+            properties.each_value do |prop|
+              disable_original_property!(prop) if prop.dig('features', 'overlay', 'allowed')
+            end
+          end
         end
       end
     end

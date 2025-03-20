@@ -510,7 +510,7 @@ module DataCycleCore
         ids = Array.wrap(ids).uniq
 
         if DataCycleCore::DataHashService.present?(ids)
-          classification_content.upsert_all(
+          classification_contents.upsert_all(
             ids.map do |classification_id|
               {
                 classification_id:,
@@ -526,7 +526,7 @@ module DataCycleCore
 
         return if to_delete.empty?
 
-        classification_content.where(relation: relation_name, classification_id: to_delete).delete_all
+        classification_contents.where(relation: relation_name, classification_id: to_delete).delete_all
       end
 
       def set_asset_id(asset_id, relation_name, asset_type)
