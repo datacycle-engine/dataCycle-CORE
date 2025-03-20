@@ -27,7 +27,8 @@ module DataCycleCore
                 cache: permitted_params[:cache].to_s != 'false',
                 cluster: permitted_params[:cluster].to_s == 'true',
                 cluster_lines: permitted_params[:clusterLines].to_s == 'true',
-                cluster_items: permitted_params[:clusterItems].to_s == 'true'
+                cluster_items: permitted_params[:clusterItems].to_s == 'true',
+                cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i
               )
               render(
                 plain: mvt,
@@ -61,7 +62,8 @@ module DataCycleCore
                 cache: permitted_params[:cache].to_s != 'false',
                 cluster: permitted_params[:cluster].to_s == 'true',
                 cluster_lines: permitted_params[:clusterLines].to_s == 'true',
-                cluster_items: permitted_params[:clusterItems].to_s == 'true'
+                cluster_items: permitted_params[:clusterItems].to_s == 'true',
+                cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i
               )
               render(
                 plain: mvt,
@@ -91,7 +93,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterItems])
+          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterItems, :clusterMaxZoom])
         end
 
         def prepare_url_parameters

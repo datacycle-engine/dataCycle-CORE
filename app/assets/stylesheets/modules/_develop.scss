@@ -507,7 +507,7 @@
   position: relative;
   padding: 2px 5px;
   border-radius: $global-radius;
-  box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+  box-shadow: 0 0 0 1px var(--dark-gray-05) inset;
   font-weight: 200;
 
   &::after {
@@ -1076,31 +1076,6 @@ a.dc-foundation-tooltip {
 
 .title.working-title {
   font-style: italic;
-}
-
-.new-item,
-.new-content-reveal {
-  iframe {
-    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-    border-radius: $global-radius;
-    border: none;
-    width: 96vw;
-    height: 85vh;
-    max-width: 1200px;
-  }
-
-  .loading-iframe {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-left: -1.5rem;
-    margin-top: -1.5rem;
-
-    .fa {
-      font-size: 3rem;
-      color: $light-gray;
-    }
-  }
 }
 
 video {
@@ -2572,7 +2547,7 @@ select {
   .geographic,
   .map-info {
     background-color: transparent;
-    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+    box-shadow: 0 0 0 1px var(--dark-gray-05) inset;
     border-radius: $global-radius;
   }
 
@@ -3039,10 +3014,6 @@ section.related-objects {
         margin-bottom: 1rem;
         border-radius: $global-radius;
 
-        &.expired-item {
-          box-shadow: 0 0 0 1px $alert-color inset, 0 1px 3px $alert-color;
-        }
-
         >ul {
           margin-top: 1rem;
 
@@ -3191,7 +3162,7 @@ section.duplicate-candidates {
     .content.image-object,
     .content.video,
     .content.video-object {
-      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+      box-shadow: 0 0 0 1px var(--dark-gray-05) inset, var(--black-01) 0px 1px 3px 0px, var(--black-01) 0px 1px 2px -1px;
       padding: 1px 0.65rem 0.65rem;
 
       .buttons {
@@ -3289,6 +3260,11 @@ section.duplicate-candidates {
 
     >*:not(:last-child) {
       margin-right: 0.3rem;
+    }
+
+    .name,
+    .title {
+      word-wrap: anywhere;
     }
 
     .translatable-field-container {
@@ -3584,12 +3560,6 @@ button.button-prime.small.bulk-delete-button {
         background-color: $primary-color;
       }
     }
-  }
-}
-
-.hard-warnings {
-  .content-warning {
-    color: $alert-color;
   }
 }
 

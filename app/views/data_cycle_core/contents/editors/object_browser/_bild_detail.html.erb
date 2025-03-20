@@ -6,7 +6,12 @@
 
   <%= tag.div(class: "item-info-content #{thing_content_score_class(object)}", data: { content_score: object.try(:internal_content_score)&.round }) do %>
     <h5>Details (<%= I18n.locale %>)</h5>
-    <%= tag.div(render('data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({content: object})), class: 'buttons') %>
+
+    <%= tag.div(class: 'buttons') do %>
+      <%= render('data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object })) %>
+      <%= render 'data_cycle_core/contents/grid/attributes/warnings_icon', content: object %>
+    <% end %>
+
     <% unless object.schema.nil? %>
       <dl>
         <% if thumbnail_url.present? %>

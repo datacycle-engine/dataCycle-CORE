@@ -320,6 +320,40 @@ module DataCycleCore
             assert_api_count_result(1)
           end
 
+          test 'api/v4/concept_schemes parameter filter[:q]' do
+            params = {
+              filter: {
+                q: 'Feratel'
+              }
+            }
+            post api_v4_concept_schemes_path(params)
+            assert_api_count_result(6)
+
+            params = {
+              filter: {
+                q: 'OutdoorActive'
+              }
+            }
+            post api_v4_concept_schemes_path(params)
+            assert_api_count_result(2)
+
+            params = {
+              filter: {
+                q: 'Feratel'
+              }
+            }
+            post api_v4_concept_schemes_path(params)
+            assert_api_count_result(6)
+
+            params = {
+              filter: {
+                q: 'OutdoorActive'
+              }
+            }
+            post api_v4_concept_schemes_path(params)
+            assert_api_count_result(2)
+          end
+
           test 'api/v4/concept_schemes/id/concepts parameter filter[:created_at]' do
             tree_id = @tags.id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags')

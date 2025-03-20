@@ -14,7 +14,7 @@
         </div>
       <% end %>
       <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && attribute_editable?(key, definition, options, content) %>
-      <%= render 'data_cycle_core/contents/grid/attributes/warnings', content: object, locale: render_locale %>
+      <%= render 'data_cycle_core/contents/grid/attributes/warnings_icon', content: object, locale: render_locale %>
     </div>
 
     <div class="width-content reveal media-preview" id="<%= random_id %>" data-reveal>
@@ -27,7 +27,7 @@
       </div>
       <div class="description">
         <%= render 'data_cycle_core/contents/validity_period', dataCycleObject: object %>
-        <%= render 'data_cycle_core/contents/grid/attributes/warnings', content: object, text: true, locale: render_locale %>
+        <%= render 'data_cycle_core/contents/grid/attributes/warnings_text', content: object, text: true, locale: render_locale %>
         <%= link_to t('tile_links.details', locale: active_ui_locale), thing_path(object), target: :_blank %>
         <% if can?(:download, object) && object.try(:content_url).present? %>
           | <%= link_to t('tile_links.full_size', locale: active_ui_locale), object.try(:content_url), target: :_blank %>

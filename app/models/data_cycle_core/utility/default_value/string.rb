@@ -5,9 +5,19 @@ module DataCycleCore
     module DefaultValue
       module String
         class << self
-          def substitution(content:, property_definition:, **_additional_args)
-            identifier = property_definition&.dig('default_value', 'attribute').to_s == 'slug' ? content&.slug : content&.id
-            format(property_definition&.dig('default_value', 'substitute_string').to_s, id: identifier).presence
+          # Example:
+          # :default_value:
+          #   module: String
+          #   method: substitution
+          #   value: https://events-vorarlberg.at/preview/?detail-v-cloud/events=%{slug}
+          #   parameters:
+          #     - slug
+          def substitution(content:, property_definition:, property_parameters:, **_additional_args)
+            format(
+              property_definition&.dig('default_value', 'value').to_s,
+              slug: property_parameters&.dig('slug'),
+              id: content&.id
+            ).presence
           end
 
           def current_user(current_user:, **_additional_args)

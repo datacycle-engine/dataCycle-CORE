@@ -8,14 +8,6 @@ en:
           invalid_linked: "invalid linked_object: type must be 'linked'. either define a stored_filter, or a template_name"
           invalid_classification: "invalid classification: tree_label must be set"
           invalid_asset: "invalid asset: type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'data_cycle_file', 'pdf', 'audio'"
-        compute:
-          invalid_computed: "invalid_computed: module and method combination not found."
-        virtual:
-          invalid_virtual: "invalid_virtual: module and method combination not found."
-        content_score:
-          invalid_content_score: "invalid_content_score: module and method combination not found."
-        default_value:
-          invalid_default_value: "invalid_default_value: module and method combination not found."
         properties:
           invalid_object: "invalid included_object: type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data)."
         storage_location:
@@ -34,4 +26,3 @@ en:
       ruby_module_or_class?: "must be a valid Ruby module or class"
       ruby_module?: "must be a valid Ruby module"
       ruby_class?: "must be a valid Ruby class"
-      ruby_module_and_method?: "must be a hash with a valid combination of a Ruby module and method"

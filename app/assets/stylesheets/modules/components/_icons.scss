@@ -442,7 +442,7 @@
   &.classification_tree_label-icon,
   &.concept_scheme-icon {
     &::before {
-      content: '\f02c';
+      content: '\f02b';
     }
 
     &.bundeslander::before {
@@ -466,10 +466,6 @@
 
     &.jahreszeiten::before {
       content: '\f073';
-    }
-
-    &.ausgabekanale::before {
-      content: '\f02b';
     }
   }
 
@@ -498,6 +494,7 @@
   }
 
   &.property-icon {
+
     &.type-date::before,
     &.type-daterange::before,
     &.type-object.key-duration::before {
@@ -505,6 +502,10 @@
     }
 
     &.type-classification::before {
+      content: '\f02b';
+    }
+
+    &.type-classification.key-universal_classifications::before {
       content: '\f02c';
     }
 

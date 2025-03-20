@@ -147,6 +147,12 @@
   }
 }
 
+.detail-header-wrapper {
+  .content-warning-text {
+    margin: 0;
+  }
+}
+
 ul.asset-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(calc(190px + 1.3rem), 1fr));
@@ -183,7 +189,7 @@ ul.asset-list {
     word-wrap: break-word;
     padding: 0.5rem;
     background-color: rgba($white, 0.5);
-    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+    box-shadow: 0 0 0 1px var(--dark-gray-05) inset, var(--black-01) 0px 1px 3px 0px, var(--black-01) 0px 1px 2px -1px;
     transition: $global-transition;
     border-radius: $global-radius;
 

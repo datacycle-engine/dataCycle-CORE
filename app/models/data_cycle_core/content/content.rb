@@ -32,6 +32,7 @@ module DataCycleCore
       ATTR_WRITERS = [:webhook_data].freeze
 
       after_initialize :add_template_properties, if: :new_record?
+      after_update :update_template_defaults, if: :template_name_previously_changed?
 
       self.abstract_class = true
 
@@ -41,7 +42,6 @@ module DataCycleCore
       attr_writer(*ATTR_WRITERS)
 
       extend  Common::ArelBuilder
-      include ContentRelations
       extend  Searchable
       include DestroyContent
       include DataHashUtility
@@ -433,8 +433,7 @@ module DataCycleCore
       end
 
       def title_property_name
-        @title_property_name ||=
-          name_property_selector { |definition| definition['type'] == 'string' && definition.dig('ui', 'is_title') == true }.first || 'name'
+        name_property_selector { |definition| definition['type'] == 'string' && definition.dig('ui', 'is_title') == true }.first || 'name'
       end
 
       def exif_property_names
@@ -764,6 +763,27 @@ module DataCycleCore
 
       def move_changes_to_previous_changes
         self.previous_datahash_changes = datahash_changes&.deep_dup
+      end
+
+      def update_template_properties
+        reload_template_definition
+
+        self.boost = thing_template.boost
+        self.content_type = thing_template.content_type
+      end
+
+      def update_template_defaults
+        DataCycleCore::UpdateTemplateDefaultsJob.perform_later(id)
+      end
+
+      def reload_template_definition
+        remove_instance_variable(:@content_template) if instance_variable_defined?(:@content_template)
+        remove_instance_variable(:@translatable_property_names) if instance_variable_defined?(:@translatable_property_names)
+        remove_instance_variable(:@untranslatable_property_names) if instance_variable_defined?(:@untranslatable_property_names)
+        remove_instance_variable(:@get_property_value) if instance_variable_defined?(:@get_property_value)
+        remove_instance_variable(:@enabled_features) if instance_variable_defined?(:@enabled_features)
+        remove_instance_variable(:@feature_attributes) if instance_variable_defined?(:@feature_attributes)
+        remove_instance_variable(:@allowed_feature_attribute) if instance_variable_defined?(:@allowed_feature_attribute)
       end
 
       def reload_memoized(key = nil)

@@ -42,6 +42,20 @@ module DataCycleCore
           # remove Rails.env.development?, when database is available in gitlab for validations
           key.failure('the specified template_names do not exist in this project') if key? && Rails.env.development? && !DataCycleCore::ThingTemplate.exists?(template_name: value)
         end
+
+        register_macro(:ruby_module_and_method) do |macro:|
+          next unless key? && value.is_a?(Hash) && value.key?(:module) && value.key?(:method)
+
+          params = [
+            "Module: #{value[:module].classify}",
+            "Method: #{value[:method]}"
+          ]
+          params.unshift("Namespace: #{macro.args.first}") if macro.args.first.present?
+          message = "module and method combination not found (#{params.join(', ')})."
+          key.failure(message) unless DataCycleCore::ModuleService.load_module(value[:module].classify, macro.args.first).respond_to?(value[:method])
+        rescue NameError
+          key.failure(message)
+        end
       end
     end
   end

@@ -76,7 +76,7 @@ module DataCycleCore
       end
 
       def load_classifications(relation_name, _overlay_flag = false)
-        classification_content.with_relation(relation_name).classifications
+        classification_contents.with_relation(relation_name).classifications
       end
 
       def load_default_classification(tree_label, alias_name)

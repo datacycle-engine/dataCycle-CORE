@@ -92,6 +92,27 @@ namespace :dc do
           WHERE things.template_name IN ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo')
         SQL
       end
+      desc 'test_bla'
+      task :test_bla, [:debug] => :environment do |_, _args|
+        puts "migrate media objects ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo') to use translated urls\n"
+
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          UPDATE thing_translations AS t1
+          SET content = jsonb_set(
+            t1.content,
+            '{canonical_url}',
+            (SELECT things.metadata->'attribution_url' from things where things.id = t1.thing_id)
+          )
+          WHERE EXISTS (
+              SELECT 1
+              FROM things
+              WHERE things.id = t1.thing_id AND things.metadata->'attribution_url' IS NOT NULL
+          );
+
+          UPDATE things
+          SET metadata = metadata - 'attribution_url'
+        SQL
+      end
     end
   end
 end

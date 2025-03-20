@@ -241,7 +241,7 @@ module DataCycleCore
               .preload(
                 :translations,
                 :external_source,
-                :classification_content,
+                :classification_contents,
                 :schedules,
                 :related_classification_contents,
                 external_system_syncs: [:external_system],
@@ -291,7 +291,7 @@ module DataCycleCore
               }
             }&.index_by { |v| v[:classification].id } || {}
 
-            preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_content).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
+            preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_contents).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
             preloaded['full_classifications'] = collected_classification_contents.group_by(&:thing_id).transform_values! do |v|
               v.filter_map { |ccc| ccc.classification_alias.primary_classification&.id }
             end

@@ -62,7 +62,15 @@ module DataCycleCore
       ActiveRecord::Base.transaction do
         duplicate.original_id = original.id
         duplicate_sync_query(duplicate.id, original.id)
+
+        duplicate_thing_history_links = duplicate.thing_history_links
+
+        original.thing_history_links << duplicate_thing_history_links
+
         duplicate.destroy
+        duplicate_delete_history = DataCycleCore::Thing::History.where(id: duplicate.history_ids).where.not(deleted_at: nil)
+
+        DataCycleCore::ThingHistoryLink.create!(thing_id: original.id, thing_history_id: duplicate_delete_history.first.id) if duplicate_delete_history.present?
 
         if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
           duplicate_external_key.split(';').compact_blank.each do |d_external_key|

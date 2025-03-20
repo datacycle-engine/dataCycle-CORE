@@ -1,11 +1,11 @@
 import ObserverHelpers from "../helpers/observer_helpers";
-import DomElementHelpers from "../helpers/dom_element_helpers";
+import { parseDataAttribute } from "../helpers/dom_element_helpers";
 
 class MasonryGrid {
 	constructor(selector) {
 		selector.dcMasonryGrid = true;
 		this.grid = selector;
-		this.rowHeight = parseInt(
+		this.rowHeight = Number.parseInt(
 			window.getComputedStyle(this.grid).getPropertyValue("grid-auto-rows"),
 		);
 		this.config = {
@@ -95,9 +95,8 @@ class MasonryGrid {
 		}
 	}
 	boundingHeight(item) {
-		return item.querySelector(".content-link") === null
-			? item.getBoundingClientRect().height
-			: item.querySelector(".content-link").getBoundingClientRect().height;
+		const container = item.querySelector(".content-link") || item;
+		return container.getBoundingClientRect().height;
 	}
 	resizeMasonryItems() {
 		for (const item of this.resizeQueue) {
@@ -112,8 +111,7 @@ class MasonryGrid {
 	addToResizeQueue(item) {
 		if (!this.resizeQueue.length)
 			requestAnimationFrame(this.resizeMasonryItems.bind(this));
-
-		this.resizeQueue.push(item);
+		if (!this.resizeQueue.includes(item)) this.resizeQueue.push(item);
 	}
 	resizeAllMasonryItems(_event = null) {
 		for (const item of this.grid.querySelectorAll(":scope > .grid-item"))
@@ -121,7 +119,7 @@ class MasonryGrid {
 	}
 	heightChanged(item) {
 		return (
-			DomElementHelpers.parseDataAttribute(item.dataset.originalHeight) !==
+			parseDataAttribute(item.dataset.originalHeight) !==
 			this.boundingHeight(item)
 		);
 	}

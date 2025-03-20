@@ -22,6 +22,7 @@ module DataCycleCore
             @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:'dct:deleted')
             @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
           end
+          @classification_tree_labels = @classification_tree_labels.search(@full_text_search) if @full_text_search
           @classification_tree_labels = apply_ordering(@classification_tree_labels)
           @classification_tree_labels = apply_paging(@classification_tree_labels)
         end
@@ -143,6 +144,8 @@ module DataCycleCore
           if action_name == 'index'
             {
               filter: [
+                :search,
+                :q,
                 {
                   attribute: {
                     'dct:modified': attribute_filter_operations,
@@ -278,7 +281,6 @@ module DataCycleCore
           if order_query.blank?
             query = query.reorder(nil)
             query = query.order_by_similarity(full_text_search) if full_text_search.present?
-
             query = case query
                     when DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_AssociationRelation), DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_Relation)
                       query.order(order_a: :asc, id: :asc)

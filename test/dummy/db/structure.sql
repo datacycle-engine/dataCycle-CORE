@@ -573,6 +573,62 @@ CREATE FUNCTION public.insert_concepts_trigger_function() RETURNS trigger
 
 
 --
+-- Name: thing_history_links_deletion_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.thing_history_links_deletion_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  INSERT INTO thing_history_link_histories (
+    thing_history_link_id,
+    thing_id,
+    thing_history_id,
+    deleted_at,
+    updated_at,
+    created_at
+  )
+  VALUES (
+    OLD.id,
+    OLD.thing_id,
+    OLD.thing_history_id,
+    NOW(),
+    NOW(),
+    OLD.created_at
+  );
+  RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: thing_history_links_update_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.thing_history_links_update_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  INSERT INTO thing_history_link_histories (
+    thing_history_link_id,
+    thing_id,
+    thing_history_id,
+    updated_at,
+    created_at
+  )
+  VALUES (
+    OLD.id,
+    OLD.thing_id,
+    OLD.thing_history_id,
+    OLD.updated_at,
+    OLD.created_at
+  );
+  RETURN OLD;
+END;
+$$;
+
+
+--
 -- Name: to_classification_content_history(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1918,6 +1974,34 @@ CREATE TABLE public.thing_histories (
 
 
 --
+-- Name: thing_history_link_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.thing_history_link_histories (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    thing_history_link_id uuid NOT NULL,
+    thing_id uuid NOT NULL,
+    thing_history_id uuid NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: thing_history_links; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.thing_history_links (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    thing_id uuid NOT NULL,
+    thing_history_id uuid NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: thing_history_translations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2419,6 +2503,22 @@ ALTER TABLE ONLY public.thing_duplicates
 
 ALTER TABLE ONLY public.thing_histories
     ADD CONSTRAINT thing_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: thing_history_link_histories thing_history_link_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_history_link_histories
+    ADD CONSTRAINT thing_history_link_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: thing_history_links thing_history_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_history_links
+    ADD CONSTRAINT thing_history_links_pkey PRIMARY KEY (id);
 
 
 --
@@ -3494,6 +3594,13 @@ CREATE INDEX index_thing_history_id_locale ON public.thing_history_translations 
 
 
 --
+-- Name: index_thing_history_links_on_thing_id_and_thing_history_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_thing_history_links_on_thing_id_and_thing_history_id ON public.thing_history_links USING btree (thing_id, thing_history_id);
+
+
+--
 -- Name: index_thing_history_translations_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4174,6 +4281,20 @@ CREATE TRIGGER insert_concepts_trigger AFTER INSERT ON public.classification_ali
 
 
 --
+-- Name: thing_history_links trigger_delete_thing_history_links; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_delete_thing_history_links AFTER DELETE ON public.thing_history_links FOR EACH ROW EXECUTE FUNCTION public.thing_history_links_deletion_trigger_function();
+
+
+--
+-- Name: thing_history_links trigger_update_thing_history_links; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_update_thing_history_links AFTER UPDATE ON public.thing_history_links FOR EACH ROW EXECUTE FUNCTION public.thing_history_links_update_trigger_function();
+
+
+--
 -- Name: searches tsvectorsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4478,6 +4599,14 @@ ALTER TABLE ONLY public.collection_shares
 
 ALTER TABLE ONLY public.concept_schemes
     ADD CONSTRAINT fk_rails_434bc563a9 FOREIGN KEY (id) REFERENCES public.classification_tree_labels(id) ON DELETE CASCADE;
+
+
+--
+-- Name: thing_history_links fk_rails_43fe7ecf4a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_history_links
+    ADD CONSTRAINT fk_rails_43fe7ecf4a FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
 
 
 --
@@ -4817,6 +4946,14 @@ ALTER TABLE ONLY public.classification_groups
 
 
 --
+-- Name: thing_history_links fk_rails_fe31950053; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_history_links
+    ADD CONSTRAINT fk_rails_fe31950053 FOREIGN KEY (thing_history_id) REFERENCES public.thing_histories(id) ON DELETE CASCADE;
+
+
+--
 -- Name: collected_classification_contents fk_things; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4831,6 +4968,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250318124755'),
 ('20250311144518'),
 ('20250304132522'),
 ('20250210064926'),

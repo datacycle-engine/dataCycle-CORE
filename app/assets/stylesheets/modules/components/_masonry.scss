@@ -46,12 +46,6 @@
       }
     }
 
-    &.expired-item .watch-list-dropdown {
-      .watch-lists-link {
-        color: var(--alert-color);
-      }
-    }
-
     .watch-list-dropdown~.content-link,
     .remove-from-watchlist-link~.content-link {
       .infoRow:not(.parent) {
