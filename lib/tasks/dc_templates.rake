@@ -104,17 +104,17 @@ namespace :dc do
 
         # Count the amount of datasets that need to be updated
         select_cc = <<-SQL.squish
-          SELECT co2.classification_id AS new_classification_id, cc.id FROM classification_contents AS cc
-          JOIN concepts AS co ON cc.classification_id = co.classification_id
-          JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
-            AND cs.name = ?
-          JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
-          JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
-            AND cs2.name = ?
-          JOIN things AS th ON th.id = cc.content_data_id
-            AND th.template_name = ?
-          WHERE
-            cc.relation = ?
+          SELECT co2.classification_id AS new_classification_id, cc.id
+          FROM classification_contents AS cc
+            JOIN concepts AS co ON cc.classification_id = co.classification_id
+            JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+              AND cs.name = ?
+            JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
+            JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+              AND cs2.name = ?
+            JOIN things AS th ON th.id = cc.content_data_id
+              AND th.template_name = ?
+          WHERE cc.relation = ?
         SQL
         sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
         rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_cc)
@@ -124,28 +124,30 @@ namespace :dc do
         update_cc = <<-SQL.squish
           WITH classification_contents_update AS (
             UPDATE classification_contents as c1
-              SET classification_id = cl_update.new_classification_id
+            SET classification_id = cl_update.new_classification_id
             FROM (
-              SELECT co2.classification_id AS new_classification_id, cc.id FROM classification_contents AS cc
-              JOIN concepts AS co ON cc.classification_id = co.classification_id
-              JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
-                AND cs.name = ?
-              JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
-              JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
-                AND cs2.name = ?
-              JOIN things AS th ON th.id = cc.content_data_id
-                AND th.template_name = ?
-              WHERE
-                cc.relation = ? ) as cl_update
-            WHERE
-              c1.id = cl_update.id
-              RETURNING c1.content_data_id
+                SELECT co2.classification_id AS new_classification_id,
+                  cc.id
+                FROM classification_contents AS cc
+                  JOIN concepts AS co ON cc.classification_id = co.classification_id
+                  JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+                    AND cs.name = ?
+                  JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
+                  JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+                    AND cs2.name = ?
+                  JOIN things AS th ON th.id = cc.content_data_id
+                    AND th.template_name = ?
+                WHERE cc.relation = ?
+              ) as cl_update
+            WHERE c1.id = cl_update.id
+            RETURNING c1.content_data_id
           )
           UPDATE things AS th
-            SET cache_valid_since = null
-          WHERE
-            th.id IN (SELECT content_data_id FROM classification_contents_update)
-
+          SET cache_valid_since = null
+          WHERE th.id IN (
+              SELECT content_data_id
+              FROM classification_contents_update
+            )
         SQL
 
         sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
