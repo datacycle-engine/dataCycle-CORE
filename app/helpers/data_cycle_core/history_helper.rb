@@ -128,7 +128,7 @@ module DataCycleCore
       if item.version_name.present?
         version_name.push(
           tag.i(
-            class: 'fa fa-tag version-name has-tip copy-to-clipboard',
+            class: 'fa fa-info-circle version-name has-tip copy-to-clipboard',
             data: {
               value: item.version_name,
               dc_tooltip: t('feature.named_version.version_name', name: item.version_name, locale: active_ui_locale)
