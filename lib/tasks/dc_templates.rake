@@ -95,11 +95,11 @@ namespace :dc do
 
       # value => translated_value (copy vs move)
       desc 'value => translated (copy/move) | templates as one space seperated string'
-      task :value_to_translated, [:from, :to, :operation, :templates, :debug] => :environment do |_, _args|
-        field_from = _args[:from]
-        field_to = _args[:to]
-        templates = _args[:templates].split
-        puts "migrate #{field_from} to translated #{field_to} for templates #{templates} | Operation: #{_args[:operation]}\n"
+      task :value_to_translated, [:from, :to, :operation, :templates, :debug] => :environment do |_, args|
+        field_from = args[:from]
+        field_to = args[:to]
+        templates = args[:templates].split
+        puts "migrate #{field_from} to translated #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
 
         # count how many rows should be affected by the migration
         select_th_qry = <<-SQL.squish
@@ -133,7 +133,7 @@ namespace :dc do
         puts "Datasets migrated:  #{rows_updated}\n"
 
         # remove old fields from metadata json, if operation equals move
-        if _args[:operation] == 'move'
+        if args[:operation] == 'move'
           remove_metadata_fields_qry = <<-SQL.squish
             UPDATE things
             SET metadata = metadata - ?
@@ -148,11 +148,11 @@ namespace :dc do
 
       # translated => simple_value (copy/move)
       desc 'translated => value (copy/move)'
-      task :translated_to_value, [:from, :to, :operation, :templates, :debug] => :environment do |_, _args|
-        field_from = _args[:from]
-        field_to = _args[:to]
-        templates = _args[:templates].split
-        puts "migrate translated #{field_from} to #{field_to} for templates #{templates} | Operation: #{_args[:operation]}\n"
+      task :translated_to_value, [:from, :to, :operation, :templates, :debug] => :environment do |_, args|
+        field_from = args[:from]
+        field_to = args[:to]
+        templates = args[:templates].split
+        puts "migrate translated #{field_from} to #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
 
         # count how many rows should be affected by the migration
         select_tt_qry = <<-SQL.squish
@@ -189,7 +189,7 @@ namespace :dc do
         puts "Datasets migrated:  #{rows_updated}\n"
 
         # remove old fields from metadata json, if operation equals move
-        if _args[:operation] == 'move'
+        if args[:operation] == 'move'
           remove_metadata_fields_qry = <<-SQL.squish
             UPDATE thing_translations t1
             SET content = content - ?
