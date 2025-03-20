@@ -1403,6 +1403,7 @@ de:
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
       unknown_activity_type: "Unbekannter Typ für Activity"
       unknown: Unbekannter Fehler
+      endpoint_no_data: Der Endpunkt liefert keine Daten
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
