@@ -10,9 +10,9 @@
   </ul>
 </div>
 <div class="card-section accordion" data-accordion data-allow-all-closed="true">
-  <div class="accordion-item is-active" data-accordion-item>
+  <div class="accordion-item" data-accordion-item>
     <div class="accordion-title">
-      <h6>Collections</h6>
+      <h6>collections</h6>
     </div>
     <div class="accordion-content indented" data-tab-content>
       <ul>
@@ -28,33 +28,37 @@
   </div>
 </div>
 <div class="card-section accordion" data-accordion data-allow-all-closed="true">
-  <div class="accordion-item is-active" data-accordion-item>
+  <div class="accordion-item" data-accordion-item>
     <div class="accordion-title">
-      <h6 class="">import and download:</h6>
+      <h6 class="">import steps:</h6>
     </div>
-    <div class="accordion-content indented" data-tab-content>
-      <% if data.dig(:last_import_step_time_info).present? %>
-            <% data[:last_import_step_time_info].each do |key, value| %>
-              <%= key %>:
-              <ul class="no-bullet import-data-timestamps">
-                <% if value.dig('last_successful_try').present? && value.dig('last_try') != value.dig('last_successful_try') %>                
-                  <li class="last-successful-import check-icon" >
-                    <%= import_data_time(Time.parse(value.dig('last_successful_try'))) %>
-                    <% if value.dig('last_successful_try_time').present? %>
-                      (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_successful_try_time'), locale: active_ui_locale)%>)
-                    <% end %>
-                  </li>
+    <div class="accordion-content indented import-steps" data-tab-content>
+      <% times = data[:sorted_step_times] %>
+      <% if times.present? %>
+        <% times.each do |value| %>
+          <span><%= value['name'] %>:</span>
+          <ul class="no-bullet import-data-timestamps">
+            <% if value['last_successful_try'].present? && value['last_try'] != value['last_successful_try'] %>
+              <li class="last-successful-import check-icon">
+                <%= import_data_time(Time.parse(value['last_successful_try'])) %>
+                <% if value['last_successful_try_time'].present? %>
+                  (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value['last_successful_try_time'], locale: active_ui_locale)%>)
                 <% end %>
-                <li class="last-import <%= value.dig('last_try_class') %>" >
-                  <%= import_data_time(Time.parse(value.dig('last_try'))) %>
-                  <% if data.dig('last_try_time').present? %>
-                    (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_time'), locale: active_ui_locale)%>)
-                  <% end %>
-                </li>
-              </ul>
+              </li>
             <% end %>
-        <% else %>
+            <li class="last-import <%= last_step_class(value) %>">
+              <%= import_data_time(Time.parse(value.dig('last_try'))) %>
+              <% if value.dig('last_try_time').present? %>
+                (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_time'), locale: active_ui_locale)%>)
+              <% end %>
+            </li>
+          </ul>
         <% end %>
+      <% else %>
+        <ul>
+          <li>no timestamps for steps found</li>
+        </ul>
+      <% end %>
     </div>
   </div>
 </div>
@@ -78,7 +82,6 @@
   <ul class="no-bullet import-data-timestamps">
     <% if data.dig(:last_import) != data.dig(:last_successful_import) %>
       <li class="last-successful-import <%= 'check-icon' if data.dig(:last_successful_import) != 'never' %>">
-        test
         <%= import_data_time(data.dig(:last_successful_import)) %>
         <% if data.dig(:last_successful_import_time).present? %>
           (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + data.dig(:last_successful_import_time), locale: active_ui_locale)%>)

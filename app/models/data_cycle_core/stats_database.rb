@@ -127,7 +127,7 @@ module DataCycleCore
         languages: external_source.default_options&.dig('locales'),
         credentials: external_source.credentials.is_a?(::Array) ? number_with_delimiter(external_source.credentials.size) : 1,
         updated_at: external_source.updated_at,
-        last_import_step_time_info: last_try(external_source)
+        sorted_step_times: external_source.sorted_step_times
       }.merge(last_download_and_import(external_source))
 
       client.close

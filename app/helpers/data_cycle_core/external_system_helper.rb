@@ -89,5 +89,11 @@ module DataCycleCore
         external_system_identifiers.exclude?(data['identifier'])
       }.keys
     end
+
+    def last_step_class(data)
+      return unless !data['deactivated'] && (data['last_try'].present? || data['last_successful_try'].present?)
+
+      data['last_try'] == data['last_successful_try'] ? 'success-color' : 'alert-color'
+    end
   end
 end
