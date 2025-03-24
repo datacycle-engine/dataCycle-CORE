@@ -109,20 +109,25 @@ module DataCycleCore
       export_config&.dig(method_name.to_sym, 'filter', key) || export_config&.dig(:filter, key)
     end
 
-    def last_try(import_step = '')
-      last_import_step_time_info.dig(import_step, 'last_try')
+    def step_timestamp(type, name)
+      key = timestamp_key_for_step(name)
+      last_import_step_time_info.dig(key, type.to_s)
     end
 
-    def last_successful_try(import_step = '')
-      last_import_step_time_info.dig(import_step, 'last_successful_try')
+    def last_try(name)
+      step_timestamp(__method__, name)
     end
 
-    def last_try_time(import_step = '')
-      last_import_step_time_info.dig(import_step, 'last_try_time')
+    def last_successful_try(name)
+      step_timestamp(__method__, name)
     end
 
-    def last_successful_try_time(import_step = '')
-      last_import_step_time_info.dig(import_step, 'last_successful_try_time')
+    def last_try_time(name)
+      step_timestamp(__method__, name)
+    end
+
+    def last_successful_try_time(name)
+      step_timestamp(__method__, name)
     end
 
     def merge_last_import_step_time_info(import_step = nil, values = {})

@@ -109,7 +109,7 @@ module DataCycleCore
                   item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
 
                   if item.data_has_changed.nil?
-                    last_download = download_object.external_source.last_successful_try
+                    last_download = download_object.external_source.last_successful_try(download_object.step_name)
                     if modified.present? && last_download.present?
                       updated_at = modified.call(item_data)
                       item.data_has_changed = updated_at > last_download || nil if updated_at.present?
