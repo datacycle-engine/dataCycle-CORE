@@ -6,20 +6,19 @@ default_options = {
   field_filter: @field_filter,
   classification_trees: @classification_trees_parameters,
   classification_trees_filter: @classification_trees_filter,
-  languages: @language,
-  full: false
+  languages: @language
 }
+
 options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
-
 classifications = []
 classification_aliases&.each do |item|
   next unless item.visible?('api') || local_assigns[:show_all_concepts]
   next if options[:classification_trees_filter] && options[:classification_trees].exclude?(item.classification_tree_label.id)
 
-  classifications << Rails.cache.fetch(api_v4_cache_key(item, options[:languages], options[:include], options[:fields], @api_subversion, options[:full], options[:classification_trees]), expires_in: 1.year + Random.rand(7.days)) do
+  classifications << Rails.cache.fetch(api_v4_cache_key(item, options[:languages], options[:include], options[:fields], @api_subversion, nil, options[:classification_trees]), expires_in: 1.year + Random.rand(7.days)) do
     I18n.with_locale(item.first_available_locale(options[:languages])) do
-      render 'classification', content: item, options: options.dup
+      render 'classification', content: item, options: options.dup, key: key
     end
   end
 end

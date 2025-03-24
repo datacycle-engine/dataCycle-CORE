@@ -2,35 +2,40 @@
 
 uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
 
-json = {}
+value_data =
+  if @language.size == 1 && options[:languages] == ['de']
+    content.name
+  else
+    [{ '@language' => 'de', '@value' => content.name }]
+  end
 
-if options[:full]
-  value_data =
-    if @language.size == 1 && options[:languages] == ['de']
-      content.name
-    else
-      [{ '@language' => 'de', '@value' => content.name }]
-    end
-  json.merge!({
-    '@id' => content.id,
-    '@type' => 'skos:ConceptScheme',
-    'dc:multilingual' => false,
-    'dc:translation' => ['de'],
-    'dc:entityUrl' => uri,
-    'skos:prefLabel' => value_data,
-    'dc:hasConcept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language)),
-    'dct:created' => content.created_at,
-    'dct:modified' => content.updated_at,
-    'dct:deleted' => content.deleted_at
-  }.compact)
-else
-  json.merge!({
-    '@id' => content.id,
-    '@type' => 'skos:ConceptScheme'
-  }.compact)
+json = {}
+json.merge!({
+  '@id' => content.id,
+  '@type' => 'skos:ConceptScheme'
+}.compact)
+
+attributes = {
+  'dc:multilingual' => -> { false },
+  'dc:translation' => -> { ['de'] },
+  'dc:entityUrl' => -> { uri },
+  'skos:prefLabel' => -> { value_data },
+  'dc:hasConcept' => -> { classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language)) },
+  'dct:created' => -> { content.created_at },
+  'dct:modified' => -> { content.updated_at },
+  'dct:deleted' => -> { content.deleted_at }
+}
+
+new_options = options.dup
+new_options[:fields] = subtree_for(key, options[:fields])
+new_options[:include] = subtree_for(key, options[:include])
+
+attributes.each do |attribute, operation|
+  render_full =
+    included_attribute?(key, options[:include]) ||
+    (fields_attribute?(key, options[:fields]) && fields_attribute?(attribute, new_options[:fields]))
+
+  json[attribute] = operation.call if render_full
 end
-if options[:field_filter] && options[:fields].present?
-  json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) }
-else
-  json
-end
+
+json.compact

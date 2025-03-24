@@ -231,7 +231,7 @@ module DataCycleCore
     end
 
     # TODO: add section parameter
-    def api_v4_cache_key(item, language, include_parameters, field_parameters, api_subversion = nil, full = nil, linked_stored_filter_id = nil, classification_trees = [])
+    def api_v4_cache_key(item, language, include_parameters, field_parameters, api_subversion = nil, _full = nil, linked_stored_filter_id = nil, classification_trees = [])
       include_params = include_parameters&.sort&.inject([]) { |carrier, param| carrier << param.join('.') }&.join(',')
       field_params = field_parameters&.sort&.inject([]) { |carrier, param| carrier << param.join('.') }&.join(',')
       tree_params = classification_trees&.compact&.sort&.join(',')
@@ -240,7 +240,7 @@ module DataCycleCore
         add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}_expand_language/#{@expand_language}")
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{add_params}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
-        add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_#{full}_expand_language/#{@expand_language}")
+        add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_expand_language/#{@expand_language}")
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{add_params}"
       else
         raise NotImplementedError
