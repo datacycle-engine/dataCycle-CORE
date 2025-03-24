@@ -273,6 +273,11 @@ en:
     work_translation: Translated by
     valid_from: Valid from
     valid_until: to
+    media: Media
+    sitour_location: Location
+    contact_name: Contact name
+
+
 
   footer_links:
     privacy_policy: Privacy policy
