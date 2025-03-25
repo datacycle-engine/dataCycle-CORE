@@ -29,7 +29,7 @@ module DataCycleCore
           end
 
           def data_id(data_id_transformation, data)
-            return data['id'].to_s if data_id_transformation.blank? || data_id_transformation[:module].blank? || data_id_transformation[:method].blank?
+            return data['id'].to_s if data_id_transformation.blank?
 
             transform_data_id_hash(data_id_transformation, data)
           end
@@ -55,9 +55,16 @@ module DataCycleCore
           private
 
           def transform_data_id_hash(transformation, data)
-            transformation[:module]
-              .safe_constantize
-              .public_send(transformation[:method], data)
+            case transformation
+            when Hash
+              transformation[:module]
+                .safe_constantize
+                .public_send(transformation[:method], data)
+            when String
+              # binding.pry
+              "Digest::#{transformation.classify}".safe_constantize&.hexdigest(data['id'])
+
+            end
           end
         end
       end
