@@ -38,9 +38,11 @@ namespace :dc do
       task :validate, [:debug] => :environment do |_, _args|
         puts "validating new data definitions\n"
       end
+
       task :data_definitions, [:debug] => :environment do |_, _args|
         puts "migrate to new data_definitions\n"
       end
+
       task :universal_classifications, [:debug] => :environment do |_, _args|
         puts "migrate classifications to universal classifications\n"
         if DataCycleCore.data_definition_mapping['universal_classifications'].blank?
@@ -54,6 +56,7 @@ namespace :dc do
           UPDATE classification_content_histories SET relation = 'universal_classifications' WHERE relation IN ('#{classifications.join("','")}');
         SQL
       end
+
       task :embedded_relations, [:debug] => :environment do |_, _args|
         puts "migrate content_contents to new relations\n"
         if DataCycleCore.data_definition_mapping['embedded_relations'].blank?
@@ -71,6 +74,7 @@ namespace :dc do
           puts "migrated #{old} to #{new}"
         end
       end
+
       task :media_obects_translated_url, [:debug] => :environment do |_, _args|
         puts "migrate media objects ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo') to use translated urls\n"
 
@@ -97,10 +101,10 @@ namespace :dc do
       desc 'changes classification_id for things according to old and new tree_label'
       task :update_classification_contents_based_on_similarity, [:from, :to, :template, :relation, :debug] => :environment do |_, args|
         puts "Starting to migrate countries to their corresponding country codes\n"
-        from_concept_scheme_name = args[:from]
-        to_concept_scheme_name = args[:to]
-        template_name = args[:template]
-        relation = args[:relation]
+        from_concept_scheme_name = args.from
+        to_concept_scheme_name = args.to
+        template_name = args.template
+        relation = args.relation
 
         # Count the amount of datasets that need to be updated
         select_cc = <<-SQL.squish
@@ -153,6 +157,130 @@ namespace :dc do
         sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
         rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
         puts "Datasets migrated:  #{rows_updated}\n"
+      end
+
+      # value => translated_value (copy vs move)
+      desc 'value => translated (copy/move) | templates as one space seperated string'
+      task :value_to_translated, [:from, :to, :operation, :templates, :debug] => :environment do |_, args|
+        field_from = args.from
+        field_to = args.to
+        templates = args.templates&.split
+        puts "migrate #{field_from} to translated #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
+
+        # count how many rows should be affected by the migration
+        select_th_qry = <<-SQL.squish
+          SELECT 1
+          FROM things AS t1
+            JOIN thing_translations ON t1.id = thing_translations.thing_id
+          WHERE t1.metadata->? IS NOT NULL
+            #{' AND t1.template_name IN (?)' if templates.present?}
+        SQL
+        query_args = [field_from]
+        query_args << templates if templates.present?
+        sanitized_select_th_qry = ActiveRecord::Base.sanitize_sql_array([select_th_qry, *query_args])
+        rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_th_qry)
+        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+
+        # migrate data
+        update_tt_qry = <<-SQL.squish
+          UPDATE thing_translations AS tt
+          SET content = jsonb_set(tt.content, ?, data_origin.metadata->?)
+          FROM (
+                  SELECT th.metadata, th.id
+                  FROM things AS th
+                  WHERE th.metadata->? IS NOT NULL
+                      #{' AND th.template_name IN (?)' if templates.present?}
+              ) AS data_origin
+          WHERE tt.thing_id = data_origin.id
+        SQL
+
+        query_args = ["{#{field_to}}", field_from, field_from]
+        query_args << templates if templates.present?
+        sanitized_update_tt_qry = ActiveRecord::Base.sanitize_sql_array([update_tt_qry, *query_args])
+        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_tt_qry)
+        puts "Datasets migrated:  #{rows_updated}\n"
+
+        # remove old fields from metadata json, if operation equals move
+        if args[:operation] == 'move'
+          remove_metadata_fields_qry = <<-SQL.squish
+            UPDATE things
+            SET metadata = metadata - ?
+            WHERE things.metadata->? IS NOT NULL
+              #{' AND things.template_name IN (?)' if templates.present?}
+          SQL
+
+          query_args = [field_from, field_from]
+          query_args << templates if templates.present?
+          sanitized_remove_metadata_fields_qry = ActiveRecord::Base.sanitize_sql_array([remove_metadata_fields_qry, *query_args])
+          deleted = ActiveRecord::Base.connection.exec_update(sanitized_remove_metadata_fields_qry)
+          puts "Original values deleted: #{deleted}\n"
+        end
+      end
+
+      # translated => simple_value (copy/move)
+      desc 'translated => value (copy/move)'
+      task :translated_to_value, [:from, :to, :operation, :templates, :debug] => :environment do |_, args|
+        field_from = args.from
+        field_to = args.to
+        templates = args.templates&.split
+        puts "migrate translated #{field_from} to #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
+
+        # count how many rows should be affected by the migration
+        select_tt_qry = <<-SQL.squish
+          SELECT 1
+          FROM thing_translations AS t1
+            JOIN things AS t2 ON t1.thing_id = t2.id
+          WHERE t1.content->? IS NOT NULL
+            AND t1.locale = 'de' #{'AND t2.template_name IN (?)' if templates.present?}
+        SQL
+
+        query_args = [field_from]
+        query_args << templates if templates.present?
+        sanitized_select_tt_qry = ActiveRecord::Base.sanitize_sql_array([select_tt_qry, *query_args])
+        rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_tt_qry)
+        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+
+        # migrate data
+        update_th_qry = <<-SQL.squish
+          UPDATE things AS th
+          SET metadata = jsonb_set(th.metadata, ?, data_origin.content->?)
+          FROM (
+                  SELECT tt.content, tt.thing_id
+                  FROM thing_translations as tt
+                  WHERE tt.content->? IS NOT NULL
+                      AND tt.locale = 'de'
+              ) AS data_origin
+          WHERE th.id = data_origin.thing_id
+            #{' AND th.template_name IN (?)' if templates.present?}
+        SQL
+
+        query_args = ["{#{field_to}}", field_from, field_from]
+        query_args << templates if templates.present?
+        sanitized_update_th_qry = ActiveRecord::Base.sanitize_sql_array([update_th_qry, *query_args])
+        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_th_qry)
+        puts "Datasets migrated:  #{rows_updated}\n"
+
+        # remove old fields from metadata json, if operation equals move
+        if args[:operation] == 'move'
+          remove_metadata_fields_qry = <<-SQL.squish
+            UPDATE thing_translations t1
+            SET content = content - ?
+            WHERE EXISTS (
+                SELECT 1 FROM things as t2
+                WHERE t1.thing_id = t2.id
+                  AND t2.metadata->? IS NOT NULL
+                  #{'AND t2.template_name IN (?)' if templates.present?}
+              )
+              AND t1.content->? IS NOT NULL
+          SQL
+
+          query_args = [field_from, field_to]
+          query_args << templates if templates.present?
+          query_args << field_from
+          sanitized_remove_metadata_fields_qry = ActiveRecord::Base.sanitize_sql_array([remove_metadata_fields_qry, *query_args])
+          deleted = ActiveRecord::Base.connection.exec_update(sanitized_remove_metadata_fields_qry)
+          puts "Original values deleted: #{deleted}\n"
+        end
       end
     end
   end
