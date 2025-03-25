@@ -10,7 +10,7 @@ module DataCycleCore
       # https://www.crunchydata.com/blog/crunchy-spatial-tile-serving-with-postgresql-functions
       # https://www.crunchydata.com/blog/waiting-for-postgis-3-st_tileenvelopezxy
 
-      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_items: false, cluster_layer_name: nil, **_options)
+      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_items: false, cluster_layer_name: nil, cluster_max_zoom: nil, **_options)
         super(contents:, simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item:, cache:)
 
         @x = x
@@ -24,6 +24,7 @@ module DataCycleCore
         @cluster_lines = cluster_lines
         @cluster_items = cluster_items
         @cluster_radius = 500_000 / (1.7**@z.to_f)
+        @cluster_max_zoom = cluster_max_zoom&.to_i
         @include_linked = @include_parameters.any?(['linked'])
       end
 
@@ -40,13 +41,17 @@ module DataCycleCore
       def contents_with_default_scope(*)
         q = super
 
-        q = q.where(
+        q = q.where.not(geom_simple: nil).where(
           ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(things.geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
         )
 
-        q = q.select('ST_GeometryType(MAX(things.geom_simple)) AS geometry_type').reorder(id: :desc) if @cluster
+        q = q.select('ST_GeometryType(MAX(things.geom_simple)) AS geometry_type').reorder(id: :desc) if cluster?
 
         q
+      end
+
+      def cluster?
+        @cluster && (@cluster_max_zoom.blank? || @cluster_max_zoom >= @z.to_i)
       end
 
       def content_select_sql
@@ -59,7 +64,7 @@ module DataCycleCore
       end
 
       def main_sql
-        @cluster ? mvt_clustered_sql : mvt_unclustered_sql
+        cluster? ? mvt_clustered_sql : mvt_unclustered_sql
       end
 
       def base_contents_subquery
@@ -71,14 +76,18 @@ module DataCycleCore
           SQL
         end
 
-        additional_things_query = DataCycleCore::Thing.default_scoped.from('base_things')
-          .joins('INNER JOIN content_contents cc ON cc.content_a_id = base_things.id INNER JOIN things ON things.id = cc.content_b_id')
+        base_things_query = DataCycleCore::Thing.default_scoped
+          .where('EXISTS (SELECT 1 FROM base_things WHERE base_things.id = things.id)')
+
+        additional_things_query = DataCycleCore::Thing.default_scoped
+          .joins('INNER JOIN content_content_links ccl ON ccl.content_b_id = things.id')
           .where.not(content_type: 'embedded')
+          .where('EXISTS (SELECT 1 FROM base_things WHERE base_things.id = ccl.content_a_id)')
 
         <<-SQL.squish
           WITH base_things AS (#{@contents.reorder(nil).reselect('things.*').to_sql}),
           selected_things AS (
-            #{contents_with_default_scope(DataCycleCore::Thing.default_scoped.from('base_things things')).to_sql}
+            #{contents_with_default_scope(base_things_query).to_sql}
           ), additional_things AS (
             #{contents_with_default_scope(additional_things_query).to_sql}
           ), contents AS (

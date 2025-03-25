@@ -18,6 +18,12 @@
       </section>
       <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
     </section>
+    <section id="thing_history_links" class="tabs-panel">
+      <section class="datahash-nav">
+        <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.thing_history_links', locale: active_ui_locale)) %>
+      </section>
+      <pre id="admin_thing_history_links" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/thing_history_links" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
+    </section>
     <section id="json-api" class="tabs-panel">
       <section class="json-api-nav">
         <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('JSON') + tag.h6('APIv4') %>
@@ -56,6 +62,7 @@
     <li class="tabs-title"><a href="#schema"><i class="fa fa-code"></i></a></li>
     <li class="tabs-title"><a href="#template-paths"><i class="fa fa-folder-open"></i></a></li>
     <li class="tabs-title"><a href="#datahash"><i class="fa fa-hashtag"></i></a></li>
+    <li class="tabs-title"><a href="#thing_history_links"><i class="fa fa-code-fork" aria-hidden="true"></i></a></li>
     <li class="tabs-title"><a href="#json-api"><i class="fa">json</i></a></li>
     <% if dzt_data&.try(:data)&.dig('data_send').present? %>
       <li class="tabs-title"><a href="#data-send"><i class="fa">DZT</i></a></li>

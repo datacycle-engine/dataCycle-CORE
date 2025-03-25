@@ -273,6 +273,11 @@ en:
     work_translation: Translated by
     valid_from: Valid from
     valid_until: to
+    media: Media
+    sitour_location: Location
+    contact_name: Contact name
+
+
 
   footer_links:
     privacy_policy: Privacy policy
@@ -328,6 +333,7 @@ en:
   admin_panel:
     schema: Scheme
     datahash: Datahash
+    thing_history_links: Merged with current content
     api: JSON API
     relations: Relations
     template_paths: Template paths
@@ -1592,6 +1598,8 @@ en:
       required: is a mandatory field and must be filled in.
       unknown_activity_type: Unknown type for Activity
       unknown: unknown error
+      endpoint_no_data: The endpoint does not deliver any data
+
     warnings:
       string: "%{key} is not a valid keyword for string. Found for %{data} in %{template}"
       no_data: No data specified for %{data}

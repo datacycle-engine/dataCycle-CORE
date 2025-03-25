@@ -482,6 +482,7 @@ class ObjectBrowser {
 			return;
 		}
 		if (data?.success) CalloutHelpers.show(data.success, "success");
+		if (data?.info) CalloutHelpers.show(data.info, "info");
 
 		$(`#new_${this.id}`).foundation("close");
 
