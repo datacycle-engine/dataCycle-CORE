@@ -85,7 +85,7 @@ module DataCycleCore
         { 'm' => 'proximity_geographic_with', 'o' => 'ASC', 'v' => [lon, lat] }
       end
 
-      def sort_by_proximity_value(params, value)
+      def sort_by_proximity_value(params, value = nil)
         i_config = params&.find { |f| f['t'] == 'in_schedule' }
         min, max = value&.split(',')&.map(&:strip)
 
