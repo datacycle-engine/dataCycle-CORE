@@ -93,13 +93,15 @@ module DataCycleCore
 
         if min.present? || max.present?
           i_value = { 'min' => min, 'max' => max }.compact_blank
+          q = nil
         else
           i_value = i_config&.dig('v')&.compact_blank
+          q = i_config&.dig('q')
         end
 
         return if i_value.blank?
 
-        { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => { 'q' => i_config&.dig('q'), 'v' => i_value } }
+        { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => { 'q' => q, 'v' => i_value } }
       end
 
       def transform_order_hash(sort_hash, watch_list)
