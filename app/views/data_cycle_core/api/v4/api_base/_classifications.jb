@@ -11,7 +11,7 @@ default_options = {
 
 options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
-new_options = key == 'dc:classification' ? build_new_options_object('dc:classification', options) : options
+new_options = build_new_options_object(key, options)
 
 classifications = []
 classification_aliases&.each do |item|

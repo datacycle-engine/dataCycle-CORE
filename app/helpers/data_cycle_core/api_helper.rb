@@ -325,16 +325,20 @@ module DataCycleCore
     end
 
     def build_new_options_object(attribute, options)
+      return options if attribute == '@graph'
+
       new_fields = subtree_for(attribute, options[:fields])
       new_include = subtree_for(attribute, options[:include])
+
       if options[:field_filter] && new_fields.present?
         new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: options[:field_filter] }, options)
       elsif included_attribute?(attribute, options[:include])
         new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: false }, options)
       else
-        new_fields = [['@id'], ['@type']]
+        new_fields = API_DEFAULT_ATTRIBUTES.zip
         new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: true }, options)
       end
+
       new_options
     end
   end

@@ -25,15 +25,15 @@ json.merge! render('content_translations', content:, options:)
 if in_language?(content, options) && !(options[:ancestor_ids]&.include?(content.id) && full_recursive?(options[:include]))
   options[:ancestor_ids].push(content.id)
 
-  json.merge! render 'content_classifications', content: content, options: options if options[:field_filter] == false || attribute_visible?('dc:classification', options)
+  json.merge! render 'content_classifications', content:, options:, key: 'dc:classification' if options[:field_filter] == false || attribute_visible?('dc:classification', options)
 
   json.merge! render('content_properties', content:, options:)
-  json.merge! render 'combined_properties', content: content, options: options if options[:field_filter] == false || attribute_visible?('additionalProperty', options) # TODO: fix for all possible combined_properties, not only additionalProperty
+  json.merge! render('combined_properties', content:, options:) if options[:field_filter] == false || attribute_visible?('additionalProperty', options) # TODO: fix for all possible combined_properties, not only additionalProperty
 
-  json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
-  json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
+  json.merge! render('container_parent_properties', content:, options:) if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
+  json.merge! render('container_children_properties', content:, options:) if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 
-  json.merge! render 'external', content: content if attribute_visible?('identifier', options)
+  json.merge! render('external', content:) if attribute_visible?('identifier', options)
 end
 
 json
