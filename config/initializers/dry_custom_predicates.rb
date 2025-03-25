@@ -39,5 +39,9 @@ Rails.application.reloader.to_prepare do
     Dry::Logic::Predicates.predicate(:ruby_class?) do |value|
       value.is_a?(String) && value.safe_constantize&.class == Class
     end
+
+    Dry::Logic::Predicates.predicate(:fields_wildcard?) do |value|
+      value.is_a?(String) && value.split(',').map(&:strip).all? { |field| [field.length - 1, nil].include? field.index '*' }
+    end
   end
 end

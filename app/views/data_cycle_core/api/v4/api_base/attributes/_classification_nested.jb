@@ -15,16 +15,15 @@ json['@type'] = api_property_definition['types']
 new_options = options.dup
 new_options[:fields] = subtree_for(key_new, options[:fields]).pluck(1..-1)
 new_options[:include] = subtree_for(key_new, options[:include]).pluck(1..-1)
-new_options[:full] = included_attribute?(key_new, options[:include]) || included_attribute?(key_new, options[:fields])
 new_options = inherit_options(new_options, options)
 
 classification_aliases = load_value_object(content, key, value, options[:languages], api_property_definition, options[:expand_language])&.primary_classification_aliases
 
 classification_json = render 'classifications', classification_aliases:, key: key_new, definition: {}, options: new_options
 
-if new_options[:full]
-  json['dc:multilingual'] = (content.embedded? ? options[:translatable_embedded] || false : content.translatable?) if options[:field_filter] == false || (included_attribute?('dc:multilingual', options[:include]) || included_attribute?('dc:multilingual', options[:fields]))
-  json['dc:translation'] = content.available_locales if options[:field_filter] == false || (included_attribute?('dc:translation', options[:include]) || included_attribute?('dc:translation', options[:fields]))
+if attribute_visible?(key_new, options)
+  json['dc:multilingual'] = (content.embedded? ? options[:translatable_embedded] || false : content.translatable?) if options[:field_filter] == false || attribute_visible?('dc:multilingual', options)
+  json['dc:translation'] = content.available_locales if options[:field_filter] == false || attribute_visible?('dc:translation', options)
   json['dc:classification'] = classification_json[key_new]
 end
 

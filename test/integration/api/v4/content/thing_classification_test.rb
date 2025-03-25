@@ -118,6 +118,41 @@ module DataCycleCore
             end
             assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
           end
+
+          test 'testing fields for wildcard - nested classification fields' do
+            fields = ['*', 'dc:classification.*', 'dc:classification.skos:inScheme.*', 'dc:classification.skos:topConceptOf.*']
+            includes = ['dc:classification.skos:inScheme,dc:classification.skos:topConceptOf']
+
+            get api_v4_thing_path(id: @content.id, fields: nil, include: includes&.join(','))
+            assert_response(:success)
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data_includes = response.parsed_body['@graph'].first
+
+            get api_v4_thing_path(id: @content.id, fields: fields&.join(','), include: nil)
+            assert_response(:success)
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data_wildcard = response.parsed_body['@graph'].first
+
+            assert_equal(json_data_includes.keys.sort, json_data_wildcard.keys.sort)
+          end
+
+          test 'testing fields for wildcard - dc:classification' do
+            fields = ['dc:classification.*']
+            includes = ['dc:classification']
+
+            get api_v4_thing_path(id: @content.id, fields: nil, include: includes&.join(','))
+            assert_response(:success)
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data_includes = response.parsed_body['@graph'].first
+
+            get api_v4_thing_path(id: @content.id, fields: fields&.join(','), include: nil)
+            assert_response(:success)
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data_wildcard = response.parsed_body['@graph'].first
+
+            assert_equal(['@id', '@type', 'dc:classification'], json_data_wildcard.keys.sort)
+            assert_equal(json_data_includes['dc:classification'].first.keys.sort, json_data_wildcard['dc:classification'].first.keys.sort)
+          end
         end
       end
     end
