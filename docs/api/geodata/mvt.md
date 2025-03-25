@@ -46,3 +46,34 @@ curl --request POST \
  "bbox": true
     }'
 ```
+
+### Clustering
+#### ```cluster``` (default: false)
+Gibt an, ob Ergebnisse geclustered werden sollen
+
+#### ```clusterLines``` (default: false)
+Gibt an, ob auch Linien geclustered werden sollen
+
+#### ```clusterItems``` (default: false)
+Gibt an, ob für die Inhalte in einem Cluster zusätzliche Attribute ausgeliefert werden sollen,
+wie z.B. @type, name, ...
+
+#### ```clusterMaxZoom``` (default: null)
+Gibt die maximale Zoomstufe an, für die geclustered werden soll
+
+#### Beispiel (JSON-Body)
+```url
+POST https://<URL>/mvt/v1/endpoints/<ENDPOINT-ID>/{z}/{x}/{y}.pbf
+```
+```json
+{
+  "cluster": true,
+  "clusterLines": true,
+  "clusterItems": true,
+  "clusterMaxZoom": 11
+}
+```
+#### Beispiel (URL-Parameter)
+```url
+GET https://<URL>/mvt/v1/endpoints/<ENDPOINT-ID>/{z}/{x}/{y}.pbf?cluster=true&clusterLines=true&clusterItems=true&clusterMaxZoom=11
+```

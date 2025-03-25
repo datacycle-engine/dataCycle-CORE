@@ -86,7 +86,7 @@ module DataCycleCore
 
       if options.scope.to_s == 'edit'
         return false if options.computed_attribute? && !options.aggregated_attribute?
-        return false if (options.aggregate_attribute? || options.overlay_attribute?) && !options.options_for_original_key.attribute_allowed?
+        return false if (options.aggregate_attribute? || options.overlay_attribute?) && !options.options_for_original_key&.attribute_allowed?
       elsif options.computed_attribute?
         return false
       end

@@ -201,6 +201,7 @@ module DataCycleCore
           end
 
           add_inverse_aggregate_property!
+          disable_original_property_for_overlays!
         end
 
         def append_template!(data:)
@@ -241,6 +242,12 @@ module DataCycleCore
             rescue StandardError => e
               append_error!(e, template, template[:data])
             end
+          end
+        end
+
+        def disable_original_property_for_overlays!
+          @templates.values.flatten.each do |template|
+            Extensions::Overlay.disable_original_properties!(template.dig(:data, :properties))
           end
         end
 

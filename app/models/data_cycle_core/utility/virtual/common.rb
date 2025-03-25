@@ -113,6 +113,8 @@ module DataCycleCore
 
                 return value if DataHashService.present?(value)
               end
+
+              nil
             end
           end
 

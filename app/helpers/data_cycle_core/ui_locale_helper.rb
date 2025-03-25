@@ -55,7 +55,7 @@ module DataCycleCore
       parent = contextual_content({ content: }.merge(args.slice(:parent)))
 
       label_html = ActionView::OutputBuffer.new
-      label_html << tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}")
+      label_html << tag.i(class: "dc-type-icon property-icon #{key&.attribute_name_from_key.presence&.then { |k| "key-#{k}" }} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}", data: { dc_tooltip: key&.attribute_name_from_key.presence&.then { |k| "Key: #{k}" } })
       label_html << tag.i(class: 'fa fa-language translatable-attribute-icon') if attribute_translatable?(key, definition, parent)
       label_html << tag.span(translated_attribute_label(key, definition, parent, options, i18n_count), class: 'attribute-label-text', title: translated_attribute_label(key, definition, parent, options, i18n_count))
       label_html << render('data_cycle_core/contents/content_score', key:, content: parent, definition:) if definition.key?('content_score')

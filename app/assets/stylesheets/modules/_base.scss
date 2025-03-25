@@ -663,7 +663,7 @@ footer {
     &.classification .icon,
     &.validity_period .icon.gultigkeitszeitraum {
       i:before {
-        content: '\f02c';
+        content: '\f02b';
         font-family: FontAwesome;
         font-style: normal;
         font-weight: normal;
@@ -2453,6 +2453,10 @@ button[disabled] {
   display: inline-block;
   vertical-align: bottom;
   animation: ellipsis-animation steps(1, end) 2s infinite;
+}
+
+img {
+  word-wrap: anywhere;
 }
 
 @keyframes ellipsis-animation {
