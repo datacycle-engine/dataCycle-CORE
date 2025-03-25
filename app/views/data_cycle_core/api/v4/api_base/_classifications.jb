@@ -11,14 +11,16 @@ default_options = {
 
 options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
+new_options = key == 'dc:classification' ? build_new_options_object('dc:classification', options) : options
+
 classifications = []
 classification_aliases&.each do |item|
   next unless item.visible?('api') || local_assigns[:show_all_concepts]
-  next if options[:classification_trees_filter] && options[:classification_trees].exclude?(item.classification_tree_label.id)
+  next if new_options[:classification_trees_filter] && new_options[:classification_trees].exclude?(item.classification_tree_label.id)
 
-  classifications << Rails.cache.fetch(api_v4_cache_key(item, options[:languages], options[:include], options[:fields], @api_subversion, nil, options[:classification_trees]), expires_in: 1.year + Random.rand(7.days)) do
-    I18n.with_locale(item.first_available_locale(options[:languages])) do
-      render 'classification', content: item, options: options.dup, key: key
+  classifications << Rails.cache.fetch(api_v4_cache_key(item, new_options[:languages], new_options[:include], new_options[:fields], @api_subversion, nil, new_options[:classification_trees]), expires_in: 1.year + Random.rand(7.days)) do
+    I18n.with_locale(item.first_available_locale(new_options[:languages])) do
+      render 'classification', content: item, options: new_options.dup, key: key
     end
   end
 end

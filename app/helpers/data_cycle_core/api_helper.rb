@@ -323,5 +323,19 @@ module DataCycleCore
 
       { key => geom.as_json }
     end
+
+    def build_new_options_object(attribute, options)
+      new_fields = subtree_for(attribute, options[:fields])
+      new_include = subtree_for(attribute, options[:include])
+      if options[:field_filter] && new_fields.present?
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: options[:field_filter] }, options)
+      elsif included_attribute?(attribute, options[:include])
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: false }, options)
+      else
+        new_fields = [['@id'], ['@type']]
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: true }, options)
+      end
+      new_options
+    end
   end
 end

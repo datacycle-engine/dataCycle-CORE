@@ -9,11 +9,10 @@ value_data =
     [{ '@language' => 'de', '@value' => content.name }]
   end
 
-json = {}
-json.merge!({
+json = {
   '@id' => content.id,
   '@type' => 'skos:ConceptScheme'
-}.compact)
+}.compact
 
 attributes = {
   'dc:multilingual' => -> { false },
@@ -26,16 +25,8 @@ attributes = {
   'dct:deleted' => -> { content.deleted_at }
 }
 
-new_options = options.dup
-new_options[:fields] = subtree_for(key, options[:fields])
-new_options[:include] = subtree_for(key, options[:include])
-
 attributes.each do |attribute, operation|
-  render_full =
-    included_attribute?(key, options[:include]) ||
-    (fields_attribute?(key, options[:fields]) && fields_attribute?(attribute, new_options[:fields]))
-
-  json[attribute] = operation.call if render_full
+  json[attribute] = operation.call if options[:field_filter] == false || attribute_visible?(attribute, options)
 end
 
 json.compact

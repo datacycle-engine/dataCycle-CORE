@@ -13,14 +13,10 @@ def external_identifier(content)
   }
 end
 
-def render_classification(attribute, partial, content, options, base_key)
-  new_options = options.dup
-  new_options[:include] = subtree_for(base_key, new_options[:include])
-  new_options[:fields] = subtree_for(base_key, new_options[:fields])
-
-  Rails.cache.fetch(api_v4_cache_key(content, new_options[:languages], new_options[:include], new_options[:fields], @api_subversion, nil), expires_in: 1.year + Random.rand(7.days)) do
-    I18n.with_locale(content.first_available_locale(new_options[:languages])) do
-      render(partial, content:, options: new_options, key: attribute)
+def render_classification(attribute, partial, content, options)
+  Rails.cache.fetch(api_v4_cache_key(content, options[:languages], options[:include], options[:fields], @api_subversion, nil), expires_in: 1.year + Random.rand(7.days)) do
+    I18n.with_locale(content.first_available_locale(options[:languages])) do
+      render(partial, content:, options: options, key: attribute)
     end
   end
 end
@@ -81,21 +77,17 @@ attributes = {
   'skos:prefLabel' => -> { render_pref_label(content, options[:languages], render_present_language_only) },
   'dct:description' => -> { render_description(content, options[:languages], render_present_language_only) },
   'url' => -> { content.uri },
-  'skos:inScheme' => -> { render_classification('skos:inScheme', 'classification_tree', scheme, options, key) },
-  'skos:topConceptOf' => -> { concept_ancestors.size.positive? ? nil : render_classification('skos:topConceptOf', 'classification_tree', scheme, options, key) },
-  'skos:broader' => -> { concept_ancestors.size.positive? ? render_classification('skos:broader', 'classification', concept_ancestors&.first, options, key) : nil },
-  'skos:ancestors' => -> { concept_ancestors&.map { |concept_ancestor| render_classification('skos:ancestors', 'classification', concept_ancestor, options, key) }.presence },
+  'skos:inScheme' => -> { render_classification('skos:inScheme', 'classification_tree', scheme, build_new_options_object('skos:inScheme', options)) },
+  'skos:topConceptOf' => -> { concept_ancestors.size.positive? ? nil : render_classification('skos:topConceptOf', 'classification_tree', scheme, build_new_options_object('skos:topConceptOf', options)) },
+  'skos:broader' => -> { concept_ancestors.size.positive? ? render_classification('skos:broader', 'classification', concept_ancestors&.first, build_new_options_object('skos:broader', options)) : nil },
+  'skos:ancestors' => -> { concept_ancestors&.map { |concept_ancestor| render_classification('skos:ancestors', 'classification', concept_ancestor, build_new_options_object('skos:ancestors', options)) }.presence },
   'dct:created' => -> { content.created_at },
   'dct:modified' => -> { content.updated_at },
   'dct:deleted' => -> { content.deleted_at }
 }
 
-new_fields = subtree_for(key, options[:fields])
 attributes.each do |attribute, operation|
-  render_full = included_attribute?(key, options[:include]) ||
-                (fields_attribute?(key, options[:fields]) && fields_attribute?(attribute, new_fields))
-
-  json[attribute] = operation.call if render_full
+  json[attribute] = operation.call if options[:field_filter] == false || attribute_visible?(attribute, options)
 end
 
 json.merge!(external_identifier(content)) if attribute_visible?('identifier', options)
