@@ -17,9 +17,9 @@ new_json = data_value.map do |v|
       "dcls:#{v.class.name.demodulize}"
     ]
   }
-  json_data['name'] = v.name if included_attribute?('name', new_fields) || new_fields.blank?
-  json_data['url'] = api_v4_stored_filter_url(id: v.id) if included_attribute?('url', new_fields) || new_fields.blank?
-  json_data['dc:slug'] = v.slug if included_attribute?('dc:slug', new_fields) || new_fields.blank?
+  json_data['name'] = v.name if fields_attribute?('name', new_fields) || new_fields.blank?
+  json_data['url'] = api_v4_stored_filter_url(id: v.id) if fields_attribute?('url', new_fields) || new_fields.blank?
+  json_data['dc:slug'] = v.slug if fields_attribute?('dc:slug', new_fields) || new_fields.blank?
 
   json_data
 end

@@ -52,6 +52,12 @@ module DataCycleCore
             response.parsed_body['@graph'].first
           end
 
+          def load_api_data_fails(fields, includes)
+            get api_v4_thing_path(id: @content_overlay, fields: fields&.join(','), include: includes&.join(','))
+            assert_response(:bad_request)
+            response.parsed_body
+          end
+
           def add_default(array)
             (['@id', '@type'] + array).sort
           end
@@ -87,6 +93,45 @@ module DataCycleCore
             json_data = load_api_data(fields, includes)
 
             assert_equal(add_default(['image', 'location', 'name']), json_data.keys.sort)
+          end
+
+          # only fields in main/default object, no additional included data
+          test 'testing wildcard fields - fields=* (only fields in main object, no incuded data)' do
+            fields = ['*']
+            json_data_wildcard = load_api_data(fields, nil)
+            json_data_default = load_api_data(nil, nil)
+
+            assert_equal(json_data_default.keys.sort, json_data_wildcard.keys.sort)
+          end
+
+          test 'testing wildcard fields - fields=image.* (only fields in main object + image)' do
+            fields = ['*', 'image.*']
+            includes = ['image']
+            json_data_includes = load_api_data(nil, includes)
+            json_data_wildcard = load_api_data(fields, nil)
+
+            assert_equal(json_data_includes.keys.sort, json_data_wildcard.keys.sort)
+          end
+
+          test 'testing fields for wildcard - nested fields' do
+            fields = ['*', 'image.dc:classification.*', 'image.dc:classification.skos:broader.*', 'image.dc:classification.skos:broader.skos:topConceptOf.*']
+            includes = ['image.dc:classification.skos:broader.skos:topConceptOf']
+            json_data_includes = load_api_data(nil, includes)
+            json_data_wildcard = load_api_data(fields, nil)
+
+            assert_equal(json_data_includes.keys.sort, json_data_wildcard.keys.sort)
+          end
+
+          test 'testing invalid wildcard fields - fields=*.*' do
+            fields = ['*.*']
+            json_data_wildcard = load_api_data_fails(fields, nil)
+            assert_equal [
+              {
+                'source' => { 'parameter' => 'fields' },
+                'title' => 'Invalid Query Parameter',
+                'detail' => 'wildcard must only appear at the end of a field or not at all'
+              }
+            ], json_data_wildcard['errors']
           end
         end
       end
