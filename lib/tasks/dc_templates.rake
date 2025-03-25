@@ -92,26 +92,67 @@ namespace :dc do
           WHERE things.template_name IN ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo')
         SQL
       end
-      desc 'test_bla'
-      task :test_bla, [:debug] => :environment do |_, _args|
-        puts "migrate media objects ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo') to use translated urls\n"
 
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          UPDATE thing_translations AS t1
-          SET content = jsonb_set(
-            t1.content,
-            '{canonical_url}',
-            (SELECT things.metadata->'attribution_url' from things where things.id = t1.thing_id)
-          )
-          WHERE EXISTS (
-              SELECT 1
-              FROM things
-              WHERE things.id = t1.thing_id AND things.metadata->'attribution_url' IS NOT NULL
-          );
+      # switches classification_id in classification_contents according to their classification_tree_labels
+      desc 'changes classification_id for things according to old and new tree_label'
+      task :update_classification_contents_based_on_similarity, [:from, :to, :template, :relation, :debug] => :environment do |_, args|
+        puts "Starting to migrate countries to their corresponding country codes\n"
+        from_concept_scheme_name = args[:from]
+        to_concept_scheme_name = args[:to]
+        template_name = args[:template]
+        relation = args[:relation]
 
-          UPDATE things
-          SET metadata = metadata - 'attribution_url'
+        # Count the amount of datasets that need to be updated
+        select_cc = <<-SQL.squish
+          SELECT co2.classification_id AS new_classification_id, cc.id
+          FROM classification_contents AS cc
+            JOIN concepts AS co ON cc.classification_id = co.classification_id
+            JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+              AND cs.name = ?
+            JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
+            JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+              AND cs2.name = ?
+            JOIN things AS th ON th.id = cc.content_data_id
+              AND th.template_name = ?
+          WHERE cc.relation = ?
         SQL
+        sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
+        rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_cc)
+        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+
+        # Update the classification id in classification_contents old to new classification_ids
+        update_cc = <<-SQL.squish
+          WITH classification_contents_update AS (
+            UPDATE classification_contents as c1
+            SET classification_id = cl_update.new_classification_id
+            FROM (
+                SELECT co2.classification_id AS new_classification_id,
+                  cc.id
+                FROM classification_contents AS cc
+                  JOIN concepts AS co ON cc.classification_id = co.classification_id
+                  JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+                    AND cs.name = ?
+                  JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
+                  JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+                    AND cs2.name = ?
+                  JOIN things AS th ON th.id = cc.content_data_id
+                    AND th.template_name = ?
+                WHERE cc.relation = ?
+              ) as cl_update
+            WHERE c1.id = cl_update.id
+            RETURNING c1.content_data_id
+          )
+          UPDATE things AS th
+          SET cache_valid_since = null
+          WHERE th.id IN (
+              SELECT content_data_id
+              FROM classification_contents_update
+            )
+        SQL
+
+        sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
+        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
+        puts "Datasets migrated:  #{rows_updated}\n"
       end
     end
   end
