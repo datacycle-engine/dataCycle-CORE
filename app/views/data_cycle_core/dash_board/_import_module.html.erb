@@ -35,29 +35,30 @@
     <div class="accordion-content indented import-steps" data-tab-content>
       <% times = data[:sorted_step_times] %>
       <% if times.present? %>
-        <% times.each do |value| %>
-          <span><%= value['name'] %>:</span>
-          <ul class="no-bullet import-data-timestamps">
-            <% if value['last_successful_try'].present? && value['last_try'] != value['last_successful_try'] %>
-              <li class="last-successful-import check-icon">
-                <%= import_data_time(Time.parse(value['last_successful_try'])) %>
-                <% if value['last_successful_try_time'].present? %>
-                  (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value['last_successful_try_time'], locale: active_ui_locale)%>)
-                <% end %>
-              </li>
-            <% end %>
-            <li class="last-import <%= last_step_class(value) %>">
+        <table>
+          <% times.each do |value| %>
+          <tr>
+            <td><%= value['name'] %></td>
+            <td>
+              <div class="last-import <%= last_step_class(value) %>" 
+              <% if value['last_successful_try'].present? && value['last_try'] != value['last_successful_try'] %>
+                data-dc-tooltip="last success: <%= import_data_time(Time.parse(value['last_successful_try'])) %>
+                <% if value['last_successful_try_time'].present? %> 
+                (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value['last_successful_try_time'], locale: active_ui_locale)%>)
+                <% end %>"
+              <% end %>>
+              
               <%= import_data_time(Time.parse(value.dig('last_try'))) %>
               <% if value.dig('last_try_time').present? %>
                 (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_time'), locale: active_ui_locale)%>)
               <% end %>
-            </li>
-          </ul>
-        <% end %>
+            </div>
+            </td>
+          </tr>
+          <% end %>
+        </table>
       <% else %>
-        <ul>
-          <li>no timestamps for steps found</li>
-        </ul>
+        <span>no timestamps for steps found</span>
       <% end %>
     </div>
   </div>
