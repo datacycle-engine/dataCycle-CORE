@@ -29,10 +29,9 @@ module DataCycleCore
             ALTER TABLE classification_contents #{non_transitive_triggers} TRIGGER generate_collected_classification_content_relations_trigger_1;
             ALTER TABLE classification_contents #{non_transitive_triggers} TRIGGER generate_collected_classification_content_relations_trigger_2;
             ALTER TABLE classification_contents #{non_transitive_triggers} TRIGGER update_collected_classification_content_relations_trigger_1;
-            ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER delete_collected_classification_content_relations_trigger_1;
-            ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER generate_collected_classification_content_relations_trigger_4;
-            ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER update_ccc_relations_trigger_4;
-            ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER update_deleted_at_ccc_relations_trigger_4;
+            ALTER TABLE concept_links #{non_transitive_triggers} TRIGGER delete_concept_links_ccc_relations_trigger_1;
+            ALTER TABLE concept_links #{non_transitive_triggers} TRIGGER generate_concept_links_ccc_relations_trigger_4;
+            ALTER TABLE concept_links #{non_transitive_triggers} TRIGGER update_concept_links_ccc_relations_trigger_4;
           SQL
 
           DataCycleCore::RebuildClassificationMappingsJob.perform_later if update_jobs
