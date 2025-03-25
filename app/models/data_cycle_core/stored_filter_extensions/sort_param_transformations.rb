@@ -10,7 +10,8 @@ module DataCycleCore
         'proximity.geographic' => 'sort_proximity_geographic_value',
         'proximity.geographic_with' => 'sort_proximity_geographic_with_value',
         'proximity.inTime' => 'sort_by_proximity_value',
-        'proximity.occurrence' => 'sort_by_proximity_value'
+        'proximity.occurrence' => 'sort_by_proximity_value',
+        'proximity.in_occurrence' => 'sort_by_proximity_value'
       }.freeze
 
       def apply_sorting_from_parameters(filters:, sort_params:)
@@ -84,10 +85,21 @@ module DataCycleCore
         { 'm' => 'proximity_geographic_with', 'o' => 'ASC', 'v' => [lon, lat] }
       end
 
-      def sort_by_proximity_value(params)
-        return if params.blank?
+      def sort_by_proximity_value(params, value)
+        i_config = params&.find { |f| f['t'] == 'in_schedule' }
+        min, max = value&.split(',')&.map(&:strip)
 
-        params&.find { |f| f['t'] == 'in_schedule' }&.then { |v| v['v'].present? ? { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v.slice('q', 'v') } : nil }
+        return if i_config.blank? && min.blank? && max.blank?
+
+        if min.present? || max.present?
+          i_value = { 'min' => min, 'max' => max }.compact_blank
+        else
+          i_value = i_config&.dig('v')&.compact_blank
+        end
+
+        return if i_value.blank?
+
+        { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => { 'q' => i_config&.dig('q'), 'v' => i_value } }
       end
 
       def transform_order_hash(sort_hash, watch_list)
