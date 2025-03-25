@@ -115,23 +115,15 @@ namespace :dc do
 
         # migrate data
         update_tt_qry = <<-SQL.squish
-          UPDATE thing_translations AS t1
-          SET content = jsonb_set(
-              t1.content,
-              ?,
-              (
-                SELECT things.metadata->?
-                from things
-                where things.id = t1.thing_id
-              )
-            )
-          WHERE EXISTS (
-              SELECT 1
-              FROM things
-              WHERE things.id = t1.thing_id
-                AND things.metadata->? IS NOT NULL#{' '}
-                  #{'AND things.template_name IN (?)' if templates.present?}
-            )
+          UPDATE thing_translations AS tt
+          SET content = jsonb_set(tt.content, ?, data_origin.metadata->?)
+          FROM (
+                  SELECT th.metadata, th.id
+                  FROM things AS th
+                  WHERE th.metadata->? IS NOT NULL #{' '}
+                      #{'AND th.template_name IN (?)' if templates.present?}
+              ) AS data_origin
+          WHERE tt.thing_id = data_origin.id
         SQL
         sanitized_update_tt_qry = ActiveRecord::Base.sanitize_sql_array([update_tt_qry, "{#{field_to}}", field_from, field_from, templates])
         rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_tt_qry)
@@ -173,26 +165,18 @@ namespace :dc do
 
         # migrate data
         update_th_qry = <<-SQL.squish
-          UPDATE things AS t1
-          SET metadata = jsonb_set(
-              t1.metadata,
-              ?,
-              (
-                SELECT t2.content->?
-                from thing_translations as t2
-                where t1.id = t2.thing_id
-                  AND t2.locale = 'de'
-              )
-            )
-          WHERE EXISTS (
-              SELECT 1
-              FROM thing_translations as t3
-              WHERE t1.id = t3.thing_id
-                AND t3.content->? IS NOT NULL
-                AND t3.locale = 'de'#{' '}
-                  #{'AND t1.template_name IN (?)' if templates.present?}
-            )
+          UPDATE things AS th
+          SET metadata = jsonb_set(th.metadata, ?, data_origin.content->?)
+          FROM (
+                  SELECT tt.content, tt.thing_id
+                  FROM thing_translations as tt
+                  WHERE tt.content->? IS NOT NULL
+                      AND tt.locale = 'de'
+              ) AS data_origin
+          WHERE th.id = data_origin.thing_id
+            #{'AND th.template_name IN (?)' if templates.present?}
         SQL
+
         sanitized_update_th_qry = ActiveRecord::Base.sanitize_sql_array([update_th_qry, "{#{field_to}}", field_from, field_from, templates])
         rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_th_qry)
         puts "Datasets migrated:  #{rows_updated}\n"
