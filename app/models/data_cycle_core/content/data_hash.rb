@@ -500,6 +500,7 @@ module DataCycleCore
           prevent_history: true,
           new_content: created
         )
+
         upsert_item
       end
 
