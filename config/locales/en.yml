@@ -1433,8 +1433,8 @@ en:
     back_to_select: Back to the selection
     delete_translation: delete translation
     delete_with_translated_html:
-      Delete embedded record?<br><br>Existing translations
-      of this embedded record will also be deleted!
+      <p>Delete embedded record?</p><div class="callout warning">Existing translations
+      of this embedded record will also be deleted!</div>
     discard_changes: discard changes
     save_changes: Save and close
     merge_with_duplicate: Save changes, delete duplicate and close view
@@ -1514,6 +1514,7 @@ en:
       min_datetime: Time %{data} should be after %{min}.
       min_date: Date %{data} should be after %{min}.
       match: "%{data} does not match %{expression}."
+      not_contains: '"%{data}" contains "%{expression}"'
       format: Format string %{format_string} for %{data} unknown.
       uuid: "Expect uuid for %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
       date_time: "%{data} is not a valid time/date format."
