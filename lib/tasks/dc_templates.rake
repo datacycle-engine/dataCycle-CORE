@@ -37,10 +37,45 @@ namespace :dc do
     namespace :migrations do
       task :validate, [:debug] => :environment do |_, _args|
         puts "validating new data definitions\n"
+        mappings = DataCycleCore.data_definition_mapping['templates']
+
+        template_names = DataCycleCore::ThingTemplate.pluck(:template_name)
+
+        no_matched_keys = []
+        mappings.each do |key, value|
+          no_matched_keys << key if template_names.include?(key) && template_names.exclude?(value)
+        end
+
+        puts "No matched keys: #{no_matched_keys}"
       end
 
       task :data_definitions, [:debug] => :environment do |_, _args|
         puts "migrate to new data_definitions\n"
+        mappings = DataCycleCore.data_definition_mapping['templates']
+
+        mappings.each do |key, value|
+          if key == value
+            puts "Key equals value - skip mapping #{key}: #{value}"
+            next
+          end
+
+          thing_templates = DataCycleCore::ThingTemplate.where(template_name: [key, value])
+          if thing_templates.count != 2
+            puts "Key (#{key}) or value (#{value}) not known in thing_templates - skip mapping #{key}: #{value}"
+            next
+          end
+
+          things = DataCycleCore::Thing.where(template_name: key)
+          puts "Changing things template_name #{key} to #{value} for: #{things.count} rows"
+          things.each do |thing|
+            thing.update(template_name: value, cache_valid_since: nil)
+          end
+
+          old_things_count = DataCycleCore::Thing.where(template_name: value).count
+          new_things_count = DataCycleCore::Thing.where(template_name: key).count
+          puts "things with template_name new template_name #{value}: #{old_things_count} rows"
+          puts "things with template_name old template_name #{key}: #{new_things_count} rows"
+        end
       end
 
       task :universal_classifications, [:debug] => :environment do |_, _args|
