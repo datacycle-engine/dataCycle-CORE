@@ -319,6 +319,72 @@ namespace :dc do
           puts "Original values deleted: #{deleted}\n"
         end
       end
+
+      desc 'migrate attributes for which mapping in \'data_definition_mapping.yml\' is provided to additional_information'
+      task :attributes_to_additional_information, [:template_names] => :environment do |_, args|
+        template_names = args.template_names&.split('|')
+
+        attributes_mapping = DataCycleCore.data_definition_mapping['attributes']
+
+        if attributes_mapping.blank?
+          puts 'no mappings found \n'
+          exit(-1)
+        end
+
+        count = 0
+
+        template_names.each do |template_name|
+          contents = DataCycleCore::Thing.where(template_name:, external_source_id: nil)
+          progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: template_name)
+
+          contents.find_each do |content|
+            content.translated_locales.each do |locale|
+              I18n.with_locale(locale) do
+                additional_information = content.to_h_partial('additional_information')&.[]('additional_information') || []
+                new_information = []
+
+                attributes_mapping.each do |mapping_type, mappings|
+                  mappings.each_key do |info_type_mapping_key|
+                    value = content.try(info_type_mapping_key)
+                    next if value.blank? || additional_information.any? do |v|
+                      DataCycleCore::MasterData::DataConverter.string_to_string(
+                        v['description']&.strip_tags
+                      ) ==
+                      DataCycleCore::MasterData::DataConverter.string_to_string(value&.strip_tags)
+                    end
+
+                    new_information.push(
+                      'name' => I18n.t(
+                        # why pimcore?
+                        "import.pimcore.#{info_type_mapping_key}",
+                        locale: locale.to_s.in?(['de', 'en']) ? locale : 'de'
+                      ),
+                      'description' => value,
+                      'type_of_information' => DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(
+                        mapping_type == 'internal' ? 'Informationstypen' : 'Externe Informationstypen',
+                        info_type_mapping_key
+                      )
+                    )
+                  end
+                end
+
+                next if new_information.blank?
+
+                additional_information.each { |a| a.slice!('id') }
+                additional_information.concat(new_information)
+
+                content.set_data_hash(data_hash: { additional_information: })
+
+                count += 1
+              end
+            end
+
+            progressbar.increment
+          end
+        end
+
+        puts "updated #{count} things"
+      end
     end
   end
 end
