@@ -76,12 +76,6 @@
       margin: 1rem;
     }
   }
-
-  &.indented {
-    padding: 0.5rem;
-    border-left: 1px solid var(--light-gray);
-    border-right: 1px solid var(--light-gray);
-  }
 }
 
 .card .card-divider h5 {
@@ -408,23 +402,19 @@ ul.import-data-timestamps li {
   }
 }
 
-.card-section {
+.card-section.accordion {
   .accordion-item {
     .accordion-title {
       padding: 0;
       cursor: pointer;
       background-color: var(--light-gray);
-      border-top-left-radius: var(--global-radius);
-      border-top-right-radius: var(--global-radius);
-
-      &::before {
-        font-weight: bold;
-        font-size: 1rem;
-        color: var(--dark-gray);
-        display: grid;
-        align-items: center;
-        justify-content: center;
-      }
+      border-radius: var(--global-radius) var(--global-radius) 0 0;
+      font-weight: bold;
+      font-size: 1rem;
+      color: var(--dark-gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       h6 {
         padding: 0.5rem 0.7rem;
@@ -434,8 +424,7 @@ ul.import-data-timestamps li {
     }
 
     .accordion-content {
-      border-bottom-left-radius: var(--global-radius);
-      border-bottom-right-radius: var(--global-radius);
+      border-bottom-left-radius: 0 0 var(--global-radius) var(--global-radius);
       padding: 0.5rem;
       background-color: var(--nearly-white);
 
@@ -445,7 +434,48 @@ ul.import-data-timestamps li {
 
       &.import-steps {
         overflow: hidden;
-        text-overflow: ellipsis;
+      }
+    }    
+  }
+}
+
+table.import-steps td {
+  &.import-step-name {
+    width: 50%;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  &.import-step-timestamp {
+    width: 50%;
+    overflow-wrap: break-word;
+
+    .last-import {
+      &.success-color::before, &.alert-color::before, &.primary-color::before {
+        font-family: 'FontAwesome';
+        font-size: 0.9rem;
+      }
+    
+      &.success-color {
+        color: var(--success-color);
+        &::before {
+          content: '\f00c';
+        }
+      }
+    
+      &.alert-color {
+        color: var(--alert-color);
+        &::before {
+          content: '\f00d';
+        }
+      }
+    
+      &.primary-color {
+        color: var(--primary-color);
+        &::before {
+          content: '\f110';
+          animation: fa-spin 2s infinite linear;
+        }
       }
     }
   }
