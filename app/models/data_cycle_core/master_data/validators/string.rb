@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class String < BasicValidator
         def string_keywords
-          ['min', 'max', 'format', 'pattern', 'required', 'soft_required', 'soft_max', 'soft_min']
+          ['min', 'max', 'format', 'pattern', 'required', 'soft_required', 'soft_max', 'soft_min', 'soft_not_contains']
         end
 
         def string_formats
@@ -111,6 +111,18 @@ module DataCycleCore
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.match',
+            substitutions: {
+              data:,
+              expression:
+            }
+          }
+        end
+
+        def soft_not_contains(data, expression)
+          return unless data&.include?(expression)
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.not_contains',
             substitutions: {
               data:,
               expression:

@@ -1266,7 +1266,7 @@ de:
     uploaded: hochgeladen
     back_to_select: Zurück zur Auswahl
     delete_translation: "Übersetzung löschen"
-    delete_with_translated_html: "Eingebetteten Datensatz löschen?<br><br>Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!"
+    delete_with_translated_html: <p>Eingebetteten Datensatz löschen?</p><div class="callout warning">Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!</div>
     discard_changes: Änderungen verwerfen
     save_changes: Speichern und schließen
     merge_with_duplicate: Änderungen speichern, Duplikat löschen und Ansicht schließen
@@ -1344,6 +1344,7 @@ de:
       min_datetime: "Zeitpunkt %{data} sollte nach %{min} liegen."
       min_date: "Datum %{data} sollte nach %{min} liegen."
       match: "%{data} stimmt nicht mit %{expression} überein."
+      not_contains: '"%{data}" enthält "%{expression}"'
       format: "Format-String %{format_string} für %{data} unbekannt."
       uuid: "Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
       date_time: "%{data} ist kein gültiges Zeit/Datum Format."

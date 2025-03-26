@@ -2846,74 +2846,59 @@ input.normalized {
         padding: 0.75rem 1rem;
       }
 
-      &#schema,
-      &#template-paths,
-      &#datahash,
-      &#json-api,
-      &#data-send,
-      &#data-job,
-      &#meta-data,
-      &#related-content {
+      >section {
+        padding: 0.5rem;
+        text-align: right;
 
-        .schema-nav,
-        .template-paths-nav,
-        .datahash-nav,
-        .json-api-nav,
-        .meta-data-nav,
-        .json-related-content {
-          padding: 0.5rem;
-          text-align: right;
-
-          h5,
-          h6 {
-            float: left;
-            margin: 0.5rem 0;
-          }
-
-        }
-
-        /* Scrollbar styles */
-        ::-webkit-scrollbar {
-          width: 12px;
-          height: 12px;
-        }
-
-        ::-webkit-scrollbar-track {
-          border: 1px solid $primary-color;
-          border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: $primary-color;
-          border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: $light-gray;
-        }
-
-        pre {
-          overflow: auto;
-          display: block;
-          width: 100%;
-          max-height: calc(100vh - 9.3rem);
-
-          &.remote-render,
-          &.remote-rendering {
-            overflow: hidden;
-          }
-
-          code {
-            height: auto;
-            width: 100%;
-            display: inline-block;
-            background: none;
-            border: 0;
-            color: darken($white, 15%);
-            font-size: 0.85rem;
-          }
+        h5,
+        h6 {
+          float: left;
+          margin: 0.5rem 0;
         }
       }
+
+      /* Scrollbar styles */
+      ::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+      }
+
+      ::-webkit-scrollbar-track {
+        border: 1px solid $primary-color;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: $primary-color;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: $light-gray;
+      }
+
+      pre {
+        overflow: auto;
+        display: block;
+        width: 100%;
+        max-height: calc(100vh - 9.3rem);
+
+        &.remote-render,
+        &.remote-rendering {
+          overflow: hidden;
+        }
+
+        code {
+          height: auto;
+          width: 100%;
+          display: inline-block;
+          background: none;
+          border: 0;
+          color: darken($white, 15%);
+          font-size: 0.85rem;
+        }
+      }
+
     }
   }
 }

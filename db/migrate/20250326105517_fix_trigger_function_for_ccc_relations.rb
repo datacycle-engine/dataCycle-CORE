@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MigrateTriggerFunctionToConceptsOnly < ActiveRecord::Migration[7.1]
+class FixTriggerFunctionForCccRelations < ActiveRecord::Migration[7.1]
   def up
     execute <<-SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_collected_classification_content_relations(
@@ -109,98 +109,6 @@ class MigrateTriggerFunctionToConceptsOnly < ActiveRecord::Migration[7.1]
       END;
 
       $$;
-    SQL
-
-    execute <<-SQL.squish
-      CREATE OR REPLACE FUNCTION public.generate_concept_links_ccc_relations_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations (
-          ARRAY_AGG(to_update.content_data_id),
-          ARRAY []::uuid []
-        )
-      FROM (
-          SELECT DISTINCT cc.content_data_id
-          FROM changed_concept_links
-            JOIN concepts c1 ON c1.id = changed_concept_links.parent_id
-            JOIN classification_contents cc ON cc.classification_id = c1.classification_id
-          WHERE c1.id IS NOT NULL
-            AND changed_concept_links.link_type = 'related'
-          UNION
-          SELECT DISTINCT cc.content_data_id
-          FROM changed_concept_links
-            JOIN concepts c1 ON c1.id = changed_concept_links.child_id
-            JOIN classification_contents cc ON cc.classification_id = c1.classification_id
-          WHERE c1.id IS NOT NULL
-            AND changed_concept_links.link_type = 'related'
-        ) AS to_update;
-
-      RETURN NEW;
-
-      END;
-
-      $$;
-
-      CREATE OR REPLACE FUNCTION public.update_concept_links_ccc_relations_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations (
-          ARRAY_AGG(to_update.content_data_id),
-          ARRAY []::uuid []
-        )
-      FROM (
-          SELECT DISTINCT cc.content_data_id
-          FROM old_concept_links
-            JOIN concepts c1 ON c1.id = old_concept_links.parent_id
-            JOIN classification_contents cc ON cc.classification_id = c1.classification_id
-          WHERE c1.id IS NOT NULL
-            AND old_concept_links.link_type = 'related'
-          UNION
-          SELECT DISTINCT cc.content_data_id
-          FROM old_concept_links
-            JOIN concepts c1 ON c1.id = old_concept_links.child_id
-            JOIN classification_contents cc ON cc.classification_id = c1.classification_id
-          WHERE c1.id IS NOT NULL
-            AND old_concept_links.link_type = 'related'
-          UNION
-          SELECT DISTINCT cc.content_data_id
-          FROM new_concept_links
-            JOIN concepts c1 ON c1.id = new_concept_links.parent_id
-            JOIN classification_contents cc ON cc.classification_id = c1.classification_id
-          WHERE c1.id IS NOT NULL
-            AND new_concept_links.link_type = 'related'
-          UNION
-          SELECT DISTINCT cc.content_data_id
-          FROM new_concept_links
-            JOIN concepts c1 ON c1.id = new_concept_links.child_id
-            JOIN classification_contents cc ON cc.classification_id = c1.classification_id
-          WHERE c1.id IS NOT NULL
-            AND new_concept_links.link_type = 'related'
-        ) AS to_update;
-
-      RETURN NEW;
-
-      END;
-
-      $$;
-
-      DROP TRIGGER IF EXISTS delete_collected_classification_content_relations_trigger_1 ON public.classification_groups;
-
-      DROP TRIGGER IF EXISTS update_deleted_at_ccc_relations_trigger_4 ON public.classification_groups;
-
-      DROP TRIGGER IF EXISTS generate_collected_classification_content_relations_trigger_4 ON public.classification_groups;
-
-      DROP TRIGGER IF EXISTS update_ccc_relations_trigger_4 ON public.classification_groups;
-
-      DROP FUNCTION IF EXISTS public.delete_collected_classification_content_relations_trigger_1();
-
-      DROP FUNCTION IF EXISTS public.generate_collected_classification_content_relations_trigger_4();
-      DROP FUNCTION IF EXISTS public.update_collected_classification_content_relations_trigger_4();
-
-      CREATE OR REPLACE TRIGGER delete_concept_links_ccc_relations_trigger_1
-      AFTER DELETE ON public.concept_links REFERENCING OLD TABLE AS changed_concept_links FOR EACH STATEMENT EXECUTE FUNCTION public.generate_concept_links_ccc_relations_trigger_1();
-
-      CREATE OR REPLACE TRIGGER generate_concept_links_ccc_relations_trigger_4
-      AFTER
-      INSERT ON public.concept_links REFERENCING NEW TABLE AS changed_concept_links FOR EACH STATEMENT EXECUTE FUNCTION public.generate_concept_links_ccc_relations_trigger_1();
-
-      CREATE OR REPLACE TRIGGER update_concept_links_ccc_relations_trigger_4
-      AFTER
-      UPDATE ON public.concept_links REFERENCING OLD TABLE AS old_concept_links NEW TABLE AS new_concept_links FOR EACH STATEMENT EXECUTE FUNCTION public.update_concept_links_ccc_relations_trigger_1();
     SQL
   end
 
