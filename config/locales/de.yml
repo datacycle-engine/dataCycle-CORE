@@ -1033,8 +1033,8 @@ de:
         linked_items_in:
           prefix: Verknüpfte/r/s
     related_to: ist verknüpft mit
-    feratel_content_score: Feratel - Content Score
-    internal_content_score: Content Score - dataCycle
+    feratel_content_score: Content Score (feratel)
+    internal_content_score: Content Score (dataCycle)
     union_filter_ids: in gespeicherten Suchen / %{collections}
     related_to_method:
       related: verknüpft mit
@@ -1113,7 +1113,7 @@ de:
     content_size: Dateigröße
     height: Höhe
     upload_date: Uploaddatum
-    internal_content_score: Content Score (intern)
+    internal_content_score: Content Score (dataCycle)
     users_context:
       given_name: Vorname
       family_name: Nachname

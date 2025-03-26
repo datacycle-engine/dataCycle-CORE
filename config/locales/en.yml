@@ -200,7 +200,6 @@ en:
     honorific_prefix: Salutation / Title
     honorific_suffix: Title added after
     image: Image
-    internal_content_score: Internal content score
     internal_name: Working title
     is_linked_to: Linked to
     job_title: Job title
@@ -276,8 +275,6 @@ en:
     media: Media
     sitour_location: Location
     contact_name: Contact name
-
-
 
   footer_links:
     privacy_policy: Privacy policy
@@ -1220,8 +1217,8 @@ en:
         linked_items_in:
           prefix: Linked
     related_to: is linked to
-    feratel_content_score: Feratel - Content Score
-    internal_content_score: Content Score - dataCycle
+    feratel_content_score: Content Score (feratel)
+    internal_content_score: Content Score (dataCycle)
     union_filter_ids: in stored searches / %{collections}
     related_to_method:
       related: contingent on
@@ -1290,7 +1287,7 @@ en:
     width: Width
     height: Height
     upload_date: Upload date
-    internal_content_score: Content score (internal)
+    internal_content_score: Content Score (dataCycle)
     users_context:
       given_name: Given name
       family_name: Family name
