@@ -58,7 +58,7 @@ module DataCycleCore
             definition.dig('content_score', 'score_matrix').each_value do |v|
               type_of_information = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Informationstypen', v['types'])
 
-              score += (DataCycleCore::DataHashService.present?(parameters&.[](key)&.find { |e| e['type_of_information']&.intersection(type_of_information).present? || e['universal_classifications']&.intersection(type_of_information).present? }) ? 1 : 0) * (part || (v['weight'].is_a?(::Float) ? v['weight'] : v['weight'].to_r))
+              score += (DataCycleCore::DataHashService.present?(parameters&.[](key)&.find { |e| e['type_of_information'].intersect?(type_of_information) || e['universal_classifications'].intersect?(type_of_information) }) ? 1 : 0) * (part || (v['weight'].is_a?(::Float) ? v['weight'] : v['weight'].to_r))
             end
 
             score

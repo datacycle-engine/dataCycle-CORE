@@ -7,42 +7,40 @@
         :label: Longitude
         :type: number
         :storage_location: value
+        :visible: api
         :validations:
           :format: float
-        :normalize:
-          :id: longitude
-          :type: longitude
         :api:
           :transformation:
             :method: nest
             :name: geo
             :type: GeoCoordinates
           :minimal: true
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
+        :virtual:
+          :module: Geographic
+          :method: coordinates_to_value
+          :key: "x"
+          :parameters:
+            - location
       :latitude:
         :label: Latitude
         :type: number
         :storage_location: value
         :validations:
           :format: float
-        :normalize:
-          :id: latitude
-          :type: latitude
+        :visible: api
         :api:
           :transformation:
             :method: nest
             :name: geo
             :type: GeoCoordinates
           :minimal: true
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
+        :virtual:
+          :module: Geographic
+          :method: coordinates_to_value
+          :key: "y"
+          :parameters:
+            - location
       :elevation:
         :label: Meereshöhe (m)
         :type: number

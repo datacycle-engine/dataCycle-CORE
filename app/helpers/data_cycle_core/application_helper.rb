@@ -192,6 +192,15 @@ module DataCycleCore
       query
     end
 
+    def template_select_options(template_things)
+      template_things.map do |tt|
+        [
+          "#{tag.i(class: "fa dc-type-icon thing-icon #{tt.icon_type}")} #{tt.translated_template_name(active_ui_locale)}",
+          tt.template_name
+        ]
+      end
+    end
+
     def to_query_params(options_hash)
       params_hash = {}
 

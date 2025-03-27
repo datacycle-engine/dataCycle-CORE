@@ -91,7 +91,7 @@ module DataCycleCore
 
             return false if missing_keys.blank?
             return true if checked && missing_keys.present?
-            return true if !force && datahash.keys.intersection(content.resolved_computed_dependencies(key, datahash)).none?
+            return true if !force && !datahash.keys.intersect?(content.resolved_computed_dependencies(key, datahash))
 
             load_missing_values(missing_keys, content, datahash, current_user)
 
