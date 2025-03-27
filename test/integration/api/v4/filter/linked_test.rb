@@ -34,29 +34,25 @@ module DataCycleCore
 
             schedule_a = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 5.days.ago, 1.hour).serialize_schedule_object
             lat_long_a = {
-              latitude: 1,
-              longitude: 10
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(10, 1)
             }
             @event_a = create_test_event(schedule_a, @cc_by.primary_classification.id, lat_long_a)
 
             schedule_b = DataCycleCore::TestPreparations.generate_schedule(5.days.ago.midday, 5.days.from_now, 1.hour).serialize_schedule_object
             lat_long_b = {
-              latitude: 5,
-              longitude: 5
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(5, 5)
             }
             @event_b = create_test_event(schedule_b, @cc0.primary_classification.id, lat_long_b)
 
             schedule_c = DataCycleCore::TestPreparations.generate_schedule(Time.zone.now.beginning_of_day, 1.day.from_now, 1.hour).serialize_schedule_object
             lat_long_c = {
-              latitude: 10,
-              longitude: 1
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(1, 10)
             }
             @event_c = create_test_event(schedule_c, @cc0.primary_classification.id, lat_long_c)
 
             schedule_d = DataCycleCore::TestPreparations.generate_schedule(5.days.from_now.midday, 10.days.from_now, 1.hour).serialize_schedule_object
             lat_long_d = {
-              latitude: 1,
-              longitude: 1
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(1, 1)
             }
             @event_d = create_test_event(schedule_d, @cc_by.primary_classification.id, lat_long_d)
 
@@ -424,8 +420,6 @@ module DataCycleCore
             image.set_data_hash(partial_update: true, prevent_history: true, data_hash: { license_classification: [classification_id] })
             poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
-            poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(poi.longitude, poi.latitude)
-            poi.save
 
             event.set_data_hash(partial_update: true, prevent_history: true, data_hash:
               {

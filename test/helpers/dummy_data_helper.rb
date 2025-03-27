@@ -60,6 +60,8 @@ module DataCycleCore
       poi_data_hash[:primary_image] = [image_data.id]
       poi_data_hash[:logo] = [image_data.id]
 
+      poi_data_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(poi_data_hash['longitude'].to_f, poi_data_hash['latitude'].to_f) if poi_data_hash['latitude'].present? && poi_data_hash['longitude'].present?
+
       poi_data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
       poi_data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
       poi_data_hash

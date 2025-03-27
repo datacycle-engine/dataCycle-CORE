@@ -7,7 +7,7 @@
         :label: Longitude
         :type: number
         :storage_location: value
-        :visible: api
+        :visible: [api, xml]
         :validations:
           :format: float
         :api:
@@ -28,7 +28,7 @@
         :storage_location: value
         :validations:
           :format: float
-        :visible: api
+        :visible: [api, xml]
         :api:
           :transformation:
             :method: nest

@@ -4952,6 +4952,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250326105517'),
 ('20250324151232'),
 ('20250318124755'),
 ('20250311144518'),
