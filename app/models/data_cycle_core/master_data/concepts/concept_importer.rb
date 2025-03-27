@@ -36,6 +36,10 @@ module DataCycleCore
 
             insert_concepts
             raise ActiveRecord::Rollback if @errors.present?
+          end
+
+          ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+            ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
 
             insert_concept_mappings
             raise ActiveRecord::Rollback if @errors.present?
