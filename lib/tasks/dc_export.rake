@@ -31,7 +31,13 @@ namespace :dc do
 
       query = filter.apply(watch_list:)
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
-      contents = query.query.page(1).per(query.query.size)
+      thing_ids = ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+        query.query.pluck(:id)
+      end
+      contents = DataCycleCore::Thing.where(id: thing_ids)
+      size = contents.count
+      contents = contents.page(1).per(size)
 
       logger = Logger.new("log/dc_export_#{endpoint.id}_jsonld.log")
       start_time = Time.zone.now
@@ -79,11 +85,6 @@ namespace :dc do
           '@graph' => []
         }.to_json
 
-        size = ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
-          contents.total_count
-        end
-
         worker_pool_size = (ActiveRecord::Base.connection_pool.size / 2) - 1
         queue = DataCycleCore::WorkerPool.new(worker_pool_size)
 
@@ -93,14 +94,9 @@ namespace :dc do
         file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
         file << result.delete_suffix(']}')
 
-        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
-          contents.load
-        end
-
         progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
 
-        contents.each do |item|
+        contents.find_each do |item|
           queue.append do
             data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
               retries = 1
