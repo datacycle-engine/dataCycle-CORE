@@ -53,6 +53,11 @@ namespace :dc do
         puts "migrate to new data_definitions\n"
         mappings = DataCycleCore.data_definition_mapping['templates']
 
+        if mappings.blank?
+          puts 'no mappings found \n'
+          exit(-1)
+        end
+
         mappings.each do |key, value|
           if key == value
             puts "skip mapping #{key}: #{value} - key equals value"
