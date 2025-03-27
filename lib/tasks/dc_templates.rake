@@ -55,13 +55,13 @@ namespace :dc do
 
         mappings.each do |key, value|
           if key == value
-            puts "Key equals value - skip mapping #{key}: #{value}"
+            puts "skip mapping #{key}: #{value} - key equals value"
             next
           end
 
           thing_templates = DataCycleCore::ThingTemplate.where(template_name: [key, value])
           if thing_templates.count != 2
-            puts "Key (#{key}) or value (#{value}) not known in thing_templates - skip mapping #{key}: #{value}"
+            puts "skip mapping #{key}: #{value} - key (#{key}) or value (#{value}) not known in thing_templates"
             next
           end
 
@@ -197,11 +197,11 @@ namespace :dc do
       end
 
       # value => translated_value (copy vs move)
-      desc 'value => translated (copy/move) | templates as one space seperated string'
+      desc 'value => translated (copy/move) | templates as one | seperated string'
       task :value_to_translated, [:from, :to, :operation, :templates, :debug] => :environment do |_, args|
         field_from = args.from
         field_to = args.to
-        templates = args.templates&.split
+        templates = args.templates&.split('|')
         puts "migrate #{field_from} to translated #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
 
         # count how many rows should be affected by the migration
@@ -255,11 +255,11 @@ namespace :dc do
       end
 
       # translated => simple_value (copy/move)
-      desc 'translated => value (copy/move)'
+      desc 'translated => value (copy/move) | templates as one | seperated string'
       task :translated_to_value, [:from, :to, :operation, :templates, :debug] => :environment do |_, args|
         field_from = args.from
         field_to = args.to
-        templates = args.templates&.split
+        templates = args.templates&.split('|')
         puts "migrate translated #{field_from} to #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
 
         # count how many rows should be affected by the migration
