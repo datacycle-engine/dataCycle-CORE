@@ -112,28 +112,6 @@ namespace :dc do
         end
       end
 
-      task :media_obects_translated_url, [:debug] => :environment do |_, _args|
-        puts "migrate media objects ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo') to use translated urls\n"
-
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          UPDATE thing_translations AS t1
-          SET content = jsonb_set(
-            t1.content,
-            '{url}',
-            (SELECT things.metadata->'url' from things where things.id = t1.thing_id)
-          )
-          WHERE EXISTS (
-              SELECT 1
-              FROM things
-              WHERE things.id = t1.thing_id AND things.template_name IN ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo') AND things.metadata->'url' IS NOT NULL
-          );
-
-          UPDATE things
-          SET metadata = metadata - 'url'
-          WHERE things.template_name IN ('ImageObject', 'VideoObject', 'AudioObject', 'ImageObjectVariant', 'ExternalVideo')
-        SQL
-      end
-
       # switches classification_id in classification_contents according to their classification_tree_labels
       desc 'changes classification_id for things according to old and new tree_label based on from.name = to.description'
       task :update_classification_contents_based_on_similarity, [:from, :to, :relation, :templates, :debug] => :environment do |_, args|
