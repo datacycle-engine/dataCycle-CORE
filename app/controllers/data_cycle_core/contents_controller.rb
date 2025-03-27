@@ -188,7 +188,7 @@ module DataCycleCore
 
         flash[:error] = @content.errors.full_messages if @content.try(:errors).present? # rubocop:disable Rails/ActionControllerFlashBeforeRender
         flash[:info] = @content.warnings.full_messages if @content.try(:warnings).present? # rubocop:disable Rails/ActionControllerFlashBeforeRender
-        flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale) if @content.present? # rubocop:disable Rails/ActionControllerFlashBeforeRender
+        flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale) if @content.persisted? # rubocop:disable Rails/ActionControllerFlashBeforeRender
 
         respond_to do |format|
           format.html do
