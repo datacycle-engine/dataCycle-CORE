@@ -72,7 +72,7 @@ module DataCycleCore
       return false if attribute_list.blank?
       return true if full_recursive?(attribute_list)
 
-      attribute_list.pluck(0).intersection(Array.wrap(name)).any?
+      attribute_list.pluck(0).intersect?(Array.wrap(name))
     end
 
     def fields_attribute?(name, attribute_list)
@@ -176,7 +176,7 @@ module DataCycleCore
 
       return api_value_format(value, api_property_definition) unless content.translatable_property_names.include?(key)
 
-      single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first)) && !expand_language
+      single_value = languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first) && !expand_language
 
       if single_value
         data_value = api_value_format(value, api_property_definition)

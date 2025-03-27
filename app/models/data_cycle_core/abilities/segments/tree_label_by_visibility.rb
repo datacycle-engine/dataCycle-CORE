@@ -16,7 +16,7 @@ module DataCycleCore
         end
 
         def include?(ctl, *_args)
-          ctl.visibility&.intersection(visibilities)&.any?
+          ctl.visibility&.intersect?(visibilities)
         end
 
         def to_proc

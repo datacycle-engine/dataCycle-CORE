@@ -122,7 +122,7 @@ module DataCycleCore
           ca_query = classification_aliases
           ca_query = ca_query.includes(:classification_tree_label) unless classification_aliases.first&.association(:classification_tree_label)&.loaded?
           ca_query = ca_query.includes(:classification_alias_path) unless classification_aliases.first&.association(:classification_alias_path)&.loaded?
-          ca_query.to_a.select { |ca| Array.wrap(ca.classification_tree_label&.visibility).intersection(Array.wrap(context)).any? }
+          ca_query.to_a.select { |ca| Array.wrap(ca.classification_tree_label&.visibility).intersect?(Array.wrap(context)) }
         else
           classification_aliases.includes(:classification_alias_path).in_context(context)
         end
