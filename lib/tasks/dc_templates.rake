@@ -99,22 +99,45 @@ namespace :dc do
         SQL
       end
 
-      task :embedded_relations, [:debug] => :environment do |_, _args|
-        puts "migrate content_contents to new relations\n"
-        if DataCycleCore.data_definition_mapping['embedded_relations'].blank?
-          puts 'no mappings found'
-          exit(-1)
-        end
-        content_contents_mapping = DataCycleCore.data_definition_mapping['embedded_relations']
-        ap content_contents_mapping
+      desc 'changes relation_a from old value to new value for given templates'
+      task :embedded_relations, [:from, :to, :templates, :debug] => :environment do |_, args|
+        old_relation = args.from
+        new_relation = args.to
+        templates = args.templates&.split('|')
+        puts "migrate content_contents to new relations from #{old_relation} to #{new_relation} with templates #{templates}\n"
 
-        content_contents_mapping.each do |old, new|
-          ActiveRecord::Base.connection.execute <<-SQL.squish
-            UPDATE content_contents SET relation_a = '#{new}' WHERE relation_a = '#{old}';
-            UPDATE content_content_histories SET relation_a = '#{new}' WHERE relation_a = '#{old}';
-          SQL
-          puts "migrated #{old} to #{new}"
-        end
+        update_cc_query = <<~SQL.squish
+          UPDATE content_contents AS cc
+          SET relation_a = ?
+          WHERE EXISTS (
+            SELECT 1 FROM things as t
+            WHERE cc.content_a_id = t.id
+              AND cc.relation_a = ?
+              #{' AND t.template_name IN (?)' if templates.present?}
+          )
+        SQL
+
+        update_cch_query = <<~SQL.squish
+          UPDATE content_content_histories AS cch
+          SET relation_a = ?
+          WHERE EXISTS (
+            SELECT 1 FROM thing_histories as th
+            JOIN things as t ON th.thing_id = t.id
+            WHERE cch.content_a_history_id = th.id
+              AND cch.relation_a = ?
+              #{' AND th.template_name IN (?)' if templates.present?}
+          )
+        SQL
+
+        query_args = [new_relation, old_relation]
+        query_args << templates if templates.present?
+        sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc_query, *query_args])
+        sanitized_update_cc_history = ActiveRecord::Base.send(:sanitize_sql_array, [update_cch_query, *query_args])
+
+        ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
+        ActiveRecord::Base.connection.exec_update(sanitized_update_cc_history)
+
+        puts "migrated #{old_relation} to #{new_relation}"
       end
 
       # switches classification_id in classification_contents according to their classification_tree_labels
