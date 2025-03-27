@@ -763,18 +763,20 @@ namespace :dc do
     desc 'create missing translations for aggregates'
     task create_missing_translations_for_aggregates: :environment do
       things = DataCycleCore::Thing.where(aggregate_type: 'belongs_to_aggregate')
-      things = things.where('exists(select 1 from thing_translations tt where tt.thing_id = things.id and tt.locale = ?)', 'en')
+      things = things.where('exists(select 1 from thing_translations tt where tt.thing_id = things.id and tt.locale != ?)', 'de')
 
       puts "Processing #{things.count} things"
 
       things.find_each do |thing|
         aggregate = thing.belongs_to_aggregate.first
 
-        next print('o') if aggregate.nil?
-        next print('o') unless aggregate.translatable?
+        next print('~') if aggregate.nil?
+        next print('~') unless aggregate.translatable?
 
         aggregate_for = aggregate.aggregate_for.map(&:id)
         missing_locales = aggregate.aggregate_for.flat_map(&:translated_locales).uniq - aggregate.translated_locales
+
+        next print('~') if missing_locales.blank?
 
         missing_locales.each do |locale|
           I18n.with_locale(locale) do

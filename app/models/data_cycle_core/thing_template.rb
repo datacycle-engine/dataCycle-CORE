@@ -42,7 +42,6 @@ module DataCycleCore
     def template_thing
       @template_thing ||= begin
         tt = DataCycleCore::Thing.new(thing_template: self)
-        tt.aggregate_type = DataCycleCore::Feature::Aggregate.aggregate?(tt) ? 'aggregate' : 'default'
         tt.readonly!
         tt
       end

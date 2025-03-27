@@ -60,7 +60,7 @@ module DataCycleCore
           DataCycleCore::Filter::SelectOption.new(
             id,
             ActionController::Base.helpers.safe_join([
-              ActionController::Base.helpers.tag.i(class: "fa dc-type-icon thing-icon #{template_name.underscore_blanks}"),
+              ActionController::Base.helpers.tag.i(class: "fa dc-type-icon thing-icon #{icon_type}"),
               I18n.with_locale(first_available_locale) { title },
               "(#{translated_locales.join(', ')})"
             ].compact, ' '),

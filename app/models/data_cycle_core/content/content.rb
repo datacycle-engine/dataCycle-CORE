@@ -753,6 +753,7 @@ module DataCycleCore
 
         self.boost ||= thing_template.schema&.dig('boost').to_i
         self.content_type ||= thing_template.schema&.dig('content_type')
+        self.aggregate_type = 'aggregate' if DataCycleCore::Feature::Aggregate.aggregate?(self)
       end
 
       def attibute_cache_key(key, filter = nil, overlay_flag = false)
