@@ -135,12 +135,12 @@ namespace :dc do
       end
 
       # switches classification_id in classification_contents according to their classification_tree_labels
-      desc 'changes classification_id for things according to old and new tree_label'
-      task :update_classification_contents_based_on_similarity, [:from, :to, :template, :relation, :debug] => :environment do |_, args|
+      desc 'changes classification_id for things according to old and new tree_label based on from.name = to.description'
+      task :update_classification_contents_based_on_similarity, [:from, :to, :relation, :templates, :debug] => :environment do |_, args|
         puts "Starting to migrate countries to their corresponding country codes\n"
         from_concept_scheme_name = args.from
         to_concept_scheme_name = args.to
-        template_name = args.template
+        templates = args.templates&.split('|')
         relation = args.relation
 
         # Count the amount of datasets that need to be updated
@@ -154,10 +154,10 @@ namespace :dc do
             JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
               AND cs2.name = ?
             JOIN things AS th ON th.id = cc.content_data_id
-              AND th.template_name = ?
+              AND th.template_name in (?)
           WHERE cc.relation = ?
         SQL
-        sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
+        sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, from_concept_scheme_name, to_concept_scheme_name, templates, relation])
         rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_cc)
         puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
@@ -177,7 +177,7 @@ namespace :dc do
                   JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
                     AND cs2.name = ?
                   JOIN things AS th ON th.id = cc.content_data_id
-                    AND th.template_name = ?
+                    AND th.template_name IN (?)
                 WHERE cc.relation = ?
               ) as cl_update
             WHERE c1.id = cl_update.id
@@ -191,7 +191,7 @@ namespace :dc do
             )
         SQL
 
-        sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, template_name, relation])
+        sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, templates, relation])
         rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
         puts "Datasets migrated:  #{rows_updated}\n"
       end
