@@ -35,6 +35,52 @@ namespace :dc do
     end
 
     namespace :migrations do
+      desc 'Calls all tasks that are needed for migration phase 1'
+      task :migrate_phase_one, [:debug] => :environment do |_, _args|
+        puts '-----------------------------'
+        Rake::Task['dc:templates:migrations:data_definitions'].invoke
+
+        puts '-----------------------------'
+        Rake::Task['dc:templates:migrations:embedded_relations'].invoke
+
+        puts '-----------------------------'
+        mapping = DataCycleCore.data_definition_mapping['classification_contents']
+        puts 'no mapping for updating classification contents available' if mapping.blank?
+
+        mapping.each do |key, value|
+          puts "migrating classification contents for #{key}"
+          from = value[:from]
+          to = value[:to]
+          relation = value[:relation]
+          templates = value[:templates]
+
+          params = [from, to, relation]
+          params << templates if templates.present?
+          Rake::Task['dc:templates:migrations:embedded_relations'].invoke(*params)
+        end
+
+        puts '-----------------------------'
+        mapping = DataCycleCore.data_definition_mapping['value_to_translated']
+        puts 'no mapping for value->translated available' if mapping.blank?
+
+        mapping.each do |key, value|
+          puts "migrating classification contents for #{key}"
+          from = value[:from]
+          to = value[:to]
+          operation = value[:operation]
+          templates = value[:templates]
+
+          params = [from, to, operation]
+          params << templates if templates.present?
+          Rake::Task['dc:templates:migrations:value_to_translated'].invoke(*params)
+        end
+
+        puts '-----------------------------'
+        # TODO: Which templates do we use?
+        Rake::Task['dc:templates:migrations:attributes_to_additional_information'].invoke
+        puts '-----------------------------'
+      end
+
       task :validate, [:debug] => :environment do |_, _args|
         puts "validating new data definitions\n"
         mappings = DataCycleCore.data_definition_mapping['templates']
