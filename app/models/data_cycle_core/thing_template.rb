@@ -17,12 +17,22 @@ module DataCycleCore
       where('thing_templates.computed_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
     }
 
-    after_initialize :add_template_properties, if: :new_record?
-
     delegate :properties_for, to: :template_thing
 
     def readonly?
       true
+    end
+
+    # override initialize to setup template_name and thing_template correctly
+    def initialize(attributes = nil)
+      enriched_attributes = attributes&.to_h&.dup&.symbolize_keys || {}
+
+      raise ActiveModel::MissingAttributeError, ":schema is required to initialize #{self.class.name}" if enriched_attributes&.dig(:schema).blank?
+
+      enriched_attributes[:schema] = enriched_attributes[:schema].deep_dup.with_indifferent_access
+      enriched_attributes[:template_name] ||= enriched_attributes[:schema][:name]
+
+      super(enriched_attributes)
     end
 
     def property_definitions
@@ -151,14 +161,6 @@ module DataCycleCore
             end
           ]
         end
-    end
-
-    private
-
-    def add_template_properties
-      raise ActiveModel::MissingAttributeError, ":schema is required to initialize #{self.class.name}" if schema.blank?
-
-      self.template_name ||= schema&.[]('name')
     end
   end
 end
