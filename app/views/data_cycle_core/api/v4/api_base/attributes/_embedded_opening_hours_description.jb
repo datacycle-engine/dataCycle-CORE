@@ -26,7 +26,7 @@ def serialize_opening_hours_description_v4(description, filter, fields, options,
     return data unless filter
 
     data&.select do |key, _value|
-      api_default_attributes.include?(key) || select_attributes(fields).include?(key) || select_attributes(includes).include?(key)
+      api_default_attributes.include?(key) || fields_attribute?(key, fields) || included_attribute?(key, includes)
     end
   end
 end
