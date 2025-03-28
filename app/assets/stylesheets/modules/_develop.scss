@@ -588,6 +588,15 @@
 
     .validity_period {
       margin-bottom: 1rem;
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+
+      >* {
+        display: flex;
+        gap: 0.3rem;
+        align-items: center;
+      }
     }
   }
 }

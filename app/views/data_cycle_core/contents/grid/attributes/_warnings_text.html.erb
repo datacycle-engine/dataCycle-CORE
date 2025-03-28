@@ -1,7 +1,0 @@
-<% I18n.with_locale(local_assigns.fetch(:locale, I18n.locale)) do %>
-  <% if content.content_warnings? && local_assigns[:text] %>
-    <div class="content-warning-text callout <%= content_warning_class(content) %>">
-      <%= safe_join(content_warning_text(content), '<br>') %>
-    </div>
-  <% end %>
-<% end %>

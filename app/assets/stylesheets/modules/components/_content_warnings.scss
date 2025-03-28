@@ -1,5 +1,5 @@
 .detail-header-wrapper {
-  &.content-warning {
+  &:has(.content-warning) {
     box-shadow: 0px 1px 5px 0px var(--warning-color),
       0px 1px 2px -1px var(--warning-color);
 
@@ -15,7 +15,7 @@
     }
   }
 
-  &.content-alert {
+  &:has(.content-alert) {
     box-shadow: 0px 1px 5px 0px var(--alert-color),
       0px 1px 2px -1px var(--alert-color);
 
@@ -38,7 +38,7 @@
 }
 
 .data-cycle-object {
-  &.content-warning {
+  &:has(.content-warning) {
 
     box-shadow: 0 0 0 1px var(--warning-color) inset,
       0px 1px 4px 0px var(--warning-color),
@@ -54,7 +54,7 @@
     }
   }
 
-  &.content-alert {
+  &:has(.content-alert) {
     box-shadow: 0 0 0 1px var(--alert-color) inset,
       0px 1px 5px 0px var(--alert-color),
       0px 1px 2px -1px var(--alert-color);
@@ -75,28 +75,28 @@ ul.content-tiles>li,
 .media-thumbs ul.object-thumbs li.media,
 .media-thumbs ul.object-thumbs li.item .media,
 ul.object-thumbs>li {
-  &.content-warning {
+  &:has(.linked-content-warnings.active > .content-warning) {
     box-shadow: 0 0 0 1px var(--warning-color) inset,
       0px 1px 3px 0px var(--warning-color),
       0px 1px 2px -1px var(--warning-color);
   }
 
-  &.content-alert {
+  &:has(.linked-content-warnings.active > .content-alert) {
     box-shadow: 0 0 0 1px var(--alert-color) inset,
       0px 1px 3px 0px var(--alert-color),
       0px 1px 2px -1px var(--alert-color);
   }
 }
 
-.media-thumbs ul.object-thumbs li.item.content-warning .media,
-ul.content-tiles>li.content-warning .media {
+.media-thumbs ul.object-thumbs li.item:has(.linked-content-warnings.active > .content-warning) .media,
+ul.content-tiles>li:has(.linked-content-warnings.active > .content-warning) .media {
   box-shadow: 0 0 0 1px var(--warning-color) inset,
     0px 1px 3px 0px var(--warning-color),
     0px 1px 2px -1px var(--warning-color);
 }
 
-.media-thumbs ul.object-thumbs li.item.content-alert .media,
-ul.content-tiles>li.content-alert .media {
+.media-thumbs ul.object-thumbs li.item:has(.linked-content-warnings.active > .content-alert) .media,
+ul.content-tiles>li:has(.linked-content-warnings.active > .content-alert) .media {
   box-shadow: 0 0 0 1px var(--alert-color) inset,
     0px 1px 3px 0px var(--alert-color),
     0px 1px 2px -1px var(--alert-color);
@@ -120,29 +120,29 @@ ul.content-tiles>li.content-alert .media {
       }
     }
 
-    &.media:not(.active).content-warning,
-    &:not(.active).content-warning .media {
+    &.media:not(.active):has(.linked-content-warnings.active > .content-warning),
+    &:not(.active):has(.linked-content-warnings.active > .content-warning) .media {
       box-shadow: 0 0 0 1px var(--warning-color) inset,
         0px 1px 3px 0px var(--warning-color),
         0px 1px 2px -1px var(--warning-color);
     }
 
-    &.media:not(.active).content-alert,
-    &:not(.active).content-alert .media {
+    &.media:not(.active):has(.linked-content-warnings.active > .content-alert),
+    &:not(.active):has(.linked-content-warnings.active > .content-alert) .media {
       box-shadow: 0 0 3px 1px var(--alert-color) inset,
         0px 1px 3px 0px var(--alert-color),
         0px 1px 2px -1px var(--alert-color);
     }
 
-    &.media:not(.active).content-warning:hover,
-    &:not(.active).content-warning:hover .media {
+    &.media:not(.active):has(.linked-content-warnings.active > .content-warning):hover,
+    &:not(.active):has(.linked-content-warnings.active > .content-warning):hover .media {
       box-shadow: 0 0 0 1px var(--warning-color) inset,
         0px 1px 9px 0px var(--warning-color),
         0px 1px 2px -1px var(--warning-color);
     }
 
-    &.media:not(.active).content-alert:hover,
-    &:not(.active).content-alert:hover .media {
+    &.media:not(.active):has(.linked-content-warnings.active > .content-alert):hover,
+    &:not(.active):has(.linked-content-warnings.active > .content-alert):hover .media {
       box-shadow: 0 0 0 1px var(--alert-color) inset,
         0px 1px 10px 0px var(--alert-color),
         0px 1px 2px -1px var(--alert-color);
