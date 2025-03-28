@@ -40,23 +40,43 @@ namespace :dc do
         puts '-----------------------------'
         Rake::Task['dc:templates:migrations:data_definitions'].invoke
 
+        # puts '-----------------------------'
+        # Rake::Task['dc:templates:migrations:universal_classifications'].invoke
+
         puts '-----------------------------'
-        Rake::Task['dc:templates:migrations:embedded_relations'].invoke
+        mapping = DataCycleCore.data_definition_mapping['embedded_relations']
+
+        puts 'no mapping for updating embedded_relations available' if mapping.blank?
+
+        mapping.each do |key, value|
+          puts "migrating embedded_relations for #{key}"
+          from = value['from']
+          to = value['to']
+          templates = value['templates']
+
+          params = [from, to]
+          params << templates if templates.present?
+          Rake::Task['dc:templates:migrations:embedded_relations'].invoke(*params)
+        end
 
         puts '-----------------------------'
         mapping = DataCycleCore.data_definition_mapping['classification_contents']
+
         puts 'no mapping for updating classification contents available' if mapping.blank?
 
         mapping.each do |key, value|
           puts "migrating classification contents for #{key}"
-          from = value[:from]
-          to = value[:to]
-          relation = value[:relation]
-          templates = value[:templates]
+          source_attribute = value['source_attribute']
+          source_concept_scheme = value['source_concept_scheme']
 
-          params = [from, to, relation]
+          target_attribute = value['target_attribute']
+          target_concept_scheme = value['target_concept_scheme']
+          relation = value['relation']
+          templates = value['templates']
+
+          params = [source_attribute, source_concept_scheme, target_attribute, target_concept_scheme, relation]
           params << templates if templates.present?
-          Rake::Task['dc:templates:migrations:embedded_relations'].invoke(*params)
+          Rake::Task['dc:templates:migrations:update_classification_contents_based_on_similarity'].invoke(*params)
         end
 
         puts '-----------------------------'
@@ -77,7 +97,7 @@ namespace :dc do
 
         puts '-----------------------------'
         # TODO: Which templates do we use?
-        Rake::Task['dc:templates:migrations:attributes_to_additional_information'].invoke
+        # Rake::Task['dc:templates:migrations:attributes_to_additional_information'].invoke
         puts '-----------------------------'
       end
 
@@ -140,8 +160,28 @@ namespace :dc do
         classifications = DataCycleCore.data_definition_mapping['universal_classifications']
         ap classifications
         ActiveRecord::Base.connection.execute <<-SQL.squish
-          UPDATE classification_contents SET relation = 'universal_classifications' WHERE relation IN ('#{classifications.join("','")}');
-          UPDATE classification_content_histories SET relation = 'universal_classifications' WHERE relation IN ('#{classifications.join("','")}');
+          SET LOCAL statement_timeout = 0;
+          UPDATE classification_contents SET relation = 'universal_classifications'
+          WHERE relation IN ('#{classifications.join("','")}')
+          AND NOT EXISTS (
+            SELECT 1 FROM classification_contents AS cc
+            WHERE cc.relation = 'universal_classifications'
+            AND cc.content_data_id = classification_contents.content_data_id
+            AND cc.classification_id = classification_contents.classification_id
+          );
+
+
+          UPDATE classification_content_histories SET relation = 'universal_classifications'
+          WHERE relation IN ('#{classifications.join("','")}')
+          AND NOT EXISTS (
+            SELECT 1 FROM classification_content_histories AS cch
+            WHERE cch.relation = 'universal_classifications'
+            AND cch.content_data_id = classification_content_histories.content_data_id
+            AND cch.classification_id = classification_content_histories.classification_id
+          );
+
+          DELETE FROM classification_contents WHERE relation IN ('#{classifications.join("','")}');
+          DELETE FROM classification_content_histories WHERE relation IN ('#{classifications.join("','")}');
         SQL
       end
 
@@ -150,6 +190,12 @@ namespace :dc do
         old_relation = args.from
         new_relation = args.to
         templates = args.templates&.split('|')
+
+        if old_relation.blank? || new_relation.blank?
+          puts "Missing parameters\n"
+          exit(-1)
+        end
+
         puts "migrate content_contents to new relations from #{old_relation} to #{new_relation} with templates #{templates}\n"
 
         update_cc_query = <<~SQL.squish
@@ -187,13 +233,30 @@ namespace :dc do
       end
 
       # switches classification_id in classification_contents according to their classification_tree_labels
-      desc 'changes classification_id for things according to old and new tree_label based on from.name = to.description'
-      task :update_classification_contents_based_on_similarity, [:from, :to, :relation, :templates, :debug] => :environment do |_, args|
+      desc 'changes classification_id for things according to old and new tree_label'
+      task :update_classification_contents_based_on_similarity, [:source_attribute, :source_concept_scheme, :target_attribute, :target_concept_scheme, :relation, :templates, :debug] => :environment do |_, args|
         puts "Starting to migrate countries to their corresponding country codes\n"
-        from_concept_scheme_name = args.from
-        to_concept_scheme_name = args.to
+        from_concept_scheme_name = args.source_concept_scheme
+        to_concept_scheme_name = args.target_concept_scheme
         templates = args.templates&.split('|')
         relation = args.relation
+
+        if args.source_attribute.blank? || args.target_attribute.blank? || from_concept_scheme_name.blank? || to_concept_scheme_name.blank? || relation.blank?
+          puts "Missing parameters\n"
+          exit(-1)
+        end
+
+        attribute_mapping = {
+          'name' => 'internal_name',
+          'description' => "description_i18n->>'de'"
+        }
+
+        source_attribute = attribute_mapping[args.source_attribute]
+        target_attribute = attribute_mapping[args.target_attribute]
+        if source_attribute.blank? || target_attribute.blank?
+          puts 'source_attribute or target_attribute unknown'
+          exit(-1)
+        end
 
         # Count the amount of datasets that need to be updated
         select_cc = <<-SQL.squish
@@ -202,7 +265,7 @@ namespace :dc do
             JOIN concepts AS co ON cc.classification_id = co.classification_id
             JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
               AND cs.name = ?
-            JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
+            JOIN concepts AS co2 ON co2.#{target_attribute} = co.#{source_attribute}
             JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
               AND cs2.name = ?
             JOIN things AS th ON th.id = cc.content_data_id
@@ -225,7 +288,7 @@ namespace :dc do
                   JOIN concepts AS co ON cc.classification_id = co.classification_id
                   JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
                     AND cs.name = ?
-                  JOIN concepts AS co2 ON co2.description_i18n->>'de' = co.internal_name
+                  JOIN concepts AS co2 ON co2.#{target_attribute} = co.#{source_attribute}
                   JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
                     AND cs2.name = ?
                   JOIN things AS th ON th.id = cc.content_data_id
@@ -255,6 +318,11 @@ namespace :dc do
         field_to = args.to
         templates = args.templates&.split('|')
         puts "migrate #{field_from} to translated #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
+
+        if field_from.blank? || field_to.blank?
+          puts "Missing parameters\n"
+          exit(-1)
+        end
 
         # count how many rows should be affected by the migration
         select_th_qry = <<-SQL.squish
@@ -313,6 +381,11 @@ namespace :dc do
         field_to = args.to
         templates = args.templates&.split('|')
         puts "migrate translated #{field_from} to #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
+
+        if field_from.blank? || field_to.blank?
+          puts "Missing parameters\n"
+          exit(-1)
+        end
 
         # count how many rows should be affected by the migration
         select_tt_qry = <<-SQL.squish
@@ -376,7 +449,7 @@ namespace :dc do
       task :attributes_to_additional_information, [:template_names] => :environment do |_, args|
         template_names = args.template_names&.split('|')
 
-        attributes_mapping = DataCycleCore.data_definition_mapping['attributes']
+        attributes_mapping = DataCycleCore.data_definition_mapping['attributes_to_additional_information']
 
         if attributes_mapping.blank?
           puts 'no mappings found \n'
