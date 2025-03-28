@@ -59,16 +59,17 @@ module DataCycleCore
         end
 
         def check_references(data, template)
-          concepts = DataCycleCore::Concept.where(classification_id: data)
+          uniq_data = data.uniq
+          concepts = DataCycleCore::Concept.where(classification_id: uniq_data)
           concepts = concepts.includes(:concept_scheme).where(concept_scheme: { name: template['tree_label'] }) unless template['universal']
           concept_ids = concepts.pluck(:classification_id).uniq
 
-          return if concept_ids.size == data.size && concept_ids.to_set == data.to_set
+          return if concept_ids.size == uniq_data.size && concept_ids.to_set == uniq_data.to_set
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.classification',
             substitutions: {
-              key: (data - concept_ids).join(', '),
+              key: (uniq_data - concept_ids).join(', '),
               label: template['label'],
               tree_label: template['tree_label']
             }
