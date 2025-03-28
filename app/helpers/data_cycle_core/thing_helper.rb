@@ -22,16 +22,16 @@ module DataCycleCore
       )
     end
 
-    def content_warning_class(content, prefix = '')
+    def content_warning_class(content)
       if content.hard_content_warnings?
-        "#{prefix}alert"
+        'content-alert alert'
       elsif content.soft_content_warnings?
-        "#{prefix}warning"
+        'content-warning warning'
       end
     end
 
     def content_warning_text(content)
-      content.content_warnings.map { |w| DataCycleCore::LocalizationService.translate_and_substitute(w, active_ui_locale) }
+      safe_join(content.content_warnings.map { |w| DataCycleCore::LocalizationService.translate_and_substitute(w, active_ui_locale) }, tag.br)
     end
 
     def content_tile_class(content, type = 'grid')
@@ -42,7 +42,6 @@ module DataCycleCore
       css_classes << content.template_name.underscore_blanks if content.respond_to?(:template_name)
       css_classes << Feature::TileBorderColor.class_string(content)
       css_classes << thing_content_score_class(content)
-      css_classes << content_warning_class(content, 'content-') if content.respond_to?(:content_warnings?) && content.content_warnings?
 
       css_classes.compact_blank.join(' ')
     end

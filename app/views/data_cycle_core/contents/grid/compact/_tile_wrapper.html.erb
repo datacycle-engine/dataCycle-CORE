@@ -14,7 +14,6 @@
   changes_class(local_assigns.dig(:options, :item_diff), object.id),
   local_assigns[:tile_classes],
   object.id.in?(local_assigns[:objects] || []) ? 'active' : nil,
-  content_warning_class(object, 'content-'),
   DataCycleCore::Feature::TileBorderColor.class_string(object),
   thing_content_score_class(object)
 ].compact_blank.join(' '),

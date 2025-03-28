@@ -12,39 +12,27 @@ module DataCycleCore
 
             @poi_a = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { 'name' => 'POI A' })
             lat_long_a = {
-              latitude: 1,
-              longitude: 9
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(9, 1)
             }
             @poi_a.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_a)
-            @poi_a.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_a.longitude, @poi_a.latitude)
-            @poi_a.save
 
             @poi_b = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { 'name' => 'POI B' })
             lat_long_b = {
-              latitude: 5,
-              longitude: 5
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(5, 5)
             }
             @poi_b.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_b)
-            @poi_b.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_b.longitude, @poi_b.latitude)
-            @poi_b.save
 
             @poi_c = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { 'name' => 'POI C' })
             lat_long_c = {
-              latitude: 10,
-              longitude: 1
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(1, 10)
             }
             @poi_c.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_c)
-            @poi_c.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_c.longitude, @poi_c.latitude)
-            @poi_c.save
 
             @poi_d = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { 'name' => 'POI D' })
             lat_long_d = {
-              latitude: 1,
-              longitude: 1
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(1, 1)
             }
             @poi_d.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_d)
-            @poi_d.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_d.longitude, @poi_d.latitude)
-            @poi_d.save
 
             # pois without location
             @poi_e = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { 'name' => 'POI E' })

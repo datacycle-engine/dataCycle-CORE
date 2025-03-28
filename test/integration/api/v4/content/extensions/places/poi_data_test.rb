@@ -13,8 +13,6 @@ module DataCycleCore
 
               before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('full_poi')
-                @content.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@content.longitude, @content.latitude)
-                @content.save
               end
 
               test 'api_v4_thing_path validate full poi with default params' do

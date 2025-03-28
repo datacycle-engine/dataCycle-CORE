@@ -95,8 +95,8 @@ module DataCycleCore
         render('data_cycle_core/contents/grid/attributes/translatable_warnings', params)
       else
         tag.span(
-          render('data_cycle_core/contents/grid/attributes/warnings_icon', params),
-          class: 'linked-content-warnings'
+          render('data_cycle_core/contents/grid/attributes/warnings', params),
+          class: 'linked-content-warnings active'
         )
       end
     end

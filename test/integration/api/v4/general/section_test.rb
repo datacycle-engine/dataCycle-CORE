@@ -14,8 +14,6 @@ module DataCycleCore
             DataCycleCore::Thing.delete_all
             @routes = Engine.routes
             @content = DataCycleCore::DummyDataHelper.create_data('poi')
-            @content.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@content.longitude, @content.latitude)
-            @content.save
             @content2 = DataCycleCore::DummyDataHelper.create_data('event')
             @content2.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
           end
