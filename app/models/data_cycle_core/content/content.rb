@@ -87,7 +87,7 @@ module DataCycleCore
           validate_template!
           normal_attrs[:boost] ||= thing_template.schema&.dig('boost').to_i
           normal_attrs[:content_type] ||= thing_template.schema&.dig('content_type')
-          normal_attrs[:aggregate_type] = 'aggregate' if normal_attrs.key?(:aggregate_type) && DataCycleCore::Feature::Aggregate.aggregate?(self)
+          normal_attrs[:aggregate_type] = 'aggregate' if !normal_attrs.key?(:aggregate_type) && DataCycleCore::Feature::Aggregate.aggregate?(self)
           assign_attributes(normal_attrs)
 
           yield self if block_given?
