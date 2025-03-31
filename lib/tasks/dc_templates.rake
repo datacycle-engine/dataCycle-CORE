@@ -45,7 +45,6 @@ namespace :dc do
 
         puts '-----------------------------'
         mapping = DataCycleCore.data_definition_mapping['embedded_relations']
-
         puts 'no mapping for updating embedded_relations available' if mapping.blank?
 
         mapping.each do |key, value|
@@ -62,7 +61,6 @@ namespace :dc do
 
         puts '-----------------------------'
         mapping = DataCycleCore.data_definition_mapping['classification_contents']
-
         puts 'no mapping for updating classification contents available' if mapping.blank?
 
         mapping.each do |key, value|
@@ -100,8 +98,10 @@ namespace :dc do
         end
 
         puts '-----------------------------'
-        # TODO: Which templates do we use?
-        # Rake::Task['dc:templates:migrations:attributes_to_additional_information'].invoke
+        templates = DataCycleCore.data_definition_mapping['attributes_to_additional_information']['templates']
+        puts 'no templates for attributes_to_additional_information available' if templates.blank?
+
+        Rake::Task['dc:templates:migrations:attributes_to_additional_information'].invoke(templates)
         puts '-----------------------------'
       end
 
@@ -220,7 +220,7 @@ namespace :dc do
         templates = args.templates&.split('|')
 
         if old_relation.present? && new_relation.present?
-          puts "migrate content_contents to new relations from #{old_relation} to #{new_relation} with templates #{templates}\n"
+          puts "migrate content_contents to new relations from #{old_relation} to #{new_relation}\n"
 
           update_cc_query = <<~SQL.squish
             UPDATE content_contents AS cc
@@ -229,6 +229,7 @@ namespace :dc do
               SELECT 1 FROM things as t
               WHERE cc.content_a_id = t.id
                 AND cc.relation_a = ?
+                #{" AND t.content_type = 'entity'" if templates.blank?}
                 #{' AND t.template_name IN (?)' if templates.present?}
             )
           SQL
@@ -241,6 +242,7 @@ namespace :dc do
               JOIN things as t ON th.thing_id = t.id
               WHERE cch.content_a_history_id = th.id
                 AND cch.relation_a = ?
+                #{" AND th.content_type = 'entity'" if templates.blank?}
                 #{' AND th.template_name IN (?)' if templates.present?}
             )
           SQL
@@ -289,10 +291,15 @@ namespace :dc do
             JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
               AND cs2.name = ?
             JOIN things AS th ON th.id = cc.content_data_id
-              AND th.template_name in (?)
+              #{" AND th.content_type = 'entity'" if templates.blank?}
+              #{' AND th.template_name IN (?)' if templates.present?}
           WHERE cc.relation = ?
           SQL
-          sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, from_concept_scheme_name, to_concept_scheme_name, templates, relation])
+
+          query_args = [from_concept_scheme_name, to_concept_scheme_name]
+          query_args << templates if templates.present?
+          query_args << relation
+          sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, *query_args])
           rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_cc)
           puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
@@ -312,7 +319,8 @@ namespace :dc do
                   JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
                     AND cs2.name = ?
                   JOIN things AS th ON th.id = cc.content_data_id
-                    AND th.template_name IN (?)
+                    #{" AND th.content_type = 'entity'" if templates.blank?}
+                    #{' AND th.template_name IN (?)' if templates.present?}
                 WHERE cc.relation = ?
               ) as cl_update
             WHERE c1.id = cl_update.id
@@ -326,7 +334,7 @@ namespace :dc do
             )
           SQL
 
-          sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, templates, relation])
+          sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, *query_args])
           rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
           puts "Datasets migrated:  #{rows_updated}\n"
         else
@@ -335,21 +343,23 @@ namespace :dc do
       end
 
       # value => translated_value (copy vs move)
+      # if no templates are given, all templates for content_type = entity are updated
       desc 'value => translated (copy/move) | templates as one | seperated string'
       task :value_to_translated, [:from, :to, :operation, :templates, :debug] => :environment do |_, args|
         field_from = args.from
         field_to = args.to
+        operation = args.operation
         templates = args.templates&.split('|')
-        puts "migrate #{field_from} to translated #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
+        puts "migrate #{field_from} to translated #{field_to} | Operation: #{operation}\n"
 
-        if field_from.present? && field_to.present?
-
+        if field_from.present? && field_to.present? && operation.present?
           # count how many rows should be affected by the migration
           select_th_qry = <<-SQL.squish
           SELECT 1
           FROM things AS t1
             JOIN thing_translations ON t1.id = thing_translations.thing_id
           WHERE t1.metadata->? IS NOT NULL
+            #{" AND t1.content_type = 'entity'" if templates.blank?}
             #{' AND t1.template_name IN (?)' if templates.present?}
           SQL
           query_args = [field_from]
@@ -366,6 +376,7 @@ namespace :dc do
                   SELECT th.metadata, th.id
                   FROM things AS th
                   WHERE th.metadata->? IS NOT NULL
+                      #{" AND th.content_type = 'entity'" if templates.blank?}
                       #{' AND th.template_name IN (?)' if templates.present?}
               ) AS data_origin
           WHERE tt.thing_id = data_origin.id
@@ -378,11 +389,12 @@ namespace :dc do
           puts "Datasets migrated:  #{rows_updated}\n"
 
           # remove old fields from metadata json, if operation equals move
-          if args[:operation] == 'move'
+          if operation == 'move'
             remove_metadata_fields_qry = <<-SQL.squish
             UPDATE things
             SET metadata = metadata - ?
             WHERE things.metadata->? IS NOT NULL
+              #{" AND things.content_type = 'entity'" if templates.blank?}
               #{' AND things.template_name IN (?)' if templates.present?}
             SQL
 
@@ -402,10 +414,11 @@ namespace :dc do
       task :translated_to_value, [:from, :to, :operation, :templates, :debug] => :environment do |_, args|
         field_from = args.from
         field_to = args.to
+        operation = args.operation
         templates = args.templates&.split('|')
-        puts "migrate translated #{field_from} to #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
+        puts "migrate translated #{field_from} to #{field_to} | Operation: #{operation}\n"
 
-        if field_from.present? && field_to.present?
+        if field_from.present? && field_to.present? && operation.present?
 
           # count how many rows should be affected by the migration
           select_tt_qry = <<-SQL.squish
@@ -413,7 +426,9 @@ namespace :dc do
           FROM thing_translations AS t1
             JOIN things AS t2 ON t1.thing_id = t2.id
           WHERE t1.content->? IS NOT NULL
-            AND t1.locale = 'de' #{'AND t2.template_name IN (?)' if templates.present?}
+            AND t1.locale = 'de'#{' '}
+              #{" AND t2.content_type = 'entity'" if templates.blank?}
+              #{'AND t2.template_name IN (?)' if templates.present?}
           SQL
 
           query_args = [field_from]
@@ -433,6 +448,7 @@ namespace :dc do
                       AND tt.locale = 'de'
               ) AS data_origin
           WHERE th.id = data_origin.thing_id
+            #{" AND th.content_type = 'entity'" if templates.blank?}
             #{' AND th.template_name IN (?)' if templates.present?}
           SQL
 
@@ -443,7 +459,7 @@ namespace :dc do
           puts "Datasets migrated:  #{rows_updated}\n"
 
           # remove old fields from metadata json, if operation equals move
-          if args[:operation] == 'move'
+          if operation == 'move'
             remove_metadata_fields_qry = <<-SQL.squish
             UPDATE thing_translations t1
             SET content = content - ?
@@ -451,6 +467,7 @@ namespace :dc do
                 SELECT 1 FROM things as t2
                 WHERE t1.thing_id = t2.id
                   AND t2.metadata->? IS NOT NULL
+                  #{" AND t2.content_type = 'entity'" if templates.blank?}
                   #{'AND t2.template_name IN (?)' if templates.present?}
               )
               AND t1.content->? IS NOT NULL
@@ -469,16 +486,22 @@ namespace :dc do
       end
 
       desc 'migrate attributes for which mapping in \'data_definition_mapping.yml\' is provided to additional_information'
-      task :attributes_to_additional_information, [:template_names] => :environment do |_, args|
-        template_names = args.template_names&.split('|')
+      task :attributes_to_additional_information, [:templates] => :environment do |_, args|
+        puts "migrating attributes to additional_information for templates #{args.templates}"
+        template_names = args.templates&.split('|')
+
+        if template_names.blank?
+          puts 'no templates found \n'
+          exit(-1)
+        end
 
         attributes_mapping = DataCycleCore.data_definition_mapping['attributes_to_additional_information']
-
         if attributes_mapping.blank?
           puts 'no mappings found \n'
           exit(-1)
         end
 
+        attributes_mapping.delete('templates')
         count = 0
 
         template_names.each do |template_name|
@@ -503,8 +526,7 @@ namespace :dc do
 
                     new_information.push(
                       'name' => I18n.t(
-                        # why pimcore?
-                        "import.pimcore.#{info_type_mapping_key}",
+                        "import.outdoor_active.place.#{info_type_mapping_key}",
                         locale: locale.to_s.in?(['de', 'en']) ? locale : 'de'
                       ),
                       'description' => value,
