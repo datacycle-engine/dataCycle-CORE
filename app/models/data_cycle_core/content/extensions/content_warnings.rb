@@ -7,7 +7,8 @@ module DataCycleCore
         def content_warning_messages(context = nil)
           @content_warning_messages ||= {
             hard: [],
-            soft: []
+            soft: [],
+            highlight: []
           }.tap do |w|
             DataCycleCore.content_warnings.slice('Common', template_name).presence&.each do |key, value|
               value.presence&.each do |k, v|
@@ -15,7 +16,10 @@ module DataCycleCore
 
                 next unless warning_class.try(k, v.except(:active, :hard, :module), self, context)
 
-                w[v[:hard] ? :hard : :soft].push(warning_class.try("#{k}_message", k, self, context) || warning_class.message(k, self, context))
+                key = v[:hard] ? :hard : :soft
+                w[:highlight] << key if v[:highlight] && w[:highlight].exclude?(key)
+
+                w[key].push(warning_class.try("#{k}_message", k, self, context) || warning_class.message(k, self, context))
               end
             end
           end
@@ -35,6 +39,14 @@ module DataCycleCore
 
         def soft_content_warnings?(context = nil)
           content_warning_messages(context)[:soft].present?
+        end
+
+        def highlight_soft_content_warnings?(context = nil)
+          content_warning_messages(context)[:highlight].include?(:soft)
+        end
+
+        def highlight_hard_content_warnings?(context = nil)
+          content_warning_messages(context)[:highlight].include?(:hard)
         end
       end
     end
