@@ -115,7 +115,7 @@
     font-size: 1rem;
     font-weight: normal;
 
-    &.has-parent {
+    &.has-parent+.type {
       margin-top: -0.5rem;
     }
 

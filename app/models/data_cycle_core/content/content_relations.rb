@@ -304,7 +304,7 @@ module DataCycleCore
 
         return if new_record? || !template_name_changed?
 
-        require_template!
+        validate_template!
         update_template_properties
       end
 
@@ -313,7 +313,7 @@ module DataCycleCore
 
         return if new_record? || !thing_template_changed?
 
-        require_template!
+        validate_template!
         self.template_name = thing_template.template_name
         update_template_properties
       end

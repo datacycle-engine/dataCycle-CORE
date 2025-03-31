@@ -23,11 +23,21 @@ module DataCycleCore
     end
 
     def content_warning_class(content)
+      css_classes = []
+
       if content.hard_content_warnings?
-        'content-alert alert'
+        css_classes.push('content-alert', 'alert')
       elsif content.soft_content_warnings?
-        'content-warning warning'
+        css_classes.push('content-warning', 'warning')
       end
+
+      if content.highlight_hard_content_warnings?
+        css_classes.push('content-alert', 'hard-highlight')
+      elsif content.highlight_soft_content_warnings?
+        css_classes.push('content-warning', 'soft-highlight')
+      end
+
+      css_classes.uniq.join(' ')
     end
 
     def content_warning_text(content)

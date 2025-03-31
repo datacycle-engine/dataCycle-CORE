@@ -318,3 +318,22 @@
 .v-select li.level-8 a {
   padding-left: 9rem;
 }
+
+.select2-container {
+
+  .selection-label,
+  .select2-option-title {
+    .dc-type-icon {
+      display: inline-grid;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.2rem;
+    }
+  }
+
+  .select2-option-title {
+    .dc-type-icon {
+      min-width: 1.2rem;
+    }
+  }
+}

@@ -2,5 +2,6 @@ Common:
   :invalid:
     :active: true
     :hard: true
+    :highlight: true
   :translation_missing:
     :active: true
