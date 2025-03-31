@@ -11,7 +11,7 @@ json = {}
 unless options[:header_type] == :overlay
   json['@id'] = content.id
   json['@type'] = content.api_type
-  json['dc:entityUrl'] = api_v4_thing_url(@api_subversion, content, { language: serialize_language(@language) }) if fields_attribute?('dc:entityUrl', options[:fields])
+  json['dc:entityUrl'] = api_v4_thing_url(@api_subversion, content, { language: serialize_language(@language) }) if attribute_visible?('dc:entityUrl', options)
   json['dct:modified'] = content.updated_at if attribute_visible?('dct:modified', options)
   json['dct:created'] = content.created_at if attribute_visible?('dct:created', options)
   json['dc:touched'] = content.created_at if attribute_visible?('dc:touched', options)
