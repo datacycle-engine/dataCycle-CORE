@@ -49,15 +49,12 @@ module DataCycleCore
           end
 
           def self.location(data_hash)
-            return data_hash if data_hash['longitude'].present? &&
-                                data_hash['latitude'].present? &&
-                                !data_hash['longitude'].zero? &&
-                                !data_hash['latitude'].zero?
-
-            location = RGeo::Geographic.spherical_factory(srid: 4326).point(
-              data_hash['longitude'].to_f,
-              data_hash['latitude'].to_f
-            )
+            if data_hash['longitude'].present? && !data_hash['longitude'].to_f.zero? && data_hash['latitude'].present? && !data_hash['latitude'].to_f.zero?
+              location = RGeo::Geographic.spherical_factory(srid: 4326).point(
+                data_hash['longitude'].to_f,
+                data_hash['latitude'].to_f
+              )
+            end
 
             data_hash.merge({ 'location' => location.presence })
           end

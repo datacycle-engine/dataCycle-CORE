@@ -8,7 +8,7 @@ module DataCycleCore
           return true if attribute.definition['global'].to_s == 'true' || attribute.definition['local'].to_s == 'true'
           return true if attribute.content.try(:external_source_id).blank? && attribute.definition['external'].to_s != 'true'
 
-          return true if DataCycleCore::Feature::Overlay.allowed?(attribute.content) && DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
+          return true if attribute_is_in_overlay?(attribute) || overlay_attribute?(attribute)
 
           false
         end
