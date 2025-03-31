@@ -57,6 +57,7 @@ namespace :dc do
           params = [from, to]
           params << templates if templates.present?
           Rake::Task['dc:templates:migrations:embedded_relations'].invoke(*params)
+          Rake::Task['dc:templates:migrations:embedded_relations'].reenable
         end
 
         puts '-----------------------------'
@@ -66,6 +67,7 @@ namespace :dc do
 
         mapping.each do |key, value|
           puts "migrating classification contents for #{key}"
+
           source_attribute = value['source_attribute']
           source_concept_scheme = value['source_concept_scheme']
 
@@ -77,6 +79,7 @@ namespace :dc do
           params = [source_attribute, source_concept_scheme, target_attribute, target_concept_scheme, relation]
           params << templates if templates.present?
           Rake::Task['dc:templates:migrations:update_classification_contents_based_on_similarity'].invoke(*params)
+          Rake::Task['dc:templates:migrations:update_classification_contents_based_on_similarity'].reenable
         end
 
         puts '-----------------------------'
@@ -93,6 +96,7 @@ namespace :dc do
           params = [from, to, operation]
           params << templates if templates.present?
           Rake::Task['dc:templates:migrations:value_to_translated'].invoke(*params)
+          Rake::Task['dc:templates:migrations:value_to_translated'].reenable
         end
 
         puts '-----------------------------'
@@ -215,45 +219,44 @@ namespace :dc do
         new_relation = args.to
         templates = args.templates&.split('|')
 
-        if old_relation.blank? || new_relation.blank?
+        if old_relation.present? && new_relation.present?
+          puts "migrate content_contents to new relations from #{old_relation} to #{new_relation} with templates #{templates}\n"
+
+          update_cc_query = <<~SQL.squish
+            UPDATE content_contents AS cc
+            SET relation_a = ?
+            WHERE EXISTS (
+              SELECT 1 FROM things as t
+              WHERE cc.content_a_id = t.id
+                AND cc.relation_a = ?
+                #{' AND t.template_name IN (?)' if templates.present?}
+            )
+          SQL
+
+          update_cch_query = <<~SQL.squish
+            UPDATE content_content_histories AS cch
+            SET relation_a = ?
+            WHERE EXISTS (
+              SELECT 1 FROM thing_histories as th
+              JOIN things as t ON th.thing_id = t.id
+              WHERE cch.content_a_history_id = th.id
+                AND cch.relation_a = ?
+                #{' AND th.template_name IN (?)' if templates.present?}
+            )
+          SQL
+
+          query_args = [new_relation, old_relation]
+          query_args << templates if templates.present?
+          sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc_query, *query_args])
+          sanitized_update_cc_history = ActiveRecord::Base.send(:sanitize_sql_array, [update_cch_query, *query_args])
+
+          ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
+          ActiveRecord::Base.connection.exec_update(sanitized_update_cc_history)
+
+          puts "migrated #{old_relation} to #{new_relation}"
+        else
           puts "Missing parameters\n"
-          exit(-1)
         end
-
-        puts "migrate content_contents to new relations from #{old_relation} to #{new_relation} with templates #{templates}\n"
-
-        update_cc_query = <<~SQL.squish
-          UPDATE content_contents AS cc
-          SET relation_a = ?
-          WHERE EXISTS (
-            SELECT 1 FROM things as t
-            WHERE cc.content_a_id = t.id
-              AND cc.relation_a = ?
-              #{' AND t.template_name IN (?)' if templates.present?}
-          )
-        SQL
-
-        update_cch_query = <<~SQL.squish
-          UPDATE content_content_histories AS cch
-          SET relation_a = ?
-          WHERE EXISTS (
-            SELECT 1 FROM thing_histories as th
-            JOIN things as t ON th.thing_id = t.id
-            WHERE cch.content_a_history_id = th.id
-              AND cch.relation_a = ?
-              #{' AND th.template_name IN (?)' if templates.present?}
-          )
-        SQL
-
-        query_args = [new_relation, old_relation]
-        query_args << templates if templates.present?
-        sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc_query, *query_args])
-        sanitized_update_cc_history = ActiveRecord::Base.send(:sanitize_sql_array, [update_cch_query, *query_args])
-
-        ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
-        ActiveRecord::Base.connection.exec_update(sanitized_update_cc_history)
-
-        puts "migrated #{old_relation} to #{new_relation}"
       end
 
       # switches classification_id in classification_contents according to their classification_tree_labels
@@ -265,11 +268,6 @@ namespace :dc do
         templates = args.templates&.split('|')
         relation = args.relation
 
-        if args.source_attribute.blank? || args.target_attribute.blank? || from_concept_scheme_name.blank? || to_concept_scheme_name.blank? || relation.blank?
-          puts "Missing parameters\n"
-          exit(-1)
-        end
-
         attribute_mapping = {
           'name' => 'internal_name',
           'description' => "description_i18n->>'de'"
@@ -277,13 +275,11 @@ namespace :dc do
 
         source_attribute = attribute_mapping[args.source_attribute]
         target_attribute = attribute_mapping[args.target_attribute]
-        if source_attribute.blank? || target_attribute.blank?
-          puts 'source_attribute or target_attribute unknown'
-          exit(-1)
-        end
 
-        # Count the amount of datasets that need to be updated
-        select_cc = <<-SQL.squish
+        if source_attribute.present? && target_attribute.present? && from_concept_scheme_name.present? && to_concept_scheme_name.present? && relation.present?
+
+          # Count the amount of datasets that need to be updated
+          select_cc = <<-SQL.squish
           SELECT co2.classification_id AS new_classification_id, cc.id
           FROM classification_contents AS cc
             JOIN concepts AS co ON cc.classification_id = co.classification_id
@@ -295,13 +291,13 @@ namespace :dc do
             JOIN things AS th ON th.id = cc.content_data_id
               AND th.template_name in (?)
           WHERE cc.relation = ?
-        SQL
-        sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, from_concept_scheme_name, to_concept_scheme_name, templates, relation])
-        rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_cc)
-        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+          SQL
+          sanitized_select_cc = ActiveRecord::Base.send(:sanitize_sql_array, [select_cc, from_concept_scheme_name, to_concept_scheme_name, templates, relation])
+          rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_cc)
+          puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
-        # Update the classification id in classification_contents old to new classification_ids
-        update_cc = <<-SQL.squish
+          # Update the classification id in classification_contents old to new classification_ids
+          update_cc = <<-SQL.squish
           WITH classification_contents_update AS (
             UPDATE classification_contents as c1
             SET classification_id = cl_update.new_classification_id
@@ -328,11 +324,14 @@ namespace :dc do
               SELECT content_data_id
               FROM classification_contents_update
             )
-        SQL
+          SQL
 
-        sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, templates, relation])
-        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
-        puts "Datasets migrated:  #{rows_updated}\n"
+          sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, from_concept_scheme_name, to_concept_scheme_name, templates, relation])
+          rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_cc)
+          puts "Datasets migrated:  #{rows_updated}\n"
+        else
+          puts 'Parameters Missing'
+        end
       end
 
       # value => translated_value (copy vs move)
@@ -343,27 +342,24 @@ namespace :dc do
         templates = args.templates&.split('|')
         puts "migrate #{field_from} to translated #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
 
-        if field_from.blank? || field_to.blank?
-          puts "Missing parameters\n"
-          exit(-1)
-        end
+        if field_from.present? && field_to.present?
 
-        # count how many rows should be affected by the migration
-        select_th_qry = <<-SQL.squish
+          # count how many rows should be affected by the migration
+          select_th_qry = <<-SQL.squish
           SELECT 1
           FROM things AS t1
             JOIN thing_translations ON t1.id = thing_translations.thing_id
           WHERE t1.metadata->? IS NOT NULL
             #{' AND t1.template_name IN (?)' if templates.present?}
-        SQL
-        query_args = [field_from]
-        query_args << templates if templates.present?
-        sanitized_select_th_qry = ActiveRecord::Base.sanitize_sql_array([select_th_qry, *query_args])
-        rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_th_qry)
-        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+          SQL
+          query_args = [field_from]
+          query_args << templates if templates.present?
+          sanitized_select_th_qry = ActiveRecord::Base.sanitize_sql_array([select_th_qry, *query_args])
+          rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_th_qry)
+          puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
-        # migrate data
-        update_tt_qry = <<-SQL.squish
+          # migrate data
+          update_tt_qry = <<-SQL.squish
           UPDATE thing_translations AS tt
           SET content = jsonb_set(tt.content, ?, data_origin.metadata->?)
           FROM (
@@ -373,28 +369,31 @@ namespace :dc do
                       #{' AND th.template_name IN (?)' if templates.present?}
               ) AS data_origin
           WHERE tt.thing_id = data_origin.id
-        SQL
+          SQL
 
-        query_args = ["{#{field_to}}", field_from, field_from]
-        query_args << templates if templates.present?
-        sanitized_update_tt_qry = ActiveRecord::Base.sanitize_sql_array([update_tt_qry, *query_args])
-        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_tt_qry)
-        puts "Datasets migrated:  #{rows_updated}\n"
+          query_args = ["{#{field_to}}", field_from, field_from]
+          query_args << templates if templates.present?
+          sanitized_update_tt_qry = ActiveRecord::Base.sanitize_sql_array([update_tt_qry, *query_args])
+          rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_tt_qry)
+          puts "Datasets migrated:  #{rows_updated}\n"
 
-        # remove old fields from metadata json, if operation equals move
-        if args[:operation] == 'move'
-          remove_metadata_fields_qry = <<-SQL.squish
+          # remove old fields from metadata json, if operation equals move
+          if args[:operation] == 'move'
+            remove_metadata_fields_qry = <<-SQL.squish
             UPDATE things
             SET metadata = metadata - ?
             WHERE things.metadata->? IS NOT NULL
               #{' AND things.template_name IN (?)' if templates.present?}
-          SQL
+            SQL
 
-          query_args = [field_from, field_from]
-          query_args << templates if templates.present?
-          sanitized_remove_metadata_fields_qry = ActiveRecord::Base.sanitize_sql_array([remove_metadata_fields_qry, *query_args])
-          deleted = ActiveRecord::Base.connection.exec_update(sanitized_remove_metadata_fields_qry)
-          puts "Original values deleted: #{deleted}\n"
+            query_args = [field_from, field_from]
+            query_args << templates if templates.present?
+            sanitized_remove_metadata_fields_qry = ActiveRecord::Base.sanitize_sql_array([remove_metadata_fields_qry, *query_args])
+            deleted = ActiveRecord::Base.connection.exec_update(sanitized_remove_metadata_fields_qry)
+            puts "Original values deleted: #{deleted}\n"
+          end
+        else
+          puts "Missing parameters\n"
         end
       end
 
@@ -406,28 +405,25 @@ namespace :dc do
         templates = args.templates&.split('|')
         puts "migrate translated #{field_from} to #{field_to} for templates #{templates} | Operation: #{args[:operation]}\n"
 
-        if field_from.blank? || field_to.blank?
-          puts "Missing parameters\n"
-          exit(-1)
-        end
+        if field_from.present? && field_to.present?
 
-        # count how many rows should be affected by the migration
-        select_tt_qry = <<-SQL.squish
+          # count how many rows should be affected by the migration
+          select_tt_qry = <<-SQL.squish
           SELECT 1
           FROM thing_translations AS t1
             JOIN things AS t2 ON t1.thing_id = t2.id
           WHERE t1.content->? IS NOT NULL
             AND t1.locale = 'de' #{'AND t2.template_name IN (?)' if templates.present?}
-        SQL
+          SQL
 
-        query_args = [field_from]
-        query_args << templates if templates.present?
-        sanitized_select_tt_qry = ActiveRecord::Base.sanitize_sql_array([select_tt_qry, *query_args])
-        rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_tt_qry)
-        puts "Datasets to migrate:  #{rows_to_update.count}\n"
+          query_args = [field_from]
+          query_args << templates if templates.present?
+          sanitized_select_tt_qry = ActiveRecord::Base.sanitize_sql_array([select_tt_qry, *query_args])
+          rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_tt_qry)
+          puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
-        # migrate data
-        update_th_qry = <<-SQL.squish
+          # migrate data
+          update_th_qry = <<-SQL.squish
           UPDATE things AS th
           SET metadata = jsonb_set(th.metadata, ?, data_origin.content->?)
           FROM (
@@ -438,17 +434,17 @@ namespace :dc do
               ) AS data_origin
           WHERE th.id = data_origin.thing_id
             #{' AND th.template_name IN (?)' if templates.present?}
-        SQL
+          SQL
 
-        query_args = ["{#{field_to}}", field_from, field_from]
-        query_args << templates if templates.present?
-        sanitized_update_th_qry = ActiveRecord::Base.sanitize_sql_array([update_th_qry, *query_args])
-        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_th_qry)
-        puts "Datasets migrated:  #{rows_updated}\n"
+          query_args = ["{#{field_to}}", field_from, field_from]
+          query_args << templates if templates.present?
+          sanitized_update_th_qry = ActiveRecord::Base.sanitize_sql_array([update_th_qry, *query_args])
+          rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_th_qry)
+          puts "Datasets migrated:  #{rows_updated}\n"
 
-        # remove old fields from metadata json, if operation equals move
-        if args[:operation] == 'move'
-          remove_metadata_fields_qry = <<-SQL.squish
+          # remove old fields from metadata json, if operation equals move
+          if args[:operation] == 'move'
+            remove_metadata_fields_qry = <<-SQL.squish
             UPDATE thing_translations t1
             SET content = content - ?
             WHERE EXISTS (
@@ -458,14 +454,17 @@ namespace :dc do
                   #{'AND t2.template_name IN (?)' if templates.present?}
               )
               AND t1.content->? IS NOT NULL
-          SQL
+            SQL
 
-          query_args = [field_from, field_to]
-          query_args << templates if templates.present?
-          query_args << field_from
-          sanitized_remove_metadata_fields_qry = ActiveRecord::Base.sanitize_sql_array([remove_metadata_fields_qry, *query_args])
-          deleted = ActiveRecord::Base.connection.exec_update(sanitized_remove_metadata_fields_qry)
-          puts "Original values deleted: #{deleted}\n"
+            query_args = [field_from, field_to]
+            query_args << templates if templates.present?
+            query_args << field_from
+            sanitized_remove_metadata_fields_qry = ActiveRecord::Base.sanitize_sql_array([remove_metadata_fields_qry, *query_args])
+            deleted = ActiveRecord::Base.connection.exec_update(sanitized_remove_metadata_fields_qry)
+            puts "Original values deleted: #{deleted}\n"
+          end
+        else
+          puts "Missing parameters\n"
         end
       end
 
