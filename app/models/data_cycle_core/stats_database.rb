@@ -175,14 +175,6 @@ module DataCycleCore
       }
     end
 
-    def last_try(external_source)
-      external_source.last_import_step_time_info.each do |key, value|
-        last_try_class = value['last_successful_try'] == value['last_try'] ? 'success-color' : 'alert-color' if !external_source.deactivated && (value['last_try'].present? || value['last_successful_try'].present?)
-        last_try_class = 'primary-color' if last_try_class == 'alert-color' && Delayed::Job.where("delayed_reference_type ILIKE '%import%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
-        external_source.last_import_step_time_info[key]['last_try_class'] = last_try_class
-      end
-    end
-
     def load_mongo_data
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
