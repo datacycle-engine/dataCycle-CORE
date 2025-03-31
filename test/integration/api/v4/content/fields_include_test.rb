@@ -129,6 +129,16 @@ module DataCycleCore
             assert_equal(json_data_includes['image'][0].keys.sort, json_data_wildcard['image'][0].keys.sort)
           end
 
+          test 'testing wildcard fields - fields=eventSchedule.* (only fields in main object + eventSchedule)' do
+            fields = ['*', 'eventSchedule.*']
+            includes = ['eventSchedule']
+            json_data_includes = load_api_data(nil, add_content_header_fields(includes))
+            json_data_wildcard = load_api_data(fields, nil)
+
+            assert_equal(json_data_includes.keys.sort, json_data_wildcard.keys.sort)
+            assert_equal(json_data_includes['eventSchedule'][0].keys.sort, json_data_wildcard['eventSchedule'][0].keys.sort)
+          end
+
           test 'testing fields for wildcard - nested fields' do
             fields = ['*', 'image.*', 'image.dc:classification.*', 'image.dc:classification.skos:broader.*', 'image.dc:classification.skos:broader.skos:topConceptOf.*']
             includes = ['image', 'image.dc:classification', 'image.dc:classification.skos:broader', 'image.dc:classification.skos:broader.skos:topConceptOf']
