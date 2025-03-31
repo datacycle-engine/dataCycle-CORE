@@ -50,6 +50,14 @@ module DataCycleCore
             DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
         end
 
+        def overlay_attribute?(attribute)
+          is_overlay_attribute = ->(definition) { definition&.dig('features', 'overlay', 'overlay_for').present? }
+          base_key = attribute.key.attribute_path_from_key.first
+
+          is_overlay_attribute.call(attribute.definition) ||
+            is_overlay_attribute.call(attribute.content&.properties_for(base_key))
+        end
+
         def overlay_attribute_visible?(attribute)
           return true unless DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
           return true if (attribute.content&.external? || attribute.content&.aggregate_type_aggregate?) && DataCycleCore::Feature::Overlay.allowed?(attribute.content)
