@@ -7,7 +7,7 @@ def serialize_opening_hours_specification(schedule, filter, fields, include = []
   return data unless filter
 
   data&.select do |key, _value|
-    api_default_attributes.include?(key) || fields_attribute?(key, fields) || included_attribute?(key, include)
+    fields_attribute?(key, fields) || included_attribute?(key, include)
   end
 end
 

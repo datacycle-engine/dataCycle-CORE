@@ -4,7 +4,7 @@ def serialize_schedule(schedule, filter, fields, include = [])
   data = { '@id' => schedule.id, '@type' => 'Schedule' }.merge(schedule&.to_schedule_schema_org)&.compact
   data.merge!(schedule&.to_ical_string_api_v4 || {}) if select_attributes(include).include?('dc:ical')
 
-  filter ? data&.select { |key, _value| api_default_attributes.include?(key) || fields_attribute?(key, fields) || included_attribute?(key, include) } : data
+  filter ? data&.select { |key, _value| fields_attribute?(key, fields) || included_attribute?(key, include) } : data
 end
 
 options ||= {}
