@@ -40,20 +40,21 @@
           <tr>
             <td class="import-step-name"><%= value['name'] %></td>
             <td class="import-step-timestamp">
-              <div class="last-import <%= last_step_class(value) %> "
+              <div class="last-import <%= last_step_class(value) %>">
+                <span class="timestamp"> 
+                <%= import_data_time(Time.parse(value.dig('last_try'))) %></span>
+                <% if value.dig('last_try_time').present? %>
+                  <span class="time">(<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_time'), locale: active_ui_locale)%>)</span>
+                <% end %>
+              </div>
               <% if value['last_successful_try'].present? && value['last_try'] != value['last_successful_try'] %>
-                data-dc-tooltip="last success: <%= import_data_time(Time.parse(value['last_successful_try'])) %>
-                <% if value['last_successful_try_time'].present? %> 
-                (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value['last_successful_try_time'], locale: active_ui_locale)%>)
-                <% end %>"
-              <% end %>>
-              
-              <span class="timestamp"> 
-              <%= import_data_time(Time.parse(value.dig('last_try'))) %></span>
-              <% if value.dig('last_try_time').present? %>
-                <span class="time">(<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_time'), locale: active_ui_locale)%>)</span>
+                <div class="last-import success-color">
+                  <span class="timestamp"><%= import_data_time(Time.parse(value.dig('last_successful_try'))) %></span>
+                  <% if value['last_successful_try_time'].present? %> 
+                  (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value['last_successful_try_time'], locale: active_ui_locale)%>)
+                  <% end %>
+                </div>
               <% end %>
-            </div>
             </td>
           </tr>
           <% end %>
