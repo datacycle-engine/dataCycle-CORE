@@ -15,7 +15,8 @@ module DataCycleCore
         'classification' => 'classification'
       }.freeze
       WEBHOOK_ACCESSORS = [:webhook_as_of].freeze
-      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
+      STRING_PROPERTY_TYPES = ['string'].freeze
+      PLAIN_PROPERTY_TYPES = ['key', *STRING_PROPERTY_TYPES, 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       LINKED_PROPERTY_TYPES = ['linked'].freeze
       EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
       CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
@@ -31,7 +32,6 @@ module DataCycleCore
       ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
 
-      after_initialize :add_template_properties, if: :new_record?
       after_update :update_template_defaults, if: :template_name_previously_changed?
 
       self.abstract_class = true
@@ -72,6 +72,33 @@ module DataCycleCore
       scope :where_not_translated_value, ->(attributes) { includes(:translations).where.not(translated_value_condition(attributes), *attributes&.values).references(attributes.blank? ? nil : :translations) }
 
       after_save :move_changes_to_previous_changes, :reload_memoized
+      # after_find :initialize_template_properties
+
+      # override initialize to setup template_name and thing_template correctly
+      def initialize(attributes = nil)
+        attrs = attributes&.to_h&.symbolize_keys || {}
+        template_attrs = attrs.slice(:template_name, :thing_template)
+        normal_attrs = attrs.except(:template_name, :thing_template)
+
+        template_attrs[:thing_template] ||= DataCycleCore::ThingTemplate.find_by(template_name: template_attrs[:template_name]) if template_attrs[:template_name].present?
+        template_attrs[:template_name] ||= template_attrs[:thing_template].template_name if template_attrs[:thing_template].present?
+
+        super(template_attrs) do
+          validate_template!
+          normal_attrs[:boost] ||= thing_template.schema&.dig('boost').to_i
+          normal_attrs[:content_type] ||= thing_template.schema&.dig('content_type')
+          normal_attrs[:aggregate_type] = 'aggregate' if !normal_attrs.key?(:aggregate_type) && DataCycleCore::Feature::Aggregate.aggregate?(self)
+          assign_attributes(normal_attrs)
+
+          yield self if block_given?
+        end
+      end
+
+      # [TODO] initialize attributes from template properties
+      # def initialize_template_properties
+      #   untranslatable_string_property_names.each do |property_name|
+      #   end
+      # end
 
       def self.value_condition(attributes)
         attributes&.map { |k, v| "things.metadata ->> '#{k}' #{v.is_a?(::Array) ? 'IN (?)' : '= ?'}" }&.join(' AND ')
@@ -255,6 +282,16 @@ module DataCycleCore
 
       def translated_columns
         @translated_columns ||= "#{self.class}::Translation".constantize.column_names
+      end
+
+      def translatable_string_property_names
+        name_property_selector { |definition| STRING_PROPERTY_TYPES.include?(definition['type']) }
+          .intersection(translatable_property_names)
+      end
+
+      def untranslatable_string_property_names
+        name_property_selector { |definition| STRING_PROPERTY_TYPES.include?(definition['type']) }
+          .intersection(untranslatable_property_names)
       end
 
       def translatable_property?(property_name, property_definition = nil)
@@ -722,12 +759,12 @@ module DataCycleCore
         template_name.blank?
       end
 
-      def require_template!
+      def validate_template!
         return self unless template_name_missing? || template_missing?
 
         error = if template_name_missing? && template_missing?
                   +':template_name or :thing_template is required!' # don't freeze string
-                elsif template_missing?
+                elsif thing_template.nil?
                   "template '#{template_name}' does not exist!"
                 else
                   "template_name is missing for template: #{thing_template.to_json}!"
@@ -741,20 +778,6 @@ module DataCycleCore
       end
 
       private
-
-      def add_template_properties
-        if thing_template.present?
-          self.template_name ||= thing_template.template_name
-        elsif template_name.present?
-          self.thing_template ||= DataCycleCore::ThingTemplate.find_by(template_name:)
-        end
-
-        require_template!
-
-        self.boost ||= thing_template.schema&.dig('boost').to_i
-        self.content_type ||= thing_template.schema&.dig('content_type')
-        self.aggregate_type = 'aggregate' if DataCycleCore::Feature::Aggregate.aggregate?(self)
-      end
 
       def attibute_cache_key(key, filter = nil, overlay_flag = false)
         filter = nil if linked_property_names.exclude?(key) && embedded_property_names.exclude?(key)

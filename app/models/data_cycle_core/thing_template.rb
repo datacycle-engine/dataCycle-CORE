@@ -17,12 +17,22 @@ module DataCycleCore
       where('thing_templates.computed_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
     }
 
-    after_initialize :add_template_properties, if: :new_record?
-
     delegate :properties_for, to: :template_thing
 
     def readonly?
       true
+    end
+
+    # override initialize to setup template_name and thing_template correctly
+    def initialize(attributes = nil)
+      enriched_attributes = attributes&.to_h&.dup&.symbolize_keys || {}
+
+      raise ActiveModel::MissingAttributeError, ":schema is required to initialize #{self.class.name}" if enriched_attributes&.dig(:schema).blank?
+
+      enriched_attributes[:schema] = enriched_attributes[:schema].deep_dup.with_indifferent_access
+      enriched_attributes[:template_name] ||= enriched_attributes[:schema][:name]
+
+      super(enriched_attributes)
     end
 
     def property_definitions
@@ -49,8 +59,16 @@ module DataCycleCore
 
     def all_templates
       return @all_templates if defined? @all_templates
+
       @all_templates = self.class.all.index_by(&:template_name)
-      @all_templates.each_value { |v| v.instance_variable_set(:@all_templates, @all_templates) }
+      thing_counts = DataCycleCore::Thing.where(template_name: @all_templates.keys)
+        .group(:template_name).count.to_h
+
+      @all_templates.each_value do |v|
+        v.instance_variable_set(:@thing_count, thing_counts[v.template_name].to_i)
+        v.instance_variable_set(:@all_templates, @all_templates)
+      end
+
       @all_templates
     end
 
@@ -58,25 +76,28 @@ module DataCycleCore
       content = schema_sorted
       embedded = template_thing.embedded_property_names
 
-      # embedded_template_names = content['properties'].values_at(*embedded).pluck('template_name').flatten
-
-      # embedded_templates = DataCycleCore::ThingTemplate.where(template_name: embedded_template_names).index_by(&:template_name)
-
       embedded.each do |property_name|
-        content['properties'][property_name]['embedded_schema'] = Array.wrap(content.dig('properties', property_name, 'template_name')).map { |et| all_templates[et].schema_as_json }
+        content['properties'][property_name]['embedded_schema'] = Array.wrap(content.dig('properties', property_name, 'template_name')).map do |et|
+          all_templates[et].schema_as_json
+        end
       end
 
       content['template_paths'] = template_paths
+      content['thing_count'] = thing_count
 
       content
+    end
+
+    def thing_count
+      return @thing_count if defined? @thing_count
+      @thing_count = things.count
     end
 
     def self.schema_as_json
       all_templates = first.all_templates
 
       all.map do |tt|
-        tt.instance_variable_set(:@all_templates, all_templates)
-        tt.schema_as_json
+        all_templates[tt.template_name].schema_as_json
       end
     end
 
@@ -93,6 +114,10 @@ module DataCycleCore
 
     def self.template_things
       all.map(&:template_thing)
+    end
+
+    def self.things
+      DataCycleCore::Thing.where(template_name: pluck(:template_name))
     end
 
     def self.translated_property_labels(locale:, attributes:, count: nil, specific: nil)
@@ -136,14 +161,6 @@ module DataCycleCore
             end
           ]
         end
-    end
-
-    private
-
-    def add_template_properties
-      raise ActiveModel::MissingAttributeError, ":schema is required to initialize #{self.class.name}" if schema.blank?
-
-      self.template_name ||= schema&.[]('name')
     end
   end
 end
