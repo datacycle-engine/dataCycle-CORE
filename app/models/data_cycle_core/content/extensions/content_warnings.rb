@@ -16,17 +16,17 @@ module DataCycleCore
 
                 next unless warning_class.try(k, v.except(:active, :hard, :module), self, context)
 
-                key = v[:hard] ? :hard : :soft
-                w[:highlight] << key if v[:highlight] && w[:highlight].exclude?(key)
+                identifier = v[:hard] ? :hard : :soft
+                w[:highlight] << identifier if v[:highlight] && w[:highlight].exclude?(key)
 
-                w[key].push(warning_class.try("#{k}_message", k, self, context) || warning_class.message(k, self, context))
+                w[identifier].push(warning_class.try("#{k}_message", k, self, context) || warning_class.message(k, self, context))
               end
             end
           end
         end
 
         def content_warnings(context = nil)
-          content_warning_messages(context).values.flatten
+          content_warning_messages(context).slice(:hard, :soft).values.flatten
         end
 
         def content_warnings?(context = nil)
