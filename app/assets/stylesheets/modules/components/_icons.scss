@@ -98,6 +98,7 @@
     }
 
     &.image_object,
+    &.embedded_image_object,
     &.bild,
     &.foto-serie {
       &::before {
@@ -236,6 +237,7 @@
     }
 
     &.video_object,
+    &.embedded_video_object,
     &.video,
     &.video_serie,
     &.webcam,
@@ -253,6 +255,7 @@
     }
 
     &.prospekt,
+    &.embedded_pdf_object, 
     &.pdf {
       &::before {
         content: '\f1c1';
