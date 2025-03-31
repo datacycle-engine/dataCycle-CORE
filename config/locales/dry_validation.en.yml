@@ -19,6 +19,7 @@ en:
         reserved_property_name: "property name is reserved as database column"
         strategy_required: ":import_strategy or :download_strategy must be defined"
       uuid_or_list_of_uuid?: "must be a valid UUID or a list of UUIDs separated by commas"
+      fields_wildcard?: "wildcard must only appear at the end of a field or not at all"
       api_sort_parameter?: "must be a valid sort parameter"
       uuid_or_null_string?: "must be a valid UUID or a 'null' string"
       uuid?: "must be a valid UUID"

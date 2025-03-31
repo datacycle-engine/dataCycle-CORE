@@ -14,7 +14,6 @@
           item.class.name.demodulize.underscore.dasherize,
           item.schema_type&.underscore&.dasherize,
           item.template_name.underscore.dasherize,
-          content_warning_class(item, 'content-'),
           thing_content_score_class(item),
         ].compact_blank.join(' '),
         data: {

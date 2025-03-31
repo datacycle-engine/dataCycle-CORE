@@ -7,12 +7,12 @@ module DataCycleCore
     test 'save proper Place data-set with hash method + test standard properties' do
       data_set = DataCycleCore::Thing.new(template_name: 'Örtlichkeit')
       data_set.save
-      data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13 }, update_search_all: false)
+      point = RGeo::Geographic.spherical_factory(srid: 4326).point(40.56, 13.13)
+      data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13, 'location' => point }, update_search_all: false)
       data_set.save
       expected_hash = {
         'name' => 'Dies ist ein Test!',
-        'longitude' => 40.56,
-        'latitude' => 13.13,
+        'location' => point.as_text,
         'tags' => [],
         'output_channel' => [],
         'image' => [],
@@ -43,8 +43,6 @@ module DataCycleCore
       data_set.save
       expected_hash = {
         'name' => 'Dies ist ein Test!',
-        'longitude' => 40.56,
-        'latitude' => 13.13,
         'location' => point.as_text,
         'tags' => [],
         'output_channel' => [],

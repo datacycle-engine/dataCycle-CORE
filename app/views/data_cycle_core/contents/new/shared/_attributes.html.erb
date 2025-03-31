@@ -1,4 +1,4 @@
-<legend><%= t('actions.new', data: template&.translated_template_name(active_ui_locale), locale: active_ui_locale) %></legend>
+<legend><%= tag.span(safe_join([tag.i(class: "fa dc-type-icon thing-icon #{template&.icon_type}"), t('actions.new', data: template&.translated_template_name(active_ui_locale), locale: active_ui_locale)], ' ')) %></legend>
 
 <%= hidden_field_tag :table, :things %>
 <%= hidden_field_tag :scope, local_assigns[:scope] %>

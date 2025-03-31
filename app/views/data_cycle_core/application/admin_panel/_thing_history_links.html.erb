@@ -1,10 +1,5 @@
 <% I18n.with_locale(content.first_available_locale(local_assigns[:locale])) do %>
-  <code class="formatted-json" data-json="<%= (content.thing_history_links.map{|thl|
-    {
-      :thing_history_link_id => thl.id,
-      :thing_id => thl.thing_id,
-      :linked_history => thl.thing_history_id,
-      :thing_history_links_history_ids => thl.histories.pluck(:id)
-    }
+  <code class="formatted-json" data-json="<%= (content.thing_history_links.includes(:thing_history).map{ |thl|
+    { thing_id: thl.thing_history.thing_id, thing_history_id: thl.thing_history.id }
   } || []).to_json %>"></code>
 <% end %>

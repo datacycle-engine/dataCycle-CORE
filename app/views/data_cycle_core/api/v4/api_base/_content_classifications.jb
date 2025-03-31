@@ -7,12 +7,5 @@ classification_aliases = content.full_classification_aliases.reorder(nil).order(
 classification_aliases = classification_aliases.merge(DataCycleCore::ClassificationTreeLabel.visible('api'))
 classification_aliases = classification_aliases.merge(DataCycleCore::ClassificationTreeLabel.where(id: options[:classification_trees])) if options[:classification_trees_filter]
 
-key_new = 'dc:classification'
-new_options = options.dup
-new_options[:fields] = subtree_for(key_new, options[:fields])
-new_options[:include] = subtree_for(key_new, options[:include])
-new_options[:languages] = options[:languages]
-new_options[:full] = included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields])
-
-json.merge! render 'classifications', classification_aliases:, key: key_new, definition: {}, options: new_options
+json.merge! render 'classifications', classification_aliases:, key:, definition: {}, options: options.dup
 json.compact_blank

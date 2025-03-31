@@ -5,8 +5,10 @@ module DataCycleCore
     include DataHashHelper
     include ContentHelper
 
+    API_DEFAULT_ATTRIBUTES = ['@id', '@type'].freeze
+
     def api_default_attributes
-      ['@id', '@type']
+      API_DEFAULT_ATTRIBUTES
     end
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
@@ -66,20 +68,35 @@ module DataCycleCore
     end
 
     def included_attribute?(name, attribute_list)
+      return true if API_DEFAULT_ATTRIBUTES.include?(name)
       return false if attribute_list.blank?
       return true if full_recursive?(attribute_list)
 
-      attribute_list.pluck(0).intersection(Array.wrap(name)).any?
+      attribute_list.pluck(0).intersect?(Array.wrap(name))
+    end
+
+    def fields_attribute?(name, attribute_list)
+      return true if attribute_wildcard?(attribute_list)
+
+      included_attribute?(name, attribute_list)
     end
 
     def included_attribute_not_full?(name, attribute_list)
       included_attribute?(name, attribute_list) && !full_recursive?(attribute_list)
     end
 
+    def attribute_visible?(name, options)
+      included_attribute?(name, options[:include]) || fields_attribute?(name, options[:fields])
+    end
+
     def subtree_for(name, attribute_list)
       return attribute_list if full_recursive?(attribute_list)
 
       attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.compact_blank
+    end
+
+    def attribute_wildcard?(attribute_list)
+      attribute_list&.pluck(0)&.include?('*')
     end
 
     def full_recursive?(attribute_list)
@@ -159,7 +176,7 @@ module DataCycleCore
 
       return api_value_format(value, api_property_definition) unless content.translatable_property_names.include?(key)
 
-      single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first)) && !expand_language
+      single_value = languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first) && !expand_language
 
       if single_value
         data_value = api_value_format(value, api_property_definition)
@@ -214,7 +231,7 @@ module DataCycleCore
     end
 
     # TODO: add section parameter
-    def api_v4_cache_key(item, language, include_parameters, field_parameters, api_subversion = nil, full = nil, linked_stored_filter_id = nil, classification_trees = [])
+    def api_v4_cache_key(item, language, include_parameters, field_parameters, api_subversion = nil, _full = nil, linked_stored_filter_id = nil, classification_trees = [])
       include_params = include_parameters&.sort&.inject([]) { |carrier, param| carrier << param.join('.') }&.join(',')
       field_params = field_parameters&.sort&.inject([]) { |carrier, param| carrier << param.join('.') }&.join(',')
       tree_params = classification_trees&.compact&.sort&.join(',')
@@ -223,7 +240,7 @@ module DataCycleCore
         add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}_expand_language/#{@expand_language}")
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{add_params}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
-        add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_#{full}_expand_language/#{@expand_language}")
+        add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_expand_language/#{@expand_language}")
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{add_params}"
       else
         raise NotImplementedError
@@ -305,6 +322,24 @@ module DataCycleCore
       return if key.nil?
 
       { key => geom.as_json }
+    end
+
+    def build_new_options_object(attribute, options)
+      return options if attribute == '@graph'
+
+      new_fields = subtree_for(attribute, options[:fields])
+      new_include = subtree_for(attribute, options[:include])
+
+      if options[:field_filter] && new_fields.present?
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: options[:field_filter] }, options)
+      elsif included_attribute?(attribute, options[:include])
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: false }, options)
+      else
+        new_fields = API_DEFAULT_ATTRIBUTES.zip
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: true }, options)
+      end
+
+      new_options
     end
   end
 end

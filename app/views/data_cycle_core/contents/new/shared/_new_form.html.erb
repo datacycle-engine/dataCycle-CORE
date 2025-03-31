@@ -25,11 +25,13 @@
           <%= select_tag(
             :template,
             options_for_select(
-              new_content_select_options(
-                query_methods: local_assigns[:query_methods],
-                content: local_assigns[:content],
-                scope: local_assigns[:scope]
-              ).map { |t| [t.translated_template_name(active_ui_locale), t.template_name] }
+              template_select_options(
+                new_content_select_options(
+                  query_methods: local_assigns[:query_methods],
+                  content: local_assigns[:content],
+                  scope: local_assigns[:scope]
+                )
+              )
             ),
             {
               class: 'single-select',

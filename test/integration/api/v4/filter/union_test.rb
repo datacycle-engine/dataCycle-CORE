@@ -16,11 +16,10 @@ module DataCycleCore
             @event_poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
               latitude: 3,
-              longitude: 3
+              longitude: 3,
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(3.to_f, 3.to_f)
             }
             @event_poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
-            @event_poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@event_poi.longitude, @event_poi.latitude)
-            @event_poi.save
 
             @event.set_data_hash(partial_update: true, prevent_history: true, data_hash:
               {
@@ -31,20 +30,18 @@ module DataCycleCore
             @poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
               latitude: 5,
-              longitude: 5
+              longitude: 5,
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(5.to_f, 5.to_f)
             }
             @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
-            @poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi.longitude, @poi.latitude)
-            @poi.save
 
             @poi2 = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long = {
               latitude: 20,
-              longitude: 20
+              longitude: 20,
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(20.to_f, 20.to_f)
             }
             @poi2.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
-            @poi2.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi2.longitude, @poi2.latitude)
-            @poi2.save
 
             @person = DataCycleCore::V4::DummyDataHelper.create_data('minimal_person')
 

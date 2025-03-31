@@ -18,6 +18,16 @@ module DataCycleCore
 
             factory.multi_line_string(all_line_strings) if all_line_strings.present?
           end
+
+          # :virtual:
+          #   :module: Geographic
+          #   :method: coordinates_to_value
+          #   :key: "x"
+          #   :parameters:
+          #     - location
+          def coordinates_to_value(virtual_parameters:, virtual_definition:, content:, **_args)
+            content.send(virtual_parameters[0])&.send(virtual_definition.dig('virtual', 'key'))
+          end
         end
       end
     end

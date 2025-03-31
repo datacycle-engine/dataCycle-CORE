@@ -481,9 +481,8 @@ module DataCycleCore
         end
 
         if item_id.present?
-          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item_id) do |c|
-            c.template_name = template_name
-          end
+          upsert_item = DataCycleCore::Thing.find_by(id: item_id) ||
+                        DataCycleCore::Thing.new(id: item_id, template_name:)
         else
           upsert_item = DataCycleCore::Thing.new(template_name:)
         end
@@ -500,6 +499,7 @@ module DataCycleCore
           prevent_history: true,
           new_content: created
         )
+
         upsert_item
       end
 

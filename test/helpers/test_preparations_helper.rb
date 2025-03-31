@@ -142,7 +142,7 @@ module DataCycleCore
       )
     end
 
-    def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil, source: nil)
+    def self.create_content(template_name:, data_hash:, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil, source: nil)
       return if template_name.blank? || data_hash.blank?
       data_hash = data_hash.dup.with_indifferent_access
 
