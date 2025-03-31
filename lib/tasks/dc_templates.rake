@@ -40,8 +40,8 @@ namespace :dc do
         puts '-----------------------------'
         Rake::Task['dc:templates:migrations:data_definitions'].invoke
 
-        # puts '-----------------------------'
-        # Rake::Task['dc:templates:migrations:universal_classifications'].invoke
+        puts '-----------------------------'
+        Rake::Task['dc:templates:migrations:universal_classifications'].invoke
 
         puts '-----------------------------'
         mapping = DataCycleCore.data_definition_mapping['embedded_relations']
@@ -151,6 +151,9 @@ namespace :dc do
         end
       end
 
+      # updates relation to universal_classification, for specified list of origin_relations
+      # updates those, who do not already have universal_classification assigned
+      # deletes those, who have
       task :universal_classifications, [:debug] => :environment do |_, _args|
         puts "migrate classifications to universal classifications\n"
         if DataCycleCore.data_definition_mapping['universal_classifications'].blank?
@@ -159,27 +162,48 @@ namespace :dc do
         end
         classifications = DataCycleCore.data_definition_mapping['universal_classifications']
         ap classifications
+
+        puts 'start updating to universal_classifications'
         ActiveRecord::Base.connection.execute <<-SQL.squish
           SET LOCAL statement_timeout = 0;
-          UPDATE classification_contents SET relation = 'universal_classifications'
-          WHERE relation IN ('#{classifications.join("','")}')
-          AND NOT EXISTS (
-            SELECT 1 FROM classification_contents AS cc
-            WHERE cc.relation = 'universal_classifications'
-            AND cc.content_data_id = classification_contents.content_data_id
-            AND cc.classification_id = classification_contents.classification_id
-          );
+          WITH rows_to_update AS (
+            SELECT content_data_id, classification_id
+            FROM classification_contents
+            WHERE relation IN ('#{classifications.join("','")}')
+            AND NOT EXISTS (
+                SELECT 1 FROM classification_contents AS cc
+                WHERE cc.relation = 'universal_classifications'
+                AND cc.content_data_id = classification_contents.content_data_id
+                AND cc.classification_id = classification_contents.classification_id
+            )
+          )
+          UPDATE classification_contents
+          SET relation = 'universal_classifications'
+          WHERE (content_data_id, classification_id) IN (SELECT content_data_id, classification_id FROM rows_to_update);
+        SQL
 
+        puts 'now histories'
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          WITH rows_to_update AS (
+            SELECT cch1.content_data_history_id, cch1.classification_id
+            FROM classification_content_histories AS cch1
+            WHERE cch1.relation IN ('#{classifications.join("','")}')
+              AND NOT EXISTS (
+                SELECT 1 FROM
+                  classification_content_histories AS cch2
+                  WHERE cch1.content_data_history_id = cch2.content_data_history_id
+                  AND cch1.classification_id = cch2.classification_id
+                  AND cch2.relation = 'universal_classifications'
+                )
+          )
+          UPDATE classification_content_histories
+          SET relation = 'universal_classifications'
+          WHERE (content_data_history_id, classification_id) IN (SELECT content_data_history_id, classification_id FROM rows_to_update);
+        SQL
 
-          UPDATE classification_content_histories SET relation = 'universal_classifications'
-          WHERE relation IN ('#{classifications.join("','")}')
-          AND NOT EXISTS (
-            SELECT 1 FROM classification_content_histories AS cch
-            WHERE cch.relation = 'universal_classifications'
-            AND cch.content_data_id = classification_content_histories.content_data_id
-            AND cch.classification_id = classification_content_histories.classification_id
-          );
-
+        puts 'delete rows, where a dataset with universal_classification already existed'
+        ActiveRecord::Base.connection.execute <<-SQL.squish
           DELETE FROM classification_contents WHERE relation IN ('#{classifications.join("','")}');
           DELETE FROM classification_content_histories WHERE relation IN ('#{classifications.join("','")}');
         SQL
