@@ -85,7 +85,7 @@ namespace :dc do
         puts 'no mapping for value->translated available' if mapping.blank?
 
         mapping.each do |key, value|
-          puts "migrating classification contents for #{key}"
+          puts "migrating value->translated for #{key}"
           from = value[:from]
           to = value[:to]
           operation = value[:operation]
