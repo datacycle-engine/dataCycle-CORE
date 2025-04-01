@@ -505,7 +505,7 @@ namespace :dc do
         count = 0
 
         template_names.each do |template_name|
-          contents = DataCycleCore::Thing.where(template_name:)
+          contents = DataCycleCore::Thing.where(template_name:, external_source_id: nil)
           progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: template_name)
 
           contents.find_each do |content|
