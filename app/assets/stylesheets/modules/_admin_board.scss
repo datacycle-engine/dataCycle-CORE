@@ -440,6 +440,8 @@ ul.import-data-timestamps li {
 }
 
 table.import-steps td {
+  padding: 0.25rem;
+
   &.import-step-name {
     width: 50%;
     overflow-wrap: break-word;
@@ -448,9 +450,19 @@ table.import-steps td {
 
   &.import-step-timestamp {
     width: 50%;
-    overflow-wrap: break-word;
 
-    .last-import {
+    .last-import .timestamp { 
+      display: flex;
+      gap: 0.3rem;
+      overflow-wrap: break-word;
+
+      &::before {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       &.success-color::before, &.alert-color::before, &.primary-color::before {
         font-family: 'FontAwesome';
         font-size: 0.9rem;
@@ -476,6 +488,20 @@ table.import-steps td {
           content: '\f110';
           animation: fa-spin 2s infinite linear;
         }
+      }
+    }
+
+    .last-import .time {
+      &.success-color {
+        color: var(--success-color);
+      }
+    
+      &.alert-color {
+        color: var(--alert-color);
+      }
+      
+      &.primary-color {
+        color: var(--primary-color);
       }
     }
   }

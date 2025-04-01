@@ -90,10 +90,19 @@ module DataCycleCore
       }.keys
     end
 
-    def last_step_class(data)
+    def last_step_class(data, external_source_id)
       return unless !data['deactivated'] && (data['last_try'].present? || data['last_successful_try'].present?)
 
-      data['last_try'] == data['last_successful_try'] ? 'success-color' : 'alert-color'
+      if data['last_try'] == data['last_successful_try']
+        'success-color'
+      else
+        (
+          if Delayed::Job.where("delayed_reference_type ILIKE '%download%'").where(queue: 'importers', delayed_reference_id: external_source_id, failed_at: nil).where.not(locked_by: nil).exists?
+            'primary-color'
+          else
+            'alert-color'
+          end)
+      end
     end
   end
 end
