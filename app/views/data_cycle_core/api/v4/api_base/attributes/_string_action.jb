@@ -20,8 +20,7 @@ if value.present?
 
   new_fields = subtree_for(key_new, options[:fields])
   new_include = subtree_for(key_new, options[:include])
-  data.select! { |p_key, _value| api_default_attributes.include?(p_key) || select_attributes(new_fields).include?(p_key) || select_attributes(new_include).include?(p_key) } if new_fields.present?
-
+  data.select! { |p_key, _value| fields_attribute?(p_key, new_fields) || included_attribute?(p_key, new_include) } if new_fields.present?
   if property_definition.dig('transformation', 'method') == 'append'
     json = data
   else

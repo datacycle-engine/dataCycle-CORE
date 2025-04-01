@@ -48,14 +48,27 @@ module DataCycleCore
             .sort_by { |o| o.dig(:start_time, :time) }
             .map do |o|
             safe_join([
-              o.dig(:start_time, :time).present? ? tag.b(l(o.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale)) : nil,
-              o.dig(:end_time, :time).present? ? tag.b("#{l(o.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale)} #{t('common.o_clock', locale: active_ui_locale)}") : nil
+              opening_time_opens(o)&.then { |st| tag.b(l(st, format: :time_only, locale: active_ui_locale)) },
+              opening_time_closes(o)&.then { |st| tag.b("#{l(st, format: :time_only, locale: active_ui_locale)} #{t('common.o_clock', locale: active_ui_locale)}") }
             ].compact, ' - ').presence
           end,
           " #{t('common.and', locale: active_ui_locale)} "
         ).presence || tag.span(t('opening_time.closed', locale: active_ui_locale)))
           &.prepend(tag.span("#{v == 99 ? t('opening_time.holiday', locale: active_ui_locale) : t('date.day_names', locale: active_ui_locale)[v]}: ", class: 'opening-time-day'))
       end, tag.br)
+    end
+
+    def opening_time_opens(hash)
+      DataCycleCore::Schedule.opening_time_with_duration(
+        hash&.dig(:start_time, :time)&.in_time_zone(hash&.dig(:start_time, :zone))
+      )
+    end
+
+    def opening_time_closes(hash)
+      DataCycleCore::Schedule.opening_time_with_duration(
+        hash&.dig(:start_time, :time)&.in_time_zone(hash&.dig(:start_time, :zone)),
+        hash&.dig(:duration)
+      )
     end
   end
 end
