@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   class ScheduleTest < DataCycleCore::TestCases::ActiveSupportTestCase
-    setup do
+    before(:all) do
       @schedule = DataCycleCore::Schedule.new
       @dtstart = Time.parse('2019-11-20T9:00').in_time_zone
       duration = 7.hours

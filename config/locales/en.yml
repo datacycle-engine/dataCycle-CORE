@@ -891,11 +891,11 @@ en:
     remove_external_system_sync:
       tooltip: Remove link to external system
       success: Link to external system was removed
-      warning_html: 'Remove link to external system?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
+      warning_html: '<p>Remove link to external system?</p><div class="callout alert">This may affect the function of an importer!</div>'
     demote_to_sync:
       tooltip: Convert primary external system into external link
       success: Primary external system has been converted to external link
-      warning_html: 'Convert primary external system to external link?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
+      warning_html: '<p>Convert primary external system to external link?</p><div class="callout alert">This may affect the function of an importer!</div>'
 
   duplicate:
     candidates: Possible duplicates
