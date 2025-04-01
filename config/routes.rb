@@ -60,6 +60,10 @@ DataCycleCore::Engine.routes.draw do
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
   }
 
+  post 'assets/imgproxy_url/:id', to: 'missing_asset#imgproxy_url', as: :imgproxy_url, defaults: { format: :json }, constraints: {
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+  }
+
   get '/schema', to: 'schema#index'
   get '/schema/:id', to: 'schema#show', as: :schema_details
   get '/info', to: 'frontend#info', as: :info

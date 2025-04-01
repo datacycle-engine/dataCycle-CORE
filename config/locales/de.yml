@@ -1451,6 +1451,7 @@ de:
       bulk_created:
         one: "<b>%{count}</b> Inhalt konnte nicht erstellt werden!"
         other: "<b>%{count}</b> Inhalte konnten nicht erstellt werden!"
+      feature_not_enabled: "Feature ist nicht aktiviert"
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
