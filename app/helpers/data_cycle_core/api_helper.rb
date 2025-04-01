@@ -7,10 +7,6 @@ module DataCycleCore
 
     API_DEFAULT_ATTRIBUTES = ['@id', '@type'].freeze
 
-    def api_default_attributes
-      API_DEFAULT_ATTRIBUTES
-    end
-
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
       return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
