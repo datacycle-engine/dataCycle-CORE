@@ -490,5 +490,11 @@ table.import-steps td {
         }
       }
     }
+
+    .last-import .time {
+      &.primary-color {
+        color: var(--primary-color);
+      }
+    }
   }
 }
