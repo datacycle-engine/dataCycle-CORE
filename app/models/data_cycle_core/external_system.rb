@@ -353,8 +353,21 @@ module DataCycleCore
       import_accessors = sorted_steps(:import).map { |name| timestamp_key_for_step(name, :import).to_sym }
 
       singleton_class.instance_eval do
-        store_accessor :last_import_step_time_info, *download_accessors, prefix: :download_step_info if download_accessors.present?
-        store_accessor :last_import_step_time_info, *import_accessors, prefix: :import_step_info if import_accessors.present?
+        download_accessors.each do |accessor|
+          store_accessor :last_import_step_time_info, accessor, prefix: :download_step_info
+          attribute :"download_step_info_#{accessor}", :jsonb
+
+          # might work in Rails 8.x
+          # store_accessor :"download_step_info_#{accessor}", :last_try, prefix: true
+        end
+
+        import_accessors.each do |accessor|
+          store_accessor :last_import_step_time_info, accessor, prefix: :import_step_info
+          attribute :"import_step_info_#{accessor}", :jsonb
+
+          # might work in Rails 8.x
+          # store_accessor :"import_step_info_#{accessor}", :last_try, prefix: true
+        end
       end
     end
   end
