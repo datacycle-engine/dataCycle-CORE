@@ -53,8 +53,12 @@ module DataCycleCore
         success
       end
 
-      def timestamp_key_for_step(name)
-        config = download_config[name] || import_config[name]
+      def timestamp_key_for_step(name, type = nil)
+        config = if type.present?
+                   send(:"#{type}_config")[name]
+                 else
+                   download_config[name] || import_config[name]
+                 end
         raise "unknown step: #{name}" if config.blank?
 
         "#{config.key?('import_strategy') ? 'i_' : 'd_'}#{name}"
@@ -64,11 +68,19 @@ module DataCycleCore
         sorted_times = []
 
         sorted_steps(:download).each do |name|
-          key = timestamp_key_for_step(name)
+          key = timestamp_key_for_step(name, :download)
           data = last_import_step_time_info[key]
           next if data.blank?
 
-          sorted_times << data.merge('name' => name)
+          sorted_times << data.merge('name' => name, 'key' => key)
+        end
+
+        sorted_steps(:import).each do |name|
+          key = timestamp_key_for_step(name, :import)
+          data = last_import_step_time_info[key]
+          next if data.blank?
+
+          sorted_times << data.merge('name' => name, 'key' => key)
         end
 
         sorted_times
@@ -174,7 +186,7 @@ module DataCycleCore
         strategy = full_options.dig(type, :"#{type}_strategy")&.safe_constantize
         raise "Missing strategy for #{name}, options given: #{full_options}" if strategy.nil?
 
-        json_key = timestamp_key_for_step(name)
+        json_key = timestamp_key_for_step(name, type)
         strategy_method = strategy.respond_to?(:import_data) ? :import_data : :download_content
         utility_object = utility_object_for_step(type, full_options)
 

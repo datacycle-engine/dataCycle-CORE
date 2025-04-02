@@ -37,7 +37,7 @@ module DataCycleCore
                     filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
                       .without_deleted
                       .without_archived
-                    filter_object = filter_object.with_updated_since(utility_object.external_source.last_successful_try(utility_object.step_name)) if utility_object.mode == :incremental && utility_object.external_source.last_successful_try(utility_object.step_name).present?
+                    filter_object = filter_object.with_updated_since(utility_object.last_successful_try) if utility_object.mode == :incremental && utility_object.last_successful_try.present?
 
                     per = options[:per] || logging_delta
                     aggregate = options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
@@ -161,7 +161,7 @@ module DataCycleCore
                 utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                   filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), nil, mongo_item, binding)
                     .without_deleted
-                  filter_object = filter_object.with_updated_since(utility_object.external_source.last_successful_try(utility_object.step_name)) if utility_object.mode == :incremental && utility_object.external_source.last_successful_try(utility_object.step_name).present?
+                  filter_object = filter_object.with_updated_since(utility_object.last_successful_try) if utility_object.mode == :incremental && utility_object.last_successful_try.present?
 
                   filtered_items(iterator, nil, filter_object).all.no_timeout.max_time_ms(fixnum_max).batch_size(2).each do |content|
                     item_count += 1
@@ -249,7 +249,7 @@ module DataCycleCore
                     filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
                       .without_deleted
                       .without_archived
-                    filter_object = filter_object.with_updated_since(utility_object.external_source.last_successful_try(utility_object.step_name)) if utility_object.mode == :incremental && utility_object.external_source.last_successful_try(utility_object.step_name).present?
+                    filter_object = filter_object.with_updated_since(utility_object.last_successful_try) if utility_object.mode == :incremental && utility_object.last_successful_try.present?
 
                     iterate = filtered_items(iterator, locale, filter_object)
                     iterate = iterate.all.no_timeout.max_time_ms(fixnum_max) unless options[:iterator_type] == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'

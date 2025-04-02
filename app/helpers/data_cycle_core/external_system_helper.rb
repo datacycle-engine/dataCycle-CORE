@@ -90,18 +90,55 @@ module DataCycleCore
       }.keys
     end
 
-    def last_step_class(data, external_source_id)
+    def last_step_class(data)
       return unless !data['deactivated'] && (data['last_try'].present? || data['last_successful_try'].present?)
 
-      if data['last_try'] == data['last_successful_try']
-        'success-color'
-      else
-        (
-          if Delayed::Job.where("delayed_reference_type ILIKE '%download%'").where(queue: 'importers', delayed_reference_id: external_source_id, failed_at: nil).where.not(locked_by: nil).exists?
-            'primary-color'
-          else
-            'alert-color'
-          end)
+      data['last_try'] == data['last_successful_try'] ? 'success-color' : 'alert-color'
+    end
+
+    def last_step_icon(data)
+      icon_class = data['last_try'] == data['last_successful_try'] ? 'fa-check' : 'fa-times'
+      tag.i(class: "fa #{icon_class}")
+    end
+
+    def last_step_duration(duration)
+      return if duration.blank?
+
+      duration = duration.to_i
+      duration_unit = 's'
+
+      if duration > 60
+        duration /= 60
+        duration_unit = 'm'
+      end
+
+      if duration > 60
+        duration /= 60
+        duration_unit = 'h'
+      end
+
+      "(#{duration}#{duration_unit})"
+    end
+
+    def last_step_tooltip(data)
+      last_try = data['last_try']
+      last_try_time = data['last_try_time']
+      last_successful_try = data['last_successful_try']
+      last_successful_try_time = data['last_successful_try_time']
+
+      return if last_try.blank?
+
+      capture do
+        concat(tag.b("#{t('import_steps.last_try', locale: active_ui_locale)}: "))
+        concat(import_data_time(Time.zone.parse(last_try)))
+        concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_try_time, locale: active_ui_locale)})") if last_try_time.present?
+
+        if last_successful_try.present? && last_successful_try != last_try
+          concat(tag.br)
+          concat(tag.b("#{t('import_steps.last_successful_try', locale: active_ui_locale)}: "))
+          concat(import_data_time(Time.zone.parse(last_successful_try)))
+          concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_successful_try_time, locale: active_ui_locale)})") if last_successful_try_time.present?
+        end
       end
     end
   end

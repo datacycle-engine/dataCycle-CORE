@@ -18,10 +18,10 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
-          last_success = utility_object.external_source.last_successful_try(utility_object.download_object.step_name)
+          last_success = utility_object.last_successful_try
           raise 'Update Attributes canceled (No successful download detected)!' if last_success.blank?
 
-          last_download = utility_object.external_source.last_try
+          last_download = utility_object.last_try
           raise "Update Attributes canceled (Last download(s) failed)! Last success: #{last_success}, last try: #{last_download}" if last_download.present? && last_success < last_download
 
           delete_deadline = eval(options.dig(:import, :last_successful_try)) if options.dig(:import, :last_successful_try).present? # rubocop:disable Security/Eval

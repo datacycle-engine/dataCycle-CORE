@@ -18,7 +18,7 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
-          last_success = utility_object.external_source.last_successful_try(utility_object.step_name)
+          last_success = utility_object.last_successful_try
           raise 'Delete canceled (No successful download detected)!' if last_success.blank?
 
           last_download = utility_object.external_source.last_try

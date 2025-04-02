@@ -32,35 +32,22 @@
     <div class="accordion-title">
       <h6 class="">import steps:</h6>
     </div>
-    <div class="accordion-content indented import-steps" data-tab-content>
+    <div class="accordion-content import-steps" data-tab-content>
       <% times = data[:sorted_step_times] %>
       <% if times.present? %>
         <table class="import-steps">
           <% times.each do |value| %>
-          <tr>
-            <td class="import-step-name"><%= value['name'] %></td>
-            <td class="import-step-timestamp">
-              <div class="last-import ">
-                <span class="timestamp <%= last_step_class(value, local_assigns[:external_source_id]) %>"> 
-                <%= import_data_time(Time.parse(value.dig('last_try'))) %></span>
-                <% if value.dig('last_try_time').present? %>
-                  <span class="time <%= last_step_class(value, local_assigns[:external_source_id]) %>">(<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value.dig('last_try_time'), locale: active_ui_locale)%>)</span>
-                <% end %>
-              </div>
-              <% if value['last_successful_try'].present? && value['last_try'] != value['last_successful_try'] %>
-                <div class="last-import">
-                  <span class="timestamp success-color"><%= import_data_time(Time.parse(value.dig('last_successful_try'))) %></span>
-                  <% if value['last_successful_try_time'].present? %> 
-                  <span class="time success-color">(<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + value['last_successful_try_time'], locale: active_ui_locale)%>)</span>
-                  <% end %>
-                </div>
-              <% end %>
-            </td>
-          </tr>
+            <tr data-timestamp-key="<%= value['key'] %>" class="<%= last_step_class(value) %>">
+              <td class="import-step-name" data-dc-tooltip="<%= value['name'] %>"><%= last_step_icon(value) %> <%= value['name'] %></td>
+              <td class="import-step-timestamp" data-dc-tooltip="<%= last_step_tooltip(value) %>">
+                <%= import_data_time(Time.zone.parse(value.dig('last_try'))) %>
+                <%= last_step_duration(value['last_try_time']) %>
+              </td>
+            </tr>
           <% end %>
         </table>
       <% else %>
-        <span>no timestamps for steps found</span>
+        <div class="no-content">no timestamps for steps found</div>
       <% end %>
     </div>
   </div>
