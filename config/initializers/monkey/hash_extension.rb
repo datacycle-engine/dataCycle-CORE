@@ -44,6 +44,20 @@ module DataCycleCore
       end
     end
 
+    def deep_reject_with_parent!(&block)
+      each do |k, v|
+        v.deep_reject_with_parent!(&block) if v.is_a?(Hash)
+
+        if v.is_a?(Array)
+          v.each { |val|
+            val.deep_reject_with_parent!(&block) if val.is_a?(Hash)
+          }.reject! { |val| yield(k, val, self) }
+        end
+
+        delete(k) if yield(k, v, self)
+      end
+    end
+
     def deep_compact
       deep_reject { |_, v| v.nil? }
     end

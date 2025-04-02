@@ -101,17 +101,42 @@ namespace :db do
   namespace :configure do
     desc 'rebuild all tables concerning transitive classifications'
     task rebuild_transitive_tables: :environment do
-      function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'upsert_ca_paths_transitive' : 'upsert_ca_paths'
+      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          SELECT public.upsert_ca_paths_transitive (ARRAY_AGG(id)) FROM concepts;
+        SQL
+      else
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          SELECT public.upsert_ca_paths (ARRAY_AGG(id)) FROM concepts;
+        SQL
+      end
 
-      ActiveRecord::Base.connection.execute <<-SQL.squish
-        SET LOCAL statement_timeout = 0;
-        SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM concepts;
-      SQL
+      Rake::Task['db:configure:rebuild_ccc'].invoke
+      Rake::Task['db:configure:rebuild_ccc'].reenable
 
       next if Rails.env.test?
 
       Rake::Task['db:maintenance:vacuum'].invoke(true, 'classification_alias_paths|classification_alias_paths_transitive|collected_classification_contents')
       Rake::Task['db:maintenance:vacuum'].reenable
+    end
+
+    desc 'rebuild collected_classification_contents'
+    task rebuild_ccc: :environment do
+      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          SELECT public.generate_collected_cl_content_relations_transitive (array_agg(things.id))
+          FROM things;
+        SQL
+      else
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          SELECT public.generate_collected_classification_content_relations (array_agg(things.id), ARRAY[]::UUID[])
+          FROM things;
+        SQL
+      end
     end
 
     desc 'rebuild content_content_links'
