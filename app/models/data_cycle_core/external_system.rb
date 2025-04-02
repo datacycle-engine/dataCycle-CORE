@@ -31,6 +31,8 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    after_find :init_step_timestamp_properties
+
     scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where(identifier: value).or(where(name: value)) }
     scope :by_names_identifiers_or_ids, lambda { |value|
       return none if value.blank?
@@ -342,6 +344,18 @@ module DataCycleCore
       return if module_base.blank?
 
       MasterData::ImportExternalSystems.full_module_path(module_base, 'Endpoint')&.safe_constantize
+    end
+
+    private
+
+    def init_step_timestamp_properties
+      download_accessors = sorted_steps(:download).map { |name| timestamp_key_for_step(name, :download).to_sym }
+      import_accessors = sorted_steps(:import).map { |name| timestamp_key_for_step(name, :import).to_sym }
+
+      singleton_class.instance_eval do
+        store_accessor :last_import_step_time_info, *download_accessors, prefix: :download_step_info if download_accessors.present?
+        store_accessor :last_import_step_time_info, *import_accessors, prefix: :import_step_info if import_accessors.present?
+      end
     end
   end
 end
