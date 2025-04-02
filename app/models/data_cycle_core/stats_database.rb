@@ -126,7 +126,8 @@ module DataCycleCore
         tables: mongo_data,
         languages: external_source.default_options&.dig('locales'),
         credentials: external_source.credentials.is_a?(::Array) ? number_with_delimiter(external_source.credentials.size) : 1,
-        updated_at: external_source.updated_at
+        updated_at: external_source.updated_at,
+        sorted_step_times: external_source.sorted_step_times
       }.merge(last_download_and_import(external_source))
 
       client.close
@@ -188,7 +189,8 @@ module DataCycleCore
           downloadable: external_source.download_config.present?,
           importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
           name: external_source.name,
-          identifier: external_source.identifier
+          identifier: external_source.identifier,
+          last_import_step_time_info: external_source.last_import_step_time_info
         }.merge(last_download_and_import(external_source))
       end
     end
