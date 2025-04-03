@@ -98,13 +98,11 @@ module DataCycleCore
         begin
           RGeo::Geographic.simple_mercator_factory(**factory_options).parse_wkt(value)
         rescue RGeo::Error::ParseError
-          return if factory_options[:has_z_coordinate]
+          raise if factory_options[:has_z_coordinate]
 
           # if the string contains a Z coordinate, we need to retry with a factory that supports it
           factory_options[:has_z_coordinate] = true
           retry
-        rescue StandardError
-          nil
         end
       end
 
