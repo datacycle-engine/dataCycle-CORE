@@ -299,17 +299,13 @@ namespace :dc do
 
         # copy url to contact_url
         update_tt_qry = <<-SQL.squish
-          UPDATE thing_translations ttl
+          UPDATE thing_translations
           SET content = jsonb_set(
             content,
             '{contact_info,contact_url}',
             content->'contact_info'->'url'
           )
-          WHERE EXISTS (
-            SELECT 1 FROM thing_translations as tt
-            WHERE tt.content->'contact_info' IS NOT NULL
-              AND tt.id = ttl.id
-          )
+          WHERE content->'contact_info' IS NOT NULL
         SQL
         rows_updated = ActiveRecord::Base.connection.exec_update(update_tt_qry)
         puts "Values copied: #{rows_updated}\n"
