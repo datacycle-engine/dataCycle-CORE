@@ -87,17 +87,25 @@ module DataCycleCore
         return nil if value.blank?
         return value if value.methods.include?(:geometry_type)
         raise RGeo::Error::ParseError, 'expected a string containing geographic data of some sorts' unless value.is_a?(::String)
+
+        factory_options = {
+          uses_lenient_assertions: true,
+          srid: 4326,
+          wkt_parser: { support_wkt12: true },
+          wkt_generator: { convert_case: :upper, tag_format: :wkt12 }
+        }
+
         begin
-          return RGeo::Geographic.simple_mercator_factory(uses_lenient_assertions: true, srid: 4326, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(value)
-        rescue RGeo::Error::ParseError => e
-          e
+          RGeo::Geographic.simple_mercator_factory(**factory_options).parse_wkt(value)
+        rescue RGeo::Error::ParseError
+          return if factory_options[:has_z_coordinate]
+
+          # if the string contains a Z coordinate, we need to retry with a factory that supports it
+          factory_options[:has_z_coordinate] = true
+          retry
+        rescue StandardError
+          nil
         end
-        begin
-          return RGeo::Geographic.simple_mercator_factory(uses_lenient_assertions: true, srid: 4326, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(value)
-        rescue RGeo::Error::ParseError => e
-          e
-        end
-        raise e
       end
 
       def self.boolean_to_string(value)
