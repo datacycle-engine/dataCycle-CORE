@@ -282,6 +282,53 @@ namespace :dc do
           puts "Original values deleted: #{deleted}\n"
         end
       end
+
+      desc 'moves the url from contact_info to the field contact_url in contact_info'
+      task :migrate_contact_info_url, [:debug] => :environment do |_, _args|
+        puts "move contact_info.url to contact_info.contact_url\n"
+
+        # count how many rows should be affected by the migration
+        select_th_qry = <<-SQL.squish
+          SELECT 1
+          FROM thing_translations
+          WHERE  jsonb_path_exists(content, '$.contact_info.url')
+
+        SQL
+        rows_to_update = ActiveRecord::Base.connection.select_all(select_th_qry)
+        puts "Values to move:  #{rows_to_update.count}\n"
+
+        # copy url to contact_url
+        update_tt_qry = <<-SQL.squish
+          UPDATE thing_translations ttl
+          SET content = jsonb_set(
+            content,
+            '{contact_info,contact_url}',
+            content->'contact_info'->'url'
+          )
+          WHERE EXISTS (
+            SELECT 1 FROM thing_translations as tt
+            WHERE tt.content->'contact_info' IS NOT NULL
+              AND tt.id = ttl.id
+          )
+        SQL
+        rows_updated = ActiveRecord::Base.connection.exec_update(update_tt_qry)
+        puts "Values copied: #{rows_updated}\n"
+
+        # delete old data
+        update_tt_qry = <<-SQL.squish
+        UPDATE thing_translations t
+          SET content = jsonb_set(
+            content,
+            '{contact_info}',
+            (content->'contact_info') - 'url'
+          )
+          WHERE t.content->'contact_info' IS NOT NULL
+        SQL
+        ActiveRecord::Base.connection.exec_update(update_tt_qry)
+
+        rows_to_update = ActiveRecord::Base.connection.select_all(select_th_qry)
+        puts "Remaining values to move:  #{rows_to_update.count}\n"
+      end
     end
   end
 end
