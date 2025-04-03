@@ -103,6 +103,9 @@ namespace :dc do
 
         Rake::Task['dc:templates:migrations:attributes_to_additional_information'].invoke(templates)
         puts '-----------------------------'
+
+        Rake::Task['dc:templates:migrations:migrate_contact_info_url']
+        puts '-----------------------------'
       end
 
       task :validate, [:debug] => :environment do |_, _args|
@@ -564,7 +567,7 @@ namespace :dc do
         select_th_qry = <<-SQL.squish
           SELECT 1
           FROM thing_translations
-          WHERE  jsonb_path_exists(content, '$.contact_info.url')
+          WHERE jsonb_path_exists(content, '$.contact_info.url')
 
         SQL
         rows_to_update = ActiveRecord::Base.connection.select_all(select_th_qry)
@@ -581,7 +584,7 @@ namespace :dc do
           WHERE content->'contact_info' IS NOT NULL
         SQL
         rows_updated = ActiveRecord::Base.connection.exec_update(update_tt_qry)
-        puts "Values copied: #{rows_updated}\n"
+        puts "Values moved: #{rows_updated}\n"
 
         # delete old data
         update_tt_qry = <<-SQL.squish
