@@ -161,6 +161,14 @@ module DataCycleCore
           keys.any? { |path| properties.key?(path.split('.').first) }
         end
 
+        def condition_parameters_exist_with_type?(property:, value:, properties:, **)
+          keys = keys_from_parameters(property)
+
+          return true if keys.blank?
+
+          keys.any? { |path| properties.dig(path.split('.').first, 'type').in?(Array.wrap(value)) }
+        end
+
         def condition_template_key?(value:, **)
           path = value.split('.')
           last = path.pop
