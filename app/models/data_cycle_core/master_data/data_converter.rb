@@ -3,6 +3,20 @@
 module DataCycleCore
   module MasterData
     module DataConverter
+      SANITIZE_TAGS = {
+        none: ['br', 'p', 'span'],
+        minimal: ['b', 'strong', 'i', 'em', 'u', 'br', 'p', 'span'],
+        basic: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'u', 'br', 'p', 'sub', 'sup', 'span'],
+        full: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'u', 'blockquote', 'ul', 'ol', 'li', 'br', 'a', 'contentlink', 'p', 'sub', 'sup', 'span']
+      }.freeze
+
+      SANITIZED_ATTRIBUTES = {
+        none: [],
+        minimal: [],
+        basic: [],
+        full: ['href', 'target', 'rel', 'class', 'data-href', 'data-dc-tooltip', 'data-dc-tooltip-id']
+      }.freeze
+
       def self.convert_to_type(type, data, definition = nil)
         case type
         when 'key'
@@ -10,7 +24,7 @@ module DataCycleCore
         when 'number'
           string_to_number(data, definition)
         when 'string', 'oembed', 'slug'
-          string_to_string(data)
+          string_to_string(data, definition)
         when 'date'
           string_to_date(data)
         when 'datetime'
@@ -43,7 +57,7 @@ module DataCycleCore
         end
       end
 
-      def self.string_to_string(value)
+      def self.string_to_string(value, definition = nil)
         return if value.try(:strip_tags).blank?
         value = value.encode('UTF-8') if value.encoding.name == 'ASCII-8BIT' # ActiveStorage generates ASCII-8BIT encoded URLs
         old_value = value
@@ -51,6 +65,7 @@ module DataCycleCore
           &.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
           &.squish
 
+        old_value = sanitize_html_string(old_value, definition) if definition.present?
         loop do # to get rid of more than one occurrence of the tags
           new_value = old_value
             &.strip
@@ -161,6 +176,12 @@ module DataCycleCore
         return value if value.acts_like?(:date)
         raise ArgumentError, 'can not convert to a date' unless value.is_a?(::String)
         value.to_date.presence || raise(ArgumentError, 'can not convert to a date')
+      end
+
+      def self.sanitize_html_string(value, definition)
+        data_size = definition&.dig('ui', 'edit', 'options', 'data-size')
+        return value if data_size.blank?
+        ActionController::Base.helpers.sanitize(value, { tags: SANITIZE_TAGS[data_size.to_sym], attributes: SANITIZED_ATTRIBUTES[data_size.to_sym] })
       end
     end
   end
