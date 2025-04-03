@@ -113,7 +113,7 @@ module DataCycleCore
 
     def step_timestamp(key, name, type)
       k = timestamp_key_for_step(name, type)
-      last_import_step_time_info.dig(k, key.to_s)
+      last_import_step_time_info.dig(k, key.to_s)&.in_time_zone
     end
 
     def last_try(name, type)
