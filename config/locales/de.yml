@@ -137,6 +137,10 @@ de:
     external_user: Externer Benutzer
     all: Alle
 
+  import_steps:
+    last_try: Letzter Versuch
+    last_successful_try: Letzter erfolgreicher Versuch
+
   view_modes:
     grid: Kacheln
     list: Listenansicht

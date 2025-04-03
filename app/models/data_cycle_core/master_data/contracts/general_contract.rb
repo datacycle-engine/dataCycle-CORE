@@ -47,14 +47,26 @@ module DataCycleCore
           next unless key? && value.is_a?(Hash) && value.key?(:module) && value.key?(:method)
 
           params = [
-            "Module: #{value[:module].classify}",
+            "Module: #{value[:module]}",
             "Method: #{value[:method]}"
           ]
           params.unshift("Namespace: #{macro.args.first}") if macro.args.first.present?
           message = "module and method combination not found (#{params.join(', ')})."
-          key.failure(message) unless DataCycleCore::ModuleService.load_module(value[:module].classify, macro.args.first).respond_to?(value[:method])
+          key.failure(message) unless DataCycleCore::ModuleService.load_module(value[:module], macro.args.first).respond_to?(value[:method])
         rescue NameError
           key.failure(message)
+        end
+
+        register_macro(:touch_step_required) do
+          next unless key? && value.include?('DownloadBulkMarkDeleted')
+
+          source_type = values[:source_type]
+
+          next unless steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy].include?('DownloadDataFromData') }
+
+          next if steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy].include?('DownloadBulkTouchFromData') }
+
+          key.failure('DownloadBulkTouchFromData is required if DownloadBulkMarkDeleted is used in combination with DownloadDataFromData')
         end
       end
     end

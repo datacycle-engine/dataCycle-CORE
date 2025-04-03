@@ -311,6 +311,7 @@ en:
     zh: Chinese
     sr: Serbian
     ne: Nepali
+
   roles:
     super_admin: Administrator (DataCycle)
     admin: Administrator
@@ -318,6 +319,11 @@ en:
     standard: Standard
     guest: Guest
     external_user: External user
+
+  import_steps:
+    last_try: last try
+    last_successful_try: last successful try
+
   view_modes:
     grid: Tiles
     list: List view

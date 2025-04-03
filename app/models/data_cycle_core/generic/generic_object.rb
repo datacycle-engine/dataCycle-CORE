@@ -54,6 +54,14 @@ module DataCycleCore
         label.push(step_options.join) if step_options.present?
         label.join(' ')
       end
+
+      def last_try
+        external_source.last_try(step_name, type)
+      end
+
+      def last_successful_try
+        external_source.last_successful_try(step_name, type)
+      end
     end
   end
 end

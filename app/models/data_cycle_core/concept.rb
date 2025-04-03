@@ -75,6 +75,10 @@ module DataCycleCore
       true
     end
 
+    def self.classification_polygons
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: pluck(:id))
+    end
+
     def self.create(attributes = nil, &)
       if attributes.is_a?(Array)
         attributes.collect { |attr| create(attr, &) }

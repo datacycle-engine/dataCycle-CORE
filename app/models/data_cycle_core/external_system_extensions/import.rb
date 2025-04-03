@@ -53,6 +53,39 @@ module DataCycleCore
         success
       end
 
+      def timestamp_key_for_step(name, type = nil)
+        config = if type.present?
+                   send(:"#{type}_config")[name]
+                 else
+                   download_config[name] || import_config[name]
+                 end
+        raise "unknown step: #{name}" if config.blank?
+
+        "#{config.key?('import_strategy') ? 'i_' : 'd_'}#{name}"
+      end
+
+      def sorted_step_times
+        sorted_times = []
+
+        sorted_steps(:download).each do |name|
+          key = timestamp_key_for_step(name, :download)
+          data = last_import_step_time_info[key]
+          next if data.blank?
+
+          sorted_times << data.merge('name' => name, 'key' => key)
+        end
+
+        sorted_steps(:import).each do |name|
+          key = timestamp_key_for_step(name, :import)
+          data = last_import_step_time_info[key]
+          next if data.blank?
+
+          sorted_times << data.merge('name' => name, 'key' => key)
+        end
+
+        sorted_times
+      end
+
       def download_single(name, options = {})
         config = download_config[name]
         raise "unknown downloader name: #{name}" if config.blank?
@@ -146,14 +179,35 @@ module DataCycleCore
       def import_step(name, options = {}, config = {})
         raise "missing config for name: #{name}" if config.blank?
 
+        last_start = Time.zone.now
+
         type = config.key?('import_strategy') ? :import : :download
         full_options = options_for_step(name, options, config, type)
         strategy = full_options.dig(type, :"#{type}_strategy")&.safe_constantize
         raise "Missing strategy for #{name}, options given: #{full_options}" if strategy.nil?
 
+        json_key = timestamp_key_for_step(name, type)
         strategy_method = strategy.respond_to?(:import_data) ? :import_data : :download_content
         utility_object = utility_object_for_step(type, full_options)
-        strategy.send(strategy_method, utility_object:, options: full_options)
+
+        merge_last_import_step_time_info(json_key, {last_try: last_start})
+        update_columns(last_import_step_time_info: last_import_step_time_info)
+
+        success = strategy.send(strategy_method, utility_object:, options: full_options)
+      ensure
+        duration = Time.zone.now - last_start
+        update_info = {
+          last_try_time: duration
+        }
+        if success
+          update_info = update_info.merge({
+            last_successful_try: last_start,
+            last_successful_try_time: duration
+          })
+        end
+
+        merge_last_import_step_time_info(json_key, update_info)
+        update_columns(last_import_step_time_info: last_import_step_time_info)
       end
 
       def import_one(name, external_key, options = {}, mode = 'full')

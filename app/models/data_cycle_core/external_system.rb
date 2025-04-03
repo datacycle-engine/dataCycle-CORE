@@ -31,6 +31,8 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    after_find :init_step_timestamp_properties
+
     scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where(identifier: value).or(where(name: value)) }
     scope :by_names_identifiers_or_ids, lambda { |value|
       return none if value.blank?
@@ -107,6 +109,33 @@ module DataCycleCore
 
     def export_config_by_filter_key(method_name, key)
       export_config&.dig(method_name.to_sym, 'filter', key) || export_config&.dig(:filter, key)
+    end
+
+    def step_timestamp(key, name, type)
+      k = timestamp_key_for_step(name, type)
+      last_import_step_time_info.dig(k, key.to_s)&.in_time_zone
+    end
+
+    def last_try(name, type)
+      step_timestamp(__method__, name, type)
+    end
+
+    def last_successful_try(name, type)
+      step_timestamp(__method__, name, type)
+    end
+
+    def last_try_time(name, type)
+      step_timestamp(__method__, name, type)
+    end
+
+    def last_successful_try_time(name, type)
+      step_timestamp(__method__, name, type)
+    end
+
+    def merge_last_import_step_time_info(import_step = nil, values = {})
+      return if import_step.blank?
+      last_import_step_time_info[import_step] ||= {}
+      last_import_step_time_info[import_step] = last_import_step_time_info[import_step].merge(values)
     end
 
     def full_options(name, type = 'import', options = {})
@@ -315,6 +344,31 @@ module DataCycleCore
       return if module_base.blank?
 
       MasterData::ImportExternalSystems.full_module_path(module_base, 'Endpoint')&.safe_constantize
+    end
+
+    private
+
+    def init_step_timestamp_properties
+      download_accessors = sorted_steps(:download).map { |name| timestamp_key_for_step(name, :download).to_sym }
+      import_accessors = sorted_steps(:import).map { |name| timestamp_key_for_step(name, :import).to_sym }
+
+      singleton_class.instance_eval do
+        download_accessors.each do |accessor|
+          store_accessor :last_import_step_time_info, accessor, prefix: :download_step_info
+          attribute :"download_step_info_#{accessor}", :jsonb
+
+          # might work in Rails 8.x
+          # store_accessor :"download_step_info_#{accessor}", :last_try, prefix: true
+        end
+
+        import_accessors.each do |accessor|
+          store_accessor :last_import_step_time_info, accessor, prefix: :import_step_info
+          attribute :"import_step_info_#{accessor}", :jsonb
+
+          # might work in Rails 8.x
+          # store_accessor :"import_step_info_#{accessor}", :last_try, prefix: true
+        end
+      end
     end
   end
 end
