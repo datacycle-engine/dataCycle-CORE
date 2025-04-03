@@ -68,6 +68,7 @@ module DataCycleCore
 
           resolve_computed_params_path!(properties)
           hide_inverse_linked_in_edit_mode!(properties)
+          filter_conditional_properties!(properties)
 
           properties
         end
@@ -88,6 +89,12 @@ module DataCycleCore
           end
         end
 
+        def filter_conditional_properties!(properties)
+          properties.reject! do |k, prop|
+            prop.key?(:condition) && !allowed_property?(key: k, property: prop, properties:)
+          end
+        end
+
         def replace_mixin_properties(props, additional_attributes = {}, additional_path = [])
           properties = ActiveSupport::HashWithIndifferentAccess.new
 
@@ -98,7 +105,7 @@ module DataCycleCore
               # deep reverse merge
               m_proc = ->(_, v1, v2) { v1.is_a?(::Hash) && v2.is_a?(::Hash) ? v1.merge(v2, &m_proc) : v1 }
               properties.merge!(replace_mixin_property(key, value[:name].to_sym, value.except(:name, :type), additional_path), &m_proc)
-            elsif !value.key?(:condition) || allowed_mixin?(value[:condition], additional_path + [key])
+            else
               properties.deep_merge!({ key => value&.merge(additional_attributes) })
             end
           end
@@ -128,18 +135,42 @@ module DataCycleCore
 
         private
 
-        def allowed_mixin?(condition, key_path)
-          condition.all? do |key, value|
-            if respond_to?(:"condition_#{key}", true)
-              send(:"condition_#{key}", value)
+        def keys_from_parameters(property)
+          return [] if property.blank?
+
+          property.dig(:compute, :parameters).presence ||
+            property.dig(:default_value, :parameters).presence ||
+            property.dig(:virtual, :parameters).presence
+        end
+
+        def allowed_property?(key:, property:, properties:)
+          property[:condition].blank? || property[:condition].all? do |cond_key, value|
+            if respond_to?(:"condition_#{cond_key}", true)
+              send(:"condition_#{cond_key}", key:, property:, value:, properties:)
             else
-              @errors.push("#{@error_path}.properties.#{key_path.join('.')}.condition.#{key} => method not found!")
+              @errors.push("#{@error_path}.properties.#{key}.condition.#{cond_key} => method not found!")
             end
           end
         end
 
-        def condition_template_key?(key)
-          path = key.split('.')
+        def condition_parameters_exist?(property:, properties:, **)
+          keys = keys_from_parameters(property)
+
+          return true if keys.blank?
+
+          keys.any? { |path| properties.key?(path.split('.').first) }
+        end
+
+        def condition_parameters_exist_with_type?(property:, value:, properties:, **)
+          keys = keys_from_parameters(property)
+
+          return true if keys.blank?
+
+          keys.any? { |path| properties.dig(path.split('.').first, 'type').in?(Array.wrap(value)) }
+        end
+
+        def condition_template_key?(value:, **)
+          path = value.split('.')
           last = path.pop
           base = path.present? ? template.dig(*path) : template
 
@@ -148,20 +179,20 @@ module DataCycleCore
           base.key?(last)
         end
 
-        def condition_not_content_type?(content_type)
-          !condition_content_type?(content_type)
+        def condition_not_content_type?(**)
+          !condition_content_type?(**)
         end
 
-        def condition_content_type?(content_type)
-          content_types = Array.wrap(content_type)
+        def condition_content_type?(value:, **)
+          content_types = Array.wrap(value)
           content_types.include?(template['content_type'])
         end
 
-        def condition_feature_allowed?(feature)
-          DataCycleCore.features.dig(feature, 'enabled') &&
+        def condition_feature_allowed?(value:, **)
+          DataCycleCore.features.dig(value, 'enabled') &&
             (
-              DataCycleCore.features.dig(feature, 'allowed') ||
-              template.dig('features', feature, 'allowed')
+              DataCycleCore.features.dig(value, 'allowed') ||
+              template.dig('features', value, 'allowed')
             )
         end
       end

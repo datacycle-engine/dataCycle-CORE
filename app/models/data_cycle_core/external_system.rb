@@ -117,19 +117,19 @@ module DataCycleCore
     end
 
     def last_try(name, type)
-      step_timestamp(__method__, name, type)
+      step_timestamp(__method__, name, type)&.in_time_zone
     end
 
     def last_successful_try(name, type)
-      step_timestamp(__method__, name, type)
+      step_timestamp(__method__, name, type)&.in_time_zone
     end
 
     def last_try_time(name, type)
-      step_timestamp(__method__, name, type)
+      step_timestamp(__method__, name, type)&.then { |t| ActiveSupport::Duration.build(t) }
     end
 
     def last_successful_try_time(name, type)
-      step_timestamp(__method__, name, type)
+      step_timestamp(__method__, name, type)&.then { |t| ActiveSupport::Duration.build(t) }
     end
 
     def merge_last_import_step_time_info(import_step = nil, values = {})

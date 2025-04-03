@@ -1653,6 +1653,7 @@ en:
       bulk_created:
         one: "<b>%{count}</b> Content could not be created!"
         other: "<b>%{count}</b> Contents could not be created!"
+      feature_not_enabled: Feature not enabled
     success:
       created: "%{data} was successfully created."
       ready_to_send: "%{data} has been successfully created and can now be sent."
