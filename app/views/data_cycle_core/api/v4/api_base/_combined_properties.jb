@@ -29,7 +29,7 @@ combined.each do |combined_key, combined_value|
   next if new_fields.blank?
   new_include = subtree_for(combined_key, options[:include])
   json[combined_key] = json[combined_key]&.map do |array_item|
-    array_item.select { |p_key, _value| api_default_attributes.include?(p_key) || select_attributes(new_fields).include?(p_key) || select_attributes(new_include).include?(p_key) }
+    array_item.select { |p_key, _value| fields_attribute?(p_key, new_fields) || included_attribute?(p_key, new_include) }
   end
 end
 json.compact

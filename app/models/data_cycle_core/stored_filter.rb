@@ -21,8 +21,19 @@ module DataCycleCore
 
     KEYS_FOR_TYPE_EQUALITY = ['t', 'c', 'n', 'q'].freeze
 
+    def thing_ids
+      clear_thing_cache! if parameters_changed?
+      @thing_ids ||= things(skip_ordering: true).except(:order).pluck(:id)
+    end
+
     def things(query: nil, skip_ordering: false, watch_list: nil)
-      apply(query:, skip_ordering:, watch_list:).query
+      clear_thing_cache! if parameters_changed?
+      @things ||= apply(query:, skip_ordering:, watch_list:).query
+    end
+
+    def reload(options = nil)
+      clear_thing_cache!
+      super
     end
 
     def apply(query: nil, skip_ordering: false, watch_list: nil)
@@ -112,6 +123,13 @@ module DataCycleCore
           filter_params: filter.parameters
         }
       }
+    end
+
+    private
+
+    def clear_thing_cache!
+      remove_instance_variable(:@thing_ids) if instance_variable_defined?(:@thing_ids)
+      remove_instance_variable(:@things) if instance_variable_defined?(:@things)
     end
   end
 end

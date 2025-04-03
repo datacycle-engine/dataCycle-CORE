@@ -162,8 +162,9 @@ module DataCycleCore
         end
 
         [:import_config, :download_config].each do |config_key|
-          validator = ExternalSystemStepContract.new
           data = validation_hash.dig(:config, config_key) || {}
+          validator = ExternalSystemStepContract.new
+          validator.steps = data
 
           if data.is_a?(Hash)
             data.each do |key, value|
@@ -240,6 +241,8 @@ module DataCycleCore
       end
 
       class ExternalSystemStepContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        attr_accessor :steps
+
         schema do
           required(:sorting) { int? & gt?(0) }
           optional(:source_type).filled(:str?)
@@ -266,6 +269,7 @@ module DataCycleCore
         rule(:template_name).validate(:dc_template_names)
         rule(:linked_template_name).validate(:dc_template_names)
         rule(:data_id_transformation).validate(:ruby_module_and_method)
+        rule(:download_strategy).validate(:touch_step_required)
 
         rule do
           base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)

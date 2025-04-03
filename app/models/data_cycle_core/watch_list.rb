@@ -10,6 +10,16 @@ module DataCycleCore
     delegate :translated_locales, to: :things
     alias available_locales translated_locales
 
+    def thing_ids
+      clear_thing_cache! if watch_list_data_hashes_changed?
+      @thing_ids ||= watch_list_data_hashes.pluck(:thing_id)
+    end
+
+    def reload(options = nil)
+      clear_thing_cache!
+      super
+    end
+
     def self.watch_list_data_hashes
       DataCycleCore::WatchListDataHash.where(watch_list_id: pluck(:id))
     end
@@ -86,6 +96,12 @@ module DataCycleCore
 
     def path
       Array.wrap(full_path_names) + [name]
+    end
+
+    private
+
+    def clear_thing_cache!
+      remove_instance_variable(:@thing_ids) if instance_variable_defined?(:@thing_ids)
     end
   end
 end

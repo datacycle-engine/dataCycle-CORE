@@ -29,7 +29,6 @@ module DataCycleCore
     delegate :parse_iso8601_duration, to: :class
 
     def schedule_object_will_change!(*changed_properties)
-      remove_instance_variable(:@schedule_object) if instance_variable_defined?(:@schedule_object)
       attribute_will_change!(:schedule_object)
 
       changed_properties.each do |prop|
@@ -189,11 +188,11 @@ module DataCycleCore
           end
         )
       else
-        self.duration = hash[:duration] if hash.key?(:duration)
         self.dtstart = hash[:dtstart] if hash.key?(:dtstart)
         self.dtend = hash[:dtend] if hash.key?(:dtend)
       end
 
+      self.duration = hash[:duration] if hash.key?(:duration)
       self.holidays = hash[:holidays] if hash.key?(:holidays)
       self.relation = hash[:relation] || relation
       self.external_key = hash[:external_key] if hash.key?(:external_key)
@@ -243,8 +242,8 @@ module DataCycleCore
         '@type' => 'OpeningHoursSpecification',
         'validFrom' => r_hash[:dtstart]&.in_time_zone&.beginning_of_day&.to_date&.iso8601,
         'validThrough' => r_hash.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day&.to_date&.iso8601,
-        'opens' => r_hash.dig(:start_time, :time)&.in_time_zone&.to_fs(:only_time),
-        'closes' => r_hash.dig(:end_time, :time)&.in_time_zone&.to_fs(:only_time),
+        'opens' => self.class.opening_time_with_duration(schedule_object&.start_time)&.to_fs(:only_time),
+        'closes' => self.class.opening_time_with_duration(schedule_object&.start_time, duration)&.to_fs(:only_time),
         'dayOfWeek' => days.map { |day| dow(day) }.presence
       }.compact
     end
@@ -625,6 +624,18 @@ module DataCycleCore
         end_time += 1.day if end_time < start_time
 
         end_time - start_time
+      end
+
+      # used for opening_times
+      def opening_time_with_duration(start_date, duration = nil)
+        return if start_date.blank?
+
+        start_date = start_date.in_time_zone
+        date = Time.zone.now.beginning_of_year
+        start_time = date.change(hour: start_date.hour, min: start_date.min, sec: start_date.sec)
+        duration = parse_iso8601_duration(duration)
+
+        start_time + duration
       end
 
       def parts_to_iso8601_duration(duration_hash)

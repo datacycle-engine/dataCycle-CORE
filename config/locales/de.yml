@@ -137,6 +137,10 @@ de:
     external_user: Externer Benutzer
     all: Alle
 
+  import_steps:
+    last_try: Letzter Versuch
+    last_successful_try: Letzter erfolgreicher Versuch
+
   view_modes:
     grid: Kacheln
     list: Listenansicht
@@ -685,11 +689,11 @@ de:
     remove_external_system_sync:
       tooltip: Externe Verknüpfung entfernen
       success: Externe Verknüpfung wurde entfernt
-      warning_html: 'Externe Verknüpfung entfernen?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+      warning_html: '<p>Externe Verknüpfung entfernen?</p><div class="callout alert">Das beeinflusst möglicherweise die Funktion eines Importers!</div>'
     demote_to_sync:
       tooltip: primäres externes System in externe Verknüpfung umwandeln
       success: primäres externes System wurde in externe Verknüpfung umgewandelt
-      warning_html: 'primäres externes System in externe Verknüpfung umwandeln?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+      warning_html: '<p>primäres externes System in externe Verknüpfung umwandeln?</p><div class="callout alert">Das beeinflusst möglicherweise die Funktion eines Importers!</div>'
 
   duplicate:
     candidates: Mögliche Duplikate
