@@ -65,7 +65,7 @@ module DataCycleCore
           &.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
           &.squish
 
-        old_value = sanitize_html_string(old_value, definition) if definition.present?
+        old_value = sanitize_html_string(old_value, definition)
         loop do # to get rid of more than one occurrence of the tags
           new_value = old_value
             &.strip
@@ -178,10 +178,13 @@ module DataCycleCore
         value.to_date.presence || raise(ArgumentError, 'can not convert to a date')
       end
 
-      def self.sanitize_html_string(value, definition)
-        data_size = definition&.dig('ui', 'edit', 'options', 'data-size')
-        return value if data_size.blank?
-        ActionController::Base.helpers.sanitize(value, { tags: SANITIZE_TAGS[data_size.to_sym], attributes: SANITIZED_ATTRIBUTES[data_size.to_sym] })
+      def self.sanitize_html_string(value, definition = nil)
+        return value unless definition.present? && definition['sanitize'] == true
+
+        data_size = definition.dig('ui', 'edit', 'options', 'data-size')
+        tags = data_size.present? ? SANITIZE_TAGS[data_size.to_sym] : []
+        attributes = data_size.present? ? SANITIZED_ATTRIBUTES[data_size.to_sym] : []
+        ActionController::Base.helpers.sanitize(value, tags:, attributes:)
       end
     end
   end
