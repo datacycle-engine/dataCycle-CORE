@@ -346,5 +346,116 @@ describe DataCycleCore::MasterData::DataConverter do
         assert_equal(test_case.to_i, converted_data)
       end
     end
+
+    describe 'sanitize html strings ' do
+      sanitization_html = <<~TEXT.squish
+        <p>paragraph</p><p class="ql-align-center">paragraph center</p><p class="ql-align-right">paragraph right</p><p class="ql-align-justify">paragraph justify</p>
+        <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
+        <ol><li>ordered listitem 1</li><li>ordered listitem 2</li></ol>
+        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4><p>something<sub>sub</sub></p>
+        <a href="#" onclick="alert('Test')" ;="">a tag with onclick event</a><p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+        <p>something<em>cursive</em></p><p>something<u>underlined</u></p><blockquote>blockquoted</blockquote><p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+        <p><a href="asdfasdf" rel="noopener noreferrer" target="_blank">external link</a></p>
+        <p><span class="dc--contentlink dcjs-tooltip" data-href="#" data-dc-tooltip="dataCycle: reference" data-dc-tooltip-id="1">Internal Link</span></p><p>paragraph</p>
+        <script>alert('alert from scripttag')</script>
+      TEXT
+
+      it 'sanitize html for data-size none' do
+        definition = { 'sanitize' => true, 'ui' => {'edit' => {'options' => {'data-size' => 'none'}}}}
+        expected = <<~TEXT.squish
+          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+          unordered listitem 1unordered listitem 2
+          ordered listitem 1ordered listitem 2
+          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4<p>somethingsub</p>
+          a tag with onclick event<p>somethingsup</p><p>somethingstrong</p>
+          <p>somethingcursive</p><p>somethingunderlined</p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+          <p>external link</p>
+          <p>Internal Link</p><p>paragraph</p>
+          alert('alert from scripttag')
+        TEXT
+
+        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html for data-size minimal' do
+        definition = { 'sanitize' => true, 'ui' => {'edit' => {'options' => {'data-size' => 'minimal'}}}}
+        expected = <<~TEXT.squish
+          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+          unordered listitem 1unordered listitem 2
+          ordered listitem 1ordered listitem 2
+          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4<p>somethingsub</p>
+          a tag with onclick event<p>somethingsup</p><p>something<strong>strong</strong></p>
+          <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+          <p>external link</p>
+          <p>Internal Link</p><p>paragraph</p>
+          alert('alert from scripttag')
+        TEXT
+
+        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html for data-size basic' do
+        definition = { 'sanitize' => true, 'ui' => {'edit' => {'options' => {'data-size' => 'basic'}}}}
+        expected = <<~TEXT.squish
+          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+          unordered listitem 1unordered listitem 2
+          ordered listitem 1ordered listitem 2
+          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4><p>something<sub>sub</sub></p>
+          a tag with onclick event<p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+          <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+          <p>external link</p>
+          <p>Internal Link</p><p>paragraph</p>
+          alert('alert from scripttag')
+        TEXT
+
+        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html for data-size full' do
+        definition = { 'sanitize' => true, 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
+        expected = <<~TEXT.squish
+          <p>paragraph</p><p class="ql-align-center">paragraph center</p><p class="ql-align-right">paragraph right</p><p class="ql-align-justify">paragraph justify</p>
+          <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
+          <ol><li>ordered listitem 1</li><li>ordered listitem 2</li></ol>
+          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4><p>something<sub>sub</sub></p>
+          <a href="#">a tag with onclick event</a><p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+          <p>something<em>cursive</em></p><p>something<u>underlined</u></p><blockquote>blockquoted</blockquote><p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+          <p><a href="asdfasdf" rel="noopener noreferrer" target="_blank">external link</a></p>
+          <p><span class="dc--contentlink dcjs-tooltip" data-href="#" data-dc-tooltip="dataCycle: reference" data-dc-tooltip-id="1">Internal Link</span></p><p>paragraph</p>
+          alert('alert from scripttag')
+        TEXT
+        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html sanitize=true but no data-size' do
+        definition = { 'sanitize' => true}
+        html_string = <<~TEXT.squish
+          paragraphparagraph centerparagraph rightparagraph justify
+          unordered listitem 1unordered listitem 2
+          ordered listitem 1ordered listitem 2
+          paragraph before multiple breaksheadline 1headline 2headline 3headline4somethingsub
+          a tag with onclick eventsomethingsupsomethingstrong
+          somethingcursivesomethingunderlinedblockquotedsome&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspacessome         blankspaces
+          external link
+          Internal Linkparagraph
+          alert('alert from scripttag')
+        TEXT
+        assert_equal html_string, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html sanitize=false' do
+        definition = { 'sanitize' => false, 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
+        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html no sanitize attribute' do
+        definition = {'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
+        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html without definition' do
+        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html)
+      end
+    end
   end
 end
