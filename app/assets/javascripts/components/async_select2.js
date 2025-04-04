@@ -58,7 +58,7 @@ class AsyncSelect2 extends BasicSelect2 {
 		if (data.loading) return;
 
 		const term = this.query.term || "";
-		let result = data.full_path || data.name;
+		let result = data.matched_name || data.full_path || data.name;
 
 		result = this.markMatch(result, term);
 		if (this.config.showTreeLabel !== "true") this.removeTreeLabel(result);

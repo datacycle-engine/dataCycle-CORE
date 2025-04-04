@@ -239,5 +239,22 @@ module DataCycleCore
         thing_id: collection.things.reorder(nil).select(:id)
       ).distinct.count(:thing_id)
     end
+
+    def matched_concept_path(name, matches)
+      return name if matches.blank?
+      matched_name = ''
+      rest = name
+
+      matches.each do |m|
+        index = rest =~ /#{m}/i
+        next if index.nil?
+        index_end = index + m.size
+        matched_name += rest[0...index]
+        matched_name += "<mark>#{rest[index...index_end]}</mark>"
+        rest = rest[index_end..-1]
+      end
+
+      matched_name += rest
+    end
   end
 end
