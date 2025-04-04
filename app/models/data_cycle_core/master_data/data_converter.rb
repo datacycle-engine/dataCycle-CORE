@@ -4,10 +4,10 @@ module DataCycleCore
   module MasterData
     module DataConverter
       SANITIZE_TAGS = {
-        none: ['br', 'p', 'span'],
-        minimal: ['b', 'strong', 'i', 'em', 'u', 'br', 'p', 'span'],
-        basic: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'u', 'br', 'p', 'sub', 'sup', 'span'],
-        full: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'u', 'blockquote', 'ul', 'ol', 'li', 'br', 'a', 'contentlink', 'p', 'sub', 'sup', 'span']
+        none: ['br', 'p'],
+        minimal: ['b', 'strong', 'i', 'em', 'u', 'br', 'p'],
+        basic: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'br', 'p', 'sub', 'sup'],
+        full: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'blockquote', 'ul', 'ol', 'li', 'br', 'a', 'contentlink', 'p', 'sub', 'sup', 'span']
       }.freeze
 
       SANITIZED_ATTRIBUTES = {
@@ -38,12 +38,12 @@ module DataCycleCore
         end
       end
 
-      def self.convert_to_string(type, data)
+      def self.convert_to_string(type, data, definition = nil)
         case type
         when 'key', 'number'
           data&.to_s
         when 'string', 'oembed', 'slug'
-          string_to_string(data)
+          string_to_string(data, definition)
         when 'date'
           date_to_string(data)
         when 'datetime'
