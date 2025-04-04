@@ -345,7 +345,6 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		event.preventDefault();
 
 		const disabledText = `${this.geoCodeButton.textContent} <i class="fa fa-spinner fa-spin fa-fw"></i>`;
-		console.log("geoCodeAddress", disabledText);
 		DataCycle.disableElement(this.geoCodeButton, disabledText);
 
 		const address = this.getAddressFromAttributes();

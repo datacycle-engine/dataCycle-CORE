@@ -293,6 +293,17 @@ export function getPreviousSibling(elem, selector) {
 		sibling = sibling.previousElementSibling;
 	}
 }
+export function stripTags(str) {
+	if (!str) return str;
+
+	try {
+		const parsed = new DOMParser().parseFromString(str, "text/html");
+		return parsed.body.textContent || "";
+	} catch (e) {
+		console.error("Error parsing HTML:", e);
+		return "";
+	}
+}
 
 const DomElementHelpers = {
 	inputFieldSelectors,
@@ -322,6 +333,7 @@ const DomElementHelpers = {
 	submitFormData,
 	getNextSibling,
 	getPreviousSibling,
+	stripTags,
 };
 
 Object.freeze(DomElementHelpers);

@@ -1698,11 +1698,13 @@ a.email-link {
         padding: 2px 5px 2px 2px;
       }
     }
-
-    .select2-highlight {
-      text-decoration: underline;
-    }
   }
+}
+
+mark {
+  background-color: lavender;
+  color: $black;
+  border-radius: var(--small-radius);
 }
 
 // firefox select hack to remove dotted outline
