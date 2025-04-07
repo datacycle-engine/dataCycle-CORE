@@ -20,6 +20,8 @@ module DataCycleCore
 
           Rake::Task[rake_task].invoke(*rake_args)
           Rake::Task[rake_task].reenable
+          # success
+          true
         end
 
         def self.source_type?
