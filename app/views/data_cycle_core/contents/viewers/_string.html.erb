@@ -12,7 +12,11 @@
       value = value.try(:html_safe) if definition.dig('ui', 'edit', 'type').try(:underscore) == 'text_editor'
     %>
 
-    <%= value %>
+    <% if definition.dig('validations', 'format')&.include?('url') && definition.dig('ui', 'edit', 'type').try(:underscore) != 'text_editor' %>
+      <%= value.present? ? link_to(value, value, target: :_blank) : nil %>
+    <% else %>
+      <%= value %>
+    <% end %>
   </span>
 
 <% end %>
