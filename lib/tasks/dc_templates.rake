@@ -52,9 +52,9 @@ namespace :dc do
           from = value['from']
           to = value['to']
           templates = value['templates']
+          to_relation_b = value['to_relation_b']
 
-          params = [from, to]
-          params << templates if templates.present?
+          params = [from, to, templates, to_relation_b]
           Rake::Task['dc:templates:migrations:embedded_relations'].invoke(*params)
           Rake::Task['dc:templates:migrations:embedded_relations'].reenable
         end
@@ -217,9 +217,10 @@ namespace :dc do
       end
 
       desc 'changes relation_a from old value to new value for given templates'
-      task :embedded_relations, [:from, :to, :templates, :debug] => :environment do |_, args|
+      task :embedded_relations, [:from, :to, :templates, :to_relation_b, :debug] => :environment do |_, args|
         old_relation = args.from
         new_relation = args.to
+        new_relation_b = args.to_relation_b
         templates = args.templates&.split('|')
 
         if old_relation.present? && new_relation.present?
@@ -227,7 +228,7 @@ namespace :dc do
 
           update_cc_query = <<~SQL.squish
             UPDATE content_contents AS cc
-            SET relation_a = ?
+            SET relation_a = ?, relation_b = ?
             WHERE EXISTS (
               SELECT 1 FROM things as t
               WHERE cc.content_a_id = t.id
@@ -239,7 +240,7 @@ namespace :dc do
 
           update_cch_query = <<~SQL.squish
             UPDATE content_content_histories AS cch
-            SET relation_a = ?
+            SET relation_a = ?, relation_b = ?
             WHERE EXISTS (
               SELECT 1 FROM thing_histories as th
               JOIN things as t ON th.thing_id = t.id
@@ -250,7 +251,7 @@ namespace :dc do
             )
           SQL
 
-          query_args = [new_relation, old_relation]
+          query_args = [new_relation, new_relation_b, old_relation]
           query_args << templates if templates.present?
           sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc_query, *query_args])
           sanitized_update_cc_history = ActiveRecord::Base.send(:sanitize_sql_array, [update_cch_query, *query_args])
