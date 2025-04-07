@@ -40,7 +40,7 @@
             <tr data-timestamp-key="<%= value['key'] %>" class="<%= last_step_class(value) %>">
               <td class="import-step-name" data-dc-tooltip="<%= value['name'] %>"><%= last_step_icon(value) %> <%= value['name'] %></td>
               <td class="import-step-timestamp" data-dc-tooltip="<%= last_step_tooltip(value) %>">
-                <%= import_data_time(Time.zone.parse(value.dig('last_try'))) %>
+                <%= import_data_time(Time.zone.parse(value['last_try'].to_s)) %>
                 <%= last_step_duration(value['last_try_time']) %>
               </td>
             </tr>

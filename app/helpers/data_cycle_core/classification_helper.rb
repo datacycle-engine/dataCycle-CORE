@@ -254,7 +254,7 @@ module DataCycleCore
         rest = rest[index_end..-1]
       end
 
-      matched_name += rest
+      matched_name + rest
     end
   end
 end

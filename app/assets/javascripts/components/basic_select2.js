@@ -168,15 +168,12 @@ class BasicSelect2 {
 		return;
 	}
 	markMatchRecursively(node, term) {
-		for (const child of node.childNodes) {
+		for (const child of Array.from(node.childNodes)) {
 			if (child.nodeType === Node.TEXT_NODE) {
 				const match = child.textContent
 					.toLowerCase()
-					.lastIndexOf(term.toLowerCase());
-				if (match >= 0) {
-					this.markTextMatches(node, child, term, match);
-					return;
-				}
+					.indexOf(term.toLowerCase());
+				if (match >= 0) this.markTextMatches(node, child, term, match);
 			} else {
 				this.markMatchRecursively(child, term);
 			}
@@ -188,7 +185,7 @@ class BasicSelect2 {
 
 		return stripTags(text).toLowerCase().indexOf(term.toLowerCase()) > -1;
 	}
-	markMatch(text, term) {
+	markMatch(text, term, highlight = true) {
 		const $result = $("<span></span>");
 
 		if (!term.length || !this.textMatches(text, term)) {
@@ -196,8 +193,7 @@ class BasicSelect2 {
 		}
 
 		const parsed = new DOMParser().parseFromString(text, "text/html").body;
-		this.markMatchRecursively(parsed, term);
-
+		if (highlight) this.markMatchRecursively(parsed, term);
 		$result.html(parsed.innerHTML);
 
 		return $result;
