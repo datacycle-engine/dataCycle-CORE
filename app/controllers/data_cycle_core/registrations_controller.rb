@@ -6,8 +6,14 @@ module DataCycleCore
     include DataCycleCore::ErrorHandler
 
     layout 'data_cycle_core/devise'
+    HONEYPOT_FIELDS = [:user_full_name, :user_notes].freeze
 
     def create
+      if sign_up_params.slice(*HONEYPOT_FIELDS).compact_blank.values.any?
+        set_flash_message! :notice, :signed_up
+        redirect_to new_user_registration_path
+        return
+      end
       build_resource(sign_up_params)
       resource.save if valid_additional_attributes?(params.dig('user', 'additional_attributes'))
 
@@ -34,7 +40,7 @@ module DataCycleCore
     protected
 
     def configure_permitted_parameters
-      update_attrs = [:given_name, :family_name, :name, {user_group_ids: [], additional_attributes: {}}]
+      update_attrs = [:given_name, :family_name, :name, {user_group_ids: [], additional_attributes: {}}] + HONEYPOT_FIELDS
       devise_parameter_sanitizer.permit :sign_up, keys: update_attrs
       devise_parameter_sanitizer.permit :account_update, keys: update_attrs
     end
