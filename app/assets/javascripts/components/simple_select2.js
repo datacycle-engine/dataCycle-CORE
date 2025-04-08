@@ -89,7 +89,7 @@ class SimpleSelect2 extends BasicSelect2 {
 			? data.element.dataset.fullPath
 			: data.text;
 
-		return title.toLowerCase().indexOf(params.term.toLowerCase()) > -1;
+		return this.textMatches(title, params.term);
 	}
 	reloadData(event) {
 		event.preventDefault();

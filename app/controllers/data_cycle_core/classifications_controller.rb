@@ -98,9 +98,11 @@ module DataCycleCore
                 DataCycleCore::ClassificationAlias.all
               end
 
+      matches = nil
       if search_params[:q].present?
         I18n.with_locale(helpers.active_ui_locale) do
           query = query.search(search_params[:q])
+          matches = search_params[:q].squish.split(/\s/)
         end
         query = query.order_by_similarity(search_params[:q])
       end
@@ -121,6 +123,7 @@ module DataCycleCore
           classification_id: a.primary_classification.id,
           classification_alias_id: a.id,
           name: a.internal_name,
+          matched_name: helpers.matched_concept_path(a.full_path, matches),
           full_path: a.full_path,
           dc_tooltip: helpers.classification_tooltip(a),
           disabled: search_params[:disabled_unless_any?].present? ? a.try(search_params[:disabled_unless_any?]).none? : !a.assignable

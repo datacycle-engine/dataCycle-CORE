@@ -21,6 +21,8 @@ module DataCycleCore
           end
 
           render plain: [geocoded_data.presence&.x, geocoded_data.presence&.y].compact.to_json, content_type: 'application/json'
+        rescue Faraday::Error
+          render(plain: { error: I18n.t('validation.errors.geocoding_endpoint_error', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return
         end
 
         def reverse_geocode_address
@@ -43,6 +45,8 @@ module DataCycleCore
           end
 
           render plain: geocoded_data.to_h.compact.to_json, content_type: 'application/json'
+        rescue Faraday::Error
+          render(plain: { error: I18n.t('validation.errors.geocoding_endpoint_error', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return
         end
 
         private

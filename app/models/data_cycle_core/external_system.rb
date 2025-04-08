@@ -349,6 +349,8 @@ module DataCycleCore
     private
 
     def init_step_timestamp_properties
+      return unless respond_to?(:config) && respond_to?(:last_import_step_time_info)
+
       download_accessors = sorted_steps(:download).map { |name| timestamp_key_for_step(name, :download).to_sym }
       import_accessors = sorted_steps(:import).map { |name| timestamp_key_for_step(name, :import).to_sym }
 

@@ -1,3 +1,4 @@
+<% has_export_syncs = content.try(:external_system_syncs)&.export&.exists? %>
 <section id="admin-panel">
   <section id="admin-inner" data-tabs-content="admin-icons">
     <section id="schema" class="tabs-panel">
@@ -47,6 +48,14 @@
         <pre id="admin_data-job" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_send" data-remote-options="<%= to_query_params(content: dzt_data&.try(:data)&.dig('job_result')).to_json %>"></pre>
       </section>
     <% end %>
+    <% if has_export_syncs %>
+      <section id="data-export" class="tabs-panel">
+        <section class="data-export-nav">
+          <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('Exported Data') %>
+        </section>
+        <pre id="admin_data-export" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_export" data-remote-options="<%= to_query_params(content:).to_json %>"></pre>
+      </section>
+    <% end %>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
       <section id="meta-data" class="tabs-panel">
         <section class="meta-data-nav">
@@ -69,6 +78,9 @@
     <% end %>
     <% if dzt_data&.try(:data)&.dig('job_result').present? %>
       <li class="tabs-title"><a href="#data-job"><i class="fa">DZT status</i></a></li>
+    <% end %>
+    <% if has_export_syncs %>
+      <li class="tabs-title"><a href="#data-export"><i class="fa fa-arrow-right"></i></a></li>
     <% end %>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
       <li class="tabs-title"><a href="#meta-data"><i class="fa">metadata</i></a></li>

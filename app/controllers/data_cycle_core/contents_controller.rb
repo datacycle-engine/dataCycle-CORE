@@ -318,7 +318,7 @@ module DataCycleCore
         end
 
         render
-      rescue StandardError => e
+      rescue StandardError, SystemStackError => e
         redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(250)}\n\n#{e.backtrace.first(10).join("\n")}")) && return
       end
     end
@@ -353,7 +353,7 @@ module DataCycleCore
         end
 
         render
-      rescue StandardError => e
+      rescue StandardError, SystemStackError => e
         redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(100)}\n\n#{e.backtrace.first(5).join("\n")}"), allow_other_host: false) && return
       end
     end
@@ -376,7 +376,7 @@ module DataCycleCore
         end
 
         redirect_to thing_path(@content, watch_list_params)
-      rescue StandardError
+      rescue StandardError, SystemStackError
         redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale))
       end
     end
