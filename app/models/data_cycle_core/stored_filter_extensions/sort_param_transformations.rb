@@ -94,14 +94,16 @@ module DataCycleCore
         if min.present? || max.present?
           i_value = { 'min' => min, 'max' => max }.compact_blank
           q = nil
+          n = nil
         else
           i_value = i_config&.dig('v')&.compact_blank
           q = i_config&.dig('q')
+          n = i_config&.dig('n')
         end
 
         return if i_value.blank?
 
-        { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => { 'q' => q, 'v' => i_value } }
+        { 'm' => 'by_proximity', 'o' => 'ASC', 'n' => n, 'v' => { 'q' => q, 'v' => i_value } }
       end
 
       def transform_order_hash(sort_hash, watch_list)
@@ -120,10 +122,12 @@ module DataCycleCore
           sort_value, sort_method_name = transform_order_hash(sort, watch_list)
 
           next unless query.respond_to?(sort_method_name)
-
-          if query.method(sort_method_name)&.parameters&.size == 2
+          case query.method(sort_method_name)&.parameters&.size
+          when 3
+            ordered_query = query.send(sort_method_name, sort['o'].presence, sort_value.presence, sort['n'])
+          when 2
             ordered_query = query.send(sort_method_name, sort['o'].presence, sort_value.presence)
-          elsif query.method(sort_method_name)&.parameters&.size == 1
+          else
             ordered_query = query.send(sort_method_name, sort['o'].presence)
           end
 

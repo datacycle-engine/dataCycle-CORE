@@ -128,7 +128,7 @@ module DataCycleCore
         )
       end
 
-      def sort_by_proximity(ordering = '', value = {})
+      def sort_by_proximity(ordering = '', value = {}, relation = '')
         start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
 
         return self if start_date.nil? && end_date.nil?
@@ -143,13 +143,16 @@ module DataCycleCore
               UNNEST(schedules.occurrences) so(occurrence)
             WHERE things.id = schedules.thing_id
               AND so.occurrence && TSTZRANGE(?, ?)
+              #{'AND relation = ?' if relation.present?}
             GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
+        query_args = [start_date, end_date]
+        query_args << relation if relation.present?
         reflect(
           query_without_order
-            .joins(sanitize_sql([order_parameter_join, start_date, end_date]))
+            .joins(sanitize_sql([order_parameter_join, *query_args]))
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               thing[:updated_at].desc,
