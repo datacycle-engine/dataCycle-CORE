@@ -3,6 +3,39 @@
 module DataCycleCore
   module Generic
     module Common
+      # This module provides functionality for downloading and processing data from a MongoDB source.
+      #
+      # Here an example of all options that can be used in the configuration file. Note that not all options are required or can be used together.
+      # ```yaml
+      # options:
+      #   # data_path defines the path to the data in the document. '[]' must be added to any part of the path that is an array. It will be removed for the query.
+      #   data_path: 'data.field[].items[]'
+      #   # data_id_path defines the path to the id of the data in the document. It is relative to data_path. The default value is 'id'.
+      #   data_id_path: 'custom_id'
+      #   data_id_path: ~ # if the value of the data path should be used
+      #   # data_name_path defines the path to the name of the data in the document. It is relative to data_path. The default value is the value of data_id_path. Can be ERB template.
+      #   data_name_path: 'custom_name'
+      #   data_name_path: '<%= 'name_' + locale %>' # ERB template
+      #   data_name_path: ~ # if the value of the data path should be used
+      #   # data_name_path_fallback defines the fallback paths to the name of the data in the document. They are relative to data_path. Can be ERB template.
+      #   data_name_path_fallback:
+      #     - 'name_fallback1'
+      #     - '<%= 'name.' + locale %>'
+      #   # additional_data_paths can be used to add additional fields to the data, e.g. the id of the root document. Must be relative to the root document.
+      #   additional_data_paths:
+      #     name_add1: 'attribute1'
+      #     name_add2: 'attribute3'
+      #   # attribute_whitelist can be used to only save certain attributes to the database. The values of 'data_id' and 'data_name' as well as 'additional_paths' will be added automatically. Cannot be used with attribute_blacklist.
+      #   attribute_whitelist: ['extra1', 'extra2']
+      #   # attribute_blacklist can be used to remove certain attributes from the data before saving to the database. Cannot be used with attribute_whitelist.
+      #   attribute_blacklist: ['attribute3']
+      #   # data_id_prefix can be used to add a prefix to the id of the data before saving to the database. Cannot be used with external_id_prefix.
+      #   data_id_prefix: 'prefix_'
+      #   # external_id_prefix cannot be used with data_id_prefix. Does not change the id and will be saved as a separate field.
+      #   external_id_prefix: 'prefix_'
+      #   # trim_name can be used to trim the name of the data before saving to the database. It will remove leading and trailing whitespace. The default value is true.
+      #   trim_name: true
+      # ```
       module DownloadDataFromData
         extend Extensions::DownloadFromData
 

@@ -3,6 +3,33 @@
 module DataCycleCore
   module Generic
     module Common
+      # This module is used to download concepts from data.
+      #
+      # Here an example of all options that can be used in the configuration file. Note that not all options are required or can be used together.
+      #
+      # Note: you can use the options with 'data_' prefix or 'concept_' prefix. Preferably use 'data_' prefix.
+      # ```yaml
+      # options:
+      #   # data_path defines the path to the data in the document. '[]' must be added to any part of the path that is an array. It will be removed for the query.
+      #   data_path: 'data.field[].items[]'
+      #   # data_id_path defines the path to the id of the data in the document. It is relative to data_path. The default value is the value of data_name_path.
+      #   data_id_path: 'custom_id'
+      #   data_id_path: ~ # if the value of the data path should be used
+      #   # data_name_path defines the path to the name of the data in the document. It is relative to data_path. The default value is the value of data_id_path. Can be ERB template.
+      #   data_name_path: 'custom_name'
+      #   data_name_path: '<%= 'name_' + locale %>' # ERB template
+      #   data_name_path: ~ # if the value of the data path should be used
+      #   # data_parent_id_path defines the path to the parent id of the data in the document. It is relative to data_path. The default value is 'parent_id'.
+      #   data_parent_id_path: 'custom_parent_id'
+      #   # priority defines the priority of the data. It is used decied which document to keep in case the same id is found in different documents. The default value is 5.
+      #   data_priority: 5
+      #   # data_uri_path defines the path to the uri of the data in the document. The default value is 'uri'.
+      #   data_uri_path: 'custom_uri'
+      #   # data_id_prefix defines the prefix to be added to the id of the data. It is used to avoid conflicts with other data. The default value is nil. Cannot be used with data_external_id_prefix.
+      #   data_id_prefix: 'prefix_'
+      #   # data_external_id_prefix defines the prefix to be added to the external id of the data. It is used to avoid conflicts with other data. The default value is nil.
+      #   data_external_id_prefix: 'prefix_'
+      # ```
       module DownloadConceptsFromData
         extend Extensions::DownloadFromData
 
