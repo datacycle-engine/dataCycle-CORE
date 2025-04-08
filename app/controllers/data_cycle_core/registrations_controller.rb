@@ -10,7 +10,7 @@ module DataCycleCore
 
     def create
       if sign_up_params.slice(*HONEYPOT_FIELDS).compact_blank.values.any?
-        set_flash_message! :notice, :signed_up
+        # set_flash_message! :notice, :signed_up
         redirect_to new_user_registration_path
         return
       end
