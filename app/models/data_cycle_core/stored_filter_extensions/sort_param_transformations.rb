@@ -27,10 +27,8 @@ module DataCycleCore
 
       def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {})
         self.sort_parameters ||= []
-        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v, 'n' => raw_query_params.dig('filter', 'attribute').keys.first }) }
-
+        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v}) }
         DataCycleCore::ApiService.order_value_from_params('proximity.geographic', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'proximity_geographic', 'o' => 'ASC', 'v' => v }) }
-
         sort_parameters.unshift({ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => full_text_search }) if full_text_search.present?
 
         raw_query_params&.dig(:sort)&.split(/,(?![^\(]*\))/)&.reverse_each do |sort|
@@ -87,22 +85,19 @@ module DataCycleCore
       def sort_by_proximity_value(params, value = nil)
         i_config = params&.find { |f| f['t'] == 'in_schedule' }
         min, max = value&.split(',')&.map(&:strip)
-
         return if i_config.blank? && min.blank? && max.blank?
 
         if min.present? || max.present?
-          i_value = { 'min' => min, 'max' => max }.compact_blank
+          i_value = { 'min' => min, 'max' => max, 'relation' => i_config&.dig('n')}.compact_blank
           q = nil
-          n = nil
         else
-          i_value = i_config&.dig('v')&.compact_blank
+          i_value = i_config&.dig('v')&.merge('relation' => i_config&.dig('n'))&.compact_blank
           q = i_config&.dig('q')
-          n = i_config&.dig('n')
         end
 
         return if i_value.blank?
 
-        { 'm' => 'by_proximity', 'o' => 'ASC', 'n' => n, 'v' => { 'q' => q, 'v' => i_value } }
+        { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => { 'q' => q, 'v' => i_value } }
       end
 
       def transform_order_hash(sort_hash, watch_list)
@@ -121,12 +116,9 @@ module DataCycleCore
           sort_value, sort_method_name = transform_order_hash(sort, watch_list)
 
           next unless query.respond_to?(sort_method_name)
-          case query.method(sort_method_name)&.parameters&.size
-          when 3
-            ordered_query = query.send(sort_method_name, sort['o'].presence, sort_value.presence, sort['n'])
-          when 2
+          if query.method(sort_method_name)&.parameters&.size == 2
             ordered_query = query.send(sort_method_name, sort['o'].presence, sort_value.presence)
-          else
+          elsif query.method(sort_method_name)&.parameters&.size == 1
             ordered_query = query.send(sort_method_name, sort['o'].presence)
           end
 

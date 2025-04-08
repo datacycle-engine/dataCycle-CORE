@@ -128,11 +128,12 @@ module DataCycleCore
         )
       end
 
-      def sort_by_proximity(ordering = '', value = {}, relation = '')
+      def sort_by_proximity(ordering = '', value = {})
         start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
 
         return self if start_date.nil? && end_date.nil?
 
+        relation = find_relation(value)
         joined_table_name = "so#{SecureRandom.hex(10)}"
 
         order_parameter_join = <<-SQL.squish
@@ -443,6 +444,14 @@ module DataCycleCore
       def camel_to_snake_case(str)
         return str if str == str.downcase
         str.gsub(/([a-z])([A-Z])/, '\1_\2').downcase
+      end
+
+      def find_relation(value)
+        if value.dig('v', 'relation')
+          value.dig('v', 'relation')
+        elsif value['relation']
+          value['relation']
+        end
       end
     end
   end
