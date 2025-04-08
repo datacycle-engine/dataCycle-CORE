@@ -27,8 +27,7 @@ module DataCycleCore
 
       def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {})
         self.sort_parameters ||= []
-
-        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v }) }
+        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v, 'n' => raw_query_params.dig('filter', 'attribute').keys.first }) }
 
         DataCycleCore::ApiService.order_value_from_params('proximity.geographic', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'proximity_geographic', 'o' => 'ASC', 'v' => v }) }
 

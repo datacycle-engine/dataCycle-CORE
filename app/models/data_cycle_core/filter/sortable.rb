@@ -149,7 +149,7 @@ module DataCycleCore
         SQL
 
         query_args = [start_date, end_date]
-        query_args << relation if relation.present?
+        query_args << camel_to_snake_case(relation) if relation.present?
         reflect(
           query_without_order
             .joins(sanitize_sql([order_parameter_join, *query_args]))
@@ -438,6 +438,11 @@ module DataCycleCore
           thing[:updated_at].desc,
           thing[:id].desc
         )
+      end
+
+      def camel_to_snake_case(str)
+        return str if str == str.downcase
+        str.gsub(/([a-z])([A-Z])/, '\1_\2').downcase
       end
     end
   end
