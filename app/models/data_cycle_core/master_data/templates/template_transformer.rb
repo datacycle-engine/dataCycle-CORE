@@ -144,7 +144,7 @@ module DataCycleCore
         end
 
         def allowed_property?(key:, property:, properties:)
-          property[:condition].blank? || property[:condition].all? do |cond_key, value|
+          property[:condition].blank? || property.delete(:condition).all? do |cond_key, value|
             if respond_to?(:"condition_#{cond_key}", true)
               send(:"condition_#{cond_key}", key:, property:, value:, properties:)
             else

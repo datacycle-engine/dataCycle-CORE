@@ -27,7 +27,11 @@ namespace :dc do
       template_importer.render_errors
       template_importer.render_mixin_paths if args.verbose.to_s.casecmp('true').zero?
 
-      template_importer.valid? ? puts(AmazingPrint::Colors.green("[✓] ... looks good 🚀 (Duration: #{(Time.zone.now - before_import).round} sec)")) : exit(-1)
+      if template_importer.valid?
+        puts(AmazingPrint::Colors.green("[✔] ... looks good 🚀 (Duration: #{(Time.zone.now - before_import).round} sec)"))
+      else
+        exit(-1)
+      end
 
       template_statistics = DataCycleCore::MasterData::Templates::TemplateStatistics.new(start_time: before_import)
       template_statistics.update_statistics
