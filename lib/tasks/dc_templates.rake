@@ -110,6 +110,9 @@ namespace :dc do
 
         Rake::Task['dc:templates:migrations:migrate_contact_info_url']
         puts '-----------------------------'
+
+        Rake::Task['dc:templates:migrations:disable_old_templates'].invoke('Artikel|Katalog|freie Schneehöhenmesspunkte|Skigebiet Bergfex|Rezept|Produkt|Produktgruppe|Pauschalangebot|Strukturierter Artikel|Bild|Beitrag zur Tourismusstrategie|Video|Beschreibungstext|Piste|Tour|Schneehöhe - Messpunkt Bergfex|Audio|Zusatzangebot|See|Skigebiets-Beschreibung|Eventserie|freie Scheehöhenmesspunkte|Produktmodel|Zimmer|Gastronomischer Betrieb|Unterkunft|Örtlichkeit|Skigebiet|POI')
+        puts '-----------------------------'
       end
 
       task :validate, [:debug] => :environment do |_, _args|
@@ -348,6 +351,25 @@ namespace :dc do
         else
           puts 'Parameters Missing'
         end
+      end
+
+      desc 'make old templates not creatable'
+      task :disable_old_templates, [:templates, :debug] => :environment do |_, args|
+        templates = args.templates&.split('|')
+        unless templates&.size&.positive?
+          puts 'templates are required'
+          exit(1)
+        end
+        update_tt_qry = <<-SQL.squish
+          UPDATE thing_templates
+          SET schema = jsonb_set(schema, '{features,creatable,allowed}', 'false'::jsonb)
+          where template_name IN (?);
+        SQL
+
+        query_args = [templates]
+        sanitized_update_tt_qry = ActiveRecord::Base.sanitize_sql_array([update_tt_qry, *query_args])
+        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_tt_qry)
+        puts "Datasets migrated:  #{rows_updated}\n"
       end
 
       # value => translated_value (copy vs move)
