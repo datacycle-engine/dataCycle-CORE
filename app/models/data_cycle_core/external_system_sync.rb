@@ -7,6 +7,13 @@ module DataCycleCore
 
     validates :external_system_id, presence: true # rubocop:disable Rails/RedundantPresenceValidationOnBelongsTo
 
+    scope :export, -> { where(sync_type: 'export') }
+    store_accessor :data, :exported_data
+    attribute :exported_data, :jsonb
+
+    store_accessor :data, :exception, suffix: true
+    attribute :exception_data, :jsonb
+
     DUPLICATE_SYNC_TYPE = 'duplicate'
 
     def external_url
