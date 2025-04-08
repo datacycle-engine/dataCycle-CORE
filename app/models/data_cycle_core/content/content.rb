@@ -613,7 +613,7 @@ module DataCycleCore
           if item['type'] == 'object' && item['storage_location'] == storage_location
             { key => OpenStructHash.new(load_subproperty_hash(item['properties'], storage_location, sub_properties_data.try(:[], key.to_s))).freeze }
           elsif item['storage_location'] == storage_location
-            { key => convert_to_type(item['type'], sub_properties_data.try(:[], key.to_s)) }
+            { key => convert_to_type(item['type'], sub_properties_data.try(:[], key.to_s), sub_properties) }
           elsif item['storage_location'] == 'column'
             { key => send(key) }
           else
