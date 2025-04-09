@@ -38,7 +38,7 @@ module DataCycleCore
             data_string = JSON.pretty_generate(data).split("\n")
             data_string_size = data_string.size
             data_string = data_string.first(@log_data_lines)
-            data_string += ["... MORE: + #{data_string_size - 20} lines \n"] if data_string_size > @log_data_lines
+            data_string += ["... MORE: + #{data_string_size - @log_data_lines} lines \n"] if data_string_size > @log_data_lines
             @log.error "  DATA: #{data_string.join("\n  ")}"
           end
           @log.error error.full_message if error.respond_to?(:full_message)

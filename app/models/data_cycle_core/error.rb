@@ -91,7 +91,14 @@ module DataCycleCore
 
           message.push('===================================================================')
           message.push("response_status: #{original_error.response[:status]}") if original_error.response.key?(:status)
-          message.push("response_body: #{original_error.response[:body]}") if original_error.response.key?(:body)
+
+          if original_error.response.key?(:body)
+            data_string = original_error.response[:body].to_s.split("\n")
+            data_string_size = data_string.size
+            data_string = data_string.first(20)
+            data_string += ["... MORE: + #{data_string_size - 20} lines\n"] if data_string_size > 20
+            message.push("response_body: #{data_string.join("\n")}")
+          end
         end
 
         message.map { |s| s.to_s.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').delete("\u0000") }.join("\n")
