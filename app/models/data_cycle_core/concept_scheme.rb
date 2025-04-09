@@ -22,6 +22,10 @@ module DataCycleCore
       true
     end
 
+    def stored_filters
+      DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%")
+    end
+
     def self.create(attributes = nil, &)
       if attributes.is_a?(Array)
         attributes.collect { |attr| create(attr, &) }

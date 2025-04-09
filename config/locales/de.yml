@@ -1812,6 +1812,9 @@ de:
     child_classification_relations_html:
       one: "ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Diese wird mitgelöscht!"
       other: "ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!"
+    concept_scheme_stored_filter_html:
+      one: "ACHTUNG: Dieser %{data} wird in folgender %{search} verwendet:"
+      other: "ACHTUNG: Dieser %{data} wird in folgenden %{search} verwendet:"
     stored_searches:
       my_searches: Meine Suchen
       my_saved: Meine gespeicherten Suchen

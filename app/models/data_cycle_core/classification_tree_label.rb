@@ -391,6 +391,10 @@ module DataCycleCore
       all.map { |v| v.to_select_option(locale) }
     end
 
+    def stored_filters
+      DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%")
+    end
+
     private
 
     def transform_row_data_external(row)
