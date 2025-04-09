@@ -11,6 +11,11 @@ module DataCycleCore
         'proximity.geographic_with' => 'sort_proximity_geographic_with_value',
         'proximity.inTime' => 'sort_by_proximity_value',
         'proximity.occurrence' => 'sort_by_proximity_value',
+        'proximity.occurrence.eventSchedule' => 'sort_by_proximity_value',
+        'proximity.occurrence.openingHoursSpecification' => 'sort_by_proximity_value',
+        'proximity.occurrence.dc:diningHoursSpecification' => 'sort_by_proximity_value',
+        'proximity.occurrence.hoursAvailable' => 'sort_by_proximity_value',
+        'proximity.occurrence.validitySchedule' => 'sort_by_proximity_value',
         'proximity.in_occurrence' => 'sort_by_proximity_value'
       }.freeze
 
@@ -103,6 +108,14 @@ module DataCycleCore
       def transform_order_hash(sort_hash, watch_list)
         return sort_hash['m'].gsub('advanced_attribute_', ''), 'sort_advanced_attribute' if sort_hash['m'].starts_with?('advanced_attribute_')
         return watch_list.id, 'sort_collection_manual_order' if sort_hash['m'] == 'default' && watch_list&.manual_order
+
+        schedule_proximity_prefixes = ['proximity_occurrence_', 'proximity_inTime_', 'proximity_inT_occurrence_']
+        schedule_proximity_prefixes.each do |prefix|
+          next unless sort_hash['m'].start_with?(prefix)
+          sort_value = { 'relation' => sort_hash['m'].gsub(prefix, '') }
+          sort_value = sort_value.merge(sort_hash['v']) if sort_hash.key?('v')
+          return sort_value, 'sort_proximity_occurrence'
+        end
 
         return sort_hash['v'].dup, "sort_#{sort_hash['m']}"
       end
