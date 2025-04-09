@@ -43,9 +43,11 @@ namespace :dc do
       task :migrate_phase_one, [:debug] => :environment do |_, _args|
         puts '-----------------------------'
         Rake::Task['dc:templates:migrations:data_definitions'].invoke
+        Rake::Task['dc:templates:migrations:data_definitions'].reenable
 
         puts '-----------------------------'
         Rake::Task['dc:templates:migrations:universal_classifications'].invoke
+        Rake::Task['dc:templates:migrations:universal_classifications'].reenable
 
         puts '-----------------------------'
         mapping = DataCycleCore.data_definition_mapping['embedded_relations']
@@ -106,12 +108,19 @@ namespace :dc do
         puts 'no templates for attributes_to_additional_information available' if templates.blank?
 
         Rake::Task['dc:templates:migrations:attributes_to_additional_information'].invoke(templates)
+        Rake::Task['dc:templates:migrations:attributes_to_additional_information'].reenable
         puts '-----------------------------'
 
-        Rake::Task['dc:templates:migrations:migrate_contact_info_url']
+        Rake::Task['dc:templates:migrations:migrate_contact_info_url'].invoke
+        Rake::Task['dc:templates:migrations:migrate_contact_info_url'].reenable
+        puts '-----------------------------'
+
+        Rake::Task['vcloud:migrate:trails:trail_closed_to_odta_trail_status'].invoke
+        Rake::Task['vcloud:migrate:trails:trail_closed_to_odta_trail_status'].reenable
         puts '-----------------------------'
 
         Rake::Task['dc:templates:migrations:disable_old_templates'].invoke('Artikel|Katalog|freie Schneehöhenmesspunkte|Skigebiet Bergfex|Rezept|Produkt|Produktgruppe|Pauschalangebot|Strukturierter Artikel|Bild|Beitrag zur Tourismusstrategie|Video|Beschreibungstext|Piste|Tour|Schneehöhe - Messpunkt Bergfex|Audio|Zusatzangebot|See|Skigebiets-Beschreibung|Eventserie|freie Scheehöhenmesspunkte|Produktmodel|Zimmer|Gastronomischer Betrieb|Unterkunft|Örtlichkeit|Skigebiet|POI')
+        Rake::Task['dc:templates:migrations:disable_old_templates'].reenable
         puts '-----------------------------'
       end
 
