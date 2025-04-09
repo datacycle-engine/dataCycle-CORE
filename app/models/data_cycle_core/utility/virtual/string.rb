@@ -95,6 +95,14 @@ module DataCycleCore
               end
             end
           end
+
+          def odta_tourenstatus_as_trail_closed(content:, **_args)
+            content.classification_aliases
+              .for_tree('ODTA - Tourenstatus')
+              .first
+              &.external_key
+              &.include?('closed')
+          end
         end
       end
     end
