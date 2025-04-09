@@ -18,11 +18,7 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
-          last_success = utility_object.source_last_successful_try
-          raise 'Delete canceled (No successful download detected)!' if last_success.blank?
-
-          last_try = utility_object.source_last_try
-          raise "Delete canceled (Last download(s) failed)! Last success: #{last_success}, last try: #{last_try}" if last_try.present? && last_success < last_try
+          raise 'Delete canceled (Last download(s) failed)!' unless utility_object.source_steps_successful?
 
           delete_deadline = eval(options.dig(:import, :last_successful_try)) if options.dig(:import, :last_successful_try).present? # rubocop:disable Security/Eval
           if delete_deadline.present? && last_success < delete_deadline

@@ -11,7 +11,6 @@ module DataCycleCore
         @options = options.with_indifferent_access
         @type = self.class::TYPE
         @step_name = options.dig(type, :name)
-        @source_name = options.dig(type, :read_type) || options.dig(type, :source_type)
 
         raise "Missing external_source for #{self.class}, options given: #{@options}" if @options[:external_source].blank?
 
@@ -63,16 +62,6 @@ module DataCycleCore
 
       def last_successful_try
         external_source.last_successful_try(step_name, type)
-      end
-
-      def source_last_try
-        return if source_name.blank?
-        external_source.last_try(source_name, type)
-      end
-
-      def source_last_successful_try
-        return if source_name.blank?
-        external_source.last_successful_try(source_name, type)
       end
     end
   end
