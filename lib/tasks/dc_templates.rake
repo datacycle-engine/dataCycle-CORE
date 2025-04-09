@@ -154,7 +154,7 @@ namespace :dc do
           puts "Changing things template_name #{key} to #{value} for: #{things.count} rows"
           things_progressbar = ProgressBar.create(total: things.count, format: '%t |%w>%i| %a - %c/%C', title: "#{key} => #{value}")
           things.find_each do |thing|
-            thing.update(template_name: value, cache_valid_since: nil)
+            thing.update(template_name: value, cache_valid_since: Time.zone.now)
             things_progressbar.increment
           end
 
