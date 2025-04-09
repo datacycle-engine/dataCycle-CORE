@@ -227,6 +227,7 @@ namespace :dc do
 
         puts 'delete rows, where a dataset with universal_classification already existed'
         ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
           DELETE FROM classification_contents WHERE relation IN ('#{classifications.join("','")}');
           DELETE FROM classification_content_histories WHERE relation IN ('#{classifications.join("','")}');
         SQL
