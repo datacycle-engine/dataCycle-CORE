@@ -129,11 +129,14 @@ module DataCycleCore
       end
 
       def sort_by_proximity(ordering = '', value = {})
+        return self if value.blank?
+
         start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
+        start_date = DateTime.now if start_date.blank?
 
-        return self if start_date.nil? && end_date.nil?
-
-        relation = find_relation(value)
+        relation_value = find_relation(value)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
         joined_table_name = "so#{SecureRandom.hex(10)}"
 
         order_parameter_join = <<-SQL.squish
@@ -144,13 +147,12 @@ module DataCycleCore
               UNNEST(schedules.occurrences) so(occurrence)
             WHERE things.id = schedules.thing_id
               AND so.occurrence && TSTZRANGE(?, ?)
-              #{'AND relation = ?' if relation.present?}
+              #{relation_filter}
             GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
         query_args = [start_date, end_date]
-        query_args << camel_to_snake_case(relation) if relation.present?
         reflect(
           query_without_order
             .joins(sanitize_sql([order_parameter_join, *query_args]))
@@ -441,16 +443,12 @@ module DataCycleCore
         )
       end
 
-      def camel_to_snake_case(str)
-        return str if str == str.downcase
-        str.gsub(/([a-z])([A-Z])/, '\1_\2').downcase
-      end
-
       def find_relation(value)
-        if value.dig('v', 'relation')
-          value.dig('v', 'relation')
-        elsif value['relation']
-          value['relation']
+        return if value.blank?
+        if value['relation']
+          value['relation'].to_s.underscore
+        elsif value.dig('v', 'relation')
+          value.dig('v', 'relation').to_s.underscore
         end
       end
     end

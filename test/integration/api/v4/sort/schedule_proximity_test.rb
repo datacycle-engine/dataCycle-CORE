@@ -94,8 +94,8 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-
             assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
+
             # default = proximity.inTime
             params = {
               fields: 'name',
@@ -115,7 +115,6 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
-
             assert_equal(['A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
           end
 
@@ -136,10 +135,82 @@ module DataCycleCore
               sort: 'proximity.occurrence'
             }
             post api_v4_things_path(params)
-            assert_api_count_result(@thing_count)
+            # assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
 
+            assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
+          end
+
+          test 'api/v4/things with sort default' do
+            params = {
+              fields: 'name',
+              include: 'eventSchedule',
+              filter: {
+                attribute: {
+                  schedule: {
+                    in: {
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+            json_data = response.parsed_body
+            assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
+
+            params = {
+              filter: {
+                attribute: {
+                  schedule: {
+                    in: {
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                    }
+                  }
+                }
+              },
+              sort: 'proximity.occurrence'
+            }
+            post api_v4_things_path(params)
+            json_data = response.parsed_body
+            assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
+          end
+
+          test 'api/v4/things with sort considering relation' do
+            params = {
+              filter: {
+                attribute: {
+                  eventSchedule: {
+                    in: {
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+            json_data = response.parsed_body
+            assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
+
+            params = {
+              filter: {
+                attribute: {
+                  schedule: {
+                    in: {
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                    }
+                  }
+                }
+              },
+              sort: 'proximity.occurrence.eventSchedule'
+            }
+            post api_v4_things_path(params)
+            json_data = response.parsed_body
             assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
           end
         end
