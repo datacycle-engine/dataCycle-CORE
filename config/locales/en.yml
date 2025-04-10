@@ -1996,6 +1996,9 @@ en:
       other:
         "ATTENTION: %{data} are assigned to <b>%{count}</b> classifications.<br>These
         are also deleted!</br>"
+    concept_scheme_stored_filter_html:
+      one: "ACHTUNG: This %{data} is used in the following %{search}:"
+      other: "ACHTUNG: This %{data} is used in the following %{search}:"
     stored_searches:
       my_searches: My searches
       my_saved: My saved searches

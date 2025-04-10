@@ -3,6 +3,34 @@
 module DataCycleCore
   module ExternalSystemExtensions
     module Import
+      def sorted_step_config_by_type(type)
+        sorted_steps(type.to_sym).map do |k|
+          config = send(:"#{type}_config")[k]
+          config.merge('name' => k, 'type' => step_type(config))
+        end
+      end
+
+      def sorted_step_configs
+        steps = []
+        steps.concat(sorted_step_config_by_type(:download))
+        steps.concat(sorted_step_config_by_type(:import))
+        steps
+      end
+
+      def relevant_steps_for(source_type, type = nil)
+        sorted_step_configs.filter do |step|
+          (type.nil? || type == step['type']) &&
+            Array.wrap(step['source_type']).include?(source_type)
+        end
+      end
+
+      def source_steps_successful?(source_type, type)
+        relevant_steps_for(source_type, type).all? do |step|
+          last_successful_try(step['name'], step['type'])
+            &.>=(last_try(step['name'], step['type']))
+        end
+      end
+
       def sorted_steps(type = :import, range = nil)
         steps = send(:"#{type}_config")
         return [] if steps.blank?
@@ -176,12 +204,15 @@ module DataCycleCore
         )
       end
 
+      def step_type(step_config)
+        step_config.key?('import_strategy') ? :import : :download
+      end
+
       def import_step(name, options = {}, config = {})
         raise "missing config for name: #{name}" if config.blank?
 
         last_start = Time.zone.now
-
-        type = config.key?('import_strategy') ? :import : :download
+        type = step_type(config)
         full_options = options_for_step(name, options, config, type)
         strategy = full_options.dig(type, :"#{type}_strategy")&.safe_constantize
         raise "Missing strategy for #{name}, options given: #{full_options}" if strategy.nil?

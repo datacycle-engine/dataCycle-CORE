@@ -14,3 +14,19 @@
           locale: active_ui_locale) %>
   </div>
 <% end %>
+
+<% if classification_tree_label.stored_filters.named.exists? %>
+  <% sf = classification_tree_label.stored_filters.named %>
+  <div class='warning callout'>
+    <%= t('data_cycle_core.concept_scheme_stored_filter_html',
+          count: sf.size,
+          data: DataCycleCore::ConceptScheme.model_name.human(locale: active_ui_locale, count: 1),
+          search: DataCycleCore::StoredFilter.model_name.human(locale: active_ui_locale, count: sf.size),
+          locale: active_ui_locale) %>
+    <ul>
+      <% sf.each do |stored_filter| %>
+        <li><%= link_to(stored_filter.name, root_path(stored_filter: stored_filter), target: :_blank) %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

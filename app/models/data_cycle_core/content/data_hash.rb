@@ -319,20 +319,20 @@ module DataCycleCore
 
       def save_to_column(key, value, properties)
         save_data = normalize_value(value, properties)
-        save_data = convert_to_type(properties['type'], save_data) if properties['type'].in?(['geographic', 'string'])
+        save_data = convert_to_type(properties['type'], save_data, properties) if properties['type'].in?(['geographic', 'string'])
         send(:"#{key}=", save_data)
       end
 
       def normalize_value(value, properties)
         norm_value = value
-        return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value) if properties['type'] == 'string'
+        return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value, properties) if properties['type'] == 'string'
         norm_value
       end
 
       def save_to_jsonb(key, data, properties, location)
         save_data = data.deep_dup
-        save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object'
-        save_data = convert_to_string(properties['type'], normalize_value(save_data, properties)) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
+        save_data = set_data_tree_hash(save_data, properties['properties'], location, properties) if properties['type'] == 'object'
+        save_data = convert_to_string(properties['type'], normalize_value(save_data, properties), properties) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
 
         if send(location.to_s).blank? # set to json field (could be empty)
           send(:"#{location}=", { key => save_data })
@@ -341,13 +341,13 @@ module DataCycleCore
         end
       end
 
-      def set_data_tree_hash(data, data_definitions, location)
+      def set_data_tree_hash(data, data_definitions, location, properties)
         data_hash = {}
         data_definitions.each_key do |key|
           if data_definitions[key]['type'] == 'object'
-            data_hash[key] = set_data_tree_hash(data&.dig(key), data_definitions[key]['properties'], location)
+            data_hash[key] = set_data_tree_hash(data&.dig(key), data_definitions[key]['properties'], location, properties)
           elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
-            data_hash[key] = convert_to_string(data_definitions[key]['type'], normalize_value(data&.dig(key), data_definitions[key]))
+            data_hash[key] = convert_to_string(data_definitions[key]['type'], normalize_value(data&.dig(key), data_definitions[key]), properties)
           elsif data_definitions[key]['storage_location'] == 'column'
             save_to_column(key, data&.dig(key), data_definitions[key])
           end

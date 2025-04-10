@@ -27,7 +27,11 @@ namespace :dc do
       template_importer.render_errors
       template_importer.render_mixin_paths if args.verbose.to_s.casecmp('true').zero?
 
-      template_importer.valid? ? puts(AmazingPrint::Colors.green("[✓] ... looks good 🚀 (Duration: #{(Time.zone.now - before_import).round} sec)")) : exit(-1)
+      if template_importer.valid?
+        puts(AmazingPrint::Colors.green("[✔] ... looks good 🚀 (Duration: #{(Time.zone.now - before_import).round} sec)"))
+      else
+        exit(-1)
+      end
 
       template_statistics = DataCycleCore::MasterData::Templates::TemplateStatistics.new(start_time: before_import)
       template_statistics.update_statistics
@@ -39,9 +43,11 @@ namespace :dc do
       task :migrate_phase_one, [:debug] => :environment do |_, _args|
         puts '-----------------------------'
         Rake::Task['dc:templates:migrations:data_definitions'].invoke
+        Rake::Task['dc:templates:migrations:data_definitions'].reenable
 
         puts '-----------------------------'
         Rake::Task['dc:templates:migrations:universal_classifications'].invoke
+        Rake::Task['dc:templates:migrations:universal_classifications'].reenable
 
         puts '-----------------------------'
         mapping = DataCycleCore.data_definition_mapping['embedded_relations']
@@ -102,9 +108,19 @@ namespace :dc do
         puts 'no templates for attributes_to_additional_information available' if templates.blank?
 
         Rake::Task['dc:templates:migrations:attributes_to_additional_information'].invoke(templates)
+        Rake::Task['dc:templates:migrations:attributes_to_additional_information'].reenable
         puts '-----------------------------'
 
-        Rake::Task['dc:templates:migrations:migrate_contact_info_url']
+        Rake::Task['dc:templates:migrations:migrate_contact_info_url'].invoke
+        Rake::Task['dc:templates:migrations:migrate_contact_info_url'].reenable
+        puts '-----------------------------'
+
+        Rake::Task['vcloud:migrate:trails:trail_closed_to_odta_trail_status'].invoke
+        Rake::Task['vcloud:migrate:trails:trail_closed_to_odta_trail_status'].reenable
+        puts '-----------------------------'
+
+        Rake::Task['dc:templates:migrations:disable_old_templates'].invoke('Artikel|Katalog|freie Schneehöhenmesspunkte|Skigebiet Bergfex|Rezept|Produkt|Produktgruppe|Pauschalangebot|Strukturierter Artikel|Bild|Beitrag zur Tourismusstrategie|Video|Beschreibungstext|Piste|Tour|Schneehöhe - Messpunkt Bergfex|Audio|Zusatzangebot|See|Skigebiets-Beschreibung|Eventserie|freie Scheehöhenmesspunkte|Produktmodel|Zimmer|Gastronomischer Betrieb|Unterkunft|Örtlichkeit|Skigebiet|POI')
+        Rake::Task['dc:templates:migrations:disable_old_templates'].reenable
         puts '-----------------------------'
       end
 
@@ -147,7 +163,7 @@ namespace :dc do
           puts "Changing things template_name #{key} to #{value} for: #{things.count} rows"
           things_progressbar = ProgressBar.create(total: things.count, format: '%t |%w>%i| %a - %c/%C', title: "#{key} => #{value}")
           things.find_each do |thing|
-            thing.update(template_name: value, cache_valid_since: nil)
+            thing.update(template_name: value, cache_valid_since: Time.zone.now)
             things_progressbar.increment
           end
 
@@ -211,6 +227,7 @@ namespace :dc do
 
         puts 'delete rows, where a dataset with universal_classification already existed'
         ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
           DELETE FROM classification_contents WHERE relation IN ('#{classifications.join("','")}');
           DELETE FROM classification_content_histories WHERE relation IN ('#{classifications.join("','")}');
         SQL
@@ -344,6 +361,25 @@ namespace :dc do
         else
           puts 'Parameters Missing'
         end
+      end
+
+      desc 'make old templates not creatable'
+      task :disable_old_templates, [:templates, :debug] => :environment do |_, args|
+        templates = args.templates&.split('|')
+        unless templates&.size&.positive?
+          puts 'templates are required'
+          exit(1)
+        end
+        update_tt_qry = <<-SQL.squish
+          UPDATE thing_templates
+          SET schema = jsonb_set(schema, '{features,creatable,allowed}', 'false'::jsonb)
+          where template_name IN (?);
+        SQL
+
+        query_args = [templates]
+        sanitized_update_tt_qry = ActiveRecord::Base.sanitize_sql_array([update_tt_qry, *query_args])
+        rows_updated = ActiveRecord::Base.connection.exec_update(sanitized_update_tt_qry)
+        puts "Datasets migrated:  #{rows_updated}\n"
       end
 
       # value => translated_value (copy vs move)

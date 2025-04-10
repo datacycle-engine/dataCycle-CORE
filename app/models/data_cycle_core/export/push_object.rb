@@ -10,7 +10,7 @@ module DataCycleCore
       }.freeze
 
       attr_reader :external_system, :locale, :filter_checked, :action
-      attr_accessor :type, :path, :endpoint_method
+      attr_accessor :type, :path, :endpoint_method, :external_system_sync
 
       def initialize(action:, **kwargs)
         @action = action.to_sym

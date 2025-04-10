@@ -15,6 +15,7 @@ module DataCycleCore
         no_asset_download = @options[:no_asset_download] || false
         @asset_download = !no_asset_download
         @partial_update = @options[:partial_update] || false
+        @source_name = @options.dig(@type, :source_type)
 
         @concepts_cache = {}
       end
@@ -29,6 +30,11 @@ module DataCycleCore
 
       def concept_by_path(path)
         concepts_by_path(path).first
+      end
+
+      def source_steps_successful?
+        # Check if all download steps of the source_type were successful
+        external_source.source_steps_successful?(source_name, :download)
       end
     end
   end
