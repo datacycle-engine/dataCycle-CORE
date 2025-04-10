@@ -159,9 +159,9 @@ GEM
       public_suffix (>= 2.0.2, < 7.0)
     afm (0.2.2)
     amazing_print (1.7.2)
-    appsignal (4.5.7)
+    appsignal (4.3.3)
       logger
-      rack (>= 2.0.0)
+      rack
     ast (2.4.3)
     awesome_print (1.9.2)
     base64 (0.2.0)
@@ -175,7 +175,7 @@ GEM
     bindex (0.8.1)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
-    brakeman (7.0.0)
+    brakeman (7.0.2)
       racc
     bson (5.0.2)
     builder (3.3.0)
@@ -535,7 +535,7 @@ GEM
     redcarpet (3.6.1)
     redis (4.8.1)
     regexp_parser (2.10.0)
-    reline (0.6.0)
+    reline (0.6.1)
       io-console (~> 0.5)
     request_store (1.7.0)
       rack (>= 1.4)
@@ -660,7 +660,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  appsignal (>= 4.1.1)
+  appsignal (= 4.3.3)
   awesome_print
   better_errors
   binding_of_caller
@@ -698,4 +698,4 @@ RUBY VERSION
    ruby 3.2.2p53
 
 BUNDLED WITH
-   2.6.6
+   2.6.7

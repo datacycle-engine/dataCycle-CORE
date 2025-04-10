@@ -291,6 +291,8 @@ module DataCycleCore
         return_html
       elsif parents[-2] == 'file_size'
         "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: active_ui_locale), locale: active_ui_locale)}</li>"
+      elsif parents[-2] == 'resolution'
+        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_with_delimiter(value, locale: active_ui_locale), locale: active_ui_locale)}</li>"
       else
         "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: active_ui_locale)}</li>"
       end

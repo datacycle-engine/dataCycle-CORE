@@ -2333,6 +2333,7 @@ de:
       invalid_file: beschädigte Datei
       format: 'Erlaubte Formate: <span class="value">%{data}</span>'
       format_not_supported: Nicht unterstütztes Format (%{data})
+      content_type_not_supported: Nicht unterstützter MIME-Type (%{data})
       dimensions:
         exclude:
           format: 'Folgende Formate sind in jeder Größe erlaubt: <span class="value">%{data}</span>'
@@ -2359,6 +2360,9 @@ de:
       file_size:
         max: 'Maximale Dateigröße: <span class="value">%{data}</span>'
         min: 'Minimale Dateigröße: <span class="value">%{data}</span>'
+      resolution:
+        max: 'Maximale Auflösung (Breite x Höhe): <span class="value">%{data}</span>'
+        min: 'Minimale Auflösung (Breite x Höhe): <span class="value">%{data}</span>'
 
     close_warning_html:
       "<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
