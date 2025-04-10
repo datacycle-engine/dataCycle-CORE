@@ -24,8 +24,8 @@ module DataCycleCore
             ).serialize_schedule_object.schedule_object.to_hash
           ]
         })
-      @event_d.update_column(:created_at, current_ts+1.minute)
-      @event_d.update_column(:updated_at, current_ts+1.minute)
+      @event_d.update_column(:created_at, current_ts + 1.minute)
+      @event_d.update_column(:updated_at, current_ts + 1.minute)
 
       @event_c = DataCycleCore::DummyDataHelper.event
       @event_c.set_data_hash(partial_update: true, prevent_history: true, data_hash:
@@ -39,9 +39,9 @@ module DataCycleCore
               frequency: 'weekly'
             ).serialize_schedule_object.schedule_object.to_hash
           ]
-        })        
-      @event_c.update_column(:created_at, current_ts+2.minutes)
-      @event_c.update_column(:updated_at, current_ts+2.minutes)
+        })
+      @event_c.update_column(:created_at, current_ts + 2.minutes)
+      @event_c.update_column(:updated_at, current_ts + 2.minutes)
 
       @event_b = DataCycleCore::DummyDataHelper.event
       @event_b.set_data_hash(partial_update: true, prevent_history: true, data_hash:
@@ -56,8 +56,8 @@ module DataCycleCore
             ).serialize_schedule_object.schedule_object.to_hash
           ]
         })
-      @event_b.update_column(:created_at, current_ts+3.minutes)
-      @event_b.update_column(:updated_at, current_ts+3.minutes)
+      @event_b.update_column(:created_at, current_ts + 3.minutes)
+      @event_b.update_column(:updated_at, current_ts + 3.minutes)
 
       @event_a = DataCycleCore::DummyDataHelper.event
       @event_a.set_data_hash(partial_update: true, prevent_history: true, data_hash:
@@ -72,8 +72,8 @@ module DataCycleCore
             ).serialize_schedule_object.schedule_object.to_hash
           ]
         })
-      @event_a.update_column(:created_at, current_ts+4.minutes)
-      @event_a.update_column(:updated_at, current_ts+4.minutes)
+      @event_a.update_column(:created_at, current_ts + 4.minutes)
+      @event_a.update_column(:updated_at, current_ts + 4.minutes)
 
       @poi = DataCycleCore::DummyDataHelper.poi
       @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash:
@@ -88,79 +88,79 @@ module DataCycleCore
             ).serialize_schedule_object.schedule_object.to_hash
           ]
         })
-      @poi.update_column(:created_at, current_ts+5.minutes)
-      @poi.update_column(:updated_at, current_ts+5.minutes)
+      @poi.update_column(:created_at, current_ts + 5.minutes)
+      @poi.update_column(:updated_at, current_ts + 5.minutes)
 
       DataCycleCore::Thing.where(template_name: 'Bild').delete_all
 
-      @from =  Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601)
+      @from = Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601)
       @to = Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
     end
 
     test 'filter event_schedule with sort_created_at' do
-      filter_params = [{"c"=>"a", "t"=>"in_schedule", "q"=>"absolute", "m"=>"i", "n"=>"event_schedule", "v"=>{"from"=>@from, "until"=>@until}}]
-      sort_params =[{"o"=>"ASC", "m"=>"created_at"}]
-    
+      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => {'from' => @from, 'until' => @until}}]
+      sort_params = [{'o' => 'ASC', 'm' => 'created_at'}]
+
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: sort_params, filters: filter_params)
       query = stored_filter.things
-     
-      things = [@event_d, @event_c, @event_b, @event_a]
-      things.zip(query).each_with_index do |(expected, actual), i|
+
+      things = [@event_d, @event_c, @event_b, @event_a, @poi]
+      things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
 
     test 'filter opening_hours_specification with sort modified_at' do
-      filter_params = [{"c"=>"a", "t"=>"in_schedule", "q"=>"absolute", "m"=>"i", "n"=>"event_schedule", "v"=>{"from"=>@from, "until"=>@until}}]
-      sort_params =[{"o"=>"ASC", "m"=>"modified_at"}]
-      
+      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => {'from' => @from, 'until' => @until}}]
+      sort_params = [{'o' => 'ASC', 'm' => 'modified_at'}]
+
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: sort_params, filters: filter_params)
       query = stored_filter.things
 
-      things = [@event_d, @event_c, @event_b, @event_a]
-      things.zip(query).each_with_index do |(expected, actual), i|
+      things = [@event_d, @event_c, @event_b, @event_a, @poi]
+      things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
 
     test 'filter opening_hours_specification with sort name' do
-      filter_params = [{"c"=>"a", "t"=>"in_schedule", "q"=>"absolute", "m"=>"i", "n"=>"event_schedule", "v"=>{"from"=>@from, "until"=>@until}}]
-      sort_params =[{"o"=>"ASC", "m"=>"name"}]
-      
+      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => {'from' => @from, 'until' => @until}}]
+      sort_params = [{'o' => 'ASC', 'm' => 'name'}]
+
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: sort_params, filters: filter_params)
       query = stored_filter.things
 
-      things = [@event_a, @event_b, @event_c, @event_d]
-      things.zip(query).each_with_index do |(expected, actual), i|
+      things = [@event_a, @event_b, @event_c, @event_d, @poi]
+      things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
 
     test 'filter opening_hours_specification with sort default' do
-      filter_params = [{"c"=>"a", "t"=>"in_schedule", "q"=>"absolute", "m"=>"i", "n"=>"opening_hours_specification", "v"=>{"from"=>@from, "until"=>@until}}]
-      
+      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'opening_hours_specification', 'v' => {'from' => @from, 'until' => @until}}]
+
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: nil, filters: filter_params)
       query = stored_filter.things
 
-      things = [@poi]
-      things.zip(query).each_with_index do |(expected, actual), i|
+      things = [@poi, @event_a, @event_b, @event_c, @event_d]
+      things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
 
     test 'filter event_schedule with sort default' do
-      filter_params = [{"c"=>"a", "t"=>"in_schedule", "q"=>"absolute", "m"=>"i", "n"=>"event_schedule", "v"=>{"from"=>@from, "until"=>@until}}]
-      
+      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => {'from' => @from, 'until' => @until}}]
+
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: nil, filters: filter_params)
       query = stored_filter.things
 
-      things = [@event_d, @event_c, @event_b, @event_a]
-      things.zip(query).each_with_index do |(expected, actual), i|
+      things = [@event_d, @event_c, @event_b, @event_a, @poi]
+      things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
