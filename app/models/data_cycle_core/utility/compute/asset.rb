@@ -6,6 +6,15 @@ module DataCycleCore
       module Asset
         extend DataCycleCore::Engine.routes.url_helpers
 
+        CONTENT_TYPE_MAPPING = {
+          'Bild' => 'image',
+          'ImageObject' => 'image',
+          'Audio' => 'audio',
+          'AudioObject' => 'audio',
+          'Video' => 'video',
+          'VideoObject' => 'video'
+        }.freeze
+
         class << self
           def url_options
             Rails.application.config.action_mailer.default_url_options
@@ -19,8 +28,16 @@ module DataCycleCore
             DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:file_size)&.to_i
           end
 
-          def file_format(computed_parameters:, data_hash:, **_args)
-            DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:content_type) || MiniMime.lookup_by_extension(data_hash['content_url']&.match(/.*\.(.*)/)&.[](1).to_s)&.content_type
+          def file_format(computed_parameters:, data_hash:, content:, **_args)
+            content_type = DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:content_type)
+            return content_type if content_type.present?
+
+            mapped_content_type = CONTENT_TYPE_MAPPING[content.template_name]
+
+            MiniMime
+              .lookup_by_extension(data_hash['content_url']&.match(/.*\.(.*)/)&.[](1).to_s)
+              &.content_type
+              &.then { |s| mapped_content_type.present? ? s.gsub('application', mapped_content_type.to_s) : s }
           end
 
           def file_type_classification(computed_parameters:, computed_definition:, **_args)
