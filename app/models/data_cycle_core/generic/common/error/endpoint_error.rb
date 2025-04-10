@@ -14,7 +14,7 @@ module DataCycleCore
             if response.nil?
               super(msg)
             else
-              super(msg + "| #{status}: #{response&.reason_phrase} | #{response&.body&.encode('utf-8', invalid: :replace, undef: :replace, replace: '_')}")
+              super(msg + "| #{status}: #{response&.reason_phrase} | #{response&.body&.to_s&.encode('utf-8', invalid: :replace, undef: :replace, replace: '_')}")
             end
           end
 
