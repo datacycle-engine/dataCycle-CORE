@@ -2390,6 +2390,8 @@ en:
       teaser: Teaser
       zusatzinfo: Additional informationen
       anreisebeschreibung: Directions
+      Text: Text
+      Ansprechpartner: Contact name
     pimcore:
       description: Description
       text: Detailed description

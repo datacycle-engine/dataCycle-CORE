@@ -169,8 +169,9 @@ module DataCycleCore
           if search_data&.first.try(:[], 'error').present?
             error = search_data.first['error']
           else
+            thing_ids = DataCycleCore::Thing.where(external_key: search_data.pluck('id')).pluck(:external_key, :id).to_h
             live_data = search_data
-              .map { |i| { '@id' => DataCycleCore::Thing.find_by(external_key: i['id'])&.id, 'minPrice' => i['base_price'] } }
+              .map { |i| { '@id' => thing_ids[i['id']], 'minPrice' => i['base_price'], **i.except('id', 'base_price') } }
               .select { |i| i['@id'].present? }
             content_ids = live_data.pluck('@id')
             error = 'No suitable results found.' if content_ids.blank?

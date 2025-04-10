@@ -37,7 +37,7 @@ module DataCycleCore
 
       asset_path = asset.file.service.path_for(asset.file.key)
 
-      exif_data = MiniExiftool.new(asset_path, { replace_invalid_chars: true, ignore_minor_errors: true })
+      exif_data = MiniExiftool.new(asset_path, { replace_invalid_chars: '', ignore_minor_errors: true })
 
       updated_values = {}
 
