@@ -122,6 +122,12 @@ namespace :dc do
         Rake::Task['dc:templates:migrations:disable_old_templates'].invoke('Artikel|Katalog|freie Schneehöhenmesspunkte|Skigebiet Bergfex|Rezept|Produkt|Produktgruppe|Pauschalangebot|Strukturierter Artikel|Bild|Beitrag zur Tourismusstrategie|Video|Beschreibungstext|Piste|Tour|Schneehöhe - Messpunkt Bergfex|Audio|Zusatzangebot|See|Skigebiets-Beschreibung|Eventserie|freie Scheehöhenmesspunkte|Produktmodel|Zimmer|Gastronomischer Betrieb|Unterkunft|Örtlichkeit|Skigebiet|POI')
         Rake::Task['dc:templates:migrations:disable_old_templates'].reenable
         puts '-----------------------------'
+
+        # optional use this task to fix schema_types
+        # @todo the task should be updated to run withoud a stored filter
+        # Rake::Task['dc:update_data:add_defaults'].invoke(,false,'schema_types')
+        # Rake::Task['dc:update_data:add_defaults'].reenable
+        # puts '-----------------------------'
       end
 
       task :validate, [:debug] => :environment do |_, _args|
