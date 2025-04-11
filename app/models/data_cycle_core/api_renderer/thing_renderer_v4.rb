@@ -22,7 +22,8 @@ module DataCycleCore
         :watch_list,
         :stored_filter,
         :collection,
-        :linked_stored_filter
+        :linked_stored_filter,
+        :pagination_url
       ].freeze
 
       def initialize(contents: nil, content: nil, template: nil, **params)

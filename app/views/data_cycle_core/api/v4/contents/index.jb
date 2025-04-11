@@ -20,10 +20,7 @@ end
 
 json.merge! render 'pagination_links',
                    objects: pagination_objects,
-                   object_url: lambda { |params|
-                                 id = (@watch_list || @stored_filter)&.id
-                                 id.present? ? api_v4_stored_filter_url(id:, **params) : api_v4_things_url(**params)
-                               }
+                   object_url: ->(params) { @pagination_url.call(params) }
 
 json.merge! render 'live_data'
 

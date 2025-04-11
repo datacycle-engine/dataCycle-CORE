@@ -25,6 +25,12 @@ module DataCycleCore
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
 
+            if (@watch_list || @stored_filter)&.id.present?
+              @pagination_url = method(:api_v4_stored_filter_url)
+            else
+              @pagination_url = method(:api_v4_things_url)
+            end
+
             if list_api_request?
               render plain: list_api_request.to_json, content_type: 'application/json'
             else
@@ -143,6 +149,9 @@ module DataCycleCore
             end
 
             @contents = apply_paging(query)
+            @pagination_url = method(:api_v4_contents_select_url)
+
+            render 'index'
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
           end
@@ -159,6 +168,9 @@ module DataCycleCore
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
 
             @contents = apply_paging(query)
+            @pagination_url = method(:api_v4_things_select_by_external_key_url)
+
+            render 'index'
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
           end
