@@ -81,11 +81,17 @@ module DataCycleCore
             {
               '$facet' => {
                 'deleted' => [
-                  { '$match' => { 'dump.de.deleted_at' => { '$exists' => true } } },
+                  { '$match' => { '$or' => [
+                    { 'dump.deleted_at' => { '$exists' => true } },
+                    { 'dump.de.deleted_at' => { '$exists' => true } }
+                  ] } },
                   { '$count' => 'count' }
                 ],
                 'archived' => [
-                  { '$match' => { 'dump.de.archived_at' => { '$exists' => true } } },
+                  { '$match' => { '$or' => [
+                    { 'dump.archived_at' => { '$exists' => true } },
+                    { 'dump.de.archived_at' => { '$exists' => true } }
+                  ] } },
                   { '$count' => 'count' }
                 ],
                 'total' => [
