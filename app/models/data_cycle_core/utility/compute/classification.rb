@@ -9,7 +9,7 @@ module DataCycleCore
         class << self
           def keywords(computed_parameters:, **_args)
             DataCycleCore::Classification
-              .where(id: Array.wrap(computed_parameters.values).flatten.compact_blank)
+              .by_ordered_values(Array.wrap(computed_parameters.values).flatten.compact_blank)
               .map(&:name)
               .join(',')
               .presence
