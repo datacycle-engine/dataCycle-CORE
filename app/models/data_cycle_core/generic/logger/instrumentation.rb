@@ -74,7 +74,7 @@ module DataCycleCore
         end
 
         def validation_error(label, data, error_text)
-          text = [@kind_short, label.to_s, ' | external_key: ', data['external_key'], "\n"]
+          text = [@kind_short, label.to_s, '| external_key:', data['external_key'], "\n"]
           text.push(error_text.to_s) if error_text.present?
 
           if data.present?
