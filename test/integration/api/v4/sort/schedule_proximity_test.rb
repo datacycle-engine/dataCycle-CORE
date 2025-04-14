@@ -191,13 +191,15 @@ module DataCycleCore
           end
 
           test 'api/v4/things with sort considering relation' do
+            from = Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601)
+            to = Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
             params = {
               filter: {
                 attribute: {
                   eventSchedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                      min: from,
+                      max: to
                     }
                   }
                 }
@@ -212,12 +214,12 @@ module DataCycleCore
               filter: {
                 schedule: {
                   in: {
-                    min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
-                    max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                    min: from,
+                    max: to
                   }
                 }
               },
-              sort: 'proximity.occurrence.eventSchedule'
+              sort: "proximity.occurrence(#{from},#{to},eventSchedule)"
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
@@ -228,12 +230,12 @@ module DataCycleCore
               filter: {
                 schedule: {
                   in: {
-                    min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
-                    max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                    min: from,
+                    max: to
                   }
                 }
               },
-              sort: 'proximity.occurrence.openingHoursSpecification'
+              sort: "proximity.occurrence(#{from},#{to},openingHoursSpecification)"
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
@@ -242,24 +244,26 @@ module DataCycleCore
           end
 
           test 'api/v4/things with sort and filter with relation' do
+            from = Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601)
+            to = Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
             params = {
               union: {
                 attribute: {
                   eventSchedule: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                      min: from,
+                      max: to
                     }
                   },
                   openingHoursSpecification: {
                     in: {
-                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601),
-                      max: Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+                      min: from,
+                      max: to
                     }
                   }
                 }
               },
-              sort: 'proximity.occurrence.openingHoursSpecification'
+              sort: "proximity.occurrence(#{from},#{to},openingHoursSpecification)"
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
