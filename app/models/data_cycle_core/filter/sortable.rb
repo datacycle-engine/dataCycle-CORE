@@ -129,16 +129,13 @@ module DataCycleCore
       end
 
       def sort_by_proximity(ordering = '', value = {})
-        return self if value.blank?
-
         start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
-        start_date = DateTime.now if start_date.blank?
+        return self if start_date.nil? && end_date.nil?
 
         relation_value = find_relation(value)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
         relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
         joined_table_name = "so#{SecureRandom.hex(10)}"
-
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT schedules.thing_id,
