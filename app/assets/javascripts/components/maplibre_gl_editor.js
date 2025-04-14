@@ -501,7 +501,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	}
 	async addElevationToGeoJson(geoJson) {
 		if (!this.isLineString()) return geoJson;
-		if (!this.elevationMissing(geoJson.geometry?.coordinates)) return geoJson;
+		if (!this.elevationMissing(geoJson?.geometry?.coordinates)) return geoJson;
 
 		const response = await DataCycle.httpRequest(this.addElevationPath, {
 			method: "POST",
