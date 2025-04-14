@@ -25,7 +25,7 @@ module DataCycleCore
         self
       end
 
-      # Calls Methods sort_fulltext_value, sort_proximity_geographic_value, sort_by_proximity_value via send
+      # Calls Methods sort_fulltext_value, sort_proximity_geographic_value, sort_by_proximity_value for sort-attributes via send
       def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {})
         self.sort_parameters ||= []
         DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v}) }
@@ -87,6 +87,7 @@ module DataCycleCore
         i_config = params&.find { |f| f['t'] == 'in_schedule' }
         min, max, relation = value&.split(',')&.map(&:strip)
         return if i_config.blank? && min.blank? && max.blank?
+        relation = i_config&.dig('n') if relation.blank?
 
         if min.present? || max.present?
           i_value = { 'min' => min, 'max' => max}.compact_blank
@@ -96,7 +97,6 @@ module DataCycleCore
           q = i_config&.dig('q')
         end
         i_value = i_value.merge('relation' => relation).compact_blank if i_value.present? && relation.present?
-
         return if i_value.blank?
 
         { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => { 'q' => q, 'v' => i_value } }
