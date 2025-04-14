@@ -55,6 +55,12 @@ module DataCycleCore
 
               parent_id = nil if parent_id == external_id # concept cannot be its own parent
 
+              if options.fetch(:import, {}).fetch(:import_mappings, true)
+                mapped_concepts = extract_property(raw_data, options, 'mapped_concepts')
+              else
+                mapped_concepts = []
+              end
+
               {
                 external_key: [external_id_prefix, external_id].compact_blank.join,
                 external_source_id: utility_object.external_source.id,
@@ -71,7 +77,7 @@ module DataCycleCore
                 concept_scheme_name: extract_property(raw_data, options, 'concept_scheme_name').presence ||
                   extract_property(raw_data, options, 'tree_label').presence ||
                   options.dig(:import, :concept_scheme).presence,
-                mapped_concepts: extract_property(raw_data, options, 'mapped_concepts'),
+                mapped_concepts:,
                 geom: extract_property(raw_data, options, 'geom')
               }.compact
             end
