@@ -87,7 +87,7 @@ module DataCycleCore
       end
 
       def self.add_default_transformations!(data, module_base)
-        return if data.blank? || module_base.blank?
+        return if data.blank?
 
         if data.dig('default_options', 'transformations').present?
           data['default_options']['transformations'] = full_module_path(module_base, data['default_options']['transformations'])
@@ -140,13 +140,17 @@ module DataCycleCore
       end
 
       def self.full_module_path(module_base, module_name, namespace = 'Import')
-        return module_name if module_base.blank?
         return module_name if module_name.safe_constantize&.class&.in?([Module, Class])
 
-        first_existing_module_path?(module_name, [module_base, "#{module_base}::#{namespace}", DEFAULT_MODULE_BASE]) || module_name
+        module_bases = []
+        module_bases << module_base if module_base.present?
+        module_bases << "#{module_base}::#{namespace}" if module_base.present? && namespace.present?
+        module_bases << DEFAULT_MODULE_BASE
+
+        first_existing_module_path(module_name, module_bases) || module_name
       end
 
-      def self.first_existing_module_path?(module_name, module_bases)
+      def self.first_existing_module_path(module_name, module_bases)
         module_bases.reduce(nil) do |_, module_base|
           module_path = "#{module_base}::#{module_name}"
           break module_path if module_path.safe_constantize&.class&.in?([Module, Class])
