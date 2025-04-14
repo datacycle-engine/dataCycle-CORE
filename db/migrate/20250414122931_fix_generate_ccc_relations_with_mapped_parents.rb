@@ -7,16 +7,13 @@ class FixGenerateCccRelationsWithMappedParents < ActiveRecord::Migration[7.1]
           content_ids uuid [],
           excluded_classification_ids uuid []
         ) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(content_ids, 1) > 0 THEN WITH direct_classification_content_relations AS (
-          SELECT DISTINCT ON (
-              classification_contents.content_data_id,
-              classification_contents.relation,
-              c2.id
-            ) classification_contents.content_data_id "thing_id",
+          SELECT classification_contents.content_data_id "thing_id",
             c2.id "classification_alias_id",
             c2.concept_scheme_id "classification_tree_label_id",
             classification_contents.relation,
             ROW_NUMBER() over (
               PARTITION by classification_contents.content_data_id,
+          	  classification_contents.classification_id,
               c2.concept_scheme_id
               ORDER BY ARRAY_REVERSE(cap.full_path_ids) DESC
             ) AS "row_number"
@@ -39,6 +36,7 @@ class FixGenerateCccRelationsWithMappedParents < ActiveRecord::Migration[7.1]
             classification_contents.relation,
             ROW_NUMBER() over (
               PARTITION by classification_contents.content_data_id,
+              classification_contents.classification_id,
               c2.concept_scheme_id
               ORDER BY ARRAY_REVERSE(cap.full_path_ids) DESC
             ) AS "row_number"
