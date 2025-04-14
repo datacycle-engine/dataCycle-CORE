@@ -11,11 +11,6 @@ module DataCycleCore
         'proximity.geographic_with' => 'sort_proximity_geographic_with_value',
         'proximity.inTime' => 'sort_by_proximity_value',
         'proximity.occurrence' => 'sort_by_proximity_value',
-        'proximity.occurrence.eventSchedule' => 'sort_by_proximity_value',
-        'proximity.occurrence.openingHoursSpecification' => 'sort_by_proximity_value',
-        'proximity.occurrence.dc:diningHoursSpecification' => 'sort_by_proximity_value',
-        'proximity.occurrence.hoursAvailable' => 'sort_by_proximity_value',
-        'proximity.occurrence.validitySchedule' => 'sort_by_proximity_value',
         'proximity.in_occurrence' => 'sort_by_proximity_value'
       }.freeze
 
@@ -30,6 +25,7 @@ module DataCycleCore
         self
       end
 
+      # Calls Methods sort_fulltext_value, sort_proximity_geographic_value, sort_by_proximity_value via send
       def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {})
         self.sort_parameters ||= []
         DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v}) }
@@ -38,7 +34,7 @@ module DataCycleCore
 
         raw_query_params&.dig(:sort)&.split(/,(?![^\(]*\))/)&.reverse_each do |sort|
           key, order, order_value = DataCycleCore::ApiService.order_key_with_value(sort)
-          value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
+          value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params) if order_value.blank?
 
           if value.blank? && SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 1
             value = send(SORT_VALUE_API_MAPPING[key], parameters)&.dig('v')
@@ -89,16 +85,17 @@ module DataCycleCore
 
       def sort_by_proximity_value(params, value = nil)
         i_config = params&.find { |f| f['t'] == 'in_schedule' }
-        min, max = value&.split(',')&.map(&:strip)
+        min, max, relation = value&.split(',')&.map(&:strip)
         return if i_config.blank? && min.blank? && max.blank?
 
         if min.present? || max.present?
-          i_value = { 'min' => min, 'max' => max, 'relation' => i_config&.dig('n')}.compact_blank
+          i_value = { 'min' => min, 'max' => max}.compact_blank
           q = nil
         else
-          i_value = i_config&.dig('v')&.merge('relation' => i_config&.dig('n'))&.compact_blank
+          i_value = i_config&.dig('v')&.compact_blank
           q = i_config&.dig('q')
         end
+        i_value = i_value.merge('relation' => relation).compact_blank if i_value.present? && relation.present?
 
         return if i_value.blank?
 
@@ -109,20 +106,12 @@ module DataCycleCore
         return sort_hash['m'].gsub('advanced_attribute_', ''), 'sort_advanced_attribute' if sort_hash['m'].starts_with?('advanced_attribute_')
         return watch_list.id, 'sort_collection_manual_order' if sort_hash['m'] == 'default' && watch_list&.manual_order
 
-        schedule_proximity_prefixes = ['proximity_occurrence_', 'proximity_inTime_', 'proximity_inT_occurrence_']
-        schedule_proximity_prefixes.each do |prefix|
-          next unless sort_hash['m'].start_with?(prefix)
-          sort_value = { 'relation' => sort_hash['m'].gsub(prefix, '') }
-          sort_value = sort_value.merge(sort_hash['v']) if sort_hash.key?('v')
-          return sort_value, 'sort_proximity_occurrence'
-        end
-
         return sort_hash['v'].dup, "sort_#{sort_hash['m']}"
       end
 
+      # Calls sort_advanced_attribute, sort_collection_manual_order, sort_proximity_occurrence, ...
       def apply_order_parameters(watch_list)
         self.sort_parameters = [{ 'm' => 'default' }] if sort_parameters.blank?
-
         self.query = query.reset_sort
 
         sort_parameters.each do |sort|
