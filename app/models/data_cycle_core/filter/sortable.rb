@@ -128,6 +128,7 @@ module DataCycleCore
         )
       end
 
+      # TODO: get the sort value for relation dynamically via data definitions
       def sort_by_proximity(ordering = '', value = {})
         start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
         return self if start_date.nil? && end_date.nil?
