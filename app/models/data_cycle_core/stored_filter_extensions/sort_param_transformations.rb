@@ -34,13 +34,13 @@ module DataCycleCore
 
         raw_query_params&.dig(:sort)&.split(/,(?![^\(]*\))/)&.reverse_each do |sort|
           key, order, order_value = DataCycleCore::ApiService.order_key_with_value(sort)
-          value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params) if order_value.blank?
-
-          if value.blank? && SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 1
+          if SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 1
             value = send(SORT_VALUE_API_MAPPING[key], parameters)&.dig('v')
-          elsif value.blank? && SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 2
+          elsif SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 2
             value = send(SORT_VALUE_API_MAPPING[key], parameters, order_value)&.dig('v')
           end
+
+          value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params) if value.blank?
 
           if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
             value = key.underscore
