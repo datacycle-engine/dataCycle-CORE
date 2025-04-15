@@ -26,7 +26,7 @@ class MaybeFixCccTriggersAgain < ActiveRecord::Migration[7.1]
               classification_alias_paths_transitive.full_path_ids
             )
             JOIN classification_alias_paths cap ON cap.id = c2.id
-          WHERE c2.id = ANY(ca_ids)
+          WHERE cap.full_path_ids && ca_ids
           ORDER BY classification_contents.content_data_id,
             classification_contents.relation,
             c2.id,
@@ -45,6 +45,7 @@ class MaybeFixCccTriggersAgain < ActiveRecord::Migration[7.1]
             END AS "link_type",
             full_classification_content_relations.relation
           FROM full_classification_content_relations
+          WHERE full_classification_content_relations.classification_alias_id = ANY(ca_ids)
         ),
         deleted_collected_classification_contents AS (
           DELETE FROM collected_classification_contents
