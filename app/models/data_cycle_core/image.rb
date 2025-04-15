@@ -33,6 +33,43 @@ module DataCycleCore
       DataCycleCore.uploader_validations.dig(:image, :format).presence || ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff', 'webp']
     end
 
+    def self.content_type_white_list
+      super.map { |type| type.gsub('application', 'image') }
+    end
+
+    def resolution_validation(options)
+      return unless file&.attached?
+
+      if attachment_changes.present?
+        if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
+          # import from local disc
+          path_to_tempfile = attachment_changes['file'].attachable[:io].path
+        else
+          path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+        end
+      else
+        path_to_tempfile = file.service.path_for(file.key)
+      end
+
+      image = ::MiniMagick::Image.new(path_to_tempfile)
+
+      resolution = image.width * image.height
+
+      if options.key?(:max) && resolution > options[:max].to_i
+        errors.add(:file,
+                   :invalid,
+                   path: 'uploader.validation.resolution.max',
+                   substitutions: { data: { method: 'number_with_delimiter', value: options[:max].to_i } })
+      elsif options.key?(:min) && resolution < options[:min].to_i
+        errors.add(:file,
+                   :invalid,
+                   path: 'uploader.validation.resolution.min',
+                   substitutions: { data: { method: 'number_with_delimiter', value: options[:minmax].to_i } })
+      end
+    rescue StandardError
+      errors.add(:file, :invalid, path: 'uploader.validation.invalid_file')
+    end
+
     def dimensions_validation(options)
       return if options.dig(:exclude, :format)&.include?(file.filename&.to_s&.split('.')&.last) || file&.attached? == false
 
@@ -65,8 +102,8 @@ module DataCycleCore
         if image.height < options.dig(:landscape, :min, :height).to_i
           errors.add :file,
                      :invalid,
-                     :invalid, path: 'uploader.validation.dimensions.landscape.min.height',
-                               substitutions: { data: options.dig(:landscape, :min, :height).to_i }
+                     path: 'uploader.validation.dimensions.landscape.min.height',
+                     substitutions: { data: options.dig(:landscape, :min, :height).to_i }
         end
         if options.dig(:landscape, :max, :width).present? && image.width > options.dig(:landscape, :max, :width).to_i
           errors.add :file,
@@ -106,6 +143,8 @@ module DataCycleCore
                      substitutions: { data: options.dig(:portrait, :max, :height).to_i }
         end
       end
+    rescue StandardError
+      errors.add(:file, :invalid, path: 'uploader.validation.invalid_file')
     end
 
     def duplicate_candidates

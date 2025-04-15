@@ -2497,6 +2497,7 @@ en:
       invalid_file: corrupted file
       format: 'Allowed formats: <span class="value">%{data}</span>'
       format_not_supported: Unsupported format (%{data})
+      content_type_not_supported: Unsupported MIME-Type (%{data})
       dimensions:
         exclude:
           format: 'The following formats are allowed in any size: <span class="value">%{data}</span>'
@@ -2523,6 +2524,10 @@ en:
       file_size:
         max: 'Maximum file size: <span class="value">%{data}</span>'
         min: 'Minimum file size: <span class="value">%{data}</span>'
+      resolution:
+        max: 'Maximum Resolution (Width x Height): <span class="value">%{data}</span>'
+        min: 'Minimum Resolution (Width x Height): <span class="value">%{data}</span>'
+
     close_warning_html:
       "<p>This window must remain open during the upload!<br>However,
       you can continue working in parallel in a new tab.</br> </p>"

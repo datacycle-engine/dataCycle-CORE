@@ -38,6 +38,10 @@ module DataCycleCore
       DataCycleCore.uploader_validations.dig(:video, :format).presence || ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
     end
 
+    def self.content_type_white_list
+      super.map { |type| type.gsub('application', 'video') }
+    end
+
     private
 
     def metadata_from_blob

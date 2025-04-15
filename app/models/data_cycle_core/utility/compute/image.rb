@@ -105,8 +105,9 @@ module DataCycleCore
 
           def remote_value(computed_parameters:, data_hash:, content:, key:, **_args)
             url_key, new_url = computed_parameters.find { |_, v| v.is_a?(::String) && v =~ URI::DEFAULT_PARSER.make_regexp }
-            old_url = content&.send(url_key)
+            return if url_key.blank? && new_url.blank?
 
+            old_url = content&.send(url_key)
             old_value = content&.send(key)
 
             if data_hash[key].present?

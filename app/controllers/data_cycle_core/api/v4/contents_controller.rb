@@ -25,6 +25,12 @@ module DataCycleCore
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
 
+            if (@watch_list || @stored_filter)&.id.present?
+              @pagination_url = method(:api_v4_stored_filter_url)
+            else
+              @pagination_url = method(:api_v4_things_url)
+            end
+
             if list_api_request?
               render plain: list_api_request.to_json, content_type: 'application/json'
             else
@@ -127,7 +133,9 @@ module DataCycleCore
         end
 
         def select
-          uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
+          @uuid = permitted_params[:uuid]
+          @uuids = permitted_params[:uuids]
+          uuid = @uuid || @uuids&.split(',')
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
             query = DataCycleCore::Thing
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
@@ -141,6 +149,8 @@ module DataCycleCore
             end
 
             @contents = apply_paging(query)
+            @pagination_url = method(:api_v4_contents_select_url)
+
             render 'index'
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
@@ -148,16 +158,18 @@ module DataCycleCore
         end
 
         def select_by_external_keys
-          external_system_id = DataCycleCore::ExternalSystem.find_by(identifier: permitted_params[:external_source_id])&.id || permitted_params[:external_source_id]
+          @external_source_id = permitted_params[:external_source_id]
+          @external_keys = permitted_params[:external_keys]&.split(',')
 
-          external_keys = permitted_params[:external_keys]&.split(',')
-          if external_keys.present? && external_keys.is_a?(::Array) && external_keys.size.positive?
+          if @external_keys.present? && @external_keys.is_a?(::Array) && @external_keys.size.positive?
             query = build_search_query
             query = query.query
-              .by_external_key(external_system_id, external_keys)
+              .by_external_key(@external_source_id, @external_keys)
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
 
             @contents = apply_paging(query)
+            @pagination_url = method(:api_v4_things_select_by_external_key_url)
+
             render 'index'
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request

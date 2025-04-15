@@ -8,7 +8,11 @@ module DataCycleCore
 
         class << self
           def keywords(computed_parameters:, **_args)
-            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.compact_blank).map(&:name).join(',').presence
+            DataCycleCore::Classification
+              .by_ordered_values(Array.wrap(computed_parameters.values).flatten.compact_blank)
+              .map(&:name)
+              .join(',')
+              .presence
           end
 
           def description(computed_parameters:, **_args)

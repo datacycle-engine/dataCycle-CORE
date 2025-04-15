@@ -20,6 +20,10 @@ module DataCycleCore
       DataCycleCore.uploader_validations.dig(:audio, :format).presence || ['mp3', 'ogg', 'wav', 'wma', 'mpga']
     end
 
+    def self.content_type_white_list
+      super.map { |type| type.gsub('application', 'audio') }
+    end
+
     private
 
     def metadata_from_blob
