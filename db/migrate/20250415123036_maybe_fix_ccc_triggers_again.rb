@@ -26,7 +26,7 @@ class MaybeFixCccTriggersAgain < ActiveRecord::Migration[7.1]
               classification_alias_paths_transitive.full_path_ids
             )
             JOIN classification_alias_paths cap ON cap.id = c2.id
-          WHERE concepts.id = ANY(ca_ids)
+          WHERE c2.id = ANY(ca_ids)
           ORDER BY classification_contents.content_data_id,
             classification_contents.relation,
             c2.id,
