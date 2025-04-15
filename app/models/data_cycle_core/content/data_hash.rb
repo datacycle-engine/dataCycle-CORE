@@ -42,8 +42,9 @@ module DataCycleCore
         # trigger create webhooks if is newly created content
         execute_create_webhooks if options.new_content
 
-        # trigger update webhooks
-        execute_update_webhooks
+        # trigger update webhooks / except if only timeseries properties changed
+        execute_update_webhooks unless previous_datahash_changes.blank? ||
+                                       previous_datahash_changes.keys.all? { |k| k.in?(timeseries_property_names) }
 
         # trigger Subscriber Mailer
         notify_subscribers(current_user: options.current_user) unless options.current_user.nil?

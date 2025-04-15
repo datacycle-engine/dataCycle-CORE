@@ -438,7 +438,7 @@ GEM
     ostruct (0.6.1)
     pHash (1.2.3)
       ffi (~> 1.0)
-    parallel (1.26.3)
+    parallel (1.27.0)
     parser (3.3.8.0)
       ast (~> 2.4.1)
       racc
