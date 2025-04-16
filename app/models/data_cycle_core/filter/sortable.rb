@@ -128,13 +128,15 @@ module DataCycleCore
         )
       end
 
+      # TODO: get the sort value for relation dynamically via data definitions
       def sort_by_proximity(ordering = '', value = {})
         start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
-
         return self if start_date.nil? && end_date.nil?
 
+        relation_value = find_relation(value)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
         joined_table_name = "so#{SecureRandom.hex(10)}"
-
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT schedules.thing_id,
@@ -143,13 +145,15 @@ module DataCycleCore
               UNNEST(schedules.occurrences) so(occurrence)
             WHERE things.id = schedules.thing_id
               AND so.occurrence && TSTZRANGE(?, ?)
+              #{relation_filter}
             GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
+        query_args = [start_date, end_date]
         reflect(
           query_without_order
-            .joins(sanitize_sql([order_parameter_join, start_date, end_date]))
+            .joins(sanitize_sql([order_parameter_join, *query_args]))
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               thing[:updated_at].desc,
@@ -435,6 +439,15 @@ module DataCycleCore
           thing[:updated_at].desc,
           thing[:id].desc
         )
+      end
+
+      def find_relation(value)
+        return if value.blank?
+        if value['relation']
+          value['relation'].to_s.underscore
+        elsif value.dig('v', 'relation')
+          value.dig('v', 'relation').to_s.underscore
+        end
       end
     end
   end

@@ -25,24 +25,22 @@ module DataCycleCore
         self
       end
 
+      # Calls Methods sort_fulltext_value, sort_proximity_geographic_value, sort_by_proximity_value for sort-attributes via send
       def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {})
         self.sort_parameters ||= []
-
-        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v }) }
-
+        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v}) }
         DataCycleCore::ApiService.order_value_from_params('proximity.geographic', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'proximity_geographic', 'o' => 'ASC', 'v' => v }) }
-
         sort_parameters.unshift({ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => full_text_search }) if full_text_search.present?
 
         raw_query_params&.dig(:sort)&.split(/,(?![^\(]*\))/)&.reverse_each do |sort|
           key, order, order_value = DataCycleCore::ApiService.order_key_with_value(sort)
-          value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
-
-          if value.blank? && SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 1
+          if SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 1
             value = send(SORT_VALUE_API_MAPPING[key], parameters)&.dig('v')
-          elsif value.blank? && SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 2
+          elsif SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 2
             value = send(SORT_VALUE_API_MAPPING[key], parameters, order_value)&.dig('v')
           end
+
+          value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params) if value.blank?
 
           if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
             value = key.underscore
@@ -87,18 +85,18 @@ module DataCycleCore
 
       def sort_by_proximity_value(params, value = nil)
         i_config = params&.find { |f| f['t'] == 'in_schedule' }
-        min, max = value&.split(',')&.map(&:strip)
-
+        min, max, relation = value&.split(',')&.map(&:strip)
         return if i_config.blank? && min.blank? && max.blank?
+        relation = i_config&.dig('n') if relation.blank?
 
         if min.present? || max.present?
-          i_value = { 'min' => min, 'max' => max }.compact_blank
+          i_value = { 'min' => min, 'max' => max}.compact_blank
           q = nil
         else
           i_value = i_config&.dig('v')&.compact_blank
           q = i_config&.dig('q')
         end
-
+        i_value = i_value.merge('relation' => relation).compact_blank if i_value.present? && relation.present?
         return if i_value.blank?
 
         { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => { 'q' => q, 'v' => i_value } }
@@ -111,16 +109,15 @@ module DataCycleCore
         return sort_hash['v'].dup, "sort_#{sort_hash['m']}"
       end
 
+      # Calls sort_advanced_attribute, sort_collection_manual_order, sort_proximity_occurrence, ...
       def apply_order_parameters(watch_list)
         self.sort_parameters = [{ 'm' => 'default' }] if sort_parameters.blank?
-
         self.query = query.reset_sort
 
         sort_parameters.each do |sort|
           sort_value, sort_method_name = transform_order_hash(sort, watch_list)
 
           next unless query.respond_to?(sort_method_name)
-
           if query.method(sort_method_name)&.parameters&.size == 2
             ordered_query = query.send(sort_method_name, sort['o'].presence, sort_value.presence)
           elsif query.method(sort_method_name)&.parameters&.size == 1
