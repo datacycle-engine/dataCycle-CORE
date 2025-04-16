@@ -60,7 +60,7 @@ module DataCycleCore
 
             key = virtual_definition.dig(:virtual, :key).presence || 'internal_name'
 
-            content.full_classification_aliases.for_tree(concept_scheme).pluck(key)
+            content.full_classification_aliases.for_tree(concept_scheme).pluck(key).join(', ')
           end
 
           def to_mapped_value(virtual_parameters:, content:, virtual_definition:, **_args)
