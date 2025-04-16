@@ -105,6 +105,7 @@ module DataCycleCore
               .project(classification_polygon[:geom])
               .from(classification_polygon)
               .where(classification_polygon[:classification_alias_id].eq(id))
+              .take(1)
 
             contains_queries << st_intersects(sub_query, thing[:geom_simple])
           end
@@ -127,6 +128,7 @@ module DataCycleCore
               .project(classification_polygon[:geom])
               .from(classification_polygon)
               .where(classification_polygon[:classification_alias_id].eq(id))
+              .take(1)
 
             contains_queries << st_intersects(sub_query, thing[:geom_simple]).not
           end
