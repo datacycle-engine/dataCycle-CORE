@@ -41,7 +41,7 @@ module TaskFunctions
     options = convert_args_to_options(args)
     raise 'Error: credential_key is required!' if options[:credential_key].nil?
 
-    external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
+    external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
 
     raise 'External source not found!' if external_source.nil?
 
