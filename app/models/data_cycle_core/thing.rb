@@ -82,7 +82,7 @@ module DataCycleCore
 
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
-    has_many :thing_history_links, dependent: :nullify, class_name: 'DataCycleCore::ThingHistoryLink', inverse_of: :thing
+    has_many :thing_history_links, dependent: :delete_all, class_name: 'DataCycleCore::ThingHistoryLink', inverse_of: :thing
 
     extend ::Mobility
     translates :slug, :content, backend: :table
