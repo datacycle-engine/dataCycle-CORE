@@ -256,6 +256,10 @@ module DataCycleCore
         include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name.to_s] : property_definitions[property_name.to_s]
       end
 
+      def writable_property_names
+        property_names - virtual_property_names
+      end
+
       def overlay_property_names_for(property_name, include_overlay = false)
         name_property_selector(include_overlay) do |definition|
           definition.dig('features', 'overlay', 'overlay_for') == property_name

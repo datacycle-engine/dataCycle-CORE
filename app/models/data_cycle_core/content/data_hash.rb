@@ -65,7 +65,7 @@ module DataCycleCore
 
       def set_data_hash(**) # rubocop:disable Naming/AccessorMethodName
         options = DataCycleCore::Content::DataHashOptions.new(**)
-        options.data_hash.slice!(*property_names) # remove all keys that are not part of the schema
+        options.data_hash.slice!(*writable_property_names) # remove all keys that are not part of the schema
 
         return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
