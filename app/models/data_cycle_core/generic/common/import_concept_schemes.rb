@@ -92,7 +92,11 @@ module DataCycleCore
 
             data_array.map do |da|
               existing = concept_schemes_by_name[da[:name]]
-              if existing.present? && existing.external_system_id != da[:external_source_id]
+
+              # Check if the concept_scheme already exists, prefix name if import_duplicates is true
+              if existing.present? &&
+                 existing.external_system_id != da[:external_source_id] &&
+                 options.dig(:import, :import_duplicates)
                 da[:name] = "#{utility_object.external_source.name} - #{da[:name]}"
               elsif existing.present? && existing.external_system_id == da[:external_source_id]
                 da[:external_key] = existing.external_key
