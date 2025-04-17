@@ -1,0 +1,47 @@
+---
+- :data:
+    :name: Embedded-With-Translations
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+      :embedded_creative_work:
+        :label: Embedded Creative-Work
+        :type: embedded
+        :template_name: Embedded-With-Translations-1
+      :embedded_translated_creative_work:
+        :label: Embedded Creative-Work Translated
+        :type: embedded
+        :translated: true
+        :template_name: Embedded-With-Translations-1
+
+- :data:
+    :name: Embedded-With-Translations-1
+    :type: object
+    :content_type: embedded
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
