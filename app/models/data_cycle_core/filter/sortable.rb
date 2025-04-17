@@ -228,6 +228,11 @@ module DataCycleCore
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         end_of_day = Time.zone.now.end_of_day
         end_date_extended = [end_date, 1.month.from_now.end_of_month].max
+
+        relation_value = find_relation(schedule)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
+
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT a.thing_id,
@@ -241,6 +246,7 @@ module DataCycleCore
             FROM schedules a
             LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
             WHERE things.id = a.thing_id
+            #{relation_filter}
             GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
@@ -299,6 +305,10 @@ module DataCycleCore
           min_start_date = '1'
         end
 
+        relation_value = find_relation(schedule)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
+
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
@@ -308,6 +318,7 @@ module DataCycleCore
             FROM schedules a
             LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
             WHERE things.id = a.thing_id
+            #{relation_filter}
             GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
@@ -338,6 +349,10 @@ module DataCycleCore
           min_start_date = '1'
         end
 
+        relation_value = find_relation(value)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
+
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
@@ -347,6 +362,7 @@ module DataCycleCore
             FROM schedules a
             INNER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
             WHERE things.id = a.thing_id
+            #{relation_filter}
             GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
