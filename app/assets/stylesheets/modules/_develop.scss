@@ -1702,9 +1702,9 @@ a.email-link {
 }
 
 mark {
-  background-color: lavender;
-  color: $black;
-  border-radius: var(--small-radius);
+  background-color: inherit;
+  color: inherit;
+  border-bottom: 1px solid;
 }
 
 // firefox select hack to remove dotted outline
