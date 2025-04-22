@@ -112,7 +112,7 @@ module DataCycleCore
       return if last_error.blank?
 
       message = [last_error.message.dup.encode_utf8!]
-      message << ("#{last_error.backtrace.first(10).join("\n")}\n") if last_error.backtrace.present?
+      message << "#{last_error.backtrace.first(10).join("\n")}\n" if last_error.backtrace.present?
 
       message.join("\n\n")
     end

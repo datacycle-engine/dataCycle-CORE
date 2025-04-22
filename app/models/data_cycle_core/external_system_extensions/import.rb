@@ -74,7 +74,7 @@ module DataCycleCore
         min = options[:min] || 0
         max = options[:max] || Float::INFINITY
 
-        sorted_steps(:download, (min..max)).each do |name|
+        sorted_steps(:download, min..max).each do |name|
           success &&= download_single(name, options, &)
         end
 
@@ -146,7 +146,7 @@ module DataCycleCore
         min = options[:min] || 0
         max = options[:max] || Float::INFINITY
 
-        sorted_steps(:import, (min..max)).each do |name|
+        sorted_steps(:import, min..max).each do |name|
           import_single(name, options, &)
         end
       end

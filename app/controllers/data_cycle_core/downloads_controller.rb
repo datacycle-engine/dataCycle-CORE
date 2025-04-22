@@ -118,7 +118,7 @@ module DataCycleCore
         can?(:download, thing)
       end
 
-      download_indesign_collection(@object, ([@object] + asset_items), serialize_formats, languages)
+      download_indesign_collection(@object, [@object] + asset_items, serialize_formats, languages)
     end
 
     def download_data_link

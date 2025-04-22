@@ -51,7 +51,7 @@ module DataCycleCore
             .each_cons(2)
             .map { |from, to|
               {
-                'day_of_week' => days_in_range((from...to)).map { |day| day_of_week_classification_ids[day] },
+                'day_of_week' => days_in_range(from...to).map { |day| day_of_week_classification_ids[day] },
                 'validity' => @validity,
                 'time' => [{
                   'opens' => convert_to_time_string(from),
