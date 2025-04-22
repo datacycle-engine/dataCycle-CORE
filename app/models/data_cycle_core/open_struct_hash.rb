@@ -36,5 +36,9 @@ module DataCycleCore
         property_definition&.dig('storage_location') == 'translated_value' &&
         property_definition&.dig('type') != 'object'
     end
+
+    def merge(other)
+      self.class.new(to_h.compact_blank.merge(other&.to_h&.compact_blank), parent, definition)
+    end
   end
 end

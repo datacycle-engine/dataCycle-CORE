@@ -123,6 +123,10 @@ namespace :dc do
         Rake::Task['dc:templates:migrations:disable_old_templates'].reenable
         puts '-----------------------------'
 
+        Rake::Task['dc:migrate:overlays_to_overlay_attributes'].invoke
+        Rake::Task['dc:migrate:overlays_to_overlay_attributes'].reenable
+        puts '-----------------------------'
+
         # optional use this task to fix schema_types
         # @todo the task should be updated to run withoud a stored filter
         # Rake::Task['dc:update_data:add_defaults'].invoke(,false,'schema_types')
