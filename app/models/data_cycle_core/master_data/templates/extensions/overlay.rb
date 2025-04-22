@@ -15,7 +15,18 @@ module DataCycleCore
             'opening_time' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze,
             'schedule' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze
           }.freeze
-          OVERLAY_PROP_EXCEPTIONS = ['overlay', 'default_value', 'compute', 'virtual', 'content_score', 'exif', 'validations', 'api', 'label', 'position'].freeze
+          OVERLAY_PROP_EXCEPTIONS = [
+            'overlay',
+            'default_value',
+            'compute',
+            'virtual',
+            'content_score',
+            'exif',
+            'validations',
+            'api',
+            'label',
+            'position'
+          ].freeze
           ALLOWED_PROP_OVERRIDES = ['default_value', 'ui'].freeze
 
           def overlay_version_prop(key, prop, version)

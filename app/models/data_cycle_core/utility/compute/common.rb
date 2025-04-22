@@ -107,22 +107,30 @@ module DataCycleCore
           end
 
           # does not work for embedded or schedule attributes
-          def overlay(computed_parameters:, computed_definition:, **_args)
-            raise "Cloning #{computed_definition['type']} is not implemented yet" if computed_definition['type'].in?(Content::Content::EMBEDDED_PROPERTY_TYPES + Content::Content::SCHEDULE_PROPERTY_TYPES + Content::Content::TIMESERIES_PROPERTY_TYPES + Content::Content::ASSET_PROPERTY_TYPES)
+          # def overlay(computed_parameters:, computed_definition:, **_args)
+          #   overlay_class = MasterData::Templates::Extensions::Overlay
+          #   raise "Cloning #{computed_definition['type']} is not implemented yet" unless overlay_class::SUPPORTED_PROP_TYPES.include?(computed_definition['type'])
 
-            allowed_postfixes = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(computed_definition['type'])
+          #   allowed_postfixes = overlay_class.allowed_postfixes_for_type(computed_definition['type'])
 
-            override_value = computed_parameters.detect { |k, _v| k.ends_with?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX) }&.last if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX)
+          #   if allowed_postfixes.include?(overlay_class::BASE_OVERLAY_POSTFIX)
+          #     override_value = computed_parameters.detect { |k, _v|
+          #       k.ends_with?(overlay_class::BASE_OVERLAY_POSTFIX)
+          #     }&.last
+          #   end
+          #   return override_value if DataHashService.present?(override_value)
 
-            return override_value if DataHashService.present?(override_value)
+          #   if allowed_postfixes.include?(overlay_class::ADD_OVERLAY_POSTFIX)
+          #     add_value = computed_parameters.detect { |k, _v|
+          #       k.ends_with?(overlay_class::ADD_OVERLAY_POSTFIX)
+          #     }&.last
+          #   end
+          #   original_value = computed_parameters.first.last
 
-            add_value = computed_parameters.detect { |k, _v| k.ends_with?(MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX) }&.last if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX)
-            original_value = computed_parameters.first.last
+          #   return original_value if DataHashService.blank?(add_value)
 
-            return original_value if DataHashService.blank?(add_value)
-
-            Array.wrap(original_value) + Array.wrap(add_value)
-          end
+          #   Array.wrap(original_value) + Array.wrap(add_value)
+          # end
         end
       end
     end

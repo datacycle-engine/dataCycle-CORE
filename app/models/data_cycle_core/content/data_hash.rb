@@ -468,7 +468,17 @@ module DataCycleCore
         end
 
         to_delete = available_update_item_keys - updated_item_keys
-        DataCycleCore::Thing.where(id: to_delete).find_each { |item| item.destroy(current_user: options.current_user, save_time: options.save_time) } if to_delete.present?
+        return if to_delete.blank?
+
+        content_content_a.where(relation_a: field_name, content_b_id: to_delete).delete_all
+        DataCycleCore::Thing
+          .where(id: to_delete)
+          .find_each do |item|
+          item.destroy(
+            current_user: options.current_user,
+            save_time: options.save_time
+          )
+        end
       end
 
       def upsert_content(name, item, options)
