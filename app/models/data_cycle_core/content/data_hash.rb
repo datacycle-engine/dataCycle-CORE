@@ -476,7 +476,8 @@ module DataCycleCore
           .find_each do |item|
           item.destroy(
             current_user: options.current_user,
-            save_time: options.save_time
+            save_time: options.save_time,
+            check_ancestors: true
           )
         end
       end
