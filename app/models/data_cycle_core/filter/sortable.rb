@@ -231,7 +231,7 @@ module DataCycleCore
 
         relation_value = find_relation(schedule)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
+        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation = 'opening_hours_specification'"
 
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
