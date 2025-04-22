@@ -272,6 +272,28 @@ module DataCycleCore
             assert_equal(['POI', 'A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
           end
 
+          test 'api/v4/things with sort and filter with sort(sortAttr)' do
+            from = Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601)
+            to = Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+            params = {
+              sort: "proximity.occurrence(#{from},#{to},openingHoursSpecification)"
+            }
+            post api_v4_things_path(params)
+            json_data = response.parsed_body
+            assert_equal(['POI', 'A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
+          end
+
+          test 'api/v4/things with sort and filter sort(start,end)' do
+            from = Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601)
+            to = Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+            params = {
+              sort: "proximity.occurrence(start:#{from},end:#{to})"
+            }
+            post api_v4_things_path(params)
+            json_data = response.parsed_body
+            assert_equal(['D', 'C', 'B', 'A', 'POI'], json_data['@graph'].pluck('name'))
+          end
+
           test 'api/v4/things with sort union filter' do
             params = {
               union: {
