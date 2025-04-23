@@ -135,18 +135,18 @@ module DataCycleCore
 
         relation_value = find_relation(value)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
+        relation_filter = relation.present? ? "AND a.relation = '#{relation}'" : "AND a.relation != 'validity_range'"
         joined_table_name = "so#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT schedules.thing_id,
+            SELECT a.thing_id,
               MIN(LOWER(so.occurrence)) AS "min_start_date"
-            FROM schedules,
-              UNNEST(schedules.occurrences) so(occurrence)
-            WHERE things.id = schedules.thing_id
+            FROM schedules a,
+              UNNEST(a.occurrences) so(occurrence)
+            WHERE things.id = a.thing_id
               AND so.occurrence && TSTZRANGE(?, ?)
               #{relation_filter}
-            GROUP BY schedules.thing_id
+            GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -231,7 +231,7 @@ module DataCycleCore
 
         relation_value = find_relation(schedule)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation = 'opening_hours_specification'"
+        relation_filter = relation.present? ? "AND a.relation = '#{relation}'" : "AND a.relation = 'opening_hours_specification'"
 
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
@@ -307,7 +307,7 @@ module DataCycleCore
 
         relation_value = find_relation(schedule)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
+        relation_filter = relation.present? ? "AND a.relation = '#{relation}'" : "AND a.relation != 'validity_range'"
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
@@ -351,7 +351,7 @@ module DataCycleCore
 
         relation_value = find_relation(value)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND relation = '#{relation}'" : "AND relation != 'validity_range'"
+        relation_filter = relation.present? ? "AND a.relation = '#{relation}'" : "AND a.relation != 'validity_range'"
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
