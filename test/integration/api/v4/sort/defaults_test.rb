@@ -299,7 +299,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             json_data = response.parsed_body
-            assert_equal(['aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
+            assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
           end
         end
       end
