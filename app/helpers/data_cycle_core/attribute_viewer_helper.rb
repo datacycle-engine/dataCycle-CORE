@@ -13,8 +13,8 @@ module DataCycleCore
       end
     end
 
-    def render_attribute_viewer(**)
-      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
+    def render_attribute_viewer(opts = nil, **)
+      options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
 
       return unless options.attribute_allowed?
       return render(*options.attribute_group_params) if options.attribute_group?
@@ -31,8 +31,8 @@ module DataCycleCore
       render 'data_cycle_core/contents/viewers/translatable_field', **options.to_h
     end
 
-    def render_specific_translatable_attribute_viewer(**)
-      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
+    def render_specific_translatable_attribute_viewer(opts = nil, **)
+      options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
 
       I18n.with_locale(options.locale) do
         options.value ||= if options.parameters[:parent].nil?
@@ -69,8 +69,8 @@ module DataCycleCore
       render_first_existing_partial(partials, options.render_params)
     end
 
-    def render_attribute_history_viewer(**)
-      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer, scope: :history)
+    def render_attribute_history_viewer(opts = nil, **)
+      options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer, scope: :history)
 
       return unless options.attribute_allowed?
 
@@ -86,7 +86,7 @@ module DataCycleCore
       begin
         render_first_existing_partial(partials, options.render_params)
       rescue StandardError
-        render_attribute_viewer options.to_h
+        render_attribute_viewer(options)
       end
     end
 

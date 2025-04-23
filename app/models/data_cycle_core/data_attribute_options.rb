@@ -15,7 +15,8 @@ module DataCycleCore
     edit_scope: nil,
     force_render: nil,
     context: :viewer,
-    readonly: false
+    readonly: false,
+    value_loaded: false
   }.freeze
 
   RENDER_EDITOR_ARGUMENTS = RENDER_VIEWER_ARGUMENTS.deep_merge({
@@ -25,7 +26,8 @@ module DataCycleCore
 
   DataAttributeOptions = Struct.new(*RENDER_VIEWER_ARGUMENTS.keys, keyword_init: true) do
     def initialize(**args)
-      args[:defaults] = args[:context] == :editor ? RENDER_EDITOR_ARGUMENTS : RENDER_VIEWER_ARGUMENTS
+      args[:value_loaded] = args.key?(:value) unless args.key?(:value_loaded)
+      args[:defaults] = (args[:context] == :editor ? RENDER_EDITOR_ARGUMENTS : RENDER_VIEWER_ARGUMENTS).except(:value)
       args.reverse_merge!(args[:defaults])
 
       if args[:definition].is_a?(ActionController::Parameters)
@@ -70,6 +72,26 @@ module DataCycleCore
       }.hash
     end
 
+    def contextual_content
+      is_thing = lambda { |item|
+        item.class.in?([DataCycleCore::Thing, DataCycleCore::Thing::History, DataCycleCore::OpenStructHash])
+      }
+
+      return parameters[:parent] if is_thing.call(parameters[:parent])
+
+      content if is_thing.call(content)
+    end
+
+    def value
+      return self[:value] if value_loaded
+      return if contextual_content.nil?
+
+      self[:value_loaded] = true
+      self[:value] = contextual_content.try(attribute_name)
+      self[:value] = self[:value].page.per(DataCycleCore.linked_objects_page_size) if @value.is_a?(ActiveRecord::Relation) && (type?('linked') || type?('embedded'))
+      self[:value]
+    end
+
     def attribute_name
       key.attribute_name_from_key
     end
@@ -87,7 +109,10 @@ module DataCycleCore
     end
 
     def render_params
-      parameters.merge(to_h.slice(:key, :definition, :value, :content))
+      params = to_h.slice(:key, :definition, :content)
+      params[:value] = value
+
+      parameters.merge(params)
     end
 
     def overlay_attribute?

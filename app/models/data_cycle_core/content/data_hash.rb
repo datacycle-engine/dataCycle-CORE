@@ -492,12 +492,12 @@ module DataCycleCore
           template_name = specific_template_name
         end
 
-        if item_id.present?
-          upsert_item = DataCycleCore::Thing.find_by(id: item_id) ||
-                        DataCycleCore::Thing.new(id: item_id, template_name:)
-        else
-          upsert_item = DataCycleCore::Thing.new(template_name:)
-        end
+        upsert_item = if item_id.present?
+                        DataCycleCore::Thing.find_by(id: item_id) ||
+                          DataCycleCore::Thing.new(id: item_id, template_name:)
+                      else
+                        DataCycleCore::Thing.new(template_name:)
+                      end
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?
@@ -567,11 +567,13 @@ module DataCycleCore
       def set_schedule(input_data, relation_name)
         updated_item_keys = []
         available_items = load_schedule(relation_name).pluck(:id)
-        data = input_data || []
 
-        data.each do |item|
-          schedule = item['id'].presence&.then { |sid| DataCycleCore::Schedule.find_by(id: sid) } || DataCycleCore::Schedule.new
-          schedule.id = item['id'] if item['id'].present?
+        input_data&.each do |item|
+          schedule = if item['id'].present?
+                       DataCycleCore::Schedule.find_or_initialize_by(id: item['id'])
+                     else
+                       DataCycleCore::Schedule.new
+                     end
           schedule.external_source_id = item['external_source_id'] if item['external_source_id'].present?
           schedule.external_key = item['external_key'] if item['external_key'].present?
           schedule.thing_id = id
