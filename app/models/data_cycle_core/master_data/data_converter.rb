@@ -182,8 +182,8 @@ module DataCycleCore
         return value unless DataCycleCore::Feature['StringSanitizer']&.enabled?
 
         data_size = definition&.dig('ui', 'edit', 'options', 'data-size')
-        tags = SANITIZE_TAGS[data_size&.to_sym]
-        attributes = SANITIZED_ATTRIBUTES[data_size&.to_sym]
+        tags = SANITIZE_TAGS[data_size&.to_sym] || []
+        attributes = SANITIZED_ATTRIBUTES[data_size&.to_sym] || []
         ActionController::Base.helpers.sanitize(value, tags:, attributes:)
       end
     end
