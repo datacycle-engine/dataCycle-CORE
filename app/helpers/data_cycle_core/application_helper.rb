@@ -482,13 +482,15 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ template: }))
     end
 
-    def link_to_condition(condition, name, options = {}, html_options = {}, &block)
-      if condition
-        link_to(name, options, html_options, &block)
+    def link_to_condition(condition, *args, **html_options, &block)
+      if condition && block
+        link_to(args[0], html_options, &block)
+      elsif condition
+        link_to(args[0], args[1], html_options)
       elsif block
-        tag.span(block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block))
+        tag.span(capture(args[0], &block), **html_options)
       else
-        tag.span(ERB::Util.html_escape(name), **html_options)
+        tag.span(ERB::Util.html_escape(args[0]), **html_options)
       end
     end
 
