@@ -601,7 +601,7 @@
     - gravity
 
 :ts_query_fulltext_search:
-  :enabled: false
+  :enabled: true
 
 :aggregate:
   :enabled: false
