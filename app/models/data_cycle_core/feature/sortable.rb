@@ -46,6 +46,13 @@ module DataCycleCore
             }
           end
         end
+
+        def available_advanced_attribute_for_key(key)
+          return key if available_advanced_attribute_options[key].present?
+          return available_advanced_attribute_options.key(key) if available_advanced_attribute_options.value?(key.to_s)
+
+          nil
+        end
       end
     end
   end

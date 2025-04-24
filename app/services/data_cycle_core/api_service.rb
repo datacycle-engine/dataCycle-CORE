@@ -439,7 +439,10 @@ module DataCycleCore
     end
 
     def self.additional_advanced_attribute_keys
-      additional_advanced_attributes&.keys&.map { |k| k.camelize(:lower).to_sym }
+      additional_advanced_attributes&.map do |k, v|
+        next k.camelize(:lower).to_sym unless v.is_a?(::Hash)
+        v['path'].presence&.to_sym || k.camelize(:lower).to_sym
+      end
     end
 
     def self.order_key_with_value(sort)
