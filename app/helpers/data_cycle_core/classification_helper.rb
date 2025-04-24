@@ -64,23 +64,23 @@ module DataCycleCore
       "--classification-color: #{classification_alias.color};"
     end
 
-    def classification_tooltip(classification_alias)
-      return if classification_alias.nil?
+    def classification_tooltip(concept)
+      return if concept.nil?
 
       tooltip_html = []
 
-      tooltip_html << tag.div(classification_alias.full_path, class: 'tag-full-path') if classification_alias.try(:full_path).present?
+      tooltip_html << tag.div(concept.full_path, class: 'tag-full-path') if concept.try(:full_path).present?
 
-      I18n.with_locale(classification_alias.first_available_locale(active_ui_locale)) do
-        tooltip_html << "<div class=\"tag-description\">#{classification_alias.description}</div>" if classification_alias.try(:description).present?
+      I18n.with_locale(concept.first_available_locale(active_ui_locale)) do
+        tooltip_html << "<div class=\"tag-description\">#{concept.description}</div>" if concept.try(:description).present?
       end
 
-      if classification_alias.name_i18n.keys.many?
+      if concept.name_i18n.keys.many?
         tooltip_html << tag.div(
           tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
           tag.ul(
             safe_join(
-              classification_alias
+              concept
                 .name_i18n
                 .each_with_object({}) { |(k, v), h|
                 (h[v] ||= []) << k
