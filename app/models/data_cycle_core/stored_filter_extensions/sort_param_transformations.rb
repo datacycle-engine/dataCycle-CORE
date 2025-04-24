@@ -41,9 +41,8 @@ module DataCycleCore
           end
 
           value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params) if value.blank?
-          advanced_key = key.underscore.tr(':', '_')
 
-          if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(advanced_key)
+          if (advanced_key = DataCycleCore::Feature::Sortable.available_advanced_attribute_for_key(key)).present?
             value = advanced_key
             key = 'advanced_attribute'
           end
