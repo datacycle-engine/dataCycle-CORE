@@ -63,6 +63,7 @@ namespace :dc do
       end
     end
 
+    # Updating the dictionary does not cause a update for searches.search_vector
     desc 'create all dictionaries in postgresql'
     task dictionaries: :environment do
       present_dictionaries = Rails.root.glob('config/configurations/ts_search/*.ths')
@@ -71,28 +72,38 @@ namespace :dc do
         dict_language = dict.split('_').last
 
         ActiveRecord::Base.connection.exec_query("
-            ALTER TEXT SEARCH CONFIGURATION #{dict_language}
-               ALTER MAPPING FOR asciihword, asciiword, hword, word
-               WITH #{dict_language}_stem;
-          ")
+          ALTER TEXT SEARCH CONFIGURATION #{dict_language}
+            ALTER MAPPING FOR asciihword, asciiword, hword, word
+            WITH #{dict_language}_stem;
+        ")
 
         ActiveRecord::Base.connection.exec_query("
-            DROP TEXT SEARCH DICTIONARY IF EXISTS #{dict};
-          ")
+          DROP TEXT SEARCH DICTIONARY IF EXISTS #{dict};
+        ")
 
         ActiveRecord::Base.connection.exec_query("
-            CREATE TEXT SEARCH DICTIONARY #{dict} (
-              TEMPLATE = thesaurus,
-              DictFile = #{dict},
-              Dictionary = pg_catalog.#{dict_language}_stem
-            );
-          ")
+          CREATE TEXT SEARCH DICTIONARY #{dict} (
+            TEMPLATE = thesaurus,
+            DictFile = #{dict},
+            Dictionary = pg_catalog.#{dict_language}_stem
+          );
+        ")
         ActiveRecord::Base.connection.exec_query("
-            ALTER TEXT SEARCH CONFIGURATION #{dict_language}
-               ALTER MAPPING FOR asciihword, asciiword, hword, word
-               WITH #{dict}, #{dict_language}_stem;
-          ")
+          ALTER TEXT SEARCH CONFIGURATION #{dict_language}
+            ALTER MAPPING FOR asciihword, asciiword, hword, word
+            WITH #{dict}, #{dict_language}_stem;
+        ")
       end
+    end
+
+    desc 'regenerate search_vector column in searches table for fts'
+    task search_vector: :environment do
+      ActiveRecord::Base.connection.exec_update(
+        <<~SQL.squish
+          UPDATE searches
+          SET search_vector = DEFAULT
+        SQL
+      )
     end
   end
 
