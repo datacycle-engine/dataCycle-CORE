@@ -7,7 +7,8 @@ module DataCycleCore
         'endpoint',
         'download_strategy',
         'import_strategy',
-        'module'
+        'module',
+        'strategy'
       ].freeze
 
       DEFAULTS = {
@@ -20,7 +21,11 @@ module DataCycleCore
         'module_base' => nil
       }.freeze
 
-      DEFAULT_MODULE_BASE = 'DataCycleCore::Generic::Common'
+      DEFAULT_MODULE_BASES = {
+        'Import' => 'DataCycleCore::Generic::Common',
+        'Download' => 'DataCycleCore::Generic::Common',
+        'Export' => 'DataCycleCore::Export::Generic'
+      }.freeze
 
       STRATEGIES_WITH_TRANSFORMATIONS = [
         'DataCycleCore::Generic::Common::ImportContents'
@@ -77,8 +82,9 @@ module DataCycleCore
         data['identifier'] ||= data['name']
         module_base = data['module_base']
 
-        add_defaults!(data.dig('config', 'download_config'), module_base)
-        add_defaults!(data.dig('config', 'import_config'), module_base)
+        add_import_defaults!(data.dig('config', 'download_config'), module_base)
+        add_import_defaults!(data.dig('config', 'import_config'), module_base)
+        add_export_defaults!(data.dig('config', 'export_config'), module_base)
         add_default_transformations!(data, module_base)
 
         data.reverse_merge!(DEFAULTS)
@@ -90,22 +96,34 @@ module DataCycleCore
         return if data.blank?
 
         if data.dig('default_options', 'transformations').present?
-          data['default_options']['transformations'] = full_module_path(module_base, data['default_options']['transformations'])
+          data['default_options']['transformations'] = full_module_path(module_base, data['default_options']['transformations'], 'Import')
         elsif data.dig('config', 'download_config')&.any? { |_, v| v['import_strategy']&.in?(STRATEGIES_WITH_TRANSFORMATIONS) } ||
               data.dig('config', 'import_config')&.any? { |_, v| v['import_strategy']&.in?(STRATEGIES_WITH_TRANSFORMATIONS) }
           data['default_options'] ||= {}
-          data['default_options']['transformations'] = full_module_path(module_base, 'Transformations')
+          data['default_options']['transformations'] = full_module_path(module_base, 'Transformations', 'Import')
         end
       end
 
-      def self.add_defaults!(data, module_base)
+      def self.add_export_defaults!(data, module_base)
+        return if data.blank?
+
+        data.each do |key, value|
+          if value.is_a?(::Hash)
+            append_module_base!(value, module_base, 'Export')
+          else
+            data[key] = transform_module_paths(key, value, module_base, 'Export')
+          end
+        end
+      end
+
+      def self.add_import_defaults!(data, module_base)
         return if data.blank?
 
         data.each.with_index(1) do |(key, value), index|
           value['sorting'] ||= index
 
           append_source_type!(value, key)
-          append_module_base!(value, module_base)
+          append_module_base!(value, module_base, 'Import')
         end
       end
 
@@ -116,24 +134,26 @@ module DataCycleCore
         value['source_type'] = key unless strategy.try(:source_type?).is_a?(FalseClass)
       end
 
-      def self.append_module_base!(value, module_base)
+      def self.append_module_base!(value, module_base, namespace = 'Import')
         return if value.blank? || module_base.blank?
 
         value.each do |key, v|
-          value[key] = transform_module_paths(key, v, module_base)
+          value[key] = transform_module_paths(key, v, module_base, namespace)
         end
+
+        value
       end
 
-      def self.transform_module_paths(key, value, module_base)
+      def self.transform_module_paths(key, value, module_base, namespace = 'Import')
         return value if value.blank? || module_base.blank?
 
         case value
         when Hash
-          value.to_h { |k, v| [k, transform_module_paths(k, v, module_base)] }
+          value.to_h { |k, v| [k, transform_module_paths(k, v, module_base, namespace)] }
         when Array
-          value.map { |v| transform_module_paths(nil, v, module_base) }
+          value.map { |v| transform_module_paths(nil, v, module_base, namespace) }
         when String
-          key&.in?(PROPERTIES_WITH_MODULE_PATHS) ? full_module_path(module_base, value) : value
+          key&.in?(PROPERTIES_WITH_MODULE_PATHS) ? full_module_path(module_base, value, namespace) : value
         else
           value
         end
@@ -145,7 +165,9 @@ module DataCycleCore
         module_bases = []
         module_bases << module_base if module_base.present?
         module_bases << "#{module_base}::#{namespace}" if module_base.present? && namespace.present?
-        module_bases << DEFAULT_MODULE_BASE
+        module_bases << DEFAULT_MODULE_BASES[namespace] if DEFAULT_MODULE_BASES.key?(namespace)
+
+        # binding.pry if module_base == 'Datacycle::Connector::FeratelDeskline'
 
         first_existing_module_path(module_name, module_bases) || module_name
       end
