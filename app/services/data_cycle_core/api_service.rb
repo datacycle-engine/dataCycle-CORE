@@ -246,13 +246,19 @@ module DataCycleCore
     end
 
     def advanced_attribute_filter?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present? ||
-        API_NUMERIC_ATTRIBUTES.include?(key)
+      return true if DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present?
+      return true if DataCycleCore::ApiService.additional_advanced_attributes.any? do |_, value|
+        value.is_a?(Hash) && value['path'].to_s.to_sym == key
+      end
+
+      API_NUMERIC_ATTRIBUTES.include?(key)
     end
 
     def advanced_attribute_type_for_key(key)
       return 'numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')
+      return DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') if DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present?
+
+      DataCycleCore::ApiService.additional_advanced_attributes.values.find { |v| v.is_a?(Hash) && v['path'].to_s.to_sym == key }&.dig('type')
     end
 
     def linked_attribute_mapping(linked_name)
@@ -272,7 +278,8 @@ module DataCycleCore
       elsif attribute_key.in?(API_SCHEDULE_ATTRIBUTES)
         'absolute'
       else
-        attribute_key.to_s.underscore.tr(':', '_')
+        return attribute_key.to_s.underscore.tr(':', '_') if DataCycleCore::ApiService.additional_advanced_attributes[attribute_key].present?
+        DataCycleCore::ApiService.additional_advanced_attributes.find { |_, v| v.is_a?(Hash) && v['path'].to_s.to_sym == attribute_key }&.first
       end
     end
 
