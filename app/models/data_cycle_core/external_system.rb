@@ -197,7 +197,7 @@ module DataCycleCore
       raise "Missing refresh_strategy for #{name}, options given: #{options}" if export_config.dig(:refresh, :strategy).blank?
       utility_object = DataCycleCore::Export::PushObject.new(
         external_system: self,
-        action: :update
+        action: :refresh
       )
       export_config.dig(:refresh, :strategy).safe_constantize.process(utility_object:, options:)
     end
