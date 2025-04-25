@@ -21,7 +21,6 @@ module DataCycleCore
               'power' => 11,
               'dc_nominal_capacity' => 15
             })
-            puts @cs_a.id
 
             @cs_b = DataCycleCore::V4::DummyDataHelper.create_data('charging_station')
             @cs_b.set_data_hash(partial_update: true, prevent_history: true, data_hash: {
@@ -32,7 +31,6 @@ module DataCycleCore
               'power' => 22,
               'dc_nominal_capacity' => 30
             })
-            puts @cs_b.id
             @cs_c = DataCycleCore::V4::DummyDataHelper.create_data('charging_station')
             @cs_c.set_data_hash(partial_update: true, prevent_history: true, data_hash: {
               'title' => 'C',
@@ -42,10 +40,6 @@ module DataCycleCore
               'power' => 33,
               'dc_nominal_capacity' => 45
             })
-            puts @cs_c.id
-
-            @thing_count = DataCycleCore::Thing.where.not(template_name: 'Ladestation').count
-            puts @thing_count
           end
 
           test 'api/v4/things with filter for additional attribute' do
