@@ -154,6 +154,21 @@
       :type: boolean
     :duration:
       :type: numeric
+    :dc_capacity:
+      :type: numeric
+      :path: dc:capacity
+    :amperage:
+      :type: numeric
+    :voltage:
+      :type: numeric
+      :path: voltage
+    :power:
+      :type: numeric
+      :path: dcPower
+    :dc_nominal_capacity:
+      :type: numeric
+      :path: dcNominalCapacity
+
 
 :user_registration:
   :enabled: true
