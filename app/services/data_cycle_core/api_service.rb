@@ -246,13 +246,17 @@ module DataCycleCore
     end
 
     def advanced_attribute_filter?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present? ||
-        API_NUMERIC_ATTRIBUTES.include?(key)
+      return true if DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present?
+      return true if find_advanced_attribute_key_by_path(key).present?
+
+      API_NUMERIC_ATTRIBUTES.include?(key)
     end
 
     def advanced_attribute_type_for_key(key)
       return 'numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')
+      return DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') if DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present?
+
+      find_advanced_attribute_key_by_path(key)&.values&.first&.[]('type')
     end
 
     def linked_attribute_mapping(linked_name)
@@ -264,6 +268,10 @@ module DataCycleCore
       end
     end
 
+    def find_advanced_attribute_key_by_path(path)
+      DataCycleCore::ApiService.additional_advanced_attributes.select { |_, v| v.is_a?(Hash) && v['path'].to_s.to_sym == path }
+    end
+
     def attribute_path_mapping(attribute_key)
       if attribute_key == :'dct:modified'
         'updated_at'
@@ -272,7 +280,12 @@ module DataCycleCore
       elsif attribute_key.in?(API_SCHEDULE_ATTRIBUTES)
         'absolute'
       else
-        attribute_key.to_s.underscore.tr(':', '_')
+        # Needed for Filter when api name of attribute is completely different to attribute name
+        if DataCycleCore::ApiService.additional_advanced_attributes[attribute_key].nil?
+          base_attribute_from_path = find_advanced_attribute_key_by_path(attribute_key)&.keys&.first
+          return base_attribute_from_path if base_attribute_from_path.present?
+        end
+        attribute_key.to_s.underscore.tr(':', '_') if DataCycleCore::ApiService.additional_advanced_attributes[attribute_key].present?
       end
     end
 
