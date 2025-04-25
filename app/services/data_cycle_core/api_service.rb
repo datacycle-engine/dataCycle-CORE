@@ -247,9 +247,7 @@ module DataCycleCore
 
     def advanced_attribute_filter?(key)
       return true if DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present?
-      return true if DataCycleCore::ApiService.additional_advanced_attributes.any? do |_, value|
-        value.is_a?(Hash) && value['path'].to_s.to_sym == key
-      end
+      return true if find_advanced_attribute_key_by_path(key).present?
 
       API_NUMERIC_ATTRIBUTES.include?(key)
     end
@@ -258,7 +256,7 @@ module DataCycleCore
       return 'numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
       return DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') if DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present?
 
-      DataCycleCore::ApiService.additional_advanced_attributes.values.find { |v| v.is_a?(Hash) && v['path'].to_s.to_sym == key }&.dig('type')
+      find_advanced_attribute_key_by_path(key)&.values&.first&.[]('type')
     end
 
     def linked_attribute_mapping(linked_name)
@@ -268,6 +266,10 @@ module DataCycleCore
       else
         linked_name&.to_s&.underscore
       end
+    end
+
+    def find_advanced_attribute_key_by_path(path)
+      DataCycleCore::ApiService.additional_advanced_attributes.select { |_, v| v.is_a?(Hash) && v['path'].to_s.to_sym == path }
     end
 
     def attribute_path_mapping(attribute_key)
@@ -280,7 +282,7 @@ module DataCycleCore
       else
         # Needed for Filter when api name of attribute is completely different to attribute name
         if DataCycleCore::ApiService.additional_advanced_attributes[attribute_key].nil?
-          base_attribute_from_path = DataCycleCore::ApiService.additional_advanced_attributes.find { |_, v| v.is_a?(Hash) && v['path'].to_s.to_sym == attribute_key }&.first
+          base_attribute_from_path = find_advanced_attribute_key_by_path(attribute_key)&.keys&.first
           return base_attribute_from_path if base_attribute_from_path.present?
         end
         attribute_key.to_s.underscore.tr(':', '_') if DataCycleCore::ApiService.additional_advanced_attributes[attribute_key].present?
