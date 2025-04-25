@@ -278,8 +278,12 @@ module DataCycleCore
       elsif attribute_key.in?(API_SCHEDULE_ATTRIBUTES)
         'absolute'
       else
-        return attribute_key.to_s.underscore.tr(':', '_') if DataCycleCore::ApiService.additional_advanced_attributes[attribute_key].present?
-        DataCycleCore::ApiService.additional_advanced_attributes.find { |_, v| v.is_a?(Hash) && v['path'].to_s.to_sym == attribute_key }&.first
+        # Needed for Filter when api name of attribute is completely different to attribute name
+        if DataCycleCore::ApiService.additional_advanced_attributes[attribute_key].nil?
+          base_attribute_from_path = DataCycleCore::ApiService.additional_advanced_attributes.find { |_, v| v.is_a?(Hash) && v['path'].to_s.to_sym == attribute_key }&.first
+          return base_attribute_from_path if base_attribute_from_path.present?
+        end
+        attribute_key.to_s.underscore.tr(':', '_') if DataCycleCore::ApiService.additional_advanced_attributes[attribute_key].present?
       end
     end
 
