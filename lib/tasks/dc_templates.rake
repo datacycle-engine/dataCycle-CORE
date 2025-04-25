@@ -148,9 +148,10 @@ namespace :dc do
         puts "No matched keys: #{no_matched_keys}"
       end
 
-      task :data_definitions, [:debug] => :environment do |_, _args|
+      task :data_definitions, [:template_names, :debug] => :environment do |_, args|
         puts "migrate to new data_definitions\n"
         mappings = DataCycleCore.data_definition_mapping['templates']
+        template_names = args.template_names&.split('|')
 
         if mappings.blank?
           puts 'no mappings found \n'
@@ -158,6 +159,8 @@ namespace :dc do
         end
 
         mappings.each do |key, value|
+          next if template_names.present? && template_names.exclude?(key)
+
           if key == value
             puts "skip mapping #{key}: #{value} - key equals value"
             next
