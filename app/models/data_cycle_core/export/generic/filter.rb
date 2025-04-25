@@ -86,7 +86,7 @@ module DataCycleCore
           return true if filter_conf.blank?
 
           Array.wrap(filter_conf)
-            .map { |f| DataCycleCore::StoredFilter.by_id_or_slug(f).first&.things&.exists?(id: data.id) }
+            .map { |f| DataCycleCore::StoredFilter.by_id_or_slug(f).first!&.things&.exists?(id: data.id) }
             .reduce(&:|)
         end
 
