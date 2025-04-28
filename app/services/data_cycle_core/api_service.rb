@@ -153,7 +153,7 @@ module DataCycleCore
           v = transform_values_for_query(v, attribute_key)
           if query.method(query_method)&.parameters&.size == 3
             if advanced_attribute_filter?(attribute_key)
-              query = query.send(query_method, v, advanced_attribute_type_for_key(attribute_key), attribute_path)
+              query = query.send(query_method, v, advanced_attribute_type_by_path(attribute_key), attribute_path)
             else
               query = query.send(query_method, v, attribute_path, attribute_key.to_s.delete_prefix('dc:').underscore_blanks)
             end
@@ -228,8 +228,8 @@ module DataCycleCore
     end
 
     def transform_values_for_query(value, key)
-      return { 'from' => value[:min], 'until' => value[:max] } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
-      return { 'text' => value.values.first } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'string' && value&.values&.first.present?
+      return { 'from' => value[:min], 'until' => value[:max] } if advanced_attribute_type_by_path(key) == 'date'
+      return { 'text' => value.values.first } if advanced_attribute_type_by_path(key) == 'string' && value&.values&.first.present?
       value
     end
 
@@ -249,13 +249,6 @@ module DataCycleCore
       return true if advanced_attribute_key_by_path(key).present?
 
       API_NUMERIC_ATTRIBUTES.include?(key)
-    end
-
-    def advanced_attribute_type_for_key(key)
-      return 'numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
-      return DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') if DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present?
-
-      advanced_attribute_type_by_path(key)
     end
 
     def linked_attribute_mapping(linked_name)
