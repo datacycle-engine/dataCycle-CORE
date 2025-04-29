@@ -15,7 +15,7 @@ module DataCycleCore
     include StoredFilterExtensions::FilterParamsTransformations
     include StoredFilterExtensions::FilterParamsHashParser
 
-    attribute :parameters, :stored_filter_parameters_type
+    attribute :parameters, :'stored_filter/parameters'
 
     attr_accessor :query, :include_embedded
 

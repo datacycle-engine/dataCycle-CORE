@@ -94,12 +94,6 @@ module DataCycleCore
         end
       end
 
-      # [TODO] initialize attributes from template properties
-      # def initialize_template_properties
-      #   untranslatable_string_property_names.each do |property_name|
-      #   end
-      # end
-
       def self.value_condition(attributes)
         attributes&.map { |k, v| "things.metadata ->> '#{k}' #{v.is_a?(::Array) ? 'IN (?)' : '= ?'}" }&.join(' AND ')
       end
@@ -827,6 +821,16 @@ module DataCycleCore
           remove_instance_variable(:@get_property_value)
         end
       end
+
+      # [TODO] initialize attributes from template properties
+      # def initialize_template_properties
+      #   untranslatable_string_property_names.each do |pn|
+      #     singleton_class.class_eval do
+      #       store_accessor :metadata, pn.to_sym
+      #       attribute pn.to_sym, :'thing/string'
+      #     end
+      #   end
+      # end
     end
   end
 end
