@@ -186,11 +186,13 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        query = self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
-                                                                                              tree_query,
-                                                                                              {id:,
-                                                                                               content_type_embedded: CONTENT_TYPE_EMBEDDED}
-                                                                                            ])})")
+        sanitized_base = ActiveRecord::Base.send(
+          :sanitize_sql_array, [
+            tree_query,
+            {id:, content_type_embedded: CONTENT_TYPE_EMBEDDED}
+          ]
+        )
+        query = self.class.where("#{self.class.table_name}.id IN (#{sanitized_base})")
         query = query.where.not(content_type: CONTENT_TYPE_EMBEDDED) unless embedded
         query
       end

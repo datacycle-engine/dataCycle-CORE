@@ -162,8 +162,6 @@ module DataCycleCore
       case value
       when FalseClass
         true
-      when ActiveRecord::Relation
-        value.any?
       when ::Array
         value.any? { |v| present?(v) }
       when ::Hash

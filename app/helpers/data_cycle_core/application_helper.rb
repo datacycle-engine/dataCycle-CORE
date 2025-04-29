@@ -545,7 +545,7 @@ module DataCycleCore
 
         next if partial.nil?
 
-        logger.debug "  Rendered #{partial.virtual_path}"
+        logger.debug "  Rendered #{partial.short_identifier}"
         return render(partial_name, parameters)
       end
 

@@ -11,7 +11,7 @@
       } do %>
 
   <ul class="content-tiles">
-    <% objects = value&.includes(:translations) %>
+    <% objects = value&.includes(:translations, :external_source, external_system_syncs: :external_system) %>
     <% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
     <% objects&.each do |item| %>

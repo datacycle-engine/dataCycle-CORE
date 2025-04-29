@@ -67,7 +67,7 @@ module DataCycleCore
       }
 
       content.collected_classification_contents
-        .includes(classification_alias: :classification_tree_label)
+        .includes(classification_alias: [:classification_tree_label, :classification_alias_path])
         .group_by(&:relation)
         .each do |key, ccs|
         ccs.each do |ccc|

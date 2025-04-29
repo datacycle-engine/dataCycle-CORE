@@ -37,7 +37,7 @@
             <%= tag.span(object.send(object.title_property_name), title: object.send(object.title_property_name), class: 'embedded-title') if object.title_property_name.present? && object.try(object.title_property_name).present? %>
           </span>
 
-          <% if object.embedded? # || definition.dig('ui', 'edit', 'partial') == 'embedded' %>
+          <% if object.embedded? %>
             <%= link_to tag.i(class: 'fa fa-pencil'),
                         edit_thing_path(
                           content,

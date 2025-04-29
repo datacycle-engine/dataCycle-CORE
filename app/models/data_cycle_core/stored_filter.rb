@@ -125,6 +125,21 @@ module DataCycleCore
       }
     end
 
+    def self.from_property_definition(definition)
+      raise ArgumentError, 'definition must be a Hash' unless definition.is_a?(::Hash)
+
+      if definition.key?('stored_filter')
+        new(parameters: definition['stored_filter'])
+      elsif definition.key?('template_name')
+        new(parameters: [{
+          't' => 'template_names',
+          'v' => definition['template_name']
+        }])
+      else
+        raise ArgumentError, "Invalid definition: #{definition}"
+      end
+    end
+
     private
 
     def clear_thing_cache!
