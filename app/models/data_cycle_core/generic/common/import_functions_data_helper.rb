@@ -122,8 +122,6 @@ module DataCycleCore
             invalidate_related_cache:
           )
 
-          binding.pry
-
           if valid
             ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle', {
               external_system: utility_object.external_source,
