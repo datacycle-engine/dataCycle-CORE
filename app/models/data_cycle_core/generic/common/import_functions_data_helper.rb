@@ -95,6 +95,8 @@ module DataCycleCore
             )
           end
 
+          return content unless content.id == '14dc283a-888f-4a02-880a-838848653902'
+
           created = false
           content.webhook_source = utility_object&.external_source&.name
 

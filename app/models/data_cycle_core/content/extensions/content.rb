@@ -17,17 +17,6 @@ module DataCycleCore
           super
         end
 
-        def asset_web_url
-          return unless try(:asset)&.versions&.key?(:web)
-          return if Rails.env.development? && !asset&.web&.service&.exist?(asset&.web&.key)
-
-          DataCycleCore::ActiveStorageService.with_current_options do
-            asset&.web&.url
-          end
-        rescue StandardError
-          nil
-        end
-
         def validation_messages_as_json
           {
             valid: valid?,

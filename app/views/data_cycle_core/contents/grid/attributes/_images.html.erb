@@ -1,6 +1,6 @@
 <div class="grid-thumbnails <%= 'has-more' if item.image && item.image.try(:size) > 3 %>">
   <% item.image.first(3).each do |image| %>
-    <% thumbnail_url = image.try(:thumbnail_url) || image.try(:image_asset).try(:first).try(:thumbnail_url) || image.try(:asset).try(:first).try(:thumbnail_url) %>
+    <% thumbnail_url = thing_thumbnail_url(image) %>
     <% next if thumbnail_url.nil? %>
     <img data-src="<%= thumbnail_url %>" alt="<%= image.title %>" class="lazyload grid-item-thumbnail" />
   <% end %>

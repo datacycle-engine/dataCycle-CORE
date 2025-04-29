@@ -97,6 +97,14 @@ module DataCycleCore
             end
           end
 
+          def web_url(computed_parameters:, **_args)
+            DataCycleCore::ActiveStorageService.with_current_options do
+              DataCycleCore::Image.find_by(id: computed_parameters.values.first)&.web&.url
+            end
+          rescue StandardError
+            nil
+          end
+
           def exif_value(image, path)
             image = DataCycleCore::Image.find_by(id: image) unless image.is_a?(DataCycleCore::Image)
             return nil if image.blank? || path.blank?

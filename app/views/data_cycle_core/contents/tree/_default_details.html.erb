@@ -35,13 +35,13 @@
         <% end %>
         <img data-src="<%= mini_thumb_url %>" alt="<%= image.title %>" class="lazyload" data-dc-tooltip="<img src='<%= image.thumbnail_url %>' />" />
       <% end %>
-    <% elsif item.try(:thumbnail_url).present? %>
+    <% elsif thing_thumbnail_url(item).present? %>
       <% if DataCycleCore::Feature::ImageProxy.frontend_enabled? %>
         <% mini_thumb_url = DataCycleCore::Feature::ImageProxy.mini_thumb_url(content: item) %>
       <% else %>
-        <% mini_thumb_url =  image.thumbnail_url %>
+        <% mini_thumb_url =  thing_thumbnail_url(image) %>
       <% end %>
-      <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
+      <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= thing_thumbnail_url(image) %>' />" />
     <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>
       <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.image %>' />" />
     <% end %>

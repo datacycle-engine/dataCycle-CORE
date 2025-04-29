@@ -33,7 +33,7 @@
             <% asset.duplicate_candidates.each do |duplicate| %>
               <li>
                 <%= link_to thing_path(duplicate), target: :_blank, class: 'duplicate-link' do %>
-                  <img class="lazyload" data-src="<%= duplicate.try(:thumbnail_url) %>">
+                  <img class="lazyload" data-src="<%= thing_thumbnail_url(duplicate) %>">
                 <% end %>
               </li>
             <% end %>

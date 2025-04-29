@@ -1,6 +1,6 @@
 <%
-    thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
-    web_url = object.try(:asset_web_url) || thumbnail_url
+    thumbnail_url = thing_thumbnail_url(object)
+    web_url = thing_asset_web_url(object) || thumbnail_url
     render_locale = I18n.locale
     random_id = SecureRandom.hex(10)
 %>

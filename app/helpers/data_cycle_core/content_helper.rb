@@ -18,6 +18,14 @@ module DataCycleCore
       (width / height).to_r.round(1)
     end
 
+    def thing_thumbnail_url(content, linked_attribute = nil, keys = ['thumbnail_url'])
+      thing_attribute_url(content, linked_attribute, keys)
+    end
+
+    def thing_asset_web_url(content, linked_attribute = nil, keys = ['web_url'])
+      thing_attribute_url(content, linked_attribute, keys)
+    end
+
     def grouped_related_contents(related_objects, content)
       grouped_objects = related_objects.presence&.includes(:content_content_a, :thing_template)&.group_by(&:thing_template)
 
@@ -35,6 +43,19 @@ module DataCycleCore
         end
 
         relation_groups
+      end
+    end
+
+    private
+
+    def thing_attribute_url(content, linked_attribute, keys)
+      things = [content]
+      things << content.try(linked_attribute) if linked_attribute.present?
+      things.compact.each do |c|
+        keys.each do |attribute|
+          url = c.try("virtual_#{attribute}") || c.try(attribute)
+          return url if url.present?
+        end
       end
     end
   end

@@ -1,6 +1,6 @@
 <% I18n.with_locale(object.first_available_locale) do %>
   <%
-    thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
+    thumbnail_url = thing_thumbnail_url(object)
     random_id = SecureRandom.hex(10)
   %>
 
