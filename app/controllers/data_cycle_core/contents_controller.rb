@@ -436,7 +436,10 @@ module DataCycleCore
       @locale = linked_object_params[:locale]
 
       I18n.with_locale(@locale) do
-        @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.offset(DataCycleCore.linked_objects_page_size)&.includes(:translations)
+        @linked_objects = @object.try(linked_object_params[:key])
+          &.where&.not(id: linked_object_params[:load_more_except])
+          &.offset(DataCycleCore.linked_objects_page_size)
+          &.includes(:translations, :external_source, external_system_syncs: :external_system)
         @params = linked_object_params.to_h
 
         render_action = case linked_object_params[:load_more_action]

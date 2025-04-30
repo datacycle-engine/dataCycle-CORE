@@ -83,12 +83,13 @@ module DataCycleCore
     end
 
     def value
+      # binding.pry if attribute_name == 'dcls_rules'
       return self[:value] if value_loaded
       return if contextual_content.nil?
 
       self[:value_loaded] = true
       self[:value] = contextual_content.try(attribute_name)
-      self[:value] = self[:value].page.per(DataCycleCore.linked_objects_page_size) if @value.is_a?(ActiveRecord::Relation) && (type?('linked') || type?('embedded'))
+      self[:value] = self[:value].page.per(DataCycleCore.linked_objects_page_size) if self[:value].is_a?(ActiveRecord::Relation) && (type?('linked') || type?('embedded'))
       self[:value]
     end
 
@@ -106,6 +107,10 @@ module DataCycleCore
 
     def type?(attribute_type)
       definition&.[]('type') == attribute_type
+    end
+
+    def to_h
+      super.except(:value_loaded, :default)
     end
 
     def render_params
