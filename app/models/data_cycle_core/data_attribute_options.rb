@@ -82,14 +82,21 @@ module DataCycleCore
       content if is_thing.call(content)
     end
 
+    def no_wrapper?
+      parameters&.dig(:no_wrapper)
+    end
+
     def value
-      # binding.pry if attribute_name == 'dcls_rules'
       return self[:value] if value_loaded
       return if contextual_content.nil?
 
       self[:value_loaded] = true
-      self[:value] = contextual_content.try(attribute_name)
-      self[:value] = self[:value].page.per(DataCycleCore.linked_objects_page_size) if self[:value].is_a?(ActiveRecord::Relation) && (type?('linked') || type?('embedded'))
+
+      I18n.with_locale(locale) do
+        self[:value] = contextual_content.try(attribute_name)
+        self[:value] = self[:value].page.per(DataCycleCore.linked_objects_page_size) if self[:value].is_a?(ActiveRecord::Relation) && (type?('linked') || type?('embedded'))
+      end
+
       self[:value]
     end
 
@@ -110,7 +117,7 @@ module DataCycleCore
     end
 
     def to_h
-      super.except(:value_loaded, :default)
+      super.except(:defaults)
     end
 
     def render_params

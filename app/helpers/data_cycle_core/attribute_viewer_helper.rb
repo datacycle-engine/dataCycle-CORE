@@ -19,8 +19,8 @@ module DataCycleCore
       return unless options.attribute_allowed?
       return render(*options.attribute_group_params) if options.attribute_group?
 
-      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) ||
-         object_has_translatable_attributes?(options.content, options.definition)
+      if (attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) ||
+         object_has_translatable_attributes?(options.content, options.definition)) && !options.no_wrapper?
         render_translatable_attribute_viewer(options)
       else
         render_untranslatable_attribute_viewer(options)
@@ -35,11 +35,11 @@ module DataCycleCore
       options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
 
       I18n.with_locale(options.locale) do
-        options.value ||= if options.parameters[:parent].nil?
-                            options.content.try(options.key.attribute_name_from_key)
-                          else
-                            options.parameters[:parent]&.try(options.key.attribute_name_from_key)
-                          end
+        # options.value ||= if options.parameters[:parent].nil?
+        #                     options.content.try(options.key.attribute_name_from_key)
+        #                   else
+        #                     options.parameters[:parent]&.try(options.key.attribute_name_from_key)
+        #                   end
 
         return unless options.attribute_allowed?
         return render(*options.attribute_group_params) if options.attribute_group?

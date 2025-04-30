@@ -167,8 +167,6 @@ module DataCycleCore
         module_bases << "#{module_base}::#{namespace}" if module_base.present? && namespace.present?
         module_bases << DEFAULT_MODULE_BASES[namespace] if DEFAULT_MODULE_BASES.key?(namespace)
 
-        # binding.pry if module_base == 'Datacycle::Connector::FeratelDeskline'
-
         first_existing_module_path(module_name, module_bases) || module_name
       end
 

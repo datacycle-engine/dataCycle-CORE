@@ -61,9 +61,7 @@ module DataCycleCore
                 .safe_constantize
                 .public_send(transformation[:method], data)
             when String
-              # binding.pry
               "Digest::#{transformation.classify}".safe_constantize&.hexdigest(data['id'])
-
             end
           end
         end
