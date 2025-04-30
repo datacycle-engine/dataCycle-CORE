@@ -116,11 +116,13 @@ module DataCycleCore
     end
 
     def self.primary_classifications
-      DataCycleCore::Classification.includes(:primary_classification_alias).where(classification_aliases: { id: reorder(nil).select(:id) })
+      DataCycleCore::Classification.includes(:primary_classification_alias)
+        .where(classification_aliases: { id: reorder(nil).pluck(:id) })
     end
 
     def self.classifications
-      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: reorder(nil).select(:id) })
+      DataCycleCore::Classification.includes(:classification_aliases)
+        .where(classification_aliases: { id: reorder(nil).pluck(:id) })
     end
 
     def self.with_descendants
