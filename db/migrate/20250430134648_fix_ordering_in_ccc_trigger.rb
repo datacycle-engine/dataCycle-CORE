@@ -30,6 +30,7 @@ class FixOrderingInCccTrigger < ActiveRecord::Migration[7.1]
           ORDER BY classification_contents.content_data_id,
             classification_contents.relation,
             c2.id,
+            "direct" DESC,
             "row_number"
         ),
         new_collected_classification_contents AS (
@@ -112,6 +113,7 @@ class FixOrderingInCccTrigger < ActiveRecord::Migration[7.1]
           ORDER BY classification_contents.content_data_id,
             classification_contents.relation,
             c2.id,
+            "direct" DESC,
             "row_number"
         ),
         new_collected_classification_contents AS (
