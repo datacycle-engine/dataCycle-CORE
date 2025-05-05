@@ -240,7 +240,7 @@ module DataCycleCore
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
       return 'equals_advanced_slug' if key == :slug
-      return 'equals_advanced_attributes' if API_NUMERIC_ATTRIBUTES.include?(key)
+      return 'equals_advanced_attributes' if advanced_attribute_type_by_path(key) == 'numeric'
       return "#{value.keys.first}_advanced_attributes" if advanced_attribute_filter?(key)
       key.to_s
     end
