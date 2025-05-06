@@ -245,11 +245,13 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
-                                                                                      tree_query,
-                                                                                      {id:,
-                                                                                       content_type_embedded: CONTENT_TYPE_EMBEDDED}
-                                                                                    ])})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
+          :sanitize_sql_array, [
+            tree_query,
+            {id:,
+             content_type_embedded: CONTENT_TYPE_EMBEDDED}
+          ]
+        )})")
       end
 
       def embedded_contents
@@ -271,11 +273,13 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
-                                                                                      tree_query,
-                                                                                      {id:,
-                                                                                       content_type_embedded: CONTENT_TYPE_EMBEDDED}
-                                                                                    ])})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
+          :sanitize_sql_array, [
+            tree_query,
+            {id:,
+             content_type_embedded: CONTENT_TYPE_EMBEDDED}
+          ]
+        )})")
       end
 
       def cached_related_contents
@@ -298,7 +302,9 @@ module DataCycleCore
           SELECT DISTINCT paths.content_a_id FROM paths
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, {id:, depth: DataCycleCore.cache_invalidation_depth}])})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
+          :sanitize_sql_array, [tree_query, {id:, depth: DataCycleCore.cache_invalidation_depth}]
+        )})")
       end
 
       def template_name=(value)
