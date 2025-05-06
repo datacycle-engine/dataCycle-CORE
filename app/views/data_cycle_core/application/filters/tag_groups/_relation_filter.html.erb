@@ -12,7 +12,10 @@
   <% else %>
     <span class="tags-container">
       <% relation_filter_items(value, filter_method).each do |item| %>
-        <%= tag.span(item.name, class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) %>
+        <%= tag.span(class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) do %>
+          <%= item.name %>
+          <%= link_to tag.i(class: 'fa fa-external-link', aria_hidden: true), polymorphic_path(item.html_class, id: item.id), class: 'open-selection-link', target: :_blank %>
+        <% end %>
       <% end %>
     </span>
   <% end %>

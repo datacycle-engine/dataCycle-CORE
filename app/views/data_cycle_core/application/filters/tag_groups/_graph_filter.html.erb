@@ -1,7 +1,6 @@
 <%
   allowed_relations = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(relations: filter_advanced_type)
   filter_type = DataCycleCore::ThingTemplate.translated_property_labels(attributes: allowed_relations, locale: active_ui_locale, count: key == 'linked_items_in' ? 1 : 2, specific: key)&.dig(filter_advanced_type)
-  # specific keys: items_linked_to, linked_items_in
 %>
 
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
@@ -23,7 +22,10 @@
   <% if !filter_method.in?(['p', 'b']) %>
     <span class="tags-container">
       <% relation_filter_items(value, filter_method).each do |item| %>
-        <%= tag.span(item.name, class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) %>
+        <%= tag.span(class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) do %>
+          <%= item.name %>
+          <%= link_to tag.i(class: 'fa fa-external-link', aria_hidden: true), polymorphic_path(item.html_class, id: item.id), class: 'open-selection-link', target: :_blank %>
+        <% end %>
       <% end %>
     </span>
   <% end %>

@@ -80,8 +80,11 @@
       <%= DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
     </span>
     <span class="tags-container">
-      <% value = stored_search.linked_stored_filter.to_select_option(active_ui_locale) %>
-      <%= tag.span(value.name, class: 'tag', data: { dc_tooltip: value.dc_tooltip }) %>
+      <% item = stored_search.linked_stored_filter.to_select_option(active_ui_locale) %>
+      <%= tag.span(class: 'tag', data: { dc_tooltip: item.dc_tooltip }) do %>
+        <%= item.name %>
+        <%= link_to tag.i(class: 'fa fa-external-link', aria_hidden: true), polymorphic_path(item.html_class, id: item.id), class: 'open-selection-link', target: :_blank %>
+      <% end %>
     </span>
   </span>
 <% end %>
