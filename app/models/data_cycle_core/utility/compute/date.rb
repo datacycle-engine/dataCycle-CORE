@@ -12,7 +12,7 @@ module DataCycleCore
               timestamps << content.send(key)&.last&.timestamp
             end
 
-            timestamps.compact.max
+            timestamps.compact.max.in_time_zone
           end
         end
       end
