@@ -58,7 +58,7 @@ module DataCycleCore
         end
 
         register_macro(:touch_step_required) do
-          next unless key? && value.include?('DownloadBulkMarkDeleted')
+          next unless key? && value.demodulize.in?(['DownloadBulkMarkDeleted'])
 
           source_type = values[:source_type]
 

@@ -135,7 +135,7 @@ module DataCycleCore
       end
 
       def self.append_module_base!(value, module_base, namespace = 'Import')
-        return if value.blank? || module_base.blank?
+        return if value.blank?
 
         value.each do |key, v|
           value[key] = transform_module_paths(key, v, module_base, namespace)
@@ -145,7 +145,7 @@ module DataCycleCore
       end
 
       def self.transform_module_paths(key, value, module_base, namespace = 'Import')
-        return value if value.blank? || module_base.blank?
+        return value if value.blank?
 
         case value
         when Hash
