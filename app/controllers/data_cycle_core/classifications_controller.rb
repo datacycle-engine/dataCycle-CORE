@@ -397,10 +397,11 @@ module DataCycleCore
           normalize_names v
         elsif v.is_a?(Array)
           v.compact_blank!.flatten.each { |x| normalize_names(x) if x.is_a?(Hash) }
-        elsif k.to_s == 'name'
-          v.squish!
+        elsif k.to_s.in?(['name', 'description']) && v.is_a?(String)
+          hash[k] = v.squish.presence
         end
       end
+
       hash
     end
 

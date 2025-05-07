@@ -3,10 +3,12 @@
 uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
 
 value_data =
-  if @language.size == 1 && options[:languages] == ['de']
+  if options[:languages]&.one?
     content.name
   else
-    [{ '@language' => 'de', '@value' => content.name }]
+    options[:languages].map do |lang|
+      { '@language' => lang, '@value' => content.name }
+    end
   end
 
 json = {
@@ -16,7 +18,7 @@ json = {
 
 attributes = {
   'dc:multilingual' => -> { false },
-  'dc:translation' => -> { ['de'] },
+  'dc:translation' => -> { I18n.available_locales },
   'dc:entityUrl' => -> { uri },
   'skos:prefLabel' => -> { value_data },
   'dc:hasConcept' => -> { classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language)) },
