@@ -12,7 +12,12 @@ module DataCycleCore
     def self.create_all(content, data)
       result = insert_all(data, unique_by: :thing_attribute_timestamp_idx, returning: :thing_id)
       inserted = result.count
-      content.invalidate_self if inserted.positive?
+
+      if inserted.positive?
+        dependent_keys = content.dependent_computed_property_names(data.pluck(:property).uniq)
+        DataCycleCore::ComputePropertiesJob.perform_later(content.id, dependent_keys) if dependent_keys.present?
+        content.invalidate_self
+      end
 
       {
         meta: {

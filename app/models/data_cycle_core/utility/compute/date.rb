@@ -6,18 +6,13 @@ module DataCycleCore
       module Date
         class << self
           def latest_timestamp_from_timeseries(computed_parameters:, content:, **_args)
-            latest_timestamp = nil
-            params = computed_parameters.keys
-            params.each do |param|
-              timestamps = content.send(param)
-              next if timestamps.blank?
+            timestamps = []
 
-              last_timestamp = timestamps.last&.timestamp
-              next if last_timestamp.blank?
-
-              latest_timestamp = last_timestamp if latest_timestamp.nil? || last_timestamp > latest_timestamp
+            computed_parameters.each_key do |key|
+              timestamps << content.send(key)&.last&.timestamp
             end
-            latest_timestamp
+
+            timestamps.compact.max
           end
         end
       end

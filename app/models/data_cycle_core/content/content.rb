@@ -383,6 +383,14 @@ module DataCycleCore
         end
       end
 
+      def dependent_computed_property_names(keys)
+        property_definitions.select { |_, definition|
+          Array.wrap(definition.dig('compute', 'parameters'))
+            .map { |p| p.split('.').first }
+            .intersect?(Array.wrap(keys))
+        }.keys
+      end
+
       def default_value_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition.key?('default_value') }
       end
