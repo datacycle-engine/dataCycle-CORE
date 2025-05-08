@@ -11,7 +11,9 @@ module DataCycleCore
         'proximity.geographic_with' => 'sort_proximity_geographic_with_value',
         'proximity.inTime' => 'sort_by_proximity_value',
         'proximity.occurrence' => 'sort_by_proximity_value',
-        'proximity.in_occurrence' => 'sort_by_proximity_value'
+        'proximity.in_occurrence' => 'sort_by_proximity_value',
+        'proximity.in_occurrence_with_distance' => 'sort_by_in_occurrence_with_distance',
+        'proximity.in_occurrence_with_distance_pia' => 'sort_by_in_occurrence_with_distance'
       }.freeze
 
       def apply_sorting_from_parameters(filters:, sort_params:)
@@ -40,7 +42,8 @@ module DataCycleCore
             value = send(SORT_VALUE_API_MAPPING[key], parameters, order_value)&.dig('v')
           end
 
-          value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params) if value.blank?
+          filter_order = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
+          value = value.blank? ? filter_order : merge_api_filter_params(value, filter_order, SORT_VALUE_API_MAPPING[key])
 
           if (advanced_key = DataCycleCore::Feature::Sortable.available_advanced_attribute_for_key(key)).present?
             value = advanced_key
@@ -76,7 +79,9 @@ module DataCycleCore
       def sort_proximity_geographic_with_value(_params, geo)
         return if geo.blank?
 
-        lon, lat = geo.split(',').map(&:to_f)
+        parsed_params = parse_sort_params(geo, __method__)
+        lon = parsed_params['lon']
+        lat = parsed_params['lat']
 
         return unless lon.present? && lat.present?
 
@@ -85,10 +90,12 @@ module DataCycleCore
 
       def sort_by_proximity_value(params, value = nil)
         i_config = params&.find { |f| f['t'] == 'in_schedule' }
-        min, max, relation = value&.split(',')&.map(&:strip)
-        return if i_config.blank? && min.blank? && max.blank?
-        relation = i_config&.dig('n') if relation.blank?
+        parsed_params = parse_sort_params(value, __method__)
+        min = parsed_params&.dig('start')
+        max = parsed_params&.dig('end')
+        return if i_config.blank? && min.blank? && max.blank? && parsed_params&.dig('sort_attr').blank?
 
+        relation = parsed_params&.dig('sort_attr').presence || i_config&.dig('n')
         if min.present? || max.present?
           i_value = { 'min' => min, 'max' => max}.compact_blank
           q = nil
@@ -96,10 +103,78 @@ module DataCycleCore
           i_value = i_config&.dig('v')&.compact_blank
           q = i_config&.dig('q')
         end
-        i_value = i_value.merge('relation' => relation).compact_blank if i_value.present? && relation.present?
+        i_value ||= {}
+        i_value = i_value.merge('relation' => relation).compact_blank if relation.present?
         return if i_value.blank?
 
         { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => { 'q' => q, 'v' => i_value } }
+      end
+
+      def sort_by_in_occurrence_with_distance(_params, value = nil)
+        parsed_params = parse_sort_params(value, __method__)
+
+        coords = []
+        coords = [parsed_params['lon'], parsed_params['lat']] if parsed_params['lon'].present? || parsed_params['lat'].present?
+
+        i_value = [coords]
+        schedule = {}
+        schedule['in'] = { 'min' => parsed_params['start'], 'max' => parsed_params['end'] } if parsed_params['start'].present? || parsed_params['end'].present?
+        schedule['relation'] = parsed_params['sort_attr'] if parsed_params['sort_attr'].present?
+
+        i_value << schedule if schedule.present?
+        { 'v' => i_value }
+      end
+
+      def parse_sort_params(params, sort_key = :sort_by_proximity_value)
+        return if params.blank?
+        sort_params = params&.split(',', -1)&.map { |v| v&.strip.presence }
+
+        return {'lon' => sort_params[0], 'lat' => sort_params[1]} if sort_key == :sort_proximity_geographic_with_value && sort_params.size == 2
+        return {'start' => sort_params[0], 'end' => sort_params[1], 'sort_attr' => sort_params[2]} if sort_key == :sort_by_proximity_value && sort_params.size == 3
+        return {'lon' => sort_params[0], 'lat' => sort_params[1], 'start' => sort_params[2], 'end' => sort_params[3], 'sort_attr' => sort_params[4]} if sort_key == :sort_by_in_occurrence_with_distance && sort_params.size == 5
+
+        result = {'lon' => nil, 'lat' => nil, 'start' => nil, 'end' => nil, 'sort_attr' => nil}
+        sort_params.each do |param|
+          key, val = param.to_s.split(':', 2).map(&:strip)
+          result[key] = val if result.key?(key)
+          result['sort_attr'] = val if "sort_#{key}" == 'sort_attr'
+        end
+
+        result
+      end
+
+      def merge_api_filter_params(sort_params, filter_params, sort_key)
+        return merge_api_in_occurrence_with_distance_default_params(sort_params, filter_params) if sort_key == 'sort_by_in_occurrence_with_distance'
+        sort_params['v'] = merge_api_schedule_params(sort_params['v'], filter_params) if sort_key == 'sort_by_proximity_value'
+        sort_params
+      end
+
+      def merge_api_in_occurrence_with_distance_default_params(sort_params, filter_params)
+        return sort_params if filter_params.nil?
+        [
+          sort_params[0].nil? || sort_params[0].all?(&:nil?) ? filter_params[0] : sort_params[0],
+          merge_api_schedule_params(sort_params[1], filter_params[1])
+        ]
+      end
+
+      def merge_api_schedule_params(sort_schedule, filter_schedule)
+        return sort_schedule if filter_schedule.nil?
+        return filter_schedule if sort_schedule.nil?
+
+        merged_schedule = sort_schedule.dup
+        merged_schedule['relation'] = filter_schedule['relation'] if merged_schedule['relation'].nil?
+        schedule = filter_schedule['in'].presence || { 'min' => filter_schedule['min'], 'max' => filter_schedule['max']}
+
+        # two different ways that sort_schedule contains min and max
+        # {'min' => 'startDate', 'max' => 'endDate', 'relation' => 'sortAttr'}
+        # {'in' => {'min' => 'startDate', 'max' => 'endDate'}, 'relation' => 'sortAttr'}
+        if merged_schedule.key?('min') || merged_schedule.key?('max')
+          merged_schedule['min'] ||= schedule['min']
+          merged_schedule['max'] ||= schedule['max']
+        elsif !merged_schedule['in'].is_a?(Hash) || (merged_schedule['in']['min'].nil? && merged_schedule['in']['max'].nil?)
+          merged_schedule['in'] = schedule
+        end
+        merged_schedule
       end
 
       def transform_order_hash(sort_hash, watch_list)
@@ -109,7 +184,8 @@ module DataCycleCore
         return sort_hash['v'].dup, "sort_#{sort_hash['m']}"
       end
 
-      # Calls sort_advanced_attribute, sort_collection_manual_order, sort_proximity_occurrence, ...
+      # Calls sort_advanced_attribute, sort_collection_manual_order, sort_proximity_occurrence,
+      # sort_proximity_in_occurrence_with_distance, sort_proximity_in_occurrence_with_distance_pia, ...
       def apply_order_parameters(watch_list)
         self.sort_parameters = [{ 'm' => 'default' }] if sort_parameters.blank?
         self.query = query.reset_sort
