@@ -1,4 +1,4 @@
-<% grouped_related_contents(related_objects, content)&.each do |thing_template, relations| %>
+<% grouped_related_contents(content)&.each do |thing_template, relations| %>
   <% template_name = thing_template.template_name %>
 
   <li>
@@ -6,10 +6,10 @@
       <%= render 'data_cycle_core/contents/lists/attributes/type', item: thing_template.template_thing %>
     </span>
     <ul class="children">
-      <% relations.each do |attribute_name, items|%>
+      <% relations.each do |attribute_name, count|%>
         <li>
           <span class="inner-item">
-            <%= translated_attribute_label(attribute_name, nil, thing_template.template_thing) %> (<%= items.size %>)
+            <%= translated_attribute_label(attribute_name, nil, thing_template.template_thing) %> (<%= count %>)
 
             <%= button_tag(type: :button, class: 'add-items-to-watch-list', id: "add-items-to-watch-list-#{template_name.underscore_blanks}-#{attribute_name}", data: { open: "add-items-to-watch-list-overlay-#{template_name.underscore_blanks}-#{attribute_name}", template_name: template_name, relation_a: attribute_name }) do %>
               <i class="fa fa-plus" aria-hidden="true"></i>

@@ -215,7 +215,7 @@ module DataCycleCore
           return {} if classification_paths.empty?
 
           preloadable_classification_trees = if instance_variable_defined?(:@preloadable_classification_trees)
-                                               classification_paths.map(&:first) & (Array.wrap(instance_variable_get(:@preloadable_classification_trees)))
+                                               classification_paths.map(&:first) & Array.wrap(instance_variable_get(:@preloadable_classification_trees))
                                              else
                                                []
                                              end

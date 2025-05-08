@@ -45,8 +45,8 @@ module DataCycleCore
           filter_order = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
           value = value.blank? ? filter_order : merge_api_filter_params(value, filter_order, SORT_VALUE_API_MAPPING[key])
 
-          if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
-            value = key.underscore
+          if (advanced_key = DataCycleCore::Feature::Sortable.available_advanced_attribute_for_key(key)).present?
+            value = advanced_key
             key = 'advanced_attribute'
           end
 

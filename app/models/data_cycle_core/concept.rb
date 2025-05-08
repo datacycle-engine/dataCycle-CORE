@@ -167,7 +167,7 @@ module DataCycleCore
     end
 
     def to_sync_data
-      Rails.cache.fetch("sync_api/v1/concepts/#{id}/#{updated_at}", expires_in: 1.year + Random.rand(7.days)) do
+      Rails.cache.fetch("sync_api/v1/concepts/#{id}/#{updated_at}/#{I18n.locale}", expires_in: 1.year + Random.rand(7.days)) do
         next if available_locales.exclude?(I18n.locale)
 
         as_json(

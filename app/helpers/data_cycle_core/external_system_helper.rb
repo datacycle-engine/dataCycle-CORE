@@ -3,7 +3,9 @@
 module DataCycleCore
   module ExternalSystemHelper
     def external_systems_tooltip(external_source, external_system_syncs)
-      syncs = external_system_syncs&.joins(:external_system)&.select('external_systems.name')&.group('external_systems.name')&.size || {}
+      syncs = external_system_syncs
+        &.group_by { |sync| sync.external_system.name }
+        &.transform_values(&:size) || {}
 
       unless external_source.nil?
         syncs[external_source.name] = syncs[external_source.name].to_i + 1

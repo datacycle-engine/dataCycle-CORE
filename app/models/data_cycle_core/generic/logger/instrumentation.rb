@@ -30,8 +30,8 @@ module DataCycleCore
           ].join(' ')
 
           if times.present?
-            step_time = DataCycleCore::Generic::GenericObject.format_float((times[-1] - times[0]), 6, 3)
-            step_delta = DataCycleCore::Generic::GenericObject.format_float((times[-1] - times[-2]), 6, 3)
+            step_time = DataCycleCore::Generic::GenericObject.format_float(times[-1] - times[0], 6, 3)
+            step_delta = DataCycleCore::Generic::GenericObject.format_float(times[-1] - times[-2], 6, 3)
             message += " in #{step_time}s, ðt: #{step_delta}s"
           end
 

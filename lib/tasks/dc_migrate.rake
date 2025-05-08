@@ -788,5 +788,51 @@ namespace :dc do
 
       puts "\nProcessed things"
     end
+
+    desc 'overlays to overlay attributes'
+    task overlays_to_overlay_attributes: :environment do
+      overlays = DataCycleCore::ContentContent.where(relation_a: 'overlay')
+      puts('No overlays found!') if overlays.blank?
+
+      progressbar = ProgressBar.create(total: overlays.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      overlays.preload(:content_a, :content_b).find_each do |overlay|
+        content = overlay.content_a
+        overlay_content = overlay.content_b
+        remove_overlay = true
+
+        overlay_content.available_locales.each do |locale|
+          I18n.with_locale(locale) do
+            hash = overlay_content.to_h
+            to_write = {}
+            props = (overlay_content.writable_property_names - overlay_content.computed_property_names - ['id', 'external_key', 'external_source_id'])
+
+            props.each do |pn|
+              next if DataCycleCore::DataHashService.blank?(hash[pn])
+
+              override_key = "#{pn}_override"
+              add_key = "#{pn}_add"
+
+              if content.property_names.include?(override_key)
+                to_write[override_key] = hash[pn]
+              elsif content.property_names.include?(add_key)
+                to_write[add_key] = hash[pn]
+              else
+                remove_overlay = false
+                puts("#{overlay_content.template_name} (#{pn}) -> #{content.template_name} (#{override_key}) override attribute does not exist!")
+              end
+            end
+
+            content.set_data_hash(data_hash: to_write, prevent_history: true)
+          end
+        end
+
+        overlay_content.destroy if remove_overlay
+
+        progressbar.increment
+      end
+
+      puts 'MIGRATION SUCCESSFUL'
+    end
   end
 end

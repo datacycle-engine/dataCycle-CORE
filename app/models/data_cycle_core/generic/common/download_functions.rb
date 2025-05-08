@@ -214,7 +214,6 @@ module DataCycleCore
                       if item.data_has_changed || item.external_system_has_changed
                         # for debugging, also uncomment the require 'hashdiff' at the top of this file
                         # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
-                        # binding.pry if differences.present?
                         item.dump[locale] = item_data
                         # update_items << item
                         # save only updates seen_at!

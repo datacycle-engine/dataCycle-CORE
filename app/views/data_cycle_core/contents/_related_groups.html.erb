@@ -1,4 +1,4 @@
-<% grouped_objects = related_objects.presence&.group_by(&:template_name) %>
+<% grouped_objects = related_objects.includes(:external_source, :external_system_syncs).group_by(&:template_name) %>
 <% grouped_objects&.each do |group| %>
 
   <li class="grouped_by <%= group.first.underscore_blanks %>">

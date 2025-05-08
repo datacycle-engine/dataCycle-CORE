@@ -36,11 +36,10 @@ module DataCycleCore
           end
 
           def parameter_keys(content, properties)
-            if properties&.dig('compute', 'module')&.include?('ContentScore') && properties&.dig('compute', 'method') == 'calculate_from_feature'
-              Array.wrap(content.try(:content_score_parameters)).map { |p| p.split('.').first }.uniq.intersection(content.property_names)
-            else
-              Array.wrap(properties&.dig('compute', 'parameters')).map { |p| p.split('.').first }.uniq.intersection(content.property_names)
-            end
+            Array.wrap(properties&.dig('compute', 'parameters'))
+              .map { |p| p.split('.').first }
+              .uniq
+              .intersection(content.property_names)
           end
 
           def conditions_satisfied?(content, properties, current_user)

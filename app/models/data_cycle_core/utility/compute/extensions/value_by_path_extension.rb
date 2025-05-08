@@ -78,30 +78,44 @@ module DataCycleCore
           def clone_attribute_value(value:, resolve: true, external_key_prefix: [], external_source_id: nil)
             return value unless (value.is_a?(::Hash) || value.is_a?(::Array)) && DataHashService.present?(value)
 
+            transformations = Generic::Common::DataReferenceTransformations
+
             if value.is_a?(::Array)
-              cloned_value = value.map { |v| clone_attribute_value(value: v, resolve: false, external_key_prefix:, external_source_id:) }
+              cloned_value = value.map do |v|
+                clone_attribute_value(value: v, resolve: false, external_key_prefix:, external_source_id:)
+              end
             else
               cloned_value = value.with_indifferent_access
 
-              if cloned_value.key?('external_key') || cloned_value.key?('id')
+              # dont clone value if it is an embedded object with id
+              if cloned_value['id'].present? && !cloned_value.key?('start_time')
+                cloned_value.slice!('id')
+              elsif cloned_value.key?('external_key') || cloned_value.key?('id')
                 external_key = Digest::SHA1.hexdigest(value.to_json)
                 cloned_value.except!(*CLONED_ATTRIBUTE_EXCEPTIONS)
                 cloned_value['external_key'] = [*external_key_prefix, external_key].compact.join('_')
 
                 if cloned_value.key?('start_time')
-                  cloned_value['id'] = Generic::Common::DataReferenceTransformations::ExternalReference.new(:schedule, nil, cloned_value['external_key'])
+                  cloned_value['id'] = transformations::ExternalReference.new(:schedule, nil, cloned_value['external_key'])
                 else
                   # needs to be updated if app/models/data_cycle_core/content/data_hash.rb#upsert_content is changed, and does not inherit external_source_id from parent anymore
-                  cloned_value['id'] = Generic::Common::DataReferenceTransformations::ExternalReference.new(:content, external_source_id, cloned_value['external_key'])
+                  cloned_value['id'] = transformations::ExternalReference.new(:content, external_source_id, cloned_value['external_key'])
                 end
               end
 
               cloned_value.each do |k, v|
-                cloned_value[k] = clone_attribute_value(value: v, resolve: false, external_key_prefix: external_key_prefix + [external_key, k].compact, external_source_id:) if v.is_a?(::Hash) || v.is_a?(::Array)
+                next unless v.is_a?(::Hash) || v.is_a?(::Array)
+
+                cloned_value[k] = clone_attribute_value(
+                  value: v,
+                  resolve: false,
+                  external_key_prefix: [*external_key_prefix, external_key, k].compact,
+                  external_source_id:
+                )
               end
             end
 
-            cloned_value = Generic::Common::DataReferenceTransformations.resolve_references(cloned_value) if resolve
+            cloned_value = transformations.resolve_references(cloned_value) if resolve
             cloned_value
           end
 

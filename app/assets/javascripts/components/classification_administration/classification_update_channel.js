@@ -1,8 +1,6 @@
 class ClassificationUpdateChannel {
 	constructor() {
-		this.container = document.querySelector(
-			"ul.classification_trees.backend-treeview-list",
-		);
+		this.container = document.getElementById("classification-administration");
 
 		this.setup();
 	}

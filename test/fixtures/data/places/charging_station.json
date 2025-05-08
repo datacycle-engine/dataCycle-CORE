@@ -1,0 +1,8 @@
+{
+    "title": "Charging Station",
+    "dc_capacity" : 2,
+    "amperage" : 3,
+    "voltage" : 4,
+    "power" : 11,
+    "dc_nominal_capacity" : 15
+}

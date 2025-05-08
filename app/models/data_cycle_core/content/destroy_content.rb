@@ -8,20 +8,16 @@ module DataCycleCore
         save_history: true,
         destroy_locale: false,
         destroy_linked: nil,
-        destroyed_ids: []
+        destroyed_ids: [],
+        check_ancestors: false
       }.freeze
-
-      def destroy_opts(opts, kwargs)
-        DEFAULT_DESTROY_ARGS.merge(opts).merge(kwargs).tap do |options|
-          options[:save_time] ||= Time.zone.now
-          options[:current_user] ||= parent&.deleted_by_user if respond_to?(:parent)
-        end
-      end
 
       def destroy(options = {}, **kwargs)
         opts = destroy_opts(options, kwargs)
         return self if opts[:destroy_locale] && available_locales.exclude?(I18n.locale)
         return self if opts[:destroyed_ids].include?(id)
+
+        new_opts = opts.merge(destroyed_ids: (opts[:destroyed_ids] + [id]).uniq)
 
         transaction(joinable: false, requires_new: true) do
           if opts[:save_history] && !history? && !embedded?
@@ -29,14 +25,14 @@ module DataCycleCore
             to_history(delete: true, all_translations: !(opts[:destroy_locale] && available_locales.many?))
           end
 
-          destroy_children(opts, destroyed_ids: opts[:destroyed_ids] + [id])
+          destroy_children(new_opts)
 
           if opts[:destroy_locale] && available_locales.many?
-            return self unless destroy_thing_translation?(opts)
-            destroy_thing_translation(opts)
+            return self unless destroy_thing_translation?(new_opts)
+            destroy_thing_translation(new_opts)
           else
-            return self unless destroy_thing?(opts)
-            destroy_thing(opts)
+            return self unless destroy_thing?(new_opts)
+            destroy_thing(new_opts)
             super()
           end
         end
@@ -51,7 +47,7 @@ module DataCycleCore
 
         (embedded_property_names - virtual_property_names).each do |name|
           load_embedded_objects(name, nil, opts[:destroy_locale]).each do |item|
-            item.destroy(opts)
+            item.destroy(opts, check_ancestors: true)
           end
         end
 
@@ -65,6 +61,15 @@ module DataCycleCore
         DataCycleCore::ContentContent::History
           .where(content_b_history_id: id, content_b_history_type: self.class.to_s)
           .update_all(content_b_history_id: last_history_entry.id, content_b_history_type: last_history_entry.class.to_s)
+      end
+
+      private
+
+      def destroy_opts(opts, kwargs)
+        DEFAULT_DESTROY_ARGS.merge(opts).merge(kwargs).tap do |options|
+          options[:save_time] ||= Time.zone.now
+          options[:current_user] ||= parent&.deleted_by_user if respond_to?(:parent)
+        end
       end
 
       def destroy_linked_data(options = {}, **kwargs)
@@ -94,7 +99,7 @@ module DataCycleCore
       end
 
       def destroy_thing?(opts)
-        return true unless embedded?
+        return true unless embedded? && opts[:check_ancestors]
 
         # embedded should only be destroyed if all parents are destroyed
         !content_content_b
@@ -103,7 +108,7 @@ module DataCycleCore
       end
 
       def destroy_thing_translation?(opts)
-        return true unless embedded?
+        return true unless embedded? && opts[:check_ancestors]
 
         # embedded translations should only be destroyed,
         # if all parent translations of the same locale are destroyed
@@ -122,7 +127,7 @@ module DataCycleCore
           )
         end
 
-        destroy_linked_data(opts, destroyed_ids: opts[:destroyed_ids] + [id])
+        destroy_linked_data(opts)
       end
 
       def destroy_thing_translation(opts)

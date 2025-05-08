@@ -88,8 +88,6 @@ module DataCycleCore
 
             translated = property_definitions[property_name]['translated']
             embedded_array&.filter_map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:) } || []
-          elsif asset_property_names.include?(property_name)
-          # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
             schedule_array = send(property_name_with_overlay)
 
@@ -100,6 +98,11 @@ module DataCycleCore
             preloaded['classifications']
               &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
               &.keys
+          elsif asset_property_names.include?(property_name) ||
+                collection_property_names.include?(property_name) ||
+                oembed_property_names.include?(property_name) ||
+                table_property_names.include?(property_name)
+            # TODO: check if we need to serialize these properties
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end

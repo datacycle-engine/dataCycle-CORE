@@ -136,11 +136,17 @@ class EmbeddedObject {
 
 		elem
 			.querySelector(this.selectorForEmbeddedHeader(".swap-button.swap-prev"))
-			?.classList.toggle("disabled", !elem.previousElementSibling);
+			?.classList.toggle(
+				"disabled",
+				!elem.previousElementSibling?.classList.contains("content-object-item"),
+			);
 
 		elem
 			.querySelector(this.selectorForEmbeddedHeader(".swap-button.swap-next"))
-			?.classList.toggle("disabled", !elem.nextElementSibling);
+			?.classList.toggle(
+				"disabled",
+				!elem.nextElementSibling?.classList.contains("content-object-item"),
+			);
 	}
 	setupSwappableButtons(element) {
 		if (
@@ -155,6 +161,7 @@ class EmbeddedObject {
 			this.selectorForEmbeddedHeader(".swap-button"),
 		))
 			button.addEventListener("click", this.swapEmbedded.bind(this));
+		this.setSwapClasses(element);
 	}
 	swapEmbedded(event) {
 		event.preventDefault();

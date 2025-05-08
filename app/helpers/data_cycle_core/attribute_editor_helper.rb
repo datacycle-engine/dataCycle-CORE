@@ -39,8 +39,8 @@ module DataCycleCore
       ).attribute_allowed?
     end
 
-    def render_attribute_editor(**)
-      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :editor)
+    def render_attribute_editor(opts = nil, **)
+      options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :editor)
 
       options.key = Array.wrap(options.key.is_a?(String) ? options.key.attribute_name_from_key : options.key).map { |k| "[#{k}]" if k != 'properties' }.join.prepend(options.prefix.to_s)
 
@@ -55,8 +55,8 @@ module DataCycleCore
       end
     end
 
-    def render_specific_translatable_attribute_editor(**)
-      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :editor)
+    def render_specific_translatable_attribute_editor(opts = nil, **)
+      options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :editor)
 
       I18n.with_locale(options.locale) do
         content = options.parameters[:parent] || options.content

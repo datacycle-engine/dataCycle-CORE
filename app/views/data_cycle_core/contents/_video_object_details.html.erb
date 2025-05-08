@@ -7,9 +7,7 @@
       <div class="image">
 
         <% if content.try(:content_url).present? %>
-          <%
-            thumbnail_url = content.try(:thumbnail_image)&.first&.thumbnail_url || content.try(:asset_web_url) || content.try(:thumbnail_url)
-          %>
+          <% thumbnail_url = thing_thumbnail_url(content, 'thumbnail_image', ['web_url', 'thumbnail_url']) %>
           <div class="image-container stripes">
             <div data-vjs-player>
               <video class="video-js" poster="<%= thumbnail_url %>">

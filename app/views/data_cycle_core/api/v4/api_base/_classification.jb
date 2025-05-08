@@ -21,45 +21,54 @@ def render_classification(attribute, partial, content, options)
   end
 end
 
-def render_pref_label(content, languages, one)
-  return unless languages.size.positive?
+def render_pref_label(content, languages)
+  return if languages.blank?
+
   return_data = nil
-  if one
-    return_data = content.name || content.internal_name
+
+  if languages.one?
+    return_data = I18n.with_locale(languages.first) { content.name }
   else
     value_container = []
+
     languages.each do |language|
       I18n.with_locale(language) do
         next if content.name.blank?
         value_container << { '@language' => language, '@value' => content.name }
       end
     end
+
     return_data = value_container.presence || [{ '@language' => I18n.default_locale, '@value' => content.internal_name }]
   end
+
   return_data.presence
 end
 
-def render_description(content, languages, one)
-  return unless languages.size.positive?
+def render_description(content, languages)
+  return if languages.blank?
+
   return_data = nil
-  if one
-    return_data = content.description
+
+  if languages.one?
+    return_data = I18n.with_locale(languages.first) { content.description }
   else
     value_container = []
+
     languages.each do |language|
       I18n.with_locale(language) do
         next if content.description.blank?
         value_container << { '@language' => language, '@value' => content.description }
       end
     end
+
     # return_data = value_container
     return_data = value_container.presence || (content.description.present? ? [{ '@language' => I18n.default_locale, '@value' => content.description }] : nil)
   end
+
   return_data.presence
 end
 
 uri = classifications_api_v4_concept_scheme_url(content.classification_tree_label.id, classification_id: content.id, api_subversion: @subversion, language: serialize_language(options[:languages]))
-render_present_language_only = @language.size == 1 && options[:languages] == [I18n.locale.to_s]
 
 ancestors = content.ancestors.to_a
 scheme = ancestors.last
@@ -74,8 +83,8 @@ attributes = {
   'dc:multilingual' => -> { true },
   'dc:translation' => -> { content.available_locales },
   'dc:entityUrl' => -> { uri },
-  'skos:prefLabel' => -> { render_pref_label(content, options[:languages], render_present_language_only) },
-  'dct:description' => -> { render_description(content, options[:languages], render_present_language_only) },
+  'skos:prefLabel' => -> { render_pref_label(content, options[:languages]) },
+  'dct:description' => -> { render_description(content, options[:languages]) },
   'url' => -> { content.uri },
   'skos:inScheme' => -> { render_classification('skos:inScheme', 'classification_tree', scheme, build_new_options_object('skos:inScheme', options)) },
   'skos:topConceptOf' => -> { concept_ancestors.size.positive? ? nil : render_classification('skos:topConceptOf', 'classification_tree', scheme, build_new_options_object('skos:topConceptOf', options)) },

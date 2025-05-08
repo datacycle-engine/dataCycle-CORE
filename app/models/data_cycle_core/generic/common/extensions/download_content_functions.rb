@@ -61,10 +61,9 @@ module DataCycleCore
                 delete_props["dump.#{locale}.delete_reason"] = delete_reason if delete_reason.present?
                 dump_path = :"dump.#{locale}"
 
-                result = mongo_item.where({
-                  dump_path => { '$ne' => nil },
-                  external_id: { '$in' => external_keys }
-                }).update_all(delete_props)
+                result = mongo_item
+                  .where({ dump_path => { '$ne' => nil }, external_id: { '$in' => external_keys }})
+                  .update_all(delete_props)
 
                 result.modified_count
               end

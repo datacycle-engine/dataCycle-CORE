@@ -160,7 +160,6 @@ module DataCycleCore
             optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
             (DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES +
               DataCycleCore::ApiService::API_DATE_RANGE_ATTRIBUTES +
-              DataCycleCore::ApiService::API_NUMERIC_ATTRIBUTES +
               DataCycleCore::ApiService.additional_advanced_attribute_keys).each do |a|
               optional(a).hash(ATTRIBUTE_FILTER)
             end

@@ -245,6 +245,9 @@ module DataCycleCore
   mattr_accessor :cache_warmup
   self.cache_warmup = {}
 
+  mattr_accessor :thing_attributes
+  self.thing_attributes = ENV['THING_ATTRIBUTES'].to_s == 'true'
+
   def self.setup
     yield self
   end

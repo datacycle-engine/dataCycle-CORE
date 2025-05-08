@@ -608,3 +608,6 @@
 
 :custom_asset_previewer:
   :enabled: false
+
+:string_sanitizer:
+  :enabled: false

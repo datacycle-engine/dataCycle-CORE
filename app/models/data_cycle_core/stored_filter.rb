@@ -15,7 +15,7 @@ module DataCycleCore
     include StoredFilterExtensions::FilterParamsTransformations
     include StoredFilterExtensions::FilterParamsHashParser
 
-    attribute :parameters, :stored_filter_parameters_type
+    attribute :parameters, :'stored_filter/parameters'
 
     attr_accessor :query, :include_embedded
 
@@ -63,13 +63,14 @@ module DataCycleCore
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
-        id,
-        ActionController::Base.helpers.safe_join([
+        id:,
+        name: ActionController::Base.helpers.safe_join([
           ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon stored_filter-icon'),
           name.presence || '__DELETED__'
         ].compact, ' '),
-        model_name.param_key,
-        "#{model_name.human(count: 1, locale:)}: #{name.presence || '__DELETED__'}"
+        html_class: model_name.param_key,
+        dc_tooltip: "#{model_name.human(count: 1, locale:)}: #{name.presence || '__DELETED__'}",
+        class_key: model_name.param_key
       )
     end
 
@@ -123,6 +124,21 @@ module DataCycleCore
           filter_params: filter.parameters
         }
       }
+    end
+
+    def self.from_property_definition(definition)
+      raise ArgumentError, 'definition must be a Hash' unless definition.is_a?(::Hash)
+
+      if definition.key?('stored_filter')
+        new(parameters: definition['stored_filter'])
+      elsif definition.key?('template_name')
+        new(parameters: [{
+          't' => 'template_names',
+          'v' => definition['template_name']
+        }])
+      else
+        raise ArgumentError, "Invalid definition: #{definition}"
+      end
     end
 
     private

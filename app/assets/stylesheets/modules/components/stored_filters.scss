@@ -3,8 +3,8 @@
 
   i {
     &.round {
-      color: $black;
-      background-color: $medium-gray;
+      color: var(--black);
+      background-color: var(--medium-gray);
       display: inline-block;
       height: 2rem;
       width: 2rem;
@@ -28,7 +28,7 @@
       position: absolute;
       content: '';
       height: 1px;
-      border-bottom: 1px solid $medium-gray;
+      border-bottom: 1px solid var(--medium-gray);
       right: 0;
       left: 0;
       top: 50%;
@@ -38,12 +38,12 @@
       position: relative;
       margin: 0 1rem;
       padding: 0 1rem;
-      background: $white;
+      background: var(--white);
 
       .fulltext-search-form {
         input {
           margin: 0;
-          border-radius: $global-radius;
+          border-radius: var(--global-radius);
 
           &.fulltext-search-field {
             padding: 0 2.5rem;
@@ -63,25 +63,25 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          color: $dark-gray;
-          transition: $color-transition;
+          color: var(--dark-gray);
+          transition: var(--color-transition);
 
           &:hover {
-            color: $black;
+            color: var(--black);
           }
         }
 
         .fulltext-search-reset {
           left: unset;
           right: 1rem;
-          color: $light-gray;
+          color: var(--light-gray);
         }
       }
     }
 
     >span {
       position: relative;
-      background-color: $white;
+      background-color: var(--white);
       padding: 0 1rem;
       margin: 0 1rem;
 
@@ -92,7 +92,7 @@
       }
 
       &.pages {
-        color: $dark-gray;
+        color: var(--dark-gray);
         display: flex;
         align-items: center;
 
@@ -139,9 +139,9 @@
         flex-flow: row wrap;
         gap: 0.5rem;
         padding: 0.8rem 1rem;
-        background-color: $white;
-        border-bottom: 1px solid $medium-gray;
-        border-radius: $global-radius;
+        background-color: var(--white);
+        border-bottom: 1px solid var(--medium-gray);
+        border-radius: var(--global-radius);
 
         .content-title,
         .content-title-api {
@@ -159,12 +159,20 @@
           top: 0;
           bottom: 0;
           z-index: -1;
-          box-shadow: 0 1px 3px $dark-gray;
-          border-radius: $global-radius;
+          box-shadow: 0 1px 3px var(--dark-gray);
+          border-radius: var(--global-radius);
         }
 
         a {
-          color: $black;
+          color: var(--black);
+
+          &.open-selection-link {
+            color: var(--white);
+
+            &:hover {
+              color: var(--primary-color);
+            }
+          }
         }
 
         ul.buttons {
@@ -175,8 +183,8 @@
           align-items: center;
           gap: 0.5rem;
           justify-content: center;
-          border-radius: $global-radius;
-          background: $white;
+          border-radius: var(--global-radius);
+          background: var(--white);
           white-space: nowrap;
 
           >li>a {
@@ -202,7 +210,7 @@
           &.content-date,
           &.stored-filter-creator {
             font-size: 0.9rem;
-            color: $dark-gray;
+            color: var(--dark-gray);
 
             i {
               font-size: 0.9rem;
@@ -210,13 +218,13 @@
             }
 
             a {
-              color: $dark-gray;
+              color: var(--dark-gray);
             }
           }
 
           &.content-attributes {
             font-size: 0.8rem;
-            color: $dark-gray;
+            color: var(--dark-gray);
             display: flex;
             flex-flow: column;
             gap: 0.5rem;
@@ -226,7 +234,7 @@
 
             .stored-search-title {
               font-size: 0.9rem;
-              color: $dark-gray;
+              color: var(--dark-gray);
               font-weight: 600;
 
               .fa {
@@ -248,7 +256,7 @@
               display: flex;
               align-items: center;
               gap: 0.3rem;
-              border-radius: $global-radius;
+              border-radius: var(--global-radius);
               padding: 2px 4px;
               background-color: lighten($dark-gray, 32%);
               box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
@@ -258,7 +266,7 @@
                 font-style: normal;
                 padding: 0 0.3rem;
                 line-height: 1.2rem;
-                border-radius: $global-radius;
+                border-radius: var(--global-radius);
               }
 
               &.e,
@@ -323,7 +331,7 @@
       .content-title {
         font-weight: 600;
         font-size: 0.9rem;
-        color: $dark-gray;
+        color: var(--dark-gray);
         overflow: hidden;
         text-overflow: ellipsis;
 
@@ -377,14 +385,18 @@
       span {
         &.content-title {
           font-size: 0.9rem;
-          color: $dark-gray;
+          color: var(--dark-gray);
           min-width: 5rem;
 
           a {
-            color: $dark-gray;
+            color: var(--dark-gray);
 
             &[data-dc-tooltip] {
-              color: $black;
+              color: var(--black);
+            }
+
+            &:hover {
+              color: var(--black);
             }
           }
 
@@ -394,7 +406,7 @@
         }
 
         &.content-attributes {
-          color: $black;
+          color: var(--black);
         }
       }
     }
@@ -416,9 +428,9 @@
 
   fieldset {
     padding: 0 1rem 1rem 1rem;
-    border: 1px solid $medium-gray;
+    border: 1px solid var(--medium-gray);
     margin-bottom: 1rem;
-    border-radius: $global-radius;
+    border-radius: var(--global-radius);
 
     &.accordion-item {
       padding: 0;
@@ -458,7 +470,7 @@
 
       &:not(.is-active) {
         border-color: var(--white);
-        border-top: 1px solid $medium-gray;
+        border-top: 1px solid var(--medium-gray);
       }
 
       .accordion-content {
@@ -509,12 +521,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid $black;
-  color: $black;
+  border: 1px solid var(--black);
+  color: var(--black);
   line-height: 1.2;
   font-weight: 600;
   padding: 2px 4px;
-  border-radius: $global-radius;
+  border-radius: var(--global-radius);
   min-width: 2.2rem;
   width: 2.2rem;
 

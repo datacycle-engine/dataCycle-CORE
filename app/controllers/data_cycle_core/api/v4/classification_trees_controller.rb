@@ -50,6 +50,7 @@ module DataCycleCore
 
           @classification_aliases = @classification_aliases.includes(:classification_polygons) if helpers.included_attribute?('geo', @fields_parameters + @include_parameters)
 
+          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
           @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
           @classification_aliases = apply_ordering(@classification_aliases)
           @classification_aliases = apply_paging(@classification_aliases)
@@ -103,6 +104,7 @@ module DataCycleCore
             @classification_aliases = @classification_aliases.where(id: permitted_params[:classification_ids].split(','))
           end
 
+          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
           @classification_aliases = apply_order_query(@classification_aliases, permitted_params[:sort])
           @classification_aliases = apply_paging(@classification_aliases)
           @classification_aliases = @classification_aliases.includes(:classification_tree_label)
@@ -132,6 +134,7 @@ module DataCycleCore
           end
 
           @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
+          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
           @classification_aliases = apply_ordering(@classification_aliases)
           @classification_aliases = apply_paging(@classification_aliases)
         end

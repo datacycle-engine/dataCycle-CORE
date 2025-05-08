@@ -23,7 +23,7 @@ module DataCycleCore
         schema_diff = ::Hashdiff.diff(schema_a, schema_b)
         if schema_diff.size.positive?
           errors[:error] << 'The schema differs between the two received content data. (try to update all schemas)'
-          errors[:info] << ("difference in schema: #{schema_diff.map { |item| item.join(' ') }.join(' | ')}")
+          errors[:info] << "difference in schema: #{schema_diff.map { |item| item.join(' ') }.join(' | ')}"
           return self
         end
         diff_object = Differs::Object.new(a, b, schema_a&.dig('properties'), '', partial_update)

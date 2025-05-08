@@ -132,19 +132,17 @@ module DataCycleCore
     end
 
     def find
-      query = DataCycleCore::Classification.where(id: find_params[:ids]).preload(primary_classification_alias: :classification_alias_path)
+      query = DataCycleCore::Concept.where(classification_id: find_params[:ids]).preload(:classification_alias_path)
       query = query.for_tree(find_params[:tree_label]) if find_params[:tree_label].present?
 
-      render plain: query.filter_map { |c|
-        next if c.primary_classification_alias.nil?
-
+      render plain: query.map { |c|
         {
-          classification_id: c.id,
-          classification_alias_id: c.primary_classification_alias.id,
-          name: c.primary_classification_alias.internal_name,
-          full_path: c.primary_classification_alias.full_path,
-          dc_tooltip: helpers.classification_tooltip(c.primary_classification_alias),
-          disabled: !c.primary_classification_alias.assignable
+          classification_id: c.classification_id,
+          classification_alias_id: c.id,
+          name: c.internal_name,
+          full_path: c.full_path,
+          dc_tooltip: helpers.classification_tooltip(c),
+          disabled: !c.assignable
         }
       }.to_json, content_type: 'application/json'
     end
@@ -399,10 +397,11 @@ module DataCycleCore
           normalize_names v
         elsif v.is_a?(Array)
           v.compact_blank!.flatten.each { |x| normalize_names(x) if x.is_a?(Hash) }
-        elsif k.to_s == 'name'
-          v.squish!
+        elsif k.to_s.in?(['name', 'description']) && v.is_a?(String)
+          hash[k] = v.squish.presence
         end
       end
+
       hash
     end
 

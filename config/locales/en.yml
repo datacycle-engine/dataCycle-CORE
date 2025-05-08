@@ -1261,6 +1261,7 @@ en:
       like: email contains
       not_like: email does not contain
     content_ids: Content
+    publication_date: Publication date
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -1915,7 +1916,7 @@ en:
         longitude: Longitude
         latitude: Latitude
         elevation: Sea level (m)
-        use_geo_for_perimeter_search: Use coordinates for perimeter search
+        use_geo_for_perimeter_search: search nearby contents
       data_cycle_core/data_link:
         comment: Comment
         permissions: Permissions

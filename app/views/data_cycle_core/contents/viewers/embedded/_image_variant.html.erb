@@ -2,9 +2,7 @@
   <div class="detail-content imageobject">
     <div class="row align-center">
       <div class="image encoding">
-        <%
-          thumbnail_url = object.try(:asset_web_url) || object.try(:thumbnail_url)
-        %>
+        <% thumbnail_url = thing_thumbnail_url(object, nil, ['web_url', 'thumbnail_url']) %>
         <% if thumbnail_url.present? %>
           <div class="image-container stripes">
             <%= render_attribute_viewer key: "#{key}[#{index}][thumbnail_url]",

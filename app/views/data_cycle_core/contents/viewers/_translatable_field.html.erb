@@ -5,6 +5,8 @@
               locale: I18n.locale,
               definition: definition&.dc_deep_dup,
               content: content,
+              value: local_assigns[:value],
+              value_loaded: local_assigns[:value_loaded],
               parameters: local_assigns.dig(:parameters)&.slice(:parent, :options)
             ),
     class: "translatable-attribute active #{I18n.locale}"

@@ -5,7 +5,7 @@ module DataCycleCore
     module FilterParamsHashParser
       extend ActiveSupport::Concern
 
-      delegate :param_from_definition, to: DataCycleCore::StoredFilterParametersType
+      delegate :param_from_definition, to: DataCycleCore::Type::StoredFilter::Parameters
 
       def parameters_from_hash(params_array)
         return self if params_array.blank?

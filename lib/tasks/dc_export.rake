@@ -140,7 +140,7 @@ namespace :dc do
               end
             end
 
-            file << ("#{data.to_json},")
+            file << "#{data.to_json},"
 
             progress.increment
           end

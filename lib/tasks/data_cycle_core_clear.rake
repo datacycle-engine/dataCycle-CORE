@@ -100,17 +100,15 @@ namespace :data_cycle_core do
       SQL
 
       raw_query += ' AND activities.activity_type NOT IN (:persistent_activities)' if persistent_activities.present?
-
-      ActiveRecord::Base.connection.execute(
-        ActiveRecord::Base.send(
-          :sanitize_sql_for_conditions,
-          [
-            raw_query,
-            {max_age:,
-             persistent_activities:}
-          ]
-        )
+      sanitized_sql = ActiveRecord::Base.send(
+        :sanitize_sql_for_conditions,
+        [raw_query, {max_age:, persistent_activities:}]
       )
+
+      ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+        ActiveRecord::Base.connection.exec_query(sanitized_sql)
+      end
 
       Rake::Task['db:maintenance:vacuum'].invoke(true, 'activities')
       Rake::Task['db:maintenance:vacuum'].reenable

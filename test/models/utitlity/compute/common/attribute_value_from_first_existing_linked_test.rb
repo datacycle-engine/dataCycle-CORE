@@ -327,31 +327,31 @@ module DataCycleCore
       key = 'translated_embedded_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
-      assert_equal("#{@new_content.id}_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
-      assert_nil(value['id'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       @new_content.set_data_hash(data_hash: { key => [value]})
 
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
-      assert_equal("#{@new_content.id}_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
       assert_equal(@new_content.try(key).first.id, value['id'])
-      assert_equal(@new_content.try(key).first.embedded_sub_value.first.id, value.dig('embedded_sub_value', 0, 'id'))
-      assert_equal("#{@new_content.id}_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}_embedded_sub_value_#{Digest::SHA1.hexdigest(orig_value.dig('embedded_sub_value', 0).to_json)}", value.dig('embedded_sub_value', 0, 'external_key'))
 
       value = subject_method(key, nil, [@content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
       assert_empty(value)
@@ -364,31 +364,30 @@ module DataCycleCore
       key = 'embedded_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
-      assert_equal("#{@new_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
-      assert_nil(value['id'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       @new_content.set_data_hash(data_hash: { key => [value]})
 
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
-      assert_equal("#{@new_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
-      assert_equal(@new_content.try(key).first.id, value['id'])
-      assert_equal(@new_content.try(key).first.embedded_sub_value.first.id, value.dig('embedded_sub_value', 0, 'id'))
-      assert_equal("#{@new_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}_embedded_sub_value_#{Digest::SHA1.hexdigest(orig_value.dig('embedded_sub_value', 0).to_json)}", value.dig('embedded_sub_value', 0, 'external_key'))
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
       assert_empty(value)
@@ -401,31 +400,30 @@ module DataCycleCore
       key = 'embedded_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
-      assert_equal("#{@new_external_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
-      assert_nil(value['id'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       @new_external_content.set_data_hash(data_hash: { key => [value]})
 
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
-      assert_equal("#{@new_external_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
-      assert_equal(@new_external_content.try(key).first.id, value['id'])
-      assert_equal(@new_external_content.try(key).first.embedded_sub_value.first.id, value.dig('embedded_sub_value', 0, 'id'))
-      assert_equal("#{@new_external_content.id}_de_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}_embedded_sub_value_#{Digest::SHA1.hexdigest(orig_value.dig('embedded_sub_value', 0).to_json)}", value.dig('embedded_sub_value', 0, 'external_key'))
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content3.id, @content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
-      assert_equal(orig_value['name'], value['name'])
+      assert_equal(orig_value['id'], value['id'])
+      assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id], @new_external_content)
       assert_empty(value)

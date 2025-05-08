@@ -10,10 +10,6 @@ module DataCycleCore
         SUPPORTED_CONTENT_TYPES = ['Bild', 'ImageObject', 'ImageVariant', 'ImageObjectVariant', 'VideoObject', 'Video', 'PDF'].freeze
         SUPPORTED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'avif', 'webp', 'gif'].freeze
 
-        def data_hash_module
-          DataCycleCore::Feature::DataHash::ImageProxy
-        end
-
         def mini_thumb_url(content:)
           process_image(
             content:,

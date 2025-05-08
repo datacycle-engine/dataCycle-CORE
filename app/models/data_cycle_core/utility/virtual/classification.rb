@@ -20,7 +20,9 @@ module DataCycleCore
           def by_tree_label(content:, virtual_definition:, **_args)
             return if virtual_definition['tree_label'].blank?
 
-            content.classification_aliases.for_tree(virtual_definition['tree_label']).primary_classifications
+            content.full_classification_aliases
+              .for_tree(virtual_definition['tree_label'])
+              .primary_classifications
           end
 
           def classifcation_alias_value(classifications, key)

@@ -92,7 +92,11 @@ module DataCycleCore
             end
           end
 
-          def imgproxy_url(content:, computed_parameters:, computed_definition:, **_args)
+          def imgproxy_url(content:, key:, computed_parameters:, computed_definition:, **_args)
+            # check if any attributes changed
+            changed = computed_parameters.any? { |k, v| v != content&.attribute_to_h(k) }
+            return content.try(key) unless changed
+
             variant = computed_definition&.dig('compute', 'transformation', 'version')
             image_processing = computed_definition&.dig('compute', 'processing')
             Virtual::Asset.send(:transform_gravity!, content, image_processing) if image_processing&.key?('gravity')
@@ -102,6 +106,23 @@ module DataCycleCore
               variant:,
               image_processing:
             )
+          end
+
+          # :compute:
+          #   :module: Asset
+          #   :method: etag
+          #   :parameters:
+          #     - asset
+          #     - content_url
+          def etag(content:, computed_parameters:, **_args)
+            response = Faraday.default_connection.head(computed_parameters['content_url']) do |f|
+              f.headers['If-None-Match'] = content.try(:etag)
+            end
+
+            return response['etag'] if response.status == 200
+            nil
+          rescue StandardError
+            nil
           end
 
           private

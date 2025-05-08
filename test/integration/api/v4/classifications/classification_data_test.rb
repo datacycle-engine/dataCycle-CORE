@@ -40,7 +40,7 @@ module DataCycleCore
               {
                 '@id' => tree.id,
                 '@type' => 'skos:ConceptScheme',
-                'dc:translation' => ['de'],
+                'dc:translation' => I18n.available_locales.map(&:to_s),
                 'dc:multilingual' => false,
                 'skos:prefLabel' => tree.name
               }
@@ -83,7 +83,7 @@ module DataCycleCore
               {
                 '@id' => tree.id,
                 '@type' => 'skos:ConceptScheme',
-                'dc:translation' => ['de'],
+                'dc:translation' => I18n.available_locales.map(&:to_s),
                 'dc:multilingual' => false
               }
             end
@@ -104,12 +104,7 @@ module DataCycleCore
 
             assert_json_attributes(json_validate) do
               {
-                'skos:prefLabel' => [
-                  {
-                    '@language' => 'de',
-                    '@value' => tree.name
-                  }
-                ]
+                'skos:prefLabel' => tree.name
               }
             end
 
@@ -136,7 +131,7 @@ module DataCycleCore
               {
                 '@id' => tree.id,
                 '@type' => 'skos:ConceptScheme',
-                'dc:translation' => ['de'],
+                'dc:translation' => I18n.available_locales.map(&:to_s),
                 'dc:multilingual' => false
               }
             end
@@ -158,6 +153,10 @@ module DataCycleCore
             assert_json_attributes(json_validate) do
               {
                 'skos:prefLabel' => [
+                  {
+                    '@language' => 'en',
+                    '@value' => tree.name
+                  },
                   {
                     '@language' => 'de',
                     '@value' => tree.name
@@ -212,7 +211,7 @@ module DataCycleCore
                 'skos:inScheme' => {
                   '@id' => tree_id,
                   '@type' => 'skos:ConceptScheme',
-                  'dc:translation' => ['de'],
+                  'dc:translation' => I18n.available_locales.map(&:to_s),
                   'dc:multilingual' => false,
                   'skos:prefLabel' => tree.name,
                   'dc:entityUrl' => api_v4_concept_scheme_url(id: tree.id, language: 'de'),
@@ -330,14 +329,9 @@ module DataCycleCore
                 'skos:inScheme' => {
                   '@id' => tree_id,
                   '@type' => 'skos:ConceptScheme',
-                  'dc:translation' => ['de'],
+                  'dc:translation' => I18n.available_locales.map(&:to_s),
                   'dc:multilingual' => false,
-                  'skos:prefLabel' => [
-                    {
-                      '@language' => 'de',
-                      '@value' => tree.name
-                    }
-                  ],
+                  'skos:prefLabel' => tree.name,
                   'dc:entityUrl' => api_v4_concept_scheme_url(id: tree.id, language: 'en'),
                   'dc:hasConcept' => classifications_api_v4_concept_scheme_url(id: tree.id, language: 'en'),
                   'dct:created' => tree.created_at.as_json,
@@ -356,21 +350,9 @@ module DataCycleCore
                   '@type' => 'skos:Concept',
                   'dc:translation' => broader.available_locales.map(&:to_s),
                   'dc:multilingual' => true,
-                  'skos:prefLabel' => [
-                    {
-                      '@language' => 'de',
-                      '@value' => broader.name
-                    }
-                  ],
                   'dct:created' => broader.created_at.as_json,
                   'dct:modified' => broader.updated_at.as_json,
                   'dc:entityUrl' => classifications_api_v4_concept_scheme_url(id: tree_id, classification_id: broader.id, language: 'en'),
-                  'dct:description' => [
-                    {
-                      '@language' => 'de',
-                      '@value' => broader.description
-                    }
-                  ],
                   'url' => broader.uri,
                   'skos:inScheme' => {
                     '@id' => tree_id,
@@ -392,21 +374,9 @@ module DataCycleCore
                     '@type' => 'skos:Concept',
                     'dc:translation' => broader.available_locales.map(&:to_s),
                     'dc:multilingual' => true,
-                    'skos:prefLabel' => [
-                      {
-                        '@language' => 'de',
-                        '@value' => broader.name
-                      }
-                    ],
                     'dct:created' => broader.created_at.as_json,
                     'dct:modified' => broader.updated_at.as_json,
                     'dc:entityUrl' => classifications_api_v4_concept_scheme_url(id: tree_id, classification_id: broader.id, language: 'en'),
-                    'dct:description' => [
-                      {
-                        '@language' => 'de',
-                        '@value' => broader.description
-                      }
-                    ],
                     'url' => broader.uri,
                     'skos:inScheme' => {
                       '@id' => tree_id,
@@ -503,11 +473,15 @@ module DataCycleCore
                   '@type' => 'skos:ConceptScheme',
                   'skos:prefLabel' => [
                     {
+                      '@language' => 'en',
+                      '@value' => tree.name
+                    },
+                    {
                       '@language' => 'de',
                       '@value' => tree.name
                     }
                   ],
-                  'dc:translation' => ['de'],
+                  'dc:translation' => I18n.available_locales.map(&:to_s),
                   'dc:multilingual' => false,
                   'dc:entityUrl' => api_v4_concept_scheme_url(id: tree.id, language: 'en,de'),
                   'dc:hasConcept' => classifications_api_v4_concept_scheme_url(id: tree.id, language: 'en,de'),

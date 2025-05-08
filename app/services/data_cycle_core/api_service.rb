@@ -4,7 +4,6 @@ module DataCycleCore
   module ApiService
     API_SCHEDULE_ATTRIBUTES = [:eventSchedule, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule, :hoursAvailable, :validitySchedule].freeze
     API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created'].freeze
-    API_NUMERIC_ATTRIBUTES = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople, :totalNumberOfBeds, :internalContentScore, :'dcls:meetingRoomMaxCapacity', :'dcls:numberOfMeetingRooms', :length, :'dc:length', :duration, :'dc:duration'].freeze
 
     def list_api_request(contents = nil)
       contents ||= @contents
@@ -152,8 +151,8 @@ module DataCycleCore
 
           v = transform_values_for_query(v, attribute_key)
           if query.method(query_method)&.parameters&.size == 3
-            if advanced_attribute_filter?(attribute_key)
-              query = query.send(query_method, v, advanced_attribute_type_for_key(attribute_key), attribute_path)
+            if advanced_attribute_key_by_path(attribute_key).present?
+              query = query.send(query_method, v, advanced_attribute_type_by_path(attribute_key), attribute_path)
             else
               query = query.send(query_method, v, attribute_path, attribute_key.to_s.delete_prefix('dc:').underscore_blanks)
             end
@@ -228,8 +227,8 @@ module DataCycleCore
     end
 
     def transform_values_for_query(value, key)
-      return { 'from' => value[:min], 'until' => value[:max] } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
-      return { 'text' => value.values.first } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'string' && value&.values&.first.present?
+      return { 'from' => value[:min], 'until' => value[:max] } if advanced_attribute_type_by_path(key) == 'date'
+      return { 'text' => value.values.first } if advanced_attribute_type_by_path(key) == 'string' && value&.values&.first.present?
       value
     end
 
@@ -240,19 +239,9 @@ module DataCycleCore
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
       return 'equals_advanced_slug' if key == :slug
-      return 'equals_advanced_attributes' if API_NUMERIC_ATTRIBUTES.include?(key)
-      return "#{value.keys.first}_advanced_attributes" if advanced_attribute_filter?(key)
+      return 'equals_advanced_attributes' if advanced_attribute_type_by_path(key) == 'numeric'
+      return "#{value.keys.first}_advanced_attributes" if advanced_attribute_key_by_path(key).present?
       key.to_s
-    end
-
-    def advanced_attribute_filter?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes[key.to_s.underscore.to_sym].present? ||
-        API_NUMERIC_ATTRIBUTES.include?(key)
-    end
-
-    def advanced_attribute_type_for_key(key)
-      return 'numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')
     end
 
     def linked_attribute_mapping(linked_name)
@@ -264,6 +253,25 @@ module DataCycleCore
       end
     end
 
+    def advanced_attribute_type_by_path(path)
+      key = advanced_attribute_key_by_path(path)
+      return if key.blank?
+
+      DataCycleCore::ApiService.additional_advanced_attributes[key]&.dig('type')
+    end
+
+    def advanced_attribute_key_by_path(path)
+      key = path.to_s.underscore
+
+      return key if DataCycleCore::ApiService.additional_advanced_attributes[key].present?
+
+      DataCycleCore::ApiService.additional_advanced_attributes.each do |k, v|
+        return k if v.is_a?(Hash) && v['path'].to_s == path.to_s
+      end
+
+      nil
+    end
+
     def attribute_path_mapping(attribute_key)
       if attribute_key == :'dct:modified'
         'updated_at'
@@ -272,7 +280,7 @@ module DataCycleCore
       elsif attribute_key.in?(API_SCHEDULE_ATTRIBUTES)
         'absolute'
       else
-        attribute_key.to_s.underscore.tr(':', '_')
+        advanced_attribute_key_by_path(attribute_key)
       end
     end
 
@@ -439,7 +447,10 @@ module DataCycleCore
     end
 
     def self.additional_advanced_attribute_keys
-      additional_advanced_attributes&.keys&.map { |k| k.camelize(:lower).to_sym }
+      additional_advanced_attributes&.map do |k, v|
+        next k.camelize(:lower).to_sym unless v.is_a?(::Hash)
+        v['path'].presence&.to_sym || k.camelize(:lower).to_sym
+      end
     end
 
     def self.order_key_with_value(sort)

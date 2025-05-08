@@ -1552,6 +1552,18 @@ span.single_warning:before {
   }
 }
 
+.tags {
+  .tag {
+    a.open-selection-link {
+      color: var(--white);
+
+      &:hover {
+        color: var(--primary-color)
+      }
+    }
+  }
+}
+
 .tags,
 body .v-select {
 

@@ -18,23 +18,66 @@ module DataCycleCore
       (width / height).to_r.round(1)
     end
 
-    def grouped_related_contents(related_objects, content)
-      grouped_objects = related_objects.presence&.includes(:content_content_a, :thing_template)&.group_by(&:thing_template)
+    def thing_thumbnail_url(content, linked_attribute = nil, keys = ['thumbnail_url'])
+      thing_attribute_url(content, linked_attribute, keys)
+    end
 
-      return if grouped_objects.blank?
+    def thing_asset_web_url(content, linked_attribute = nil, keys = ['web_url'])
+      thing_attribute_url(content, linked_attribute, keys)
+    end
 
-      grouped_objects.transform_values do |objects|
-        relation_groups = {}
+    def grouped_related_contents(content)
+      sql = <<-SQL.squish
+        SELECT things.template_name,
+          ct.relation,
+          COUNT(things.id)
+        FROM things
+          JOIN (
+            WITH RECURSIVE content_tree(id, relation) AS (
+              SELECT content_contents.content_a_id,
+                content_contents.relation_a
+              FROM content_contents
+              WHERE content_contents.content_b_id = ?
+              UNION ALL
+              SELECT content_contents.content_a_id,
+                content_contents.relation_a
+              FROM content_contents
+                INNER JOIN things ON things.id = content_contents.content_b_id
+                INNER JOIN content_tree ON content_tree.id = content_contents.content_b_id
+              WHERE things.content_type = 'embedded'
+            )
+            SELECT DISTINCT id,
+              relation
+            FROM content_tree
+          ) ct(id, relation) ON ct.id = things.id
+        WHERE things.content_type != 'embedded'
+        GROUP BY things.template_name,
+          ct.relation
+        ORDER BY things.template_name ASC;
+      SQL
 
-        objects.each do |object|
-          object.content_content_a.each do |cc|
-            next if cc.content_b_id != content.id
+      sanitized_sql = ActiveRecord::Base.send(:sanitize_sql_array, [sql, content.id])
+      result = ActiveRecord::Base.connection.select_all(sanitized_sql).to_a
+      templates = DataCycleCore::ThingTemplate.where(template_name: result.pluck('template_name')).index_by(&:template_name)
 
-            relation_groups.key?(cc.relation_a) ? relation_groups[cc.relation_a].push(object) : relation_groups[cc.relation_a] = [object]
-          end
+      result.group_by { |v| v['template_name'] }.to_h do |template_name, values|
+        [
+          templates[template_name],
+          values.pluck('relation', 'count').to_h
+        ]
+      end
+    end
+
+    private
+
+    def thing_attribute_url(content, linked_attribute, keys)
+      things = [content]
+      things << content.try(linked_attribute) if linked_attribute.present?
+      things.compact.each do |c|
+        keys.each do |attribute|
+          url = c.try("virtual_#{attribute}") || c.try(attribute)
+          return url if url.present?
         end
-
-        relation_groups
       end
     end
   end

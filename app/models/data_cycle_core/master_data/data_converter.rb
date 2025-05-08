@@ -179,11 +179,11 @@ module DataCycleCore
       end
 
       def self.sanitize_html_string(value, definition = nil)
-        return value unless definition.present? && definition['sanitize'] == true
+        return value unless DataCycleCore::Feature['StringSanitizer']&.enabled?
 
-        data_size = definition.dig('ui', 'edit', 'options', 'data-size')
-        tags = data_size.present? ? SANITIZE_TAGS[data_size.to_sym] : []
-        attributes = data_size.present? ? SANITIZED_ATTRIBUTES[data_size.to_sym] : []
+        data_size = definition&.dig('ui', 'edit', 'options', 'data-size')
+        tags = SANITIZE_TAGS[data_size&.to_sym] || []
+        attributes = SANITIZED_ATTRIBUTES[data_size&.to_sym] || []
         ActionController::Base.helpers.sanitize(value, tags:, attributes:)
       end
     end

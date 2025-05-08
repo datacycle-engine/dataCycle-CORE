@@ -1,8 +1,6 @@
 <%= render 'data_cycle_core/contents/grid/default', local_assigns do %>
-  <% if item.try(:thumbnail_url).present? %>
-    <%
-      thumbnail_url = item.try(:thumbnail_image)&.first&.thumbnail_url || item.try(:thumbnail_url)
-    %>
+  <% if thing_thumbnail_url(item, 'thumbnail_image').present? %>
+    <% thumbnail_url = thing_thumbnail_url(item, 'thumbnail_image') %>
     <div class="video-thumbnail">
       <img data-src="<%= thumbnail_url %>" alt="<%= item.try(:title) %>" class="lazyload" />
     </div>

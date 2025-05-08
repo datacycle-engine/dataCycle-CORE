@@ -58,13 +58,13 @@ module DataCycleCore
         end
 
         register_macro(:touch_step_required) do
-          next unless key? && value.include?('DownloadBulkMarkDeleted')
+          next unless key? && value.demodulize.in?(['DownloadBulkMarkDeleted'])
 
           source_type = values[:source_type]
 
-          next unless steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy].include?('DownloadDataFromData') }
+          next unless steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy]&.include?('DownloadDataFromData') }
 
-          next if steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy].include?('DownloadBulkTouchFromData') }
+          next if steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy]&.include?('DownloadBulkTouchFromData') }
 
           key.failure('DownloadBulkTouchFromData is required if DownloadBulkMarkDeleted is used in combination with DownloadDataFromData')
         end

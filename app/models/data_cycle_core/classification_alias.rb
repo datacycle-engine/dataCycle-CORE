@@ -69,6 +69,11 @@ module DataCycleCore
     scope :by_full_paths, ->(full_paths) { includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
     scope :assignable, -> { where(assignable: true) }
     scope :visible, ->(context) { joins(:classification_tree_label).merge(ClassificationTreeLabel.visible(context)) }
+    scope :with_locale, lambda { |locales|
+      Array.wrap(locales)
+        .map { |l| where("classification_aliases.name_i18n ->> '#{l}' IS NOT NULL AND classification_aliases.name_i18n ->> '#{l}' != ''") }
+        .inject { |scope, query| scope.or(query) }
+    }
 
     validate :validate_color_format
 
@@ -116,11 +121,13 @@ module DataCycleCore
     end
 
     def self.primary_classifications
-      DataCycleCore::Classification.includes(:primary_classification_alias).where(classification_aliases: { id: reorder(nil).select(:id) })
+      DataCycleCore::Classification.includes(:primary_classification_alias)
+        .where(classification_aliases: { id: reorder(nil).pluck(:id) })
     end
 
     def self.classifications
-      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: reorder(nil).select(:id) })
+      DataCycleCore::Classification.includes(:classification_aliases)
+        .where(classification_aliases: { id: reorder(nil).pluck(:id) })
     end
 
     def self.with_descendants

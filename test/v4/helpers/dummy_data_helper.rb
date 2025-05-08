@@ -285,6 +285,12 @@ module DataCycleCore
         DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash:, user: @user)
       end
 
+      def charging_station
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'charging_station')
+        data_hash['name'] = "carging_station_#{SecureRandom.uuid}"
+        DataCycleCore::TestPreparations.create_content(template_name: 'Ladestation', data_hash:, user: @user)
+      end
+
       def offer
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_offer')
         data_hash['offer_period'] = offer_period

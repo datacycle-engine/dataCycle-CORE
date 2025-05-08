@@ -361,7 +361,10 @@ describe DataCycleCore::MasterData::DataConverter do
       TEXT
 
       it 'sanitize html for data-size none' do
-        definition = { 'sanitize' => true, 'ui' => {'edit' => {'options' => {'data-size' => 'none'}}}}
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'none'}}}}
         expected = <<~TEXT.squish
           <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
           unordered listitem 1unordered listitem 2
@@ -378,7 +381,10 @@ describe DataCycleCore::MasterData::DataConverter do
       end
 
       it 'sanitize html for data-size minimal' do
-        definition = { 'sanitize' => true, 'ui' => {'edit' => {'options' => {'data-size' => 'minimal'}}}}
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'minimal'}}}}
         expected = <<~TEXT.squish
           <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
           unordered listitem 1unordered listitem 2
@@ -395,7 +401,10 @@ describe DataCycleCore::MasterData::DataConverter do
       end
 
       it 'sanitize html for data-size basic' do
-        definition = { 'sanitize' => true, 'ui' => {'edit' => {'options' => {'data-size' => 'basic'}}}}
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'basic'}}}}
         expected = <<~TEXT.squish
           <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
           unordered listitem 1unordered listitem 2
@@ -412,7 +421,10 @@ describe DataCycleCore::MasterData::DataConverter do
       end
 
       it 'sanitize html for data-size full' do
-        definition = { 'sanitize' => true, 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
         expected = <<~TEXT.squish
           <p>paragraph</p><p class="ql-align-center">paragraph center</p><p class="ql-align-right">paragraph right</p><p class="ql-align-justify">paragraph justify</p>
           <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
@@ -428,7 +440,10 @@ describe DataCycleCore::MasterData::DataConverter do
       end
 
       it 'sanitize html sanitize=true but no data-size' do
-        definition = { 'sanitize' => true}
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = {}
         html_string = <<~TEXT.squish
           paragraphparagraph centerparagraph rightparagraph justify
           unordered listitem 1unordered listitem 2
@@ -444,7 +459,7 @@ describe DataCycleCore::MasterData::DataConverter do
       end
 
       it 'sanitize html sanitize=false' do
-        definition = { 'sanitize' => false, 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
         assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html, definition)
       end
 
@@ -455,6 +470,11 @@ describe DataCycleCore::MasterData::DataConverter do
 
       it 'sanitize html without definition' do
         assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html)
+      end
+
+      after do
+        DataCycleCore.features[:string_sanitizer][:enabled] = false
+        DataCycleCore::Feature['StringSanitizer'].reload
       end
     end
   end

@@ -1,16 +1,16 @@
-- "0 0 * * 1":
+- "0 0 * * 1": # every Monday at 00:00
     - data_cycle_core:notifications:send[week]
 
-- "0 0 * * *":
+- "0 0 * * *": # every day at 00:00
     - data_cycle_core:notifications:send[day]
     - dc:privacy:lock_users_without_consent
     - data_cycle_core:clear:activities
 
-- "0 2 * * *":
+- "0 2 * * *": # every day at 02:00
     - data_cycle_core:db:dump[backup_production]
 
-- "0 3 * * *":
+- "0 3 * * *": # every day at 03:00
     - data_cycle_core:mongo:dump_backup
 
-- "01 3 1 * *": # every month on the 1st
+- "01 3 1 * *": # every month at 03:01
     - db:configure:rebuild_schedule_occurrences
