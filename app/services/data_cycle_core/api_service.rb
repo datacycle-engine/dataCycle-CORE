@@ -4,7 +4,6 @@ module DataCycleCore
   module ApiService
     API_SCHEDULE_ATTRIBUTES = [:eventSchedule, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule, :hoursAvailable, :validitySchedule].freeze
     API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created'].freeze
-    API_NUMERIC_ATTRIBUTES = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople, :totalNumberOfBeds, :internalContentScore, :'dcls:meetingRoomMaxCapacity', :'dcls:numberOfMeetingRooms', :length, :'dc:length', :duration, :'dc:duration'].freeze
 
     def list_api_request(contents = nil)
       contents ||= @contents
@@ -152,7 +151,7 @@ module DataCycleCore
 
           v = transform_values_for_query(v, attribute_key)
           if query.method(query_method)&.parameters&.size == 3
-            if advanced_attribute_filter?(attribute_key)
+            if advanced_attribute_key_by_path(attribute_key).present?
               query = query.send(query_method, v, advanced_attribute_type_by_path(attribute_key), attribute_path)
             else
               query = query.send(query_method, v, attribute_path, attribute_key.to_s.delete_prefix('dc:').underscore_blanks)
@@ -241,14 +240,8 @@ module DataCycleCore
       return 'geo_within_classification' if key == :shapes
       return 'equals_advanced_slug' if key == :slug
       return 'equals_advanced_attributes' if advanced_attribute_type_by_path(key) == 'numeric'
-      return "#{value.keys.first}_advanced_attributes" if advanced_attribute_filter?(key)
+      return "#{value.keys.first}_advanced_attributes" if advanced_attribute_key_by_path(key).present?
       key.to_s
-    end
-
-    def advanced_attribute_filter?(key)
-      return true if advanced_attribute_key_by_path(key).present?
-
-      API_NUMERIC_ATTRIBUTES.include?(key)
     end
 
     def linked_attribute_mapping(linked_name)
@@ -269,6 +262,7 @@ module DataCycleCore
 
     def advanced_attribute_key_by_path(path)
       key = path.to_s.underscore
+
       return key if DataCycleCore::ApiService.additional_advanced_attributes[key].present?
 
       DataCycleCore::ApiService.additional_advanced_attributes.each do |k, v|
