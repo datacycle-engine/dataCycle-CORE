@@ -180,12 +180,18 @@ module DataCycleCore
           if error.present?
             render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
           else
-            query_params = permitted_params
+            permitted = permitted_params
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)
-              .merge('filter' => (permitted_params[:filter] || {}).merge({ 'contentId' => { 'in' => [content_ids.join(',')] } }), 'dc:liveData' => live_data, id: permitted_params[:endpoint_id])
-              .to_hash
+              .to_h
+            validate_api_params(permitted, validate_params_exceptions, self.class::VALIDATE_PARAMS_CONTRACT)
+
+            @permitted_params = permitted
+              .deep_merge({
+                'filter' => { 'contentId' => { 'in' => [content_ids.join(',')] } },
+                'dc:liveData' => live_data,
+                'id' => permitted_params[:endpoint_id]
+              })
               .deep_symbolize_keys
-            @permitted_params = query_params
 
             query = build_search_query
             @pagination_contents = apply_paging(query)

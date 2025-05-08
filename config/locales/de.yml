@@ -1082,6 +1082,7 @@ de:
       like: E-Mail enthält
       not_like: E-Mail enthält nicht
     content_ids: Inhalt
+    publication_date: Publikationsdatum
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...

@@ -1261,6 +1261,7 @@ en:
       like: email contains
       not_like: email does not contain
     content_ids: Content
+    publication_date: Publication date
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
