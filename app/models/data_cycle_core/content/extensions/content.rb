@@ -47,14 +47,15 @@ module DataCycleCore
 
         def to_select_option(locale = DataCycleCore.ui_locales.first)
           DataCycleCore::Filter::SelectOption.new(
-            id,
-            ActionController::Base.helpers.safe_join([
+            id:,
+            name: ActionController::Base.helpers.safe_join([
               ActionController::Base.helpers.tag.i(class: "fa dc-type-icon thing-icon #{icon_type}"),
               I18n.with_locale(first_available_locale) { title },
               "(#{translated_locales.join(', ')})"
             ].compact, ' '),
-            "#{template_name.underscore_blanks} #{schema_type.underscore_blanks}",
-            "#{translated_template_name(locale)}: #{I18n.with_locale(first_available_locale) { title }} (#{translated_locales.join(', ')})"
+            html_class: "#{template_name.underscore_blanks} #{schema_type.underscore_blanks}",
+            dc_tooltip: "#{translated_template_name(locale)}: #{I18n.with_locale(first_available_locale) { title }} (#{translated_locales.join(', ')})",
+            class_key: model_name.param_key
           )
         end
       end

@@ -1232,6 +1232,8 @@ $filter-border: #aaa;
 
         &.search-favorites-short {
           >ul li {
+            display: flex;
+            align-items: center;
             gap: 1rem;
 
             &.search-favorites-list-input {
@@ -1270,7 +1272,11 @@ $filter-border: #aaa;
                 display: flex;
                 flex-flow: column;
                 gap: 0.4rem;
-                overflow: hidden;
+                width: 100%;
+
+                li {
+                  padding: 1rem;
+                }
 
                 &.list-loading {
                   cursor: wait;
@@ -1309,6 +1315,7 @@ $filter-border: #aaa;
               align-items: center;
               justify-content: flex-end;
               z-index: 1;
+              margin-left: auto;
 
               a {
                 position: relative;
@@ -1460,6 +1467,7 @@ $filter-border: #aaa;
           padding: 0.4rem;
           border-radius: $global-radius;
           gap: 0.4rem;
+          cursor: default;
 
           &.remote-render,
           &.remote-rendering {
@@ -1474,15 +1482,17 @@ $filter-border: #aaa;
             background: $white;
             position: relative;
             display: flex;
-            overflow: hidden;
             width: 100%;
+
+            &.search-result-item {
+              overflow: hidden;
+              box-shadow: 0 1px 2px var(--black-01);
+            }
 
             a:not(.button) {
               color: $dark-gray;
-              padding: 1rem;
               display: flex;
               height: 100%;
-              width: 100%;
               transition: background-color ease-out 0.25s, color ease-out 0.25s;
 
               span {
@@ -1554,7 +1564,7 @@ $filter-border: #aaa;
         }
 
         &.active {
-          background-color: darken($white, 2%);
+          background-color: var(--nearly-white-09);
           box-shadow: 0 5px 3px rgba($black, 0.3);
           color: $black;
           border-radius: $global-radius $global-radius 0 0;
@@ -1569,9 +1579,10 @@ $filter-border: #aaa;
             left: 0;
             top: calc(100% - 1px);
             width: 100%;
-            background-color: darken($white, 2%);
+            background-color: var(--nearly-white-09);
             box-shadow: 0 5px 3px rgba($black, 0.3);
             z-index: 3;
+            backdrop-filter: blur(5px);
           }
 
           &::after {

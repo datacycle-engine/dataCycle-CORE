@@ -249,19 +249,20 @@ module DataCycleCore
 
     def to_select_option(locale = DataCycleCore.ui_locales.first, disable_locked = true)
       DataCycleCore::Filter::SelectOption.new(
-        id,
-        ActionController::Base.helpers.safe_join([
+        id:,
+        name: ActionController::Base.helpers.safe_join([
           ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon user-icon'),
           email
         ].compact, ' '),
-        model_name.param_key,
-        ActionController::Base.helpers.safe_join(
+        html_class: model_name.param_key,
+        dc_tooltip: ActionController::Base.helpers.safe_join(
           [
             "#{model_name.human(count: 1, locale:)}:",
             full_name_with_status(locale:)
           ], ' '
         ),
-        disable_locked && locked?
+        disabled: disable_locked && locked?,
+        class_key: model_name.param_key
       )
     end
 
