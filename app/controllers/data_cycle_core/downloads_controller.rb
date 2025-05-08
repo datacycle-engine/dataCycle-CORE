@@ -228,13 +228,22 @@ module DataCycleCore
 
     def download_data_link_item(item)
       if item.is_a?(DataCycleCore::Thing)
-        download_content(item, 'asset', nil, nil)
-      elsif item.is_a?(DataCycleCore::WatchList)
-        download_items = item.things.to_a.select do |thing|
-          DataCycleCore::Feature::Download.allowed?(thing)
-        end
+        serializers = DataCycleCore::Feature::Download
+          .enabled_serializers_for_download(item, [:content])
+          .keys
+          .first
 
-        download_collection(item, download_items, ['asset'], nil, nil)
+        download_content(item, serializers, nil, nil)
+      elsif item.is_a?(DataCycleCore::WatchList)
+        download_items = item
+          .things
+          .to_a
+          .select { |thing| DataCycleCore::Feature::Download.allowed?(thing) }
+        serializers = DataCycleCore::Feature::Download
+          .enabled_serializers_for_download(item, [:archive, :zip])
+          .keys
+
+        download_collection(item, download_items, serializers, nil, nil)
       end
     end
   end
