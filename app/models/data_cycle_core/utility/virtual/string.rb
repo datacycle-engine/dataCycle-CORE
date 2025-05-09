@@ -11,23 +11,16 @@ module DataCycleCore
         }.freeze
 
         class << self
-          def concat(virtual_parameters:, **args)
-            virtual_parameters.map { |item|
-              item.is_a?(Hash) ? transform_string(item, args) : item
-            }.join
-          end
-
-          def transform_string(definition, args)
-            case definition['type']
-            when 'external_source'
-              args[:content]&.external_source&.default_options&.dig(definition['name'])
-            when 'I18n'
-              definition['type'].constantize.send(definition['name'])
-            when 'content'
-              args[:content].send(definition['name'])
-            else
-              raise 'Unknown type for string transformation'
-            end
+          # :virtual:
+          #   :module: String
+          #   :method: concat
+          #   :separator: " "
+          #   :parameters:
+          #     - given_name
+          #     - family_name
+          def concat(virtual_parameters:, virtual_definition:, content:, **)
+            separator = virtual_definition['separator'] || ' '
+            virtual_parameters.filter_map { |key| content.try(key)&.to_s }.join(separator)
           end
 
           def translation_by_imported_key(content:, virtual_parameters:, **_args)
