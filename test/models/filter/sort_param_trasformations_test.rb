@@ -127,7 +127,7 @@ module DataCycleCore
       sort_string = [[nil, nil], {'in' => {'min' => '2025-04-01', 'max' => '2025-05-01'}, 'relation' => 'eventSchedule'}]
       filter_string = [['14', '46'], {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}]
 
-      expected = [['14', '46'], {'in' => {'min' => '2025-04-01', 'max' => '2025-05-01'}, 'relation' => 'eventSchedule'}]
+      expected = [['14', '46'], {'from' => '2025-04-03', 'until' => '2025-05-01', 'relation' => 'eventSchedule'}]
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_in_occurrence_with_distance')
@@ -138,7 +138,7 @@ module DataCycleCore
       sort_string = [['14', '46'], {'relation' => 'eventSchedule'}]
       filter_string = [['12', '47'], {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}]
 
-      expected = [['14', '46'], {'relation' => 'eventSchedule', 'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}}]
+      expected = [['14', '46'], {'relation' => 'eventSchedule', 'from' => '2025-04-03', 'until' => '2025-05-03'}]
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_in_occurrence_with_distance')
@@ -149,7 +149,7 @@ module DataCycleCore
       sort_string = [['14', '46'], {'in' => {'min' => '2025-04-01', 'max' => '2025-05-01'}}]
       filter_string = [['12', '47'], {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}]
 
-      expected = [['14', '46'], {'in' => {'min' => '2025-04-01', 'max' => '2025-05-01'}, 'relation' => 'openingHoursSpecification'}]
+      expected = [['14', '46'], {'from' => '2025-04-03', 'until' => '2025-05-01', 'relation' => 'openingHoursSpecification'}]
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_in_occurrence_with_distance')
@@ -160,7 +160,7 @@ module DataCycleCore
       sort_string = {'q' => nil, 'v' => {'min' => '2025-04-01', 'max' => '2025-05-01'}}
       filter_string = {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}
 
-      expected = {'q' => nil, 'v' => {'min' => '2025-04-01', 'max' => '2025-05-01', 'relation' => 'openingHoursSpecification'}}
+      expected = {'q' => nil, 'v' => {'from' => '2025-04-03', 'until' => '2025-05-01', 'relation' => 'openingHoursSpecification'}}
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_proximity_value')
@@ -171,7 +171,7 @@ module DataCycleCore
       sort_string = {'q' => nil, 'v' => {'relation' => 'openingHoursSpecification'}}
       filter_string = {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}
 
-      expected = {'q' => nil, 'v' => {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}}
+      expected = {'q' => nil, 'v' => {'from' => '2025-04-03', 'until' => '2025-05-03', 'relation' => 'openingHoursSpecification'}}
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_proximity_value')

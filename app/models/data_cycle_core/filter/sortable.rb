@@ -135,18 +135,18 @@ module DataCycleCore
 
         relation_value = find_relation(value)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND a.relation = '#{relation}'" : "AND a.relation != 'validity_range'"
+        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
         joined_table_name = "so#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT a.thing_id,
+            SELECT schedules.thing_id,
               MIN(LOWER(so.occurrence)) AS "min_start_date"
-            FROM schedules a,
-              UNNEST(a.occurrences) so(occurrence)
-            WHERE things.id = a.thing_id
+            FROM schedules,
+              UNNEST(schedules.occurrences) so(occurrence)
+            WHERE things.id = schedules.thing_id
               AND so.occurrence && TSTZRANGE(?, ?)
               #{relation_filter}
-            GROUP BY a.thing_id
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -229,13 +229,14 @@ module DataCycleCore
         end_of_day = Time.zone.now.end_of_day
         end_date_extended = [end_date, 1.month.from_now.end_of_month].max
 
+        # [TODO] @Samuel: check if it works as intended
         relation_value = find_relation(schedule)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND a.relation = '#{relation}'" : "AND a.relation = 'opening_hours_specification'"
+        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation = 'opening_hours_specification'"
 
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT a.thing_id,
+            SELECT schedules.thing_id,
               CASE
                 WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL
                 WHEN MIN(LOWER(so.occurrence)) FILTER (WHERE so.occurrence && TSTZRANGE(NOW(), '#{end_of_day}')) IS NOT NULL THEN 1
@@ -243,11 +244,11 @@ module DataCycleCore
                 ELSE 3
               END as occurrence_exists,
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
-            FROM schedules a
-            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
-            WHERE things.id = a.thing_id
+            FROM schedules
+            LEFT OUTER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
+            WHERE things.id = schedules.thing_id
             #{relation_filter}
-            GROUP BY a.thing_id
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -305,21 +306,22 @@ module DataCycleCore
           min_start_date = '1'
         end
 
+        # [TODO] @Samuel: check if it works as intended
         relation_value = find_relation(schedule)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND a.relation = '#{relation}'" : "AND a.relation != 'validity_range'"
+        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT a.thing_id,
+            SELECT schedules.thing_id,
               1 AS "occurrence_exists",
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
-            FROM schedules a
-            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
-            WHERE things.id = a.thing_id
+            FROM schedules
+            LEFT OUTER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
+            WHERE things.id = schedules.thing_id
             #{relation_filter}
-            GROUP BY a.thing_id
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -349,21 +351,22 @@ module DataCycleCore
           min_start_date = '1'
         end
 
+        # [TODO] @Samuel: check if it works as intended
         relation_value = find_relation(value)
         relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND a.relation = '#{relation}'" : "AND a.relation != 'validity_range'"
+        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT a.thing_id,
+            SELECT schedules.thing_id,
               1 AS "occurrence_exists",
               #{min_start_date} AS "min_start_date"
-            FROM schedules a
-            INNER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
-            WHERE things.id = a.thing_id
+            FROM schedules
+            INNER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
+            WHERE things.id = schedules.thing_id
             #{relation_filter}
-            GROUP BY a.thing_id
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 

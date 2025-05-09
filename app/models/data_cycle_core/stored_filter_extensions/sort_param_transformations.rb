@@ -158,23 +158,35 @@ module DataCycleCore
       end
 
       def merge_api_schedule_params(sort_schedule, filter_schedule)
-        return sort_schedule if filter_schedule.nil?
-        return filter_schedule if sort_schedule.nil?
+        return sort_schedule if filter_schedule.blank?
+        return filter_schedule if sort_schedule.blank?
 
-        merged_schedule = sort_schedule.dup
-        merged_schedule['relation'] = filter_schedule['relation'] if merged_schedule['relation'].nil?
-        schedule = filter_schedule['in'].presence || { 'min' => filter_schedule['min'], 'max' => filter_schedule['max']}
+        min = [
+          get_schedule_value_from_param(sort_schedule, ['from', 'min', ['in', 'min']]),
+          get_schedule_value_from_param(filter_schedule, ['from', 'min', ['in', 'min']])
+        ].compact_blank.max
+        max = [
+          get_schedule_value_from_param(sort_schedule, ['until', 'max', ['in', 'max']]),
+          get_schedule_value_from_param(filter_schedule, ['until', 'max', ['in', 'max']])
+        ].compact_blank.min
+        max = nil if min.present? && max.present? && min > max
 
-        # two different ways that sort_schedule contains min and max
-        # {'min' => 'startDate', 'max' => 'endDate', 'relation' => 'sortAttr'}
-        # {'in' => {'min' => 'startDate', 'max' => 'endDate'}, 'relation' => 'sortAttr'}
-        if merged_schedule.key?('min') || merged_schedule.key?('max')
-          merged_schedule['min'] ||= schedule['min']
-          merged_schedule['max'] ||= schedule['max']
-        elsif !merged_schedule['in'].is_a?(Hash) || (merged_schedule['in']['min'].nil? && merged_schedule['in']['max'].nil?)
-          merged_schedule['in'] = schedule
+        {
+          'from' => min,
+          'until' => max,
+          'relation' => sort_schedule['relation'] || filter_schedule['relation']
+        }.compact_blank
+      end
+
+      def get_schedule_value_from_param(params, paths)
+        return if params.blank?
+
+        paths.each do |path|
+          v = params.dig(*path)
+          return v if v.present?
         end
-        merged_schedule
+
+        nil
       end
 
       def transform_order_hash(sort_hash, watch_list)
