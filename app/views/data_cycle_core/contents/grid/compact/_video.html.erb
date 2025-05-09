@@ -1,7 +1,7 @@
 <%
     render_locale = I18n.locale
     random_id = SecureRandom.hex(10)
-    thumbnail_url = thing_thumbnail_url(object)
+    thumbnail_url = thing_thumbnail_url(object, 'thumbnail_image')
 %>
 <% content_for(:tile_header_buttons, render_linked_content_warnings(content, { content: object, locale: render_locale })) %>
 

@@ -41,7 +41,7 @@
       <% else %>
         <% mini_thumb_url = thing_thumbnail_url(item, 'thumbnail_image') %>
       <% end %>
-      <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
+      <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= thing_thumbnail_url(item) %>' />" />
     <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>
       <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.image %>' />" />
     <% end %>

@@ -72,7 +72,8 @@ module DataCycleCore
 
     def thing_attribute_url(content, linked_attribute, keys)
       things = [content]
-      things << content.try(linked_attribute) if linked_attribute.present?
+      things.unshift(content.try(linked_attribute)) if linked_attribute.present?
+
       things.compact.each do |c|
         keys.each do |attribute|
           url = c.try("virtual_#{attribute}") || c.try(attribute)

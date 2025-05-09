@@ -1,6 +1,6 @@
 <% content_for :media_thumbs do %>
   <div class="grid-thumbnails">
-    <img data-src="<%= item.primary_image.first.thumbnail_url %>" alt="<%= item.primary_image.first.title %>" class="lazyload grid-item-thumbnail" />
+    <img data-src="<%= thing_thumbnail_url(item.primary_image.first) %>" alt="<%= item.primary_image.first.title %>" class="lazyload grid-item-thumbnail" />
   </div>
 <% end if item.try(:primary_image).present? %>
 
