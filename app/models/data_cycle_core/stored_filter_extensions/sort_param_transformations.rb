@@ -145,12 +145,14 @@ module DataCycleCore
 
       def merge_api_filter_params(sort_params, filter_params, sort_key)
         return merge_api_in_occurrence_with_distance_default_params(sort_params, filter_params) if sort_key == 'sort_by_in_occurrence_with_distance'
+
         sort_params['v'] = merge_api_schedule_params(sort_params['v'], filter_params) if sort_key == 'sort_by_proximity_value'
         sort_params
       end
 
       def merge_api_in_occurrence_with_distance_default_params(sort_params, filter_params)
         return sort_params if filter_params.nil?
+
         [
           sort_params[0].nil? || sort_params[0].all?(&:nil?) ? filter_params[0] : sort_params[0],
           merge_api_schedule_params(sort_params[1], filter_params[1])
@@ -161,14 +163,15 @@ module DataCycleCore
         return sort_schedule if filter_schedule.blank?
         return filter_schedule if sort_schedule.blank?
 
-        min = [
-          get_schedule_value_from_param(sort_schedule, ['from', 'min', ['in', 'min']]),
-          get_schedule_value_from_param(filter_schedule, ['from', 'min', ['in', 'min']])
-        ].compact_blank.max
-        max = [
-          get_schedule_value_from_param(sort_schedule, ['until', 'max', ['in', 'max']]),
-          get_schedule_value_from_param(filter_schedule, ['until', 'max', ['in', 'max']])
-        ].compact_blank.min
+        sort_min, sort_max = DataCycleCore::Filter::Common::Date.date_from_filter_object(
+          sort_schedule&.dig('in') || sort_schedule
+        )
+        filter_min, filter_max = DataCycleCore::Filter::Common::Date.date_from_filter_object(
+          filter_schedule&.dig('in') || filter_schedule
+        )
+
+        min = [sort_min, filter_min].compact_blank.max
+        max = [sort_max, filter_max].compact_blank.min
         max = nil if min.present? && max.present? && min > max
 
         {
@@ -176,17 +179,6 @@ module DataCycleCore
           'until' => max,
           'relation' => sort_schedule['relation'] || filter_schedule['relation']
         }.compact_blank
-      end
-
-      def get_schedule_value_from_param(params, paths)
-        return if params.blank?
-
-        paths.each do |path|
-          v = params.dig(*path)
-          return v if v.present?
-        end
-
-        nil
       end
 
       def transform_order_hash(sort_hash, watch_list)

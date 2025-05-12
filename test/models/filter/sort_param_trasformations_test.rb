@@ -128,6 +128,7 @@ module DataCycleCore
       filter_string = [['14', '46'], {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}]
 
       expected = [['14', '46'], {'from' => '2025-04-03', 'until' => '2025-05-01', 'relation' => 'eventSchedule'}]
+      expected[1]['from'], expected[1]['until'] = DataCycleCore::Filter::Common::Date.date_from_filter_object(expected[1])
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_in_occurrence_with_distance')
@@ -139,6 +140,7 @@ module DataCycleCore
       filter_string = [['12', '47'], {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}]
 
       expected = [['14', '46'], {'relation' => 'eventSchedule', 'from' => '2025-04-03', 'until' => '2025-05-03'}]
+      expected[1]['from'], expected[1]['until'] = DataCycleCore::Filter::Common::Date.date_from_filter_object(expected[1])
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_in_occurrence_with_distance')
@@ -150,6 +152,7 @@ module DataCycleCore
       filter_string = [['12', '47'], {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}]
 
       expected = [['14', '46'], {'from' => '2025-04-03', 'until' => '2025-05-01', 'relation' => 'openingHoursSpecification'}]
+      expected[1]['from'], expected[1]['until'] = DataCycleCore::Filter::Common::Date.date_from_filter_object(expected[1])
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_in_occurrence_with_distance')
@@ -161,6 +164,7 @@ module DataCycleCore
       filter_string = {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}
 
       expected = {'q' => nil, 'v' => {'from' => '2025-04-03', 'until' => '2025-05-01', 'relation' => 'openingHoursSpecification'}}
+      expected['v']['from'], expected['v']['until'] = DataCycleCore::Filter::Common::Date.date_from_filter_object(expected['v'])
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_proximity_value')
@@ -172,6 +176,7 @@ module DataCycleCore
       filter_string = {'in' => {'min' => '2025-04-03', 'max' => '2025-05-03'}, 'relation' => 'openingHoursSpecification'}
 
       expected = {'q' => nil, 'v' => {'from' => '2025-04-03', 'until' => '2025-05-03', 'relation' => 'openingHoursSpecification'}}
+      expected['v']['from'], expected['v']['until'] = DataCycleCore::Filter::Common::Date.date_from_filter_object(expected['v'])
 
       stored_filter = DataCycleCore::StoredFilter.new
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_by_proximity_value')
