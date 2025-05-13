@@ -248,6 +248,9 @@ module DataCycleCore
   mattr_accessor :thing_attributes
   self.thing_attributes = ENV['THING_ATTRIBUTES'].to_s == 'true'
 
+  mattr_accessor :schedule
+  self.schedule = []
+
   def self.setup
     yield self
   end
