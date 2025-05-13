@@ -5,13 +5,7 @@ key_new = attribute_key(key, definition)
 json[key_new] ||= []
 
 api_property_definition = api_definition(definition)
-
-new_options = options.dup
-new_options[:fields] = subtree_for(key_new, options[:fields])
-new_options[:include] = subtree_for(key_new, options[:include])
-new_options[:languages] = options[:languages]
-
 classification_aliases = load_value_object(content, key, value, options[:languages], api_property_definition, options[:expand_language])&.primary_classification_aliases
 
-json.merge! render 'classifications', classification_aliases:, key: key_new, definition: {}, options: new_options
+json.merge! render 'classifications', classification_aliases:, key: key_new, definition: {}, options: options.dup
 json.compact_blank
