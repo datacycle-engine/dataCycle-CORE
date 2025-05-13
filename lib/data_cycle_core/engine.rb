@@ -303,9 +303,11 @@ module DataCycleCore
 
       next unless new_value.present? || new_value.is_a?(FalseClass)
 
-      if value.is_a?(::Hash) && new_value.is_a?(::Hash)
+      if value.is_a?(::Hash) && new_value.is_a?(::Hash) # deep merge hashes
         new_value = file_path.reverse.inject(new_value) { |assigned_value, key| { key => assigned_value } }
         new_value = value.deep_merge(new_value) { |_k, v1, _v2| v1 }.with_indifferent_access
+      elsif file_path.blank? && value.is_a?(::Array) && new_value.is_a?(::Array) # concatenate arrays only for top level
+        new_value.concat(value)
       end
 
       send(:"#{config_name}=", new_value).freeze

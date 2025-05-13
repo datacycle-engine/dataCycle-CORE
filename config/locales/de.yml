@@ -170,6 +170,8 @@ de:
     download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
+    schedule: "geplante Importe:"
+    inline: Inline
     maintenance:
       classification_mappings:
         button: Klassifizierungsmappings neu generieren

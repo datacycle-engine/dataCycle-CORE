@@ -82,7 +82,9 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # rufus scheduler
+  s.add_dependency 'fugit' # also used to render cron schedules in admin dashboard
   s.add_dependency 'rufus-scheduler'
+
   # redis
   s.add_dependency 'hiredis'
   s.add_dependency 'redis', '< 5'

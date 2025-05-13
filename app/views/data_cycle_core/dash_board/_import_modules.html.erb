@@ -7,6 +7,9 @@
         <div class="header">
           <h5 class="copy-to-clipboard" data-value="<%= import_data[:name] %>" data-dc-tooltip="<%= import_data[:name] %>"><%= import_data[:name] %></h5>
           <ul class="import-data-timestamps">
+            <% if import_data[:schedule].present? %>
+              <li class="schedule" data-dc-tooltip="<%= import_schedule(import_data[:schedule]) %>"></li>
+            <% end %>
             <li class="download <%= import_data[:last_download_class] %>" data-dc-tooltip="<%= timestamp_tooltip(import_data, 'download') %>"></li>
             <li class="import <%= import_data[:last_import_class] %>" data-dc-tooltip="<%= timestamp_tooltip(import_data, 'import') %>"></li>
           </ul>

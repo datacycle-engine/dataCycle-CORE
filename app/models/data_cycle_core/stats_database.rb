@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require 'fugit'
+
 module DataCycleCore
   class StatsDatabase
     include ActionView::Helpers::NumberHelper
+
+    VALID_JOB_TYPES = ['dc:import:append_job'].freeze
 
     attr_accessor(
       :stat_update, :pg_name, :pg_size, :pg_overlays,
@@ -144,6 +148,46 @@ module DataCycleCore
 
     private
 
+    def schedule(external_source)
+      schedules = []
+
+      DataCycleCore.schedule.each do |config|
+        next if config.key?('type') || config.key?('task')
+
+        config&.each do |cron_rule, tasks|
+          tasks&.each do |task|
+            t_name, t_args = task.delete_suffix(']').split('[')
+            key, mode, inline = t_args.split(',') if t_args.present?
+
+            next if VALID_JOB_TYPES.exclude?(t_name.to_s) || key.blank?
+
+            key.delete!('\'"')
+            mode&.delete!('\'"')
+            inline&.delete!('\'"')
+
+            next if key.start_with?(' ') || key.end_with?(' ') || mode&.include?(' ') || inline&.include?(' ')
+
+            next unless key == external_source.id ||
+                        key == external_source.name ||
+                        key == external_source.identifier
+
+            parsed_schedule = Fugit.parse(cron_rule)
+            next unless parsed_schedule
+
+            parsed_schedule.next.take(7).each do |next_time|
+              schedules << {
+                timestamp: next_time,
+                mode: mode,
+                inline: inline.to_s == 'true'
+              }
+            end
+          end
+        end
+      end
+
+      schedules.sort_by { |s| s[:timestamp] }.first(7)
+    end
+
     def load_postgres_data
       @stat_update = Time.zone.now
 
@@ -196,7 +240,8 @@ module DataCycleCore
           importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
           name: external_source.name,
           identifier: external_source.identifier,
-          last_import_step_time_info: external_source.last_import_step_time_info
+          last_import_step_time_info: external_source.last_import_step_time_info,
+          schedule: schedule(external_source)
         }.merge(last_download_and_import(external_source))
       end
     end

@@ -205,6 +205,12 @@
   }
 }
 
+.import-schedule-tooltip {
+  i.fa::before {
+    font-size: 0.7rem;
+  }
+}
+
 .card-section .mongo-db-name {
   display: block;
   white-space: nowrap;
@@ -324,6 +330,13 @@ ul.import-data-timestamps li {
     width: 1rem;
     height: 1.5rem;
     font-size: 0.4rem;
+  }
+
+  &.schedule {
+    &::before {
+      font-size: 1rem;
+      content: '\f017';
+    }
   }
 
   &.check-icon {

@@ -350,6 +350,8 @@ en:
     download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
+    schedule: "scheduled Imports:"
+    inline: Inline
     maintenance:
       classification_mappings:
         button: rebuild classification_mappings
