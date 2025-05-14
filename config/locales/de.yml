@@ -2259,9 +2259,6 @@ de:
       teaser: Teaser
       zusatzinfo: Zusatzinformationen
       anreisebeschreibung: Anreisebeschreibung
-    pimcore:
-      description: Beschreibung
-      text: Beschreibung
     lottaleben:
       description: Kurzbeschreibung
       text: Detailbeschreibung
