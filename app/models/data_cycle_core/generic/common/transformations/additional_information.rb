@@ -11,10 +11,6 @@ module DataCycleCore
                 text = DataCycleCore::Generic::Common::DataReferenceTransformations
                   .add_classification_name_references(text, 'type_of_information', 'Informationstypen', 'type_of_info')
               end
-              if text['type_of_desc'].present?
-                text = DataCycleCore::Generic::Common::DataReferenceTransformations
-                  .add_external_classification_references(text, 'type_of_description', nil, 'type_of_desc')
-              end
               text = DataCycleCore::Generic::Common::DataReferenceTransformations
                 .add_classification_name_references(text, 'universal_classifications', 'Externe Informationstypen', 'type')
               text = DataCycleCore::Generic::Common::DataReferenceTransformations
