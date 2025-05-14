@@ -24,10 +24,12 @@ module DataCycleCore
         end
 
         def search_availability
+          @pagination_url = method(:api_v4_external_source_search_availability_url)
           search_feratel_api(:search_availabilities)
         end
 
         def search_additional_service
+          @pagination_url = method(:api_v4_external_source_search_additional_service_url)
           search_feratel_api(:search_additional_services)
         end
 
