@@ -48,6 +48,7 @@ module DataCycleCore
     scope :from_tree, ->(tree_name) { for_tree(tree_name) }
     scope :with_name, ->(*names) { where(name: names.flatten) }
     scope :with_internal_name, ->(*names) { where(internal_name: names.flatten) }
+    scope :with_external_key, ->(*external_keys) { where(external_key: external_keys.flatten) }
     scope :without_name, ->(*names) { where.not(name: names.flatten) }
     scope :order_by_similarity, lambda { |term|
                                   max_cardinality = ClassificationAlias::Path.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
