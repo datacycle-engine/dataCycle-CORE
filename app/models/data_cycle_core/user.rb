@@ -79,6 +79,14 @@ module DataCycleCore
     }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
+    scope :by_omniauth, lambda { |auth, case_sensitive = false|
+      return none if auth&.info&.email.blank?
+
+      email = auth.info.email
+      email = email.downcase unless case_sensitive
+
+      where('users.providers @> ? OR users.email = ?', { auth.provider => auth.uid }.to_json, email)
+    }
     default_scope { where(deleted_at: nil) }
 
     CONTROLLER_CONTEXT_SCHEMA = Dry::Schema.Params do
@@ -209,32 +217,35 @@ module DataCycleCore
       end
     end
 
+    def self.find_or_initialize_by_omniauth(auth, case_sensitive = false)
+      return if auth&.info&.email.blank?
+
+      email = case_sensitive ? auth.info.email : auth.info.email.downcase
+      user = by_omniauth(auth, case_sensitive).first || new(email:)
+
+      user.providers ||= {}
+      user.providers[auth.provider] = auth.uid
+
+      user
+    end
+
     def self.from_omniauth(auth)
       return if auth&.info&.email.blank?
 
-      new_user = find_or_initialize_by(email: auth.info.email.downcase) do |user|
-        user.email = auth.info.email.downcase
-        user.password = Devise.friendly_token[0, 20]
+      user = find_or_initialize_by_omniauth(auth)
+
+      if user.new_record?
+        user.password = Devise.friendly_token
+        user.raw_password = user.password
         user.given_name = auth.info.first_name
         user.family_name = auth.info.last_name
         user.role = DataCycleCore::Role.find_by(name: Devise.omniauth_configs[auth.provider.to_sym].options[:default_role]) if Devise.omniauth_configs[auth.provider.to_sym]&.options&.[](:default_role).present?
+        user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserRegistration.enabled? && user.confirmed_at.blank?
+        user.external = true
       end
 
-      if new_user.provider.blank? && new_user.uid.blank?
-        new_user.provider = auth.provider
-        new_user.uid = auth.uid
-      end
-
-      new_user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserRegistration.enabled? && new_user.confirmed_at.blank?
-      new_user.external = true
-      new_user.additional_attributes ||= {}
-      new_user.additional_attributes[auth.provider] = {
-        info: auth.info,
-        raw_info: auth.dig('extra', 'raw_info')
-      }
-
-      new_user.save!
-      new_user
+      user.save!
+      user
     end
 
     def as_user_api_json
