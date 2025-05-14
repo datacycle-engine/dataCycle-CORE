@@ -10,7 +10,7 @@ module DataCycleCore
         end
 
         def include?(user)
-          super && user.provider == @provider
+          super && user.provider?(@provider)
         end
 
         private

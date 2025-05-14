@@ -9,7 +9,7 @@ module DataCycleCore
     devise :registerable if Feature::UserRegistration.enabled?
     devise :confirmable if Feature::UserConfirmation.enabled?
 
-    WEBHOOK_ACCESSORS = [:raw_password, :mailer_layout, :viewer_layout, :redirect_url].freeze
+    WEBHOOK_ACCESSORS = [:raw_password, :mailer_layout, :viewer_layout, :redirect_url, :providers].freeze
 
     attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, :synchronous_webhooks, :webhook_source, *WEBHOOK_ACCESSORS
     attr_writer :user_api_feature, :ability
@@ -22,7 +22,7 @@ module DataCycleCore
       'given_name',
       'name',
       'notification_frequency',
-      'provider',
+      'providers',
       'role_id',
       'default_locale'
     ].freeze
@@ -79,14 +79,16 @@ module DataCycleCore
     }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
+    scope :by_provider_uid, ->(provider, uid) { where('users.providers @> ?', { provider => uid }.to_json) }
     scope :by_omniauth, lambda { |auth, case_sensitive = false|
       return none if auth&.info&.email.blank?
 
       email = auth.info.email
       email = email.downcase unless case_sensitive
 
-      where('users.providers @> ? OR users.email = ?', { auth.provider => auth.uid }.to_json, email)
+      by_provider_uid(auth.provider, auth.uid).or(where(email:))
     }
+
     default_scope { where(deleted_at: nil) }
 
     CONTROLLER_CONTEXT_SCHEMA = Dry::Schema.Params do
@@ -168,6 +170,14 @@ module DataCycleCore
 
     def user_groups_by_permission(permission_key)
       user_groups.user_groups_with_permission(permission_key)
+    end
+
+    def provider?(provider)
+      providers&.dig(provider.to_s).present? # check if provider key exists and has a value (uid)
+    end
+
+    def id_for_provider(provider)
+      providers&.dig(provider.to_s)
     end
 
     def locked?
