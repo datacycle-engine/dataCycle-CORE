@@ -65,16 +65,6 @@ module DataCycleCore
             DataCycleCore::Concept.for_tree(tree_label).find_by(classification_id: classifications)&.name
           end
 
-          def generate_identifier_for_api_from_external_key(computed_parameters:, computed_definition:, **_args)
-            classification_ids = computed_parameters.values.flatten
-
-            classification = DataCycleCore::Concept.where(classification_id: classification_ids).includes(:concept_scheme).where(concept_scheme: { name: computed_definition.dig('compute', 'tree_label') }).pluck('concept_scheme.name', 'concepts.external_key').to_h
-            computed_definition.dig('compute', 'tree_label').each do |tree_label|
-              external_key = classification[tree_label]&.split(' > ')&.last
-              return external_key if external_key.present?
-            end
-          end
-
           private
 
           def recursive_char_count(data, parameters)
