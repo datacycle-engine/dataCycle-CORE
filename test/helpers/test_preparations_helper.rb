@@ -86,8 +86,8 @@ module DataCycleCore
 
       return if errors.blank?
 
-      puts 'the following errors were encountered during import:'
-      ap errors
+      Rails.logger.debug 'the following errors were encountered during import:'
+      Rails.logger.debug errors
     end
 
     def self.load_dummy_data(paths)
