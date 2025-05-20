@@ -9,7 +9,7 @@ module DataCycleCore
     devise :registerable if Feature::UserRegistration.enabled?
     devise :confirmable if Feature::UserConfirmation.enabled?
 
-    WEBHOOK_ACCESSORS = [:raw_password, :mailer_layout, :viewer_layout, :redirect_url, :providers].freeze
+    WEBHOOK_ACCESSORS = [:raw_password, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
     attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, :synchronous_webhooks, :webhook_source, *WEBHOOK_ACCESSORS
     attr_writer :user_api_feature, :ability
@@ -26,6 +26,10 @@ module DataCycleCore
       'role_id',
       'default_locale'
     ].freeze
+
+    Devise.omniauth_configs.each_key do |provider|
+      store_accessor :providers, provider.to_sym, suffix: 'uid'
+    end
 
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
@@ -79,16 +83,6 @@ module DataCycleCore
     }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
-    scope :by_provider_uid, ->(provider, uid) { where('users.providers @> ?', { provider => uid }.to_json) }
-    scope :by_omniauth, lambda { |auth, case_sensitive = false|
-      return none if auth&.info&.email.blank?
-
-      email = auth.info.email
-      email = email.downcase unless case_sensitive
-
-      by_provider_uid(auth.provider, auth.uid).or(where(email:))
-    }
-
     default_scope { where(deleted_at: nil) }
 
     CONTROLLER_CONTEXT_SCHEMA = Dry::Schema.Params do
@@ -102,6 +96,10 @@ module DataCycleCore
       widgetType: 'X-Dc-Widget-Type',
       widgetVersion: 'X-Dc-Widget-Version'
     }.freeze
+
+    def additional_webhook_attributes
+      Devise.omniauth_configs.keys.map { |k| "#{k}_uid" } + ['providers']
+    end
 
     def user_api_feature
       @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
@@ -172,14 +170,6 @@ module DataCycleCore
       user_groups.user_groups_with_permission(permission_key)
     end
 
-    def provider?(provider)
-      providers&.dig(provider.to_s).present? # check if provider key exists and has a value (uid)
-    end
-
-    def id_for_provider(provider)
-      providers&.dig(provider.to_s)
-    end
-
     def locked?
       locked_at.present?
     end
@@ -227,14 +217,25 @@ module DataCycleCore
       end
     end
 
+    def self.find_by_provider_uid(provider, uid)
+      return if provider.blank? || uid.blank?
+
+      find_by('users.providers @> ?', { provider => uid }.to_json)
+    end
+
+    def self.find_by_omniauth(auth, case_sensitive = false)
+      return if auth&.info&.email.blank?
+
+      email = case_sensitive ? auth.info.email : auth.info.email.downcase
+      find_by_provider_uid(auth.provider, auth.uid) || find_by(email:)
+    end
+
     def self.find_or_initialize_by_omniauth(auth, case_sensitive = false)
       return if auth&.info&.email.blank?
 
       email = case_sensitive ? auth.info.email : auth.info.email.downcase
-      user = by_omniauth(auth, case_sensitive).first || new(email:)
-
-      user.providers ||= {}
-      user.providers[auth.provider] = auth.uid
+      user = find_by_omniauth(auth, case_sensitive) || new(email:)
+      user.send("#{auth.provider}_uid=", auth.uid)
 
       user
     end
