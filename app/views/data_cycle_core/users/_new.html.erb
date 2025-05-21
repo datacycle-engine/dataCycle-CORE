@@ -1,7 +1,11 @@
-<div class="reveal new-item" id="new_<%= sanitize_to_id(DataCycleCore::User.name.underscore) %>" data-reveal data-multiple-opened="true">
+<div class="reveal new-item new-user-dialog" id="new_<%= sanitize_to_id(DataCycleCore::User.name.underscore) %>" data-reveal data-multiple-opened="true">
   <div class="reveal-header"><%= t('actions.new', data: DataCycleCore::User.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></div>
 
-  <%= form_with model: DataCycleCore::User.new, local: true, url: { controller: DataCycleCore::User.name.tableize, action: :create_user }, class: 'validation-form' do |f| %>
+  <%
+    allowed_roles = DataCycleCore::Role.accessible_by(current_ability).order(:rank)
+    user = DataCycleCore::User.new(role: allowed_roles.last)
+  %>
+  <%= form_with model: user, local: true, url: { controller: DataCycleCore::User.name.tableize, action: :create_user }, class: 'validation-form' do |f| %>
     <div class="reveal-body">
       <%= hidden_field_tag :table, DataCycleCore::User.name.demodulize.tableize %>
 
@@ -41,8 +45,15 @@
           <%= DataCycleCore::User.human_attribute_name(:role_id, locale: active_ui_locale) %>
           <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
         <% end %>
-        <%= f.select :role_id, DataCycleCore::Role.accessible_by(current_ability).order(:rank).collect{|r| [t('roles.'+r.name, locale: active_ui_locale), r.id]}, {}, class: 'no-margin' %>
+        <%= f.select :role_id, options_for_select(allowed_roles.collect{|r| [t('roles.'+r.name, locale: active_ui_locale), r.id]}, allowed_roles.first.id), {}, class: 'no-margin' %>
       </div>
+
+      <% if can?(:generate_access_token, user) %>
+        <div class="form-element boolean dc-checkbox">
+          <%= f.check_box :access_token, label: false %>
+          <%= f.label :access_token, DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale) %>
+        </div>
+      <% end %>
 
     </div>
 

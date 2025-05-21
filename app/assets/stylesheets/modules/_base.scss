@@ -2021,6 +2021,18 @@ body .v-select {
       }
     }
   }
+
+  &.new-user-dialog,
+  &.new-user-group-dialog {
+    .reveal-body {
+      display: grid;
+      gap: 1rem;
+
+      .form-element input {
+        margin-bottom: 0;
+      }
+    }
+  }
 }
 
 .required-field-marker {
