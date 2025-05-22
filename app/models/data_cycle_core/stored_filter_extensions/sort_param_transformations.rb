@@ -113,6 +113,8 @@ module DataCycleCore
       def sort_by_in_occurrence_with_distance(_params, value = nil)
         parsed_params = parse_sort_params(value, __method__)
 
+        return if parsed_params.blank?
+
         coords = []
         coords = [parsed_params['lon'], parsed_params['lat']] if parsed_params['lon'].present? || parsed_params['lat'].present?
 
