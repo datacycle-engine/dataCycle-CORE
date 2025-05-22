@@ -172,6 +172,8 @@ module DataCycleCore
       languages = permitted_download_params[:language]
       authorize! :download, @watch_list
       download_content(@watch_list, serialize_format, languages)
+    rescue StandardError
+      raise DataCycleCore::Error::Download::PDFCreationError, 'Failed creating pdf:'
     end
 
     def download_watch_list_zip

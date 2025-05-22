@@ -2729,6 +2729,7 @@ en:
     data_cycle_core/error/download/invalid_serialization_format_error:
       The selected
       download method is not supported
+    data_cycle_core/error/download/pdf_creation_error: An error occurred during PDF file creation
     data_cycle_core/error/api/bad_request_error:
       unknown_parameter: Unknown Query Parameter
       invalid_parameter: Invalid Query Parameter
