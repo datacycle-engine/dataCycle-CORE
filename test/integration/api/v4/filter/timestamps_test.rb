@@ -248,10 +248,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             params = {
-              fields: 'cd:touched',
+              fields: 'dc:touched',
               filter: {
                 attribute: {
-                  'cd:touched': {
+                  'dc:touched': {
                     in: {
                       min: 5.days.from_now.to_fs(:iso8601)
                     }
@@ -266,10 +266,10 @@ module DataCycleCore
             assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
             params = {
-              fields: 'cd:touched',
+              fields: 'dc:touched',
               filter: {
                 attribute: {
-                  'cd:touched': {
+                  'dc:touched': {
                     in: {
                       min: 5.days.from_now.to_fs(:iso8601),
                       max: 12.days.from_now.to_fs(:iso8601)
@@ -283,10 +283,10 @@ module DataCycleCore
 
             @food_establishment_a.update_column(:cache_valid_since, 10.days.ago)
             params = {
-              fields: 'cd:touched',
+              fields: 'dc:touched',
               filter: {
                 attribute: {
-                  'cd:touched': {
+                  'dc:touched': {
                     in: {
                       max: 5.days.ago.to_fs(:iso8601)
                     }
@@ -299,10 +299,10 @@ module DataCycleCore
 
             @food_establishment_a.update_column(:cache_valid_since, 10.days.from_now)
             params = {
-              fields: 'cd:touched',
+              fields: 'dc:touched',
               filter: {
                 attribute: {
-                  'cd:touched': {
+                  'dc:touched': {
                     notIn: {
                       min: 5.days.from_now.to_fs(:iso8601)
                     }
@@ -314,10 +314,10 @@ module DataCycleCore
             assert_api_count_result(@thing_count - 1)
 
             params = {
-              fields: 'cd:touched',
+              fields: 'dc:touched',
               filter: {
                 attribute: {
-                  'cd:touched': {
+                  'dc:touched': {
                     notIn: {
                       min: 5.days.from_now.to_fs(:iso8601),
                       max: 12.days.from_now.to_fs(:iso8601)
@@ -331,10 +331,10 @@ module DataCycleCore
 
             @food_establishment_a.update_column(:cache_valid_since, 10.days.ago)
             params = {
-              fields: 'cd:touched',
+              fields: 'dc:touched',
               filter: {
                 attribute: {
-                  'cd:touched': {
+                  'dc:touched': {
                     in: {
                       max: 5.days.ago.to_fs(:iso8601)
                     },
