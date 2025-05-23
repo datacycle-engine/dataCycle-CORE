@@ -69,6 +69,17 @@ module DataCycleCore
       end
       alias sort_dct_modified sort_updated_at
 
+      def sort_cache_valid_since(ordering)
+        reflect(
+          query_without_order
+            .order(
+              thing[:cache_valid_since].send(sanitized_ordering(ordering)),
+              thing[:id].desc
+            )
+        )
+      end
+      alias sort_dc_touched sort_cache_valid_since
+
       def sort_created_at(ordering)
         reflect(
           query_without_order

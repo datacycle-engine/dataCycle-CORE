@@ -3,7 +3,7 @@
 module DataCycleCore
   module ApiService
     API_SCHEDULE_ATTRIBUTES = [:eventSchedule, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule, :hoursAvailable, :validitySchedule].freeze
-    API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created'].freeze
+    API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dc:touched'].freeze
 
     def list_api_request(contents = nil)
       contents ||= @contents
@@ -275,6 +275,8 @@ module DataCycleCore
     def attribute_path_mapping(attribute_key)
       if attribute_key == :'dct:modified'
         'updated_at'
+      elsif attribute_key == :'dc:touched'
+        'cache_valid_since'
       elsif attribute_key == :'dct:created'
         'created_at'
       elsif attribute_key.in?(API_SCHEDULE_ATTRIBUTES)
@@ -331,6 +333,7 @@ module DataCycleCore
             'dct:created': attribute_filter_operations,
             'dct:deleted': attribute_filter_operations,
             'dct:modified': attribute_filter_operations,
+            'dc:touched': attribute_filter_operations,
             schedule: attribute_filter_operations
           }
         },

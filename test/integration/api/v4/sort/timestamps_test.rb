@@ -140,6 +140,71 @@ module DataCycleCore
             @food_establishment_a.update_column(:updated_at, orig_ts)
           end
 
+          test 'api/v4/things with parameter sort: dc:touched' do
+            orig_ts = @food_establishment_a.cache_valid_since
+            @food_establishment_a.update_column(:cache_valid_since, 10.days.from_now)
+
+            # DESC
+            params = {
+              fields: 'dct:modified,dc:touched,dct:created',
+              sort: '-dc:touched'
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count)
+
+            json_data = response.parsed_body
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dc:touched'].to_datetime >= b['dc:touched'].to_datetime)
+            end
+
+            # ASC
+            params = {
+              fields: 'dct:modified,dc:touched,dct:created',
+              sort: '+dc:touched'
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count)
+
+            json_data = response.parsed_body
+            assert_equal(@food_establishment_a.id, json_data['@graph'].last['@id'])
+
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dc:touched'].to_datetime <= b['dc:touched'].to_datetime)
+            end
+
+            # make sure ASC is default
+            params = {
+              fields: 'dct:modified,dc:touched,dct:created',
+              sort: 'dc:touched'
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count)
+
+            json_data = response.parsed_body
+            assert_equal(@food_establishment_a.id, json_data['@graph'].last['@id'])
+
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dc:touched'].to_datetime <= b['dc:touched'].to_datetime)
+            end
+
+            # make sure dashboard default sorting (boost desc, cache_valid_since desc, id asc) is default for empty sort params
+            params = {
+              fields: 'dct:modified,dc:touched,dct:created'
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count)
+
+            json_data = response.parsed_body
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
+
+            json_data['@graph'].each_cons(2) do |a, b|
+              assert(a['dc:touched'].to_datetime >= b['dc:touched'].to_datetime)
+            end
+
+            @food_establishment_a.update_column(:cache_valid_since, orig_ts)
+          end
+
           test 'api/v4/things parameter multiple and invalid sort params' do
             orig_ts = @food_establishment_a.created_at
             @food_establishment_a.update_column(:created_at, 10.days.from_now)
