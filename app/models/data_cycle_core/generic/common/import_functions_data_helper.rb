@@ -52,8 +52,13 @@ module DataCycleCore
           nil
         end
 
+        # 2173067 for template missmatch
+        # 59471758 as poi
+
         def create_or_update_content(utility_object:, template:, data:, local: false, **)
           return nil if data.except('external_key', 'locale').blank?
+
+          puts data['external_key']
 
           if local
             content = DataCycleCore::Thing.new(
@@ -94,7 +99,29 @@ module DataCycleCore
                 sync_data.update(update_data) if update_data.present?
               end
 
-              return content if content&.external_source_id != utility_object.external_source.id || content&.external_key != data['external_key']
+              if content&.external_source_id != utility_object.external_source.id
+                primary_system_module = utility_object.external_source.config.dig('import_config', 'places', 'primary_system_change_module')
+                primary_system_methode = utility_object.external_source.config.dig('import_config', 'places', 'primary_system_change_methode')
+
+                if primary_system_module.present? && primary_system_methode.present?
+                  primary_system_change_mod = primary_system_module.constantize
+                  return content unless primary_system_change_mod.send(primary_system_methode, content, utility_object)
+
+                  # create but not persist new external_system_sync entry
+                  # update primary external_system - but not persistent
+                  # check if no bs happens here
+                  content.external_system_syncs.build(external_system_id: content.external_source_id, external_key: content.external_key)
+                  content.external_key = data['external_key']
+                  content.external_source_id = utility_object.external_source.id
+
+                  # create hash to clear old attributes
+                  delete_property_hash = content.allowed_importer_property_names.index_with { |_key| nil }
+                end
+              elsif content&.external_key != data['external_key']
+                return content
+              end
+
+              raise DataCycleCore::Error::Import::TemplateMismatchError.new(template_name: content.template_name, expected_template_name: template.template_name, external_source: utility_object&.external_source, external_key: content.external_key) if content.template_name != template.template_name
             end
 
             # no content found anywhere --> create new thing
@@ -107,14 +134,11 @@ module DataCycleCore
 
           created = false
           content.webhook_source = utility_object&.external_source&.name
-
           if content.new_record?
             content.metadata ||= {}
             content.created_by = data['created_by']
             created = true
             content.save!
-          elsif content.template_name != template.template_name
-            raise DataCycleCore::Error::Import::TemplateMismatchError.new(template_name: content.template_name, expected_template_name: template.template_name, external_source: utility_object&.external_source, external_key: content.external_key)
           end
 
           global_data = data.except(*content.local_property_names, 'overlay')
@@ -123,6 +147,8 @@ module DataCycleCore
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
 
+          binding.pry
+          global_data = delete_property_hash.merge(global_data) if delete_property_hash.present?
           valid = content.set_data_hash(
             data_hash: global_data,
             prevent_history: !utility_object.history,
@@ -302,6 +328,42 @@ module DataCycleCore
 
         def logging_delta
           @logging_delta ||= 100
+        end
+
+        # TODO: Finish, clean up
+        # if primary external system is not the one from the import
+        # check config
+        # config checks priority list, and maybe changes primary system and deletes old contents
+        #  # add current primary system to external_system_syncs
+        # change primary system of content
+        # prepare datahash to delete data
+        # # find out how to get config of current step
+
+        # If the current external_system is not the main system
+        # Outsource behaviour to individual file  external_system.export_config[:endpoint].constantize.new(**endpoint_options.symbolize_keys)
+        #
+        # test with to_h
+        #
+        # SELECT * FROM public.things t1, external_system_syncs ess1--, external_system_syncs ess2
+        # where t1.external_source_id = 'cec06d47-e264-4303-9984-9d02b4c0a0af'
+        # and t1.id = ess1.syncable_id
+        # and ess1.external_system_id = 'd6152c3e-4eee-4112-8d44-271e645dbf24'
+        # -- and t1.template_name = 'Gastronomischer Betrieb'
+        # -- and ess2.external_system_id = 'cec06d47-e264-4303-9984-9d02b4c0a0af'
+        # -- and t1.id = ess2.syncable_id
+        # -- and t1.id::text = '9149521a-818b-4091-a9fb-ef13fb5e93cd'
+        def self.change_primary_system(content, utility_object)
+          # Get prioritylist for external_systems
+          primary_system_priority_ids = utility_object.external_source.config.dig('import_config', 'places', 'primary_system_priorities')
+          return false if primary_system_priority_ids.blank?
+
+          # If the current system is not found in the priority configuration -> skip
+          # If any of the external_systems with higher priority is already the primary system -> skip
+          current_systems_index = primary_system_priority_ids.index(utility_object.external_source.id)
+          return false if current_systems_index.nil?
+          return false if primary_system_priority_ids[0...current_systems_index].include?(content.external_source_id)
+
+          true
         end
       end
     end

@@ -492,6 +492,11 @@ module DataCycleCore
         name_property_selector { |definition| definition['exif'].present? }
       end
 
+      def allowed_importer_property_names
+        delete_not_allowed = ['local', 'global', 'data_type', 'schema_type', 'id', 'external_source_id', 'external_key', 'url', 'same_as', 'canonical_url', 'schema_types', 'data_pool_imported']
+        writable_property_names - default_value_property_names - computed_property_names - delete_not_allowed
+      end
+
       # returns data the same way, as .as_json
       def to_h
         Array.wrap(property_names)
