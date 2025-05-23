@@ -40,6 +40,15 @@ module DataCycleCore
           external_hash.seen_at = Time.zone.now
           external_hash.save if content&.persisted? && content.external_key == external_key && content.external_source_id == external_source_id
           content
+        rescue StandardError => e
+          ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', {
+            exception: e,
+            namespace: 'importer',
+            external_system: utility_object&.external_source,
+            item_id: data&.dig('external_key') || raw_data&.dig('id'),
+            template_name: template&.template_name
+          }
+          nil
         end
 
         def create_or_update_content(utility_object:, template:, data:, local: false, **)
@@ -123,13 +132,13 @@ module DataCycleCore
           )
 
           if valid
-            ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle', {
+            ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle.counter', {
               external_system: utility_object.external_source,
               step_name: utility_object.step_name,
               template_name: content.template_name
             }
           else
-            ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', {
+            ActiveSupport::Notifications.instrument 'object_import_failed.datacycle.counter', {
               external_system: utility_object.external_source,
               step_name: utility_object.step_name,
               template_name: content.template_name
@@ -164,6 +173,16 @@ module DataCycleCore
             namespace: 'importer',
             external_system: utility_object&.external_source
           }
+          nil
+        rescue StandardError => e
+          ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', {
+            exception: e,
+            namespace: 'importer',
+            external_system: utility_object&.external_source,
+            item_id: data['external_key'],
+            template_name: template.template_name
+          }
+          nil
         end
 
         def load_default_values(data_hash)

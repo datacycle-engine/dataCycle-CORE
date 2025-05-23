@@ -2092,8 +2092,6 @@ CREATE TABLE public.users (
     access_token character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
-    provider character varying,
-    uid character varying,
     jti character varying,
     creator_id uuid,
     additional_attributes jsonb,
@@ -3821,7 +3819,7 @@ CREATE UNIQUE INDEX index_users_on_jti ON public.users USING btree (jti);
 -- Name: index_users_on_providers; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_users_on_providers ON public.users USING gin (providers);
+CREATE INDEX index_users_on_providers ON public.users USING gin (providers jsonb_path_ops);
 
 
 --
@@ -4961,6 +4959,8 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250520064340'),
+('20250514115905'),
 ('20250514082104'),
 ('20250430134648'),
 ('20250424122608'),

@@ -40,44 +40,57 @@ module DataCycleCore
                         end
 
                       while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
-                        item_count += 1
-                        next if options[:min_count].present? && item_count < options[:min_count]
-                        extracted_classification_data = extract_data.call(options, raw_classification_data)
-                        next if extracted_classification_data[:external_key].blank?
+                        begin
+                          item_count += 1
+                          next if options[:min_count].present? && item_count < options[:min_count]
+                          extracted_classification_data = extract_data.call(options, raw_classification_data)
+                          next if extracted_classification_data[:external_key].blank?
 
-                        import_classification(
-                          utility_object:,
-                          classification_data: extracted_classification_data.merge({ tree_name: }),
-                          parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id, options)
-                        )
+                          import_classification(
+                            utility_object:,
+                            classification_data: extracted_classification_data.merge({ tree_name: }),
+                            parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id, options)
+                          )
 
-                        raw_classification_data_stack +=
-                          if with_filters && !filter_object?(load_child_classifications)
-                            load_child_classifications.call(mongo_item, raw_classification_data, locale, filter_object.legacy_source_filter).to_a
-                          elsif filter_object?(load_child_classifications)
-                            load_child_classifications.call(filter_object:, data: raw_classification_data).to_a
-                          else
-                            load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
+                          raw_classification_data_stack +=
+                            if with_filters && !filter_object?(load_child_classifications)
+                              load_child_classifications.call(mongo_item, raw_classification_data, locale, filter_object.legacy_source_filter).to_a
+                            elsif filter_object?(load_child_classifications)
+                              load_child_classifications.call(filter_object:, data: raw_classification_data).to_a
+                            else
+                              load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
+                            end
+
+                          logging.item_processed(
+                            extracted_classification_data[:name],
+                            extracted_classification_data[:external_key],
+                            item_count,
+                            nil
+                          )
+
+                          if (item_count % 100).zero?
+                            times << Time.current
+                            logging.phase_partial(step_label, item_count, times)
                           end
 
-                        logging.item_processed(
-                          extracted_classification_data[:name],
-                          extracted_classification_data[:external_key],
-                          item_count,
-                          nil
-                        )
-
-                        if (item_count % 100).zero?
-                          times << Time.current
-                          logging.phase_partial(step_label, item_count, times)
+                          break if options[:max_count] && item_count >= options[:max_count]
+                        rescue StandardError => e
+                          logging.error_instrument(
+                            exception: e,
+                            external_system: utility_object.external_source,
+                            step_label:,
+                            channel: 'object_import_failed.datacycle',
+                            namespace: 'importer',
+                            item_id: raw_classification_data['id']
+                          )
                         end
-
-                        break if options[:max_count] && item_count >= options[:max_count]
                       end
 
                       times << Time.current
                       logging.phase_partial(step_label, item_count, times)
                     end
+                  rescue StandardError => e
+                    logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
                   ensure
                     logging.phase_finished(step_label, item_count)
                   end

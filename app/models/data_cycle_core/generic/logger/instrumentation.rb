@@ -116,8 +116,6 @@ module DataCycleCore
           debug_instrument(message: "#{title} | #{id} | #{JSON.pretty_generate(data.as_json).gsub("\n", "\n  ")}")
         end
 
-        private
-
         def info_instrument(**keyword_args)
           log_instrument(severity: 'info', **keyword_args)
         end
@@ -133,6 +131,8 @@ module DataCycleCore
         def error_instrument(**keyword_args)
           log_instrument(severity: 'error', **keyword_args)
         end
+
+        private
 
         def log_instrument(
           message: '',

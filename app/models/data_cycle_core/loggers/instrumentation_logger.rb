@@ -29,11 +29,12 @@ module DataCycleCore
               message.push(data[:external_system]&.name, '...', '[FAILED]')
             end
 
+            message.push("(Item-ID: #{data[:item_id]})") if data[:item_id].present?
+
             if data[:exception].present?
               formatted_backtrace = data[:exception].backtrace.filter { |line| line.exclude?('/bundle') }.join("\n")
               message.push("(Exception: #{data[:exception]}, Backtrace: #{formatted_backtrace})")
             end
-            message.push("(Item-ID: #{data[:item_id]})") if data[:item_id].present?
             message = message.join(' ')
           end
         when ::String

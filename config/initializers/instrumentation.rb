@@ -91,3 +91,9 @@ end
 ActiveSupport::Notifications.subscribe('asset_version_generation_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
   Rails.logger.warn "Asset #{data[:version]} version generation failed for ##{data[:asset].id}: #{data[:exception].message}" if Rails.env.development?
 end
+
+ActiveSupport::Notifications.subscribe('object_import_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'import') do |logger|
+    logger.dc_log(:error, data)
+  end
+end
