@@ -29,7 +29,7 @@ module DataCycleCore
       class InvalidSerializationFormatError < StandardError
       end
 
-      class PDFCreationError < StandardError
+      class SerializationError < StandardError
       end
 
       class RepeatedFailureError < StandardError

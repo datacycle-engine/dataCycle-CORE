@@ -23,7 +23,7 @@ module DataCycleCore
       rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
 
       rescue_from DataCycleCore::Error::Download::InvalidSerializationFormatError, with: :user_interface_error
-      rescue_from DataCycleCore::Error::Download::PDFCreationError, with: :user_interface_error
+      rescue_from DataCycleCore::Error::Download::SerializationError, with: :user_interface_error
     end
 
     private

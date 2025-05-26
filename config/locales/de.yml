@@ -2565,7 +2565,7 @@ de:
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
     data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt
-    data_cycle_core/error/download/pdf_creation_error: Beim Erstellen der PDF-Datei kam es zu einem Fehler
+    data_cycle_core/error/download/serialization_error: Beim Download ist ein Fehler aufgetreten
     data_cycle_core/error/api/bad_request_error:
       unknown_parameter: Unbekannter Query Parameter
       invalid_parameter: Ungültiger Query Parameter
