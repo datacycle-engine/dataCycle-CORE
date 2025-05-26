@@ -141,7 +141,7 @@ module DataCycleCore
           end
 
           test 'api/v4/things with parameter sort: dc:touched' do
-            orig_ts = @food_establishment_a.cache_valid_since
+            @food_establishment_a.cache_valid_since
             @food_establishment_a.update_column(:cache_valid_since, 10.days.from_now)
 
             # DESC
