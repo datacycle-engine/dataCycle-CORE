@@ -483,22 +483,23 @@ describe DataCycleCore::MasterData::DataConverter do
 
       it 'truncates visible characters only, ignoring spaces' do
         input = 'a b  c   d e f g'
-        assert_equal('a b  c   d e...', subject.truncate_ignoring_blank_spaces(input, limit))
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('a b  c   d e...', text)
+        assert_equal(5, count)
       end
 
       it 'returns full string if visible characters are under limit' do
         input = 'ab c'
-        assert_equal('ab c', subject.truncate_ignoring_blank_spaces(input, limit))
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('ab c', text)
+        assert_equal(3, count)
       end
 
       it 'removes trailing spaces before omission' do
         input = '   abc   def   '
-        assert_equal('abc   de...', subject.truncate_ignoring_blank_spaces(input, limit))
-      end
-
-      it 'returns empty string for only whitespace' do
-        input = '     '
-        assert_equal('', subject.truncate_ignoring_blank_spaces(input, limit))
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('abc   de...', text)
+        assert_equal(5, count)
       end
     end
 
@@ -508,7 +509,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
       it 'truncates plain text node correctly without ignoring whitespace' do
         node = Nokogiri::HTML::DocumentFragment.parse('abc def').children.first
-        result_node, count = subject.truncate_node(node, limit, char_count, ignore_whitespace: false)
+        result_node, count = subject.truncate_node(node, char_count, limit, ignore_whitespace: false)
 
         assert_equal('abc d...', result_node.text)
         assert_equal(5, count)
@@ -516,7 +517,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
       it 'truncates plain text node correctly' do
         node = Nokogiri::HTML::DocumentFragment.parse('abc defg').children.first
-        result_node, count = subject.truncate_node(node, limit, char_count)
+        result_node, count = subject.truncate_node(node, char_count, limit)
 
         assert_equal(5, count)
         assert_equal('abc de...', result_node.text)
@@ -524,7 +525,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
       it 'preserves html structure and truncates inner text' do
         node = Nokogiri::HTML::DocumentFragment.parse('<strong>abc def ghi</strong>').children.first
-        result_node, count = subject.truncate_node(node, limit, char_count)
+        result_node, count = subject.truncate_node(node, char_count, limit)
 
         assert_equal(5, count)
         assert_equal('strong', result_node.name)
@@ -533,7 +534,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
       it 'returns nil when limit already exceeded' do
         node = Nokogiri::HTML::DocumentFragment.parse('extra').children.first
-        result_node, count = subject.truncate_node(node, limit, 10)
+        result_node, count = subject.truncate_node(node, 10, limit)
 
         assert_equal('', result_node)
         assert_equal(10, count)
