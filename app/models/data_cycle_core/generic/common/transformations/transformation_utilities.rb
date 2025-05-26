@@ -26,8 +26,8 @@ module DataCycleCore
 
           private
 
-          def transformation_config(config:)
-            transformation_config = (config&.deep_dup || {}).with_indifferent_access
+          def transformation_config(config:, utility_object:)
+            transformation_config = utility_object.step_config(config)
             transformation_config.merge!(transformation_config.delete(:transformation_config) || {}) if transformation_config.key?(:transformation_config)
             transformation_config
           end
@@ -42,7 +42,7 @@ module DataCycleCore
               transform_opts << utility_object.external_source
             end
 
-            transform_opts << transformation_config(config:) if transform_params.dig(1, 1).in?([:options, :config])
+            transform_opts << transformation_config(config:, utility_object:) if transform_params.dig(1, 1).in?([:options, :config])
 
             transform_opts
           end
@@ -58,7 +58,7 @@ module DataCycleCore
               when :external_source
                 transform_kwargs[param[1]] = utility_object.external_source
               when :config
-                transform_kwargs[param[1]] = transformation_config(config:)
+                transform_kwargs[param[1]] = transformation_config(config:, utility_object:)
               end
             end
 
