@@ -14,7 +14,7 @@ unless options[:header_type] == :overlay
   json['dc:entityUrl'] = api_v4_thing_url(@api_subversion, content, { language: serialize_language(@language) }) if attribute_visible?('dc:entityUrl', options)
   json['dct:modified'] = content.updated_at if attribute_visible?('dct:modified', options)
   json['dct:created'] = content.created_at if attribute_visible?('dct:created', options)
-  json['dc:touched'] = content.created_at if attribute_visible?('dc:touched', options)
+  json['dc:touched'] = content.cache_valid_since if attribute_visible?('dc:touched', options)
 end
 
 json.compact
