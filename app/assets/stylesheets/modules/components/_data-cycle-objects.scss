@@ -1164,6 +1164,12 @@
         margin-bottom: 0.5rem;
         line-height: 2;
       }
+
+      .detail-type.geographic .map-info .geo-nearby-contents-form {
+        position: relative;
+        bottom: unset;
+        width: auto;
+      }
     }
 
     .buttons {

@@ -48,6 +48,7 @@ module DataCycleCore
             item_id: data&.dig('external_key') || raw_data&.dig('id'),
             template_name: template&.template_name
           }
+          raise if Rails.env.local?
           nil
         end
 
@@ -182,6 +183,7 @@ module DataCycleCore
             item_id: data['external_key'],
             template_name: template.template_name
           }
+          raise if Rails.env.local?
           nil
         end
 

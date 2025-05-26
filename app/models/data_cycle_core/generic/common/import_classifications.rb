@@ -83,6 +83,7 @@ module DataCycleCore
                             namespace: 'importer',
                             item_id: raw_classification_data['id']
                           )
+                          raise if Rails.env.local?
                         end
                       end
 

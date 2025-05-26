@@ -79,6 +79,7 @@ module DataCycleCore
                             namespace: 'importer',
                             item_id: "#{concept_scheme.name} (#{concept_scheme.external_key})"
                           )
+                          raise if Rails.env.local?
                           item_count
                         end
 
