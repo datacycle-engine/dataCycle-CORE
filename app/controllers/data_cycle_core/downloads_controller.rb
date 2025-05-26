@@ -19,7 +19,7 @@ module DataCycleCore
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@object, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@object, :content, serialize_format)
       download_content(@object, serialize_format, Array.wrap(languages), version)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -30,7 +30,7 @@ module DataCycleCore
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@watch_list, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@watch_list, :content, serialize_format)
       download_content(@watch_list, serialize_format, Array.wrap(languages))
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -41,7 +41,7 @@ module DataCycleCore
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@stored_filter, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@stored_filter, :content, serialize_format)
       download_content(@stored_filter, serialize_format, Array.wrap(languages))
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -57,7 +57,7 @@ module DataCycleCore
       end
       download_collection(@object, download_items, serialize_formats, languages)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -80,7 +80,7 @@ module DataCycleCore
 
       download_collection(@watch_list, download_items, serialize_formats, languages, versions)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -100,7 +100,7 @@ module DataCycleCore
 
       download_collection(@stored_filter, download_items, serialize_formats, languages)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -115,8 +115,7 @@ module DataCycleCore
       authorize! :download, @object
 
       download_content(@object, serialize_format, languages, version, transformation)
-    rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+    rescue StandardError
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -135,7 +134,7 @@ module DataCycleCore
 
       download_collection(@object, download_items, serialize_formats, languages)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -154,7 +153,7 @@ module DataCycleCore
 
       download_indesign_collection(@object, [@object] + asset_items, serialize_formats, languages)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -169,7 +168,7 @@ module DataCycleCore
 
       download_data_link_item(@data_link.item)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(CanCan::AccessDenied)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -179,8 +178,7 @@ module DataCycleCore
       languages = permitted_download_params[:language]
       authorize! :download, @stored_filter
       download_content(@stored_filter, serialize_format, languages)
-    rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+    rescue StandardError
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -198,7 +196,7 @@ module DataCycleCore
 
       download_collection(@stored_filter, download_items, serialize_formats, languages)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -208,8 +206,7 @@ module DataCycleCore
       languages = permitted_download_params[:language]
       authorize! :download, @watch_list
       download_content(@watch_list, serialize_format, languages)
-    rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+    rescue StandardError
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -230,7 +227,7 @@ module DataCycleCore
 
       download_collection(@watch_list, download_items, serialize_formats, languages)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
@@ -258,15 +255,14 @@ module DataCycleCore
 
       download_indesign_collection(@watch_list, download_items, serialize_formats, languages, :serialize_watch_list)
     rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+      raise e, e.message if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
     def download_gpx
       @object = DataCycleCore::Thing.find_by(id: permitted_download_params[:id])
       download_content(@object, 'gpx', nil)
-    rescue StandardError => e
-      raise e if e.is_a?(DataCycleCore::Error::Download::InvalidSerializationFormatError)
+    rescue StandardError
       raise DataCycleCore::Error::Download::SerializationError, "Serialization for #{serialize_format} failed"
     end
 
