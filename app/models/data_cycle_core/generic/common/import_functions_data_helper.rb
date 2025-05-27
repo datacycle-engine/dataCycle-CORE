@@ -221,7 +221,13 @@ module DataCycleCore
         end
 
         def transform_external_system_data!(config, data_hash, utility_object)
-          data_hash.delete('external_system_data') && return unless utility_object.external_source.default_options.to_h.slice('import_external_system_data').merge(config&.slice(:import_external_system_data).to_h.stringify_keys)['import_external_system_data']
+          merged_config = utility_object
+            .external_source
+            .default_options
+            .to_h
+            .slice('import_external_system_data')
+            .merge(config&.slice(:import_external_system_data).to_h.stringify_keys)
+          data_hash.delete('external_system_data') && return if merged_config['import_external_system_data'].blank?
 
           return if data_hash['external_system_data'].blank?
 

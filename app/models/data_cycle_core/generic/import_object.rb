@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     class ImportObject < GenericObject
       TYPE = :import
-      DEFAULT_CONFIG_KEYS = ['external_system_mapping'].freeze
+      DEFAULT_CONFIG_KEYS = ['import_external_system_data'].freeze
 
       attr_reader :logging, :history, :asset_download, :mode, :partial_update, :normalizer
 
@@ -40,7 +40,7 @@ module DataCycleCore
 
       def step_config(config)
         cfg = (config&.deep_dup || {}).with_indifferent_access
-        options.slice(*DEFAULT_CONFIG_KEYS).with_indifferent_access.merge(cfg)
+        options.slice(*DEFAULT_CONFIG_KEYS).with_indifferent_access.deep_merge(cfg)
       end
     end
   end
