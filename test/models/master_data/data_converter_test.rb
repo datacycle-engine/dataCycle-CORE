@@ -477,5 +477,88 @@ describe DataCycleCore::MasterData::DataConverter do
         DataCycleCore::Feature['StringSanitizer'].reload
       end
     end
+
+    describe '.truncate_ignoring_blank_spaces' do
+      limit = 5
+
+      it 'truncates visible characters only, ignoring spaces' do
+        input = 'a b  c   d e f g'
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('a b  c   d e...', text)
+        assert_equal(5, count)
+      end
+
+      it 'returns full string if visible characters are under limit' do
+        input = 'ab c'
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('ab c', text)
+        assert_equal(3, count)
+      end
+
+      it 'removes trailing spaces before omission' do
+        input = '   abc   def   '
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('abc   de...', text)
+        assert_equal(5, count)
+      end
+    end
+
+    describe '.truncate_node' do
+      limit = 5
+      char_count = 0
+
+      it 'truncates plain text node correctly without ignoring whitespace' do
+        node = Nokogiri::HTML::DocumentFragment.parse('abc def').children.first
+        result_node, count = subject.truncate_node(node, char_count, limit, ignore_whitespace: false)
+
+        assert_equal('abc d...', result_node.text)
+        assert_equal(5, count)
+      end
+
+      it 'truncates plain text node correctly' do
+        node = Nokogiri::HTML::DocumentFragment.parse('abc defg').children.first
+        result_node, count = subject.truncate_node(node, char_count, limit)
+
+        assert_equal(5, count)
+        assert_equal('abc de...', result_node.text)
+      end
+
+      it 'preserves html structure and truncates inner text' do
+        node = Nokogiri::HTML::DocumentFragment.parse('<strong>abc def ghi</strong>').children.first
+        result_node, count = subject.truncate_node(node, char_count, limit)
+
+        assert_equal(5, count)
+        assert_equal('strong', result_node.name)
+        assert_equal('abc de...', result_node.text)
+      end
+
+      it 'returns nil when limit already exceeded' do
+        node = Nokogiri::HTML::DocumentFragment.parse('extra').children.first
+        result_node, count = subject.truncate_node(node, 10, limit)
+
+        assert_equal('', result_node)
+        assert_equal(10, count)
+      end
+    end
+
+    describe '.truncate_html_preserving_structure' do
+      it 'preserves structure and truncates visible content' do
+        html = '<p>Hallo <strong>Welt!</strong> Das ist <em>ein Test</em>.</p>'
+        limit = 10
+        assert_equal('<p>Hallo <strong>Welt!...</strong></p>', subject.truncate_html_preserving_structure(html, limit))
+      end
+
+      it 'returns original html if under limit' do
+        html = '<p>Hi!</p>'
+        limit = 10
+        assert_equal('<p>Hi!</p>', subject.truncate_html_preserving_structure(html, limit))
+      end
+
+      it 'truncates correctly with many spaces between words' do
+        html = '<div>Hello     world</div>'
+        limit = 6
+        assert_equal('<div>Hello     w...</div>', subject.truncate_html_preserving_structure(html, limit))
+      end
+    end
   end
 end

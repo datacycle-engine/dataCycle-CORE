@@ -186,6 +186,64 @@ module DataCycleCore
         attributes = SANITIZED_ATTRIBUTES[data_size&.to_sym] || []
         ActionController::Base.helpers.sanitize(value, tags:, attributes:)
       end
+
+      def self.truncate_html_preserving_structure(truncate_html, limit, omission: '...', ignore_whitespace: true)
+        doc = Nokogiri::HTML::DocumentFragment.parse(truncate_html)
+        truncated = Nokogiri::HTML::DocumentFragment.parse('')
+
+        char_count = 0
+        doc.children.each do |node|
+          break if char_count >= limit
+          node, char_count = truncate_node(node, char_count, limit, omission:, ignore_whitespace:)
+          truncated.add_child(node)
+        end
+
+        truncated.to_html.strip
+      end
+
+      def self.truncate_node(node, char_count, limit, omission: '...', ignore_whitespace: true)
+        return '', char_count if char_count >= limit
+        if node.text?
+          text = node.text
+          truncated_text, char_count = truncate_string(text, char_count, limit, omission:, ignore_whitespace:)
+          return Nokogiri::XML::Text.new(truncated_text, node.document), char_count
+
+        elsif node.element?
+          new_node = Nokogiri::XML::Node.new(node.name, node.document)
+          node.attributes.each { |name, attr| new_node[name] = attr.value }
+
+          node.children.each do |child|
+            break if char_count >= limit
+            new_child, char_count = truncate_node(child, char_count, limit, omission:, ignore_whitespace:)
+            new_node.add_child(new_child) if new_child
+          end
+
+          return new_node, char_count
+        end
+      end
+
+      def self.truncate_ignoring_blank_spaces(input_string, limit, omission: '...')
+        truncate_string(input_string, 0, limit, omission:, ignore_whitespace: true)
+      end
+
+      def self.truncate_string(truncate_string, count_start, limit, omission: '...', ignore_whitespace: true)
+        count = count_start
+        result = +''
+
+        truncate_string.each_char do |char|
+          if !ignore_whitespace || char =~ /\S/
+            break if count >= limit
+            count += 1
+          end
+          result << char
+        end
+
+        if count >= limit
+          result.strip!
+          result += omission
+        end
+        return result, count
+      end
     end
   end
 end
