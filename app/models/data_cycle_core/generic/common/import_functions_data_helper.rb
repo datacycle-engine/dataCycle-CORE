@@ -309,6 +309,22 @@ module DataCycleCore
           data
         end
 
+        def self.should_update_primary_system?(content, current_system_id, options)
+          primary_system_priority_list = options.dig(:import, :primary_system_priority_order)
+          quoted_names = primary_system_priority_list.map { |n| ActiveRecord::Base.connection.quote(n) }
+          order_clause = quoted_names&.each_with_index&.map { |name, i| "WHEN #{name} THEN #{i}" }&.join(' ')
+
+          primary_system_priority_ids = DataCycleCore::ExternalSystem.where(name: primary_system_priority_list).order(Arel.sql("CASE name #{order_clause} END")).pluck('id')
+          return false if primary_system_priority_ids.blank?
+
+          # If the current system is not found in the priority configuration -> skip
+          # If any of the external_systems with higher priority is already the primary system -> skip
+          current_system_index = primary_system_priority_ids.index(current_system_id)
+          return false if current_system_index.nil?
+          return false if primary_system_priority_ids[0...current_system_index].include?(content.external_source_id)
+          true
+        end
+
         def change_primary_system_nonpersistent(content, data, utility_object)
           # delete future primary system from external_system_syncs
           # missing syncs are added after content update
