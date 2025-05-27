@@ -124,6 +124,8 @@ class StoredFilter {
 		this.disableForm();
 
 		this.list.innerHTML = loadingIcon();
+		const countBounds = this.count.getBoundingClientRect();
+		this.count.style.width = `${countBounds.width}px`;
 		this.count.querySelector("b").innerHTML = loadingIcon();
 		this.search = this.fullTextSearchField.value;
 		if (history) this.pushStateToHistory();
@@ -139,6 +141,7 @@ class StoredFilter {
 						count: data.count,
 						count_string: data.count_string,
 					}).then((html) => {
+						this.count.style.width = "";
 						this.count.innerHTML = html;
 					});
 				}

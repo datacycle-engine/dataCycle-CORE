@@ -39,8 +39,14 @@
       margin: 0 1rem;
       padding: 0 1rem;
       background: var(--white);
+      flex: auto;
+      display: flex;
+      max-width: 800px;
 
       .fulltext-search-form {
+        display: flex;
+        flex: auto;
+
         input {
           margin: 0;
           border-radius: var(--global-radius);
@@ -49,6 +55,7 @@
             padding: 0 2.5rem;
             font-size: 0.9rem;
             height: 2rem;
+            flex: auto;
           }
         }
 
