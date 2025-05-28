@@ -103,7 +103,7 @@ module DataCycleCore
                 primary_system_change_module = primary_source_module.safe_constantize
                 return content unless primary_system_change_module.respond_to?(primary_source_methode)
                 return content unless primary_system_change_module&.send(primary_source_methode, content, utility_object.external_source.id, options)
-                  delete_property_hash = change_primary_system_nonpersistent(content, data, utility_object)
+                delete_property_hash = change_primary_system_nonpersistent(content, data, utility_object.external_source)
 
               elsif content&.external_key != data['external_key']
                 return content
@@ -309,6 +309,33 @@ module DataCycleCore
           data
         end
 
+        # delete future primary system from external_system_syncs
+        # missing syncs are added after content update
+        # maybe we should still add the old external system, to syncs so everything works as expected
+        def change_primary_system_nonpersistent(content, data, new_external_source)
+          content.external_system_syncs.load
+          delete_sync = content.external_system_syncs.detect do |sync|
+            sync.external_system_id == new_external_source.id && sync.external_key == data['external_key']
+          end
+
+          return {} if delete_sync.nil?
+          delete_sync.mark_for_destruction
+
+          content.external_key = data['external_key']
+          content.external_source_id = new_external_source.id
+
+          # return hash to clear old attributes
+          content.allowed_importer_property_names.index_with { |_key| nil }
+        end
+
+        def fixnum_max
+          ((2**((0.size * 4) - 2)) - 1)
+        end
+
+        def logging_delta
+          @logging_delta ||= 100
+        end
+
         def self.should_update_primary_system?(content, current_system_id, options)
           primary_system_priority_list = options.dig(:import, :primary_system_priority_order)
           quoted_names = primary_system_priority_list.map { |n| ActiveRecord::Base.connection.quote(n) }
@@ -323,30 +350,6 @@ module DataCycleCore
           return false if current_system_index.nil?
           return false if primary_system_priority_ids[0...current_system_index].include?(content.external_source_id)
           true
-        end
-
-        def change_primary_system_nonpersistent(content, data, utility_object)
-          # delete future primary system from external_system_syncs
-          # missing syncs are added after content update
-          content.external_system_syncs.load
-          delete_sync = content.external_system_syncs.detect do |sync|
-            sync.external_system_id == utility_object.external_source.id && sync.external_key == data['external_key']
-          end
-          delete_sync&.mark_for_destruction
-
-          content.external_key = data['external_key']
-          content.external_source_id = utility_object.external_source.id
-
-          # return hash to clear old attributes
-          content.allowed_importer_property_names.index_with { |_key| nil }
-        end
-
-        def fixnum_max
-          ((2**((0.size * 4) - 2)) - 1)
-        end
-
-        def logging_delta
-          @logging_delta ||= 100
         end
       end
     end
