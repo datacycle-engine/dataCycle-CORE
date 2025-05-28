@@ -96,8 +96,8 @@ module DataCycleCore
               end
 
               if content&.external_source_id != utility_object.external_source.id
-                primary_source_module = options.dig(:import, :primary_system_decision_module)
-                primary_source_methode = options.dig(:import, :primary_system_decision_method)
+                primary_source_module = options&.dig(:import, :primary_system_decision_module)
+                primary_source_methode = options&.dig(:import, :primary_system_decision_method)
                 return content unless primary_source_module && primary_source_methode
                 
                 primary_system_change_module = primary_source_module.safe_constantize
@@ -337,10 +337,12 @@ module DataCycleCore
         end
 
         def self.should_update_primary_system?(content, current_system_id, options)
-          return false if content.external_source_id == current_system_id
+          return false if content.external_source_id == current_system_id || !options.is_a?(Hash)
 
           primary_system_priority_list = options.dig(:import, :primary_system_priority_order)
-          quoted_names = primary_system_priority_list.map { |n| ActiveRecord::Base.connection.quote(n) }
+          return false if primary_system_priority_list.blank?
+
+          quoted_names = primary_system_priority_list&.map { |n| ActiveRecord::Base.connection.quote(n) }
           order_clause = quoted_names&.each_with_index&.map { |name, i| "WHEN #{name} THEN #{i}" }&.join(' ')
 
           primary_system_priority_ids = DataCycleCore::ExternalSystem.where(name: primary_system_priority_list).order(Arel.sql("CASE name #{order_clause} END")).pluck('id')
