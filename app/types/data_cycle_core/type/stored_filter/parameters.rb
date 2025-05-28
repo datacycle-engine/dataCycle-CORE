@@ -62,6 +62,10 @@ module DataCycleCore
             hash['t'] = 'external_system'
             hash['n'] = hash['t'].capitalize
             hash['q'] = 'import'
+          when 'external_system'
+            hash['v'], hash['q'] = hash['v'].values_at('value', 'type') if hash['v'].is_a?(::Hash)
+            hash['n'] = hash['t'].capitalize
+            hash['q'] ||= 'import'
           when 'user_group_classifications'
             hash['v'] = user&.id
           when 'creator'
