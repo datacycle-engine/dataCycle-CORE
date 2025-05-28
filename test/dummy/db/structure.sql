@@ -3809,6 +3809,13 @@ CREATE UNIQUE INDEX index_users_on_id ON public.users USING btree (id);
 
 
 --
+-- Name: index_users_on_id_and_deleted_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_id_and_deleted_at ON public.users USING btree (id, deleted_at) WHERE (deleted_at IS NULL);
+
+
+--
 -- Name: index_users_on_jti; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4959,6 +4966,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250527101145'),
 ('20250520064340'),
 ('20250514115905'),
 ('20250514082104'),

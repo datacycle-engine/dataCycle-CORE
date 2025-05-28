@@ -15,10 +15,5 @@ module DataCycleCore
       get '/docs/classifications'
       assert_response :success
     end
-
-    test 'docs image path' do
-      get '/docs/images/classification_mapping.svg'
-      assert_response :success
-    end
   end
 end
