@@ -337,6 +337,8 @@ module DataCycleCore
         end
 
         def self.should_update_primary_system?(content, current_system_id, options)
+          return false if content.external_source_id == current_system_id
+
           primary_system_priority_list = options.dig(:import, :primary_system_priority_order)
           quoted_names = primary_system_priority_list.map { |n| ActiveRecord::Base.connection.quote(n) }
           order_clause = quoted_names&.each_with_index&.map { |name, i| "WHEN #{name} THEN #{i}" }&.join(' ')
