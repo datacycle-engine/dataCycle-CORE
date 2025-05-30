@@ -4,17 +4,13 @@ module DataCycleCore
   module MasterData
     module Validators
       class Schedule < BasicValidator
-        def keywords
-          ['valid_dates', 'soft_valid_dates', 'closed_range', 'soft_max_duration', 'required', 'soft_max_date']
-        end
-
         def validate(data, template, _strict = false)
           if data.blank?
             required(data, template.dig('validations', 'required')) if template.dig('validations', 'required')
           elsif data.is_a?(::Array)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                method(key).call(data, template['validations'][key]) if keywords.include?(key)
+                validate_with_method(key, data, template['validations'][key])
               end
             end
 
@@ -119,6 +115,8 @@ module DataCycleCore
             }
           }
         end
+
+        private
 
         def valid_dates(data, value)
           return unless value

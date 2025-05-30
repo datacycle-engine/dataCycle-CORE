@@ -4,8 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Collection < BasicValidator
-        KEYWORDS = ['soft_api'].freeze
-
         def validate(data, template, _strict = false)
           if blank?(data)
             return @error
@@ -31,7 +29,7 @@ module DataCycleCore
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              method(key).call(converted_data, template['validations'][key]) if KEYWORDS.include?(key)
+              validate_with_method(key, converted_data, template['validations'][key])
             end
           end
 

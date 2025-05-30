@@ -4,6 +4,9 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplateImporter
+        include Extensions::Position
+        include Extensions::Visible
+
         CONTENT_SETS = [:creative_works, :events, :media_objects, :organizations, :persons, :places, :products, :things, :intangibles].freeze
 
         attr_reader :duplicates, :mixin_errors, :errors, :mixin_paths, :templates
@@ -24,7 +27,8 @@ module DataCycleCore
 
           @template_definitions = []
           @extended_templates = []
-          @templates = {}
+          @templates = []
+          @linked_to_text_keys = []
 
           load_templates
 
@@ -101,7 +105,7 @@ module DataCycleCore
           #   .filter { |railtie| railtie.is_a?(::Rails::Engine) }
           #   .to_h { |rt| [rt.root.to_s, rt.class.name.delete_suffix('::Engine')] }
 
-          DataCycleCore::ThingTemplate.upsert_all(@templates.values.flatten.map do |t|
+          DataCycleCore::ThingTemplate.upsert_all(@templates.map do |t|
             {
               template_name: t[:name],
               schema: t[:data],
@@ -201,12 +205,15 @@ module DataCycleCore
           end
 
           add_inverse_aggregate_property!
+          add_inverse_linked_to_text_properties!
           disable_original_property_for_overlays!
+
+          add_sorting!
+          transform_visibilities!
         end
 
         def append_template!(data:)
-          @templates[data[:set]] ||= []
-          @templates[data[:set]].push(data)
+          @templates.push(data)
           @mixin_paths.concat(data[:mixins])
         end
 
@@ -222,8 +229,7 @@ module DataCycleCore
         end
 
         def add_inverse_aggregate_property!
-          all_templates = @templates.values.flatten
-          all_templates.each do |template|
+          @templates.each do |template|
             next unless template.dig(:data, :features, :aggregate, :aggregate)
 
             aggregated_templates = Array.wrap(
@@ -231,7 +237,7 @@ module DataCycleCore
             )
 
             aggregated_templates.each do |template_name|
-              aggregated_template = all_templates.find { |v| v[:name] == template_name }
+              aggregated_template = @templates.find { |v| v[:name] == template_name }
 
               raise TemplateError.new('features.aggregate.additional_base_templates'), "BaseTemplate missing for #{template_name}" if aggregated_template.nil?
 
@@ -245,8 +251,17 @@ module DataCycleCore
           end
         end
 
+        def add_inverse_linked_to_text_properties!
+          @templates.each do |template|
+            Extensions::LinkedInText.append_linked_to_text_props!(
+              template.dig(:data, :properties),
+              @linked_to_text_keys
+            )
+          end
+        end
+
         def disable_original_property_for_overlays!
-          @templates.values.flatten.each do |template|
+          @templates.each do |template|
             Extensions::Overlay.disable_original_properties!(template.dig(:data, :properties))
           end
         end
@@ -263,8 +278,9 @@ module DataCycleCore
         end
 
         def transform_template_data(template:, data_template:)
-          transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates: @templates)
+          transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins)
           transformed_data, errors = transformer.transform
+          @linked_to_text_keys.concat(transformer.linked_to_text_keys).uniq!
           @errors.concat(errors) && return if errors.present?
 
           {

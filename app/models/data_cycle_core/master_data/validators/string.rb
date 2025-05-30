@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class String < BasicValidator
-        def string_keywords
-          ['min', 'max', 'format', 'pattern', 'required', 'soft_required', 'soft_max', 'soft_min', 'soft_not_contains']
-        end
-
         def string_formats
           ['uuid', 'url', 'soft_url', 'email', 'telephone_din5008']
         end
@@ -16,7 +12,7 @@ module DataCycleCore
           if data.blank? || data.is_a?(::String)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                method(key).call(data.to_s, template['validations'][key]) if string_keywords.include?(key)
+                validate_with_method(key, data.to_s, template['validations'][key])
               end
             end
           else

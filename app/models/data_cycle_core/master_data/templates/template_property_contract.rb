@@ -114,7 +114,7 @@ module DataCycleCore
           end
 
           optional(:visible) do
-            bool? | (str? & included_in?(TemplateTransformer::VISIBILITIES.keys)) | (array? & array { included_in?(TemplateTransformer::VISIBILITIES.keys) })
+            bool? | (str? & included_in?(Extensions::Visible::VISIBILITIES.keys)) | (array? & array { included_in?(Extensions::Visible::VISIBILITIES.keys) })
           end
         end
 
@@ -137,6 +137,7 @@ module DataCycleCore
         rule(:compute).validate(ruby_module_and_method: 'Utility::Compute')
         rule(:virtual).validate(ruby_module_and_method: 'Utility::Virtual')
         rule(:content_score).validate(ruby_module_and_method: 'Utility::ContentScore')
+        rule(:validations).validate(:dc_property_validations)
 
         rule(:properties) do
           key.failure(:invalid_object) if key? && !(values[:type] == 'object' && ['value', 'translated_value'].include?(values[:storage_location]))

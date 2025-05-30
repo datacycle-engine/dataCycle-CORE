@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Datetime < BasicValidator
-        def datetime_keywords
-          ['min']
-        end
-
         def validate(data, template, _strict = false)
           if data.blank?
             # ignore
@@ -29,7 +25,7 @@ module DataCycleCore
 
           if template.key?('validations')
             template['validations'].each_key do |key|
-              method(key).call(value, template['validations'][key]) if datetime_keywords.include?(key)
+              validate_with_method(key, value, template['validations'][key])
             end
           end
           @error

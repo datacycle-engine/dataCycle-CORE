@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Asset < BasicValidator
-        def asset_keywords
-          ['required']
-        end
-
         def validate(data, template, _strict = false)
           check_reference_array(Array(data), template)
 
@@ -20,7 +16,7 @@ module DataCycleCore
           # check given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              method(key).call(data, template['validations'][key]) if asset_keywords.include?(key)
+              validate_with_method(key, data, template['validations'][key])
             end
           end
 

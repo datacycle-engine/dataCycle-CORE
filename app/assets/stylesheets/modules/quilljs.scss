@@ -337,3 +337,9 @@ $fa-font-path: '/assets';
   border-bottom: 1px dotted;
   cursor: help;
 }
+
+.quill-editor {
+  .object-browser-container {
+    display: none;
+  }
+}

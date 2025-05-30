@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Linked < BasicValidator
-        def keywords
-          ['min', 'max', 'required', 'soft_required', 'soft_min', 'soft_max']
-        end
-
         def validate(data, template, _strict = false)
           if blank?(data)
             check_reference_array(data, template)
@@ -36,7 +32,7 @@ module DataCycleCore
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              method(key).call(converted_data, template['validations'][key]) if keywords.include?(key)
+              validate_with_method(key, converted_data, template['validations'][key])
             end
           end
 

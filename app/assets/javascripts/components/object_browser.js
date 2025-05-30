@@ -604,28 +604,34 @@ class ObjectBrowser {
 	) {
 		if (type !== "-" && this.max !== 0 && new_length > this.max) {
 			new ConfirmationModal({
-				text: `${this.label}: ${await errorPrefix}${await I18n.translate(
-					"frontend.maximum_embedded",
-					{
+				text: await this.errorMessage(
+					errorPrefix,
+					I18n.translate("frontend.maximum_embedded", {
 						data: this.max,
-					},
-				)}`,
+					}),
+				),
 			});
 			return false;
 		}
 
 		if (type !== "+" && this.min !== 0 && new_length < this.min) {
 			new ConfirmationModal({
-				text: `${this.label}: ${await errorPrefix}${await I18n.translate(
-					"frontend.minimum_embedded",
-					{
+				text: await this.errorMessage(
+					errorPrefix,
+					I18n.translate("frontend.minimum_embedded", {
 						data: this.min,
-					},
-				)}`,
+					}),
+				),
 			});
 			return false;
 		}
 		return true;
+	}
+	async errorMessage(prefix, message) {
+		const text = "";
+		if (this.label) this.text += `${this.label}: `;
+
+		return `${text}${await prefix}${await message}`;
 	}
 	updateHasItemsClass() {
 		requestAnimationFrame(() => {
@@ -753,17 +759,13 @@ class ObjectBrowser {
 		});
 	}
 	setPreselected() {
+		const preselected = this.$element.find(
+			"> .media-thumbs > .object-thumbs > li.item",
+		);
+		this.chosen = $.map(preselected, (val, i) => $(val).data("id"));
 		this.$overlay
 			.find(".chosen-items-container")
-			.html(
-				this.cloneHtml(
-					this.$element.find("> .media-thumbs > .object-thumbs > li.item"),
-				),
-			);
-		this.chosen = $.map(
-			this.$element.find("> .media-thumbs > .object-thumbs > li.item"),
-			(val, i) => $(val).data("id"),
-		);
+			.html(this.cloneHtml(preselected));
 	}
 	openOverlay(_ev) {
 		this.overlayCount.html("");
@@ -773,11 +775,7 @@ class ObjectBrowser {
 		this.setPreselected();
 		this.updateChosenCounter();
 
-		const loaded = $.map(
-			this.$element.find("> .media-thumbs > .object-thumbs > li.item"),
-			(val, i) => $(val).data("id"),
-		);
-		if (difference(this.ids, loaded).length) this.loadMore(loaded);
+		if (difference(this.ids, this.chosen).length) this.loadMore(this.chosen);
 		else this.loadObjects(false);
 	}
 	closeOverlay(_ev) {

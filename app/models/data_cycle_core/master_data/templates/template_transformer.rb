@@ -5,19 +5,18 @@ module DataCycleCore
     module Templates
       class TemplateTransformer
         include Extensions::Overlay
-        include Extensions::Position
-        include Extensions::Visible
+        include Extensions::LinkedInText
 
-        attr_reader :template, :mixin_paths
+        attr_reader :template, :mixin_paths, :linked_to_text_keys
 
-        def initialize(template:, content_set: nil, mixins: nil, templates: nil)
+        def initialize(template:, content_set: nil, mixins: nil)
           @template = template.with_indifferent_access
           @content_set = content_set
           @mixins = mixins
-          @templates = templates
           @mixin_paths = []
           @errors = []
           @error_path = "#{@content_set}.#{@template[:name]}"
+          @linked_to_text_keys = []
         end
 
         def self.merge_base_templates(template:, templates:)
@@ -56,9 +55,8 @@ module DataCycleCore
 
           new_properties.deep_merge!(main_config_property(:properties))
           add_overlay_properties!(new_properties)
-          add_sorting_recursive!(new_properties)
+          add_linked_in_text_properties!(new_properties)
           add_missing_parameters!(new_properties)
-          transform_visibilities!(new_properties)
 
           new_properties
         end
@@ -85,7 +83,7 @@ module DataCycleCore
 
         def hide_inverse_linked_in_edit_mode!(properties)
           properties.filter { |_k, prop| prop&.dig(:link_direction) == 'inverse' }.each_value do |value|
-            value[:visible] = VISIBILITIES.keys.except('edit') unless value.key?(:visible)
+            value[:visible] = Extensions::Visible::VISIBILITIES.keys.except('edit') unless value.key?(:visible)
           end
         end
 

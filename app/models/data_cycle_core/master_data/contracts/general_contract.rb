@@ -57,6 +57,20 @@ module DataCycleCore
           key.failure(message)
         end
 
+        register_macro(:dc_property_validations) do
+          next unless key? && value.is_a?(Hash)
+
+          missing = []
+
+          value.each_key do |k|
+            validator = DataCycleCore::MasterData::Validators::Object::BASIC_TYPES[values['type']]
+
+            next missing << k unless validator&.private_method_defined?(k)
+          end
+
+          key.failure("The following Validations do not exist: #{missing.join(', ')}") if missing.present?
+        end
+
         register_macro(:touch_step_required) do
           next unless key? && value.demodulize.in?(['DownloadBulkMarkDeleted'])
 

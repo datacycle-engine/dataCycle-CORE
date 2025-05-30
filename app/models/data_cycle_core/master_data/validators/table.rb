@@ -4,17 +4,13 @@ module DataCycleCore
   module MasterData
     module Validators
       class Table < BasicValidator
-        def table_keywords
-          ['required', 'soft_required']
-        end
-
         def validate(data, template, _strict = false)
           if valid_table_data?(data)
             validate_table_data(data)
 
             if template.key?('validations')
               template['validations'].each_key do |key|
-                method(key).call(data, template['validations'][key]) if table_keywords.include?(key)
+                validate_with_method(key, data, template['validations'][key])
               end
             end
           else

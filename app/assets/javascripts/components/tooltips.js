@@ -7,7 +7,7 @@ import {
 	flip,
 	shift,
 } from "@floating-ui/dom";
-import domElementHelpers from "../helpers/dom_element_helpers";
+import { nanoid } from "nanoid";
 
 class Tooltips {
 	constructor() {
@@ -51,7 +51,7 @@ class Tooltips {
 		);
 	}
 	addEventsForTooltip(element) {
-		element.dataset.dcTooltipId = domElementHelpers.randomId();
+		element.dataset.dcTooltipId = nanoid();
 		element.addEventListener("mouseenter", this.showTooltipDelayed.bind(this));
 		element.addEventListener("mouseleave", this.hideTooltip.bind(this));
 	}

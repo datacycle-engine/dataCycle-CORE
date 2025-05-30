@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Number < BasicValidator
-        def number_keywords
-          ['min', 'max', 'format']
-        end
-
         def number_formats
           ['integer', 'float']
         end
@@ -16,7 +12,7 @@ module DataCycleCore
           if data.is_a?(::Numeric)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                method(key).call(data, template['validations'][key]) if number_keywords.include?(key)
+                validate_with_method(key, data, template['validations'][key])
               end
             end
           elsif data.blank?

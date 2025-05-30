@@ -4,6 +4,10 @@ class RemoteRenderer {
 	constructor() {
 		this.$container = $(document);
 		this.renderQueue = [];
+		this.strategies = {
+			replaceSelf: "outerHTML",
+			replaceContent: "innerHTML",
+		};
 		this.intersectionObserver = new IntersectionObserver(
 			this.checkForNewVisibleElements.bind(this),
 			{
@@ -173,8 +177,12 @@ class RemoteRenderer {
 	}
 	renderNewHtml() {
 		for (const [target, html] of this.renderQueue) {
+			const strategy =
+				this.strategies[target.dataset.remoteStrategy?.camelize()] ||
+				this.strategies.replaceContent;
+			console.log("renderNewHtml", strategy);
 			const trimmedHtml = typeof html === "string" ? html.trim() : html;
-			target.innerHTML = trimmedHtml;
+			target[strategy] = trimmedHtml;
 			target.classList.add("remote-rendered");
 			target.classList.remove("remote-rendering");
 			target.dispatchEvent(new CustomEvent("dc:remote:rendered"));

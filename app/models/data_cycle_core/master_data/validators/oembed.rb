@@ -12,10 +12,6 @@ module DataCycleCore
           validate(data, template, strict)
         end
 
-        def oembed_keywords
-          ['required', 'soft_required']
-        end
-
         def validate(data, template, _strict = false)
           if data.blank?
             category = template.dig('validations', 'required') ? :error : (template.dig('validations', 'soft_required') ? :warning : :result)
@@ -38,7 +34,7 @@ module DataCycleCore
               if data_valid[:success] == true
                 if template.key?('validations')
                   template['validations'].each_key do |key|
-                    method(key).call(data, template['validations'][key]) if oembed_keywords.include?(key)
+                    validate_with_method(key, data, template['validations'][key])
                   end
                 end
                 @error[:result][@template_key] = Array.wrap(data_valid[:oembed_url])

@@ -25,7 +25,11 @@ const QuillHelpers = {
 		const normalizedText = text
 			.replaceAll(/(<p>\s*(<br>)*\s*<\/p>)*$/gi, "")
 			.replaceAll(/^(<p>\s*(<br>)*\s*<\/p>)*/gi, "")
-			.replaceAll(/(\s*&nbsp;\s*)+/gi, "&nbsp;");
+			.replaceAll(/(\s*&nbsp;\s*)+/gi, "&nbsp;")
+			.replaceAll(/\s?dcjs-\w*/gi, "") // Remove classes starting with "dcjs-"
+			.replaceAll(/\s?data-dc-tooltip-id="\w*"/gi, ""); // Remove data-dc-tooltip-id
+
+		console.log("normalizeText", text, text, normalizedText);
 
 		if (normalizedText !== text) return this.normalizeText(normalizedText);
 
