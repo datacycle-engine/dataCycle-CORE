@@ -14,12 +14,13 @@ class ContentLinkTooltip extends QuillTooltip {
 		this.container = quill.container;
 		this.key = "linked_in_text_dummy";
 		this.root.classList.add("dc--contentlink-tooltip");
-		this.preview = this.root.querySelector("span.ql-preview");
+		this.preview = this.root.querySelector("div.ql-preview");
 
 		console.log("create ContentLinkTooltip");
 	}
 
 	renderSelectedValue(value, options) {
+		console.log("renderSelectedValue", value);
 		let selectedIds = "";
 		if (value) {
 			const params = {
@@ -39,7 +40,7 @@ class ContentLinkTooltip extends QuillTooltip {
 		return selectedIds;
 	}
 
-	renderObjectBrowserHtml(value, containerId) {
+	renderObjectBrowserHtml(value, editorId, initialState = "closed") {
 		const options = {
 			html_id: this.key,
 			content: null,
@@ -49,12 +50,10 @@ class ContentLinkTooltip extends QuillTooltip {
 			},
 		};
 
-		return `<div class="object-browser-container form-element validation-container" id="${containerId}">
-          <div class="object-browser"
-               id="${this.editorId}"
-               data-hidden-field-id="${this.editorId}_default"
+		return `<div class="object-browser"
+               id="${editorId}"
+               data-hidden-field-id="${editorId}_default"
                data-definition='${JSON.stringify(options)}'
-               data-min="1"
                data-max="1"
                data-objects='${JSON.stringify(value ? [value] : [])}'
                data-key="${this.key}">
@@ -66,36 +65,29 @@ class ContentLinkTooltip extends QuillTooltip {
             </div>
           </div>
           <div class="object-browser-overlay full reveal without-overlay remote-render"
-              id="object_browser_${this.editorId}"
+              id="object_browser_${editorId}"
               data-overlay="false"
               data-reveal
               data-v-offset="0"
               data-multiple-opened="true"
-              data-initial-state="open"
+              data-initial-state="${initialState}"
               data-remote-path="data_cycle_core/object_browser/editor_overlay"
-              data-remote-options='${JSON.stringify(options)}'></div>
-        </div>`;
+              data-remote-options='${JSON.stringify(options)}'></div>`;
 	}
 
-	renderObjectBrowser(value) {
-		const overlayId = `object_browser_${this.editorId}`;
-		this.objectBrowser = document.getElementById(this.editorId);
-		this.objectBrowserOverlay = document.getElementById(overlayId);
-		const containerId = `object_browser_container_${this.editorId}`;
+	renderObjectBrowser(value, initialState = "closed") {
+		const editorId = nanoid();
+		const overlayId = `object_browser_${editorId}`;
+		const containerId = `object_browser_container_${editorId}`;
+		this.preview.innerHTML = this.renderObjectBrowserHtml(
+			value,
+			editorId,
+			initialState,
+		);
 		this.objectBrowserContainer = document.getElementById(containerId);
-
-		if (!this.objectBrowserContainer) {
-			this.container.insertAdjacentHTML(
-				"beforeend",
-				this.renderObjectBrowserHtml(value, containerId),
-			);
-			this.objectBrowserContainer = document.getElementById(containerId);
-			this.objectBrowser = document.getElementById(this.editorId);
-			this.objectBrowserOverlay = document.getElementById(overlayId);
-			$(this.objectBrowser).on("dc:objectBrowser:change", this.save.bind(this));
-		} else {
-			$(this.objectBrowserOverlay).foundation("open");
-		}
+		this.objectBrowser = document.getElementById(editorId);
+		this.objectBrowserOverlay = document.getElementById(overlayId);
+		$(this.objectBrowser).on("dc:objectBrowser:change", this.save.bind(this));
 	}
 
 	removeLink(event) {
@@ -111,12 +103,7 @@ class ContentLinkTooltip extends QuillTooltip {
 	}
 
 	editLink(event) {
-		console.log(
-			"editLink",
-			this.preview.dataset.editorId,
-			this.preview.textContent,
-		);
-		this.editorId = this.preview.dataset.editorId || nanoid();
+		console.log("editLink");
 		this.edit("contentlink", this.preview.textContent);
 
 		event.preventDefault();
@@ -133,14 +120,9 @@ class ContentLinkTooltip extends QuillTooltip {
 			if (link != null) {
 				this.linkRange = new Range(range.index - offset, link.length());
 				const preview = ContentlinkBlot.formats(link.domNode);
-				console.log("changeSelection", link, preview.editorId);
+				console.log("changeSelection", link, preview);
 
-				this.preview.textContent = preview.id;
-				this.preview.dataset.href = preview.id;
-				this.preview.dataset.editorId = preview.editorId
-					? preview.editorId
-					: "";
-				this.preview.dataset.dcTooltip = `dataCycle: ${preview.id}`;
+				this.renderObjectBrowser(preview);
 				this.show();
 				this.position(this.quill.getBounds(this.linkRange));
 				return;
@@ -154,7 +136,7 @@ class ContentLinkTooltip extends QuillTooltip {
 	listen() {
 		super.listen();
 
-		console.log("listen ContentLinkTooltip", this.editorId);
+		console.log("listen ContentLinkTooltip");
 
 		this.root
 			.querySelector("a.ql-action")
@@ -171,41 +153,35 @@ class ContentLinkTooltip extends QuillTooltip {
 	}
 
 	show() {
-		console.log("show", this.editorId, this.textbox.value);
+		console.log("show", this.textbox.value);
 		super.show();
 
 		this.root.removeAttribute("data-mode");
 	}
 
 	edit(mode, preview) {
-		console.log("edit mode", this.editorId);
-		this.renderObjectBrowser(preview);
-		this.preview.dataset.editorId = this.editorId;
-
-		console.log("edit", this.editorId, mode, preview);
+		console.log("edit", mode, preview);
+		if (this.objectBrowserOverlay)
+			$(this.objectBrowserOverlay).foundation("open");
 	}
 
 	hide() {
-		console.log("hide", this.editorId);
-		this.editorId = null;
+		console.log("hide");
 
 		if (this.preview) {
 			console.log("hide preview", this.preview);
-			this.preview.textContent = "";
-			this.preview.dataset.href = "";
-			this.preview.dataset.editorId = "";
-			this.preview.dataset.dcTooltip = "";
+			this.preview.innerHTML = "";
 		}
 
 		super.hide();
 	}
 
 	save(event, data) {
-		console.log("save", this.editorId, event, data);
-		const value = {
-			id: data?.ids?.[0],
-			editorId: this.editorId,
-		};
+		const value = data?.ids?.[0];
+
+		if (!value) return this.removeLink(event);
+
+		console.log("save", event, value);
 
 		const { scrollTop } = this.quill.root;
 		if (this.linkRange) {
@@ -221,14 +197,12 @@ class ContentLinkTooltip extends QuillTooltip {
 			this.quill.format("contentlink", value, Quill.sources.USER);
 		}
 		this.quill.root.scrollTop = scrollTop;
-
-		this.textbox.value = "";
 		this.hide();
 	}
 }
 
 ContentLinkTooltip.TEMPLATE = [
-	'<span class="ql-preview"></span>',
+	'<div class="ql-preview"></div>',
 	'<input type="text">',
 	'<a class="ql-action"></a>',
 	'<a class="ql-remove"></a>',
@@ -237,30 +211,23 @@ ContentLinkTooltip.TEMPLATE = [
 class ContentlinkBlot extends InlineBlot {
 	static create(value) {
 		console.log("create contentlink", value);
-		const id = value?.id || value;
 		// biome-ignore lint/complexity/noThisInStatic: <explanation>
 		const node = super.create();
-		node.dataset.href = id;
-		node.dataset.editorId = value?.editorId ? value?.editorId : "";
-		node.dataset.dcTooltip = `dataCycle: ${id}`;
+		node.dataset.href = value;
+		node.dataset.dcTooltip = `dataCycle: ${value}`;
 		return node;
 	}
 	static formats(node) {
-		return {
-			id: node.dataset.href,
-			editorId: node.dataset.editorId,
-		};
+		return node.dataset.href;
 	}
 	format(name, value) {
 		console.log("format contentlink", name, value);
-		const id = value?.id || value;
 
-		if (name !== this.statics.blotName || !id) {
-			super.format(name, id);
+		if (name !== this.statics.blotName || !value) {
+			super.format(name, value);
 		} else {
-			this.domNode.dataset.href = id;
-			this.domNode.dataset.editorId = value?.editorId ? value?.editorId : "";
-			this.domNode.dataset.dcTooltip = `dataCycle: ${id}`;
+			this.domNode.dataset.href = value;
+			this.domNode.dataset.dcTooltip = `dataCycle: ${value}`;
 		}
 	}
 }
@@ -283,8 +250,8 @@ class QuillContentlinkModule extends QuillModule {
 			if (range == null || range.length === 0) return;
 			const preview = this.quill.getText(range);
 			console.log("contentlinkHandler", preview, range);
-			this.tooltip.editorId = nanoid();
-			this.tooltip.edit("contentlink", null);
+			this.tooltip.renderObjectBrowser(null, "open");
+			// this.tooltip.edit("contentlink", null);
 		} else {
 			this.quill.format("contentlink", false);
 		}
