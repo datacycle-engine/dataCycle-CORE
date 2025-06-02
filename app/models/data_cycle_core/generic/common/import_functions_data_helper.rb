@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Common
       module ImportFunctionsDataHelper
-        def process_step(utility_object:, raw_data:, transformation:, default:, config:, import_step: {})
+        def process_step(utility_object:, raw_data:, transformation:, default:, config:)
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
           template = load_template(config&.dig(:template) || default[:template])
 
@@ -31,7 +31,6 @@ module DataCycleCore
               template:,
               data:,
               local: false,
-              import_step:,
               config:
             )
             external_hash.hash_value = transformation_hash if content.present?
@@ -53,7 +52,7 @@ module DataCycleCore
 
         # 2173067 for template missmatch
         # 59471758 as poi
-        def create_or_update_content(utility_object:, template:, data:, local: false, import_step: {}, **)
+        def create_or_update_content(utility_object:, template:, data:, local: false, config: {}, **)
           return nil if data.except('external_key', 'locale').blank?
           delete_property_hash = {}
           if local
@@ -96,13 +95,13 @@ module DataCycleCore
               end
 
               if content&.external_source_id != utility_object.external_source.id
-                primary_source_module = import_step&.dig(:import, :primary_system_decision_module)
-                primary_source_methode = import_step&.dig(:import, :primary_system_decision_method)
+                primary_source_module = config&.dig(:primary_system, :decision_module)
+                primary_source_methode = config&.dig(:primary_system, :decision_method)
                 return content unless primary_source_module && primary_source_methode
-                
+
                 primary_system_change_module = primary_source_module.safe_constantize
                 return content unless primary_system_change_module.respond_to?(primary_source_methode)
-                return content unless primary_system_change_module&.send(primary_source_methode, content, utility_object.external_source.id, data['external_key'], import_step)
+                return content unless primary_system_change_module&.send(primary_source_methode, content, utility_object.external_source.id, data['external_key'], config)
                 delete_property_hash = change_primary_system_nonpersistent(content, data, utility_object.external_source)
 
                 return content if delete_property_hash.blank?
@@ -348,11 +347,11 @@ module DataCycleCore
         #   current system is not in priority_list
         #   current primary system is higher ranked in priority list
         #   there is already a content with this system/key combo or key is blank
-        def self.should_update_primary_system?(content, current_system_id, new_external_key, import_step)
-          return false if content.external_source_id == current_system_id || !import_step.is_a?(Hash)
+        def self.should_update_primary_system?(content, current_system_id, new_external_key, config)
+          return false if content.external_source_id == current_system_id || config.is_a?(Hash)
           return false if new_external_key.blank? || DataCycleCore::Thing.where(external_source_id: current_system_id, external_key: new_external_key).count.positive?
 
-          primary_system_priority_list = import_step.dig(:import, :primary_system_priority_order)
+          primary_system_priority_list = config.dig(:primary_system, :priority_order)
           return false if primary_system_priority_list.blank?
 
           quoted_names = primary_system_priority_list&.map { |n| ActiveRecord::Base.connection.quote(n) }
