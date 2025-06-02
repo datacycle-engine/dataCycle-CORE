@@ -325,6 +325,7 @@ module DataCycleCore
           return {} if delete_sync.nil?
           delete_sync.mark_for_destruction
 
+          content.external_system_syncs.build(external_system_id: content.external_source_id, external_key: content.external_key, status: 'success', sync_type: 'duplicate', data: { external_key: content.external_key })
           content.external_key = data['external_key']
           content.external_source_id = new_external_source.id
 

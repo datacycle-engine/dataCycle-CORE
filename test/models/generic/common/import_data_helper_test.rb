@@ -74,27 +74,26 @@ module DataCycleCore
       assert_equal({}, delete_hash)
       assert_equal(@medium_priority_system.id, change_content.external_source_id)
       assert_equal('medium2', change_content.external_key)
-      assert_equal(1, change_content.external_system_syncs.count)
+      assert_equal(change_content.external_system_syncs.pluck(:external_system_id).sort, [@high_priority_system.id].sort)
     end
 
     test 'marks the old sync for destruction and updates content source/key' do
       change_content = create_content('POI', { name: 'Change Content 2', external_key: 'medium3', external_source_id: @medium_priority_system.id })
       change_content.add_external_system_data(@high_priority_system, { external_key: 'medium-high-3' }, 'success', 'duplicate', 'medium-high-3', false)
-      change_content.add_external_system_data(@medium_priority_system, { external_key: 'medium-low-3' }, 'success', 'duplicate', 'medium-low-3', false)
+      change_content.add_external_system_data(@low_priority_system, { external_key: 'medium-low-3' }, 'success', 'duplicate', 'medium-low-3', false)
 
       data = {
         'external_key' => 'medium-high-3'
       }
 
       delete_hash = change_primary_system_nonpersistent(change_content, data, @high_priority_system)
-
       assert_equal(['external_key', 'external_source_id'].sort, change_content.changed_attributes.keys.sort)
-
       change_content.save
 
+      secundardy_external_source_ids = change_content.external_system_syncs.pluck(:external_system_id)
       assert_equal(@high_priority_system.id, change_content.external_source_id)
       assert_equal('medium-high-3', change_content.external_key)
-      assert_equal(1, change_content.external_system_syncs.count)
+      assert_equal([@medium_priority_system.id, @low_priority_system.id].sort, secundardy_external_source_ids.sort)
       assert_not_equal({}, delete_hash)
     end
   end
