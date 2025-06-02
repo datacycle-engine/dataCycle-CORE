@@ -348,7 +348,7 @@ module DataCycleCore
         #   current primary system is higher ranked in priority list
         #   there is already a content with this system/key combo or key is blank
         def self.should_update_primary_system?(content, current_system_id, new_external_key, config)
-          return false if content.external_source_id == current_system_id || config.is_a?(Hash)
+          return false if content.external_source_id == current_system_id || !config.is_a?(Hash)
           return false if new_external_key.blank? || DataCycleCore::Thing.where(external_source_id: current_system_id, external_key: new_external_key).count.positive?
 
           primary_system_priority_list = config.dig(:primary_system, :priority_order)
