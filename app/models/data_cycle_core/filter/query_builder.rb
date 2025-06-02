@@ -270,6 +270,10 @@ module DataCycleCore
         DataCycleCore::Thing::DuplicateCandidate.arel_table
       end
 
+      def thing_duplicate
+        DataCycleCore::ThingDuplicate.arel_table
+      end
+
       def external_system_sync
         DataCycleCore::ExternalSystemSync.arel_table
       end
