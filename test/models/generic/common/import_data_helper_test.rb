@@ -26,37 +26,37 @@ module DataCycleCore
       @priority_order = [@high_priority_system.name, @medium_priority_system.name, @low_priority_system.name]
 
       @options = {
-        import: {
-          primary_system_priority_order: @priority_order
+        primary_system: {
+          priority_order: @priority_order
         }
       }
     end
 
     # Test-cases to determine, wheter to changing the primary system or not
     test 'system should become primary - returns true' do
-      assert_equal(true, DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, @high_priority_system.id, @options))
+      assert_equal(true, DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, @high_priority_system.id, 'medium-high', @options))
     end
 
     test 'system should not become primary - returns false' do
-      result = DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, @low_priority_system.id, @options)
+      result = DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, @low_priority_system.id, 'medium-low', @options)
       assert_equal(false, result)
     end
 
     test 'system already is primary - returns false' do
-      assert_equal(false, DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, @medium_priority_system.id, @options))
+      assert_equal(false, DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, @medium_priority_system.id, 'medium1', @options))
     end
 
     test 'system not in priority list - returns false' do
       unknown_system = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system-3')
-      assert_equal(false, DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, unknown_system.id, @options))
+      assert_equal(false, DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, unknown_system.id, 'medium-unknown', @options))
     end
 
     test 'priority list does not exist - returns false' do
       priority_list = {
-        import: {
+        something_else: {
         }
       }
-      assert_equal(false, DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, @high_priority_system.id, priority_list))
+      assert_equal(false, DataCycleCore::Generic::Common::ImportFunctionsDataHelper.should_update_primary_system?(@content2, @high_priority_system.id, 'medium-high', priority_list))
     end
 
     # Test-cases to change the primary system
