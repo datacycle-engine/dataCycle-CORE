@@ -47,18 +47,18 @@ module DataCycleCore
 
                 nested_content_config = nested_contents_config.except(:exists, :not_exists, :path, :json_path, :template, :transformation)
                 raw_data = raw_data.merge(options.dig(:import, :main_content, :data)) if options.dig(:import, :main_content, :data).present?
-                process_single_content(utility_object, nested_contents_config[:template], transformation_method, nested_data, nested_content_config, import_step:)
+                process_single_content(utility_object, nested_contents_config[:template], transformation_method, nested_data, nested_content_config)
               end
             end
 
             transformation_method = options[:transformations].constantize.method(options.dig(:import, :main_content, :transformation))
             main_content_config = options.dig(:import, :main_content).except(:template, :transformation)
             raw_data = raw_data.merge(options.dig(:import, :main_content, :data)) if options.dig(:import, :main_content, :data).present?
-            process_single_content(utility_object, options.dig(:import, :main_content, :template), transformation_method, raw_data, main_content_config, import_step:)
+            process_single_content(utility_object, options.dig(:import, :main_content, :template), transformation_method, raw_data, main_content_config)
           end
         end
 
-        def self.process_single_content(utility_object, template_name, transformation_method, raw_data, config = {}, import_step:)
+        def self.process_single_content(utility_object, template_name, transformation_method, raw_data, config = {})
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
@@ -69,8 +69,7 @@ module DataCycleCore
             raw_data:,
             transformation:,
             default: { template: template_name },
-            config:,
-            import_step:
+            config:
           )
         end
       end
