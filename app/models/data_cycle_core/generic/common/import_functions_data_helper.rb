@@ -308,12 +308,10 @@ module DataCycleCore
         end
 
         # delete future primary system from external_system_syncs
-        # missing syncs are added after content update
+        # adds old primary system to external_system_syncs
         # do not change if
         #   there is no sync to delete
         #   there is already a content with this external_source_id + external_key combo
-        # maybe we should still add the old external system, to syncs so everything works as expected
-        #   there is already an entry with these credentials
         def change_primary_system_nonpersistent(content, data, new_external_source)
           content.external_system_syncs.load
           delete_sync = content.external_system_syncs.detect do |sync|
@@ -341,11 +339,10 @@ module DataCycleCore
 
         # false if:
         #   import step not a Hash
-        #   system already primary system
+        #   there is already a content with this system/key combo or key is blank
         #   priority list is empty
         #   current system is not in priority_list
         #   current primary system is higher ranked in priority list
-        #   there is already a content with this system/key combo or key is blank
         def self.should_update_primary_system?(content, current_system_id, new_external_key, config)
           return false if content.external_source_id == current_system_id || !config.is_a?(Hash)
           return false if new_external_key.blank? || DataCycleCore::Thing.where(external_source_id: current_system_id, external_key: new_external_key).count.positive?
@@ -359,8 +356,6 @@ module DataCycleCore
           primary_system_priority_ids = DataCycleCore::ExternalSystem.where(name: primary_system_priority_list).order(Arel.sql("CASE name #{order_clause} END")).pluck('id')
           return false if primary_system_priority_ids.blank?
 
-          # If the current system is not found in the priority configuration -> skip
-          # If any of the external_systems with higher priority is already the primary system -> skip
           current_system_index = primary_system_priority_ids.index(current_system_id)
           return false if current_system_index.nil?
           return false if primary_system_priority_ids[0...current_system_index].include?(content.external_source_id)
