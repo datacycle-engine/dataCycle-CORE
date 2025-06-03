@@ -50,8 +50,6 @@ module DataCycleCore
           nil
         end
 
-        # 2173067 for template missmatch
-        # 59471758 as poi
         def create_or_update_content(utility_object:, template:, data:, local: false, config: {}, **)
           return nil if data.except('external_key', 'locale').blank?
           delete_property_hash = {}
