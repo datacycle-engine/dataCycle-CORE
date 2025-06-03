@@ -69,7 +69,7 @@ module DataCycleCore
             if data.is_a?(::Hash)
               data_in_filter?(current_key, data, filter, external_source_id) ? data : {}
             elsif data.is_a?(::Array)
-              data.select { data_in_filter?(current_key, _1, filter, external_source_id) }
+              data.select { data_in_filter?(current_key, _1, filter, external_source_id, data) }
             else
               data
             end
@@ -119,7 +119,7 @@ module DataCycleCore
             cloned_value
           end
 
-          def data_in_filter?(key, data, filter, external_source_id = nil)
+          def data_in_filter?(key, data, filter, external_source_id = nil, collection = nil)
             return true unless data.is_a?(::Hash) && key.present?
 
             Array.wrap(filter).each do |config|
@@ -131,6 +131,8 @@ module DataCycleCore
                             next false if id.nil?
 
                             Array.wrap(config['key']).any? { |k| Array.wrap(get_values_from_hash(data:, key_path: [k], external_source_id:)).include?(id) }
+                          when 'size'
+                            collection.present? ? collection.size == config['value'].to_i : true
                           else
                             get_values_from_hash(data:, key_path: [config['type']], external_source_id:) == config['value']
                           end
