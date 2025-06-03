@@ -16,7 +16,6 @@ module DataCycleCore
           @mixin_paths = []
           @errors = []
           @error_path = "#{@content_set}.#{@template[:name]}"
-          @linked_to_text_keys = []
         end
 
         def self.merge_base_templates(template:, templates:)

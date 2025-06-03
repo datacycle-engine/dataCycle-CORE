@@ -41,7 +41,9 @@ module DataCycleCore
           'mandatory_license',
           'internal_content_score',
           'external_content_score',
-          'web_url'
+          'web_url',
+          'linked_in_text',
+          'linked_to_text'
         ].freeze
 
       def assert_api_count_result(count)

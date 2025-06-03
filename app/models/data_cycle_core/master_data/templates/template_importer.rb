@@ -28,7 +28,6 @@ module DataCycleCore
           @template_definitions = []
           @extended_templates = []
           @templates = []
-          @linked_to_text_keys = []
 
           load_templates
 
@@ -253,10 +252,7 @@ module DataCycleCore
 
         def add_inverse_linked_to_text_properties!
           @templates.each do |template|
-            Extensions::LinkedInText.append_linked_to_text_props!(
-              template.dig(:data, :properties),
-              @linked_to_text_keys
-            )
+            Extensions::LinkedInText.append_linked_to_text_props!(template.dig(:data, :properties))
           end
         end
 
@@ -280,7 +276,6 @@ module DataCycleCore
         def transform_template_data(template:, data_template:)
           transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins)
           transformed_data, errors = transformer.transform
-          @linked_to_text_keys.concat(transformer.linked_to_text_keys).uniq!
           @errors.concat(errors) && return if errors.present?
 
           {

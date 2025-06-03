@@ -3,6 +3,7 @@ const TextEditorLoader = () => import("../components/text_editor");
 import InlineTranslator from "../components/inline_translator";
 import AiLectorTips from "../components/ai_lector/ai_lector_tips";
 import AiLector from "../components/ai_lector/ai_lector";
+import DcContentLink from "../components/dc_content_link";
 
 function initTextEditor(item) {
 	TextEditorLoader()
@@ -33,4 +34,10 @@ export default function () {
 		if (!DataCycle.globals.aiLector)
 			DataCycle.globals.aiLector = new AiLector();
 	});
+
+	DataCycle.registerLazyAddCallback(
+		".detail-content .dc--contentlink",
+		"dcjs-content-link",
+		(e) => new DcContentLink(e),
+	);
 }

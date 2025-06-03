@@ -34,12 +34,12 @@ module DataCycleCore
               .uniq
           end
 
-          def linked_in_text(computed_parameters:, **_args)
+          def linked_from_text(computed_parameters:, **_args)
             ids = []
-            regex = Regexp.new(/data-href="([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})"/, Regexp::IGNORECASE)
+            regex = /data-href="([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})"/
 
             computed_parameters.each_value do |parameter|
-              regex.scan(parameter) do |match|
+              parameter&.scan(regex) do |match|
                 id = match.first
 
                 ids << id if id.present? && ids.exclude?(id)

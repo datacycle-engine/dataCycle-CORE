@@ -29,8 +29,6 @@ const QuillHelpers = {
 			.replaceAll(/\s?dcjs-\w*/gi, "") // Remove classes starting with "dcjs-"
 			.replaceAll(/\s?data-dc-tooltip-id="\w*"/gi, ""); // Remove data-dc-tooltip-id
 
-		console.log("normalizeText", text, text, normalizedText);
-
 		if (normalizedText !== text) return this.normalizeText(normalizedText);
 
 		return normalizedText;

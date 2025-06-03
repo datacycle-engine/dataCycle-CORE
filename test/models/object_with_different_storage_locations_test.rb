@@ -22,7 +22,8 @@ module DataCycleCore
         'period' => {
           'created_at' => '2017-06-01'.to_datetime.to_fs(:db),
           'updated_at' => '2017-07-01'.to_datetime.to_fs(:db)
-        }
+        },
+        'linked_to_text' => []
       }
       returned_data_hash['period'].each do |key, value|
         returned_data_hash['period'][key] = value.to_datetime.to_fs(:db)
@@ -57,7 +58,8 @@ module DataCycleCore
             'valid_from' => '2017-06-01'.in_time_zone,
             'valid_until' => '2017-07-01'.in_time_zone
           }
-        }
+        },
+        'linked_to_text' => []
       }
       returned_data_hash['period']['updated_at'] = expected_hash['period']['updated_at']
       returned_data_hash['period']['created_at'] = returned_data_hash['period']['created_at'].to_datetime.to_fs(:db)

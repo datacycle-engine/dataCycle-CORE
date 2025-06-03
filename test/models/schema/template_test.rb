@@ -13,8 +13,8 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'All Simple Property Types' }
-      DataCycleCore::Schema::Template.new(template[:data].as_json)
+      template = template_importer.templates.find { |t| t[:name] == 'All Simple Property Types' }
+      DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_template_name('All Simple Property Types')
     end
 
     it 'should exclude properties which are disabled for api' do
@@ -60,7 +60,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Simple Embedded Container' }
+      template = template_importer.templates.find { |t| t[:name] == 'Simple Embedded Container' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_ActingAsEmbeddedContainer')
     end
 
@@ -77,7 +77,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Simple Linked Entity One' }
+      template = template_importer.templates.find { |t| t[:name] == 'Simple Linked Entity One' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_SimpleEntityLinkedOne')
     end
 
@@ -101,7 +101,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template = template_importer.templates[:creative_works].find { |t| t[:name] == 'Container' }
+      template = template_importer.templates.find { |t| t[:name] == 'Container' }
       DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_Container')
     end
 
@@ -130,7 +130,7 @@ describe DataCycleCore::Schema::Template do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
         template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
-      template_importer.templates[:creative_works].find { |t| t[:name] == 'Simple Linked Entity Inverse' }
+      template_importer.templates.find { |t| t[:name] == 'Simple Linked Entity Inverse' }
     end
 
     it 'should set correct visibilities for inverse linked properties' do
@@ -155,7 +155,7 @@ describe DataCycleCore::Schema::Template do
           Rails.root.join('..', 'data_types', 'child_set2')
         ]
       )
-      template_importer.templates[:creative_works].find { |t| t[:name] == 'DummyTemplate' }
+      template_importer.templates.find { |t| t[:name] == 'DummyTemplate' }
     end
 
     it 'should have the correct properties from project' do
@@ -164,6 +164,24 @@ describe DataCycleCore::Schema::Template do
       assert_not(props.key?(:dummy1))
       assert_not(props.key?(:dummy_parent1))
       assert_not(props.key?(:dummy_parent2))
+    end
+  end
+
+  describe 'for linked_in_text property' do
+    subject do
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [
+          Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_test')
+        ]
+      )
+      template_importer.templates
+    end
+
+    it 'should have the correct linked_in_text property with computed parameters' do
+      props = subject.find { |t| t[:name] == 'Rezept' }.dig(:data, :properties)
+      assert(props.key?(:linked_in_text))
+      assert_equal(['text'], props.dig(:linked_in_text, :compute, :parameters))
+      assert(subject.map { |s| s.dig(:data, :properties, :linked_to_text) }.all?(&:present?))
     end
   end
 end

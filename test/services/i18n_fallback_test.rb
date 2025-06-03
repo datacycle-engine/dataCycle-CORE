@@ -13,16 +13,16 @@ module DataCycleCore
 
       data_set.set_data_hash(data_hash: data_hash_de)
       data_set.save
-      assert_equal(data_hash_de, data_set.get_data_hash.except('id'))
+      assert_equal(data_hash_de, data_set.get_data_hash.except('id', 'linked_to_text'))
 
       I18n.with_locale(:en) do
         data_set.set_data_hash(data_hash: data_hash_en)
         data_set.save
-        assert_equal(data_hash_en, data_set.get_data_hash.except('id'))
+        assert_equal(data_hash_en, data_set.get_data_hash.except('id', 'linked_to_text'))
       end
 
-      assert_equal(data_hash_de, data_set.get_data_hash.except('id'))
-      assert_equal(data_hash_en, I18n.with_locale(:en) { data_set.get_data_hash.except('id') })
+      assert_equal(data_hash_de, data_set.get_data_hash.except('id', 'linked_to_text'))
+      assert_equal(data_hash_en, I18n.with_locale(:en) { data_set.get_data_hash.except('id', 'linked_to_text') })
     end
   end
 end

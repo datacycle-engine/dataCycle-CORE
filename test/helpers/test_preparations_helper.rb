@@ -8,7 +8,7 @@ module DataCycleCore
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id',
                  'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification',
-                 'universal_classifications', 'slug', 'schema_types'],
+                 'universal_classifications', 'slug', 'schema_types', 'linked_in_text', 'linked_to_text'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel', 'author', 'about', 'keywords', 'topic',
                         'video', 'potential_action', 'slug', 'work_translation', 'translation_of_work'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags', 'feratel_owners', 'feratel_locations', 'feratel_status', 'slug',

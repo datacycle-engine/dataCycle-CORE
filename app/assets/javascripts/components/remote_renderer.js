@@ -180,7 +180,6 @@ class RemoteRenderer {
 			const strategy =
 				this.strategies[target.dataset.remoteStrategy?.camelize()] ||
 				this.strategies.replaceContent;
-			console.log("renderNewHtml", strategy);
 			const trimmedHtml = typeof html === "string" ? html.trim() : html;
 			target[strategy] = trimmedHtml;
 			target.classList.add("remote-rendered");

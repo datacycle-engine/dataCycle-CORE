@@ -26,7 +26,6 @@ module DataCycleCore
           else
             data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym] = {
               type: 'linked',
-              sorting: data[:properties].values.pluck('sorting').max + 1,
               inverse_of: AGGREGATE_PROPERTY_NAME,
               link_direction: 'inverse',
               template_name: aggregate_name,
