@@ -21,7 +21,7 @@ module DataCycleCore
 
         transaction(joinable: false, requires_new: true) do
           if opts[:save_history] && !history? && !embedded?
-            update_columns(deleted_at: opts[:save_time], deleted_by: opts[:current_user]&.id)
+            update_columns(deleted_at: opts[:save_time], deleted_by: opts[:current_user]&.id) unless opts[:destroy_locale] && available_locales.many?
             to_history(delete: true, all_translations: !(opts[:destroy_locale] && available_locales.many?))
           end
 
