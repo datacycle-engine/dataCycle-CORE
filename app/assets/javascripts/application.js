@@ -29,6 +29,10 @@ const initializers = import.meta.glob("./initializers/*.js", {
 	eager: true,
 	import: "default",
 });
+const autoInitComponents = import.meta.glob("./auto_init_components/*.js", {
+	eager: true,
+	import: "default",
+});
 import foundationInit from "./initializers/foundation_init";
 import validationInit from "./initializers/validation_init";
 import CustomElementsInit from "./initializers/custom_elements_init";
@@ -63,6 +67,25 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	});
 
 	$(() => {
+		for (const path in autoInitComponents) {
+			try {
+				const component = autoInitComponents[path];
+				const initFunction = component.lazy
+					? "registerLazyAddCallback"
+					: "registerAddCallback";
+
+				DataCycle[initFunction](
+					component.selector,
+					component.className,
+					(e) => new component(e),
+				);
+			} catch (err) {
+				DataCycle.notifications.dispatchEvent(
+					new CustomEvent("error", { detail: err }),
+				);
+			}
+		}
+
 		for (const path in initializers) {
 			if (!initializerExceptions.some((e) => path.includes(e))) {
 				try {

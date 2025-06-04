@@ -1,4 +1,7 @@
 class DcContentLink {
+	static selector = ".detail-content .dc--contentlink";
+	static className = "dcjs-content-link";
+	static lazy = true;
 	constructor(element) {
 		this.element = element;
 
