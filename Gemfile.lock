@@ -688,7 +688,7 @@ DEPENDENCIES
   rb-readline
   rgeo
   rgeo-proj4
-  rubocop
+  rubocop (!= 1.76.0)
   rubocop-ast
   rubocop-minitest
   rubocop-performance
