@@ -59,6 +59,7 @@ module DataCycleCore
       include Extensions::Thing
       include Extensions::Slug
       include Extensions::ConceptTransformations
+      include Extensions::LinkedInText
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
@@ -371,6 +372,14 @@ module DataCycleCore
 
       def computed_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition.key?('compute') }
+      end
+
+      def text_with_linked_property_names(include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition['type'] == 'string' &&
+            definition.dig('ui', 'edit', 'type') == 'text_editor' &&
+            definition.dig('ui', 'edit', 'options', 'data-size') == 'full'
+        end
       end
 
       def resolved_computed_dependencies(key, datahash = {})

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class RemoveContentReferencesFromTestJob < UniqueApplicationJob
+  class RemoveContentReferencesFromTextJob < UniqueApplicationJob
     PRIORITY = 10
 
     queue_as :cache_invalidation
@@ -26,26 +26,24 @@ module DataCycleCore
 
     private
 
-    def update_computed_properties(content, id)
-      if content.computed_property_names.intersect?(content.translatable_property_names)
-        content.available_locales.each do |locale|
-          translated_computed_keys = content.computed_property_names.intersection(content.translatable_property_names)
+    def remove_ids_from_test(thing, linked_id)
+      if thing.text_with_linked_property_names.intersect?(thing.translatable_property_names)
+        thing.available_locales.each do |locale|
+          translated_text_keys = thing.text_with_linked_property_names.intersection(thing.translatable_property_names)
 
           data_hash = {}
-          keys = locale == content.first_available_locale ? content.computed_property_names : translated_computed_keys
+          keys = locale == thing.first_available_locale ? thing.text_with_linked_property_names : translated_text_keys
 
           I18n.with_locale(locale) do
-            content.add_computed_values(data_hash:, keys:, force: true)
-            content.webhook_priority = WEBHOOK_PRIORITY
-            content.set_data_hash(data_hash:, update_computed: false)
+            thing.remove_id_from_text_props(data_hash:, linked_id:, keys:)
+            thing.set_data_hash(data_hash:)
           end
         end
       else
-        I18n.with_locale(content.first_available_locale) do
+        I18n.with_locale(thing.first_available_locale) do
           data_hash = {}
-          content.add_computed_values(data_hash:, force: true)
-          content.webhook_priority = WEBHOOK_PRIORITY
-          content.set_data_hash(data_hash:, update_computed: false)
+          thing.remove_id_from_text_props(data_hash:, linked_id:)
+          thing.set_data_hash(data_hash:)
         end
       end
     end

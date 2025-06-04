@@ -5,6 +5,7 @@ module DataCycleCore
     module Compute
       module Linked
         extend Extensions::ValueByPathExtension
+        TEXT_DATA_HREF_REGEX = /data-href="([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})"/
 
         class << self
           def from_geo_shape(content:, computed_parameters:, computed_definition:, **_args)
@@ -34,22 +35,38 @@ module DataCycleCore
               .uniq
           end
 
-          def linked_from_text(computed_parameters:, **_args)
+          def linked_from_text(content:, computed_parameters:, **_args)
             ids = []
-            regex = /data-href="([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})"/
 
             computed_parameters.each_value do |parameter|
-              parameter&.scan(regex) do |match|
-                id = match.first
+              ids.concat(get_ids_from_text(parameter)) if parameter.is_a?(::String)
+            end
 
-                ids << id if id.present? && ids.exclude?(id)
+            content.available_locales.except(I18n.locale).each do |locale|
+              I18n.with_locale(locale) do
+                computed_parameters.each_key do |key|
+                  value = content.try(key)
+                  ids.concat(get_ids_from_text(value)) if value.is_a?(::String)
+                end
               end
+            end
+
+            ids.uniq
+          end
+
+          private
+
+          def get_ids_from_text(text)
+            ids = []
+
+            text&.scan(TEXT_DATA_HREF_REGEX) do |match|
+              id = match.first
+
+              ids << id if id.present? && ids.exclude?(id)
             end
 
             ids
           end
-
-          private
 
           def get_ids_from_geometry(things:, geometry:)
             query_sql = <<-SQL.squish

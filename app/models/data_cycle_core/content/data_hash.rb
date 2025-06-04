@@ -7,7 +7,6 @@ module DataCycleCore
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: [:before, :after]
       define_model_callbacks :created_data_hash, only: :after
-      define_model_callbacks :destroyed_data_hash, only: :after
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
@@ -18,6 +17,7 @@ module DataCycleCore
       include UpdateSearch
 
       before_save :set_internal_data
+      before_destroy :add_remove_linked_from_text_job, unless: :history?
 
       def before_save_data_hash(options)
         # inherit attributes if source content is present
