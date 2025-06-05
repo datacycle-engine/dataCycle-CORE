@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'hashdiff'
-
 module DataCycleCore
   module MasterData
     module Templates
@@ -35,17 +33,6 @@ module DataCycleCore
             validate_translatable_embedded!(template, prefix)
             validate_property_names!(template.dig(:data, :properties), prefix)
             validate_overlay_properties(template[:data], prefix)
-
-            schema_diff = ::Hashdiff.diff(
-              DataCycleCore::ThingTemplate.find(template[:name]).schema.deep_stringify_keys.as_json,
-              template[:data].deep_stringify_keys.as_json
-            )
-
-            binding.pry unless schema_diff.all? do |v|
-              v[1].include?('sorting') ||
-              v[1].include?('linked_in_text') ||
-              v[1].include?('linked_to_text')
-            end
           end
 
           @errors
