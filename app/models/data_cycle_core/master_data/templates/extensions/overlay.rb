@@ -29,7 +29,7 @@ module DataCycleCore
           ].freeze
           ALLOWED_PROP_OVERRIDES = ['default_value', 'ui'].freeze
 
-          def overlay_version_prop(key, prop, version)
+          def overlay_version_prop(key, prop, version, allowed_visibilities = ['show', 'edit'])
             version_prop = prop.deep_dup.except(*OVERLAY_PROP_EXCEPTIONS)
             override_props = version_prop.dig('features', 'overlay', version)&.slice(*ALLOWED_PROP_OVERRIDES) || {}
             version_prop.deep_merge!(override_props)
@@ -41,7 +41,7 @@ module DataCycleCore
               }
             }
             version_prop['local'] = true
-            version_prop['visible'] = ['show', 'edit']
+            version_prop['visible'] = Visible.merge_visibility(version_prop['visible'], allowed_visibilities)
             version_prop['label'] = { key:, key_suffix: "overlay_#{version}" }
 
             if version_prop['storage_location'] == 'column'
@@ -62,10 +62,10 @@ module DataCycleCore
           end
 
           def overlay_prop(key, prop, versions)
-            overlay_prop = overlay_version_prop(key, prop, 'overlay')
+            overlay_prop = overlay_version_prop(key, prop, 'overlay', ['api'])
             overlay_prop['api'] = prop['api']&.deep_dup || {}
             overlay_prop['api']['name'] = key.camelize(:lower) if overlay_prop.dig('api', 'name').blank?
-            overlay_prop['visible'] = ['api']
+
             overlay_prop['virtual'] = {
               'module' => 'Common',
               'method' => 'overlay',
@@ -116,7 +116,7 @@ module DataCycleCore
 
           def self.disable_original_properties!(properties)
             properties.each_value do |prop|
-              disable_original_property!(prop) if prop.dig('features', 'overlay', 'allowed')
+              disable_original_property!(prop) if prop&.dig('features', 'overlay', 'allowed')
             end
           end
         end

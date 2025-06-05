@@ -13,7 +13,7 @@
         :allowed: true
       :duplicate_candidate:
         :allowed: true
-        :method: :bild_duplicate
+        :method: bild_duplicate
       :overlay:
         :allowed: false
       :serialize:

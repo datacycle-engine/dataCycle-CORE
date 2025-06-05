@@ -45,6 +45,14 @@ module DataCycleCore
 
             visibilities.values.reduce(&:deep_merge).deep_merge(prop).with_indifferent_access
           end
+
+          def self.merge_visibility(visible, new_visible)
+            case visible
+            when Array then visible.intersection(new_visible)
+            when FalseClass then false
+            else new_visible
+            end
+          end
         end
       end
     end

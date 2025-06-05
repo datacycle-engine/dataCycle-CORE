@@ -118,6 +118,7 @@ module DataCycleCore
         end
 
         def transform_aggregate_property(key:, prop:)
+          return [] if prop.blank?
           return [] if AGGREGATE_KEY_EXCEPTIONS.include?(key)
           return [] if prop.dig(:features, :overlay)&.key?(:overlay_for) || prop.dig(:features, :aggregate)&.key?(:aggregate_for)
           return slug_definition(key:, prop:) if key == 'slug'
@@ -148,11 +149,12 @@ module DataCycleCore
 
         def aggregate_property_definition(key:, prop:)
           # embedded should use plural for labels
+
           {
             label: { key:, key_prefix: 'aggregate_for_override', count: prop['type'] == 'embedded' ? 2 : nil },
             type: 'linked',
             template_name: aggregate_base_template_name,
-            visible: ['show', 'edit'],
+            visible: Extensions::Visible.merge_visibility(prop[:visible], ['show', 'edit']),
             features: { aggregate: { aggregate_for: key } },
             ui: {
               show: {
@@ -168,7 +170,7 @@ module DataCycleCore
               },
               attribute_group: prop.dig(:ui, :attribute_group)
             }
-          }.deep_reject { |_, v| DataHashService.blank?(v) }
+          }.deep_reject { |_, v| DataHashService.blank?(v) }.with_indifferent_access
         end
 
         def aggregate_base_template_name
