@@ -48,7 +48,11 @@ module DummyNestedFilter
 end
 
 ExternalSystemDummyStruct = Struct.new('ExternalSystemDummy', :id, :default_options)
-UtilityObjectDummyStruct = Struct.new('UtilityObjectDummy', :external_source)
+UtilityObjectDummyStruct = Struct.new('UtilityObjectDummy', :external_source) do
+  def step_config(config)
+    (config || {}).with_indifferent_access
+  end
+end
 
 describe DataCycleCore::Generic::Common::ImportContents do
   include DataCycleCore::MinitestSpecHelper
