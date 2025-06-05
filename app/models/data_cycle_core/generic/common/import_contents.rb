@@ -69,7 +69,7 @@ module DataCycleCore
             raw_data:,
             transformation:,
             default: { template: template_name },
-            config:
+            config: utility_object.step_config(config)
           )
         end
       end

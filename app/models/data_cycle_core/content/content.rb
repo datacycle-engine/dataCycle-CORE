@@ -31,6 +31,7 @@ module DataCycleCore
       SLUG_PROPERTY_TYPES = ['slug'].freeze
       ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
+      INTERNAL_PROPERTY_NAMES = ['id', 'external_source_id', 'external_key', 'schema_types', 'data_type'].freeze
 
       after_update :update_template_defaults, if: :template_name_previously_changed?
 
@@ -374,6 +375,12 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition.key?('compute') }
       end
 
+      def computed_without_fallback_property_names
+        name_property_selector do |definition|
+          definition.key?('compute') && !definition.dig('compute', 'fallback')
+        end
+      end
+
       def text_with_linked_property_names(include_overlay = false)
         name_property_selector(include_overlay) do |definition|
           definition['type'] == 'string' &&
@@ -492,9 +499,8 @@ module DataCycleCore
         name_property_selector { |definition| definition['exif'].present? }
       end
 
-      def allowed_importer_property_names
-        delete_not_allowed = ['local', 'global', 'data_type', 'schema_type', 'id', 'external_source_id', 'external_key', 'url', 'same_as', 'canonical_url', 'schema_types', 'data_pool_imported']
-        writable_property_names - default_value_property_names - computed_property_names - delete_not_allowed
+      def resettable_import_property_names
+        writable_property_names - local_property_names - global_property_names - INTERNAL_PROPERTY_NAMES - computed_without_fallback_property_names
       end
 
       # returns data the same way, as .as_json

@@ -93,16 +93,9 @@ module DataCycleCore
               end
 
               if content&.external_source_id != utility_object.external_source.id
-                primary_source_module = config&.dig(:primary_system, :decision_module)
-                primary_source_methode = config&.dig(:primary_system, :decision_method)
-                return content unless primary_source_module && primary_source_methode
+                return content unless update_primary_system?(content, utility_object.external_source, data['external_key'], config)
 
-                primary_system_change_module = primary_source_module.safe_constantize
-                return content unless primary_system_change_module.respond_to?(primary_source_methode)
-                return content unless primary_system_change_module&.send(primary_source_methode, content, utility_object.external_source.id, data['external_key'], config)
-                delete_property_hash = change_primary_system_nonpersistent(content, data, utility_object.external_source)
-
-                return content if delete_property_hash.blank?
+                data = change_primary_system(content:, data:, new_external_source: utility_object.external_source)
               elsif content&.external_key != data['external_key']
                 return content
               end
@@ -307,26 +300,9 @@ module DataCycleCore
           data
         end
 
-        # delete future primary system from external_system_syncs
-        # adds old primary system to external_system_syncs
-        # do not change if
-        #   there is no sync to delete
-        #   there is already a content with this external_source_id + external_key combo
-        def change_primary_system_nonpersistent(content, data, new_external_source)
-          content.external_system_syncs.load
-          delete_sync = content.external_system_syncs.detect do |sync|
-            sync.external_system_id == new_external_source.id && sync.external_key == data['external_key']
-          end
-
-          return {} if delete_sync.nil?
-          delete_sync.mark_for_destruction
-
-          content.external_system_syncs.build(external_system_id: content.external_source_id, external_key: content.external_key, status: 'success', sync_type: 'duplicate', data: { external_key: content.external_key })
-          content.external_key = data['external_key']
-          content.external_source_id = new_external_source.id
-
-          # return hash to clear old attributes
-          content.allowed_importer_property_names.index_with { |_key| nil }
+        def change_primary_system(content:, data:, new_external_source:)
+          content.change_primary_system(new_external_source, data['external_key'])
+          data.reverse_merge(content.resettable_import_property_names.index_with { |_key| nil })
         end
 
         def fixnum_max
@@ -337,29 +313,44 @@ module DataCycleCore
           @logging_delta ||= 100
         end
 
+        def primary_system_priority_list(config, **kwargs)
+          case config[:primary_system_priority]
+          when Array then config[:primary_system_priority]
+          when Hash
+            p_module = config.dig(:primary_system_priority, :module)
+            p_method = config.dig(:primary_system_priority, :method)
+            p_module.safe_constantize&.send(p_method, **kwargs)
+          end
+        end
+
+        def primary_system_index(priority_list, external_system)
+          return nil if priority_list.blank? || external_system.nil?
+
+          priority_list.index { |name| external_system.name == name || external_system.identifier == name }
+        end
+
         # false if:
         #   import step not a Hash
         #   there is already a content with this system/key combo or key is blank
         #   priority list is empty
         #   current system is not in priority_list
         #   current primary system is higher ranked in priority list
-        def self.should_update_primary_system?(content, current_system_id, new_external_key, config)
-          return false if content.external_source_id == current_system_id || !config.is_a?(Hash)
-          return false if new_external_key.blank? || DataCycleCore::Thing.where(external_source_id: current_system_id, external_key: new_external_key).count.positive?
+        def update_primary_system?(content, new_external_system, new_external_key, config)
+          return false if content.external_source_id == new_external_system.id
+          return false unless config.is_a?(Hash)
+          return false if new_external_key.blank?
 
-          primary_system_priority_list = config.dig(:primary_system, :priority_order)
-          return false if primary_system_priority_list.blank?
+          priority_list = primary_system_priority_list(config, content:, new_external_system:, new_external_key:, config:)
 
-          quoted_names = primary_system_priority_list&.map { |n| ActiveRecord::Base.connection.quote(n) }
-          order_clause = quoted_names&.each_with_index&.map { |name, i| "WHEN #{name} THEN #{i}" }&.join(' ')
+          return false if priority_list.blank?
 
-          primary_system_priority_ids = DataCycleCore::ExternalSystem.where(name: primary_system_priority_list).order(Arel.sql("CASE name #{order_clause} END")).pluck('id')
-          return false if primary_system_priority_ids.blank?
+          current_index = primary_system_index(priority_list, content.external_source)
+          new_index = primary_system_index(priority_list, new_external_system)
 
-          current_system_index = primary_system_priority_ids.index(current_system_id)
-          return false if current_system_index.nil?
-          return false if primary_system_priority_ids[0...current_system_index].include?(content.external_source_id)
-          true
+          return true if current_index.nil?
+          return false if new_index.nil?
+
+          new_index < current_index
         end
       end
     end

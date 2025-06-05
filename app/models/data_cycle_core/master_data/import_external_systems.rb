@@ -227,6 +227,12 @@ module DataCycleCore
             optional(:ai_model) { str? }
             optional(:endpoint).filled(:ruby_class?)
             optional(:transformations).filled(:ruby_module?)
+            optional(:primary_system_priority).filled do
+              array? | hash do
+                required(:module)
+                required(:method)
+              end
+            end
           end
           optional(:config).maybe(:hash) do
             optional(:api_strategy).filled(:ruby_class?)
@@ -257,6 +263,7 @@ module DataCycleCore
 
         rule(:credentials).validate(:dc_unique_credentials)
         rule(:credentials).validate(:dc_credential_keys)
+        rule('default_options.primary_system_priority').validate(:ruby_module_and_method)
 
         rule('config.export_config.filter').validate(:filter_config)
         rule('config.export_config.create.filter').validate(:filter_config)
@@ -287,6 +294,29 @@ module DataCycleCore
             required(:module) { str? }
             required(:method) { str? }
           end
+          optional(:main_content).filled(:hash) do
+            required(:template).filled(:str?)
+            required(:transformation).filled(:str?)
+            optional(:primary_system_priority).filled do
+              array? | hash do
+                required(:module)
+                required(:method)
+              end
+            end
+          end
+
+          optional(:nested_contents).filled(:array?).each do
+            hash do
+              required(:template).filled(:str?)
+              required(:transformation).filled(:str?)
+              optional(:primary_system_priority).filled do
+                array? | hash do
+                  required(:module)
+                  required(:method)
+                end
+              end
+            end
+          end
         end
 
         rule(:logging_strategy).validate(:dc_logging_strategy)
@@ -294,6 +324,8 @@ module DataCycleCore
         rule(:linked_template_name).validate(:dc_template_names)
         rule(:data_id_transformation).validate(:ruby_module_and_method)
         rule(:download_strategy).validate(:touch_step_required)
+        rule('main_content.primary_system_priority').validate(:ruby_module_and_method)
+        # rule('nested_contents[].primary_system_priority').each(&:ruby_module_and_method) # not supported yet
 
         rule do
           base.failure(:strategy_required) unless values.key?(:import_strategy) || values.key?(:download_strategy)
