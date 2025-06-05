@@ -50,7 +50,7 @@ module DataCycleCore
 
           def add_linked_in_text_properties!(props)
             linked_in_text_keys = props.select { |_, v|
-              v[:type] == 'string' &&
+              v&.dig(:type) == 'string' &&
                 v.dig(:ui, :edit, :type) == 'text_editor' &&
                 v.dig(:ui, :edit, :options, :'data-size') == 'full'
             }.keys

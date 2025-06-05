@@ -53,6 +53,7 @@ module DataCycleCore
           new_properties = replace_mixin_properties(@template[:properties])
 
           new_properties.deep_merge!(main_config_property(:properties))
+
           add_overlay_properties!(new_properties)
           add_linked_in_text_properties!(new_properties)
           add_missing_parameters!(new_properties)
@@ -88,7 +89,7 @@ module DataCycleCore
 
         def filter_conditional_properties!(properties)
           properties.reject! do |k, prop|
-            prop.key?(:condition) && !allowed_property?(key: k, property: prop, properties:)
+            prop&.key?(:condition) && !allowed_property?(key: k, property: prop, properties:)
           end
         end
 
