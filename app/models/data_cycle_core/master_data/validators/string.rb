@@ -162,14 +162,6 @@ module DataCycleCore
           }
         end
 
-        def required(data, value)
-          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && data.blank?
-        end
-
-        def soft_required(data, value)
-          (@error[:warning][@template_key] ||= []) << { path: 'validation.warnings.required' } if value && data.blank?
-        end
-
         def telephone_din5008(data)
           din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(-\d+){0,1}$|^(0\d+) ([1-9]\d+)(-\d+){0,1}$|^([1-9]\d+)(-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(-\d+){0,1}$/
           check_telephone = !(data =~ din5008).nil?
