@@ -52,7 +52,6 @@ module DataCycleCore
 
         def create_or_update_content(utility_object:, template:, data:, local: false, config: {}, **)
           return nil if data.except('external_key', 'locale').blank?
-          delete_property_hash = {}
           if local
             content = DataCycleCore::Thing.new(
               local_import: true,
@@ -126,7 +125,6 @@ module DataCycleCore
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
 
-          global_data = delete_property_hash.merge(global_data) if delete_property_hash.present?
           valid = content.set_data_hash(
             data_hash: global_data,
             prevent_history: !utility_object.history,
