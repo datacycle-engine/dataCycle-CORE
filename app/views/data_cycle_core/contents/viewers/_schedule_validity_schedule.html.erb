@@ -24,12 +24,12 @@
 
     <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
-    <% date_format = object.try(:schedule_object)&.terminating? ? 'date.formats.long' : 'date.formats.short' %>
+    <% date_format = object.try(:schedule_object)&.terminating? ? :validity_schedule_terminating : :validity_schedule %>
 
     <span class="detail-content events-calender-view">
-      <span><%= l(object.try(:dtstart)&.try(:to_date), format: t(date_format, locale: active_ui_locale), locale: active_ui_locale) %></span>
+      <span><%= l(object.try(:dtstart), format: date_format, locale: active_ui_locale) %></span>
       <span>-</span>
-      <span><%= l(object.try(:dtstart)&.+(object.try(:duration) || 0)&.-(1.second)&.try(:to_date), format: t(date_format, locale: active_ui_locale), locale: active_ui_locale) %></span>
+      <span><%= l(object.try(:dtstart)&.+(object.try(:duration) || 0)&.-(1.second), format: date_format, locale: active_ui_locale) %></span>
     </span>
 
   <% end %>

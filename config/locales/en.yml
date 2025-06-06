@@ -2572,6 +2572,8 @@ en:
       short: "%e. %b"
       full: "%A, %e. %B %Y"
       edit: "%d.%m.%Y"
+      validity_schedule_terminating: "%e. %B %Y"
+      validity_schedule: "%e. %b"
     month_names:
       -
       - January
@@ -2711,6 +2713,8 @@ en:
       edit: "%d.%m.%Y %H:%M"
       history: "%d.%m.%Y, %H:%M o'clock"
       time_only: "%H:%M"
+      validity_schedule_terminating: "%d. %B %Y, %H:%M o'clock"
+      validity_schedule: "%e. %b, %H:%M o'clock"
     pm: in the afternoon
   external_sources:
     bergfex:
