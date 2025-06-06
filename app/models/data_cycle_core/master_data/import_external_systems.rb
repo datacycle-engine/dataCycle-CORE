@@ -70,7 +70,7 @@ module DataCycleCore
 
           yield data if block_given? && error.blank?
         rescue StandardError => e
-          errors.push("#{file_name} => could not access the YML File (#{e.message})")
+          errors.push("#{file_name} => could not access the YML File (Message: #{e.message}, Backtrace: #{e.backtrace.first})")
         end
 
         errors
