@@ -1704,7 +1704,8 @@ CREATE TABLE public.thing_duplicates (
     score double precision,
     false_positive boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    thing_ids uuid[] GENERATED ALWAYS AS (ARRAY[thing_id, thing_duplicate_id]) STORED
 );
 
 
@@ -3550,6 +3551,13 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 
 --
+-- Name: index_thing_duplicates_on_thing_ids; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_duplicates_on_thing_ids ON public.thing_duplicates USING gin (thing_ids);
+
+
+--
 -- Name: index_thing_histories_on_aggregate_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4966,6 +4974,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250602085114'),
 ('20250527101145'),
 ('20250520064340'),
 ('20250514115905'),

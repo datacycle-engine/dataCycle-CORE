@@ -134,9 +134,9 @@ module DataCycleCore
 
       def mvt_cluster_sql
         if @cluster_lines
-          "CASE WHEN ST_Intersects(ST_StartPoint(contents.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})) THEN ST_ClusterDBSCAN(ST_StartPoint(contents.geometry), #{@cluster_radius}, 2) over () ELSE NULL END"
+          "CASE WHEN ST_Intersects(ST_StartPoint(contents.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})) THEN ST_ClusterDBSCAN(ST_StartPoint(contents.geometry), #{@cluster_radius}, 2) over (ORDER BY contents.id) ELSE NULL END"
         else
-          "ST_ClusterDBSCAN(contents.geometry, #{@cluster_radius}, 2) over ()"
+          "ST_ClusterDBSCAN(contents.geometry, #{@cluster_radius}, 2) over (ORDER BY contents.id)"
         end
       end
 

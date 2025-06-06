@@ -88,7 +88,7 @@ module DataCycleCore
     translates :slug, :content, backend: :table
     default_scope { i18n.includes(:thing_template) }
 
-    has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
+    has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable, autosave: true
     has_many :external_systems, through: :external_system_syncs
 
     has_many :activities, as: :activitiable, dependent: :destroy
