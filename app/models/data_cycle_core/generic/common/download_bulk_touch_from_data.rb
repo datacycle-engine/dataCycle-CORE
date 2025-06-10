@@ -13,8 +13,10 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(**)
-          DataCycleCore::Generic::Common::DownloadDataFromData.load_data_from_mongo(**).pluck('id')
+        def self.load_contents(options: {}, **)
+          data = DataCycleCore::Generic::Common::DownloadDataFromData.load_data_from_mongo(options:, **)
+          data.each { |s| s['id'] = DataCycleCore::Generic::Common::DownloadDataFromData.data_id(options.dig(:download, :data_id_transformation), s) } if options.dig(:download, :data_id_transformation)
+          data.pluck('id')
         end
       end
     end
