@@ -158,15 +158,15 @@ module DataCycleCore
         classification_aliases_for_tree(tree_name:).primary_classifications
       end
 
-      def is_related? # rubocop:disable Naming/PredicateName
+      def is_related? # rubocop:disable Naming/PredicatePrefix
         content_content_b.except(:order).exists?
       end
 
-      def has_related? # rubocop:disable Naming/PredicateName
+      def has_related? # rubocop:disable Naming/PredicatePrefix
         content_content_a.except(:order).exists?
       end
 
-      def has_cached_related_contents? # rubocop:disable Naming/PredicateName
+      def has_cached_related_contents? # rubocop:disable Naming/PredicatePrefix
         cached_related_contents.exists?
       end
 

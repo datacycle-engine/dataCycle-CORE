@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     def delayed_reference_type
-      "#{arguments[0].underscore_blanks}_#{arguments[2]}"
+      "#{arguments[0]}##{arguments[2]}"
     end
 
     def perform(_class_name, _id, method_name, _things_ids)

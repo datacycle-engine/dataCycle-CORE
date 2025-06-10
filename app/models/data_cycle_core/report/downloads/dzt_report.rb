@@ -33,8 +33,8 @@ module DataCycleCore
                 END AS verification_report
             FROM external_system_syncs
             WHERE external_system_id = :dzt_sys_id
-              #{errors_only == true ? 'AND NOT (status IN (\'success\', \'pending\', \'running\'))' : ''}
-              #{filter_date_start.present? ? ' AND last_sync_at >= :filter_date_start' : ''}
+              #{'AND NOT (status IN (\'success\', \'pending\', \'running\'))' if errors_only == true}
+              #{' AND last_sync_at >= :filter_date_start' if filter_date_start.present?}
             ORDER BY last_sync_at DESC;
           SQL
 

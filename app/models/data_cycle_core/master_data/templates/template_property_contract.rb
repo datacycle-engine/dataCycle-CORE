@@ -8,7 +8,7 @@ module DataCycleCore
 
         ALLOWED_OVERLAY_TYPES = ['string', 'text', 'number', 'boolean',
                                  'datetime', 'date', 'embedded', 'linked',
-                                 'classification', 'schedule', 'opening_time'].freeze
+                                 'classification', 'schedule', 'opening_time', 'object'].freeze
         OVERLAY_KEY_EXCEPTIONS = ['overlay', 'id', 'data_type', 'external_key', 'external_source_id'].freeze
         # validation in gitlab has no access to database, so we need to define the reserved property names here
         RESERVED_PROPERTY_NAMES = ['thing_id', 'locale', 'content', 'created_at', 'updated_at', 'metadata', 'template_name', 'external_source_id', 'created_by', 'updated_by', 'deleted_by', 'cache_valid_since', 'deleted_at', 'is_part_of', 'validity_range', 'boost', 'content_type', 'representation_of_id', 'version_name', 'last_updated_locale', 'write_history', 'geom_simple', 'aggregate_type'].freeze

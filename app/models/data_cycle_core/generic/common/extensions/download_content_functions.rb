@@ -83,6 +83,7 @@ module DataCycleCore
 
                 item_data_slice.each do |item_data|
                   item_id = data_id.call(item_data)&.to_s
+                  item_data['dc_external_id'] = item_id if item_id.present? # make external_id available under dump.de.dc_external_id
                   item = mongo_items[item_id] || mongo_item.new(external_id: item_id)
                   item.dump ||= {}
                   local_item = item.dump[locale]

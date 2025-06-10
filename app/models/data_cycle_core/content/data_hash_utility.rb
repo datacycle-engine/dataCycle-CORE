@@ -6,7 +6,7 @@ module DataCycleCore
       include DataCycleCore::NormalizeService
 
       # validate nil,"",[],{},[nil],[""] as blank.
-      def is_blank?(data) # rubocop:disable Naming/PredicateName
+      def is_blank?(data) # rubocop:disable Naming/PredicatePrefix
         DataCycleCore::DataHashService.blank?(data)
       end
 

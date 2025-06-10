@@ -174,7 +174,7 @@ module DataCycleCore
         DataCycleCore::Webhook::Delete.execute_all(self)
       end
 
-      def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
+      def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true) # rubocop:disable Naming/PredicateMethod
         data_hash = add_default_values(data_hash:, current_user:, partial: !strict).dup if add_defaults && default_value_property_names.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new(self)
@@ -246,7 +246,7 @@ module DataCycleCore
 
       private
 
-      def no_changes(locale)
+      def no_changes(locale) # rubocop:disable Naming/PredicateMethod
         warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale:))
 
         true

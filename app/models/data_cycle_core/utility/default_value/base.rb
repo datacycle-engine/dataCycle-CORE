@@ -46,7 +46,7 @@ module DataCycleCore
             user&.is_rank?(config['rank'].to_i) if config&.dig('rank').present?
           end
 
-          def condition_except_content_type(_user, config, content)
+          def condition_except_content_type(_user, config, content) # rubocop:disable Naming/PredicateMethod
             content.content_type != config
           end
 

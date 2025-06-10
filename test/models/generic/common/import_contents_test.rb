@@ -32,11 +32,11 @@ module DummyTransformations
     }
   end
 
-  def self.filter_true(_data, _options)
+  def self.filter_true(_data, _options) # rubocop:disable Naming/PredicateMethod
     true
   end
 
-  def self.filter_false(_data, _options)
+  def self.filter_false(_data, _options) # rubocop:disable Naming/PredicateMethod
     false
   end
 end

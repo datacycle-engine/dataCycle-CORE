@@ -13,7 +13,7 @@ if value.present?
 
   data = {
     '@id' => generate_uuid(content.id, key),
-    '@type' => property_definition['type'].to_s || 'ViewAction',
+    '@type' => property_definition['type'].to_s,
     'name' => property_definition.dig('action', 'platform') || key,
     'url' => value
   }

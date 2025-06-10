@@ -63,7 +63,7 @@ module DataCycleCore
             end
           end
 
-          def related_keys(k1, p1, k2)
+          def related_keys(k1, p1, k2) # rubocop:disable Naming/PredicateMethod
             (p1.dig('features', 'overlay', 'overlay_for') || p1.dig('features', 'aggregate', 'aggregate_for') || k1) == k2
           end
         end

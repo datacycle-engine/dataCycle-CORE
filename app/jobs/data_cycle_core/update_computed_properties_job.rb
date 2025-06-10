@@ -15,10 +15,6 @@ module DataCycleCore
       arguments[0]
     end
 
-    def delayed_reference_type
-      DataCycleCore::Thing.name
-    end
-
     def perform(content_id, _changed_attributes)
       DataCycleCore::Thing
         .where(id: DataCycleCore::Thing::PropertyDependency.select(:content_id).where(dependent_content_id: content_id))
