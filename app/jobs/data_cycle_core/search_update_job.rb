@@ -14,10 +14,6 @@ module DataCycleCore
       "#{arguments[0]}_#{arguments[1].presence || 'all'}"
     end
 
-    def delayed_reference_type
-      self.class.name.demodulize.underscore
-    end
-
     def perform(thing_id, locale = nil)
       content = DataCycleCore::Thing.find(thing_id)
 

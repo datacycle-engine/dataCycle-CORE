@@ -7,7 +7,7 @@ module DataCycleCore
     end
 
     def delayed_reference_type
-      raise 'NOT IMPLEMENTED'
+      self.class.name.demodulize
     end
 
     before_enqueue ->(job) { job.clear_previous_jobs }
