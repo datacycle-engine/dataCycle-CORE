@@ -352,7 +352,8 @@ module DataCycleCore
         sign_in_count: 0,
         external: false,
         deleted_at: Time.zone.now,
-        subscription_ids: nil
+        subscription_ids: nil,
+        providers: {}
       })
 
       skip_confirmation_notification! if respond_to?(:skip_confirmation_notification!)
