@@ -4,8 +4,12 @@ import { nanoid } from "nanoid";
 
 export const inputFieldSelectors = ["input", "select", "textarea", "button"];
 export const listPropertyClasses = ["classification", "linked", "embedded"];
+export const objectPropertyClasses = ["object"];
 export function isListFormElement(formElement) {
 	return listPropertyClasses.some((c) => formElement.classList.contains(c));
+}
+export function isObjectFormElement(formElement) {
+	return objectPropertyClasses.some((c) => formElement.classList.contains(c));
 }
 export function inputFieldQuerySelector() {
 	return inputFieldSelectors.map((f) => `:scope ${f}`).join(", ");
@@ -309,6 +313,8 @@ const DomElementHelpers = {
 	inputFieldSelectors,
 	listPropertyClasses,
 	isListFormElement,
+	objectPropertyClasses,
+	isObjectFormElement,
 	inputFieldQuerySelector,
 	isVisible,
 	isHidden,

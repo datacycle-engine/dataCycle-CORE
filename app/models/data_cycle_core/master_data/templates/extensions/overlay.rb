@@ -52,13 +52,25 @@ module DataCycleCore
               v.delete('content_area') if v.is_a?(::Hash) && v['content_area'] == 'none'
             end
 
-            version_prop['ui']['edit'].delete('readonly') if version_prop.dig('ui', 'edit')&.key?('readonly')
+            remove_readonly_recursively!(version_prop)
             version_prop['ui'] ||= {}
             version_prop['ui']['edit'] ||= {}
             version_prop['ui']['edit']['data_attributes'] ||= {}
             version_prop['ui']['edit']['data_attributes']['overlay_type'] = version
 
             version_prop.deep_reject { |_k, v| DataHashService.blank?(v) }
+          end
+
+          def remove_readonly_recursively!(prop)
+            return unless prop.is_a?(Hash)
+
+            prop['ui']['edit'].delete('readonly') if prop.dig('ui', 'edit')&.key?('readonly')
+
+            return unless prop['type'] == 'object' && prop['properties'].is_a?(Hash)
+
+            prop['properties'].each_value do |sub_prop|
+              remove_readonly_recursively!(sub_prop)
+            end
           end
 
           def overlay_prop(key, prop, versions)
