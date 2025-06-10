@@ -79,23 +79,23 @@ module DataCycleCore
           @configuration[memoize_key(content, attribute_key)]
         end
 
-        def content_module
+        def content_module # rubocop:disable Naming/PredicateMethod
           false
         end
 
-        def ability_class
+        def ability_class # rubocop:disable Naming/PredicateMethod
           false
         end
 
-        def data_hash_module
+        def data_hash_module # rubocop:disable Naming/PredicateMethod
           false
         end
 
-        def controller_module
+        def controller_module # rubocop:disable Naming/PredicateMethod
           false
         end
 
-        def routes_module
+        def routes_module # rubocop:disable Naming/PredicateMethod
           false
         end
 

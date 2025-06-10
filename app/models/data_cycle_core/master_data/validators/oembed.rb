@@ -54,7 +54,7 @@ module DataCycleCore
           @error
         end
 
-        def self.valid_oembed_data?(data, maxwidth = nil, maxheight = nil)
+        def self.valid_oembed_data?(data, maxwidth = nil, maxheight = nil) # rubocop:disable Naming/PredicateMethod
           success = false
 
           @error ||= { error: {}, warning: {}, result: {} }
@@ -104,11 +104,11 @@ module DataCycleCore
                 }
                 oembed_url = nil
               else
-                oembed_url = "#{selected.first['oembed_url'].sub('{format}', 'json').sub('{dcThingOembed}', "#{dc_thing_oembed_url}/oembed")}?thing_id=#{thing_id}#{maxwidth.present? ? "&maxwidth=#{maxwidth}" : ''}#{maxheight.present? ? "&maxheight=#{maxheight}" : ''}"
+                oembed_url = "#{selected.first['oembed_url'].sub('{format}', 'json').sub('{dcThingOembed}', "#{dc_thing_oembed_url}/oembed")}?thing_id=#{thing_id}#{"&maxwidth=#{maxwidth}" if maxwidth.present?}#{"&maxheight=#{maxheight}" if maxheight.present?}"
               end
 
             else
-              oembed_url = "#{selected.first['oembed_url'].sub('{format}', 'json')}?url=#{data}#{maxwidth.present? ? "&maxwidth=#{maxwidth}" : ''}#{maxheight.present? ? "&maxheight=#{maxheight}" : ''}"
+              oembed_url = "#{selected.first['oembed_url'].sub('{format}', 'json')}?url=#{data}#{"&maxwidth=#{maxwidth}" if maxwidth.present?}#{"&maxheight=#{maxheight}" if maxheight.present?}"
             end
 
             @error = { error: {}, warning: {}, result: {} } if success

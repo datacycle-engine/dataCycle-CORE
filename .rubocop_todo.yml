@@ -12,25 +12,25 @@
 # Include: **/*.gemspec
 Gemspec/RequireMFA:
   Exclude:
-    - 'data_cycle_core.gemspec'
+    - "data_cycle_core.gemspec"
 
 # Offense count: 6
 # Configuration parameters: IgnoreLiteralBranches, IgnoreConstantBranches, IgnoreDuplicateElseBranch.
 Lint/DuplicateBranch:
   Exclude:
-    - 'app/helpers/data_cycle_core/api_helper.rb'
-    - 'app/models/data_cycle_core/master_data/validators/classification.rb'
-    - 'app/models/data_cycle_core/master_data/validators/linked.rb'
-    - 'app/views/data_cycle_core/schema/index.xlsx.axlsx'
-    - 'lib/tasks/data_cycle_core_consistency.rake'
+    - "app/helpers/data_cycle_core/api_helper.rb"
+    - "app/models/data_cycle_core/master_data/validators/classification.rb"
+    - "app/models/data_cycle_core/master_data/validators/linked.rb"
+    - "app/views/data_cycle_core/schema/index.xlsx.axlsx"
+    - "lib/tasks/data_cycle_core_consistency.rake"
 
 # Offense count: 3
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AutoCorrect, AllowComments.
 Lint/EmptyConditionalBody:
   Exclude:
-    - 'app/controllers/data_cycle_core/sync_api/v1/contents_controller.rb'
-    - 'lib/tasks/dc_debug.rake'
+    - "app/controllers/data_cycle_core/sync_api/v1/contents_controller.rb"
+    - "lib/tasks/dc_debug.rake"
 
 # Offense count: 65
 # Configuration parameters: AllowedParentClasses.
@@ -45,7 +45,7 @@ Lint/RedundantCopDisableDirective:
 # Offense count: 1
 Naming/AccessorMethodName:
   Exclude:
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
+    - "app/controllers/data_cycle_core/data_links_controller.rb"
 
 # Offense count: 7
 # Configuration parameters: NamePrefix, ForbiddenPrefixes, AllowedMethods, MethodDefinitionMacros, UseSorbetSigs.
@@ -53,52 +53,52 @@ Naming/AccessorMethodName:
 # ForbiddenPrefixes: is_, has_, have_
 # AllowedMethods: is_a?
 # MethodDefinitionMacros: define_method, define_singleton_method
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Exclude:
-    - 'app/models/data_cycle_core/content/extensions/content.rb'
-    - 'app/models/data_cycle_core/data_link.rb'
-    - 'app/models/data_cycle_core/user.rb'
+    - "app/models/data_cycle_core/content/extensions/content.rb"
+    - "app/models/data_cycle_core/data_link.rb"
+    - "app/models/data_cycle_core/user.rb"
 
 # Offense count: 19
 # Configuration parameters: MinSize.
 Performance/CollectionLiteralInLoop:
   Exclude:
-    - 'app/controllers/data_cycle_core/downloads_controller.rb'
-    - 'app/models/data_cycle_core/generic/common/download_functions.rb'
-    - 'app/models/data_cycle_core/master_data/validators/oembed.rb'
-    - 'app/views/data_cycle_core/api/v3/api_base/_content_properties.jb'
-    - 'app/views/data_cycle_core/api/v4/api_base/_content_properties.jb'
-    - 'app/views/data_cycle_core/schema/index.xlsx.axlsx'
-    - 'config/breadcrumbs.rb'
-    - 'lib/tasks/dc_migrate.rake'
-    - 'test/models/master_data/data_converter_test.rb'
+    - "app/controllers/data_cycle_core/downloads_controller.rb"
+    - "app/models/data_cycle_core/generic/common/download_functions.rb"
+    - "app/models/data_cycle_core/master_data/validators/oembed.rb"
+    - "app/views/data_cycle_core/api/v3/api_base/_content_properties.jb"
+    - "app/views/data_cycle_core/api/v4/api_base/_content_properties.jb"
+    - "app/views/data_cycle_core/schema/index.xlsx.axlsx"
+    - "config/breadcrumbs.rb"
+    - "lib/tasks/dc_migrate.rake"
+    - "test/models/master_data/data_converter_test.rb"
 
 # Offense count: 23
 # Configuration parameters: Include.
 # Include: app/models/**/*.rb
 Rails/HasManyOrHasOneDependent:
   Exclude:
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/content/content_relations.rb'
-    - 'app/models/data_cycle_core/feature/content/content_lock.rb'
-    - 'app/models/data_cycle_core/user.rb'
+    - "app/models/data_cycle_core/classification.rb"
+    - "app/models/data_cycle_core/content/content_relations.rb"
+    - "app/models/data_cycle_core/feature/content/content_lock.rb"
+    - "app/models/data_cycle_core/user.rb"
 
 # Offense count: 42
 # Configuration parameters: IgnoreScopes, Include.
 # Include: app/models/**/*.rb
 Rails/InverseOf:
   Exclude:
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/classification_alias.rb'
-    - 'app/models/data_cycle_core/classification_tree.rb'
-    - 'app/models/data_cycle_core/content/content_relations.rb'
-    - 'app/models/data_cycle_core/data_link.rb'
-    - 'app/models/data_cycle_core/user.rb'
+    - "app/models/data_cycle_core/classification.rb"
+    - "app/models/data_cycle_core/classification_alias.rb"
+    - "app/models/data_cycle_core/classification_tree.rb"
+    - "app/models/data_cycle_core/content/content_relations.rb"
+    - "app/models/data_cycle_core/data_link.rb"
+    - "app/models/data_cycle_core/user.rb"
 
 # Offense count: 2
 Rails/OutputSafety:
   Exclude:
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+    - "app/helpers/data_cycle_core/data_hash_helper.rb"
 
 # Offense count: 95
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -108,18 +108,18 @@ Rails/SquishedSQLHeredocs:
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:
-    - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/models/data_cycle_core/content/content.rb'
+    - "app/models/data_cycle_core/callbacks.rb"
+    - "app/models/data_cycle_core/content/content.rb"
 
 # Offense count: 8
 Style/OpenStructUse:
   Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'app/helpers/data_cycle_core/data_link_helper.rb'
-    - 'app/models/data_cycle_core/content/content.rb'
-    - 'app/models/data_cycle_core/external_system.rb'
-    - 'app/models/data_cycle_core/generic/common/functions.rb'
-    - 'app/models/data_cycle_core/open_struct_hash.rb'
+    - "app/helpers/data_cycle_core/application_helper.rb"
+    - "app/helpers/data_cycle_core/data_link_helper.rb"
+    - "app/models/data_cycle_core/content/content.rb"
+    - "app/models/data_cycle_core/external_system.rb"
+    - "app/models/data_cycle_core/generic/common/functions.rb"
+    - "app/models/data_cycle_core/open_struct_hash.rb"
 
 # Offense count: 141
 # Configuration parameters: AllowedMethods.

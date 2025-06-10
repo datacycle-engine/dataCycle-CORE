@@ -20,7 +20,7 @@ module DataCycleCore
                 'asset',
                 args[:content].id,
                 transformations['version'],
-                "#{name}#{orig_url.present? ? File.extname(orig_url) : ''}"
+                "#{name}#{File.extname(orig_url) if orig_url.present?}"
               ].join('/')
             elsif transformations['version'] == 'dynamic'
               [

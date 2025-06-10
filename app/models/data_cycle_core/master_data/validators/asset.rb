@@ -46,7 +46,7 @@ module DataCycleCore
           (@error[:warning][@template_key] ||= []) << { path: 'validation.errors.asset_upload' } if !check_asset_type(find_asset, template) || find_asset.nil?
         end
 
-        def check_asset_type(asset, template)
+        def check_asset_type(asset, template) # rubocop:disable Naming/PredicateMethod
           (asset.type == "DataCycleCore::#{template['asset_type'].camelize}")
         end
 

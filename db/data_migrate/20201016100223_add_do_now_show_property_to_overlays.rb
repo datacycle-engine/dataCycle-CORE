@@ -12,7 +12,7 @@ class AddDoNowShowPropertyToOverlays < ActiveRecord::Migration[5.2]
   def down
     thing_ids = DataCycleCore::ContentContent.where(relation_a: 'overlay').pluck(:content_b_id)
     DataCycleCore::Thing::Translation.where(thing_id: thing_ids).find_each do |i|
-      i.content = i.content.nil? ? nil : i.content.except('dummy')
+      i.content = i.content&.except('dummy')
       i.save
     end
   end

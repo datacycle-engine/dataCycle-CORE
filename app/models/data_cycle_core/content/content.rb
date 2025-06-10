@@ -808,7 +808,7 @@ module DataCycleCore
       def attibute_cache_key(key, filter = nil, overlay_flag = false)
         filter = nil if linked_property_names.exclude?(key) && embedded_property_names.exclude?(key)
 
-        "#{key}_#{translatable_property?(key) ? I18n.locale : nil}_#{filter&.hash}_#{overlay_flag && overlay_property_names.include?(key)}"
+        "#{key}_#{I18n.locale if translatable_property?(key)}_#{filter&.hash}_#{overlay_flag && overlay_property_names.include?(key)}"
       end
 
       def move_changes_to_previous_changes

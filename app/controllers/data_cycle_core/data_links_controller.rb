@@ -48,7 +48,7 @@ module DataCycleCore
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{send_email_params[:send] == '1' ? '_and_sent' : ''}", data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), scope: [:controllers, :success], locale: helpers.active_ui_locale))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{'_and_sent' if send_email_params[:send] == '1'}", data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), scope: [:controllers, :success], locale: helpers.active_ui_locale))
     end
 
     def update
@@ -60,7 +60,7 @@ module DataCycleCore
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{'_and_sent' if send_email_params[:send] == '1'}", scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def destroy

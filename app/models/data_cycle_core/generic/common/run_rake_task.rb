@@ -12,7 +12,7 @@ module DataCycleCore
           )
         end
 
-        def self.process_content(_utility_object, options)
+        def self.process_content(_utility_object, options) # rubocop:disable Naming/PredicateMethod
           rake_task = options.dig(:import, :rake_task) || options.dig(:download, :rake_task)
           rake_args = options.dig(:import, :rake_args) || options.dig(:download, :rake_args)
 
