@@ -246,6 +246,7 @@ module DataCycleCore
         property_definitions.keys
       end
       alias properties property_names
+      alias property_names_with_overlay property_names
 
       def properties_for(property_name, include_overlay = false)
         return if property_name.blank?
@@ -514,33 +515,39 @@ module DataCycleCore
       # returns data the same way, as .as_json
       def to_h_partial(partial_properties)
         Array.wrap(partial_properties)
-          .intersection(property_names)
+          .intersection(property_names_with_overlay)
           .index_with { |k| attribute_to_h(k) }
           .deep_stringify_keys
       end
 
       # returns data the same way, as .as_json
       def attribute_to_h(property_name)
+        root_name = property_name.delete_suffix("_#{overlay_name}")
+
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
-        elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name) || oembed_property_names.include?(property_name)
+        elsif plain_property_names.include?(root_name) ||
+              table_property_names.include?(root_name) ||
+              oembed_property_names.include?(root_name)
           send(property_name)&.as_json
-        elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name) || collection_property_names.include?(property_name)
+        elsif classification_property_names.include?(root_name) ||
+              linked_property_names.include?(root_name) ||
+              collection_property_names.include?(root_name)
           send(property_name).try(:pluck, :id)
-        elsif included_property_names.include?(property_name)
+        elsif included_property_names.include?(root_name)
           embedded_hash = send(property_name).to_h
           embedded_hash.presence
-        elsif embedded_property_names.include?(property_name)
+        elsif embedded_property_names.include?(root_name)
           embedded_array = send(property_name)
           embedded_array = embedded_array.map(&:get_data_hash) if embedded_array.present?
           embedded_array.blank? ? [] : embedded_array.compact
-        elsif asset_property_names.include?(property_name)
+        elsif asset_property_names.include?(root_name)
           send(property_name)&.id
-        elsif schedule_property_names.include?(property_name)
+        elsif schedule_property_names.include?(root_name)
           schedule_array = send(property_name)
           schedule_array = schedule_array.map(&:to_h).presence
           schedule_array.blank? ? [] : schedule_array.compact
-        elsif timeseries_property_names.include?(property_name)
+        elsif timeseries_property_names.include?(root_name)
           [] # don't load all timeseries from db
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"

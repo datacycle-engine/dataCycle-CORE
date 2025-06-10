@@ -36,7 +36,7 @@ module DataCycleCore
           def by_linked_score_and_weights(definition:, parameters:, key:, **_args)
             DataCycleCore::Utility::ContentScore::Base.load_linked(parameters, key)
 
-            count = parameters[key].count { |l| l.try(:internal_content_score).to_i >= definition.dig('content_score', 'min_score').to_i }
+            count = parameters[key]&.count { |l| l.try(:internal_content_score).to_i >= definition.dig('content_score', 'min_score').to_i } || 0
 
             if definition.dig('content_score', 'weight_matrix')&.key?(count.to_s)
               definition.dig('content_score', 'weight_matrix', count.to_s).to_r

@@ -48,7 +48,7 @@ module DataCycleCore
       end
 
       def property_names_with_overlay
-        property_names + add_overlay_property_names
+        (property_names + add_overlay_property_names).flat_map { |k| [k, "#{k}_#{overlay_name}"] }
       end
 
       def value_from_overlay(method_name, *args)

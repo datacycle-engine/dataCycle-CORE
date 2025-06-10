@@ -193,8 +193,8 @@ module DataCycleCore
             method: 'attribute_value_from_first_existing_linked',
             fallback: false,
             parameters: [
-              "#{self.class.aggregate_property_key(key)}.#{key}",
-              "#{AGGREGATE_PROPERTY_NAME}.#{key}"
+              "#{self.class.aggregate_property_key(key)}.#{key}_overlay",
+              "#{AGGREGATE_PROPERTY_NAME}.#{key}_overlay"
             ]
           }
         end
