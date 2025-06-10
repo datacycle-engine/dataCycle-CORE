@@ -179,12 +179,23 @@ module DataCycleCore
       def sort_proximity_geographic(ordering = '', value = {})
         return self if value&.first.blank? || value&.second.blank?
 
-        order_string = "things.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+        joined_table_name = "geo#{SecureRandom.hex(10)}"
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN LATERAL (
+            SELECT geometries.thing_id,
+              MIN(geometries.geom_simple <-> 'SRID=4326;POINT (? ?)'::geometry) AS "min_distance"
+            FROM geometries
+            WHERE things.id = geometries.thing_id
+            GROUP BY geometries.thing_id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
 
+        query_args = [value.first, value.second]
         reflect(
           query_without_order
+            .joins(sanitize_sql([order_parameter_join, *query_args]))
             .order(
-              sanitized_order_string(order_string, ordering, true),
+              sanitized_order_string("#{joined_table_name}.min_distance", ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
             )

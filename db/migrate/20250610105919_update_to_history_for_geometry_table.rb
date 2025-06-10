@@ -10,7 +10,7 @@ class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
       SELECT 'INSERT INTO geometry_histories (thing_history_id, ' || string_agg(column_name, ', ') || ') SELECT ''' || new_history_id || '''::UUID, ' || string_agg('t.' || column_name, ', ') || ' FROM geometries t WHERE t.thing_id = ''' || content_id || '''::UUID;' INTO insert_query
       FROM information_schema.columns
       WHERE table_name = 'geometry_histories'
-        AND column_name NOT IN ('id', 'thing_history_id');
+        AND column_name NOT IN ('id', 'thing_history_id', 'geom_simple');
 
       EXECUTE insert_query;
 

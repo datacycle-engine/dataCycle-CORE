@@ -70,7 +70,8 @@ module DataCycleCore
           property_name_with_overlay = property_name
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
 
-          if plain_property_names.include?(property_name)
+          if plain_property_names.include?(property_name) ||
+             geo_property_names.include?(property_name)
             send(property_name_with_overlay)&.as_json
           elsif classification_property_names.include?(property_name)
             send(property_name_with_overlay).try(:pluck, :id)

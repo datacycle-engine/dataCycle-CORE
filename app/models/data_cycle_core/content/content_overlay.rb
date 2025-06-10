@@ -84,6 +84,11 @@ module DataCycleCore
         value = value_from_overlay(__method__, *args) if args[1]
         value.presence || super
       end
+
+      def load_geometry(*args)
+        value = value_from_overlay(__method__, *args) if args[1]
+        value.presence || super
+      end
     end
   end
 end

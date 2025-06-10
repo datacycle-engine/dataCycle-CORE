@@ -102,7 +102,7 @@ module DataCycleCore
     has_many :full_classification_aliases, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationAlias', source: :classification_alias
     has_many :full_classification_tree_labels, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationTreeLabel', source: :classification_tree_label
     has_many :content_collection_links, dependent: :delete_all
-    has_many :geometries, dependent: :delete_all, inverse_of: :thing
+    has_many :geometries, dependent: :delete_all, inverse_of: :thing, autosave: true
 
     scope :duplicate_candidates, -> { DataCycleCore::Thing::DuplicateCandidate.where(original_id: select(:id).reorder(nil)).where(false_positive: false).order(score: :desc) }
 

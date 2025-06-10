@@ -510,15 +510,6 @@ CREATE FUNCTION public.generate_unique_collection_slug(old_slug character varyin
 
 
 --
--- Name: geom_simple_update(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.geom_simple_update() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN NEW.geom_simple := ( st_simplify( ST_Force2D (COALESCE(NEW."geom", NEW."location", NEW.line)), 0.00001, TRUE ) ); RETURN NEW; END; $$;
-
-
---
 -- Name: get_dict(character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -647,6 +638,15 @@ CREATE FUNCTION public.to_content_content_history(content_id uuid, new_history_i
 
 
 --
+-- Name: to_geometry_history(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.to_geometry_history(content_id uuid, new_history_id uuid) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ DECLARE insert_query TEXT; BEGIN SELECT 'INSERT INTO geometry_histories (thing_history_id, ' || string_agg(column_name, ', ') || ') SELECT ''' || new_history_id || '''::UUID, ' || string_agg('t.' || column_name, ', ') || ' FROM geometries t WHERE t.thing_id = ''' || content_id || '''::UUID;' INTO insert_query FROM information_schema.columns WHERE table_name = 'geometry_histories' AND column_name NOT IN ('id', 'thing_history_id', 'geom_simple'); EXECUTE insert_query; RETURN; END; $$;
+
+
+--
 -- Name: to_schedule_history(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -661,7 +661,7 @@ CREATE FUNCTION public.to_schedule_history(content_id uuid, new_history_id uuid)
 
 CREATE FUNCTION public.to_thing_history(content_id uuid, current_locale character varying, all_translations boolean DEFAULT false, deleted boolean DEFAULT false) RETURNS uuid
     LANGUAGE plpgsql
-    AS $$ DECLARE insert_query TEXT; new_history_id UUID; BEGIN SELECT 'INSERT INTO thing_histories (thing_id, deleted_at, ' || string_agg(column_name, ', ') || ') SELECT t.id, CASE WHEN t.deleted_at IS NOT NULL THEN t.deleted_at WHEN ' || deleted || '::BOOLEAN THEN transaction_timestamp() ELSE NULL END, ' || string_agg('t.' || column_name, ', ') || ' FROM things t WHERE t.id = ''' || content_id || '''::UUID LIMIT 1 RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'thing_histories' AND column_name NOT IN ('id', 'thing_id', 'deleted_at'); EXECUTE insert_query INTO new_history_id; PERFORM to_thing_history_translation ( content_id, new_history_id, current_locale, all_translations ); PERFORM to_classification_content_history (content_id, new_history_id); PERFORM to_content_content_history ( content_id, new_history_id, current_locale, all_translations, deleted ); PERFORM to_schedule_history (content_id, new_history_id); PERFORM to_content_collection_link_history (content_id, new_history_id); RETURN new_history_id; END; $$;
+    AS $$ DECLARE insert_query TEXT; new_history_id UUID; BEGIN SELECT 'INSERT INTO thing_histories (thing_id, deleted_at, ' || string_agg(column_name, ', ') || ') SELECT t.id, CASE WHEN t.deleted_at IS NOT NULL THEN t.deleted_at WHEN ' || deleted || '::BOOLEAN THEN transaction_timestamp() ELSE NULL END, ' || string_agg('t.' || column_name, ', ') || ' FROM things t WHERE t.id = ''' || content_id || '''::UUID LIMIT 1 RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'thing_histories' AND column_name NOT IN ('id', 'thing_id', 'deleted_at'); EXECUTE insert_query INTO new_history_id; PERFORM to_thing_history_translation ( content_id, new_history_id, current_locale, all_translations ); PERFORM to_classification_content_history (content_id, new_history_id); PERFORM to_content_content_history ( content_id, new_history_id, current_locale, all_translations, deleted ); PERFORM to_schedule_history (content_id, new_history_id); PERFORM to_content_collection_link_history (content_id, new_history_id); PERFORM to_geometry_history (content_id, new_history_id); RETURN new_history_id; END; $$;
 
 
 --
@@ -1572,18 +1572,14 @@ CREATE TABLE public.things (
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     deleted_at timestamp without time zone,
-    location public.geometry(Point,4326),
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
     content_type character varying,
     representation_of_id uuid,
     version_name character varying,
-    line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying,
     write_history boolean DEFAULT false NOT NULL,
-    geom_simple public.geometry(Geometry,4326),
-    geom public.geometry(GeometryZ,4326),
     aggregate_type public.aggregate_type DEFAULT 'default'::public.aggregate_type NOT NULL
 );
 
@@ -1796,6 +1792,32 @@ CREATE TABLE public.external_systems (
 
 
 --
+-- Name: geometries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.geometries (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    thing_id uuid NOT NULL,
+    relation character varying NOT NULL,
+    geom public.geometry(GeometryZ,4326) NOT NULL,
+    geom_simple public.geometry(Geometry,4326) GENERATED ALWAYS AS (public.st_simplify(public.st_force2d(geom), (0.00001)::double precision, true)) STORED
+);
+
+
+--
+-- Name: geometry_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.geometry_histories (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    thing_history_id uuid NOT NULL,
+    relation character varying NOT NULL,
+    geom public.geometry(GeometryZ,4326) NOT NULL,
+    geom_simple public.geometry(Geometry,4326) GENERATED ALWAYS AS (public.st_simplify(public.st_force2d(geom), (0.00001)::double precision, true)) STORED
+);
+
+
+--
 -- Name: pg_dict_mappings; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1953,14 +1975,12 @@ CREATE TABLE public.thing_histories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
-    location public.geometry(Point,4326),
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
     content_type character varying,
     representation_of_id uuid,
     version_name character varying,
-    line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying,
     aggregate_type public.aggregate_type DEFAULT 'default'::public.aggregate_type NOT NULL
 );
@@ -2423,6 +2443,22 @@ ALTER TABLE ONLY public.external_system_syncs
 
 ALTER TABLE ONLY public.external_systems
     ADD CONSTRAINT external_systems_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: geometries geometries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.geometries
+    ADD CONSTRAINT geometries_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: geometry_histories geometry_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.geometry_histories
+    ADD CONSTRAINT geometry_histories_pkey PRIMARY KEY (id);
 
 
 --
@@ -3432,6 +3468,41 @@ CREATE UNIQUE INDEX index_external_systems_on_id ON public.external_systems USIN
 
 
 --
+-- Name: index_geometries_on_geom_simple; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_geometries_on_geom_simple ON public.geometries USING gist (geom_simple);
+
+
+--
+-- Name: index_geometries_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_geometries_on_thing_id ON public.geometries USING btree (thing_id);
+
+
+--
+-- Name: index_geometries_on_thing_id_and_relation; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_geometries_on_thing_id_and_relation ON public.geometries USING btree (thing_id, relation);
+
+
+--
+-- Name: index_geometry_histories_on_thing_history_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_geometry_histories_on_thing_history_id ON public.geometry_histories USING btree (thing_history_id);
+
+
+--
+-- Name: index_geometry_histories_on_thing_history_id_and_relation; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_geometry_histories_on_thing_history_id_and_relation ON public.geometry_histories USING btree (thing_history_id, relation);
+
+
+--
 -- Name: index_roles_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3698,13 +3769,6 @@ CREATE UNIQUE INDEX index_things_on_external_source_id_and_external_key ON publi
 
 
 --
--- Name: index_things_on_geom_simple_spatial; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_geom_simple_spatial ON public.things USING gist (geom_simple);
-
-
---
 -- Name: index_things_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3716,34 +3780,6 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 --
 
 CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of);
-
-
---
--- Name: index_things_on_line_geography_cast; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_line_geography_cast ON public.things USING gist (public.geography(line));
-
-
---
--- Name: index_things_on_line_spatial; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_line_spatial ON public.things USING gist (line);
-
-
---
--- Name: index_things_on_location_geography_cast; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_location_geography_cast ON public.things USING gist (public.geography(location));
-
-
---
--- Name: index_things_on_location_spatial; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_location_spatial ON public.things USING gist (location);
 
 
 --
@@ -3905,13 +3941,6 @@ CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btr
 --
 
 CREATE INDEX thing_translations_name_idx ON public.thing_translations USING btree (((content ->> 'name'::text)));
-
-
---
--- Name: things_geom_simple_geography_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX things_geom_simple_geography_idx ON public.things USING gist (public.geography(geom_simple));
 
 
 --
@@ -4252,20 +4281,6 @@ CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR
 
 
 --
--- Name: things geom_simple_insert_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER geom_simple_insert_trigger BEFORE INSERT ON public.things FOR EACH ROW EXECUTE FUNCTION public.geom_simple_update();
-
-
---
--- Name: things geom_simple_update_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER geom_simple_update_trigger BEFORE UPDATE OF location, line, geom ON public.things FOR EACH ROW WHEN ((((old.location)::text IS DISTINCT FROM (new.location)::text) OR ((old.line)::text IS DISTINCT FROM (new.line)::text) OR ((old.geom)::text IS DISTINCT FROM (new.geom)::text))) EXECUTE FUNCTION public.geom_simple_update();
-
-
---
 -- Name: classification_trees insert_classification_tree_order_a_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4544,6 +4559,14 @@ ALTER TABLE ONLY public.collection_concept_scheme_links
 
 
 --
+-- Name: geometries fk_rails_1b55e7023c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.geometries
+    ADD CONSTRAINT fk_rails_1b55e7023c FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
 -- Name: concept_links fk_rails_1c70d20c08; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4653,6 +4676,14 @@ ALTER TABLE ONLY public.watch_list_data_hashes
 
 ALTER TABLE ONLY public.classification_trees
     ADD CONSTRAINT fk_rails_617f767237 FOREIGN KEY (parent_classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: geometry_histories fk_rails_626631610a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.geometry_histories
+    ADD CONSTRAINT fk_rails_626631610a FOREIGN KEY (thing_history_id) REFERENCES public.thing_histories(id) ON DELETE CASCADE;
 
 
 --
@@ -4974,7 +5005,10 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250610110623'),
+('20250610105919'),
 ('20250610064401'),
+('20250606094005'),
 ('20250602085114'),
 ('20250527101145'),
 ('20250520064340'),

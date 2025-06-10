@@ -105,6 +105,10 @@ module DataCycleCore
         DataCycleCore::Collection.joins(:content_collection_links).where(content_collection_links: { thing_id: id, relation: property_name }).order(order_a: :asc)
       end
 
+      def load_geometry(property_name)
+        DataCycleCore::Geometry.find_by(thing_id: id, relation: property_name)&.geom
+      end
+
       def as_of(timestamp)
         timestamp = timestamp.in_time_zone if timestamp.is_a?(::String)
 
