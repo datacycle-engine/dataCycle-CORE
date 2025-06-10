@@ -12,7 +12,7 @@ class DeleteTemplateMountainAreaDiscription < ActiveRecord::Migration[7.1]
       SET template_name = 'MountainAreaDescription'
       WHERE template_name = 'MountainAreaDiscription';
     SQL
-    
+
     execute <<~SQL.squish
       UPDATE public.thing_histories
       SET template_name = 'MountainAreaDescription'
