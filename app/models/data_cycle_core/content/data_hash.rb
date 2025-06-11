@@ -299,7 +299,7 @@ module DataCycleCore
         when *COLLECTION_PROPERTY_TYPES
           set_collection_links(key, value)
         when *GEO_PROPERTY_TYPES
-          set_geographic(key, value)
+          set_geographic(key, value, properties)
         when *TIMESERIES_PROPERTY_TYPES
           set_timeseries(key, value)
         end
@@ -422,7 +422,7 @@ module DataCycleCore
         content_collection_links.where(relation: field_name, collection_id: to_delete).delete_all
       end
 
-      def set_geographic(field_name, input_data)
+      def set_geographic(field_name, input_data, properties)
         value = string_to_geographic(input_data)
 
         return geometries.find_by(relation: field_name)&.mark_for_destruction if value.blank?
@@ -430,7 +430,7 @@ module DataCycleCore
         if (existing = geometries.find_by(relation: field_name)).present?
           existing.geom = value
         else
-          geometries.build(relation: field_name, geom: value)
+          geometries.build(relation: field_name, geom: value, priority: properties['priority'])
         end
       end
 

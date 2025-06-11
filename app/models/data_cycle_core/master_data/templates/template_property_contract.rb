@@ -116,6 +116,8 @@ module DataCycleCore
           optional(:visible) do
             bool? | (str? & included_in?(Extensions::Visible::VISIBILITIES.keys)) | (array? & array { included_in?(Extensions::Visible::VISIBILITIES.keys) })
           end
+
+          optional(:priority).filled { int? & gt?(0) }
         end
 
         rule(:type) do

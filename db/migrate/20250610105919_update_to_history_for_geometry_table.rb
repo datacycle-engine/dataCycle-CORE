@@ -67,6 +67,69 @@ class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
 
       $$;
     SQL
+
+    execute <<-SQL.squish
+      CREATE OR REPLACE VIEW public.geometries_primary AS
+      SELECT id,
+        thing_id,
+        priority,
+        row_number() OVER (
+          PARTITION BY thing_id
+          ORDER BY priority
+        ) = 1 AS is_primary
+      FROM geometries;
+
+      CREATE OR REPLACE FUNCTION public.update_geometries_is_primary(thing_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(thing_ids, 1) > 0 THEN
+      UPDATE geometries
+      SET is_primary = geometries_primary.is_primary
+      FROM geometries_primary
+      WHERE geometries.id = geometries_primary.id
+        AND geometries_primary.thing_id = ANY (thing_ids);
+
+      END IF;
+
+      END;
+
+      $$;
+
+      CREATE OR REPLACE FUNCTION public.update_geometries_is_primary_trigger() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $BODY$ BEGIN PERFORM update_geometries_is_primary(ARRAY_AGG(thing_id))
+      FROM (
+          SELECT DISTINCT new_geometries.thing_id
+          FROM new_geometries
+            INNER JOIN old_geometries ON old_geometries.id = new_geometries.id
+          WHERE new_geometries.priority IS DISTINCT
+          FROM old_geometries.priority
+        );
+
+      RETURN NULL;
+
+      END;
+
+      $BODY$;
+
+      CREATE OR REPLACE TRIGGER update_geometries_priority_trigger
+      AFTER
+      UPDATE ON public.geometries REFERENCING NEW TABLE AS new_geometries OLD TABLE AS old_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger();
+
+      CREATE OR REPLACE FUNCTION public.update_geometries_is_primary_trigger2() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $BODY$ BEGIN PERFORM update_geometries_is_primary(ARRAY_AGG(thing_id))
+      FROM (
+          SELECT DISTINCT changed_geometries.thing_id
+          FROM changed_geometries
+        );
+
+      RETURN NULL;
+
+      END;
+
+      $BODY$;
+
+      CREATE OR REPLACE TRIGGER insert_geometries_priority_trigger
+      AFTER
+      INSERT ON public.geometries REFERENCING NEW TABLE AS changed_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger2();
+
+      CREATE OR REPLACE TRIGGER delete_geometries_priority_trigger
+      AFTER DELETE ON public.geometries REFERENCING OLD TABLE AS changed_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger2();
+    SQL
   end
 
   def down

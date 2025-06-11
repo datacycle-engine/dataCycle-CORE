@@ -6,6 +6,7 @@ module DataCycleCore
       class TemplateImporter
         include Extensions::Position
         include Extensions::Visible
+        include Extensions::Geographic
 
         CONTENT_SETS = [:creative_works, :events, :media_objects, :organizations, :persons, :places, :products, :things, :intangibles].freeze
 
@@ -35,8 +36,6 @@ module DataCycleCore
         end
 
         def import
-          return unless valid?
-
           @validator.validate
 
           return @errors.concat(@validator.errors) unless @validator.valid?
@@ -55,8 +54,6 @@ module DataCycleCore
         end
 
         def validate
-          return unless valid?
-
           @validator.validate
 
           @errors.concat(@validator.errors)
@@ -206,6 +203,7 @@ module DataCycleCore
           add_inverse_aggregate_property!
           add_inverse_linked_to_text_properties!
           disable_original_property_for_overlays!
+          check_priorities_for_geographic_properties!
 
           add_sorting!
           transform_visibilities!

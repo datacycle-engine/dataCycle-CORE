@@ -7,8 +7,13 @@ class MoveGeoColumnsToGeometriesTable < ActiveRecord::Migration[7.1]
       t.string :relation, null: false
       t.geometry :geom, srid: 4326, has_z: true, null: false
       t.virtual :geom_simple, type: :geometry, srid: 4326, index: { using: :gist }, stored: true, as: 'ST_SIMPLIFY(ST_FORCE2D(geom), 0.00001, true)'
+      t.integer :priority, null: false
+      t.check_constraint 'priority > 0'
+      t.boolean :is_primary, null: false, default: false
 
       t.index [:thing_id, :relation], unique: true
+      t.index [:thing_id, :priority], unique: true
+      t.index [:thing_id, :is_primary], unique: true, where: 'is_primary = true'
     end
 
     create_table :geometry_histories, id: :uuid do |t|
@@ -16,6 +21,8 @@ class MoveGeoColumnsToGeometriesTable < ActiveRecord::Migration[7.1]
       t.string :relation, null: false
       t.geometry :geom, srid: 4326, has_z: true, null: false
       t.virtual :geom_simple, type: :geometry, srid: 4326, stored: true, as: 'ST_SIMPLIFY(ST_FORCE2D(geom), 0.00001, true)'
+      t.integer :priority, null: false
+      t.boolean :is_primary, null: false, default: false
 
       t.index [:thing_history_id, :relation]
     end

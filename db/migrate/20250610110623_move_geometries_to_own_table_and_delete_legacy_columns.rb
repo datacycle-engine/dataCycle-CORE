@@ -5,34 +5,34 @@ class MoveGeometriesToOwnTableAndDeleteLegacyColumns < ActiveRecord::Migration[7
     execute <<-SQL.squish
       SET LOCAL statement_timeout = 0;
 
-      INSERT INTO geometries (thing_id, relation, geom)
-      SELECT id, 'location', ST_Force3D(location)
+      INSERT INTO geometries (thing_id, relation, geom, priority)
+      SELECT things.id, 'location', ST_Force3D(things.location), 3
       FROM things
-      WHERE location IS NOT NULL;
+      WHERE things.location IS NOT NULL;
 
-      INSERT INTO geometries (thing_id, relation, geom)
-      SELECT id, 'line', line
+      INSERT INTO geometries (thing_id, relation, geom, priority)
+      SELECT things.id, 'line', things.line, 2
       FROM things
-      WHERE line IS NOT NULL;
+      WHERE things.line IS NOT NULL;
 
-      INSERT INTO geometries (thing_id, relation, geom)
-      SELECT id, 'geom', geom
+      INSERT INTO geometries (thing_id, relation, geom, priority)
+      SELECT things.id, 'geom', things.geom, 1
       FROM things
-      WHERE geom IS NOT NULL;
+      WHERE things.geom IS NOT NULL;
     SQL
 
     execute <<-SQL.squish
       SET LOCAL statement_timeout = 0;
 
-      INSERT INTO geometry_histories (thing_history_id, relation, geom)
-      SELECT id, 'location', ST_Force3D(location)
+      INSERT INTO geometry_histories (thing_history_id, relation, geom, priority)
+      SELECT thing_histories.id, 'location', ST_Force3D(thing_histories.location), 2
       FROM thing_histories
-      WHERE location IS NOT NULL;
+      WHERE thing_histories.location IS NOT NULL;
 
-      INSERT INTO geometry_histories (thing_history_id, relation, geom)
-      SELECT id, 'line', line
+      INSERT INTO geometry_histories (thing_history_id, relation, geom, priority)
+      SELECT thing_histories.id, 'line', thing_histories.line, 1
       FROM thing_histories
-      WHERE line IS NOT NULL;
+      WHERE thing_histories.line IS NOT NULL;
     SQL
 
     execute <<-SQL.squish

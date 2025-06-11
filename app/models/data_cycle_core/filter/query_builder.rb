@@ -298,6 +298,10 @@ module DataCycleCore
         DataCycleCore::CollectedClassificationContent.arel_table
       end
 
+      def geometries_table
+        DataCycleCore::Geometry.arel_table
+      end
+
       def generate_thing_alias
         thing.alias("th_#{SecureRandom.hex(5)}")
       end
