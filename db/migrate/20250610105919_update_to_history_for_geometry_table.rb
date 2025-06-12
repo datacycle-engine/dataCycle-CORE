@@ -3,7 +3,7 @@
 class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
   def up
     execute <<-SQL.squish
-      CREATE OR REPLACE FUNCTION to_geometry_history (content_id UUID, new_history_id UUID) RETURNS void LANGUAGE PLPGSQL AS $$
+      CREATE OR REPLACE FUNCTION public.to_geometry_history (content_id UUID, new_history_id UUID) RETURNS void LANGUAGE PLPGSQL AS $$
       DECLARE insert_query TEXT;
 
       BEGIN
@@ -20,7 +20,7 @@ class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
 
       $$;
 
-      CREATE OR REPLACE FUNCTION to_thing_history (
+      CREATE OR REPLACE FUNCTION public.to_thing_history (
           content_id UUID,
           current_locale VARCHAR,
           all_translations BOOLEAN DEFAULT FALSE,
@@ -84,6 +84,7 @@ class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
       SET is_primary = geometries_primary.is_primary
       FROM geometries_primary
       WHERE geometries.id = geometries_primary.id
+        AND geometries_primary.is_primary != geometries.is_primary
         AND geometries_primary.thing_id = ANY (thing_ids);
 
       END IF;
@@ -129,6 +130,87 @@ class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
 
       CREATE OR REPLACE TRIGGER delete_geometries_priority_trigger
       AFTER DELETE ON public.geometries REFERENCING OLD TABLE AS changed_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger2();
+    SQL
+
+    execute <<-SQL.squish
+      CREATE OR REPLACE VIEW public.geometries_changed_priorities AS
+      SELECT geometries.id,
+        (
+          content_properties.property_definition->>'priority'
+        )::integer AS priority,
+        things.template_name,
+        things.id AS thing_id
+      FROM content_properties
+        JOIN things ON things.template_name = content_properties.template_name
+        JOIN geometries ON geometries.thing_id = things.id
+        AND geometries.relation = content_properties.property_name
+      WHERE (
+          content_properties.property_definition->>'priority'
+        )::integer != geometries.priority;
+
+      CREATE OR REPLACE FUNCTION public.update_geo_priorities_by_template_name(template_names varchar []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(template_names, 1) > 0 THEN
+      UPDATE geometries
+      SET priority = geometries_changed_priorities.priority
+      FROM geometries_changed_priorities
+      WHERE geometries.id = geometries_changed_priorities.id
+        AND geometries_changed_priorities.template_name = ANY (template_names);
+
+      END IF;
+
+      END;
+
+      $$;
+
+      CREATE OR REPLACE FUNCTION public.update_thing_templates_geo_priorities_trigger() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $BODY$ BEGIN PERFORM update_geo_priorities_by_template_name(ARRAY_AGG(template_name))
+      FROM (
+          SELECT DISTINCT new_thing_templates.template_name
+          FROM new_thing_templates
+            INNER JOIN old_thing_templates ON old_thing_templates.template_name = new_thing_templates.template_name
+          WHERE new_thing_templates.schema IS DISTINCT
+          FROM old_thing_templates.schema
+        );
+
+      RETURN NULL;
+
+      END;
+
+      $BODY$;
+
+      CREATE OR REPLACE TRIGGER update_thing_templates_geo_priorities_trigger
+      AFTER
+      UPDATE ON public.thing_templates REFERENCING NEW TABLE AS new_thing_templates OLD TABLE AS old_thing_templates FOR EACH STATEMENT EXECUTE FUNCTION public.update_thing_templates_geo_priorities_trigger();
+
+      CREATE OR REPLACE FUNCTION public.update_geo_priorities_by_thing_id(thing_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(thing_ids, 1) > 0 THEN
+      UPDATE geometries
+      SET priority = geometries_changed_priorities.priority
+      FROM geometries_changed_priorities
+      WHERE geometries.id = geometries_changed_priorities.id
+        AND geometries_changed_priorities.thing_id = ANY (thing_ids);
+
+      END IF;
+
+      END;
+
+      $$;
+
+      CREATE OR REPLACE FUNCTION public.update_things_geo_priorities_trigger() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $BODY$ BEGIN PERFORM update_geo_priorities_by_thing_id(ARRAY_AGG(id))
+      FROM (
+          SELECT DISTINCT new_things.id
+          FROM new_things
+            INNER JOIN old_things ON old_things.id = new_things.id
+          WHERE new_things.template_name IS DISTINCT
+          FROM old_things.template_name
+        );
+
+      RETURN NULL;
+
+      END;
+
+      $BODY$;
+
+      CREATE OR REPLACE TRIGGER update_things_geo_priorities_trigger
+      AFTER
+      UPDATE ON public.things REFERENCING NEW TABLE AS new_things OLD TABLE AS old_things FOR EACH STATEMENT EXECUTE FUNCTION public.update_things_geo_priorities_trigger();
     SQL
   end
 

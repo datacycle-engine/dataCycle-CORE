@@ -21,7 +21,12 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              intersects(thing[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
+              DataCycleCore::Geometry.select(1).arel
+              .where(
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(intersects(geometries_table[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326)))
+              ).exists
             )
           )
         end
@@ -31,7 +36,12 @@ module DataCycleCore
 
           reflect(
             @query.where.not(
-              intersects(thing[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
+              DataCycleCore::Geometry.select(1).arel
+              .where(
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(intersects(geometries_table[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326)))
+              ).exists
             )
           )
         end
@@ -42,25 +52,21 @@ module DataCycleCore
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
 
-          t_alias = generate_thing_alias
-
           reflect(
-            @query
-              .where.not(thing[:geom_simple].eq(nil))
+            @query.where(
+              DataCycleCore::Geometry.select(1).arel
               .where(
-                DataCycleCore::Thing.select(1).arel
-                .from(t_alias)
-                .where(
-                  t_alias[:id].eq(thing[:id])
-                  .and(
-                    st_dwithin(
-                      cast_geography(t_alias[:geom_simple]),
-                      cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                      distance
-                    )
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(
+                  st_dwithin(
+                    cast_geography(geometries_table[:geom_simple]),
+                    cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                    distance
                   )
-                ).exists
-              )
+                )
+              ).exists
+            )
           )
         end
 
@@ -70,25 +76,21 @@ module DataCycleCore
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
 
-          t_alias = generate_thing_alias
-
           reflect(
-            @query
-              .where.not(thing[:geom_simple].eq(nil))
+            @query.where(
+              DataCycleCore::Geometry.select(1).arel
               .where.not(
-                DataCycleCore::Thing.select(1).arel
-                .from(t_alias)
-                .where(
-                  t_alias[:id].eq(thing[:id])
-                  .and(
-                    st_dwithin(
-                      cast_geography(t_alias[:geom_simple]),
-                      cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                      distance
-                    )
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(
+                  st_dwithin(
+                    cast_geography(geometries_table[:geom_simple]),
+                    cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                    distance
                   )
-                ).exists
-              )
+                )
+              ).exists
+            )
           )
         end
 

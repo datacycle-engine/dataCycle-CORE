@@ -12,8 +12,11 @@ class MoveGeoColumnsToGeometriesTable < ActiveRecord::Migration[7.1]
       t.boolean :is_primary, null: false, default: false
 
       t.index [:thing_id, :relation], unique: true
-      t.index [:thing_id, :priority], unique: true
-      t.index [:thing_id, :is_primary], unique: true, where: 'is_primary = true'
+      t.index [:thing_id, :priority]
+      t.index [:thing_id, :is_primary], where: 'is_primary = true'
+      t.index 'CAST(geom_simple AS geography)', using: :gist, name: 'index_geometries_on_geom_simple_geography'
+      t.unique_constraint [:thing_id, :is_primary], deferrable: :deferred
+      t.unique_constraint [:thing_id, :priority], deferrable: :deferred
     end
 
     create_table :geometry_histories, id: :uuid do |t|

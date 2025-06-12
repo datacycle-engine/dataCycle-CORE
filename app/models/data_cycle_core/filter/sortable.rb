@@ -475,16 +475,11 @@ module DataCycleCore
       end
 
       def order_params_for_geom(value)
-        joined_table_name = "geo#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
-          LEFT OUTER JOIN (
-            SELECT DISTINCT ON (geometries.thing_id) geometries.thing_id, geometries.geom_simple
-            FROM geometries
-            ORDER BY geometries.thing_id, geometries.priority
-          ) "#{joined_table_name}" ON "#{joined_table_name}".thing_id = things.id
+          LEFT OUTER JOIN geometries ON geometries.thing_id = things.id AND geometries.is_primary = true
         SQL
 
-        order_string = "#{joined_table_name}.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+        order_string = "geometries.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
 
         return order_parameter_join, order_string
       end

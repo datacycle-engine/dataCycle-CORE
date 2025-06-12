@@ -49,7 +49,7 @@
                       method: :get,
                       data: {
                           confirm: "#{t('common.confirm_delete_cache', locale: active_ui_locale) }",
-                          dc_tooltip: t('data_cycle_core.cache.clear', locale: active_ui_locale)
+                          dc_tooltip: "#{t('data_cycle_core.cache.clear', locale: active_ui_locale)} (#{l(content.cache_valid_since, format: :edit, locale: active_ui_locale)})",
                       } do %>
           <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
         <% end %>
