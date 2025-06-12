@@ -25,6 +25,7 @@
         :label: Geographic
         :type: geographic
         :storage_location: value
+        :priority: 1
       :text:
         :label: Text
         :type: string
@@ -41,6 +42,7 @@
         :label: Geographic
         :type: geographic
         :storage_location: translated_value
+        :priority: 2
       :text2:
         :label: Text2
         :type: string
@@ -105,10 +107,6 @@
             :label: Boolean
             :type: boolean
             :storage_location: value
-          :geo_untrans:
-            :label: Geographic
-            :type: geographic
-            :storage_location: value
           :text_untrans:
             :label: Text
             :type: string
@@ -125,10 +123,6 @@
           :bool_trans:
             :label: Boolean
             :type: boolean
-            :storage_location: translated_value
-          :geo_trans:
-            :label: Geographic
-            :type: geographic
             :storage_location: translated_value
           :text_trans:
             :label: Text

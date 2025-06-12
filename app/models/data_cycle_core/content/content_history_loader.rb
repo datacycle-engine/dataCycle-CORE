@@ -99,7 +99,7 @@ module DataCycleCore
       end
 
       def load_geometry(property_name)
-        DataCycleCore::GeometryHistory.find_by(thing_history_id: id, relation: property_name)&.geom
+        geometry_histories.detect { |g| g.relation == property_name }&.geom
       end
 
       def as_of(_timestamp)

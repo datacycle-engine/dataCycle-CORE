@@ -163,6 +163,7 @@
         :label: Pisten/Lifte
         :storage_location: column
         :type: geographic
+        :priority: 1
         :ui:
           :edit:
             :disabled: true
@@ -341,6 +342,8 @@
       :geo:
         :type: mixin
         :name: geo
+      :location:
+        :priority: 2
       :snow_report:
         :label: Schneehöhe - Messpunkt
         :type: linked

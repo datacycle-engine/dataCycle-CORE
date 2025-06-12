@@ -104,6 +104,7 @@
         :label: GPS-Startkoordinaten
         :type: geographic
         :storage_location: value
+        :priority: 2
         :ui:
           :edit:
             :disabled: true
@@ -112,6 +113,7 @@
       :geo_shape:
         :type: mixin
         :name: geo_shape
+        :priority: 1
       :waypoint:
         :label: POIs
         :type: linked

@@ -106,7 +106,8 @@ module DataCycleCore
       end
 
       def load_geometry(property_name)
-        DataCycleCore::Geometry.find_by(thing_id: id, relation: property_name)&.geom
+        # binding.pry if geometries.detect { |g| g.relation == property_name }.present?
+        geometries.detect { |g| g.relation == property_name }&.geom
       end
 
       def as_of(timestamp)

@@ -425,9 +425,10 @@ module DataCycleCore
       def set_geographic(field_name, input_data, properties)
         value = string_to_geographic(input_data)
 
-        return geometries.find_by(relation: field_name)&.mark_for_destruction if value.blank?
+        # use detect for force load all geometries
+        return geometries.detect { |g| g.relation == field_name }&.mark_for_destruction if value.blank?
 
-        if (existing = geometries.find_by(relation: field_name)).present?
+        if (existing = geometries.detect { |g| g.relation == field_name }).present?
           existing.geom = value
         else
           geometries.build(relation: field_name, geom: value, priority: properties['priority'])

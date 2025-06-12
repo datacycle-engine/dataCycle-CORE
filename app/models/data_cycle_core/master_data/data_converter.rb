@@ -99,20 +99,20 @@ module DataCycleCore
       end
 
       def self.string_to_geographic(value)
-        return nil if value.blank?
+        return if value.blank?
         return value if value.try(:is_3d?)
         value = value.to_s
         raise RGeo::Error::ParseError, 'expected a string containing geographic data of some sorts' unless value.is_a?(::String)
 
         factory_options = {
-          uses_lenient_assertions: true,
           srid: 4326,
+          has_z_coordinate: true,
+          uses_lenient_assertions: true,
           wkt_parser: { support_wkt12: true },
-          wkt_generator: { convert_case: :upper, tag_format: :wkt12 },
-          has_z_coordinate: true
+          wkt_generator: { convert_case: :upper, tag_format: :wkt12 }
         }
 
-        RGeo::Geographic.simple_mercator_factory(**factory_options).parse_wkt(value)
+        RGeo::Geographic.spherical_factory(**factory_options).parse_wkt(value)
       end
 
       def self.boolean_to_string(value)

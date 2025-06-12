@@ -12,6 +12,7 @@ module DataCycleCore
           @templates = templates
           @template_header_contract = TemplateHeaderContract.new
           @template_property_contract = TemplatePropertyContract.new
+          @object_property_contract = ObjectPropertyContract.new
           @existing_template_names = @templates.pluck(:name)
           @overlay_key = DataCycleCore.features.dig('overlay', 'attribute_keys')&.first
           @errors = []
@@ -83,17 +84,13 @@ module DataCycleCore
           end
         end
 
-        def validate_properties!(template, prefix)
+        def validate_properties!(template, prefix, contract = @template_property_contract)
           template[:properties].each do |key, definition|
-            @template_property_contract.property_name = key
-            result_property = @template_property_contract.call(definition)
+            contract.property_name = key
+            result_property = contract.call(definition)
             merge_errors!(result_property, prefix + [:properties, key])
 
-            if definition.key?(:properties)
-              @template_property_contract.nested_property = true
-              validate_properties!(definition, prefix + [:properties, key]) if definition.key?(:properties)
-              @template_property_contract.nested_property = false
-            end
+            validate_properties!(definition, prefix + [:properties, key], @object_property_contract) if definition.key?(:properties)
 
             validate_linked_template!(definition, prefix + [:properties, key]) if definition.key?(:template_name)
 
