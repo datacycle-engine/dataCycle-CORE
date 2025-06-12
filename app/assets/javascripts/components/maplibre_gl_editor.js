@@ -5,7 +5,7 @@ import MaplibreDrawControl from "./map_controls/maplibre_draw_control";
 import MaplibreDrawRoutingMode from "./map_controls/maplibre_draw_routing_mode";
 import turfFlatten from "@turf/flatten";
 import isEmpty from "lodash/isEmpty";
-import UploadGpxControl from "./map_controls/maplibre_upload_gpx_control";
+import UploadControl from "./map_controls/maplibre_upload_control";
 import domElementHelpers from "../helpers/dom_element_helpers";
 import AdditionalValuesFilterControl from "./map_controls/maplibre_additional_values_filter_control";
 import ObjectUtilities from "../helpers/object_utilities";
@@ -168,8 +168,9 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	}
 	async initAdditionalControls() {
 		await this.initDrawControl();
-		if (this.uploadable)
-			this.map.addControl(new UploadGpxControl(this), "top-left");
+		if (this.uploadable) {
+			this.map.addControl(new UploadControl(this), "top-left");
+		}
 
 		if (!isEmpty(this.additionalValuesOverlay)) {
 			this.additionalValuesFilterControl = new AdditionalValuesFilterControl(
