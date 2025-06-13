@@ -106,7 +106,6 @@ module DataCycleCore
       end
 
       def load_geometry(property_name)
-        # binding.pry if geometries.detect { |g| g.relation == property_name }.present?
         geometries.detect { |g| g.relation == property_name }&.geom
       end
 
