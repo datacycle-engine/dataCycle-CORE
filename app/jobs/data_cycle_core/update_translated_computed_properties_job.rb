@@ -2,16 +2,10 @@
 
 module DataCycleCore
   class UpdateTranslatedComputedPropertiesJob < UniqueApplicationJob
-    REFERENCE_TYPE = 'update_translated_computed_properties'
-
     queue_as :cache_invalidation
 
     def delayed_reference_id
       "#{arguments[0]}-#{arguments[1].join('_')}"
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform(id, locales)

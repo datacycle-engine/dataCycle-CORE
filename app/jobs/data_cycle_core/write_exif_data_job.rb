@@ -7,8 +7,6 @@ module DataCycleCore
     PRIORITY = 12
     WEBHOOK_PRIORITY = 6
 
-    REFERENCE_TYPE = 'write_exif_data'
-
     EXIF_ARRAY_DATA_TYPES = ['Keywords', 'Subject'].freeze
 
     queue_as :cache_invalidation
@@ -19,10 +17,6 @@ module DataCycleCore
 
     def delayed_reference_id
       arguments[0]
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform(content_id)

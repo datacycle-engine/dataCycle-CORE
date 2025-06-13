@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     def delayed_reference_type
-      'data_cycle_core_classification_alias_update_mappings'
+      self.class.name.demodulize
     end
 
     def perform(id, to_insert = [], to_delete = [])

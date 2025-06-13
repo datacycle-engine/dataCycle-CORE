@@ -97,15 +97,29 @@ module DataCycleCore
         def geo_within_classification(ids)
           return self if ids.blank?
 
+          # The approach of chaining ORs is still the most efficient though not the prettiest
+          # Following variants where considered:
+          # * ST_Union of all classification-geometries -> does not use an index on the resulting multi-geometry
+          # * ST_Intersect on all classification-geometries whith pre-filter on classification_alias_id and a BBOX-filter on geometries (&&) -> inides not optimally used
+          contains_queries = []
+          ids.each do |id|
+            sub_query = DataCycleCore::ClassificationPolygon
+              .select(:geom)
+              .limit(1)
+              .where(classification_alias_id: id)
+              .arel
+
+            contains_queries << st_intersects(sub_query, geometries_table[:geom_simple])
+          end
+
           reflect(
             @query
               .where(
-                DataCycleCore::Geometry.select(1).joins('CROSS JOIN "classification_polygons"').arel
+                DataCycleCore::Geometry.select(1).arel
                 .where(
                   geometries_table[:thing_id].eq(thing[:id])
                   .and(geometries_table[:is_primary].eq(true))
-                  .and(classification_polygon[:classification_alias_id].in(ids))
-                  .and(st_intersects(classification_polygon[:geom], geometries_table[:geom_simple]))
+                  .and(contains_queries.reduce(:or))
                 ).exists
               )
           )
@@ -114,15 +128,25 @@ module DataCycleCore
         def not_geo_within_classification(ids)
           return self if ids.blank?
 
+          contains_queries = []
+          ids.each do |id|
+            sub_query = DataCycleCore::ClassificationPolygon
+              .select(:geom)
+              .limit(1)
+              .where(classification_alias_id: id)
+              .arel
+
+            contains_queries << st_intersects(sub_query, geometries_table[:geom_simple]).not
+          end
+
           reflect(
             @query
               .where(
-                DataCycleCore::Geometry.select(1).joins('CROSS JOIN "classification_polygons"').arel
+                DataCycleCore::Geometry.select(1).arel
                 .where(
                   geometries_table[:thing_id].eq(thing[:id])
                   .and(geometries_table[:is_primary].eq(true))
-                  .and(classification_polygon[:classification_alias_id].in(ids))
-                  .and(st_intersects(classification_polygon[:geom], geometries_table[:geom_simple]).not)
+                  .and(contains_queries.reduce(:or))
                 ).exists
               )
           )

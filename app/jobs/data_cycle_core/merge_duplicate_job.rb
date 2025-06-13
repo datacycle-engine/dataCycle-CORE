@@ -6,16 +6,10 @@ module DataCycleCore
     # @provider_job_id to be available in the perform actions and callbacks!!
     # it is available in the enque-callbacks
 
-    REFERENCE_TYPE = 'merge_duplicates'
-
     queue_as :default
 
     def delayed_reference_id
       "#{arguments[0]}_#{arguments[1]}"
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform(original_id, duplicate_id)

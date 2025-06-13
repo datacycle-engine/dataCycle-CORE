@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class ExtractPdfTextContentJob < ApplicationJob
+  class ExtractPdfTextContentJob < UniqueApplicationJob
     PRIORITY = 12
-    REFERENCE_TYPE = 'extract_pdf_text_content'
 
     def priority
       PRIORITY
@@ -11,10 +10,6 @@ module DataCycleCore
 
     def delayed_reference_id
       arguments[0]
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform(id)

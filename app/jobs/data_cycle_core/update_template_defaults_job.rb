@@ -3,7 +3,6 @@
 module DataCycleCore
   class UpdateTemplateDefaultsJob < UniqueApplicationJob
     PRIORITY = 5
-    REFERENCE_TYPE = 'update_template_defaults'
     TEMPLATE_DEFAULT_KEYS = [
       'data_type',
       'schema_types'
@@ -17,10 +16,6 @@ module DataCycleCore
 
     def delayed_reference_id
       arguments[0]
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform(id)
