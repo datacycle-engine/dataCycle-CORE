@@ -20,7 +20,7 @@ module DataCycleCore
           private
 
           def add_priority_for_single_geographic_property!(properties)
-            geo_props = properties.select { |_, v| v[:type] == 'geographic' }
+            geo_props = properties.select { |_, v| v&.dig(:type) == 'geographic' }
             return unless geo_props.one?
             return if geo_props.all? { |_, v| v.key?(:priority) }
 
@@ -28,7 +28,7 @@ module DataCycleCore
           end
 
           def check_priority_for_geographic_properties!(properties, error_path)
-            geo_wo_prio_props = properties.select { |_, v| v[:type] == 'geographic' && !v.key?(:priority) }
+            geo_wo_prio_props = properties.select { |_, v| v&.dig(:type) == 'geographic' && !v.key?(:priority) }
 
             return unless geo_wo_prio_props.any?
 
@@ -39,7 +39,7 @@ module DataCycleCore
 
           def check_priority_uniqueness!(properties, error_path)
             geo_w_prio_props = properties
-              .select { |_, v| v[:type] == 'geographic' && v.key?(:priority) }
+              .select { |_, v| v&.dig(:type) == 'geographic' && v.key?(:priority) }
               .group_by { |_, v| v[:priority] }
 
             return unless geo_w_prio_props.values.any?(&:many?)
