@@ -46,7 +46,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'nokogiri'
   # authentication
   s.add_dependency 'devise'
-  s.add_dependency 'jwt'
+  s.add_dependency 'jwt', '~> 2.10.0' # omniauth does not work with jwt 3.x
   # authorization
   s.add_dependency 'cancancan', '>= 3.3.0'
   # pagination
