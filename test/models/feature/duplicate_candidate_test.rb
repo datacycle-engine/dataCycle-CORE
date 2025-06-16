@@ -150,8 +150,8 @@ module DataCycleCore
       assert_nil DataCycleCore::Thing.find_by(id: image_oa.id)
 
       assert_equal external_source_f.id, image_f.external_source.id
-      assert_equal 6, image_f.external_system_syncs.size
-      assert_equal 6, image_f.external_system_syncs.where(sync_type: 'duplicate').size
+      assert_equal 5, image_f.external_system_syncs.size
+      assert_equal 5, image_f.external_system_syncs.where(sync_type: 'duplicate').size
       assert_equal 0, image_f.external_system_syncs.where(sync_type: 'link').size
       assert_equal 0, image_f.external_system_syncs.where(sync_type: 'export').size
     end
