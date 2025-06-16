@@ -2,18 +2,28 @@ import { gpx } from "@tmcw/togeojson";
 import ConfirmationModal from "../confirmation_modal";
 
 class UploadControl {
-	static accept = ".gpx,.kml,.geojson,.json";
 	static containerClassName = "upload-control";
 	static controlButtonClassName = "dc-upload-overlay-button";
 	static controlButtonIconClassName = "fa fa-upload";
 	constructor(editor) {
 		this.editor = editor;
+		this.setExtensionHandler();
+		this.setAccept();
+	}
+	setExtensionHandler() {
 		this.extensionHandler = {
-			gpx: this.parseGPX.bind(this),
-			kml: this.parseGPX.bind(this),
 			geojson: this.parseJSON.bind(this),
 			json: this.parseJSON.bind(this),
 		};
+
+		if (this.editor.isLineString()) {
+			this.extensionHandler.gpx = this.parseGPX.bind(this);
+			this.extensionHandler.kml = this.parseGPX.bind(this);
+		}
+	}
+	setAccept() {
+		if (this.editor.isLineString()) this.accept = ".gpx,.kml,.geojson,.json";
+		else if (this.editor.isPolygon()) this.accept = ".geojson,.json";
 	}
 	onAdd(map) {
 		this.map = map;
@@ -33,7 +43,7 @@ class UploadControl {
 		this.input = document.createElement("input");
 		this.input.setAttribute("type", "file");
 		this.input.setAttribute("hidden", true);
-		this.input.setAttribute("accept", this.constructor.accept);
+		this.input.setAttribute("accept", this.accept);
 		this.input.addEventListener("change", (event) => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
@@ -56,7 +66,7 @@ class UploadControl {
 		this.controlButton.className = this.constructor.controlButtonClassName;
 		this.controlButton.type = "button";
 		I18n.translate("frontend.map.upload.button_title", {
-			types: this.constructor.accept,
+			types: this.accept,
 		}).then((text) => {
 			this.controlButton.title = text;
 		});
@@ -79,7 +89,6 @@ class UploadControl {
 					if (!handler) this.renderError("file_type_not_supported");
 
 					const featureGeometry = handler(e.target.result);
-					console.log("Feature Geometry:", featureGeometry);
 
 					if (
 						!featureGeometry?.coordinates ||
@@ -97,7 +106,6 @@ class UploadControl {
 	}
 	parseJSON(jsonString) {
 		try {
-			console.log("Parsing JSON string:", jsonString);
 			const json = JSON.parse(jsonString);
 			const feature = this.getFeatureFromGeoJSON(json);
 
@@ -148,10 +156,12 @@ class UploadControl {
 
 		return featureGeometry;
 	}
-	renderError(key) {
-		new ConfirmationModal({
-			text: I18n.translate(`frontend.map.upload.error.${key}`),
-			confirmationText: "Ok",
+	async renderError(key) {
+		I18n.translate(`frontend.map.upload.error.${key}`).then((text) => {
+			new ConfirmationModal({
+				text: text,
+				confirmationText: "Ok",
+			});
 		});
 	}
 }
