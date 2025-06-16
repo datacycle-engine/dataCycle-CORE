@@ -41,11 +41,11 @@ module DataCycleCore
       def contents_with_default_scope(*)
         q = super
 
-        q = q.where.not(geom_simple: nil).where(
-          ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(things.geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
+        q = q.where(
+          ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(geometries.geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
         )
 
-        q = q.select('ST_GeometryType(MAX(things.geom_simple)) AS geometry_type').reorder(id: :desc) if cluster?
+        q = q.select('ST_GeometryType(MAX(geometries.geom_simple)) AS geometry_type').reorder(id: :desc) if cluster?
 
         q
       end
@@ -57,7 +57,7 @@ module DataCycleCore
       def content_select_sql
         [
           'things.id AS id',
-          "ST_Transform(ST_Simplify (MAX(things.geom_simple), #{@simplify_factor}, TRUE), 3857) AS geometry"
+          "ST_Transform(ST_Simplify (MAX(geometries.geom_simple), #{@simplify_factor}, TRUE), 3857) AS geometry"
         ]
           .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
           .join(', ').squish

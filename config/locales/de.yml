@@ -252,9 +252,6 @@ de:
     update_stored_filter: "Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden."
     maximum_embedded: "Maximalanzahl: %{data}"
     minimum_embedded: "Mindestanzahl: %{data}"
-    gpx:
-      file_missing: Datei nicht gefunden!
-      empty: Die GPX-Datei beinhaltet keinen Track.
     map:
       scroll_notice:
         ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
@@ -266,8 +263,13 @@ de:
           popup: "Mittelpunkt: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: Letzte Änderung rückgängig machen
       redo: Rückgängig gemachte Änderungen erneut anwenden
-      upload_gpx:
-        button_title: "GPX-Datei hochladen"
+      upload:
+        button_title: "Datei hochladen (%{types})"
+        error:
+          file_missing: Datei nicht gefunden!
+          empty: Die Datei beinhaltet keine gültigen Geodaten!
+          file_type_not_supported: Dateityp wird nicht unterstützt!
+          invalid_json: Ungültiges JSON-Format!
       elevation_profile:
         button_title: "Höhenprofil anzeigen"
         y_label: Seehöhe

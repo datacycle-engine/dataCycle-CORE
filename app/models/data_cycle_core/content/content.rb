@@ -16,7 +16,7 @@ module DataCycleCore
       }.freeze
       WEBHOOK_ACCESSORS = [:webhook_as_of].freeze
       STRING_PROPERTY_TYPES = ['string'].freeze
-      PLAIN_PROPERTY_TYPES = ['key', *STRING_PROPERTY_TYPES, 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
+      PLAIN_PROPERTY_TYPES = ['key', *STRING_PROPERTY_TYPES, 'number', 'date', 'datetime', 'boolean', 'slug'].freeze
       LINKED_PROPERTY_TYPES = ['linked'].freeze
       EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
       CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
@@ -28,6 +28,7 @@ module DataCycleCore
       TABLE_PROPERTY_TYPES = ['table'].freeze
       OEMBED_PROPERTY_TYPES = ['oembed'].freeze
       SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
+      GEO_PROPERTY_TYPES = ['geographic'].freeze
       SLUG_PROPERTY_TYPES = ['slug'].freeze
       ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
@@ -473,7 +474,11 @@ module DataCycleCore
       end
 
       def geo_properties(include_overlay = false)
-        property_selector(include_overlay) { |definition| definition['type'] == 'geographic' }
+        property_selector(include_overlay) { |definition| GEO_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def geo_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| GEO_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def global_property_names(include_overlay = false)
@@ -528,7 +533,8 @@ module DataCycleCore
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
         elsif plain_property_names.include?(root_name) ||
               table_property_names.include?(root_name) ||
-              oembed_property_names.include?(root_name)
+              oembed_property_names.include?(root_name) ||
+              geo_property_names.include?(root_name)
           send(property_name)&.as_json
         elsif classification_property_names.include?(root_name) ||
               linked_property_names.include?(root_name) ||
@@ -607,6 +613,8 @@ module DataCycleCore
             load_timeseries(property_name)
           elsif collection_property_names.include?(property_name)
             load_collections(property_name)
+          elsif geo_property_names.include?(property_name)
+            load_geometry(property_name)
           else
             raise NotImplementedError
           end
@@ -655,11 +663,9 @@ module DataCycleCore
         }.inject(&:merge)
       end
 
-      def convert_to_type(type, value, definition = nil)
-        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition)
-      end
-
+      delegate :convert_to_type, to: :'DataCycleCore::MasterData::DataConverter'
       delegate :convert_to_string, to: :'DataCycleCore::MasterData::DataConverter'
+      delegate :string_to_geographic, to: :'DataCycleCore::MasterData::DataConverter'
 
       def parent_templates
         DataCycleCore::ThingTemplate
@@ -758,7 +764,8 @@ module DataCycleCore
         attibute_cache_key = attibute_cache_key(key, filter, overlay_flag)
 
         (@get_property_value ||= {})[attibute_cache_key] =
-          if plain_property_names.include?(key)
+          if plain_property_names.include?(key) ||
+             geo_property_names.include?(key)
             convert_to_type(definition['type'], value, definition)
           elsif value.is_a?(ActiveRecord::Relation) || value.is_a?(ActiveRecord::Base)
             value

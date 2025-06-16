@@ -6,8 +6,6 @@ module DataCycleCore
   class RunTaskJobImport < UniqueApplicationJob
     PRIORITY = 5 # default for all importer jobs
 
-    REFERENCE_TYPE = 'rake_task_importers'
-
     queue_as :importers
 
     def priority
@@ -16,10 +14,6 @@ module DataCycleCore
 
     def delayed_reference_id
       arguments[0].to_s
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform(task, args = [])

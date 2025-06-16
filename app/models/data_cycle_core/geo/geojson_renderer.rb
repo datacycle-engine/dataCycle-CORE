@@ -10,11 +10,6 @@ module DataCycleCore
         super || empty_geojson
       end
 
-      def contents_with_default_scope(*)
-        q = super
-        q.where.not(geom_simple: nil)
-      end
-
       def main_sql
         <<-SQL.squish
               SELECT #{@single_item ? geojson_detail_select_sql : geojson_select_sql}

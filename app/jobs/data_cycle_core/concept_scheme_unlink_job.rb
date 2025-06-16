@@ -20,7 +20,7 @@ module DataCycleCore
     end
 
     def delayed_reference_type
-      "concept_scheme_#{self.class::KEY}_#{arguments[1]}"
+      "#{self.class.name.demodulize}##{arguments[1]}"
     end
 
     def perform(concept_scheme_id, collection_id, current_user_id)

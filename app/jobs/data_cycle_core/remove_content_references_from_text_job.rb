@@ -14,10 +14,6 @@ module DataCycleCore
       arguments[0]
     end
 
-    def delayed_reference_type
-      self.class.name.demodulize
-    end
-
     def perform(id, content_ids)
       DataCycleCore::Thing
         .where(id: content_ids)

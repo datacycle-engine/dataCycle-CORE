@@ -50,6 +50,8 @@
       :geo:
         :type: mixin
         :name: geo
+      :location:
+        :priority: 2
       :length:
         :label: Länge (m)
         :type: number
@@ -64,6 +66,7 @@
       :geo_shape:
         :type: mixin
         :name: geo_shape
+        :priority: 1
       :contact_info:
         :type: mixin
         :name: contact_info

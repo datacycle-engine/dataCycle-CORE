@@ -34,7 +34,7 @@ module SharedExamplesForContent
       end
 
       it 'provides names of plain properties' do
-        assert(subject.plain_property_names, ['property', 'existing_property'])
+        assert(subject.plain_property_names + subject.geo_property_names, ['property', 'existing_property'])
       end
 
       it 'provides existing data' do
@@ -60,7 +60,7 @@ module SharedExamplesForContent
       end
 
       it 'provides names of plain properties' do
-        assert(subject.plain_property_names, ['property'])
+        assert(subject.plain_property_names + subject.geo_property_names, ['property'])
       end
     end
   end
@@ -112,7 +112,7 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of plain properties' do
-      assert(subject.plain_property_names, ['id', 'name', '1', '2', '3'])
+      assert(subject.plain_property_names + subject.geo_property_names, ['id', 'name', '1', '2', '3'])
     end
 
     it 'provides methods for all property names as string' do
@@ -290,7 +290,7 @@ describe DataCycleCore::Content do
     end
 
     it 'provides plain_property_names' do
-      assert(subject.plain_property_names, ['id', 'description'])
+      assert(subject.plain_property_names + subject.geo_property_names, ['id', 'description'])
     end
 
     it 'provides translatable_property_names' do

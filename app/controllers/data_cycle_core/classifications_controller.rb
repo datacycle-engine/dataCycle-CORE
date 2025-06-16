@@ -40,14 +40,14 @@ module DataCycleCore
             @mapped_classification_aliases = @classification_tree.sub_classification_alias&.additional_classifications&.primary_classification_aliases || DataCycleCore::ClassificationAlias.none.page(1)
             @classification_type = @classification_tree
             @queue_classification_mappings = Delayed::Job.where(
-              delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings',
+              delayed_reference_type: 'ClassificationMappingJob',
               delayed_reference_id: @classification_trees.pluck(:classification_alias_id)
             ).pluck(:delayed_reference_id)
           elsif index_params.include?(:classification_tree_label_id)
             @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
             @classification_type = @classification_tree_label
             @queue_classification_mappings = Delayed::Job.where(
-              delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings',
+              delayed_reference_type: 'ClassificationMappingJob',
               delayed_reference_id: @classification_trees.pluck(:classification_alias_id)
             ).pluck(:delayed_reference_id)
           else
@@ -212,7 +212,7 @@ module DataCycleCore
         @object.save!
       end
 
-      queued_job = Delayed::Job.exists?(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: @object.id)
+      queued_job = Delayed::Job.exists?(delayed_reference_type: 'ClassificationMappingJob', delayed_reference_id: @object.id)
 
       render json: {
         html: render_to_string(

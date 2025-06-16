@@ -210,6 +210,14 @@ module DataCycleCore
         )
       end
 
+      def geometry_type(column)
+        Arel::Nodes::NamedFunction.new(
+          'GeometryType', [
+            column
+          ]
+        )
+      end
+
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
       end
@@ -296,6 +304,10 @@ module DataCycleCore
 
       def ccc_table
         DataCycleCore::CollectedClassificationContent.arel_table
+      end
+
+      def geometries_table
+        DataCycleCore::Geometry.arel_table
       end
 
       def generate_thing_alias

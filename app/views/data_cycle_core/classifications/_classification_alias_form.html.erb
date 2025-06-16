@@ -76,7 +76,7 @@
   </div>
 
   <% if classification_alias.persisted? && can?(:map_classifications, classification_alias) %>
-    <% locked = Delayed::Job.where(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: classification_alias.id).exists? %>
+    <% locked = Delayed::Job.where(delayed_reference_type: 'ClassificationMappingJob', delayed_reference_id: classification_alias.id).exists? %>
     <%= hidden_field_tag 'classification_alias[classification_ids][]', classification_alias&.primary_classification_id,
                          class: 'default_classification_mapping' unless locked %>
     <div class="v-select classification-ids-field">

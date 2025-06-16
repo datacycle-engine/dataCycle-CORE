@@ -7,27 +7,25 @@ module DataCycleCore
     test 'read untranslatable data from a jsonb field and deserialize to proper objects' do
       data = DataCycleCore::Thing.new(
         template_name: 'SimpleJsonTest',
-        metadata: { 'datum' => Time.zone.now.to_s, 'bool' => 'true', 'geo' => 'POINT (10.0 47.0)', 'text' => 'Text' },
+        metadata: { 'datum' => Time.zone.now.to_s, 'bool' => 'true', 'text' => 'Text' },
         name: 'Test Data'
       )
       data.save
 
       assert_equal('ActiveSupport::TimeWithZone', data.datum.class.to_s)
       assert_equal('TrueClass', data.bool.class.to_s)
-      assert_equal('RGeo::Geographic::ProjectedPointImpl', data.geo.class.to_s)
     end
 
     test 'read translatable data from a jsonb field and deserialize to proper objects' do
       data = DataCycleCore::Thing.new(
         template_name: 'SimpleJsonTest',
-        content: { 'datum2' => Time.zone.now.to_s, 'bool2' => 'true', 'geo2' => 'POINT (10.0 47.0)', 'text2' => 'test' },
+        content: { 'datum2' => Time.zone.now.to_s, 'bool2' => 'true', 'text2' => 'test' },
         name: 'Test Data'
       )
       data.save
 
       assert_equal('ActiveSupport::TimeWithZone', data.datum2.class.to_s)
       assert_equal('TrueClass', data.bool2.class.to_s)
-      assert_equal('RGeo::Geographic::ProjectedPointImpl', data.geo2.class.to_s)
       assert_equal('String', data.text2.class.to_s)
     end
 
@@ -38,7 +36,6 @@ module DataCycleCore
         metadata: { 'data_untrans' => {
           'datum_untrans' => Time.zone.now.to_s,
           'bool_untrans' => 'true',
-          'geo_untrans' => 'POINT (10.0 47.0)',
           'text_untrans' => 'Servas'
         } }
       )
@@ -46,7 +43,6 @@ module DataCycleCore
 
       assert_equal('ActiveSupport::TimeWithZone', data.data_untrans.datum_untrans.class.to_s)
       assert_equal('TrueClass', data.data_untrans.bool_untrans.class.to_s)
-      assert_equal('RGeo::Geographic::ProjectedPointImpl', data.data_untrans.geo_untrans.class.to_s)
       assert_equal('String', data.data_untrans.text_untrans.class.to_s)
     end
 
@@ -57,7 +53,6 @@ module DataCycleCore
         content: { 'data_trans' => {
           'datum_trans' => Time.zone.now.to_s,
           'bool_trans' => 'true',
-          'geo_trans' => 'POINT (10.0 47.0)',
           'text_trans' => 'Servas'
         } }
       )
@@ -65,7 +60,6 @@ module DataCycleCore
 
       assert_equal('ActiveSupport::TimeWithZone', data.data_trans.datum_trans.class.to_s)
       assert_equal('TrueClass', data.data_trans.bool_trans.class.to_s)
-      assert_equal('RGeo::Geographic::ProjectedPointImpl', data.data_trans.geo_trans.class.to_s)
       assert_equal('String', data.data_trans.text_trans.class.to_s)
     end
 
@@ -83,7 +77,7 @@ module DataCycleCore
       assert_instance_of(::String, data.name)
       assert_equal('ActiveSupport::TimeWithZone', data.datum.class.to_s)
       assert_equal('TrueClass', data.bool.class.to_s)
-      assert_equal('RGeo::Geographic::ProjectedPointImpl', data.geo.class.to_s)
+      assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo.class.to_s)
     end
 
     test 'write translatable data to a jsonb field' do
@@ -104,7 +98,7 @@ module DataCycleCore
       assert_instance_of(::String, data.name)
       assert_equal('ActiveSupport::TimeWithZone', data.datum2.class.to_s)
       assert_equal('TrueClass', data.bool2.class.to_s)
-      assert_equal('RGeo::Geographic::ProjectedPointImpl', data.geo2.class.to_s)
+      assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo2.class.to_s)
     end
 
     test 'write structured data to a jsonb field' do
@@ -117,7 +111,6 @@ module DataCycleCore
         'data_untrans' => {
           'datum_untrans' => Time.zone.now,
           'bool_untrans' => true,
-          'geo_untrans' => RGeo::Geographic.spherical_factory(srid: 4326).point(12.3, 40.344),
           'text_untrans' => 'Servas'
         }
       }
@@ -126,30 +119,25 @@ module DataCycleCore
 
       assert_equal('ActiveSupport::TimeWithZone', data.data_untrans.datum_untrans.class.to_s)
       assert_equal('TrueClass', data.data_untrans.bool_untrans.class.to_s)
-      assert_equal('RGeo::Geographic::ProjectedPointImpl', data.data_untrans.geo_untrans.class.to_s)
       assert_equal('String', data.data_untrans.text_untrans.class.to_s)
     end
 
     test 'write structured data to a translateable jsonb field' do
-      data = DataCycleCore::Thing.new(
+      data = DataCycleCore::Thing.create(
         template_name: 'ComplexJsonTest'
       )
-      data.save
       data_hash = {
         'name' => 'Test Data',
         'data_trans' => {
           'datum_trans' => Time.zone.now,
           'bool_trans' => true,
-          'geo_trans' => RGeo::Geographic.spherical_factory(srid: 4326).point(12.3, 40.344),
           'text_trans' => 'Servas'
         }
       }
       data.set_data_hash(data_hash:)
-      data.save
 
       assert_equal('ActiveSupport::TimeWithZone', data.data_trans.datum_trans.class.to_s)
       assert_equal('TrueClass', data.data_trans.bool_trans.class.to_s)
-      assert_equal('RGeo::Geographic::ProjectedPointImpl', data.data_trans.geo_trans.class.to_s)
       assert_equal('String', data.data_trans.text_trans.class.to_s)
     end
 

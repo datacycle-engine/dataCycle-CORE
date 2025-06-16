@@ -23,6 +23,7 @@ module DataCycleCore
       belongs_to :thing
       has_many :content_collection_link_histories, dependent: :delete_all, foreign_key: :thing_history_id, inverse_of: :thing_history
       has_many :thing_history_links, dependent: :nullify, foreign_key: :thing_history_id, inverse_of: :thing_history
+      has_many :geometry_histories, dependent: :delete_all, inverse_of: :thing_history
 
       def available_locales
         I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
@@ -101,6 +102,8 @@ module DataCycleCore
     has_many :full_classification_aliases, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationAlias', source: :classification_alias
     has_many :full_classification_tree_labels, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationTreeLabel', source: :classification_tree_label
     has_many :content_collection_links, dependent: :delete_all
+    has_many :geometries, dependent: :delete_all, inverse_of: :thing, autosave: true
+    has_many :primary_geometries, -> { primary }, class_name: 'DataCycleCore::Geometry', inverse_of: false, foreign_key: :thing_id
 
     scope :duplicate_candidates, -> { DataCycleCore::Thing::DuplicateCandidate.where(original_id: select(:id).reorder(nil)).where(false_positive: false).order(score: :desc) }
 

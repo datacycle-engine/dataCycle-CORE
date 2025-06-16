@@ -98,6 +98,10 @@ module DataCycleCore
         DataCycleCore::Collection.joins(:content_collection_link_histories).where(content_collection_link_histories: { thing_history_id: id, relation: property_name }).order(order_a: :asc)
       end
 
+      def load_geometry(property_name)
+        geometry_histories.detect { |g| g.relation == property_name }&.geom
+      end
+
       def as_of(_timestamp)
         raise 'as_of in history is no longer possible (app/models/data_cycle_core/content/content_history_loader.rb)'
       end

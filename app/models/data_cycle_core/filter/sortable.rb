@@ -179,12 +179,12 @@ module DataCycleCore
       def sort_proximity_geographic(ordering = '', value = {})
         return self if value&.first.blank? || value&.second.blank?
 
-        order_string = "things.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
-
+        join_query, order_query = order_params_for_geom(value)
         reflect(
           query_without_order
+            .joins(join_query)
             .order(
-              sanitized_order_string(order_string, ordering, true),
+              sanitized_order_string(order_query, ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
             )
@@ -211,17 +211,11 @@ module DataCycleCore
         proximity_occurrence_with_distance_pia(ordering, value, false)
       end
 
-      def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
+      def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true)
         return self if !value.is_a?(::Array) || value.first.blank?
         geo = value.first
         schedule = value.second
         return self if geo&.first.blank? || geo&.second.blank?
-
-        if use_spheroid
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
-        else
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
-        end
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
@@ -277,32 +271,29 @@ module DataCycleCore
         #   ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
         # SQL
 
+        join_geo_query, order_geo_query = order_params_for_geom(geo)
+
         reflect(
           query_without_order
             .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
+            .joins(join_geo_query)
             # .joins(sanitize_sql([order_parameter_join2]))
             .order(
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               # sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
-              sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string(order_geo_query, ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
             )
         )
       end
 
-      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
+      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true)
         return self if !value.is_a?(::Array) || value.first.blank?
         geo = value.first
         schedule = value.second
         return self if geo&.first.blank? || geo&.second.blank?
-
-        if use_spheroid
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
-        else
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
-        end
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
@@ -336,13 +327,16 @@ module DataCycleCore
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
+        join_geo_query, order_geo_query = order_params_for_geom(geo)
+
         reflect(
           query_without_order
             .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
+            .joins(join_geo_query)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
-              sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string(order_geo_query, ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
             )
@@ -478,6 +472,16 @@ module DataCycleCore
         elsif value.dig('v', 'relation')
           value.dig('v', 'relation').to_s.underscore
         end
+      end
+
+      def order_params_for_geom(value)
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN geometries ON geometries.thing_id = things.id AND geometries.is_primary = true
+        SQL
+
+        order_string = "geometries.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+
+        return order_parameter_join, order_string
       end
     end
   end

@@ -46,13 +46,16 @@ module DataCycleCore
           def to_bbox
             select_sql = <<-SQL.squish
               json_build_object(
-                'xmin', st_xmin(ST_Extent(things.geom_simple)),
-                'ymin', st_ymin(ST_Extent(things.geom_simple)),
-                'xmax', st_xmax(ST_Extent(things.geom_simple)),
-                'ymax', st_ymax(ST_Extent(things.geom_simple))
+                'xmin', st_xmin(ST_Extent(geometries.geom_simple)),
+                'ymin', st_ymin(ST_Extent(geometries.geom_simple)),
+                'xmax', st_xmax(ST_Extent(geometries.geom_simple)),
+                'ymax', st_ymax(ST_Extent(geometries.geom_simple))
               )
             SQL
-            query = all.except(:order, :limit, :offset).select(select_sql).to_sql
+            query = DataCycleCore::Geometry
+              .where(thing_id: all.except(:order, :limit, :offset).select(:id))
+              .select(select_sql)
+              .to_sql
 
             ActiveRecord::Base.connection.select_all(Arel.sql(query)).first&.values&.first
           end

@@ -4,8 +4,6 @@ module DataCycleCore
   class VideoTranscodingJob < UniqueApplicationJob
     PRIORITY = 12
 
-    REFERENCE_TYPE = 'video_transcoding'
-
     queue_as :default
 
     def priority
@@ -14,10 +12,6 @@ module DataCycleCore
 
     def delayed_reference_id
       "#{arguments[0]}_#{arguments[1]}"
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform(content_id, computed_property_name)

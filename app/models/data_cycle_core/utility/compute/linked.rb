@@ -70,10 +70,11 @@ module DataCycleCore
 
           def get_ids_from_geometry(things:, geometry:)
             query_sql = <<-SQL.squish
-              SELECT things.id
-              FROM things
-              WHERE things.id IN (#{things.select(:id).reorder(nil).to_sql})
-                AND ST_Intersects (things.geom_simple, ST_GeomFromText (:geo, 4326))
+              SELECT DISTINCT geometries.thing_id
+              FROM geometries
+              WHERE geometries.thing_id IN (#{things.select(:id).reorder(nil).to_sql})
+                AND ST_Intersects (geometries.geom_simple, ST_GeomFromText (:geo, 4326))
+                AND geometries.is_primary = true
             SQL
 
             ActiveRecord::Base.connection.select_all(

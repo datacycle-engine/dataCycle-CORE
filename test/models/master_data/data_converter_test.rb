@@ -80,12 +80,11 @@ describe DataCycleCore::MasterData::DataConverter do
 
   describe 'convert geo objects' do
     it 'converts wkt_strings to geographic objects' do
-      factory = RGeo::Geographic.spherical_factory(srid: 4326)
-      point = factory.point(12.3, 40.344)
-      line = factory.line_string([factory.point(1.0, 2.0), factory.point(1.5, 2.5)])
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
+      point = factory3d.point(12.3, 40.344)
+      line = factory3d.line_string([factory3d.point(1.0, 2.0), factory3d.point(1.5, 2.5)])
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
-      wkt_string = 'POINT (10.0 47.0)'
+      wkt_string = 'POINT Z (10.0 47.0 0.0)'
       wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         converted_data = subject.string_to_geographic(test_case)
@@ -96,10 +95,9 @@ describe DataCycleCore::MasterData::DataConverter do
     end
 
     it 'converts geographic data to strings' do
-      factory = RGeo::Geographic.spherical_factory(srid: 4326)
-      point = factory.point(12.3, 40.344)
-      line = factory.line_string([factory.point(1.0, 2.0), factory.point(1.5, 2.5)])
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
+      point = factory3d.point(12.3, 40.344)
+      line = factory3d.line_string([factory3d.point(1.0, 2.0), factory3d.point(1.5, 2.5)])
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
       wkt_string3d = 'POINT Z (10.0 47.0 200.0)'

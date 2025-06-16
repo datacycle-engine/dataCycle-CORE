@@ -439,9 +439,6 @@ en:
       saved searches that use this search."
     maximum_embedded: "Maximum number: %{data}"
     minimum_embedded: "Minimum number: %{data}"
-    gpx:
-      file_missing: File not found!
-      empty: The GPX file does not contain a track.
     map:
       scroll_notice:
         ctrlKey: Use Ctrl+Scroll to zoom the map
@@ -453,8 +450,13 @@ en:
           popup: "Center: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: undo last change
       redo: Reapply undone changes
-      upload_gpx:
-        button_title: Upload GPX file
+      upload:
+        button_title: "Upload file (%{types})"
+        error:
+          file_missing: File not found!
+          empty: The file does not contain valid geo data!
+          file_type_not_supported: file type not supported!
+          invalid_json: invalid JSON!
       elevation_profile:
         button_title: "show elevation profile"
         y_label: sea level

@@ -6,8 +6,6 @@ module DataCycleCore
   class RebuildClassificationMappingsJob < UniqueApplicationJob
     PRIORITY = 0
 
-    REFERENCE_TYPE = 'rebuild_classification_mappings'
-
     queue_as :default
 
     before_enqueue :notify_with_lock
@@ -18,10 +16,6 @@ module DataCycleCore
 
     def delayed_reference_id
       'db:configure:rebuild_transitive_tables'
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform

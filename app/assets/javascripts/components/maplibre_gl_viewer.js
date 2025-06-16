@@ -1144,6 +1144,11 @@ class MapLibreGlViewer {
 	isPolygon() {
 		return this.type?.includes("Polygon");
 	}
+	validTypes() {
+		if (this.isPoint()) return ["Point", "MultiPoint"];
+		if (this.isLineString()) return ["LineString", "MultiLineString"];
+		if (this.isPolygon()) return ["Polygon", "MultiPolygon"];
+	}
 }
 
 export default MapLibreGlViewer;

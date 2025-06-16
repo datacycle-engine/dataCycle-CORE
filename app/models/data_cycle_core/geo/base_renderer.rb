@@ -19,7 +19,7 @@ module DataCycleCore
       end
 
       def contents_with_default_scope(query = @contents)
-        query = query.reorder(nil).reselect(content_select_sql).group('things.id')
+        query = query.reorder(nil).joins(:primary_geometries).reselect(content_select_sql).group('things.id, geometries.id')
 
         joins = include_config.pluck(:joins)
         joins.uniq!
@@ -33,7 +33,7 @@ module DataCycleCore
       def content_select_sql
         [
           'things.id AS id',
-          'things.geom_simple AS geometry'
+          'geometries.geom_simple AS geometry'
         ]
           .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
           .join(', ').squish
