@@ -62,5 +62,48 @@ namespace :dc do
 
       puts "\nDone (deleted #{deleted_ids.size} contents)."
     end
+
+    desc 'merge contents with same external_system_id and external_key'
+    task merge_contents: :environment do |_, args|
+      priority_list = Array.wrap(args.extras)
+      priority_list.map!(&:to_s)
+      priority_list.uniq!
+      external_systems = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(priority_list).to_a
+      priority_list.map! { |id| external_systems.find { |es| es.name == id || es.identifier == id || es.id == id } }
+      priority_list.compact!
+      removed_duplicates = []
+
+      abort('Please provide at least one external_system identifier') if priority_list.blank?
+
+      while priority_list.present?
+        primary_es = priority_list.shift
+
+        contents = DataCycleCore::Thing.where(external_source_id: primary_es.id)
+        duplicates = DataCycleCore::ExternalSystemSync.includes(:syncable).where(
+          external_system_id: primary_es.id, external_key: contents.select(:external_key), sync_type: 'duplicate'
+        )
+        contents_with_duplicates = contents.where(external_key: duplicates.select(:external_key)).index_by(&:external_key)
+
+        next if duplicates.blank?
+
+        puts "Merging duplicates for #{primary_es.name} (#{duplicates.size})..."
+
+        duplicates.find_each do |es_duplicate|
+          next if removed_duplicates.include?(es_duplicate.syncable_id)
+          duplicate = es_duplicate.syncable
+          original = contents_with_duplicates[es_duplicate.external_key]
+
+          next if original.nil? || original.id == duplicate.id
+
+          removed_duplicates << duplicate.id
+          original.merge_with_duplicate_and_version(duplicate)
+        end
+      end
+
+      puts 'Done.'
+    rescue StandardError => e
+      puts "Error during merging: #{e.message}"
+      raise e
+    end
   end
 end
