@@ -73,34 +73,66 @@ namespace :dc do
       priority_list.compact!
       removed_duplicates = []
 
-      abort('Please provide at least one external_system identifier') if priority_list.blank?
+      abort('Please provide at least two external_system identifiers') if priority_list.blank? || priority_list.size < 2
 
-      while priority_list.present?
+      base_query = <<-SQL.squish
+        SELECT originals.id AS original_id,
+          duplicates.id AS duplicate_id
+        FROM things originals
+          JOIN external_system_syncs ess ON ess.external_key = originals.external_key
+          AND ess.external_system_id = originals.external_source_id
+          AND ess.sync_type = 'duplicate'
+          JOIN things duplicates ON duplicates.id = ess.syncable_id
+        WHERE originals.external_source_id = :external_system_id
+          AND originals.id != ess.syncable_id
+          AND duplicates.external_source_id IN (:duplicate_source_ids)
+        UNION
+        SELECT originals.id AS original_id,
+          duplicates.id AS duplicate_id
+        FROM things originals
+          JOIN external_system_syncs ess ON ess.syncable_id = originals.id
+          AND ess.sync_type = 'duplicate'
+          JOIN things duplicates ON duplicates.external_key = ess.external_key
+          AND duplicates.external_source_id = ess.external_system_id
+        WHERE originals.external_source_id = :external_system_id
+          AND originals.id != duplicates.id
+          AND ess.external_system_id IN (:duplicate_source_ids);
+      SQL
+
+      while priority_list.size > 1
         primary_es = priority_list.shift
 
-        contents = DataCycleCore::Thing.where(external_source_id: primary_es.id)
-        duplicates = DataCycleCore::ExternalSystemSync.includes(:syncable).where(
-          external_system_id: primary_es.id, external_key: contents.select(:external_key), sync_type: 'duplicate'
-        )
-        contents_with_duplicates = contents.where(external_key: duplicates.select(:external_key)).index_by(&:external_key)
+        duplicates = ActiveRecord::Base.connection.select_all(
+          ActiveRecord::Base.send(
+            :sanitize_sql_array,
+            [
+              base_query,
+              {
+                external_system_id: primary_es.id,
+                duplicate_source_ids: priority_list.pluck(:id)
+              }
+            ]
+          )
+        ).rows.to_h
 
-        next(puts("No duplicates for #{primary_es.name}...")) if duplicates.blank?
+        next(puts("-- No duplicates for #{primary_es.name}...")) if duplicates.blank?
+
+        contents = DataCycleCore::Thing.where(id: duplicates.keys + duplicates.values).index_by(&:id)
 
         puts "Merging duplicates for #{primary_es.name} (#{duplicates.size})..."
 
-        duplicates.find_each do |es_duplicate|
-          next if removed_duplicates.include?(es_duplicate.syncable_id)
-          duplicate = es_duplicate.syncable
-          original = contents_with_duplicates[es_duplicate.external_key]
+        duplicates.each do |original_id, duplicate_id|
+          next if removed_duplicates.include?(original_id) || removed_duplicates.include?(duplicate_id)
 
-          next if original.nil? || original.id == duplicate.id
+          original = contents[original_id]
+          duplicate = contents[duplicate_id]
 
           removed_duplicates << duplicate.id
           original.merge_with_duplicate_and_version(duplicate)
         end
       end
 
-      puts 'Done.'
+      puts '[DONE] finished creating merge jobs.'
     rescue StandardError => e
       puts "Error during merging: #{e.message}"
       raise e
