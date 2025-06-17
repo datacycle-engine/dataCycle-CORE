@@ -4,12 +4,15 @@ module DataCycleCore
   module Generic
     module Common
       module ImportFunctionsDataHelper
+        PROPERTIES_WITH_IMPORTED_FLAG = [
+          'data_pool'
+        ].freeze
+
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
+
           template = load_template(config&.dig(:template) || default[:template])
-
           raw_data = pre_process_data(raw_data:, config:, utility_object:)
-
           data = merge_default_values(
             config,
             transformation.call(raw_data || {}),
@@ -17,6 +20,7 @@ module DataCycleCore
           ).with_indifferent_access
 
           return if DataCycleCore::DataHashService.deep_blank?(data) || data['external_key'].blank?
+
           data = post_process_data(data:, config:, utility_object:).slice(*template.properties, 'external_system_data')
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
           external_key = data['external_key']
@@ -120,6 +124,7 @@ module DataCycleCore
           end
 
           global_data = data.except(*content.local_property_names, 'overlay')
+          add_properties_with_imported_flag!(global_data)
           global_data.except!('external_key') unless created
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
@@ -296,6 +301,12 @@ module DataCycleCore
           end
 
           data
+        end
+
+        def add_properties_with_imported_flag!(data)
+          PROPERTIES_WITH_IMPORTED_FLAG.each do |key|
+            data["#{key}_imported"] = data.key?(key)
+          end
         end
 
         def change_primary_system(content:, data:, new_external_source:)
