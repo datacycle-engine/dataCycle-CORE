@@ -84,7 +84,7 @@ namespace :dc do
         )
         contents_with_duplicates = contents.where(external_key: duplicates.select(:external_key)).index_by(&:external_key)
 
-        next if duplicates.blank?
+        next(puts("No duplicates for #{primary_es.name}...")) if duplicates.blank?
 
         puts "Merging duplicates for #{primary_es.name} (#{duplicates.size})..."
 
