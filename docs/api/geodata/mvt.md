@@ -49,17 +49,28 @@ curl --request POST \
 
 ### Clustering
 #### ```cluster``` (default: false)
-Gibt an, ob Ergebnisse geclustered werden sollen
+Gibt an, ob Ergebnisse geclustered werden sollen.
 
 #### ```clusterLines``` (default: false)
-Gibt an, ob auch Linien geclustered werden sollen
+Gibt an, ob auch Linien geclustered werden sollen (Anhand des Startpunktes).
+
+#### ```clusterPolygons``` (default: false)
+Gibt an, ob auch Polygone geclustered werden sollen (Anhand des Startpunktes).
 
 #### ```clusterItems``` (default: false)
-Gibt an, ob für die Inhalte in einem Cluster zusätzliche Attribute ausgeliefert werden sollen,
-wie z.B. @type, name, ...
+Gibt an, ob Informationen zu den Inhalten in einem Cluster ausgeliefert werden sollen (z.B. @id, @type)
+Performance-Hinweis: Diese Option sollte nur bei der höchsten Zoomstufe verwendet werden, wenn der Cluster nicht mehr weiter aufgelöst werden kann.
 
 #### ```clusterMaxZoom``` (default: null)
-Gibt die maximale Zoomstufe an, für die geclustered werden soll
+Gibt die maximale Zoomstufe an, für die geclustered werden soll.
+
+#### ```clusterMinPoints``` (default: 2)
+Gibt die minimale Anzahl an Features an, die notwendig sind, um einen Cluster zu bilden.
+
+#### ```clusterMaxDistance``` (default: 500.000 / (1.7^Zoomstufe))
+Gibt die maximale Distanz zwischen Features innerhalb eines Clusters an.
+Diese Option sollte von der aktuellen Zoomstufe abhängig sein.
+Einheit: Meter (Projektion: EPSG:3857)
 
 #### Beispiel (JSON-Body)
 ```url
@@ -69,11 +80,14 @@ POST https://<URL>/mvt/v1/endpoints/<ENDPOINT-ID>/{z}/{x}/{y}.pbf
 {
   "cluster": true,
   "clusterLines": true,
+  "clusterPolygons": true,
   "clusterItems": true,
-  "clusterMaxZoom": 11
+  "clusterMaxZoom": 11,
+  "clusterMinPoints": 2,
+  "clusterMaxDistance": 1000
 }
 ```
 #### Beispiel (URL-Parameter)
 ```url
-GET https://<URL>/mvt/v1/endpoints/<ENDPOINT-ID>/{z}/{x}/{y}.pbf?cluster=true&clusterLines=true&clusterItems=true&clusterMaxZoom=11
+GET https://<URL>/mvt/v1/endpoints/<ENDPOINT-ID>/{z}/{x}/{y}.pbf?cluster=true&clusterLines=true&clusterPolygons=true&clusterItems=true&clusterMaxZoom=11&clusterMinPoints=2&clusterMaxDistance=1000
 ```

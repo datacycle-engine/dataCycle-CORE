@@ -10,7 +10,7 @@ module DataCycleCore
       # https://www.crunchydata.com/blog/crunchy-spatial-tile-serving-with-postgresql-functions
       # https://www.crunchydata.com/blog/waiting-for-postgis-3-st_tileenvelopezxy
 
-      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_items: false, cluster_layer_name: nil, cluster_max_zoom: nil, **_options)
+      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_polygons: false, cluster_items: false, cluster_layer_name: nil, cluster_max_zoom: nil, cluster_min_points: nil, cluster_max_distance: nil, **_options)
         super(contents:, simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item:, cache:)
 
         @x = x
@@ -21,10 +21,13 @@ module DataCycleCore
         @cluster_layer_name = cluster_layer_name.presence || 'dataCycleCluster'
         @cache = cache
         @cluster = cluster
-        @cluster_lines = cluster_lines
+        @cluster_lines = cluster_lines # cluster lines by start point
+        @cluster_polygons = cluster_polygons # cluster polygons by start point
+        @cluster_non_points = @cluster_lines || @cluster_polygons
         @cluster_items = cluster_items
-        @cluster_radius = 500_000 / (1.7**@z.to_f)
         @cluster_max_zoom = cluster_max_zoom&.to_i
+        @cluster_max_distance = cluster_max_distance&.to_f || (500_000 / (1.7**@z.to_f))
+        @cluster_min_points = cluster_min_points&.to_i || 2
         @include_linked = @include_parameters.any?(['linked'])
       end
 
@@ -133,10 +136,10 @@ module DataCycleCore
       end
 
       def mvt_cluster_sql
-        if @cluster_lines
-          "CASE WHEN ST_Intersects(ST_StartPoint(contents.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})) THEN ST_ClusterDBSCAN(ST_StartPoint(contents.geometry), #{@cluster_radius}, 2) over (ORDER BY contents.id) ELSE NULL END"
+        if @cluster_non_points
+          "CASE WHEN ST_Intersects(ST_StartPoint(contents.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})) THEN ST_ClusterDBSCAN(ST_StartPoint(contents.geometry), #{@cluster_max_distance}, #{@cluster_min_points}) over (ORDER BY contents.id) ELSE NULL END"
         else
-          "ST_ClusterDBSCAN(contents.geometry, #{@cluster_radius}, 2) over (ORDER BY contents.id)"
+          "ST_ClusterDBSCAN(contents.geometry, #{@cluster_max_distance}, #{@cluster_min_points}) over (ORDER BY contents.id)"
         end
       end
 
@@ -147,7 +150,7 @@ module DataCycleCore
             contents.id AS "@id",
             #{include_config.pluck(:identifier).map { |p| "contents.#{p} as #{p}" }.join(', ')}
           FROM contents
-          WHERE contents.geometry_type != 'ST_Point'
+          WHERE contents.geometry_type NOT IN (#{allowed_geometry_types})
         SQL
       end
 
@@ -159,6 +162,13 @@ module DataCycleCore
         SQL
       end
 
+      def allowed_geometry_types
+        allowed_types = ['ST_Point']
+        allowed_types.push('ST_LineString', 'ST_MultiLineString') if @cluster_lines
+        allowed_types.push('ST_Polygon', 'ST_MultiPolygon') if @cluster_polygons
+        allowed_types.map { |agt| "'#{agt}'" }.join(', ')
+      end
+
       def mvt_clustered_sql
         <<-SQL.squish
           #{base_contents_subquery},
@@ -168,7 +178,7 @@ module DataCycleCore
             #{mvt_cluster_sql} AS cluster_id,
             #{include_config.pluck(:identifier).map { |p| "contents.#{p} as #{p}" }.join(', ')}
             FROM contents
-            #{"WHERE contents.geometry_type = 'ST_Point'" unless @cluster_lines}
+            WHERE contents.geometry_type IN (#{allowed_geometry_types})
           ),
           clustered_items AS (
             SELECT ST_AsMVTGeom(
@@ -201,7 +211,7 @@ module DataCycleCore
               #{include_config.pluck(:identifier).map { |p| "mvtgeom.#{p} as #{p}" }.join(', ')}
             FROM mvtgeom
             WHERE mvtgeom.cluster_id IS NULL
-            #{mvt_cluster_unclustered_sql unless @cluster_lines}
+            #{mvt_cluster_unclustered_sql unless @cluster_lines && @cluster_polygons}
           ),
           #{mvt_clustered_select_sql};
         SQL

@@ -27,8 +27,11 @@ module DataCycleCore
                 cache: permitted_params[:cache].to_s != 'false',
                 cluster: permitted_params[:cluster].to_s == 'true',
                 cluster_lines: permitted_params[:clusterLines].to_s == 'true',
+                cluster_polygons: permitted_params[:clusterPolygons].to_s == 'true',
                 cluster_items: permitted_params[:clusterItems].to_s == 'true',
-                cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i
+                cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i,
+                cluster_min_points: permitted_params[:clusterMinPoints]&.to_i,
+                cluster_max_distance: permitted_params[:clusterMaxDistance]&.to_f
               )
               render(
                 plain: mvt,
@@ -62,8 +65,11 @@ module DataCycleCore
                 cache: permitted_params[:cache].to_s != 'false',
                 cluster: permitted_params[:cluster].to_s == 'true',
                 cluster_lines: permitted_params[:clusterLines].to_s == 'true',
+                cluster_polygons: permitted_params[:clusterPolygons].to_s == 'true',
                 cluster_items: permitted_params[:clusterItems].to_s == 'true',
-                cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i
+                cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i,
+                cluster_min_points: permitted_params[:clusterMinPoints]&.to_i,
+                cluster_max_distance: permitted_params[:clusterMaxDistance]&.to_f
               )
               render(
                 plain: mvt,
@@ -93,7 +99,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterItems, :clusterMaxZoom])
+          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterPolygons, :clusterItems, :clusterMaxZoom, :clusterMinPoints, :clusterMaxDistance])
         end
 
         def prepare_url_parameters

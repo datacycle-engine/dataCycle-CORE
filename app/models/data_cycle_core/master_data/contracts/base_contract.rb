@@ -57,8 +57,11 @@ module DataCycleCore
           optional(:cache).value(:bool)
           optional(:cluster).value(:bool)
           optional(:clusterLines).value(:bool)
+          optional(:clusterPolygons).value(:bool)
           optional(:clusterItems).value(:bool)
           optional(:clusterMaxZoom).value(:integer)
+          optional(:clusterMinPoints).value(:integer)
+          optional(:clusterMaxDistance).value(:float)
         end
 
         WATCHLIST = Dry::Schema.Params do
