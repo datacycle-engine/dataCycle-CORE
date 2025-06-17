@@ -100,7 +100,7 @@ module DataCycleCore
 
         def pattern(data, expression)
           return if data.blank?
-          regex = /#{expression[1..expression.length - 2]}/
+          regex = /#{expression[1..(expression.length - 2)]}/
           matched = data.match(regex)
 
           return unless matched.nil? || matched.offset(0) != [0, data.size]

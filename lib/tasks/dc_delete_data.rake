@@ -79,24 +79,49 @@ namespace :dc do
         SELECT originals.id AS original_id,
           duplicates.id AS duplicate_id
         FROM things originals
+          JOIN external_system_syncs ess ON ess.syncable_id = originals.id
+          AND ess.sync_type = 'duplicate'
+          LEFT OUTER JOIN things duplicates ON duplicates.external_key = ess.external_key
+          AND duplicates.external_source_id = ess.external_system_id
+        WHERE originals.external_source_id = :external_system_id
+          AND originals.id != duplicates.id
+          AND duplicates.external_source_id IN (:duplicate_source_ids)
+        UNION
+        SELECT originals.id AS original_id,
+          duplicates.id AS duplicate_id
+        FROM external_system_syncs ess
+          JOIN things originals ON ess.syncable_id = originals.id
+          JOIN external_system_syncs duplicate_ess ON duplicate_ess.external_key = ess.external_key
+          AND duplicate_ess.external_system_id = ess.external_system_id
+          AND duplicate_ess.sync_type = 'duplicate'
+          JOIN things duplicates ON duplicates.id = duplicate_ess.syncable_id
+        WHERE originals.external_source_id = :external_system_id
+          AND originals.id != duplicates.id
+          AND duplicates.external_source_id IN (:duplicate_source_ids)
+          AND ess.sync_type = 'duplicate'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM things
+            WHERE things.external_key = ess.external_key
+              AND things.external_source_id = ess.external_system_id
+          )
+          AND NOT EXISTS (
+            SELECT 1
+            FROM things
+            WHERE things.external_key = duplicate_ess.external_key
+              AND things.external_source_id = duplicate_ess.external_system_id
+          )
+        UNION
+        SELECT originals.id AS original_id,
+          duplicates.id AS duplicate_id
+        FROM things originals
           JOIN external_system_syncs ess ON ess.external_key = originals.external_key
           AND ess.external_system_id = originals.external_source_id
           AND ess.sync_type = 'duplicate'
           JOIN things duplicates ON duplicates.id = ess.syncable_id
         WHERE originals.external_source_id = :external_system_id
           AND originals.id != ess.syncable_id
-          AND duplicates.external_source_id IN (:duplicate_source_ids)
-        UNION
-        SELECT originals.id AS original_id,
-          duplicates.id AS duplicate_id
-        FROM things originals
-          JOIN external_system_syncs ess ON ess.syncable_id = originals.id
-          AND ess.sync_type = 'duplicate'
-          JOIN things duplicates ON duplicates.external_key = ess.external_key
-          AND duplicates.external_source_id = ess.external_system_id
-        WHERE originals.external_source_id = :external_system_id
-          AND originals.id != duplicates.id
-          AND ess.external_system_id IN (:duplicate_source_ids);
+          AND duplicates.external_source_id IN (:duplicate_source_ids);
       SQL
 
       while priority_list.size > 1

@@ -132,7 +132,7 @@ crumb :docs do
 
   path_segments = (params['path'] || '').split('/')
 
-  (0..path_segments.length - 1).each do |i|
+  (0..(path_segments.length - 1)).each do |i|
     translation_key = (['data_cycle_core', 'docs'] + path_segments[0..i]).join('.')
     translation_key += '.root' if t(translation_key, locale: active_ui_locale).is_a? Hash
 
@@ -144,7 +144,7 @@ end
 crumb :static do
   path_segments = (params['path'] || '').split('/')
 
-  (0..path_segments.length - 1).each do |i|
+  (0..(path_segments.length - 1)).each do |i|
     translation_key = (['data_cycle_core', 'static'] + path_segments[0..i]).join('.')
     translation_key += '.root' if t(translation_key, locale: active_ui_locale).is_a? Hash
 

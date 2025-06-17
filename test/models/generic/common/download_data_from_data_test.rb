@@ -350,7 +350,7 @@ module DataCycleCore
         ]
         first_index = pipelines.find_index { |p| p.key?('$project') } # first projection stage
         last_index = pipelines.rindex { |p| p.key?('$unwind') } # last unwind stage
-        assert_equal exp, pipelines[first_index..last_index + 1]
+        assert_equal exp, pipelines[first_index..(last_index + 1)]
       end
     end
 
@@ -373,7 +373,7 @@ module DataCycleCore
         ]
         first_index = pipelines.find_index { |p| p.key?('$project') } # first projection stage
         last_index = pipelines.rindex { |p| p.key?('$unwind') } # last unwind stage
-        assert_equal exp, pipelines[first_index..last_index + 1]
+        assert_equal exp, pipelines[first_index..(last_index + 1)]
       end
     end
 
