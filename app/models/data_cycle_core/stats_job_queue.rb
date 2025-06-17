@@ -54,7 +54,7 @@ module DataCycleCore
       @job_list[:running] = data.filter(&:running).pluck(:queue_name, :running).to_h
       @job_list[:failed] = data.filter(&:failed).pluck(:queue_name, :failed).to_h
       @job_list[:delayed_reference_types] = data.to_h { |d| [d.queue_name, d.attributes.slice('queued_types', 'running_types', 'failed_types')] }
-      @job_list[:rebuild_classification_mappings] = data.any? { |d| d.queue_name == DataCycleCore::RebuildClassificationMappingsJob.queue_as && DataCycleCore::RebuildClassificationMappingsJob::REFERENCE_TYPE.in?(d.runnable_types) }
+      @job_list[:rebuild_classification_mappings] = data.any? { |d| d.queue_name == DataCycleCore::RebuildClassificationMappingsJob.queue_as && 'RebuildClassificationMappingsJob'.in?(d.runnable_types) }
 
       @job_list
     end
