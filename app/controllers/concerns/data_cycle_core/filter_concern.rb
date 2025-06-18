@@ -140,7 +140,11 @@ module DataCycleCore
         @tree_page = @classification_trees&.current_page
         @tree_total_pages = @classification_trees&.total_pages
       when 'map'
+        page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query:, user_filter:, watch_list:)
+          .page(page_params[:page])
+          .per(page_size)
+          .without_count
       else
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query:, user_filter:, watch_list:)
