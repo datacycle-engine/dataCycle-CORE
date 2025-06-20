@@ -95,7 +95,7 @@ module DataCycleCore
 
         sql = <<-SQL.squish
           (
-            CASE WHEN thing_templates.computed_schema_types IS NOT NULL THEN thing_templates.computed_schema_types && ARRAY[:type]::VARCHAR[]
+            CASE WHEN thing_templates.api_schema_types IS NOT NULL THEN thing_templates.api_schema_types && ARRAY[:type]::VARCHAR[]
             ELSE (thing_templates.schema -> :attribute_path)::jsonb ? :type
             END
           )

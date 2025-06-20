@@ -36,6 +36,7 @@ module DataCycleCore
             else
               renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
                 contents: @contents,
+                request_method: request.request_method,
                 **thing_renderer_v4_params
               )
               render json: renderer.render(:json)
@@ -59,6 +60,7 @@ module DataCycleCore
 
           renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
             content: @content,
+            request_method: request.request_method,
             **thing_renderer_v4_params
           )
           render json: renderer.render(:json)

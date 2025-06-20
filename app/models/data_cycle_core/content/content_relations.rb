@@ -58,7 +58,7 @@ module DataCycleCore
         has_many :assets, through: :asset_contents
 
         belongs_to :thing_template, inverse_of: :things, foreign_key: :template_name, primary_key: :template_name
-        delegate :schema, :computed_schema_types, to: :thing_template
+        delegate :schema, :api_schema_types, to: :thing_template
       end
 
       module ClassMethods

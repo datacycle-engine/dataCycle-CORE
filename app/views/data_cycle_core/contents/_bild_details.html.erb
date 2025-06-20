@@ -142,7 +142,7 @@
           <button
               class="button change-gravity-ui"
               data-thing-id="<%= content['id'] %>"
-              data-gravity-info="<%= DataCycleCore::ClassificationAlias.for_tree("Gravity").map { |ca| { gravity: URI(ca.uri).fragment, id: ca.primary_classification.id, name: ca.name } }.to_json %>"
+              data-gravity-info="<%= DataCycleCore::Concept.for_tree("Gravity").map { |ca| I18n.with_locale(ca.first_available_locale){ { gravity: URI(ca.uri).fragment, id: ca.classification_id, name: ca.name } } }.to_json %>"
               data-gravity="<%= content.try(DataCycleCore::Feature::GravityEditor.attribute_keys.first)&.first&.id %>"
               data-editor-active-text="<%= I18n.t('actions.deactivate_gravity_editor',  locale: active_ui_locale) %>"
               >

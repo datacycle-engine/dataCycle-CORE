@@ -9,9 +9,8 @@ module DataCycleCore
             required(:name) { str? }
             required(:type) { str? & eql?('object') }
             required(:content_type) { str? & included_in?(['embedded', 'entity', 'container']) }
-            optional(:schema_type) { str? }
-            optional(:schema_ancestors) { array? }
-            optional(:boost) { float? }
+            required(:schema_ancestors) { array? }
+            optional(:boost) { int? }
             optional(:features) { hash? }
             required(:properties).hash do
               required(:id) { hash? }

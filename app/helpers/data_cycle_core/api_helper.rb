@@ -7,6 +7,8 @@ module DataCycleCore
 
     API_DEFAULT_ATTRIBUTES = ['@id', '@type'].freeze
 
+    delegate :api_plain_context, to: 'DataCycleCore::ApiRenderer::ThingRendererV4'
+
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
       return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
@@ -245,51 +247,22 @@ module DataCycleCore
       key
     end
 
-    def api_plain_context(languages, expanded = false)
-      display_language = nil
-      display_language = languages if languages.is_a?(::String)
-      display_language = languages.first if languages.is_a?(::Array) && languages.size == 1 && languages.first.is_a?(::String)
-      display_language = I18n.default_locale if languages.blank?
-      display_language = nil if expanded
-
-      [
-        'https://schema.org/',
-        {
-          '@base' => "#{api_v4_universal_url(id: nil)}/",
-          '@language' => display_language,
-          'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
-          'dct' => 'http://purl.org/dc/terms/',
-          'cc' => 'http://creativecommons.org/ns#',
-          'dc' => 'https://schema.datacycle.at/',
-          'dcls' => "#{schema_url}/",
-          'odta' => 'https://odta.io/voc/',
-          'sdm' => 'https://smartdatamodels.org/',
-          'alps' => 'http://json-schema.org/draft-07/schema/destinationdata/schemas/2022-04/datatypes#/definitions/'
-        }.compact
-      ]
-    end
-
     def api_plain_meta(count, pages)
-      {
-        total: count,
+      DataCycleCore::ApiRenderer::ThingRendererV4.api_plain_meta(
+        collection: @watch_list || @stored_filter,
+        permitted_params: @permitted_params,
+        count:,
         pages:
-      }
+      )
     end
 
     def api_plain_links(contents = nil)
-      contents ||= @contents
-      object_url = lambda do |params|
-        "#{File.join("#{request.protocol}#{request.host}:#{request.port}", request.path)}?#{params.to_query}"
-      end
-      if request.request_method == 'POST'
-        common_params = {}
-      else
-        common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
-      end
-      links = {}
-      links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page
-      links[:next] = object_url.call(common_params.merge(page: { number: contents.next_page, size: contents.limit_value })) if contents.next_page
-      links
+      DataCycleCore::ApiRenderer::ThingRendererV4.api_plain_links(
+        contents: contents || @contents,
+        pagination_url: @pagination_url,
+        request_method: request.request_method,
+        permitted_params: @permitted_params
+      )
     end
 
     def merge_overlay(data, overlay)

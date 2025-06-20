@@ -2,8 +2,6 @@
 
 module DataCycleCore
   class ThingTemplate < ApplicationRecord
-    attr_readonly :computed_schema_types, :content_type, :boost
-
     has_many :things, inverse_of: :thing_template, foreign_key: :template_name, primary_key: :template_name
 
     scope :with_template_names, ->(template_names) { where(template_name: template_names) }
@@ -14,7 +12,7 @@ module DataCycleCore
       where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
     }
     scope :with_schema_type, lambda { |schema_type|
-      where('thing_templates.computed_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
+      where('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
     }
 
     delegate :properties_for, to: :template_thing

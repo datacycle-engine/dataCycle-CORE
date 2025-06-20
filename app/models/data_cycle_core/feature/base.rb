@@ -5,7 +5,7 @@ module DataCycleCore
     class Base
       attr_reader :content
 
-      delegate :configuration, :enabled?, :feature_key, :feature_path, :dependencies, :dependencies_enabled?, :dependencies_allowed?, :attribute_keys, :available?, :allowed?, :allowed_attribute_keys, :allowed_attribute_key?, :includes_attribute_key, :memoize_key, to: :class
+      delegate :configuration, :enabled?, :feature_key, :feature_path, :dependencies, :dependencies_enabled?, :dependencies_allowed?, :attribute_keys, :available?, :allowed?, :allowed_attribute_keys, :allowed_attribute_key?, :includes_attribute_key, :memoize_key, :primary_attribute_key, to: :class
 
       def initialize(content: nil)
         @content = content
@@ -38,6 +38,10 @@ module DataCycleCore
 
         def attribute_keys(content = nil)
           configuration(content)['attribute_keys'] || []
+        end
+
+        def primary_attribute_key(content = nil)
+          attribute_keys(content).first
         end
 
         def available?(content = nil)

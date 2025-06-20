@@ -219,7 +219,7 @@ module DataCycleCore
       end
 
       def schema_type
-        computed_schema_types&.first || schema&.dig('schema_type')
+        api_schema_types&.first || schema&.dig('schema_type')
       end
 
       def schema_ancestors

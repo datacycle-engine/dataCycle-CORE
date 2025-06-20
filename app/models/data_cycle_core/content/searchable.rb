@@ -8,7 +8,7 @@ module DataCycleCore
       end
 
       def with_schema_type(type)
-        where("thing_templates.schema ->> 'schema_type' = :type OR thing_templates.computed_schema_types && ARRAY[:type]::VARCHAR[]", type:)
+        where("thing_templates.schema ->> 'schema_type' = :type OR thing_templates.api_schema_types && ARRAY[:type]::VARCHAR[]", type:)
       end
 
       def without_template_names(*names)
