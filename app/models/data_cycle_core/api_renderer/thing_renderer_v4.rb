@@ -34,8 +34,6 @@ module DataCycleCore
         'dc:touched' => "DATE_TRUNC('milliseconds', \"things\".\"cache_valid_since\" AT TIME ZONE 'UTC')"
       }.freeze
 
-      delegate :api_plain_context, :api_plain_meta, :api_plain_links, to: :class
-
       def initialize(contents: nil, content: nil, template: nil, request_method: 'GET', **params)
         @content = content
         @contents = contents
@@ -89,6 +87,7 @@ module DataCycleCore
       end
 
       def render_json
+        return render_only_context_json if minimal_context_request?
         return render_minimal_json if minimal_request?
 
         renderer.render_to_string(
@@ -101,33 +100,13 @@ module DataCycleCore
       def render_minimal_json
         selects = []
         @minimal_query = DataCycleCore::Thing.all
-        selects << "'@context', '#{api_plain_context(@params[:language], @params[:expand_language]).to_json}'::json" if section_visible?(:@context)
+        selects << api_plain_context if section_visible?(:@context)
 
-        # @contents.async_total_count if section_visible?(:meta)
-
-        # response_data['@context'] = api_plain_context(@params[:language], @params[:expand_language]) if section_visible?(:@context)
-        # response_data['@graph'] = api_minimal_graph if section_visible?(:@graph)
         selects << api_minimal_graph if section_visible?(:@graph)
+        selects << api_plain_links_sql if section_visible?(:links) && !@params[:permitted_params]&.dig(:page, :limit)&.to_i&.positive?
+        selects << api_plain_meta_sql if section_visible?(:meta)
 
-        if section_visible?(:links) && !@params[:permitted_params]&.dig(:page, :limit)&.to_i&.positive?
-          selects << api_plain_links_sql
-
-          # response_data['links'] = api_plain_links(
-          #   contents: @contents,
-          #   pagination_url: @params[:pagination_url],
-          #   request_method: @request_method,
-          #   permitted_params: @params[:permitted_params]
-          # )
-        end
-
-        if section_visible?(:meta)
-          selects << api_plain_meta_sql
-          # response_data['meta'] = api_plain_meta(
-          #   contents: @contents,
-          #   collection: @params[:watch_list] || @params[:stored_filter],
-          #   permitted_params: @params[:permitted_params]
-          # )
-        end
+        @minimal_query = @minimal_query.from('(VALUES(NULL))') unless section_visible?(:meta) || section_visible?(:links)
 
         ActiveRecord::Base.transaction do
           ActiveRecord::Base.connection.exec_query(
@@ -136,11 +115,17 @@ module DataCycleCore
           result = ActiveRecord::Base.connection.select_all(
             @minimal_query.select("json_build_object(#{selects.join(', ')})")
           )
-          # JSON.parse(result.rows.first.first)
           result.rows.first.first
         end
+      end
 
-        # response_data
+      def render_only_context_json
+        return {} unless section_visible?(:@context)
+        { '@context' => self.class.api_plain_context(@params[:language], @params[:expand_language]) }
+      end
+
+      def api_plain_context
+        "'@context', '#{self.class.api_plain_context(@params[:language], @params[:expand_language]).to_json}'::json"
       end
 
       def self.api_plain_context(languages, expanded = false)
@@ -230,6 +215,13 @@ module DataCycleCore
         (requested_fields - MINIMAL_ATTRIBUTES.keys).empty?
       end
 
+      def minimal_context_request?
+        minimal_request? &&
+          !section_visible?(:@graph) &&
+          !section_visible?(:links) &&
+          !section_visible?(:meta)
+      end
+
       def api_page_link(page_number)
         self.class.api_page_link(
           pagination_url: @params[:pagination_url],
@@ -311,14 +303,17 @@ module DataCycleCore
         query = @contents
         query = query.joins(:thing_template) if render_props.key?('@type')
         query = query.limit(@contents.limit_value + 1)
-        select_fields = "json_build_object(#{render_props.map { |k, v| "'#{k}', #{v}" }.join(', ')}) AS \"data\", rank() over () AS \"rank\""
-        @minimal_query = @minimal_query.with(contents: query.reselect(select_fields))
+        select_fields = "json_build_object(#{render_props.map { |k, v| "'#{k}', #{v}" }.join(', ')}) AS \"data\", row_number() over () AS \"row_number\""
+
+        @minimal_query = @minimal_query.with(
+          contents: query.reselect(ActiveRecord::Base.send(:sanitize_sql_array, [select_fields]))
+        )
       end
 
       def api_minimal_graph
         apply_graph_query!
 
-        "'@graph', (SELECT json_agg(contents.\"data\") FROM contents WHERE contents.\"rank\" <= #{@contents.limit_value})"
+        "'@graph', (SELECT json_agg(\"contents\".\"data\") FROM \"contents\" WHERE \"contents\".\"row_number\" <= #{@contents.offset_value + @contents.limit_value})"
       end
     end
   end

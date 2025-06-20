@@ -89,7 +89,7 @@ module DataCycleCore
             end
           end
 
-          def odta_tourenstatus_as_trail_closed(content:, **_args)
+          def odta_tourenstatus_as_trail_closed(content:, **_args) # rubocop:disable Naming/PredicateMethod
             content.classification_aliases
               .for_tree('ODTA - Tourenstatus')
               .first

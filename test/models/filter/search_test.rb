@@ -195,11 +195,11 @@ module DataCycleCore
     end
 
     test 'has method to include joined tables' do
-      assert(DataCycleCore::Filter::Search.new(locale: :de).content_includes.count.positive?)
+      assert(DataCycleCore::Filter::Search.new(locale: :de).content_includes.any?)
     end
 
     test 'has method to check for validity_period' do
-      assert(DataCycleCore::Filter::Search.new(locale: :de).in_validity_period.count.positive?)
+      assert(DataCycleCore::Filter::Search.new(locale: :de).in_validity_period.any?)
     end
 
     test 'has helper for created_at and modified_at' do

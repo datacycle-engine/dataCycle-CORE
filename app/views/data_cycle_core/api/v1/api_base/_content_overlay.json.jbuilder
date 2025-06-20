@@ -11,7 +11,7 @@ json.set! 'endDate', content.end_date if content.try(:end_date).present?
 
 json.partial!('untranslated_properties', content:, locale: content.translations&.first&.locale || I18n.locale, options:)
 
-if content.translations.count { |t| !t.id.nil? } == 1
+if content.translations.one? { |t| !t.id.nil? }
   json.set! 'inLanguage', content.translations.first.locale
   json.partial! 'translated_properties', content:, locale: content.translations.first.locale, options:
 else

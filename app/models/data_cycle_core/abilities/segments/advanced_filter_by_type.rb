@@ -52,7 +52,7 @@ module DataCycleCore
           default_type(__method__, data, *args, key: :name)
         end
 
-        def default_type(type, data, *_args, key: :advancedType)
+        def default_type(type, data, *_args, key: :advancedType) # rubocop:disable Naming/PredicateMethod
           allowed_types_transformed = allowed_types[type.to_s].presence || allowed_types[type.to_s.sub('_type', '')]
           return true if allowed_types.key?(type.to_s) && allowed_types_transformed.nil?
           return true if ['all', true].include?(allowed_types_transformed)

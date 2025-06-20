@@ -45,7 +45,7 @@ module DataCycleCore
           @diff_hash = generic_diff(a_hash, b_hash, method(:schedule_comp).to_proc)
         end
 
-        def schedule_comp(a, b)
+        def schedule_comp(a, b) # rubocop:disable Naming/PredicateMethod
           return true if a == b
           ::Hashdiff.diff(a, b).blank?
         end

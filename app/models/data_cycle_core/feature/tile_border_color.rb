@@ -17,7 +17,7 @@ module DataCycleCore
 
         private
 
-        def filter_by_template_names(content)
+        def filter_by_template_names(content) # rubocop:disable Naming/PredicateMethod
           configuration[:template_name].blank? || content&.template_name&.in?(Array.wrap(configuration[:template_name]))
         end
 

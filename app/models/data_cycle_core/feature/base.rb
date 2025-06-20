@@ -60,7 +60,7 @@ module DataCycleCore
           allowed?(content) && includes_attribute_key(content, key)
         end
 
-        def includes_attribute_key(content, key)
+        def includes_attribute_key(content, key) # rubocop:disable Naming/PredicateMethod
           template_keys = attribute_keys(content)
 
           key.attribute_path_from_key.intersect?(template_keys)
