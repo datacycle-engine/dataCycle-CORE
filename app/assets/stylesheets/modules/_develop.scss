@@ -2948,6 +2948,19 @@ input.normalized {
     }
   }
 
+  .translatable-attribute.preview-link {
+    display: none;
+
+    a {
+      padding-bottom: 0;
+      padding-top: 0;
+    }
+
+    &.active {
+      display: inline-block;
+    }
+  }
+
   &.viewer:has(> .translatable-attribute.active:not(.remote-render):not(.remote-rendering):empty) {
     display: none;
     margin: 0;
