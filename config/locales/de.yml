@@ -2093,25 +2093,6 @@ de:
       description: Beschreibung
     gem2go:
       description: Beschreibung
-    timm4:
-      intro: Kurzbeschreibung
-      description: Detailbeschreibung
-      positionDescription: Lage
-      pricesDescription: Preisinformation
-      keywords: Stichworte
-      culinarySpecialities: Kulinarische Spezialitäten
-      furtherSpecialities: Weiter Spezialitäten
-      dishes: Gerichte
-      barrierFreeDescription: Barrierefreiheit
-      restDays: Ruhetage
-      companyHoliday: Betriebsferien
-      meetingPoint: Treffpunkt
-      timesComment: Erläuterung Beginnzeiten
-      menuDownload: Speisekarte herunterladen
-      recipeSuggestionDownload: Rezept herunterladen
-      free_admission: Freier Eintritt
-      registration_required: Anmeldung erforderlich
-      price_information: Preisinformation
     thue_cat:
       description: Beschreibung
       longDescription: Detailbeschreibung
