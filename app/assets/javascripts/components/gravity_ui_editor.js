@@ -1,4 +1,4 @@
-import CalloutHelpers from "../helpers/callout_helpers";
+import { showCallout } from "../helpers/callout_helpers";
 
 const positions = {
 	top: {
@@ -91,12 +91,12 @@ class GravityUiEditor {
 		this.button.addEventListener("click", (e) => {
 			if (this.button.classList.contains("active")) {
 				this.button.classList.remove("active");
-				this.thumbContainer.classList.remove("gravity-control");
+				this.thumbContainer.classList.remove("gravity-control", "editing");
 				this.removeGravitySelectors();
 				this.button.innerHTML = this.buttonText;
 			} else {
 				this.button.classList.add("active");
-				this.thumbContainer.classList.toggle("gravity-control");
+				this.thumbContainer.classList.add("gravity-control", "editing");
 				for (const position in positions) {
 					this.createGravitySelector(position);
 				}
@@ -184,14 +184,14 @@ class GravityUiEditor {
 							if (gravityConceptId === "") {
 								icon.classList.remove("gravity-icon--active");
 								I18n.t("frontend.gravity_editor.success_reset").then((text) => {
-									CalloutHelpers.show(text, "success");
+									showCallout(text, "success");
 								});
 							} else {
 								icon.classList.add("gravity-icon--active");
 								I18n.t("frontend.gravity_editor.success_set", {
 									data: gravityInfo.name,
 								}).then((text) => {
-									CalloutHelpers.show(text, "success");
+									showCallout(text, "success");
 								});
 							}
 						}
@@ -199,7 +199,7 @@ class GravityUiEditor {
 				})
 				.catch((error) => {
 					I18n.t("frontend.gravity_editor.error").then((text) => {
-						CalloutHelpers.show(text, "error");
+						showCallout(text, "error");
 					});
 				});
 		});

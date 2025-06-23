@@ -73,14 +73,14 @@ module DataCycleCore
 
           selected = select_provider(@providers.values, data)
 
-          if selected.count.zero?
+          if selected.none?
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.oembed_no_provider',
               substitutions: {
                 oembed_url: data
               }
             }
-          elsif selected.count > 1
+          elsif selected.many?
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.oembed_too_many_providers',
               substitutions: {

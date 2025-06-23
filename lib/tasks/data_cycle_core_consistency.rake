@@ -30,7 +30,7 @@ namespace :data_cycle_core do
         WHERE classifications.name <> classification_aliases.name;
       SQL
 
-      unless partially_deleted_entities.count.zero? && inconsistent_names.count.zero?
+      unless partially_deleted_entities.none? && inconsistent_names.none?
         progressbar = ProgressBar.create(total: partially_deleted_entities.count + inconsistent_names.count)
 
         partially_deleted_entities.each do |row|

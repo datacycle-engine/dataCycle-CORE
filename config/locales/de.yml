@@ -830,6 +830,10 @@ de:
         belongs_to_aggregate: mit Aggregat verknüpft
       check_box_labels:
         aggregate_for_override: Aggregats-Basis überschreiben
+    focus_point_editor:
+      button_title: Fokuspunkt setzen
+      editing_button_title: Bearbeitung beenden
+      hint: Standardmäßig wird die Option 'smart' verwendet, sofern kein Fokuspunkt gesetzt wurde.
 
     report_generator:
       downloads_popular: Top 50 Downloads

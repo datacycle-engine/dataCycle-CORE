@@ -239,7 +239,7 @@ module DataCycleCore
         end
 
         test 'GET/POST /api/v4/concept_schemes/id/concepts/classification_id' do
-          tree = DataCycleCore::ClassificationTreeLabel.all.detect { |item| DataCycleCore::ClassificationAlias.for_tree(item.name).count.positive? }
+          tree = DataCycleCore::ClassificationTreeLabel.all.detect { |item| DataCycleCore::ClassificationAlias.for_tree(item.name).any? }
           classification = DataCycleCore::ClassificationAlias.for_tree(tree.name).first
           params = {
             id: tree.id,

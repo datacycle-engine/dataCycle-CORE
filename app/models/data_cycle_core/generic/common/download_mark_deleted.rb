@@ -15,7 +15,7 @@ module DataCycleCore
 
         def self.load_contents(mongo_item, locale, source_filter)
           minimum_filter_keys = ["dump.#{locale}", "dump.#{locale}.deleted_at", "dump.#{locale}.archived_at", 'updated_at']
-          raise 'Possible wrong source_filter' if source_filter.blank? || source_filter.keys.count { |k| minimum_filter_keys.exclude?(k) }.zero?
+          raise 'Possible wrong source_filter' if source_filter.blank? || source_filter.keys.none? { |k| minimum_filter_keys.exclude?(k) }
           mongo_item.where(source_filter)
         end
       end

@@ -64,7 +64,7 @@ module DataCycleCore
 
         def empty?
           return true if @data.empty?
-          @data.count { |_day, ranges| ranges.present? }.zero?
+          @data.none? { |_day, ranges| ranges.present? }
         end
 
         def self.parse_opening_times(data, external_source_id, external_key, day_transformation = nil)

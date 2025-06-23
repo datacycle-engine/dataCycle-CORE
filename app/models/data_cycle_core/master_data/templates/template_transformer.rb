@@ -7,7 +7,7 @@ module DataCycleCore
         include Extensions::Overlay
         include Extensions::LinkedInText
 
-        attr_reader :template, :mixin_paths, :linked_to_text_keys
+        attr_reader :template, :mixin_paths, :linked_to_text_keys, :api_schema_types
 
         def initialize(template:, content_set: nil, mixins: nil)
           @template = template.with_indifferent_access
@@ -16,6 +16,7 @@ module DataCycleCore
           @mixin_paths = []
           @errors = []
           @error_path = "#{@content_set}.#{@template[:name]}"
+          @api_schema_types = []
         end
 
         def self.merge_base_templates(template:, templates:)
@@ -39,12 +40,14 @@ module DataCycleCore
         def transform
           return @template, @errors if @transform_properties == false
 
-          @template[:boost] ||= 1.0
+          @template[:boost] = @template[:boost]&.to_i || 1
           (@template[:features] ||= {}).deep_merge!(main_config_property(:features))
           @template[:properties] = transform_properties
           @template[:api] = main_config_property(:api).presence || @template[:api].presence || {}
 
           @mixin_paths.uniq! { |v| v.split('=>')&.first }
+
+          generate_api_schema_types!
 
           return @template, @errors
         end
@@ -192,6 +195,18 @@ module DataCycleCore
               DataCycleCore.features.dig(value, 'allowed') ||
               template.dig('features', value, 'allowed')
             )
+        end
+
+        def generate_api_schema_types!
+          @api_schema_types = Array.wrap(@template[:schema_ancestors])
+            .map { |a| Array.wrap(a) }
+            .reduce(&:zip)
+            .flatten
+
+          @api_schema_types << "dcls:#{@template[:name]}"
+          @api_schema_types.concat(Array.wrap(@template.dig(:api, :type))) if @template.dig(:api, :type).present?
+          @api_schema_types.compact!
+          @api_schema_types.uniq!
         end
       end
     end

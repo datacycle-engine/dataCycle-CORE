@@ -150,7 +150,7 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
-          assert_equal(true, xml_data.dig('RDF', 'classifications', 'classification').count.positive?)
+          assert_equal(true, xml_data.dig('RDF', 'classifications', 'classification').any?)
         end
       end
     end

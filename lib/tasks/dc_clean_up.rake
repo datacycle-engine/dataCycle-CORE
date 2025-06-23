@@ -207,7 +207,7 @@ namespace :dc do
 
       external_system.collection(collection_name) do |collection|
         things.each do |thing|
-          next unless collection.find({ external_id: thing.external_key }).count.zero?
+          next unless collection.find({ external_id: thing.external_key }).none?
           # puts "item with external key: #{thing.external_key} not found in mongo collection\n"
           things_missing += 1
           things_missing_keys << thing

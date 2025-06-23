@@ -114,15 +114,6 @@ CREATE FUNCTION public.array_reverse(anyarray) RETURNS anyarray
 
 
 --
--- Name: compute_thing_schema_types(jsonb, character varying); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.compute_thing_schema_types(schema_types jsonb, template_name character varying DEFAULT NULL::character varying) RETURNS character varying[]
-    LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE
-    AS $$ DECLARE agg_schema_types varchar []; BEGIN WITH RECURSIVE schema_ancestors AS ( SELECT t.ancestors, t.idx FROM jsonb_array_elements(schema_types) WITH ordinality AS t(ancestors, idx) WHERE t.ancestors IS NOT NULL UNION ALL SELECT t.ancestors, schema_ancestors.idx + t.idx * 100 FROM schema_ancestors, jsonb_array_elements(schema_ancestors.ancestors) WITH ordinality AS t(ancestors, idx) WHERE jsonb_typeof(schema_ancestors.ancestors) = 'array' ), collected_schema_types AS ( SELECT (schema_ancestors.ancestors->>0)::varchar AS ancestors, max(schema_ancestors.idx) AS idx FROM schema_ancestors WHERE jsonb_typeof(schema_ancestors.ancestors) != 'array' GROUP BY schema_ancestors.ancestors ) SELECT array_agg( ancestors ORDER BY collected_schema_types.idx )::varchar [] INTO agg_schema_types FROM collected_schema_types; IF array_length(agg_schema_types, 1) > 0 THEN agg_schema_types := agg_schema_types || ('dcls:' || template_name)::varchar; END IF; RETURN agg_schema_types; END; $$;
-
-
---
 -- Name: concept_links_create_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1464,12 +1455,12 @@ CREATE TABLE public.content_collection_links (
 CREATE TABLE public.thing_templates (
     template_name character varying NOT NULL,
     schema jsonb,
-    content_type character varying GENERATED ALWAYS AS ((schema ->> 'content_type'::text)) STORED,
-    boost numeric GENERATED ALWAYS AS (((schema -> 'boost'::text))::numeric) STORED,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
-    computed_schema_types character varying[] GENERATED ALWAYS AS (public.compute_thing_schema_types((schema -> 'schema_ancestors'::text), template_name)) STORED,
-    template_paths character varying[] DEFAULT '{}'::character varying[]
+    template_paths character varying[] DEFAULT '{}'::character varying[],
+    api_schema_types character varying[] DEFAULT '{}'::character varying[] NOT NULL,
+    content_type character varying,
+    boost integer
 );
 
 
@@ -1637,7 +1628,7 @@ CREATE TABLE public.things (
     deleted_at timestamp without time zone,
     is_part_of uuid,
     validity_range tstzrange,
-    boost numeric,
+    boost integer DEFAULT 1,
     content_type character varying,
     representation_of_id uuid,
     version_name character varying,
@@ -2072,7 +2063,7 @@ CREATE TABLE public.thing_histories (
     deleted_at timestamp without time zone,
     is_part_of uuid,
     validity_range tstzrange,
-    boost numeric,
+    boost integer DEFAULT 1,
     content_type character varying,
     representation_of_id uuid,
     version_name character varying,
@@ -5172,6 +5163,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250620055722'),
 ('20250610110623'),
 ('20250610105919'),
 ('20250610064401'),

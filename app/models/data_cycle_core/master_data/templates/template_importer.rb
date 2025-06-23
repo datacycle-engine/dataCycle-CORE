@@ -105,6 +105,9 @@ module DataCycleCore
             {
               template_name: t[:name],
               schema: t[:data],
+              boost: t.dig(:data, :boost),
+              content_type: t.dig(:data, :content_type),
+              api_schema_types: t[:api_schema_types],
               updated_at: Time.zone.now,
               template_paths: t[:paths]
             }
@@ -281,7 +284,8 @@ module DataCycleCore
             paths: data_template[:paths],
             data: transformed_data,
             set: data_template[:set],
-            mixins: transformer.mixin_paths
+            mixins: transformer.mixin_paths,
+            api_schema_types: transformer.api_schema_types
           }
         end
 

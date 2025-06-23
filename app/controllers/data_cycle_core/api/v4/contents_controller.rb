@@ -31,15 +31,12 @@ module DataCycleCore
               @pagination_url = method(:api_v4_things_url)
             end
 
-            if list_api_request?
-              render plain: list_api_request.to_json, content_type: 'application/json'
-            else
-              renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
-                contents: @contents,
-                **thing_renderer_v4_params
-              )
-              render json: renderer.render(:json)
-            end
+            renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
+              contents: @contents,
+              request_method: request.request_method,
+              **thing_renderer_v4_params
+            )
+            render json: renderer.render(:json)
           end
         end
 
@@ -59,6 +56,7 @@ module DataCycleCore
 
           renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
             content: @content,
+            request_method: request.request_method,
             **thing_renderer_v4_params
           )
           render json: renderer.render(:json)
@@ -247,11 +245,6 @@ module DataCycleCore
         def thing_renderer_v4_params
           DataCycleCore::ApiRenderer::ThingRendererV4::JSON_RENDER_PARAMS
             .index_with { |p| instance_variable_get(:"@#{p}") }
-        end
-
-        def list_api_request?
-          return true if @include_parameters.blank? && select_attributes(@fields_parameters).include?('dct:modified') && select_attributes(@fields_parameters).size == 1
-          false
         end
       end
     end

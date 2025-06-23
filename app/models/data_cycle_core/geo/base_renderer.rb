@@ -66,7 +66,7 @@ module DataCycleCore
         {
           identifier: '"@type"',
           joins: 'LEFT OUTER JOIN thing_templates ON thing_templates.template_name = things.template_name',
-          select: 'array_to_json(MAX(thing_templates.computed_schema_types))'
+          select: 'array_to_json(MAX(thing_templates.api_schema_types))'
         }
       end
 

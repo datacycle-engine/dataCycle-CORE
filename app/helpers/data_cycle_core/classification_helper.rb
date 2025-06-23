@@ -33,7 +33,7 @@ module DataCycleCore
       DataCycleCore::Classification
         .includes(:classification_groups, :classification_aliases)
         .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-        .where(classification_tree_labels: { name: treelabel }).count.positive?
+        .where(classification_tree_labels: { name: treelabel }).any?
     end
 
     def classification_title(classification_or_alias)

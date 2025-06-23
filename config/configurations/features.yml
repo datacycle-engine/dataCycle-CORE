@@ -600,6 +600,12 @@
   :attribute_keys:
     - gravity
 
+:focus_point_editor:
+  :enabled: false
+  :attribute_keys:
+    - focus_point_x
+    - focus_point_y
+
 :ts_query_fulltext_search:
   :enabled: false
 

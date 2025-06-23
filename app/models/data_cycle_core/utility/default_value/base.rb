@@ -42,7 +42,7 @@ module DataCycleCore
 
           private
 
-          def condition_user(user, config, _content)
+          def condition_user(user, config, _content) # rubocop:disable Naming/PredicateMethod
             user&.is_rank?(config['rank'].to_i) if config&.dig('rank').present?
           end
 
@@ -50,7 +50,7 @@ module DataCycleCore
             content.content_type != config
           end
 
-          def condition_schema_key_present(_user, config, content)
+          def condition_schema_key_present(_user, config, content) # rubocop:disable Naming/PredicateMethod
             content.schema.key?(config)
           end
 

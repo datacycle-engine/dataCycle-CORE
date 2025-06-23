@@ -50,7 +50,7 @@ namespace :db do
           classifications.external_key;
       SQL
 
-      abort('duplicate external_classifications found!') if result.count.positive?
+      abort('duplicate external_classifications found!') if result.any?
     end
   end
 
