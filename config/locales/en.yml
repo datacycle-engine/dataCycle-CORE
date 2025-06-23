@@ -2283,25 +2283,6 @@ en:
         soilNumber: Soil number
     gem2go:
       description: Description
-    timm4:
-      intro: Description
-      description: Detailed description
-      positionDescription: Position
-      pricesDescription: Priceinformation
-      keywords: Keywords
-      culinarySpecialities: Culinary Specialities
-      furtherSpecialities: Further Specialities
-      dishes: Dishes
-      barrierFreeDescription: Barrier free description
-      restDays: Rest days
-      companyHoliday: Company holidays
-      meetingPoint: Meeting Point
-      timesComment: Entrance details
-      menuDownload: Download menu
-      recipeSuggestionDownload: Download suggested recipe
-      free_admission: Free admission
-      registration_required: Registration required
-      price_information: Price information
     toubiz:
       abstract: Abstract
       description: Description
