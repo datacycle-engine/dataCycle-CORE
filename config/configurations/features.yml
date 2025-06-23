@@ -617,3 +617,6 @@
 
 :string_sanitizer:
   :enabled: false
+
+:preview_links:
+  :enabled: false
