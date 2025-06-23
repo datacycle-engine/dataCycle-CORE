@@ -1,4 +1,4 @@
-<% if content.enabled_features.include?('preview_links') %>
+<% if content.preview_links? %>
     <span class="translatable-attribute-container viewer">
         <%= tag.span(
             render_preview_link(

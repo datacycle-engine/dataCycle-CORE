@@ -230,6 +230,10 @@ module DataCycleCore
         schema&.dig('features', 'translatable', 'allowed') || false
       end
 
+      def preview_links?
+        schema&.dig('features', 'preview_links', 'allowed') || false
+      end
+
       def creatable?(scope)
         schema['content_type'] != 'embedded' &&
           schema.dig('features', 'creatable', 'allowed') &&
