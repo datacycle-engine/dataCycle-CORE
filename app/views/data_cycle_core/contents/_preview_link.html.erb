@@ -1,10 +1,12 @@
-<% preview_link_model = PreviewLink %>
-<% preview_url = preview_link_model.build_preview_url(content, locale)%>
-<% if preview_url.present?%>
-    <%= link_to preview_url,
-        class:"button-prime small",
-        target: "_blank",
-        title: t('actions.preview_content', locale: locale) do%>
-            <i class="fa fa-share" aria-hidden="true"></i>
+<% preview_link_builder = DataCycleCore.features.dig(:preview_links, :class)&.safe_constantize %>
+<% if preview_link_builder.present?%>
+    <% preview_url = preview_link_builder.build(content, locale)%>
+    <% if preview_url.present?%>
+        <%= link_to preview_url,
+            class:"button-prime small",
+            target: "_blank",
+            title: t('actions.preview_content', locale: locale) do%>
+                <i class="fa fa-share" aria-hidden="true"></i>
+        <% end %>
     <% end %>
 <% end %>

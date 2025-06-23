@@ -620,3 +620,4 @@
 
 :preview_links:
   :enabled: false
+  :class: ""
