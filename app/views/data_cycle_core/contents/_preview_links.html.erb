@@ -1,22 +1,24 @@
-<span class="translatable-attribute-container viewer">
-    <%= tag.span(
-        render_preview_link(
-            content: content,
-            locale: I18n.locale
-        ),
-        class: "translatable-attribute preview-link active #{I18n.locale}",
-    ) %>
-
-    <% content&.translated_locales&.except(I18n.locale)&.each do |a_locale| %>
+<% if content.enabled_features.include?('preview_links') %>
+    <span class="translatable-attribute-container viewer">
         <%= tag.span(
-            class: "translatable-attribute preview-link remote-render #{a_locale}",
-            data: {
-                remote_render_function: "render_preview_link",
-                remote_render_params: to_query_params(
-                    content:,
-                    locale: a_locale
-                ).to_json,
-            }
+            render_preview_link(
+                content: content,
+                locale: I18n.locale
+            ),
+            class: "translatable-attribute preview-link active #{I18n.locale}",
         ) %>
-    <% end %>
-</span>
+
+        <% content&.translated_locales&.except(I18n.locale)&.each do |a_locale| %>
+            <%= tag.span(
+                class: "translatable-attribute preview-link remote-render #{a_locale}",
+                data: {
+                    remote_render_function: "render_preview_link",
+                    remote_render_params: to_query_params(
+                        content:,
+                        locale: a_locale
+                    ).to_json,
+                }
+            ) %>
+        <% end %>
+    </span>
+<% end %>
