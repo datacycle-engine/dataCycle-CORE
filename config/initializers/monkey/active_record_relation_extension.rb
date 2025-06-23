@@ -4,14 +4,15 @@ raise 'ActiveRecord::Relation#load is no longer available, check patch!' unless 
 
 module DataCycleCore
   module ActiveRecordRelationExtension
-    def load(&)
-      return super unless is_a?(Thing.const_get(:ActiveRecord_Relation))
+    # used for property_preloader
+    # def load(&)
+    #   return super unless is_a?(Thing.const_get(:ActiveRecord_Relation))
 
-      super do |record|
-        record.instance_variable_set(:@_current_collection, self)
-        yield record if block_given?
-      end
-    end
+    #   super do |record|
+    #     record.instance_variable_set(:@_current_collection, self)
+    #     yield record if block_given?
+    #   end
+    # end
 
     def async_total_count(column_name = :all)
       return total_count(column_name) if (defined?(@total_count) && @total_count) || loaded?
