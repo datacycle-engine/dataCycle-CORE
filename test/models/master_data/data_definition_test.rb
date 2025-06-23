@@ -31,7 +31,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'CreativeWork',
-          boost: 10.0,
+          schema_ancestors: ['CreativeWork'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -274,7 +275,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'MediaObject',
-          boost: 10.0,
+          schema_ancestors: ['MediaObject'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -295,7 +297,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'MediaObject',
-          boost: 10.0,
+          schema_ancestors: ['MediaObject'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -316,7 +319,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'MediaObject',
-          boost: 10.0,
+          schema_ancestors: ['MediaObject'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -342,7 +346,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'MediaObject',
-          boost: 10.0,
+          schema_ancestors: ['MediaObject'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -359,6 +364,7 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           name: 'whatever',
           type: 'object',
           schema_type: 'CreativeWork',
+          schema_ancestors: ['MediaObject'],
           content_type: 'entity'
         }
       }
