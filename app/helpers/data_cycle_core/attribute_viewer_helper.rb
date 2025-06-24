@@ -48,6 +48,10 @@ module DataCycleCore
       end
     end
 
+    def render_preview_link (opts)
+      render('data_cycle_core/contents/preview_link', opts)
+    end
+
     def attribute_value_present?(value)
       DataCycleCore::DataHashService.present?(value)
     end
