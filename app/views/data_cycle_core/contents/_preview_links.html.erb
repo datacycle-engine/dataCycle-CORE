@@ -1,4 +1,4 @@
-<% if content.preview_links? %>
+<% if DataCycleCore::Feature::PreviewLink.allowed?(content) %>
     <span class="translatable-attribute-container viewer">
         <%= tag.span(
             render_preview_link(
