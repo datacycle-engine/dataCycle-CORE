@@ -618,6 +618,5 @@
 :string_sanitizer:
   :enabled: false
 
-:preview_links:
+:preview_link:
   :enabled: false
-  :class: ""
