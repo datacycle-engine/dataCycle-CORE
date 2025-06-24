@@ -1,9 +1,11 @@
 <% preview_url = DataCycleCore::Feature::PreviewLink.build(content, locale)%>
 <% if preview_url.present?%>
-    <%= link_to preview_url,
+  <%= link_to preview_url,
         class:"button-prime small",
         target: "_blank",
-        title: t('actions.preview_content', locale: locale) do%>
-            <i class="fa fa-share" aria-hidden="true"></i>
-    <% end %>
+        data: {
+          dc_tooltip: t('actions.preview_content', locale: active_ui_locale)
+        } do %>
+    <i class="fa fa-share" aria-hidden="true"></i>
+  <% end %>
 <% end %>
