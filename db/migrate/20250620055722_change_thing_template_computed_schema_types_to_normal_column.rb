@@ -2,6 +2,10 @@
 
 class ChangeThingTemplateComputedSchemaTypesToNormalColumn < ActiveRecord::Migration[7.1]
   def up
+    execute <<-SQL.squish
+      SET LOCAL statement_timeout = 0;
+    SQL
+
     change_table :thing_templates, bulk: true do |t|
       t.remove :computed_schema_types
       t.string :api_schema_types, default: [], null: false, array: true
