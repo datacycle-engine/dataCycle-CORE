@@ -37,6 +37,14 @@
 .image-container .thumb {
   width: fit-content;
   margin: 0 auto;
+  position: relative;
+
+  &.editing {
+    a.link-to-image {
+      cursor: default;
+      pointer-events: none;
+    }
+  }
 }
 
 .gravity-editor-hint {

@@ -524,7 +524,6 @@ en:
       success_set: "Gravity was successfully set to %{data}"
       success_reset: "Gravity was successfully reset"
       error: "Gravity could not be set"
-      hint: "The 'smart' option is used by default if no other option has been selected."
     oembed:
       preview:
         title: oEmbed preview
@@ -1030,6 +1029,18 @@ en:
         belongs_to_aggregate: belongs to aggregate
       check_box_labels:
         aggregate_for_override: override Aggregate base
+    focus_point_editor:
+      button_title: Set focus point
+      editing_button_title: End editing
+      updated_successfully: the focus point was successfully set
+      update_error: the focus point could not be set
+      reset_successfully: the focus point was successfully reset
+      clear_focus_point: Reset focus point
+      hint: The focus point is preferred.
+    gravity_editor:
+      button_title: Set gravity
+      editing_button_title: End editing
+      hint: By default, the 'smart' option is used if no other option is selected.
 
     report_generator:
       downloads_popular: Top 50 Downloads

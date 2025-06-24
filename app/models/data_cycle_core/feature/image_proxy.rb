@@ -36,7 +36,7 @@ module DataCycleCore
           ]
 
           format = image_file_extension(content, variant, image_processing)
-          target_url << imgproxy_signature(content, image_processing, format) if image_processing.is_a?(::Hash) && !image_processing.empty?
+          target_url << imgproxy_signature(content, image_processing, format) if image_processing.is_a?(::Hash) && image_processing.present?
 
           target_url << content.cache_valid_since.to_i
 

@@ -11,7 +11,22 @@ module DataCycleCore
           authorize_update_focus_point!(content)
 
           if focus_point_params.present?
-            content.set_data_hash(data_hash: focus_point_params.to_h, current_user:)
+            fparams = focus_point_params.to_h
+            if fparams.values.all?(0.5) # reset focus point
+              fparams.transform_values! { nil }
+              message_key = 'reset_successfully'
+            else
+              message_key = 'updated_successfully'
+            end
+            if content.set_data_hash(data_hash: fparams, current_user:)
+              render json: {
+                message: I18n.t("feature.focus_point_editor.#{message_key}", locale: helpers.active_ui_locale)
+              }
+            else
+              render json: {
+                error: I18n.t('feature.focus_point_editor.update_error', locale: helpers.active_ui_locale)
+              }
+            end
           else
             render json: { error: I18n.t('controllers.error.missing_parameter', locale: helpers.active_ui_locale) }, status: :bad_request
           end

@@ -98,8 +98,9 @@ module DataCycleCore
             return content.try(key) unless changed
 
             variant = computed_definition&.dig('compute', 'transformation', 'version')
-            image_processing = computed_definition&.dig('compute', 'processing')
-            Virtual::Asset.send(:transform_gravity!, content, image_processing) if image_processing&.key?('gravity')
+            image_processing = computed_definition&.dig('compute', 'processing') || {}
+            DataCycleCore::Feature::GravityEditor.transform_gravity!(image_processing, computed_parameters) if image_processing.present? && DataCycleCore::Feature::GravityEditor.allowed?(content)
+            DataCycleCore::Feature::FocusPointEditor.apply_focus_point!(image_processing, computed_parameters) if image_processing.present? && DataCycleCore::Feature::FocusPointEditor.allowed?(content)
 
             DataCycleCore::Feature::ImageProxy.process_image(
               content: thing_dummy(content:, computed_parameters:),
@@ -135,7 +136,7 @@ module DataCycleCore
             thing_dummy.cache_valid_since = content.cache_valid_since
 
             computed_parameters&.each do |key, value|
-              thing_dummy.send(:"#{key}=", value)
+              thing_dummy.set_memoized_attribute(key, value)
             end
 
             thing_dummy

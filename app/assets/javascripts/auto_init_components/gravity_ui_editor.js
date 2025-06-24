@@ -1,4 +1,5 @@
 import { showCallout } from "../helpers/callout_helpers";
+import ImageDetailEditorBase from "../components/image_detail_editor_base";
 
 const positions = {
 	top: {
@@ -69,52 +70,34 @@ const positions = {
 	},
 };
 
-class GravityUiEditor {
+class GravityUiEditor extends ImageDetailEditorBase {
+	static selector = "button.button.change-gravity-ui";
+	static className = "gravity-ui-editor";
+	static lazy = true;
+	static containerClassName = "gravity-control";
+	static i18nNameSpace = "gravity_editor";
 	constructor(button) {
-		this.button = button;
+		super(button);
+
 		this.gravitySelecorIcons = [];
-		this.thumbContainer = null;
 		this.thingId = this.button.dataset.thingId;
 		this.gravityInfo = JSON.parse(this.button.dataset.gravityInfo);
 		this.gravity = this.button.dataset.gravity || null;
 		this.buttonText = this.button.innerHTML;
-		this.setUp();
 	}
 
-	setUp() {
-		const imageContainer = this.button.closest(".image");
-		this.thumbContainer = imageContainer.querySelector(".thumb");
-		this.addEventListeners();
-	}
+	async enableEditing() {
+		await super.enableEditing();
 
-	addEventListeners() {
-		this.button.addEventListener("click", (e) => {
-			if (this.button.classList.contains("active")) {
-				this.button.classList.remove("active");
-				this.thumbContainer.classList.remove("gravity-control", "editing");
-				this.removeGravitySelectors();
-				this.button.innerHTML = this.buttonText;
-			} else {
-				this.button.classList.add("active");
-				this.thumbContainer.classList.add("gravity-control", "editing");
-				for (const position in positions) {
-					this.createGravitySelector(position);
-				}
-				this.button.innerHTML = e.currentTarget.dataset.editorActiveText;
-			}
-			this.toggleImageLinkInteractivity();
-		});
-	}
-
-	toggleImageLinkInteractivity() {
-		const imageLink = this.thumbContainer.querySelector("a");
-		if (!imageLink) return;
-		if (this.button.classList.contains("active")) {
-			imageLink.style.cursor = "default";
-			imageLink.style.pointerEvents = "none";
-		} else {
-			imageLink.style = "";
+		for (const position in positions) {
+			this.createGravitySelector(position);
 		}
+	}
+
+	async disableEditing() {
+		await super.disableEditing();
+
+		this.removeGravitySelectors();
 	}
 
 	createGravitySelector(position) {
@@ -149,12 +132,12 @@ class GravityUiEditor {
 				}
 			}
 
-			this.thumbContainer.appendChild(this.createPreviewBox(position));
+			this.imageContainer.appendChild(this.createPreviewBox(position));
 		});
 
 		gravitySelector.addEventListener("mouseleave", () => {
-			this.thumbContainer.removeChild(
-				this.thumbContainer.querySelector("#gravity-preview-box"),
+			this.imageContainer.removeChild(
+				this.imageContainer.querySelector("#gravity-preview-box"),
 			);
 			for (const icon of this.gravitySelecorIcons) {
 				icon.removeAttribute("data-hide");
@@ -203,14 +186,14 @@ class GravityUiEditor {
 					});
 				});
 		});
-		this.thumbContainer.appendChild(gravitySelector);
+		this.imageContainer.appendChild(gravitySelector);
 	}
 
 	createPreviewBox(position) {
 		const box = document.createElement("div");
 		box.id = "gravity-preview-box";
 		box.classList.add("gravity-preview-box");
-		const imageDimensions = this.thumbContainer
+		const imageDimensions = this.imageContainer
 			.querySelector("img")
 			.getBoundingClientRect();
 		box.style.width = `${0.8 * Math.min(imageDimensions.width, imageDimensions.height)}px`;
@@ -225,7 +208,7 @@ class GravityUiEditor {
 
 	removeGravitySelectors() {
 		for (const icon of this.gravitySelecorIcons) {
-			this.thumbContainer.removeChild(icon);
+			this.imageContainer.removeChild(icon);
 		}
 		this.gravitySelecorIcons = [];
 	}

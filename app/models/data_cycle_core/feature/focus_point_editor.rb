@@ -12,10 +12,16 @@ module DataCycleCore
           DataCycleCore::Feature::Routes::FocusPointEditor
         end
 
-        def allowed?(content, user)
-          enabled? &&
-            attribute_keys.all? { |key| content.respond_to?(key) && user.can?(:update, DataCycleCore::DataAttribute.new(key, content.properties_for(key), {}, content, :update)) } &&
+        def user_can_edit?(content, user)
+          allowed?(content) && attribute_keys.all? { |key| user.can?(:update, DataCycleCore::DataAttribute.new(key, content.properties_for(key), {}, content, :update)) } &&
             user.can?(:edit, content)
+        end
+
+        def apply_focus_point!(options, params)
+          x, y = params&.values_at(*attribute_keys)
+          return if x.nil? || y.nil?
+
+          options['gravity'] = "fp:#{x}:#{y}"
         end
       end
     end

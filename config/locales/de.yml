@@ -336,7 +336,6 @@ de:
       success_set: "Bildausschnitt wurde erfolgreich auf %{data} gesetzt"
       success_reset: "Bildausschnitt wurde erfolgreich zurückgesetzt"
       error: "Bildausschnitt konnte nicht gesetzt werden"
-      hint: "Standardmäßig wird die Option 'smart' verwendet, sofern keine andere Option ausgewählt wurde."
     oembed:
       preview:
         title: oEmbed Vorschau
@@ -831,9 +830,17 @@ de:
       check_box_labels:
         aggregate_for_override: Aggregats-Basis überschreiben
     focus_point_editor:
-      button_title: Fokuspunkt setzen
+      button_title: Fokuspunkt festlegen
       editing_button_title: Bearbeitung beenden
-      hint: Standardmäßig wird die Option 'smart' verwendet, sofern kein Fokuspunkt gesetzt wurde.
+      updated_successfully: Der Fokuspunkt wurde erfolgreich gesetzt
+      update_error: Der Fokuspunkt konnte nicht gesetzt werden
+      reset_successfully: Der Fokuspunkt wurde erfolgreich zurückgesetzt
+      clear_focus_point: Fokuspunkt zurücksetzen
+      hint: Der Fokuspunkt wird bevorzugt.
+    gravity_editor:
+      button_title: Bildausschnitt festlegen (Gravity)
+      editing_button_title: Bearbeitung beenden
+      hint: "Standardmäßig wird die Option 'smart' verwendet, sofern keine andere Option ausgewählt wurde."
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -1308,8 +1315,6 @@ de:
     clear: entfernen
     remove_content_from: "%{name} aus %{collection} entfernen?"
     remove_from: "aus %{collection} entfernen"
-    set_gravity: "Bildausschnitt festlegen (Gravity)"
-    deactivate_gravity_editor: "Bearbeitung beenden"
     download_user_info_activity: "Nutzeraktivitäten herunterladen"
     cancel: abbrechen
     delete_translation_confirmation_html: "Übersetzung <b>(%{data})</b> von %{template} <b>%{title}</b> wirklich löschen?"
