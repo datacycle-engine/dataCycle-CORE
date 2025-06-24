@@ -3,17 +3,18 @@
 module DataCycleCore
   module Feature
     class PreviewLink < Base
-      def self.allowed?(content = nil)
-        return false if content.blank?
-        enabled? && configuration(content)['allowed'] && configuration(content)['module'].present? && configuration(content)['method'].present?
-      end
+      class << self
+        def allowed?(content = nil)
+          super && configuration(content)['module'].present? && configuration(content)['method'].present?
+        end
 
-      def self.build(content, locale)
-        preview_link_builder = DataCycleCore.features.dig(:preview_link, :module)&.safe_constantize
-        builder_methode = DataCycleCore.features.dig(:preview_link, :method)
-        return nil unless preview_link_builder.present?
+        def build(content, locale)
+          preview_link_builder = configuration(content)[:module]&.safe_constantize
+          builder_methode = configuration(content)[:method]
+          return if preview_link_builder.blank?
 
-        preview_link_builder.send(builder_methode, content, locale)
+          preview_link_builder.send(builder_methode, content, locale)
+        end
       end
     end
   end
