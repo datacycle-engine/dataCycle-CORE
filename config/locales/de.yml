@@ -1915,7 +1915,7 @@ de:
 
   import:
     generic:
-      description: Beschreibung
+      description: Kurzbeschreibung
       text: Detailbeschreibung
       snow_report: Schneebericht
       valley: Tal
@@ -1982,8 +1982,14 @@ de:
       text: Beschreibung
       description: Kurzbeschreibung
     regiondo:
-      text: Beschreibung
-      description: Kurzbeschreibung#
+      text: Detailbeschreibung
+      description: Kurzbeschreibung
+      faq_included: "FAQ: Inklusive Leistungen"
+      faq_not_included: "FAQ: Nicht inklusive Leistungen"
+      faq_participants: "FAQ: Teilnehmerinformationen"
+      faq_customer_requirements: "FAQ: Voraussetzungen für Kunden"
+      faq_other_info: "FAQ: Weitere Informationen"
+      meta_description: "Meta-Beschreibung"
     tourdata:
       OBJECT_TEXT_BESCHREIBUNG: Beschreibung
       OBJECT_TEXT_TEASER: Kurzbeschreibung
