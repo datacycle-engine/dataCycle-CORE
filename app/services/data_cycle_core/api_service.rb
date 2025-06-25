@@ -25,7 +25,7 @@ module DataCycleCore
     def append_filters(query, parameters)
       return query if parameters&.dig(:content_id).blank?
 
-      content_id = parameters[:content_id]
+      content_id = preload_content_ids(parameters[:content_id])
       search = new_thing_search(@language, content_id, true)
 
       return search if search.none? || query.content_ids(content_id).query.exists?
@@ -45,6 +45,15 @@ module DataCycleCore
       else
         new_thing_search(@language, nil)
       end
+    end
+
+    # preload single content_id if it is a slug to speed up complex queries
+    def preload_content_ids(content_id)
+      return content_id unless content_id.is_a?(String) && !content_id.uuid?
+
+      DataCycleCore::Thing::Translation
+        .where(slug: content_id)
+        .pick(:thing_id)
     end
 
     def apply_filters(query, filters)
