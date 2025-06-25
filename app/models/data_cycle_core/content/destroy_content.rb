@@ -20,6 +20,8 @@ module DataCycleCore
         new_opts = opts.merge(destroyed_ids: (opts[:destroyed_ids] + [id]).uniq)
 
         transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
           if opts[:save_history] && !history? && !embedded?
             update_columns(deleted_at: opts[:save_time], deleted_by: opts[:current_user]&.id) unless opts[:destroy_locale] && available_locales.many?
             to_history(delete: true, all_translations: !(opts[:destroy_locale] && available_locales.many?))
