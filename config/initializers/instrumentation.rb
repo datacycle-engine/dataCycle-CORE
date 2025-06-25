@@ -97,3 +97,12 @@ ActiveSupport::Notifications.subscribe('object_import_failed.datacycle') do |_na
     logger.dc_log(:error, data)
   end
 end
+
+ActiveSupport::Notifications.subscribe(/(download|import|export)_faulty_items_processing_report.datacycle/) do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: data[:namespace]) do |logger|
+    data[:faulty_items].each do |faulty_item|
+      text = faulty_item[:log_message].presence || faulty_item.to_json
+      logger.dc_log(:warn, text)
+    end
+  end
+end
