@@ -2124,61 +2124,6 @@ en:
     booking:
       hotel_important_information: Important information
       hotel_description: Brief description
-    feratel:
-      meeting_point: Meeting point
-      additional_service:
-        Payment: Payment modalities
-        ServiceDescription: Description
-        Included Services: Included services
-        Not included Services: Not included services
-        Equipment: Equipment
-        Bring along: Bring along
-        Rental Equipment: Rental equipment
-        Suitable for: Suitable for
-        Difficulty: Level of difficulty
-        Requirements: Requirements
-        Meeting Point: Meeting point
-        Opening hours: Opening hours
-        Price Information: Price
-        Payment conditions: Payment conditions
-        Cancellation Information: Cancellation policy
-        Arrival Information: Arrival Information
-        "FAQ / good to know": FAQ / good to know
-        "Hint / Advice": Hint / Advice
-        Important information: Important information
-      event:
-        EventHeader: Description
-        EventHeaderShort: Brief description
-        AdditionalService: Additional service
-        CurrentInformation: Current information
-        GuestCardClassification: Guest card services
-      serial_event:
-        EventGroup: Description
-      infrastructure:
-        AdditionalService: Additional service
-        Arrival Information: Arrival Information
-        CurrentInformation: Current information
-        GuestCardClassification: Guest card services
-        InfrastructureLong: Detailed description
-        InfrastructureOpeningTimes: Opening hours
-        InfrastructurePriceInfo: Price information
-        InfrastructureShort: Brief description
-        Payment: Payment modalities
-        Price Information: Price
-        ServiceDescription: Description
-      GuestCards:
-        GuestCardClassification: Guest card services
-      accommodation:
-        CurrentInformation: Current information
-        SEOKeywords: SEO keywords
-        ServiceProviderArrivalVoucher: Travel arrangements
-        ServiceProviderConditions: Additional information
-        ServiceProviderDescription: Description
-      GTC:
-        GTC: General terms and conditions of business
-      package:
-        PackageShortText: Brief description
-        Package: Description
     tourdata:
       OBJECT_TEXT_BESCHREIBUNG: Description
       OBJECT_TEXT_TEASER: Short description

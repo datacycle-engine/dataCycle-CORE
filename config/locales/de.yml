@@ -1923,61 +1923,6 @@ de:
     booking:
       hotel_important_information: Wichtige Informationen
       hotel_description: Kurzbeschreibung
-    feratel:
-      meeting_point: Treffpunkt
-      additional_service:
-        Payment: Zahlungsmodalitäten
-        ServiceDescription: Beschreibung
-        Included Services: Enthaltene Leistungen
-        Not included Services: Nicht inkludierte Leistungen
-        Equipment: Ausrüstung
-        Bring along: Zum Mitbringen
-        Rental Equipment: Leihausrüstung
-        Suitable for: Geeignet für
-        Difficulty: Schwierigkeitsgrad
-        Requirements: Voraussetzungen
-        Meeting Point: Treffpunkt
-        Opening hours: Öffnungszeiten
-        Price Information: Preis Information
-        Payment conditions: Zahlungskonditionen
-        Cancellation Information: Stornierungsregelungen
-        Arrival Information: Informationen zur Anreise
-        "FAQ / good to know": Häufige Fragen und Antworten
-        "Hint / Advice": Hinweis
-        Important information: Wichtige Informationen
-      event:
-        EventHeader: Beschreibung
-        EventHeaderShort: Kurzbeschreibung
-        AdditionalService: Zusatzleistung
-        CurrentInformation: Aktuelle Informationen
-        GuestCardClassification: Gästekartenleistungen
-      serial_event:
-        EventGroup: Beschreibung
-      infrastructure:
-        AdditionalService: Zusatzleistung
-        Arrival Information: Informationen zur Anreise
-        CurrentInformation: Aktuelle Informationen
-        GuestCardClassification: Gästekartenleistungen
-        InfrastructureLong: Detailbeschreibung
-        InfrastructureOpeningTimes: Öffnungszeiten
-        InfrastructurePriceInfo: Preisinformation
-        InfrastructureShort: Kurzbeschreibung
-        Payment: Zahlungsmodalitäten
-        Price Information: Preis
-        ServiceDescription: Beschreibung
-      GuestCards:
-        GuestCardClassification: Gästekartenleistungen
-      accommodation:
-        CurrentInformation: Aktuelle Informationen
-        SEOKeywords: SEO-Schlagwörter
-        ServiceProviderArrivalVoucher: Anreisemodalitäten
-        ServiceProviderConditions: Zusatzinformationen
-        ServiceProviderDescription: Beschreibung
-      GTC:
-        GTC: Allgemeine Geschäftsbedingungen
-      package:
-        PackageShortText: Kurzbeschreibung
-        Package: Beschreibung
     hrs:
       text: Beschreibung
       description: Kurzbeschreibung
