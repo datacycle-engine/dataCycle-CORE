@@ -10,7 +10,7 @@ module DataCycleCore
         end
 
         def include?(user)
-          super && user.send("#{@provider}_uid").present?
+          super && user.send(:"#{@provider}_uid").present?
         end
 
         private

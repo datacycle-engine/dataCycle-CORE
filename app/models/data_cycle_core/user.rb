@@ -235,7 +235,7 @@ module DataCycleCore
 
       email = case_sensitive ? auth.info.email : auth.info.email.downcase
       user = find_by_omniauth(auth, case_sensitive) || new(email:)
-      user.send("#{auth.provider}_uid=", auth.uid)
+      user.send(:"#{auth.provider}_uid=", auth.uid)
 
       user
     end
