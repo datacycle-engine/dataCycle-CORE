@@ -3,7 +3,7 @@
 module DataCycleCore
   module ApiRenderer
     class ThingRendererV4
-      include Extensions::MinimalThingV4
+      prepend Extensions::MinimalThingV4
 
       JSON_RENDER_PARAMS = [
         :url_parameters,
@@ -34,7 +34,6 @@ module DataCycleCore
         @params = params
         @template = template
         @request_method = request_method || 'GET'
-        @applied_sections = []
       end
 
       def render(render_format = :json)

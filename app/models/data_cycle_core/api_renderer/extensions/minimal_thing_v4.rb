@@ -13,33 +13,54 @@ module DataCycleCore
           'dc:touched' => "DATE_TRUNC('milliseconds', \"things\".\"cache_valid_since\" AT TIME ZONE 'UTC')"
         }.freeze
 
-        def render_minimal_json
-          selects = []
-          @minimal_query = DataCycleCore::Thing.all
-          selects << api_plain_context if section_visible?(:@context)
+        def initialize(**)
+          super
 
-          selects << api_minimal_graph if section_visible?(:@graph)
-          selects << api_plain_links_sql if section_visible?(:links) &&
-                                            !@params[:permitted_params]&.dig(:page, :limit)&.to_i&.positive?
-          selects << api_plain_meta_sql if section_visible?(:meta)
+          @applied_sections = []
+          @from_tables = []
+          @with_tables = {}
+          @selects = []
+        end
+
+        def render_minimal_json
+          api_plain_context! if section_visible?(:@context)
+          api_minimal_graph! if section_visible?(:@graph)
+          api_plain_meta_sql! if section_visible?(:meta)
+          api_plain_links_sql! if section_visible?(:links) &&
+                                  !@params[:permitted_params]&.dig(:page, :limit)&.to_i&.positive?
 
           ActiveRecord::Base.transaction do
             ActiveRecord::Base.connection.exec_query(
               ActiveRecord::Base.send(:sanitize_sql_array, ['SET LOCAL timezone = ?;', Time.zone.name])
             )
-            result = ActiveRecord::Base.connection.select_all(
-              @minimal_query.select("json_build_object(#{selects.join(', ')})").from('contents')
-            )
+            result = ActiveRecord::Base.connection.select_all(minimal_query)
             result&.rows&.first&.first || '{}'
           end
+        end
+
+        def minimal_query
+          query = DataCycleCore::Thing.all
+
+          @with_tables.each do |name, with_query|
+            query = query.with(name => with_query)
+          end
+
+          query = query.from(@from_tables.shift)
+
+          @from_tables.each do |table|
+            query = query.joins("CROSS JOIN #{table}")
+          end
+
+          query = query.select("json_build_object(#{@selects.join(', ')})") if @selects.present?
+          query
         end
 
         def render_only_context_json
           { '@context' => self.class.api_plain_context(@params[:language], @params[:expand_language]) }
         end
 
-        def api_plain_context
-          "'@context', '#{self.class.api_plain_context(@params[:language], @params[:expand_language]).to_json}'::json"
+        def api_plain_context!
+          @selects << "'@context', '#{self.class.api_plain_context(@params[:language], @params[:expand_language]).to_json}'::json"
         end
 
         private
@@ -91,22 +112,22 @@ module DataCycleCore
           )
         end
 
-        def api_plain_links_sql
+        def api_plain_links_sql!
           return if single_thing?
+
+          next_condition = apply_minimal_links_query! # if @graph is not requested, we do not need the contents
 
           sql_query = <<-SQL.squish
             'links',
             json_strip_nulls(
-              json_build_object('prev', ?, 'next', (CASE WHEN CEIL(#{total_count_sql}::float / #{thing_query.limit_value}) > #{thing_query.current_page} THEN ? ELSE NULL END))
+              json_build_object('prev', ?, 'next', (CASE WHEN #{next_condition} THEN ? ELSE NULL END))
             )
           SQL
-
-          apply_minimal_graph_query! # if @graph is not requested, we do not need the contents
 
           prev_page = thing_query.current_page - 1
           next_page = thing_query.current_page + 1
 
-          ActiveRecord::Base.send(
+          @selects << ActiveRecord::Base.send(
             :sanitize_sql_array, [
               sql_query,
               api_page_link(prev_page.positive? ? prev_page : nil),
@@ -115,10 +136,10 @@ module DataCycleCore
           )
         end
 
-        def api_plain_meta_sql
+        def api_plain_meta_sql!
           return if single_thing?
 
-          apply_minimal_graph_query!
+          apply_count_query!
 
           total_count = total_count_sql
           sql = []
@@ -135,19 +156,36 @@ module DataCycleCore
             }.compact_blank.to_json}'::json"
           end
 
-          "'meta', json_build_object(#{sql.join(', ')})"
+          @selects << "'meta', json_build_object(#{sql.join(', ')})"
         end
 
         def total_count_sql
-          total_count = '"contents"."total"'
-          total_count = "MAX(#{total_count})" if section_visible?('@graph')
-
-          total_count
+          '"total_count"."total"'
         end
 
-        def apply_minimal_graph_query!
-          return if section_applied?('@graph')
-          @minimal_query = @minimal_query.with(contents: thing_query.reselect(:id).except(:joins, :order, :group, :limit, :offset).reselect('COUNT("things"."id") AS "total"'))
+        def apply_count_query!
+          @with_tables[:total_count] = thing_query
+            .except(:joins, :order, :group, :limit, :offset)
+            .reselect('COUNT("things"."id") AS "total"')
+          @with_tables[:total_count] = @with_tables[:total_count].except(:where) if section_visible?(:meta) && section_visible?(:@graph)
+          @from_tables << '"total_count"'
+        end
+
+        def apply_minimal_links_query!
+          return "CEIL(#{total_count_sql}::float / #{thing_query.limit_value}) > #{thing_query.current_page}" if section_visible?(:meta)
+
+          unless section_visible?(:@graph)
+            @with_tables[:contents] = thing_query
+              .reselect('ROW_NUMBER() OVER () AS "row_number"')
+              .except(:joins, :order, :group)
+              .limit(thing_query.limit_value + 1)
+          end
+
+          @with_tables[:total_count] = DataCycleCore::Thing
+            .from('"contents"')
+            .select('MAX("contents"."row_number") AS "total"')
+          @from_tables << '"total_count"'
+          "\"total_count\".\"total\" > #{thing_query.limit_value + thing_query.offset_value}"
         end
 
         def thing_query
@@ -155,30 +193,36 @@ module DataCycleCore
         end
 
         def apply_graph_query!
-          return if section_applied?('@graph')
           render_props = MINIMAL_ATTRIBUTES.slice(*requested_fields)
 
           query = thing_query
           query = query.joins(:thing_template) if render_props.key?('@type')
           select_fields = "json_build_object(#{render_props.map { |k, v| "'#{k}', #{v}" }.join(', ')}) AS \"data\""
-          select_fields += ', COUNT(things.id) OVER () AS "total"' if section_visible?(:meta) || section_visible?(:links)
 
-          @minimal_query = @minimal_query.with(
-            contents: query.reselect(ActiveRecord::Base.send(:sanitize_sql_array, [select_fields]))
-          )
+          if section_visible?(:meta)
+            @with_tables[:things] = thing_query
+              .except(:order, :joins, :group, :limit, :offset)
+              .reselect('"things".*')
+          end
+
+          if !section_visible?(:meta) && section_visible?(:links)
+            select_fields += ", ROW_NUMBER() OVER (ORDER BY #{thing_query.arel.orders.map { |o| o.is_a?(String) ? o : o.to_sql }.join(', ')}) AS \"row_number\""
+            query = query.limit(thing_query.limit_value + 1)
+          end
+
+          @with_tables[:contents] = query.reselect(ActiveRecord::Base.send(:sanitize_sql_array, [select_fields]))
+          @with_tables[:contents] = @with_tables[:contents].except(:where) if section_visible?(:meta)
+          @with_tables[:contents_json] = DataCycleCore::Thing
+            .from('"contents"')
+            .select('json_agg("contents"."data") AS "data"')
+          @with_tables[:contents_json] = @with_tables[:contents_json].where('"contents"."row_number" <= ?', thing_query.limit_value + thing_query.offset_value) if !section_visible?(:meta) && section_visible?(:links)
+          @from_tables << '"contents_json"'
         end
 
-        def api_minimal_graph
+        def api_minimal_graph!
           apply_graph_query!
 
-          "'@graph', json_agg(\"contents\".\"data\")"
-        end
-
-        def section_applied?(section)
-          return true if @applied_sections.include?(section)
-
-          @applied_sections << section
-          false
+          @selects << "'@graph', \"contents_json\".\"data\""
         end
       end
     end
