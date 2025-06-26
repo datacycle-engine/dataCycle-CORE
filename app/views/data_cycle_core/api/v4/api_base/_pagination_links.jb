@@ -2,39 +2,21 @@
 
 json = {}
 unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
-  if @permitted_params.dig(:page, :limit)&.to_i&.positive?
-    json['meta'] = {
-      total: objects.total_count
-    }
-  else
-    json['meta'] = {
-      total: objects.total_count,
-      pages: objects.total_pages
-    }
-  end
-
-  if (endpoint = @watch_list || @stored_filter)
-    json['meta']['collection'] = {
-      id: endpoint.id,
-      name: endpoint.name,
-      slug: endpoint.slug,
-      path: endpoint.try(:path)
-    }.compact_blank
-  end
+  json['meta'] = DataCycleCore::ApiRenderer::ThingRendererV4.api_plain_meta(
+    contents: objects,
+    collection: @watch_list || @stored_filter,
+    permitted_params: @permitted_params
+  )
 end
-
-if request.request_method == 'POST'
-  common_params = {}
-else
-  common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
-end
-
-common_params = common_params.merge(page: { offset: @permitted_params.dig(:page, :offset).to_i }) if @permitted_params.dig(:page, :offset)&.to_i&.positive?
 
 unless @permitted_params.dig(:section, :links)&.to_i&.zero? || @permitted_params.dig(:page, :limit)&.to_i&.positive?
-  json['links'] = {}
-  json['links']['prev'] = object_url.call(common_params.deep_merge(page: { number: objects.prev_page, size: objects.limit_value })) if objects.prev_page
-  json['links']['next'] = object_url.call(common_params.deep_merge(page: { number: objects.next_page, size: objects.limit_value })) if objects.next_page
+  json['links'] = DataCycleCore::ApiRenderer::ThingRendererV4.api_plain_links(
+    contents: objects,
+    pagination_url: @pagination_url,
+    request_method: request.request_method,
+    permitted_params: @permitted_params,
+    object_url: local_assigns[:object_url]
+  )
 end
 
 json

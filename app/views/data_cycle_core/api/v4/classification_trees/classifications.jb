@@ -34,7 +34,7 @@ if @classification_tree_label.present?
   else
     @classification_aliases.async_total_count unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
 
-    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options:, show_all_concepts: true
+    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options:, show_all_concepts: true unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
 
     json.merge! render 'pagination_links',
                        objects: @classification_aliases,

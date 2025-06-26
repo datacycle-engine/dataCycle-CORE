@@ -10,9 +10,10 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 json = {}
 json.merge! render 'context', languages: options[:languages]
-json['@graph'] = []
 
 unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
+  json['@graph'] = []
+
   @classification_tree_labels&.map do |item|
     json['@graph'] << Rails.cache.fetch(api_v4_cache_key(item, options[:languages], options[:include], options[:fields], @api_subversion, nil), expires_in: 1.year + Random.rand(7.days)) do
       I18n.with_locale(I18n.default_locale) do

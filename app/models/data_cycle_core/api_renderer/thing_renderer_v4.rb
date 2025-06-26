@@ -132,10 +132,11 @@ module DataCycleCore
         response_data
       end
 
-      def self.api_page_link(pagination_url: nil, request_method: 'GET', permitted_params: {}, page_number: 1, page_size: 25)
+      def self.api_page_link(pagination_url: nil, request_method: 'GET', permitted_params: {}, page_number: 1, page_size: 25, object_url: nil)
         return if page_number.nil?
 
-        object_url = ->(params) { pagination_url&.call(params) }
+        object_url ||= ->(_) {}
+        object_url = ->(params) { pagination_url.call(params) } if pagination_url.present?
         common_params = if request_method == 'POST'
                           {}
                         else
