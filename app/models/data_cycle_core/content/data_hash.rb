@@ -231,13 +231,17 @@ module DataCycleCore
       end
 
       def self.invalidate_all
-        unscoped
-          .where(
-            id: unscoped.where(id: all.except(:distinct).order(id: :asc).select(:id))
-              .lock('FOR UPDATE SKIP LOCKED')
-              .select(:id)
-          )
-          .update_all(cache_valid_since: Time.zone.now)
+        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
+          unscoped
+            .where(
+              id: unscoped.where(id: all.except(:distinct).order(id: :asc).select(:id))
+                .lock('FOR UPDATE SKIP LOCKED')
+                .select(:id)
+            )
+            .update_all(cache_valid_since: Time.zone.now)
+        end
       end
 
       def self.update_search_all
