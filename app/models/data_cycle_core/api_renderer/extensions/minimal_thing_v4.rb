@@ -48,7 +48,7 @@ module DataCycleCore
           query = query.from(@from_tables.shift)
 
           @from_tables.each do |table|
-            query = query.joins("CROSS JOIN #{table}")
+            query = query.joins(ActiveRecord::Base.send(:sanitize_sql_array, ["CROSS JOIN #{table}"]))
           end
 
           query = query.select("json_build_object(#{@selects.join(', ')})") if @selects.present?
