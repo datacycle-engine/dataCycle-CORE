@@ -44,10 +44,11 @@ module DataCycleCore
                           item_count += 1
                           next if options[:min_count].present? && item_count < options[:min_count]
 
-                          args = [options, raw_classification_data]
-                          args << locale if extract_data.parameters.count == 3
-                          extracted_classification_data = extract_data.call(*args)
-
+                          if extract_data.parameters.any? { |type, name| [:key, :keyreq].include?(type) && name == :locale }
+                            extracted_classification_data = extract_data.call(options, raw_classification_data, locale:)
+                          else
+                            extracted_classification_data = extract_data.call(options, raw_classification_data)
+                          end
                           next if extracted_classification_data[:external_key].blank?
 
                           import_classification(
