@@ -24,6 +24,10 @@ class FixNewThingTemplateColumnsForLegacyTemplates < ActiveRecord::Migration[7.1
       }
     end
 
+    return if templates.blank?
+
+    ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
     DataCycleCore::ThingTemplate.upsert_all(templates, unique_by: :template_name)
   end
 
