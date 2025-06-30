@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module Date
         def in_schedule(value = nil, mode = nil, attribute_key = nil)
-          return if value.blank?
+          return none if value.blank?
 
           attribute_key = 'event_schedule' if attribute_key == 'schedule' # keep backwards compatibity for APIv4 filter[attribute][schedule]
           from_date, to_date = date_from_filter_object(value, mode)
@@ -32,7 +32,7 @@ module DataCycleCore
         end
 
         def validity_period(value = nil, mode = nil)
-          return if value.blank?
+          return none if value.blank?
 
           from_date, to_date = date_from_filter_object(value, mode)
           from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
@@ -53,7 +53,7 @@ module DataCycleCore
         end
 
         def inactive_things(value = nil, mode = nil)
-          return if value.blank?
+          return none if value.blank?
 
           from_date, to_date = date_from_filter_object(value, mode)
           from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
@@ -82,7 +82,7 @@ module DataCycleCore
         end
 
         def offer_period(value = nil, mode = nil)
-          return if value.blank?
+          return none if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
 
           schedule_search(from_date, to_date, ['offer_period_schedules', 'offers'])

@@ -44,6 +44,10 @@ module DataCycleCore
         ActiveRecord::Base.send(:sanitize_sql_array, sql_array)
       end
 
+      def none
+        reflect(@query.none)
+      end
+
       private
 
       def get_point(longitude, latitude)
