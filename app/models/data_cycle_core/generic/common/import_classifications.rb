@@ -10,6 +10,7 @@ module DataCycleCore
         )
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
           with_filters = options.dig(:import, :with_filters) || false
+          param_types = [:key, :keyreq]
 
           external_source_id = utility_object.external_source.id
           init_logging(utility_object) do |logging|
@@ -44,7 +45,7 @@ module DataCycleCore
                           item_count += 1
                           next if options[:min_count].present? && item_count < options[:min_count]
 
-                          if extract_data.parameters.any? { |type, name| [:key, :keyreq].include?(type) && name == :locale }
+                          if extract_data.parameters.any? { |type, name| param_types.include?(type) && name == :locale }
                             extracted_classification_data = extract_data.call(options, raw_classification_data, locale:)
                           else
                             extracted_classification_data = extract_data.call(options, raw_classification_data)
