@@ -18,12 +18,12 @@ key_name = attribute_key(key, definition)
 new_fields = subtree_for(key_name, options[:fields])
 new_include = subtree_for(key_name, options[:include])
 
-json[key_name] = content.try("#{key}_overlay")&.map do |schedule|
+json[key_name] = content.try("#{key}_overlay")&.map { |schedule|
   if options[:field_filter] && new_fields.present?
     serialize_opening_hours_specification(schedule, options[:field_filter], new_fields, new_include)
   else
     serialize_opening_hours_specification(schedule, false, new_fields, new_include)
   end
-end
+}&.flatten
 
 json

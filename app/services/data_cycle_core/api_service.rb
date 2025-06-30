@@ -58,6 +58,7 @@ module DataCycleCore
 
     def apply_filters(query, filters)
       return query if filters.blank?
+
       filters.each do |filter_k, filter_v|
         if filter_k == 'union'
           query = apply_union_filters(query, filter_v)
@@ -70,6 +71,7 @@ module DataCycleCore
           query = send(filter_method_name, query, filter_v)
         end
       end
+
       query
     end
 

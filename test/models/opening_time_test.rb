@@ -11,7 +11,7 @@ module DataCycleCore
       })
 
       assert_equal(ActiveSupport::Duration.parse('PT23H59M'), schedule.duration)
-      hash = schedule.to_opening_hours_specification_schema_org
+      hash = schedule.to_opening_hours_specification_schema_org&.first
 
       assert_equal('2025-03-30', hash['validFrom'])
       assert_equal('00:00', hash['opens'])
@@ -25,7 +25,7 @@ module DataCycleCore
       })
 
       assert_equal(ActiveSupport::Duration.parse('PT23H59M'), schedule.duration)
-      hash = schedule.to_opening_hours_specification_schema_org
+      hash = schedule.to_opening_hours_specification_schema_org&.first
 
       assert_equal('2025-10-26', hash['validFrom'])
       assert_equal('00:00', hash['opens'])
