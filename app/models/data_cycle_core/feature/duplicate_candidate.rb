@@ -100,7 +100,7 @@ module DataCycleCore
           )
 
           if content.location.present?
-            duplicates = duplicates.joins(:primary_geometries)
+            duplicates = duplicates.joins(:primary_geometry)
               .where(
                 "ST_DWithin(geometries.geom_simple, ST_GeographyFromText(?), #{DISTANCE_METERS})",
                 "SRID=4326;#{content.location}"
@@ -126,7 +126,7 @@ module DataCycleCore
           )
 
           if content.location.present?
-            duplicates = duplicates.joins(:primary_geometries)
+            duplicates = duplicates.joins(:primary_geometry)
               .where(
                 "ST_DWithin(geometries.location, ST_GeographyFromText(?), #{DISTANCE_METERS_NAME_GEO})",
                 "SRID=4326;#{content.location}"

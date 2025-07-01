@@ -18,8 +18,8 @@ module DataCycleCore
         end
 
         def geojson_geometry(content = self)
-          line = content&.primary_geometries&.where(relation: 'line')&.first&.geom
-          location = content&.primary_geometries&.where(relation: 'location')&.first&.geom
+          line = content.try(:line)
+          location = content.try(:location)
 
           if line.present? && location.present?
             longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')

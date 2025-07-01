@@ -19,7 +19,7 @@ module DataCycleCore
       end
 
       def contents_with_default_scope(query = @contents)
-        query = query.reorder(nil).joins(:primary_geometries).reselect(content_select_sql).group('things.id, geometries.id')
+        query = query.reorder(nil).joins(:primary_geometry).reselect(content_select_sql).group('things.id, geometries.id')
 
         joins = include_config.pluck(:joins)
         joins.uniq!
