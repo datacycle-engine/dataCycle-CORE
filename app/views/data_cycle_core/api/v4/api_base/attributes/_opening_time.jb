@@ -1,13 +1,19 @@
 # frozen_string_literal: true
 
 def serialize_opening_hours_specification(schedule, filter, fields, include = [])
-  data = schedule&.to_opening_hours_specification_schema_org&.compact
-  data.merge!(schedule&.to_ical_string_api_v4 || {}) if select_attributes(include).include?('dc:ical')
+  data = schedule&.to_opening_hours_specification_schema_org&.map(&:compact)
+  if select_attributes(include).include?('dc:ical')
+    data&.map do |item|
+      item.merge!(schedule&.to_ical_string_api_v4 || {})
+    end
+  end
 
   return data unless filter
 
-  data&.select do |key, _value|
-    fields_attribute?(key, fields) || included_attribute?(key, include)
+  data&.map do |item|
+    item&.select do |key, _value|
+      fields_attribute?(key, fields) || included_attribute?(key, include)
+    end
   end
 end
 
