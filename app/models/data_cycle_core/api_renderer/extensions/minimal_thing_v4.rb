@@ -8,9 +8,9 @@ module DataCycleCore
         MINIMAL_ATTRIBUTES = {
           '@id' => '"things"."id"',
           '@type' => 'array_to_json("thing_templates"."api_schema_types")',
-          'dct:modified' => "DATE_TRUNC('milliseconds', \"things\".\"updated_at\" AT TIME ZONE 'UTC')",
-          'dct:created' => "DATE_TRUNC('milliseconds', \"things\".\"created_at\" AT TIME ZONE 'UTC')",
-          'dc:touched' => "DATE_TRUNC('milliseconds', \"things\".\"cache_valid_since\" AT TIME ZONE 'UTC')"
+          'dct:modified' => "to_char(\"things\".\"updated_at\" AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.FF3TZH:TZM')",
+          'dct:created' => "to_char(\"things\".\"created_at\" AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.FF3TZH:TZM')",
+          'dc:touched' => "to_char(\"things\".\"cache_valid_since\" AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.FF3TZH:TZM')"
         }.freeze
 
         def initialize(**)
@@ -214,7 +214,7 @@ module DataCycleCore
           @with_tables[:contents] = @with_tables[:contents].except(:where) if section_visible?(:meta)
           @with_tables[:contents_json] = DataCycleCore::Thing
             .from('"contents"')
-            .select('json_agg("contents"."data") AS "data"')
+            .select('COALESCE(json_agg("contents"."data"), \'[]\') AS "data"')
           @with_tables[:contents_json] = @with_tables[:contents_json].where('"contents"."row_number" <= ?', thing_query.limit_value + thing_query.offset_value) if !section_visible?(:meta) && section_visible?(:links)
           @from_tables << '"contents_json"'
         end
