@@ -6,7 +6,7 @@
     </span>
 
     <%= render 'data_cycle_core/contents/editors/features/geo_key_figure_all' if DataCycleCore::Feature::GeoKeyFigure.allowed_child_attribute_key?(content, definition) %>
-    <%= render 'data_cycle_core/contents/editors/features/reverse_geocode_button', content: content if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature::Geocode.allowed?(content) && DataCycleCore::Feature::Geocode.reverse_geocode_target_key?(key, content) %>
+    <%= render 'data_cycle_core/contents/editors/features/reverse_geocode_button', content: content if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature['Geocode']&.allowed?(content) && DataCycleCore::Feature['Geocode']&.reverse_geocode_target_key?(key, content) %>
 
     <% ordered_validation_properties(validation: definition, scope: :edit).each do |o_key, o_definition| %>
       <%= render_attribute_editor key: o_key,
