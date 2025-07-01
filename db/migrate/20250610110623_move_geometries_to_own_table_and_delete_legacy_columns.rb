@@ -41,13 +41,19 @@ class MoveGeometriesToOwnTableAndDeleteLegacyColumns < ActiveRecord::Migration[7
       DROP FUNCTION IF EXISTS public.geom_simple_update();
     SQL
 
-    change_table :things, bulk: true do |t|
-      t.remove :location, :line, :geom, :geom_simple
-    end
+    execute <<~SQL
+      ALTER TABLE things
+        DROP COLUMN location CASCADE,
+        DROP COLUMN line CASCADE,
+        DROP COLUMN geom CASCADE,
+        DROP COLUMN geom_simple CASCADE;
+    SQL
 
-    change_table :thing_histories, bulk: true do |t|
-      t.remove :location, :line
-    end
+    execute <<~SQL
+      ALTER TABLE thing_histories
+        DROP COLUMN location CASCADE,
+        DROP COLUMN line CASCADE;
+    SQL
   end
 
   def down
