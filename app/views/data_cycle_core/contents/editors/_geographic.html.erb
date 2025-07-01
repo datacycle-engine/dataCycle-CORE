@@ -67,7 +67,7 @@
                                     parameters: { options: { force_render: true, prefix: local_assigns.dig(:options, :prefix) } },
                                     content: content if content.collect_properties.flatten.include?('elevation') %>
 
-        <%= render 'data_cycle_core/contents/editors/features/geocode_button', content: content if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature::Geocode.allowed?(content) && DataCycleCore::Feature::Geocode.target_key?(key, content) %>
+        <%= render 'data_cycle_core/contents/editors/features/geocode_button', content: content if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature['Geocode']&.allowed?(content) && DataCycleCore::Feature['Geocode']&.target_key?(key, content) %>
       <% end %>
     </div>
   </div>
