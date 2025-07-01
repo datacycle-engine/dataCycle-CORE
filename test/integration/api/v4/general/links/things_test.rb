@@ -309,6 +309,25 @@ module DataCycleCore
               assert(json_data.dig('links', 'next').blank?)
               assert(json_data.dig('links', 'prev').present?)
             end
+
+            test 'GET empty @graph' do
+              DataCycleCore::Thing.delete_all
+              get test_route
+              assert_response :success
+
+              json_data = response.parsed_body
+
+              assert(json_data['@graph'].is_a?(Array))
+              assert_equal(0, json_data['@graph'].size)
+
+              get test_route(fields: '@id')
+              assert_response :success
+
+              json_data = response.parsed_body
+
+              assert(json_data['@graph'].is_a?(Array))
+              assert_equal(0, json_data['@graph'].size)
+            end
           end
         end
       end

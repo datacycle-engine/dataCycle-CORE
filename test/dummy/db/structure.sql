@@ -1854,9 +1854,9 @@ CREATE TABLE public.geometries (
     thing_id uuid NOT NULL,
     relation character varying NOT NULL,
     geom public.geometry(GeometryZ,4326) NOT NULL,
-    geom_simple public.geometry(Geometry,4326) GENERATED ALWAYS AS (public.st_simplify(public.st_force2d(geom), (0.00001)::double precision, true)) STORED,
     priority integer NOT NULL,
     is_primary boolean DEFAULT false NOT NULL,
+    geom_simple public.geometry(Geometry,4326) GENERATED ALWAYS AS (public.st_geomfromtext(public.st_astext(public.st_simplify(public.st_force2d(geom), (0.00001)::double precision, true), 5))) STORED,
     CONSTRAINT chk_rails_278157ff08 CHECK ((priority > 0))
 );
 
@@ -3577,13 +3577,6 @@ CREATE INDEX index_geometries_on_geom_simple ON public.geometries USING gist (ge
 
 
 --
--- Name: index_geometries_on_geom_simple_geography; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_geometries_on_geom_simple_geography ON public.geometries USING gist (((geom_simple)::public.geography));
-
-
---
 -- Name: index_geometries_on_thing_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5163,6 +5156,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250626113312'),
 ('20250625103014'),
 ('20250620055722'),
 ('20250610110623'),
