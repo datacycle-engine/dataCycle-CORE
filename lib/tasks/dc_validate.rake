@@ -27,6 +27,10 @@ namespace :dc do
     Rake::Task['dc:templates:validate'].reenable
     puts '----------'
 
+    Rake::Task['dc:features:validate'].invoke(args.verbose)
+    Rake::Task['dc:features:validate'].reenable
+    puts '----------'
+
     Rake::Task['zeitwerk:check'].invoke
     Rake::Task['zeitwerk:check'].reenable
   end
