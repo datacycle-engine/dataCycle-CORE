@@ -56,8 +56,8 @@ module DataCycleCore
           data_object[:original_id] = data.original_id if data.respond_to?(:original_id)
           data_object[:duplicate_id] = data.duplicate_id if data.respond_to?(:duplicate_id)
 
-          if data.is_a?(OpenStruct) # rubocop:disable Style/OpenStructUse
-            data.try(:additional_webhook_attributes).each do |key|
+          if data.respond_to?(:additional_webhook_attributes)
+            data.additional_webhook_attributes.each do |key|
               data_object[key.to_sym] = data.send(key) if data.respond_to?(key)
             end
           end
