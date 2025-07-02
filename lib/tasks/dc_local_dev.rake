@@ -34,13 +34,10 @@ namespace :dc do
       new_locale = args.new_locale
       file_names = Regexp.new(args.file_names, 'i') if args.file_names.present?
 
-      if args.path.present?
-        file_paths = Dir[DataCycleCore::Engine.root.join(args.path, '{*.de,de}.yml')]
-        file_paths.concat(Rails.root.glob("#{args.path}/{*.de,de}.yml"))
-      else
-        file_paths = Dir[DataCycleCore::Engine.root.join('config', 'locales', '{*.de,de}.yml')]
-        file_paths.concat(Rails.root.glob('config/locales/{*.de,de}.yml'))
-      end
+      search_path = args.path.presence || 'config/locales'
+
+      file_paths = Dir[DataCycleCore::Engine.root.join(search_path, '{*.de,de}.yml')]
+      file_paths.concat(Rails.root.glob("#{search_path}/{*.de,de}.yml"))
 
       file_paths.select! { |p| file_names.match?(File.basename(p)) } if file_names.present?
 
