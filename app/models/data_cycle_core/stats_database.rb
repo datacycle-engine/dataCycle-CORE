@@ -6,7 +6,10 @@ module DataCycleCore
   class StatsDatabase
     include ActionView::Helpers::NumberHelper
 
-    VALID_JOB_TYPES = ['dc:import:append_job'].freeze
+    VALID_JOB_TYPES = {
+      'dc:import:append_job' => [:key, :mode, :inline],
+      'dc:import:append_partial_job' => [:key, :download_names, :import_names, :mode]
+    }.freeze
 
     attr_accessor(
       :stat_update, :pg_name, :pg_size, :pg_overlays,
@@ -155,33 +158,37 @@ module DataCycleCore
         next if config.key?('type') || config.key?('task')
 
         config&.each do |cron_rule, tasks|
-          tasks&.each do |task|
+          schedule = tasks&.lazy&.filter_map { |task|
             t_name, t_args = task.delete_suffix(']').split('[')
-            key, mode, inline = t_args.split(',') if t_args.present?
+            next unless VALID_JOB_TYPES.key?(t_name.to_s)
 
-            next if VALID_JOB_TYPES.exclude?(t_name.to_s) || key.blank?
+            opts = VALID_JOB_TYPES[t_name.to_s].zip(t_args.split(',')).to_h
+            next if opts[:key].blank?
 
-            key.delete!('\'"')
-            mode&.delete!('\'"')
-            inline&.delete!('\'"')
+            opts.transform_values! { |v| v&.delete('\'"') }
 
-            next if key.start_with?(' ') || key.end_with?(' ') || mode&.include?(' ') || inline&.include?(' ')
+            next if opts[:key].start_with?(' ') ||
+                    opts[:key].end_with?(' ') ||
+                    opts[:mode]&.include?(' ') ||
+                    opts[:inline]&.include?(' ')
 
-            next unless key == external_source.id ||
-                        key == external_source.name ||
-                        key == external_source.identifier
+            next unless opts[:key] == external_source.id ||
+                        opts[:key] == external_source.name ||
+                        opts[:key] == external_source.identifier
 
             parsed_schedule = Fugit.parse(cron_rule)
             next unless parsed_schedule
 
-            parsed_schedule.next.take(7).each do |next_time|
-              schedules << {
+            parsed_schedule.next.take(7).map do |next_time|
+              {
                 timestamp: next_time,
-                mode: mode,
-                inline: inline.to_s == 'true'
+                mode: opts[:mode],
+                inline: opts[:inline].to_s == 'true'
               }
             end
-          end
+          }&.first
+
+          schedules.concat(schedule) if schedule.present?
         end
       end
 
