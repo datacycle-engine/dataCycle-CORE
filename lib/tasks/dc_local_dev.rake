@@ -44,7 +44,7 @@ namespace :dc do
       file_paths.each do |file_path|
         puts "TRANSLATING #{file_path}..."
 
-        existing_translations = YAML.safe_load(File.open(file_path), permitted_classes: [Symbol], aliases: true)
+        existing_translations = YAML.safe_load(File.open(file_path), permitted_classes: [Symbol])
 
         next if existing_translations.blank?
 
