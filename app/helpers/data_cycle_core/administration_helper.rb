@@ -40,6 +40,7 @@ module DataCycleCore
         args = []
         args << tag.b(t("dash_board.#{s[:mode]}", locale: active_ui_locale)) if s[:mode].present?
         args << tag.i(class: 'fa fa-bolt') if s[:inline].present?
+        args << tag.i(s[:steps].join(', ')) if s[:steps].present?
         text << " (#{args.join(', ')})" if args.any?
         text.join(' ')
       }.concat

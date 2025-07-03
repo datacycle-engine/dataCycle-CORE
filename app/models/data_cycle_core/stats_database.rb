@@ -8,7 +8,8 @@ module DataCycleCore
 
     VALID_JOB_TYPES = {
       'dc:import:append_job' => [:key, :mode, :inline],
-      'dc:import:append_partial_job' => [:key, :download_names, :import_names, :mode]
+      'dc:import:append_partial_job' => [:key, :download_names, :import_names, :mode],
+      'dc:downport:partial' => [:key, :download_names, :import_names, :mode, :max_count]
     }.freeze
 
     attr_accessor(
@@ -158,7 +159,7 @@ module DataCycleCore
         next if config.key?('type') || config.key?('task')
 
         config&.each do |cron_rule, tasks|
-          schedule = tasks&.lazy&.filter_map { |task|
+          tasks&.each do |task|
             t_name, t_args = task.delete_suffix(']').split('[')
             next unless VALID_JOB_TYPES.key?(t_name.to_s)
 
@@ -179,16 +180,19 @@ module DataCycleCore
             parsed_schedule = Fugit.parse(cron_rule)
             next unless parsed_schedule
 
+            steps = []
+            steps = opts[:download_names].to_s.split('|').map(&:strip).compact_blank if opts[:download_names].present?
+            steps += opts[:import_names].to_s.split('|').map(&:strip).compact_blank if opts[:import_names].present?
+
             parsed_schedule.next.take(7).map do |next_time|
-              {
+              schedules << {
                 timestamp: next_time,
                 mode: opts[:mode],
-                inline: opts[:inline].to_s == 'true'
+                inline: opts[:inline].to_s == 'true',
+                steps: steps.uniq
               }
             end
-          }&.first
-
-          schedules.concat(schedule) if schedule.present?
+          end
         end
       end
 
