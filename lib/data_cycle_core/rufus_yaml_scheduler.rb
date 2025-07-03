@@ -52,7 +52,7 @@ module DataCycleCore
     def run_task(task)
       return if task.nil? || task.strip.empty?
 
-      system "rake #{task}"
+      system "rails #{task}"
     end
   end
 end
