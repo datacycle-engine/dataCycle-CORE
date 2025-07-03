@@ -99,11 +99,11 @@ module DataCycleCore
             "similarity(thing_translations.content ->> 'name', ?) > 0.8", content.name
           )
 
-          if content.location.present?
+          if content.primary_geometry.present?
             duplicates = duplicates.joins(:primary_geometry)
               .where(
                 "ST_DWithin(geometries.geom_simple, ST_GeographyFromText(?), #{DISTANCE_METERS})",
-                "SRID=4326;#{content.location}"
+                "SRID=4326;#{content.primary_geometry.geom_simple}"
               )
           else
             duplicates = duplicates.where.not(
@@ -125,11 +125,11 @@ module DataCycleCore
             name: content.name
           )
 
-          if content.location.present?
+          if content.primary_geometry.present?
             duplicates = duplicates.joins(:primary_geometry)
               .where(
-                "ST_DWithin(geometries.location, ST_GeographyFromText(?), #{DISTANCE_METERS_NAME_GEO})",
-                "SRID=4326;#{content.location}"
+                "ST_DWithin(geometries.geom_simple, ST_GeographyFromText(?), #{DISTANCE_METERS_NAME_GEO})",
+                "SRID=4326;#{content.primary_geometry.geom_simple}"
               )
           else
             duplicates = duplicates.where.not(
