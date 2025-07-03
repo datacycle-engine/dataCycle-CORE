@@ -9,7 +9,8 @@ module DataCycleCore
     VALID_JOB_TYPES = {
       'dc:import:append_job' => [:key, :mode, :inline],
       'dc:import:append_partial_job' => [:key, :download_names, :import_names, :mode],
-      'dc:downport:partial' => [:key, :download_names, :import_names, :mode, :max_count]
+      'dc:downport:partial' => [:key, :download_names, :import_names, :mode, :max_count],
+      'data_cycle_core:import:perform' => [:key, :mode, :max_count]
     }.freeze
 
     attr_accessor(
