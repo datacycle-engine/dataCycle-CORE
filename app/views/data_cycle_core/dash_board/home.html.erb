@@ -10,7 +10,7 @@
         </h4>
 
         <% if can? :rebuild_classification_mappings, :dash_board %>
-          <%= link_to safe_join([tag.i(class: 'fa fa-refresh'), t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)], ' '), admin_rebuild_classification_mappings_path, class: "button small rebuild_classification_mappings", data: { disable_with: safe_join([tag.i(class: 'fa fa-refresh fa-spin fa-fw'), t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)], ' '), disabled: @stat_job_queue[:rebuild_classification_mappings] } %>
+          <%= link_to safe_join([tag.i(class: 'fa fa-refresh'), t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)], ' '), admin_rebuild_classification_mappings_path, class: "button small rebuild_classification_mappings", data: { disable_with: safe_join([tag.i(class: 'fa fa-refresh fa-spin fa-fw'), t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)], ' '), disabled: @rebuilding_classification_mappings } %>
         <% end %>
 
         <% if can? :clear_all, :cache %>
@@ -44,8 +44,8 @@
 
   <div class="grid-external-modules">
     <div class="grid-parent">
-      <%= render 'pg_total_stats' %>
-      <%= render 'job_queue_stats' %>
+      <%= render 'data_cycle_core/dash_board/pg_total_stats' %>
+      <%= render 'data_cycle_core/dash_board/job_queue_stats' %>
     </div>
   </div>
 

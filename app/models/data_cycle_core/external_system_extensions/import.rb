@@ -221,29 +221,42 @@ module DataCycleCore
         strategy_method = strategy.respond_to?(:import_data) ? :import_data : :download_content
         utility_object = utility_object_for_step(type, full_options)
 
-        merge_last_import_step_time_info(json_key, {last_try: last_start})
-        update_columns(last_import_step_time_info: last_import_step_time_info)
+        update_step_timestamp_start(last_start, type, json_key)
 
         success = strategy.send(strategy_method, utility_object:, options: full_options)
       ensure
-        duration = Time.zone.now - last_start
-        update_info = {
-          last_try_time: duration
-        }
-        if success
-          update_info = update_info.merge({
-            last_successful_try: last_start,
-            last_successful_try_time: duration
-          })
-        end
-
-        merge_last_import_step_time_info(json_key, update_info)
-        update_columns(last_import_step_time_info: last_import_step_time_info)
+        update_step_timestamp_end(last_start, type, json_key, success)
       end
 
       def import_one(name, external_key, options = {}, mode = 'full')
         raise 'no external key given' if external_key.blank?
         import_single(name, options.deep_merge({ mode:, import: { source_filter: { external_id: external_key } } }))
+      end
+
+      private
+
+      def update_step_timestamp_start(timestamp, type, step_key)
+        merge_last_import_step_time_info(step_key, {last_try: timestamp, running: true})
+        update_columns(last_import_step_time_info: last_import_step_time_info)
+        ActionCable.server.broadcast('admin_dashboard_import', { type:, id:, step_key:, running: true })
+      end
+
+      def update_step_timestamp_end(timestamp, type, step_key, success)
+        duration = Time.zone.now - timestamp
+        update_info = {
+          last_try_time: duration,
+          running: false
+        }
+        if success
+          update_info = update_info.merge({
+            last_successful_try: timestamp,
+            last_successful_try_time: duration
+          })
+        end
+
+        merge_last_import_step_time_info(step_key, update_info)
+        update_columns(last_import_step_time_info: last_import_step_time_info)
+        ActionCable.server.broadcast('admin_dashboard_import', { type:, id:, step_key:, running: false })
       end
     end
   end

@@ -8,6 +8,9 @@ dependencies:
   '@floating-ui/dom':
     specifier: ^1.0.0
     version: 1.5.3
+  '@hotwired/turbo-rails':
+    specifier: ^8.0.16
+    version: 8.0.16
   '@mapbox/mapbox-gl-draw':
     specifier: 1.4.3
     version: 1.4.3
@@ -351,6 +354,18 @@ packages:
 
   /@floating-ui/utils@0.1.6:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
+    dev: false
+
+  /@hotwired/turbo-rails@8.0.16:
+    resolution: {integrity: sha512-Yxiy2x+N3eOIEDokvLzSrd08aI5RDKnFYDQFl2J/LuMEWTtPdY7oNP0F/gv/sSe5AV23Lwz4FitG/uNFXNM5tA==}
+    dependencies:
+      '@hotwired/turbo': 8.0.13
+      '@rails/actioncable': 7.1.2
+    dev: false
+
+  /@hotwired/turbo@8.0.13:
+    resolution: {integrity: sha512-M7qXUqcGab6G5PKOiwhgbByTtrPgKPFCTMNQ52QhzUEXEqmp0/ApEguUesh/FPiUjrmFec+3lq98KsWnYY2C7g==}
+    engines: {node: '>= 14'}
     dev: false
 
   /@kurkle/color@0.3.2:

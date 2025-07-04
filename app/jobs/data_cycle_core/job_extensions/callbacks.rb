@@ -9,6 +9,11 @@ module DataCycleCore
         attr_accessor :last_error
 
         define_callbacks :success, :error, :failure
+
+        after_enqueue :broadcast_change
+        before_perform :broadcast_change
+        after_perform :broadcast_change
+
         after_perform ->(job) { job.run_callbacks :success }
 
         rescue_from StandardError do |exception|
@@ -49,6 +54,10 @@ module DataCycleCore
         def after_failure(*filters, &)
           set_callback(:failure, :after, *filters, &)
         end
+      end
+
+      def broadcast_change
+        ActionCable.server.broadcast('admin_dashboard_jobs', { type: 'reload' })
       end
     end
   end

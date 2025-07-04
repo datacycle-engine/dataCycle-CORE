@@ -8,7 +8,7 @@ module DataCycleCore
       @errors = nil
       @duplicates = nil
       @stat_database = StatsDatabase.new.load_all_stats
-      @stat_job_queue = StatsJobQueue.new.job_list
+      @rebuilding_classification_mappings = StatsJobQueue.new.rebuilding_classification_mappings?
       @grouped_external_systems = DataCycleCore::ExternalSystem.grouped_by_type(@stat_database.import_modules)
     end
 
@@ -17,13 +17,16 @@ module DataCycleCore
       job = DownloadJob.new(@external_source.id, import_params[:mode])
 
       if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
-        flash[:info] = I18n.t(:running, scope: [:controllers, :job], locale: helpers.active_ui_locale)
+        flash[:info] = I18n.t('controllers.job.running', locale: helpers.active_ui_locale)
       else
         job.enqueue
-        flash[:success] = I18n.t(:added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
+        flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
 
-      redirect_to admin_path
+      respond_to do |format|
+        format.html { redirect_to admin_path }
+        format.js
+      end
     end
 
     def import
@@ -31,13 +34,16 @@ module DataCycleCore
       job = ImportOnlyJob.new(@external_source.id, import_params[:mode])
 
       if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
-        flash[:info] = I18n.t(:running, scope: [:controllers, :job], locale: helpers.active_ui_locale)
+        flash[:info] = I18n.t('controllers.job.running', locale: helpers.active_ui_locale)
       else
         job.enqueue
-        flash[:success] = I18n.t(:added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
+        flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
 
-      redirect_to admin_path
+      respond_to do |format|
+        format.html { redirect_to admin_path }
+        format.js
+      end
     end
 
     def download_import
@@ -45,19 +51,29 @@ module DataCycleCore
       job = ImportJob.new(@external_source.id, import_params[:mode])
 
       if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
-        flash[:info] = I18n.t(:running, scope: [:controllers, :job], locale: helpers.active_ui_locale)
+        flash[:info] = I18n.t('controllers.job.running', locale: helpers.active_ui_locale)
       else
         job.enqueue
-        flash[:success] = I18n.t(:added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
+        flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
 
-      redirect_to admin_path
+      respond_to do |format|
+        format.html { redirect_to admin_path }
+        format.js
+      end
     end
 
     def delete_queue
       job = Delayed::Job.find(import_params[:id])
-      job.destroy if job.present?
-      redirect_to admin_path
+      if job.present?
+        job.destroy
+        ActionCable.server.broadcast('admin_dashboard_jobs', { type: 'reload' })
+      end
+
+      respond_to do |format|
+        format.html { redirect_to admin_path }
+        format.js { head :ok }
+      end
     end
 
     def rebuild_classification_mappings

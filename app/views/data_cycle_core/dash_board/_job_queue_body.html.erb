@@ -1,0 +1,54 @@
+<% stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list %>
+
+<% if stat_job_queue[:queued].present? %>
+  <h5 class="has-jobs">in queue:</h5>
+  <ul>
+    <% stat_job_queue[:queued].each do |queue, count| %>
+      <% queued_types = stat_job_queue.dig(:delayed_reference_types, queue, 'queued_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+      <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: queued_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+    <% end %>
+  </ul>
+<% else %>
+  <h5>0 waiting in queue</h5>
+<% end %>
+
+<% if stat_job_queue[:running].present? %>
+  <h5 class="has-jobs">running:</h5>
+  <ul>
+    <% stat_job_queue[:running].each do |queue, count| %>
+      <% running_types = stat_job_queue.dig(:delayed_reference_types, queue, 'running_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+      <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: running_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+    <% end %>
+  </ul>
+<% else %>
+  <h5>0 running</h5>
+<% end %>
+
+<% if stat_job_queue[:importers].size.positive? %>
+  <h5 class="has-jobs">import/download:</h5>
+  <ul>
+    <% stat_job_queue[:importers].each do |job| %>
+      <li>
+        <%= job['status'].html_safe %>
+        <b><i> <%= link_to(t('dash_board.delete', locale: active_ui_locale), admin_delete_queue_path(id: job['id']), remote: true, class: 'import-job-destroy-link', data: { disable: true })%> </i></b><br/>
+        <b><%= DataCycleCore::ExternalSystem.find_by(id: job['ref_id'])&.name %></b>
+        <i>(<%= job['job'] %>)</i> <br/>
+        <%= l(job['created_at'], locale: active_ui_locale, format: :history) %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <h5>0 running import/download</h5>
+<% end %>
+
+<% if stat_job_queue[:failed].present? %>
+  <h5 class="has-jobs">failed:</h5>
+  <ul>
+    <% stat_job_queue[:failed].each do |queue, count| %>
+      <% failed_types = stat_job_queue.dig(:delayed_reference_types, queue, 'failed_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+      <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: failed_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+    <% end %>
+  </ul>
+<% else %>
+  <h5>0 failed</h5>
+<% end %>
