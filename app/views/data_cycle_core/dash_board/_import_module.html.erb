@@ -97,8 +97,7 @@
             tag.span(t('dash_board.delta', locale: active_ui_locale)),
             admin_download_import_path(id: data[:uuid]),
             class: 'button small download-import',
-            remote: true,
-            data: { disable: true }
+            data: { disable: true, turbo: true, turbo_stream: true }
           ) %>
 
       <%= link_to_condition(
@@ -106,8 +105,7 @@
             tag.span(t('dash_board.full', locale: active_ui_locale)),
             admin_download_import_path(id: data[:uuid], mode: 'full'),
             class: 'button small download-import-full',
-            remote: true,
-            data: { disable: true }
+            data: { disable: true, turbo: true, turbo_stream: true }
           ) %>
 
       <%= link_to_condition(
@@ -115,8 +113,7 @@
             tag.span(t('dash_board.reset', locale: active_ui_locale)),
             admin_download_import_path(id: data[:uuid], mode: 'reset'),
             class: 'button small download-import-reset',
-            remote: true,
-            data: { disable: true }
+            data: { disable: true, turbo: true, turbo_stream: true }
           ) %>
     </div>
 
@@ -127,8 +124,7 @@
             tag.span(t('dash_board.delta', locale: active_ui_locale)),
             admin_download_path(id: data[:uuid]),
             class: 'button small download',
-            remote: true,
-            data: { disable: true }
+            data: { disable: true, turbo: true, turbo_stream: true }
           ) %>
 
       <%= link_to_condition(
@@ -136,8 +132,7 @@
             tag.span(t('dash_board.full', locale: active_ui_locale)),
             admin_download_path(id: data[:uuid], mode: 'full'),
             class: 'button small download-full',
-            remote: true,
-            data: { disable: true }
+            data: { disable: true, turbo: true, turbo_stream: true }
           ) %>
     </div>
 
@@ -148,8 +143,7 @@
             tag.span(t('dash_board.delta', locale: active_ui_locale)),
             admin_import_path(id: data[:uuid]),
             class: 'button small import',
-            remote: true,
-            data: { disable: true }
+            data: { disable: true, turbo: true, turbo_stream: true }
           ) %>
 
       <%= link_to_condition(
@@ -157,8 +151,7 @@
             tag.span(t('dash_board.full', locale: active_ui_locale)),
             admin_import_path(id: data[:uuid], mode: 'full'),
             class: 'button small import-full',
-            remote: true,
-            data: { disable: true }
+            data: { disable: true, turbo: true, turbo_stream: true }
           ) %>
 
       <%= link_to_condition(
@@ -166,8 +159,7 @@
             tag.span(t('dash_board.reset', locale: active_ui_locale)),
             admin_import_path(id: data[:uuid], mode: 'reset'),
             class: 'button small import-reset',
-            remote: true,
-            data: { disable: true }
+            data: { disable: true, turbo: true, turbo_stream: true }
           ) %>
     </div>
   </div>

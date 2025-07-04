@@ -254,6 +254,8 @@ DataCycleCore::Engine.routes.draw do
       get :activities
       get '/activity_details/:type', action: :activity_details, as: :activity_details, defaults: { format: :json }
 
+      get :jobs_partial
+
       scope :maintenance do
         get :rebuild_classification_mappings
       end

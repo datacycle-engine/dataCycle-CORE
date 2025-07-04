@@ -30,7 +30,7 @@
     <% stat_job_queue[:importers].each do |job| %>
       <li>
         <%= job['status'].html_safe %>
-        <b><i> <%= link_to(t('dash_board.delete', locale: active_ui_locale), admin_delete_queue_path(id: job['id']), remote: true, class: 'import-job-destroy-link', data: { disable: true })%> </i></b><br/>
+        <b><i> <%= link_to(t('dash_board.delete', locale: active_ui_locale), admin_delete_queue_path(id: job['id']), class: 'import-job-destroy-link', data: { disable: true, turbo: true, turbo_stream: true })%> </i></b><br/>
         <b><%= DataCycleCore::ExternalSystem.find_by(id: job['ref_id'])&.name %></b>
         <i>(<%= job['job'] %>)</i> <br/>
         <%= l(job['created_at'], locale: active_ui_locale, format: :history) %>

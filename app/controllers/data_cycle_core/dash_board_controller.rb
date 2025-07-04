@@ -23,10 +23,7 @@ module DataCycleCore
         flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
 
-      respond_to do |format|
-        format.html { redirect_to admin_path }
-        format.js
-      end
+      respond_to_admin_path_actions
     end
 
     def import
@@ -40,10 +37,7 @@ module DataCycleCore
         flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
 
-      respond_to do |format|
-        format.html { redirect_to admin_path }
-        format.js
-      end
+      respond_to_admin_path_actions
     end
 
     def download_import
@@ -57,23 +51,14 @@ module DataCycleCore
         flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
       end
 
-      respond_to do |format|
-        format.html { redirect_to admin_path }
-        format.js
-      end
+      respond_to_admin_path_actions
     end
 
     def delete_queue
       job = Delayed::Job.find(import_params[:id])
-      if job.present?
-        job.destroy
-        ActionCable.server.broadcast('admin_dashboard_jobs', { type: 'reload' })
-      end
+      job.destroy if job.present?
 
-      respond_to do |format|
-        format.html { redirect_to admin_path }
-        format.js { head :ok }
-      end
+      respond_to_admin_path_actions
     end
 
     def rebuild_classification_mappings
@@ -83,6 +68,10 @@ module DataCycleCore
         format.html { redirect_to(admin_path, notice: I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)) }
         format.json { head :ok }
       end
+    end
+
+    def jobs_partial
+      render partial: 'data_cycle_core/dash_board/job_queue_wrapper'
     end
 
     def activities
@@ -108,6 +97,18 @@ module DataCycleCore
     end
 
     private
+
+    def respond_to_admin_path_actions
+      respond_to do |format|
+        format.html { redirect_to admin_path }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.update(
+            :admin_dashboard_jobs,
+            partial: 'data_cycle_core/dash_board/job_queue_body'
+          )
+        end
+      end
+    end
 
     def permitted_params
       @permitted_params ||= params.permit(*permitted_parameter_keys).compact_blank

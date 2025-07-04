@@ -3,8 +3,10 @@
     <div class="card-divider">
       <h5>background jobs</h5>
     </div>
-    <div class="card-section remote-render"
-         data-remote-path="data_cycle_core/dash_board/job_queue_body">
+    <div class="card-section">
+      <%= turbo_stream_from 'admin_dashboard_jobs' %>
+
+      <%= turbo_frame_tag "admin_dashboard_jobs", src: admin_jobs_partial_path, data: { refresh: 10 } %>
     </div>
   </div>
 </div>
