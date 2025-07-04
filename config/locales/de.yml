@@ -1944,38 +1944,6 @@ de:
       ratings:
         stamina_rating: Kondition
         skill_rating: Fähigkeiten
-    outdoor_active:
-      place:
-        directions: Anfahrt
-        parking: Parken
-        hours_available: Öffnungszeiten
-        text: Beschreibung
-        price: Preis
-        description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-      tour:
-        directions: Anfahrt
-        parking: Parken
-        hours_available: Öffnungszeiten
-        text: Beschreibung
-        price: Preis
-        description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-        instructions: Wegbeschreibung
-        safety_instructions: Sicherheitshinweise
-        equipment: Ausrüstung
-        suggestion: Tipps
-        additional_information: Zusatzinformationen
-        maps: Literatur
-        starting_point_descr: Start
-        destination: Ziel
-      ratings:
-        technique_rating: Technik
-        condition_rating: Kondition
-        experience_rating: Erlebnis
-        landscape_rating: Landschaft
-        difficulty_rating: Schwierigkeit
-        panoramic_view_rating: Panoramaaussicht
     general_solutions:
       directions: Anfahrt
       parking: Parken
