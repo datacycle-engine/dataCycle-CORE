@@ -20,34 +20,3 @@ fr:
     booking:
       hotel_important_information: Informations importantes
       hotel_description: Description courte
-    outdoor_active:
-      place:
-        directions: S'y rendre
-        parking: Se garer
-        hours_available: Heures d’ouverture
-        text: Description
-        price: Prix
-        description: Brève description
-        directions_public_transport: Transports en commun
-      tour:
-        directions: S'y rendre
-        parking: Se garer
-        hours_available: Heures d’ouverture
-        text: Description
-        price: Prix
-        description: Brève description
-        directions_public_transport: Transports en commun
-        instructions: Itinéraire
-        safety_instructions: Consignes de sécurité
-        equipment: S'équiper
-        suggestion: Suggestion
-        additional_information: Complément d’information
-        maps: Bibliographie
-        starting_point_descr: Départ
-        destination: Arrivée
-      ratings:
-        technique_rating: Technicité
-        condition_rating: Condition physique
-        experience_rating: Expérience
-        landscape_rating: Paysage
-        difficulty_rating: Difficulté
