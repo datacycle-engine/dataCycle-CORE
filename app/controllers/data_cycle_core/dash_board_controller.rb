@@ -66,12 +66,26 @@ module DataCycleCore
 
       respond_to do |format|
         format.html { redirect_to(admin_path, notice: I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)) }
-        format.json { head :ok }
+        format.turbo_stream do
+          flash.now[:success] = I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)
+          render turbo_stream: [
+            turbo_stream.append(:flash_messages, partial: 'data_cycle_core/shared/flash'),
+            turbo_stream.update(
+              :admin_dashboard_concept_mapping_job,
+              partial: 'data_cycle_core/dash_board/concept_mappings_button',
+              locals: { rebuilding: true }
+            )
+          ]
+        end
       end
     end
 
     def jobs_partial
       render partial: 'data_cycle_core/dash_board/job_queue_wrapper'
+    end
+
+    def import_module_partial
+      render partial: 'data_cycle_core/dash_board/import_module', locals: { external_source_id: import_module_partial_params[:id] }
     end
 
     def activities
@@ -102,12 +116,13 @@ module DataCycleCore
       respond_to do |format|
         format.html { redirect_to admin_path }
         format.turbo_stream do
-          render turbo_stream: turbo_stream.update(
-            :admin_dashboard_jobs,
-            partial: 'data_cycle_core/dash_board/job_queue_body'
-          )
+          render turbo_stream: turbo_stream.append(:flash_messages, partial: 'data_cycle_core/shared/flash', locals: { flash: flash.discard })
         end
       end
+    end
+
+    def import_module_partial_params
+      params.permit(:id)
     end
 
     def permitted_params

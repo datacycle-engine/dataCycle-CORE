@@ -188,14 +188,21 @@
     border-radius: 0;
 
     .header {
+      h5 {
+        margin-right: auto;
+      }
+
       .import-data-timestamps {
         display: flex;
-        flex: auto;
         justify-content: flex-end;
         align-items: flex-start;
         color: var(--dark-gray);
         margin: 0;
         gap: 0.1rem;
+      }
+
+      .schedule {
+        color: var(--dark-gray);
       }
     }
   }
@@ -332,13 +339,6 @@ ul.import-data-timestamps li {
     font-size: 0.4rem;
   }
 
-  &.schedule {
-    &::before {
-      font-size: 1rem;
-      content: '\f017';
-    }
-  }
-
   &.check-icon {
     &::before {
       font-size: 0.9rem;
@@ -346,7 +346,7 @@ ul.import-data-timestamps li {
     }
   }
 
-  &.success-color {
+  &.finished {
     color: var(--success-color);
 
     &::before {
@@ -355,7 +355,7 @@ ul.import-data-timestamps li {
     }
   }
 
-  &.alert-color {
+  &.error {
     color: var(--alert-color);
 
     &::before {
@@ -364,7 +364,7 @@ ul.import-data-timestamps li {
     }
   }
 
-  &.primary-color {
+  &.running {
     color: var(--primary-color);
 
     &::before {
@@ -389,6 +389,8 @@ ul.import-data-timestamps li {
 
   .card.background-jobs {
     .card-section {
+      display: block;
+
       h5 {
         font-size: 1.1rem;
         color: var(--dark-gray);
@@ -466,66 +468,72 @@ ul.import-data-timestamps li {
   }
 }
 
-table.import-steps td {
-  padding: 0.35rem 0.5rem;
-  white-space: nowrap;
-  max-width: 0;
 
-  &.import-step-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+table.import-steps {
+  table-layout: fixed;
+
+  tbody {
+    border: none;
   }
 
-  &.import-step-timestamp {
-    .last-import {
-      .timestamp {
-        display: flex;
-        gap: 0.3rem;
-        overflow-wrap: break-word;
+  tr {
+    font-size: 1rem;
 
-        &::before {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
+    &.finished {
+      color: var(--success-color);
+    }
 
-        &.success-color::before,
-        &.alert-color::before,
-        &.primary-color::before {
-          font-family: 'FontAwesome';
+    &.error {
+      color: var(--alert-color);
+    }
+
+    &.running {
+      color: var(--primary-color);
+    }
+
+    &.unknown {
+      color: var(--dark-gray);
+    }
+
+    td {
+      padding: 0.35rem 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+
+      &.import-step-name {
+
+        .fa {
           font-size: 0.9rem;
-        }
-
-        &.success-color {
-          color: var(--success-color);
-
-          &::before {
-            content: '\f00c';
-          }
-        }
-
-        &.alert-color {
-          color: var(--alert-color);
-
-          &::before {
-            content: '\f00d';
-          }
-        }
-
-        &.primary-color {
-          color: var(--primary-color);
-
-          &::before {
-            content: '\f110';
-            animation: fa-spin 2s infinite linear;
-          }
         }
       }
 
-      .time {
-        &.primary-color {
-          color: var(--primary-color);
+      &.import-step-timestamp {
+        width: 130px;
+        text-align: right;
+        padding: 0.35rem 0;
+      }
+
+      &.import-step-duration {
+        width: 65px;
+        text-align: right;
+
+        .duration-s {
+          font-weight: 300;
+        }
+
+        .duration-m {
+          font-weight: 500;
+        }
+
+        .duration-l {
+          font-weight: 600;
+        }
+
+        .duration-xl {
+          font-weight: 700;
         }
       }
     }

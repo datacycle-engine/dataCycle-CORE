@@ -1,0 +1,7 @@
+<%= link_to safe_join([
+    tag.i(class: "fa fa-refresh #{'fa-spin' if local_assigns[:rebuilding]}"),
+    t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)
+  ], ' '),
+  admin_rebuild_classification_mappings_path,
+  class: "button small rebuild_classification_mappings #{'disabled' if local_assigns[:rebuilding]}",
+  data: { turbo: true, turbo_stream: true } %>

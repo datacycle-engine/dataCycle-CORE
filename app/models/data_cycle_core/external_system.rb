@@ -3,6 +3,7 @@
 module DataCycleCore
   class ExternalSystem < ApplicationRecord
     include ExternalSystemExtensions::Import
+    include ExternalSystemExtensions::Status
 
     attribute :last_import_time, :interval
     attribute :last_successful_import_time, :interval
@@ -136,6 +137,7 @@ module DataCycleCore
       return if import_step.blank?
       last_import_step_time_info[import_step] ||= {}
       last_import_step_time_info[import_step] = last_import_step_time_info[import_step].merge(values)
+      invalidate_last_download_and_import
     end
 
     def full_options(name, type = 'import', options = {})
@@ -348,24 +350,48 @@ module DataCycleCore
 
     private
 
+    def download_accessors_keys
+      return @download_accessors_keys if defined? @download_accessors_keys
+      @download_accessors_keys = sorted_steps(:download).map { |name| timestamp_key_for_step(name, :download).to_sym }
+    end
+
+    def download_accessors
+      return @download_accessors if defined? @download_accessors
+      @download_accessors = download_accessors_keys.map do |accessor|
+        :"step_info_#{accessor}"
+      end
+    end
+
+    def import_accessors_keys
+      return @import_accessors_keys if defined? @import_accessors_keys
+      @import_accessors_keys = sorted_steps(:import).map { |name| timestamp_key_for_step(name, :import).to_sym }
+    end
+
+    def import_accessors
+      return @import_accessors if defined? @import_accessors
+      @import_accessors = import_accessors_keys.map do |accessor|
+        :"step_info_#{accessor}"
+      end
+    end
+
     def init_step_timestamp_properties
       return unless respond_to?(:config) && respond_to?(:last_import_step_time_info)
 
-      download_accessors = sorted_steps(:download).map { |name| timestamp_key_for_step(name, :download).to_sym }
-      import_accessors = sorted_steps(:import).map { |name| timestamp_key_for_step(name, :import).to_sym }
+      download_keys = download_accessors_keys
+      import_keys = import_accessors_keys
 
       singleton_class.instance_eval do
-        download_accessors.each do |accessor|
-          store_accessor :last_import_step_time_info, accessor, prefix: :download_step_info
-          attribute :"download_step_info_#{accessor}", :jsonb
+        download_keys.each do |accessor|
+          store_accessor :last_import_step_time_info, accessor, prefix: :step_info
+          attribute :"step_info_#{accessor}", :jsonb
 
           # might work in Rails 8.x
           # store_accessor :"download_step_info_#{accessor}", :last_try, prefix: true
         end
 
-        import_accessors.each do |accessor|
-          store_accessor :last_import_step_time_info, accessor, prefix: :import_step_info
-          attribute :"import_step_info_#{accessor}", :jsonb
+        import_keys.each do |accessor|
+          store_accessor :last_import_step_time_info, accessor, prefix: :step_info
+          attribute :"step_info_#{accessor}", :jsonb
 
           # might work in Rails 8.x
           # store_accessor :"import_step_info_#{accessor}", :last_try, prefix: true

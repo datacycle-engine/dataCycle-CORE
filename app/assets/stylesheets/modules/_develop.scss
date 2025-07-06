@@ -3758,6 +3758,72 @@ button.button-prime.small.bulk-delete-button {
 
 body {
 
+  turbo-frame[src] {
+
+    position: relative;
+    min-height: 1.5rem;
+
+    &::before,
+    &::after {
+      content: '';
+      display: flex;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1;
+      position: absolute;
+      width: auto;
+      margin: 0;
+      height: 100%;
+      min-height: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-out;
+    }
+
+    &::before {
+      background-color: rgba(white, 0.5);
+    }
+
+    &.inverted::before {
+      background-color: rgba(lighten($light-gray, 4%), 0.9);
+    }
+
+    &::after {
+      right: unset;
+      width: 100%;
+      background: linear-gradient(to right,
+          rgba(white, 0) 0%,
+          rgba(lighten($light-gray, 4%), 0.9) 25%,
+          rgba(white, 0) 50%);
+    }
+
+    &.inverted::after {
+      background: linear-gradient(to right, rgba(white, 0) 0%, rgba(white, 0.5) 25%, rgba(white, 0) 50%);
+    }
+  }
+
+  turbo-frame[src][busy],
+  turbo-frame[src]:not([complete]) {
+    overflow: hidden;
+    cursor: wait;
+
+    &::before,
+    &::after {
+      opacity: 1;
+    }
+
+    &::after {
+      animation: progress-bar 1.5s linear infinite forwards;
+    }
+
+    >* {
+      transition: $opacity-transition;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  }
+
   .remote-render,
   .remote-rendering {
     position: relative;
@@ -3874,7 +3940,7 @@ body {
   padding: 0 1rem;
 
   .remote-reload-link {
-    padding-left: 0.5rem;
+    padding: 0 0 0 0.5rem;
     display: flex;
     align-items: center;
 

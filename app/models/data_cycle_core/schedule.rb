@@ -873,8 +873,6 @@ module DataCycleCore
     attribute :duration, :interval
     attr_readonly :occurrences
 
-    require 'dotiw'
-
     include ActionView::Helpers::DateHelper
     include ActionView::Helpers::TextHelper
     include ActionView::Helpers::NumberHelper

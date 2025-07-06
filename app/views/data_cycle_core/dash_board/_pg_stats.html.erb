@@ -1,15 +1,17 @@
-<ul class="pg-table-stats">
-  <% DataCycleCore::StatsDatabase.new.load_pg_stats&.each do |table, data| %>
-    <li class="table-stat">
-      <span class="table-name" title="<%= table.classify %>"><%= table.classify %></span>
-      <span class="table-count"><%= number_with_delimiter(data['count'], locale: active_ui_locale) %></span>
+<%= turbo_frame_tag "admin_dashboard_pg_stats" do %>
+  <ul class="pg-table-stats">
+    <% DataCycleCore::StatsDatabase.new.load_pg_stats&.each do |table, data| %>
+      <li class="table-stat">
+        <span class="table-name" title="<%= table.classify %>"><%= table.classify %></span>
+        <span class="table-count"><%= number_with_delimiter(data['count'], locale: active_ui_locale) %></span>
 
-      <span class="table-size"
+        <span class="table-size"
       data-dc-tooltip="<b>Total:</b> <%= number_to_human_size(data['total_size'], locale: active_ui_locale) %><br>
-      <b>Data:</b> <%= number_to_human_size(data['data_size'], locale: active_ui_locale) %><br>
-      <b>Index:</b> <%= number_to_human_size(data['index_size'], locale: active_ui_locale) %>">
-      (<%= number_to_human_size(data['total_size'], locale: active_ui_locale) %>)
-    </span>
-  </li>
-<% end %>
+        <b>Data:</b> <%= number_to_human_size(data['data_size'], locale: active_ui_locale) %><br>
+        <b>Index:</b> <%= number_to_human_size(data['index_size'], locale: active_ui_locale) %>">
+        (<%= number_to_human_size(data['total_size'], locale: active_ui_locale) %>)
+      </span>
+    </li>
+  <% end %>
 </ul>
+<% end %>

@@ -33,15 +33,17 @@ module DataCycleCore
       rule_types.map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end
 
-    def display_flash_messages_new(closable: true)
+    def render_flash_messages
       capture do
-        tag.div(class: 'flash-messages') do
-          flash.each do |key, value|
-            alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
-            concat alert_box(value, alert_class, closable)
-          end
+        flash.each do |key, value|
+          alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
+          concat alert_box(value, alert_class, true)
         end
       end
+    end
+
+    def display_flash_messages_new
+      render 'data_cycle_core/shared/flash_wrapper'
     end
 
     def show_external_connections?(content)
@@ -516,6 +518,13 @@ module DataCycleCore
       end
 
       messages_html
+    end
+
+    def turbo_localized_stream_from(*streamables, **attributes)
+      return turbo_stream_from(*streamables, **attributes) unless streamables.one? && (streamables.first.is_a?(String) || streamables.first.is_a?(Symbol))
+
+      localized_streamable = "#{streamables.first}_#{active_ui_locale}"
+      turbo_stream_from(localized_streamable, **attributes)
     end
 
     private

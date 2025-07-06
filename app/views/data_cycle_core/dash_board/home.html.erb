@@ -10,7 +10,10 @@
         </h4>
 
         <% if can? :rebuild_classification_mappings, :dash_board %>
-          <%= link_to safe_join([tag.i(class: 'fa fa-refresh'), t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)], ' '), admin_rebuild_classification_mappings_path, class: "button small rebuild_classification_mappings", data: { disable_with: safe_join([tag.i(class: 'fa fa-refresh fa-spin fa-fw'), t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)], ' '), disabled: @rebuilding_classification_mappings } %>
+          <%= turbo_localized_stream_from "admin_dashboard_concept_mapping_job" %>
+          <%= turbo_frame_tag "admin_dashboard_concept_mapping_job", refresh: 'morph' do %>
+            <%= render 'data_cycle_core/dash_board/concept_mappings_button', rebuilding: @rebuilding_classification_mappings %>
+          <% end %>
         <% end %>
 
         <% if can? :clear_all, :cache %>
@@ -64,6 +67,7 @@
     </div>
 
     <div class="grid-external-modules">
+      <%= turbo_localized_stream_from "admin_dashboard_import_modules" if @grouped_external_systems&.dig(:import).present? %>
       <div class="grid-parent">
         <%= render partial: 'import_modules', collection: @grouped_external_systems&.dig(:import), as: :import_data %>
       </div>

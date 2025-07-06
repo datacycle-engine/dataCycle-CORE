@@ -10,7 +10,10 @@ module DataCycleCore
 
         define_callbacks :success, :error, :failure
 
+        after_enqueue :broadcast_dashboard_jobs_reload
+        before_perform :broadcast_dashboard_jobs_reload
         after_perform ->(job) { job.run_callbacks :success }
+        after_perform :broadcast_dashboard_jobs_reload
 
         rescue_from StandardError do |exception|
           @last_error = exception
@@ -50,6 +53,21 @@ module DataCycleCore
         def after_failure(*filters, &)
           set_callback(:failure, :after, *filters, &)
         end
+
+        def broadcast_dashboard_jobs_reload?
+          false
+        end
+      end
+
+      private
+
+      def broadcast_dashboard_jobs_reload
+        return unless self.class.try(:broadcast_dashboard_jobs_reload?)
+
+        TurboService.broadcast_update_to(
+          'admin_dashboard_jobs',
+          partial: 'data_cycle_core/dash_board/job_queue_body'
+        )
       end
     end
   end

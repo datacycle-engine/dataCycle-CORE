@@ -7,9 +7,9 @@ module DataCycleCore
     end
 
     def active_duration(data, type)
-      return if data[:"last_#{type}_time"].blank? && data[:"last_#{type}_class"] != 'primary-color'
+      return if data[:"last_#{type}_time"].blank? && data[:"last_#{type}_status"] != 'running'
 
-      if data[:"last_#{type}_class"] == 'primary-color'
+      if data[:"last_#{type}_status"] == 'running'
         start_time = data[:"last_#{type}"]
         end_time = Time.zone.now
       else

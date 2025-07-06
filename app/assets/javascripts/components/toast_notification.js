@@ -21,27 +21,16 @@ class ToastNotification {
 	}
 
 	setUp() {
-		this.addEventListeners();
 		this.addMutationObserver();
 		this.handleInitialNotifications();
 	}
 
-	addEventListeners() {}
-
 	addMutationObserver() {
-		const observer = new MutationObserver((mutations) => {
-			for (const mutation of mutations) {
-				if (mutation.addedNodes.length) {
-					for (const node of mutation.addedNodes) {
-						if (node.classList.contains("new-notification")) {
-							this.handleNotification(node);
-						}
-					}
-				}
-			}
-		});
-
-		observer.observe(this.notificationContainer, { childList: true });
+		DataCycle.registerAddCallback(
+			"div.flash-messages .new-notification",
+			"dcjs-new-toast-notification",
+			this.handleNotification.bind(this),
+		);
 	}
 
 	handleNotification(node) {

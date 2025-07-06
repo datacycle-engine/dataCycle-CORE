@@ -5,20 +5,26 @@ if (import.meta.hot) {
 	});
 }
 
-import "@hotwired/turbo-rails";
-import { createConsumer } from "@rails/actioncable";
+import { Turbo, cable } from "@hotwired/turbo-rails";
 import Rails from "@rails/ujs";
 import jQuery from "jquery";
+import autoInitComponents from "./auto_init_components";
 import DataCycleSingleton from "./components/data_cycle";
 import I18n from "./components/i18n";
+import "./custom_elements";
+import { turboConfirmMethod } from "./initializers/rails_confirmation_init";
 
 Turbo.session.drive = false;
+Turbo.config.forms.confirm = turboConfirmMethod;
+
+cable.createConsumer().then((consumer) => {
+	window.actionCable = consumer;
+});
 
 Object.assign(window, {
 	$: jQuery,
 	jQuery,
 	Rails,
-	actionCable: createConsumer(),
 	I18n,
 });
 
@@ -29,15 +35,10 @@ import CalloutHelpers from "./helpers/callout_helpers";
 import "./helpers/number_helpers";
 import "./helpers/string_helpers";
 import UrlReplacer from "./helpers/url_replacer";
-import CustomElementsInit from "./initializers/custom_elements_init";
 import foundationInit from "./initializers/foundation_init";
 import validationInit from "./initializers/validation_init";
 
 const initializers = import.meta.glob("./initializers/*.js", {
-	eager: true,
-	import: "default",
-});
-const autoInitComponents = import.meta.glob("./auto_init_components/*.js", {
 	eager: true,
 	import: "default",
 });
@@ -46,18 +47,18 @@ const initializerExceptions = [
 	"foundation_init",
 	"validation_init",
 	"app_signal_init",
-	"custom_elements",
 ];
 
 export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
 	UrlReplacer.cleanSearchFormParams();
-	CustomElementsInit();
 
 	try {
 		Rails.start();
 	} catch {}
+
+	autoInitComponents();
 
 	if (typeof postDataCycleInit === "function") postDataCycleInit();
 	DataCycle.notifications.addEventListener("error", ({ detail }) => {
@@ -70,25 +71,6 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	});
 
 	$(() => {
-		for (const path in autoInitComponents) {
-			try {
-				const component = autoInitComponents[path];
-				const initFunction = component.lazy
-					? "registerLazyAddCallback"
-					: "registerAddCallback";
-
-				DataCycle[initFunction](
-					component.selector,
-					component.className,
-					(e) => new component(e),
-				);
-			} catch (err) {
-				DataCycle.notifications.dispatchEvent(
-					new CustomEvent("error", { detail: err }),
-				);
-			}
-		}
-
 		for (const path in initializers) {
 			if (!initializerExceptions.some((e) => path.includes(e))) {
 				try {

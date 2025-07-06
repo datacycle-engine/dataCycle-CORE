@@ -255,6 +255,7 @@ DataCycleCore::Engine.routes.draw do
       get '/activity_details/:type', action: :activity_details, as: :activity_details, defaults: { format: :json }
 
       get :jobs_partial
+      get :import_module_partial
 
       scope :maintenance do
         get :rebuild_classification_mappings
@@ -557,7 +558,7 @@ DataCycleCore::Engine.routes.draw do
   authenticate do
     post :add_filter, controller: :application
     post :add_tag_group, controller: :application
-    post :remote_render, controller: :application
+    match :remote_render, controller: :application, via: [:get, :post]
     get :holidays, controller: :application
   end
 

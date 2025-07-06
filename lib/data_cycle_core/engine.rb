@@ -65,6 +65,8 @@ require 'ruby-progressbar'
 
 require 'premailer'
 
+require 'dotiw'
+
 require 'dotenv/load'
 
 # Frontend Asset Loader

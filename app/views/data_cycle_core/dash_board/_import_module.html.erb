@@ -1,166 +1,138 @@
-<% data = DataCycleCore::StatsDatabase.new.load_mongo_stats(local_assigns[:external_source_id]) %>
+<%= turbo_frame_tag "admin_dashboard_import_module_#{local_assigns[:external_source_id]}" do %>
+  <% data = DataCycleCore::StatsDatabase.new.load_mongo_stats(local_assigns[:external_source_id]) %>
 
-<div class="card-section">
-  <div class="mongo-db-name copy-to-clipboard" data-value="<%= data[:database] %>" title="<%= data[:database] %>"><%= data[:database] %></div>
-  <ul>
-    <%= tag.li("size: #{data[:db_size]}") %>
-    <%= tag.li("languages: #{data[:languages].join(', ')}") if data[:languages].present? %>
-    <%= tag.li("credentials: #{data[:credentials]}") %>
-    <%= tag.li("updated: #{data[:updated_at]&.then { |t| t.is_a?(Time) ? l(t, locale: active_ui_locale, format: :edit) : t }}") %>
-  </ul>
-</div>
-<div class="card-section accordion" data-accordion data-allow-all-closed="true">
-  <div class="accordion-item" data-accordion-item>
-    <div class="accordion-title">
-      <h6>collections</h6>
+  <div class="card-section">
+    <div class="mongo-db-name copy-to-clipboard" data-value="<%= data[:database] %>" title="<%= data[:database] %>"><%= data[:database] %></div>
+    <ul>
+      <%= tag.li("size: #{data[:db_size]}") %>
+      <%= tag.li("languages: #{data[:languages].join(', ')}") if data[:languages].present? %>
+      <%= tag.li("credentials: #{data[:credentials]}") %>
+      <%= tag.li("updated: #{data[:updated_at]&.then { |t| t.is_a?(Time) ? l(t, locale: active_ui_locale, format: :edit) : t }}") %>
+    </ul>
+  </div>
+  <div class="card-section accordion" data-accordion data-allow-all-closed="true">
+    <div class="accordion-item" data-accordion-item>
+      <div class="accordion-title">
+        <h6>collections</h6>
+      </div>
+      <div class="accordion-content indented" data-tab-content>
+        <ul>
+          <% if data[:tables].blank? %>
+            <%= tag.li("no collections found") %>
+          <% else %>
+            <% data[:tables].each do |key, value| %>
+              <%= tag.li("#{key}: #{value[0]} #{value[1]}") %>
+            <% end %>
+          <% end %>
+        </ul>
+      </div>
     </div>
-    <div class="accordion-content indented" data-tab-content>
-      <ul>
-        <% if data[:tables].blank? %>
-          <%= tag.li("no collections found") %>
+  </div>
+  <div class="card-section accordion" data-accordion data-allow-all-closed="true">
+    <div class="accordion-item" data-accordion-item>
+      <div class="accordion-title">
+        <h6 class="">import steps:</h6>
+      </div>
+      <div class="accordion-content import-steps" data-tab-content>
+        <% times = data[:sorted_step_times] %>
+        <% if times.present? %>
+          <table class="import-steps">
+            <%= render collection: times, as: :value, partial: 'data_cycle_core/dash_board/import_timestamps_step', locals: { external_source_id: local_assigns[:external_source_id] } %>
+          </table>
         <% else %>
-          <% data[:tables].each do |key, value| %>
-            <%= tag.li("#{key}: #{value[0]} #{value[1]}") %>
-          <% end %>
+          <div class="no-content">no timestamps for steps found</div>
         <% end %>
-      </ul>
+      </div>
     </div>
   </div>
-</div>
-<div class="card-section accordion" data-accordion data-allow-all-closed="true">
-  <div class="accordion-item" data-accordion-item>
-    <div class="accordion-title">
-      <h6 class="">import steps:</h6>
-    </div>
-    <div class="accordion-content import-steps" data-tab-content>
-      <% times = data[:sorted_step_times] %>
-      <% if times.present? %>
-        <table class="import-steps">
-          <% times.each do |value| %>
-            <tr data-timestamp-key="<%= value['key'] %>" class="<%= last_step_class(value) %>">
-              <td class="import-step-name" data-dc-tooltip="<%= value['name'] %>"><%= last_step_icon(value) %> <%= value['name'] %></td>
-              <td class="import-step-timestamp" data-dc-tooltip="<%= last_step_tooltip(value) %>">
-                <%= import_data_time(Time.zone.parse(value['last_try'].to_s)) %>
-                <%= last_step_duration(value['last_try_time']) %>
-              </td>
-            </tr>
-          <% end %>
-        </table>
-      <% else %>
-        <div class="no-content">no timestamps for steps found</div>
-      <% end %>
-    </div>
+  <div class="card-section">
+    download:
+    <ul class="no-bullet import-data-timestamps" id="download-timestamps-<%= data[:uuid] %>">
+      <%= render 'data_cycle_core/dash_board/import_timestamps', data:, type: :download %>
+    </ul>
+    import:
+    <ul class="no-bullet import-data-timestamps" id="import-timestamps-<%= data[:uuid] %>">
+      <%= render 'data_cycle_core/dash_board/import_timestamps', data:, type: :import %>
+    </ul>
   </div>
-</div>
-<div class="card-section">
-  download:
-  <ul class="no-bullet import-data-timestamps">
-    <% if data.dig(:last_download) != data.dig(:last_successful_download) %>
-      <li class="last-successful-download <%= 'check-icon' if data.dig(:last_successful_download) != 'never' %>">
-        <%= import_data_time(data.dig(:last_successful_download)) %>
-        <% if data.dig(:last_successful_download_time).present? %>
-          (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + data.dig(:last_successful_download_time), locale: active_ui_locale)%>)
-        <% end %>
-      </li>
-    <% end %>
-    <li class="last-download <%= data.dig(:last_download_class) %>">
-      <%= import_data_time(data.dig(:last_download)) %>
-      <%= active_duration(data, 'download') %>
-    </li>
-  </ul>
-  import:
-  <ul class="no-bullet import-data-timestamps">
-    <% if data.dig(:last_import) != data.dig(:last_successful_import) %>
-      <li class="last-successful-import <%= 'check-icon' if data.dig(:last_successful_import) != 'never' %>">
-        <%= import_data_time(data.dig(:last_successful_import)) %>
-        <% if data.dig(:last_successful_import_time).present? %>
-          (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + data.dig(:last_successful_import_time), locale: active_ui_locale)%>)
-        <% end %>
-      </li>
-    <% end %>
-    <li class="last-import <%= data.dig(:last_import_class) %>">
-      <%= import_data_time(data.dig(:last_import)) %>
-      <%= active_duration(data, 'import') %>
-    </li>
-  </ul>
-</div>
-<% if data[:deactivated] %>
-  <div class="card-section buttons deactivated">
-    <span class="deactivated">DEACTIVATED</span>
-  </div>
-<% else %>
-  <div class="card-section buttons">
-    <div class="button-row <%= 'disabled' unless data[:downloadable] %>" data-dc-tooltip="<%= t('dash_board.download_import', locale: active_ui_locale) %>">
-      <%= tag.span(tag.i(class: 'fa fa-level-up'), class: 'icon') %>
-      <%= link_to_condition(
-            data[:downloadable],
-            tag.span(t('dash_board.delta', locale: active_ui_locale)),
-            admin_download_import_path(id: data[:uuid]),
-            class: 'button small download-import',
-            data: { disable: true, turbo: true, turbo_stream: true }
-          ) %>
-
-      <%= link_to_condition(
-            data[:downloadable],
-            tag.span(t('dash_board.full', locale: active_ui_locale)),
-            admin_download_import_path(id: data[:uuid], mode: 'full'),
-            class: 'button small download-import-full',
-            data: { disable: true, turbo: true, turbo_stream: true }
-          ) %>
-
-      <%= link_to_condition(
-            data[:downloadable],
-            tag.span(t('dash_board.reset', locale: active_ui_locale)),
-            admin_download_import_path(id: data[:uuid], mode: 'reset'),
-            class: 'button small download-import-reset',
-            data: { disable: true, turbo: true, turbo_stream: true }
-          ) %>
+  <% if data[:deactivated] %>
+    <div class="card-section buttons deactivated">
+      <span class="deactivated">DEACTIVATED</span>
     </div>
-
-    <div class="button-row <%= 'disabled' unless data[:downloadable] %>" data-dc-tooltip="<%= t('dash_board.download', locale: active_ui_locale) %>">
-      <%= tag.span(tag.i(class: 'fa fa-long-arrow-down'), class: 'icon') %>
-      <%= link_to_condition(
-            data[:downloadable],
-            tag.span(t('dash_board.delta', locale: active_ui_locale)),
-            admin_download_path(id: data[:uuid]),
-            class: 'button small download',
-            data: { disable: true, turbo: true, turbo_stream: true }
+  <% else %>
+    <div class="card-section buttons">
+      <div class="button-row <%= 'disabled' unless data[:downloadable] %>" data-dc-tooltip="<%= t('dash_board.download_import', locale: active_ui_locale) %>">
+        <%= tag.span(tag.i(class: 'fa fa-level-up'), class: 'icon') %>
+        <%= link_to_condition(
+              data[:downloadable],
+              tag.span(t('dash_board.delta', locale: active_ui_locale)),
+              admin_download_import_path(id: data[:uuid]),
+              class: 'button small download-import',
+              data: { turbo: true, turbo_stream: true }
           ) %>
 
-      <%= link_to_condition(
-            data[:downloadable],
-            tag.span(t('dash_board.full', locale: active_ui_locale)),
-            admin_download_path(id: data[:uuid], mode: 'full'),
-            class: 'button small download-full',
-            data: { disable: true, turbo: true, turbo_stream: true }
+        <%= link_to_condition(
+              data[:downloadable],
+              tag.span(t('dash_board.full', locale: active_ui_locale)),
+              admin_download_import_path(id: data[:uuid], mode: 'full'),
+              class: 'button small download-import-full',
+              data: { turbo: true, turbo_stream: true }
           ) %>
+
+        <%= link_to_condition(
+              data[:downloadable],
+              tag.span(t('dash_board.reset', locale: active_ui_locale)),
+              admin_download_import_path(id: data[:uuid], mode: 'reset'),
+              class: 'button small download-import-reset',
+              data: { turbo: true, turbo_stream: true }
+          ) %>
+      </div>
+
+      <div class="button-row <%= 'disabled' unless data[:downloadable] %>" data-dc-tooltip="<%= t('dash_board.download', locale: active_ui_locale) %>">
+        <%= tag.span(tag.i(class: 'fa fa-long-arrow-down'), class: 'icon') %>
+        <%= link_to_condition(
+              data[:downloadable],
+              tag.span(t('dash_board.delta', locale: active_ui_locale)),
+              admin_download_path(id: data[:uuid]),
+              class: 'button small download',
+              data: { turbo: true, turbo_stream: true }
+          ) %>
+
+        <%= link_to_condition(
+              data[:downloadable],
+              tag.span(t('dash_board.full', locale: active_ui_locale)),
+              admin_download_path(id: data[:uuid], mode: 'full'),
+              class: 'button small download-full',
+              data: { turbo: true, turbo_stream: true }
+          ) %>
+      </div>
+
+      <div class="button-row <%= 'disabled' unless data[:importable] %>" data-dc-tooltip="<%= t('dash_board.import', locale: active_ui_locale) %>">
+        <%= tag.span(tag.i(class: 'fa fa-long-arrow-right'), class: 'icon') %>
+        <%= link_to_condition(
+              data[:importable],
+              tag.span(t('dash_board.delta', locale: active_ui_locale)),
+              admin_import_path(id: data[:uuid]),
+              class: 'button small import',
+              data: { turbo: true, turbo_stream: true }
+          ) %>
+
+        <%= link_to_condition(
+              data[:importable],
+              tag.span(t('dash_board.full', locale: active_ui_locale)),
+              admin_import_path(id: data[:uuid], mode: 'full'),
+              class: 'button small import-full',
+              data: { turbo: true, turbo_stream: true }
+          ) %>
+
+        <%= link_to_condition(
+              data[:importable],
+              tag.span(t('dash_board.reset', locale: active_ui_locale)),
+              admin_import_path(id: data[:uuid], mode: 'reset'),
+              class: 'button small import-reset',
+              data: { turbo: true, turbo_stream: true }
+          ) %>
+      </div>
     </div>
-
-    <div class="button-row <%= 'disabled' unless data[:importable] %>" data-dc-tooltip="<%= t('dash_board.import', locale: active_ui_locale) %>">
-      <%= tag.span(tag.i(class: 'fa fa-long-arrow-right'), class: 'icon') %>
-      <%= link_to_condition(
-            data[:importable],
-            tag.span(t('dash_board.delta', locale: active_ui_locale)),
-            admin_import_path(id: data[:uuid]),
-            class: 'button small import',
-            data: { disable: true, turbo: true, turbo_stream: true }
-          ) %>
-
-      <%= link_to_condition(
-            data[:importable],
-            tag.span(t('dash_board.full', locale: active_ui_locale)),
-            admin_import_path(id: data[:uuid], mode: 'full'),
-            class: 'button small import-full',
-            data: { disable: true, turbo: true, turbo_stream: true }
-          ) %>
-
-      <%= link_to_condition(
-            data[:importable],
-            tag.span(t('dash_board.reset', locale: active_ui_locale)),
-            admin_import_path(id: data[:uuid], mode: 'reset'),
-            class: 'button small import-reset',
-            data: { disable: true, turbo: true, turbo_stream: true }
-          ) %>
-    </div>
-  </div>
+  <% end %>
 <% end %>

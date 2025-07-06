@@ -10,9 +10,9 @@ module DataCycleCore
 
     queue_as :importers
 
-    after_enqueue :broadcast_reload
-    before_perform :broadcast_reload
-    after_perform :broadcast_reload
+    after_enqueue :broadcast_dashboard_jobs_reload
+    before_perform :broadcast_dashboard_jobs_reload
+    after_perform :broadcast_dashboard_jobs_reload
 
     def delayed_reference_id
       arguments[0]
@@ -20,6 +20,10 @@ module DataCycleCore
 
     def delayed_reference_type
       [self.class::REFERENCE_TYPE, *arguments[1..]].compact_blank.join('_')
+    end
+
+    def self.broadcast_dashboard_jobs_reload?
+      true
     end
 
     after_enqueue do |_|
@@ -92,13 +96,6 @@ module DataCycleCore
           raise exception_hash
         end
       end
-    end
-
-    private
-
-    def broadcast_reload
-      html = PartialRenderService.instance.render(partial: 'data_cycle_core/dash_board/job_queue_body')
-      Turbo::StreamsChannel.broadcast_update_to 'admin_dashboard_jobs', html:, target: 'admin_dashboard_jobs'
     end
   end
 end
