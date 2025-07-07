@@ -11,6 +11,7 @@ module DataCycleCore
           restore_classification_contents
           restore_content_contents
           restore_schedules
+          restore_geometries
 
           content.search_languages(true)
         end
@@ -65,6 +66,14 @@ module DataCycleCore
       def restore_schedules
         scheduled_history_data.each do |schedule_history|
           DataCycleCore::Schedule.create!(schedule_history.attributes.slice(*DataCycleCore::Schedule.column_names.except('id')).merge('thing_id' => thing_id))
+        rescue ActiveRecord::RecordNotUnique
+          nil
+        end
+      end
+
+      def restore_geometries
+        geometry_histories.each do |geometry_history|
+          DataCycleCore::Geometry.create!(geometry_history.attributes.slice(*DataCycleCore::Geometry.column_names.except('id')).merge('thing_id' => thing_id))
         rescue ActiveRecord::RecordNotUnique
           nil
         end
