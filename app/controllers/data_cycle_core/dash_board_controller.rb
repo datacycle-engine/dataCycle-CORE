@@ -69,7 +69,7 @@ module DataCycleCore
         format.turbo_stream do
           flash.now[:success] = I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)
           render turbo_stream: [
-            turbo_stream.append(:flash_messages, partial: 'data_cycle_core/shared/flash'),
+            turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash'),
             turbo_stream.update(
               :admin_dashboard_concept_mapping_job,
               partial: 'data_cycle_core/dash_board/concept_mappings_button',
@@ -116,7 +116,11 @@ module DataCycleCore
       respond_to do |format|
         format.html { redirect_to admin_path }
         format.turbo_stream do
-          render turbo_stream: turbo_stream.append(:flash_messages, partial: 'data_cycle_core/shared/flash', locals: { flash: flash.discard })
+          render turbo_stream: turbo_stream.append(
+            :'flash-messages',
+            partial: 'data_cycle_core/shared/flash',
+            locals: { flash: flash.discard }
+          )
         end
       end
     end

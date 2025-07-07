@@ -43,7 +43,11 @@ module DataCycleCore
     end
 
     def display_flash_messages_new
-      render 'data_cycle_core/shared/flash_wrapper'
+      capture do
+        tag.div(class: 'flash-messages', id: 'flash-messages') do
+          render_flash_messages
+        end
+      end
     end
 
     def show_external_connections?(content)
