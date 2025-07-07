@@ -87,6 +87,7 @@ de:
     belongs_to_aggregate: mit Aggregat verknüpft
     aggregate_for: Aggregats-Basis
     aggregate_for_override: Aggregats-Basis für
+    overlay_overlay: (Overlay)
     overlay_override: (Overlay)
     overlay_add: (Anhang)
 

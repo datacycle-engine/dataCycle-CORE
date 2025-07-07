@@ -137,6 +137,7 @@ en:
     belongs_to_aggregate: belongs to Aggregate
     aggregate_for: Aggregate base
     aggregate_for_override: Aggregate base for
+    overlay_overlay: (Overlay)
     overlay_override: (Overlay)
     overlay_add: (Appendix)
     copyright_notice_computed: Copyright notice (automatically generated)
