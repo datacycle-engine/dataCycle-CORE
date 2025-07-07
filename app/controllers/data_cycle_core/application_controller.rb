@@ -32,7 +32,14 @@ module DataCycleCore
     def clear_all_caches
       authorize! :clear_all, :cache
       Rails.cache.clear
-      redirect_back(fallback_location: root_path, notice: t('common.all_caches_cleared', locale: helpers.active_ui_locale))
+
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: root_path, notice: t('common.all_caches_cleared', locale: helpers.active_ui_locale)) }
+        format.turbo_stream do
+          flash.now[:success] = t('common.all_caches_cleared', locale: helpers.active_ui_locale)
+          render turbo_stream: turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash')
+        end
+      end
     end
 
     def add_filter

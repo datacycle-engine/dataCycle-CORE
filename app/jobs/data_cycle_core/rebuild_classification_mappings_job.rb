@@ -37,7 +37,7 @@ module DataCycleCore
     private
 
     def broadcast_update(rebuilding: true)
-      TurboService.broadcast_localized_update_to(
+      TurboService.broadcast_localized_replace_to(
         'admin_dashboard_concept_mapping_job',
         partial: 'data_cycle_core/dash_board/concept_mappings_button',
         locals: { rebuilding: }

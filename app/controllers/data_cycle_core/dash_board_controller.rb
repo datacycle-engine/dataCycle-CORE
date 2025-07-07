@@ -70,8 +70,9 @@ module DataCycleCore
           flash.now[:success] = I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)
           render turbo_stream: [
             turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash'),
-            turbo_stream.update(
+            turbo_stream.replace(
               :admin_dashboard_concept_mapping_job,
+              method: :morph,
               partial: 'data_cycle_core/dash_board/concept_mappings_button',
               locals: { rebuilding: true }
             )
