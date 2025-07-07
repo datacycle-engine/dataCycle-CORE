@@ -223,8 +223,8 @@ module DataCycleCore
         merge_last_import_step_time_info(json_key, {last_try: last_start})
         update_columns(last_import_step_time_info: last_import_step_time_info)
 
-        strategy.send(strategy_method, utility_object:, options: full_options)
-        success = true
+        success = strategy.send(strategy_method, utility_object:, options: full_options)
+        success = true unless success.is_a?(FalseClass) # download strategies return true/false, import strategies dont return a normalized value
       rescue StandardError
         success = false
         raise
