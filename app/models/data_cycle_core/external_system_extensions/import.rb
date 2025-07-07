@@ -210,7 +210,6 @@ module DataCycleCore
 
       def import_step(name, options = {}, config = {})
         raise "missing config for name: #{name}" if config.blank?
-
         last_start = Time.zone.now
         type = step_type(config)
         full_options = options_for_step(name, options, config, type)
@@ -224,7 +223,11 @@ module DataCycleCore
         merge_last_import_step_time_info(json_key, {last_try: last_start})
         update_columns(last_import_step_time_info: last_import_step_time_info)
 
-        success = strategy.send(strategy_method, utility_object:, options: full_options)
+        strategy.send(strategy_method, utility_object:, options: full_options)
+        success = true
+      rescue StandardError
+        success = false
+        raise
       ensure
         duration = Time.zone.now - last_start
         update_info = {
