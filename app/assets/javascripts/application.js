@@ -11,7 +11,15 @@ import jQuery from "jquery";
 import autoInitComponents from "./auto_init_components";
 import DataCycleSingleton from "./components/data_cycle";
 import I18n from "./components/i18n";
-import "./custom_elements";
+import initCustomElements from "./custom_elements";
+
+Object.assign(window, {
+	$: jQuery,
+	jQuery,
+	Rails,
+	I18n,
+});
+
 import { turboConfirmMethod } from "./initializers/rails_confirmation_init";
 
 Turbo.session.drive = false;
@@ -19,13 +27,6 @@ Turbo.config.forms.confirm = turboConfirmMethod;
 
 cable.createConsumer().then((consumer) => {
 	window.actionCable = consumer;
-});
-
-Object.assign(window, {
-	$: jQuery,
-	jQuery,
-	Rails,
-	I18n,
 });
 
 import "jquery-serializejson";
@@ -52,6 +53,7 @@ const initializerExceptions = [
 export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
+	initCustomElements();
 	UrlReplacer.cleanSearchFormParams();
 
 	try {
@@ -61,6 +63,7 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	autoInitComponents();
 
 	if (typeof postDataCycleInit === "function") postDataCycleInit();
+
 	DataCycle.notifications.addEventListener("error", ({ detail }) => {
 		if (detail.message?.includes("not a valid selector"))
 			I18n.t("frontend.update_browser").then((text) =>
