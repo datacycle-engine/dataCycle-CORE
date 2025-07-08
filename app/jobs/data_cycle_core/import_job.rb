@@ -38,56 +38,34 @@ module DataCycleCore
     def perform(uuid, mode = nil)
       options = {}
       options[:mode] = mode if mode.present?
+      external_system = ExternalSystem.find(uuid)
+      type = delayed_reference_type.start_with?('download') ? 'download' : 'import'
 
-      pid = Process.fork do
-        external_system = ExternalSystem.find(uuid)
-        type = delayed_reference_type.start_with?('download') ? 'download' : 'import'
-
-        if block_given?
-          yield(external_system)
+      if block_given?
+        yield(external_system)
+      else
+        if external_system.config.key?('download_config')
+          type = 'download'
+          success = external_system.download(options)
         else
-          if external_system.config.key?('download_config')
-            type = 'download'
-            success = external_system.download(options)
-          else
-            success = true
-          end
-
-          type = 'import'
-          external_system.import(options) if success
+          success = true
         end
-      rescue StandardError => e
-        ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", {
-          exception: e,
-          external_system:,
-          type:
-        }
-        external_system.data ||= {}
-        external_system.data["last_#{delayed_reference_type}_failed"] = true
-        external_system.data["last_#{delayed_reference_type}_exception"] = e.to_yaml
-        external_system.save!
+
+        type = 'import'
+        external_system.import(options) if success
       end
-
-      Process.waitpid(pid)
-
-      external_system = ExternalSystem.find(uuid).reload
-
-      return unless external_system.data["last_#{delayed_reference_type}_failed"]
-
-      exception_hash = external_system.data["last_#{delayed_reference_type}_exception"]
-
-      if exception_hash.is_a?(::Hash)
-        exception = exception_hash['class'].safe_constantize.new(exception_hash['message'])
-        exception.set_backtrace(exception_hash['backtrace'])
-        raise exception
-      elsif exception_hash.is_a?(::String)
-        begin
-          exception = YAML.unsafe_load(exception_hash)
-          raise exception
-        rescue Psych::SyntaxError
-          raise exception_hash
-        end
-      end
+    rescue StandardError => e
+      ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", {
+        exception: e,
+        external_system:,
+        type:,
+        namespace: 'importer'
+      }
+      external_system.data ||= {}
+      external_system.data["last_#{delayed_reference_type}_failed"] = true
+      external_system.data["last_#{delayed_reference_type}_exception"] = e.to_yaml
+      external_system.save!
+      raise
     end
   end
 end
