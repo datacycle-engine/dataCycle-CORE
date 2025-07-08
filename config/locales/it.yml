@@ -12,13 +12,6 @@ it:
             Il record non può essere cancellato perchè esistono %{record}
             dipendenti
   import:
-    outdoor_active:
-      ratings:
-        technique_rating: Tecnica
-        condition_rating: Impegno fisico
-        experience_rating: Emozione
-        landscape_rating: Paesaggio
-        difficulty_rating: Difficoltà
     generic:
       description: Descrizione
       text: Descrizione dettagliata

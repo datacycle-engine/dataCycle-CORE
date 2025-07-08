@@ -104,7 +104,7 @@ module DataCycleCore
             s.external_key == new_external_key
         }&.mark_for_destruction
 
-        if external_system_syncs.none? do |s|
+        if external_source_id.present? && external_system_syncs.none? do |s|
           s.external_system_id == external_source_id &&
           s.external_key == external_key &&
           s.sync_type == 'duplicate'

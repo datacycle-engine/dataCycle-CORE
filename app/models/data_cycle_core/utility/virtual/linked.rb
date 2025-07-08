@@ -16,13 +16,15 @@ module DataCycleCore
             lon, lat = content.try(:location)&.coordinates
             return DataCycleCore::Thing.none if lat.blank? || lon.blank?
 
-            unit = virtual_definition.dig('virtual', 'unit') || 'm'
             template_name = virtual_definition['template_name']
             parameters = virtual_definition['stored_filter']
+            unit = virtual_definition.dig('virtual', 'unit') || 'm'
+            limit = virtual_definition.dig('virtual', 'limit')&.to_i
+
             query = DataCycleCore::StoredFilter.new(parameters:).apply
               .where.not(id: content.id)
             query = query.where(template_name:) if template_name.present?
-
+            query = query.limit(limit) if limit.present? && limit.positive?
             query = query.geo_radius({ 'lon' => lon, 'lat' => lat, 'distance' => radius, 'unit' => unit })
               .sort_proximity_geographic('ASC', [lon, lat])
 

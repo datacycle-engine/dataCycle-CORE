@@ -226,7 +226,6 @@ module DataCycleCore
 
       def import_step(name, options = {}, config = {})
         raise "missing config for name: #{name}" if config.blank?
-
         last_start = Time.zone.now
         type = step_type(config)
         full_options = options_for_step(name, options, config, type)
@@ -240,6 +239,10 @@ module DataCycleCore
         update_step_timestamp_start(last_start, name, json_key)
 
         success = strategy.send(strategy_method, utility_object:, options: full_options)
+        success = true unless success.is_a?(FalseClass) # download strategies return true/false, import strategies dont return a normalized value
+      rescue StandardError
+        success = false
+        raise
       ensure
         update_step_timestamp_end(last_start, name, json_key, success)
       end
