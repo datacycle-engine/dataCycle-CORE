@@ -121,10 +121,12 @@ namespace :dc do
 
     desc 'download external assets into dataCycle for things with external_system_id or collection_id'
     task :download_external_assets, [:external_system_id, :collection_id] => :environment do |_, args|
-      collection_id = args[:collection_id]
+      collection_id = args.collection_id
+      external_system_id = args.external_system_id
+
       logger = Logger.new('log/download_assets.log')
       logger.info('Started Downloading...')
-      if args[:external_system_id].blank? && collection_id.blank?
+      if external_system_id.blank? && collection_id.blank?
         error = 'external_system_id or collection_id not given'
         logger.error(error) && abort(error)
       end
@@ -134,11 +136,10 @@ namespace :dc do
         logger.error(error) && abort(error)
       end
 
-      external_system_id = args[:external_system_id]
       allowed_template_names = DataCycleCore::ThingTemplate.where("thing_templates.schema -> 'properties' ->> 'asset' IS NOT NULL").pluck(:template_name)
 
-      if external_system_id.blank? || allowed_template_names.blank?
-        error = 'external_system_id not given or no viable Templates found'
+      if allowed_template_names.blank?
+        error = 'no viable Templates found'
         logger.error(error) && abort(error)
       end
 
@@ -162,8 +163,8 @@ namespace :dc do
       if collection_id.present? && external_system_id.present?
         contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).apply.select(:id)).by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
       elsif collection_id.present?
-        contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).apply.select(:id)).where(template_name: allowed_template_names).where(asset_sql)
-      else
+        contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).things.select(:id)).where(template_name: allowed_template_names).where(asset_sql)
+      elsif external_system_id.present?
         contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
       end
 
