@@ -25,8 +25,7 @@ module DataCycleCore
       broadcast_update(rebuilding: true)
       Rake::Task['db:configure:rebuild_transitive_tables'].invoke
       Rake::Task['db:configure:rebuild_transitive_tables'].reenable
-      broadcast_update(rebuilding: false)
-    rescue StandardError
+    ensure
       broadcast_update(rebuilding: false)
     end
 
