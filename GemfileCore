@@ -9,8 +9,6 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'appsignal', '4.3.3' # later versions don't work correctly with Rails instrumentation e.g. background_exception.datacycle
-
 # Excel Generator
 gem 'caxlsx'
 gem 'caxlsx_rails'
