@@ -75,7 +75,7 @@ DataCycleCore::Engine.routes.draw do
   # get '/export', to: 'nothing' # this route is reserved for jsonld file exports via rake task
 
   authenticate do
-    get :clear_all_caches, controller: :application
+    delete :clear_all_caches, controller: :application
 
     resources :users, only: [:index, :show, :edit, :update, :destroy] do
       delete :lock, on: :member

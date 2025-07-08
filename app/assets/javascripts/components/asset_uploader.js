@@ -1,7 +1,7 @@
 import cloneDeep from "lodash/cloneDeep";
-import AssetFile from "./asset_uploader/asset_file";
 import CalloutHelpers from "../helpers/callout_helpers";
 import DomElementHelpers from "../helpers/dom_element_helpers";
+import AssetFile from "./asset_uploader/asset_file";
 
 class AssetUploader {
 	constructor(reveal) {
@@ -126,18 +126,20 @@ class AssetUploader {
 		$(".asset-selector-reveal:visible").trigger("open.zf.reveal");
 	}
 	initActionCable() {
-		this.bulkCreateChannel = window.actionCable.subscriptions.create(
-			{
-				channel: "DataCycleCore::BulkCreateChannel",
-				overlay_id: this.overlayId,
-			},
-			{
-				received: (data) => {
-					if (data.progress && this.saving) this.advanceProgress(data);
-					else if (data.content_ids) this.finishProgress(data);
+		this.bulkCreateChannel = window.actionCable.then((cable) => {
+			cable.subscriptions.create(
+				{
+					channel: "DataCycleCore::BulkCreateChannel",
+					overlay_id: this.overlayId,
 				},
-			},
-		);
+				{
+					received: (data) => {
+						if (data.progress && this.saving) this.advanceProgress(data);
+						else if (data.content_ids) this.finishProgress(data);
+					},
+				},
+			);
+		});
 	}
 	advanceProgress(data) {
 		this.updateProgressBar(Math.round((data.progress * 100) / data.items));

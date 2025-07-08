@@ -1,15 +1,17 @@
 class AiLector {
 	constructor() {
 		this.channelConnected = false;
-		this.channel = window.actionCable.subscriptions.create(
-			{
-				channel: "DataCycleCore::AiLectorChannel",
-				window_id: DataCycle.windowId,
-			},
-			{
-				received: this.received.bind(this),
-			},
-		);
+		this.channel = window.actionCable.then((cable) => {
+			cable.subscriptions.create(
+				{
+					channel: "DataCycleCore::AiLectorChannel",
+					window_id: DataCycle.windowId,
+				},
+				{
+					received: this.received.bind(this),
+				},
+			);
+		});
 	}
 	send(data) {
 		const sent = this.channel.send(data);

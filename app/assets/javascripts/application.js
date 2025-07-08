@@ -18,16 +18,13 @@ Object.assign(window, {
 	jQuery,
 	Rails,
 	I18n,
+	actionCable: cable.createConsumer(),
 });
 
 import { turboConfirmMethod } from "./initializers/rails_confirmation_init";
 
 Turbo.session.drive = false;
 Turbo.config.forms.confirm = turboConfirmMethod;
-
-cable.createConsumer().then((consumer) => {
-	window.actionCable = consumer;
-});
 
 import "jquery-serializejson";
 import "lazysizes";
