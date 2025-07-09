@@ -117,7 +117,8 @@ module DataCycleCore
       tag.i(class: "fa #{icon_class}")
     end
 
-    def last_step_duration(duration)
+    def last_step_duration(duration, last_status = nil)
+      return tag.span('(-)', class: 'duration-running') if last_status == 'running'
       return if duration.blank?
 
       duration = duration.to_i
@@ -139,7 +140,7 @@ module DataCycleCore
       tag.span("(#{duration}#{duration_unit})", class: duration_size)
     end
 
-    def last_step_tooltip(data)
+    def last_step_tooltip(data, last_status = nil)
       last_try = data['last_try']
       last_try_time = data['last_try_time']
       last_successful_try = data['last_successful_try']
@@ -150,7 +151,8 @@ module DataCycleCore
       capture do
         concat(tag.b("#{t('import_steps.last_try', locale: active_ui_locale)}: "))
         concat(import_data_time(Time.zone.parse(last_try)))
-        concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_try_time, locale: active_ui_locale)})") if last_try_time.present?
+        concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_try_time, locale: active_ui_locale)})") if last_try_time.present? && last_status != 'running'
+        concat(' (-)') if last_status == 'running'
 
         if last_successful_try.present? && last_successful_try != last_try
           concat(tag.br)

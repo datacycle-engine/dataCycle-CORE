@@ -1,9 +1,17 @@
 <div>
-  <div class="card background-jobs" style="background-color:white;">
-    <div class="card-divider">
-      <h5>background jobs</h5>
+  <%= turbo_localized_stream_from 'admin_dashboard_jobs' %>
+  <% stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list %>
+  <div class="card background-jobs accordion" data-accordion data-allow-all-closed="true">
+    <div class="accordion-item" data-accordion-item>
+      <div class="card-divider accordion-title" id="admin_dashboard_jobs_title">
+        <h5>background jobs</h5>
+        <h6 id="jobs_queue_title">
+          <%= render 'data_cycle_core/dash_board/job_queue_title', stat_job_queue: %>
+        </h6>
+      </div>
+      <div class="card-section accordion-content" data-tab-content id="jobs_queue_body">
+        <%= render 'data_cycle_core/dash_board/job_queue_body', stat_job_queue: %>
+      </div>
     </div>
-    <%= turbo_stream_from 'admin_dashboard_jobs' %>
-    <%= turbo_frame_tag "admin_dashboard_jobs", src: admin_jobs_partial_path, data: { reload_interval: 10 }, class: 'card-section', refresh: 'morph' %>
   </div>
 </div>

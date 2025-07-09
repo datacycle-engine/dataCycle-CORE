@@ -286,6 +286,13 @@
     }
   }
 
+  .button,
+  .button_to {
+    &.download-full {
+      grid-column: span 2;
+    }
+  }
+
   .button {
     display: flex;
     align-items: center;
@@ -297,9 +304,7 @@
     font-weight: 600;
     gap: 0.3rem;
 
-    &.download-full {
-      grid-column: span 2;
-    }
+
   }
 
   .deactivated {
@@ -389,17 +394,105 @@ ul.import-data-timestamps li {
 
   .card.background-jobs {
     .card-section {
-      display: block;
+      >div {
+        color: var(--black);
+      }
 
       h5 {
-        font-size: 1.1rem;
-        color: var(--dark-gray);
+        font-size: 1rem;
         margin-bottom: 0.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: inherit;
+        font-weight: 600;
 
-        &.has-jobs {
-          color: var(--black);
-          font-weight: normal;
+        .fa {
+          font-size: 0.9rem;
         }
+      }
+
+      .queued-jobs {
+        color: var(--dark-gray);
+      }
+
+      .running-jobs {
+        color: var(--primary-color);
+      }
+
+      .failed-jobs {
+        color: var(--alert-color);
+      }
+
+      .import-jobs {
+        margin-top: 1rem;
+        border-top: 1px dashed var(--dark-gray);
+        padding-top: 1rem;
+
+        .import-job-destroy-link {
+          margin: 0;
+          padding: 0.1rem;
+          font-style: italic;
+        }
+
+        .job-status {
+          border-radius: var(--global-radius);
+          padding: 0.1rem 0.3rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+
+          &.queued {
+            background-color: var(--dark-gray);
+            color: var(--white);
+          }
+
+          &.running {
+            background-color: var(--primary-color);
+            color: var(--white);
+          }
+        }
+      }
+    }
+
+    #admin_dashboard_jobs_title {
+      #jobs_queue_title {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 1rem;
+        margin-right: 1.6rem;
+
+        .fa {
+          font-size: 0.8rem;
+        }
+
+        .job-count {
+          display: flex;
+          gap: 0.3rem;
+          align-items: center;
+          box-shadow: 0 -1px 0 0 inset;
+          font-weight: 600;
+        }
+
+        .jobs-queued {
+          color: var(--dark-gray);
+        }
+
+        .jobs-running {
+          color: var(--primary-color);
+        }
+
+        .jobs-failed {
+          color: var(--alert-color);
+        }
+      }
+    }
+  }
+
+  .card.accordion {
+    .accordion-item {
+      .accordion-content {
+        border: none;
+        border-bottom: 1px solid var(--light-gray);
       }
     }
   }

@@ -22,7 +22,7 @@ module DataCycleCore
       [self.class::REFERENCE_TYPE, *arguments[1..]].compact_blank.join('_')
     end
 
-    def self.broadcast_dashboard_jobs_reload?
+    def self.broadcast_dashboard_jobs_now?
       true
     end
 

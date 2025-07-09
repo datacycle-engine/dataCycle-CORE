@@ -81,10 +81,6 @@ module DataCycleCore
       end
     end
 
-    def jobs_partial
-      render partial: 'data_cycle_core/dash_board/job_queue_wrapper'
-    end
-
     def import_module_partial
       render partial: 'data_cycle_core/dash_board/import_module', locals: { external_source_id: import_module_partial_params[:id] }
     end
@@ -117,11 +113,12 @@ module DataCycleCore
       respond_to do |format|
         format.html { redirect_to admin_path }
         format.turbo_stream do
-          render turbo_stream: turbo_stream.append(
-            :'flash-messages',
-            partial: 'data_cycle_core/shared/flash',
-            locals: { flash: flash.discard }
-          )
+          stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list
+          render turbo_stream: [
+            turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash', locals: { flash: flash.discard }),
+            turbo_stream.update(:jobs_queue_title, partial: 'data_cycle_core/dash_board/job_queue_title', locals: { stat_job_queue: }),
+            turbo_stream.update(:jobs_queue_body, partial: 'data_cycle_core/dash_board/job_queue_body', locals: { stat_job_queue: })
+          ]
         end
       end
     end

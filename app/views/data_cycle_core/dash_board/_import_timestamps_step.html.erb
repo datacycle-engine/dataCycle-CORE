@@ -1,6 +1,6 @@
 <%
   last_status = last_step_status(value)
-  last_tooltip = last_step_tooltip(value)
+  last_tooltip = last_step_tooltip(value, last_status)
 %>
 
 <tr data-timestamp-key="<%= value['key'] %>" class="<%= last_status %>" id="step-timestamp-<%= local_assigns[:external_source_id] %>-<%= value['key'] %>">
@@ -9,6 +9,6 @@
     <%= import_data_time(Time.zone.parse(value['last_try'].to_s)) %>
   </td>
   <td class="import-step-duration" data-dc-tooltip="<%= last_tooltip %>">
-    <%= last_step_duration(value['last_try_time']) %>
+    <%= last_step_duration(value['last_try_time'], last_status) %>
   </td>
 </tr>

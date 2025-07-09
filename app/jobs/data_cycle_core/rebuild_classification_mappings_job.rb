@@ -29,7 +29,7 @@ module DataCycleCore
       broadcast_update(rebuilding: false)
     end
 
-    def self.broadcast_dashboard_jobs_reload?
+    def self.broadcast_dashboard_jobs_now?
       true
     end
 

@@ -54,7 +54,7 @@ module DataCycleCore
           set_callback(:failure, :after, *filters, &)
         end
 
-        def broadcast_dashboard_jobs_reload?
+        def broadcast_dashboard_jobs_now?
           false
         end
       end
@@ -62,12 +62,13 @@ module DataCycleCore
       private
 
       def broadcast_dashboard_jobs_reload
-        return unless self.class.try(:broadcast_dashboard_jobs_reload?)
+        return if is_a?(DataCycleCore::BroadcastDashboardUpdateJob)
 
-        TurboService.broadcast_update_to(
-          'admin_dashboard_jobs',
-          partial: 'data_cycle_core/dash_board/job_queue_body'
-        )
+        if self.class.try(:broadcast_dashboard_jobs_now?)
+          DataCycleCore::StatsJobQueue.broadcast_jobs_reload
+        else
+          DataCycleCore::BroadcastDashboardUpdateJob.perform_later
+        end
       end
     end
   end

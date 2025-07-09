@@ -1,0 +1,12 @@
+<span class="jobs-queued job-count" data-dc-tooltip="<%= job_title_tooltip('queued jobs', stat_job_queue[:queued]) %>">
+  <i class="fa fa-tasks" aria-hidden="true"></i>
+  <%= number_with_delimiter(stat_job_queue[:queued].values.sum, locale: active_ui_locale) %>
+</span>
+<span class="jobs-running job-count" data-dc-tooltip="<%= job_title_tooltip('running jobs', stat_job_queue[:running]) %>">
+  <i class="fa fa-spinner <%= 'fa-spin' if stat_job_queue[:running].values.sum.positive? %>" aria-hidden="true"></i>
+  <%= number_with_delimiter(stat_job_queue[:running].values.sum, locale: active_ui_locale) %>
+</span>
+<span class="jobs-failed job-count" data-dc-tooltip="<%= job_title_tooltip('failed jobs', stat_job_queue[:failed]) %>">
+  <i class="fa fa-times" aria-hidden="true"></i>
+  <%= number_with_delimiter(stat_job_queue[:failed].values.sum, locale: active_ui_locale) %>
+</span>

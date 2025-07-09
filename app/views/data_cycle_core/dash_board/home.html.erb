@@ -15,19 +15,23 @@
         <% end %>
 
         <% if can? :clear_all, :cache %>
-          <%= link_to safe_join([
-          tag.i(class: 'fa fa-shield'),
-          t('data_cycle_core.cache.clear_all', locale: active_ui_locale)
-        ], ' '),
-        clear_all_caches_path,
-        class: 'button small',
-        data: {
-          dc_tooltip: t('data_cycle_core.cache.clear_all', locale: active_ui_locale),
-          turbo: true,
-          turbo_stream: true,
-          turbo_method: 'delete',
-          turbo_confirm: t('common.confirm_delete_all_caches', locale: active_ui_locale)
-        } %>
+          <%= button_to safe_join([
+              tag.i(class: 'fa fa-shield'),
+              t('data_cycle_core.cache.clear_all', locale: active_ui_locale)
+            ], ' '),
+            clear_all_caches_path,
+            class: 'button small',
+            method: :delete,
+            data: {
+              dc_tooltip: t('data_cycle_core.cache.clear_all', locale: active_ui_locale),
+            },
+            form: {
+              data: {
+                turbo: true,
+                turbo_stream: true,
+                turbo_confirm: t('common.confirm_delete_all_caches', locale: active_ui_locale)
+              }
+            } %>
         <% end %>
       </div>
     </div>

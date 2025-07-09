@@ -245,16 +245,15 @@ DataCycleCore::Engine.routes.draw do
 
     namespace :dash_board, path: '/admin', as: :admin do
       get '/', action: :home, as: ''
-      get '/download/:id', action: :download, as: :download
-      get '/download_full/:id', action: :download_full, as: :download_full
-      get '/download_import/:id', action: :download_import, as: :download_import
-      get '/import/:id', action: :import, as: :import
-      get '/import_full/:id', action: :import_full, as: :import_full
-      get '/delete_queue/:id', action: :delete_queue, as: :delete_queue
+      post '/download/:id', action: :download, as: :download
+      post '/download_full/:id', action: :download_full, as: :download_full
+      post '/download_import/:id', action: :download_import, as: :download_import
+      post '/import/:id', action: :import, as: :import
+      post '/import_full/:id', action: :import_full, as: :import_full
+      delete '/delete_queue/:id', action: :delete_queue, as: :delete_queue
       get :activities
       get '/activity_details/:type', action: :activity_details, as: :activity_details, defaults: { format: :json }
 
-      get :jobs_partial
       get :import_module_partial
 
       scope :maintenance do

@@ -50,5 +50,15 @@ module DataCycleCore
 
       "<span class='import-schedule-tooltip'>#{value.join('<br>')}</span>"
     end
+
+    def job_title_tooltip(text, jobs)
+      return tag.b(text) if jobs.blank?
+
+      capture do
+        concat(tag.b("#{text}:"))
+        concat(tag.br)
+        concat(jobs.map { |k, v| "#{k}: #{v}" }.join('<br>'))
+      end
+    end
   end
 end

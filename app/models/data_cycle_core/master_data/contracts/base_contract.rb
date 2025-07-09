@@ -120,13 +120,13 @@ module DataCycleCore
         end
 
         IN_UUID_OR_NULL_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array).each(:uuid_or_null_string?)
-          optional(:notIn).filled(:array).each(:uuid_or_null_string?)
+          optional(:in).filled(:array).each(:uuid_or_null_string_or_list?)
+          optional(:notIn).filled(:array).each(:uuid_or_null_string_or_list?)
         end
 
         IN_UUID_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array).each(:uuid?)
-          optional(:notIn).filled(:array).each(:uuid?)
+          optional(:in).filled(:array).each(:uuid_or_list_of_uuid?)
+          optional(:notIn).filled(:array).each(:uuid_or_list_of_uuid?)
         end
 
         IN_ARRAY_FILTER = Dry::Schema.Params do

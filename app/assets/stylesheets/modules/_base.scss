@@ -62,6 +62,10 @@ button,
   }
 }
 
+form.button_to {
+  display: inline-block;
+}
+
 input::placeholder {
   font-weight: 200;
   color: $dark-gray;
