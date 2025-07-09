@@ -258,7 +258,7 @@ DataCycleCore::Engine.routes.draw do
       get :import_module_partial
 
       scope :maintenance do
-        get :rebuild_classification_mappings
+        post :rebuild_classification_mappings
       end
     end
 
