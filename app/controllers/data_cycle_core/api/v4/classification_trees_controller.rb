@@ -233,16 +233,17 @@ module DataCycleCore
         end
 
         def apply_broader_filter(query, attribute_path, k, v)
-          clean_ids = v.grep_v(NULL_REGEX)
+          flattened_v = v.flat_map { |v| v.split(',') }.map(&:strip)
+          clean_ids = flattened_v.grep_v(NULL_REGEX)
           query_strings = []
 
           if k == :in
             query_strings << "classification_trees.#{attribute_path} IN (?)" if clean_ids.present?
-            query_strings << "classification_trees.#{attribute_path} IS NULL" if v.any?(NULL_REGEX)
+            query_strings << "classification_trees.#{attribute_path} IS NULL" if flattened_v.any?(NULL_REGEX)
             where_part = query_strings.join(' OR ')
           elsif k == :notIn
             query_strings << "classification_trees.#{attribute_path} NOT IN (?)" if clean_ids.present?
-            if v.any?(NULL_REGEX)
+            if flattened_v.any?(NULL_REGEX)
               query_strings << "classification_trees.#{attribute_path} IS NOT NULL"
               where_part = query_strings.join(' AND ')
             else
@@ -255,8 +256,9 @@ module DataCycleCore
         end
 
         def apply_ancestor_filter(query, attribute_path, k, v)
+          flattened_v = v.flat_map { |v| v.split(',') }.map(&:strip)
           query = query.joins(:classification_alias_path)
-          where_part = ActiveRecord::Base.send(:sanitize_sql_array, ["classification_alias_paths.#{attribute_path} && ARRAY[?]::UUID[]", v])
+          where_part = ActiveRecord::Base.send(:sanitize_sql_array, ["classification_alias_paths.#{attribute_path} && ARRAY[?]::UUID[]", flattened_v])
 
           if k == :in
             query.where(where_part)
