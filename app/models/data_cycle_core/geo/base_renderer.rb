@@ -48,6 +48,7 @@ module DataCycleCore
 
         config << include_type
         config << include_name if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
+        config << include_slug if field_required?('slug')
         config << include_dc_classification if field_required?('dc:classification')
         config << include_image if field_required?('image')
         config << include_internal_content_score if field_required?('dc:contentScore')
@@ -75,6 +76,17 @@ module DataCycleCore
           identifier: 'name',
           select: "MAX(thing_translations.content ->> 'name') FILTER (
             WHERE thing_translations.content ->> 'name' IS NOT NULL
+          )",
+          joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
+                      AND thing_translations.locale = '#{I18n.locale}'"
+        }
+      end
+
+      def include_slug
+        {
+          identifier: 'slug',
+          select: "MAX(thing_translations.slug) FILTER (
+            WHERE thing_translations.slug IS NOT NULL
           )",
           joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
                       AND thing_translations.locale = '#{I18n.locale}'"
