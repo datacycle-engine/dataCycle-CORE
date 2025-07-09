@@ -48,7 +48,7 @@ module DataCycleCore
 
         config << include_type
         config << include_name if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
-        config << include_slug if field_required?('slug')
+        config << include_slug if field_required?('dc:slug')
         config << include_dc_classification if field_required?('dc:classification')
         config << include_image if field_required?('image')
         config << include_internal_content_score if field_required?('dc:contentScore')
@@ -84,7 +84,7 @@ module DataCycleCore
 
       def include_slug
         {
-          identifier: 'slug',
+          identifier: '"dc:slug"',
           select: "MAX(thing_translations.slug) FILTER (
             WHERE thing_translations.slug IS NOT NULL
           )",
