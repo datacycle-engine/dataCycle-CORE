@@ -45,7 +45,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, {section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: []}]
+          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, :classification_trees, :classificationTrees, {section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: [], classificationTrees: []}]
         end
 
         def validate_params_exceptions
@@ -109,7 +109,7 @@ module DataCycleCore
           @include_parameters = parse_tree_params(permitted_params[:include])
           @fields_parameters = parse_tree_params(permitted_params[:fields])
           @field_filter = @fields_parameters.present?
-          @classification_trees_parameters = Array.wrap(permitted_params[:classification_trees])
+          @classification_trees_parameters = (Array.wrap(permitted_params[:classification_trees]) + Array.wrap(permitted_params[:classificationTrees])).flat_map { |ct| ct.split(',') }.map(&:strip).uniq
           @classification_trees_filter = @classification_trees_parameters.present?
           @live_data = permitted_params[:'dc:liveData']
           @section_parameters = section_parameters

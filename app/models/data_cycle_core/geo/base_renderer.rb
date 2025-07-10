@@ -3,13 +3,12 @@
 module DataCycleCore
   module Geo
     class BaseRenderer
-      def initialize(contents:, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, **_options)
-        @contents = contents
-        @simplify_factor = simplify_factor
-        @include_parameters = include_parameters
-        @fields_parameters = fields_parameters
-        @classification_trees_parameters = classification_trees_parameters
-        @single_item = single_item
+      def initialize(**options)
+        @contents = options[:contents]
+        @include_parameters = Array.wrap(options[:include_parameters])
+        @fields_parameters = Array.wrap(options[:fields_parameters])
+        @classification_trees_parameters = Array.wrap(options[:classification_trees_parameters])
+        @single_item = options[:single_item] || false
       end
 
       def render

@@ -44,7 +44,8 @@ module DataCycleCore
           optional(:sort).filled(:api_sort_parameter?)
           optional(:fields).filled(:fields_wildcard?)
           optional(:include).filled(:string)
-          optional(:classification_trees) { (str? & uuid?) | (array? & each(:uuid?)) }
+          optional(:classification_trees) { uuid_or_list_of_uuid? | (array? & each(:uuid_or_list_of_uuid?)) }
+          optional(:classificationTrees) { uuid_or_list_of_uuid? | (array? & each(:uuid_or_list_of_uuid?)) }
         end
 
         BASE_MVT_API = Dry::Schema.Params do
@@ -61,7 +62,9 @@ module DataCycleCore
           optional(:clusterItems).value(:bool)
           optional(:clusterMaxZoom).value(:integer)
           optional(:clusterMinPoints).value(:integer)
-          optional(:clusterMaxDistance).value(:float)
+          optional(:clusterMaxDistance).value { (float? | int?) & gt?(0) }
+          optional(:clusterMaxDistanceDividend).value { (float? | int?) & gt?(0) }
+          optional(:clusterMaxDistanceDivisor).value { (float? | int?) & gt?(0) }
         end
 
         WATCHLIST = Dry::Schema.Params do

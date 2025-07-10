@@ -6,44 +6,13 @@ module DataCycleCore
       module Mvt
         extend ActiveSupport::Concern
 
-        def to_mvt(x, y, z, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], cache: true)
-          DataCycleCore::Geo::MvtRenderer.new(
-            x,
-            y,
-            z,
-            contents: self.class.where(id:).limit(1),
-            simplify_factor:,
-            include_parameters:,
-            fields_parameters:,
-            classification_trees_parameters:,
-            single_item: true,
-            cache:
-          ).render
+        def to_mvt(x, y, z, **kwargs)
+          DataCycleCore::Geo::MvtRenderer.new(x, y, z, contents: self.class.where(id:).limit(1), **kwargs).render
         end
 
         class_methods do
-          def to_mvt(x, y, z, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_polygons: false, cluster_items: false, cluster_max_zoom: nil, cluster_layer_name: nil, cluster_min_points: nil, cluster_max_distance: nil)
-            DataCycleCore::Geo::MvtRenderer.new(
-              x,
-              y,
-              z,
-              layer_name:,
-              contents: all,
-              simplify_factor:,
-              include_parameters:,
-              fields_parameters:,
-              classification_trees_parameters:,
-              single_item:,
-              cache:,
-              cluster:,
-              cluster_lines:,
-              cluster_polygons:,
-              cluster_items:,
-              cluster_layer_name:,
-              cluster_max_zoom:,
-              cluster_min_points:,
-              cluster_max_distance:
-            ).render
+          def to_mvt(x, y, z, **kwargs)
+            DataCycleCore::Geo::MvtRenderer.new(x, y, z, contents: all, **kwargs).render
           end
 
           def to_bbox

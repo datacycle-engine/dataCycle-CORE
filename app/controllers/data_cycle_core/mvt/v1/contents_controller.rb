@@ -15,29 +15,8 @@ module DataCycleCore
             render(json: query.query.to_bbox) && return if permitted_params[:bbox]
 
             I18n.with_locale(@language.first || I18n.locale) do
-              mvt = query.query.to_mvt(
-                @x,
-                @y,
-                @z,
-                layer_name: permitted_params[:layerName],
-                cluster_layer_name: permitted_params[:clusterLayerName],
-                include_parameters: @include_parameters,
-                fields_parameters: @fields_parameters,
-                classification_trees_parameters: @classification_trees_parameters,
-                cache: permitted_params[:cache].to_s != 'false',
-                cluster: permitted_params[:cluster].to_s == 'true',
-                cluster_lines: permitted_params[:clusterLines].to_s == 'true',
-                cluster_polygons: permitted_params[:clusterPolygons].to_s == 'true',
-                cluster_items: permitted_params[:clusterItems].to_s == 'true',
-                cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i,
-                cluster_min_points: permitted_params[:clusterMinPoints]&.to_i,
-                cluster_max_distance: permitted_params[:clusterMaxDistance]&.to_f
-              )
-              render(
-                plain: mvt,
-                content_type: request.format,
-                status: mvt.present? ? :ok : :no_content
-              )
+              mvt = query.query.to_mvt(@x, @y, @z, **@mvt_params)
+              render(plain: mvt, content_type: request.format, status: mvt.present? ? :ok : :no_content)
             end
           end
         end
@@ -53,29 +32,8 @@ module DataCycleCore
             render(json: query.to_bbox) && return if permitted_params[:bbox]
 
             I18n.with_locale(@language.first || I18n.locale) do
-              mvt = query.to_mvt(
-                @x,
-                @y,
-                @z,
-                layer_name: permitted_params[:layerName],
-                cluster_layer_name: permitted_params[:clusterLayerName],
-                include_parameters: @include_parameters,
-                fields_parameters: @fields_parameters,
-                classification_trees_parameters: @classification_trees_parameters,
-                cache: permitted_params[:cache].to_s != 'false',
-                cluster: permitted_params[:cluster].to_s == 'true',
-                cluster_lines: permitted_params[:clusterLines].to_s == 'true',
-                cluster_polygons: permitted_params[:clusterPolygons].to_s == 'true',
-                cluster_items: permitted_params[:clusterItems].to_s == 'true',
-                cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i,
-                cluster_min_points: permitted_params[:clusterMinPoints]&.to_i,
-                cluster_max_distance: permitted_params[:clusterMaxDistance]&.to_f
-              )
-              render(
-                plain: mvt,
-                content_type: request.format,
-                status: mvt.present? ? :ok : :no_content
-              )
+              mvt = query.to_mvt(@x, @y, @z, **@mvt_params)
+              render(plain: mvt, content_type: request.format, status: mvt.present? ? :ok : :no_content)
             end
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
@@ -89,17 +47,12 @@ module DataCycleCore
 
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
 
-          mvt = @content.to_mvt(@x, @y, @z, include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters)
-
-          render(
-            plain: mvt,
-            content_type: request.format,
-            status: mvt.present? ? :ok : :no_content
-          )
+          mvt = @content.to_mvt(@x, @y, @z, **@mvt_params)
+          render(plain: mvt, content_type: request.format, status: mvt.present? ? :ok : :no_content)
         end
 
         def permitted_parameter_keys
-          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterPolygons, :clusterItems, :clusterMaxZoom, :clusterMinPoints, :clusterMaxDistance])
+          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterPolygons, :clusterItems, :clusterMaxZoom, :clusterMinPoints, :clusterMaxDistance, :clusterMaxDistanceDividend, :clusterMaxDistanceDivisor])
         end
 
         def prepare_url_parameters
@@ -108,6 +61,24 @@ module DataCycleCore
           @x = permitted_params[:x]
           @y = permitted_params[:y]
           @z = permitted_params[:z]
+          @mvt_params = {
+            layer_name: permitted_params[:layerName],
+            cluster_layer_name: permitted_params[:clusterLayerName],
+            include_parameters: @include_parameters,
+            fields_parameters: @fields_parameters,
+            classification_trees_parameters: @classification_trees_parameters,
+            cache: permitted_params[:cache].to_s != 'false',
+            cluster: permitted_params[:cluster].to_s == 'true',
+            cluster_lines: permitted_params[:clusterLines].to_s == 'true',
+            cluster_polygons: permitted_params[:clusterPolygons].to_s == 'true',
+            cluster_items: permitted_params[:clusterItems].to_s == 'true',
+            cluster_max_zoom: permitted_params[:clusterMaxZoom]&.to_i,
+            cluster_min_points: permitted_params[:clusterMinPoints]&.to_i,
+            cluster_max_distance: permitted_params[:clusterMaxDistance]&.to_f,
+            cluster_max_distance_dividend: permitted_params[:clusterMaxDistanceDividend]&.to_f,
+            cluster_max_distance_divisor: permitted_params[:clusterMaxDistanceDivisor]&.to_f
+          }
+
           @api_version = 1
         end
 

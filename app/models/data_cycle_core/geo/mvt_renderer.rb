@@ -10,24 +10,26 @@ module DataCycleCore
       # https://www.crunchydata.com/blog/crunchy-spatial-tile-serving-with-postgresql-functions
       # https://www.crunchydata.com/blog/waiting-for-postgis-3-st_tileenvelopezxy
 
-      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_polygons: false, cluster_items: false, cluster_layer_name: nil, cluster_max_zoom: nil, cluster_min_points: nil, cluster_max_distance: nil, **_options)
-        super(contents:, simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item:, cache:)
+      def initialize(x, y, z, **options)
+        super(**options)
 
         @x = x
         @y = y
         @z = z
         @simplify_factor = 1 / (2**@z.to_f)
-        @layer_name = layer_name.presence || 'dataCycle'
-        @cluster_layer_name = cluster_layer_name.presence || 'dataCycleCluster'
-        @cache = cache
-        @cluster = cluster
-        @cluster_lines = cluster_lines # cluster lines by start point
-        @cluster_polygons = cluster_polygons # cluster polygons by start point
+        @layer_name = options[:layer_name].presence || 'dataCycle'
+        @cluster_layer_name = options[:cluster_layer_name].presence || 'dataCycleCluster'
+        @cache = options[:cache] != false
+        @cluster = options[:cluster] || false
+        @cluster_lines = options[:cluster_lines] || false # cluster lines by start point
+        @cluster_polygons = options[:cluster_polygons] || false # cluster polygons by start point
         @cluster_non_points = @cluster_lines || @cluster_polygons
-        @cluster_items = cluster_items
-        @cluster_max_zoom = cluster_max_zoom&.to_i
-        @cluster_max_distance = cluster_max_distance&.to_f || (500_000 / (1.7**@z.to_f))
-        @cluster_min_points = cluster_min_points&.to_i || 2
+        @cluster_items = options[:cluster_items] || false # render items inside cluster
+        @cluster_max_zoom = options[:cluster_max_zoom]&.to_i
+        @cluster_max_distance_dividend = options[:cluster_max_distance_dividend]&.to_f || 500_000
+        @cluster_max_distance_divisor = options[:cluster_max_distance_divisor]&.to_f || 1.7
+        @cluster_max_distance = (options[:cluster_max_distance]&.to_f || (@cluster_max_distance_dividend / (@cluster_max_distance_divisor**@z.to_f))).round(2)
+        @cluster_min_points = options[:cluster_min_points]&.to_i || 2
         @include_linked = @include_parameters.any?(['linked'])
       end
 
