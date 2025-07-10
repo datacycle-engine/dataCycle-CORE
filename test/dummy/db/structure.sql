@@ -3577,6 +3577,13 @@ CREATE INDEX index_geometries_on_geom_simple ON public.geometries USING gist (ge
 
 
 --
+-- Name: index_geometries_on_geom_simple_geography; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_geometries_on_geom_simple_geography ON public.geometries USING gist (public.geography(geom_simple));
+
+
+--
 -- Name: index_geometries_on_thing_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5156,6 +5163,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250704063313'),
 ('20250626113312'),
 ('20250625103014'),
 ('20250620055722'),

@@ -10,12 +10,20 @@ module DataCycleCore
 
     queue_as :importers
 
+    after_enqueue :broadcast_dashboard_jobs_reload
+    before_perform :broadcast_dashboard_jobs_reload
+    after_perform :broadcast_dashboard_jobs_reload
+
     def delayed_reference_id
       arguments[0]
     end
 
     def delayed_reference_type
       [self.class::REFERENCE_TYPE, *arguments[1..]].compact_blank.join('_')
+    end
+
+    def self.broadcast_dashboard_jobs_now?
+      true
     end
 
     after_enqueue do |_|

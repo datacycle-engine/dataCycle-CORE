@@ -10,6 +10,7 @@ require 'action_controller/railtie'
 require 'action_mailer/railtie'
 require 'action_view/railtie'
 require 'action_cable/engine'
+require 'turbo-rails'
 
 # Databases
 require 'pg'
@@ -63,6 +64,8 @@ require 'redcarpet'
 require 'ruby-progressbar'
 
 require 'premailer'
+
+require 'dotiw'
 
 require 'dotenv/load'
 

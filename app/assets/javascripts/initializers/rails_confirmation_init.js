@@ -1,5 +1,19 @@
 import ConfirmationModal from "./../components/confirmation_modal";
 
+export function turboConfirmMethod(message, element) {
+	return new Promise((resolve) => {
+		new ConfirmationModal({
+			text: message,
+			confirmationText: element.dataset.confirmationText,
+			confirmationHeaderText: element.dataset.confirmationHeaderText,
+			confirmationClass: "alert",
+			cancelable: true,
+			confirmationCallback: resolve.bind(resolve, true),
+			cancelCallback: resolve.bind(resolve, false),
+		});
+	});
+}
+
 export default function () {
 	Rails.confirm = (message, element) => {
 		if (element.dataset.confirmed) return true;

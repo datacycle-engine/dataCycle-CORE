@@ -9,7 +9,11 @@ module DataCycleCore
         attr_accessor :last_error
 
         define_callbacks :success, :error, :failure
+
+        after_enqueue :broadcast_dashboard_jobs_reload
+        before_perform :broadcast_dashboard_jobs_reload, if: :broadcast_dashboard_jobs_now?
         after_perform ->(job) { job.run_callbacks :success }
+        after_perform :broadcast_dashboard_jobs_reload
 
         rescue_from StandardError do |exception|
           @last_error = exception
@@ -48,6 +52,24 @@ module DataCycleCore
 
         def after_failure(*filters, &)
           set_callback(:failure, :after, *filters, &)
+        end
+
+        def broadcast_dashboard_jobs_now?
+          false
+        end
+      end
+
+      delegate :broadcast_dashboard_jobs_now?, to: :class
+
+      private
+
+      def broadcast_dashboard_jobs_reload
+        return if is_a?(DataCycleCore::BroadcastDashboardUpdateJob)
+
+        if self.class.try(:broadcast_dashboard_jobs_now?)
+          DataCycleCore::StatsJobQueue.broadcast_jobs_reload
+        else
+          DataCycleCore::BroadcastDashboardUpdateJob.perform_later
         end
       end
     end

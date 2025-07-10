@@ -8,7 +8,7 @@ module DataCycleCore
 
     queue_as :default
 
-    before_enqueue :notify_with_lock
+    before_enqueue :broadcast_update
 
     def priority
       PRIORITY
@@ -22,18 +22,25 @@ module DataCycleCore
       Rake::Task.clear
       Rails.application.load_tasks
 
-      ActionCable.server.broadcast('rebuild_classification_mappings', { type: 'lock', message_path: 'dash_board.maintenance.classification_mappings.started' })
+      broadcast_update(rebuilding: true)
       Rake::Task['db:configure:rebuild_transitive_tables'].invoke
       Rake::Task['db:configure:rebuild_transitive_tables'].reenable
-      ActionCable.server.broadcast('rebuild_classification_mappings', { type: 'unlock', message_path: 'dash_board.maintenance.classification_mappings.finished' })
-    rescue StandardError
-      ActionCable.server.broadcast('rebuild_classification_mappings', { type: 'unlock', message_path: 'dash_board.maintenance.classification_mappings.error', message_type: 'alert' })
+    ensure
+      broadcast_update(rebuilding: false)
+    end
+
+    def self.broadcast_dashboard_jobs_now?
+      true
     end
 
     private
 
-    def notify_with_lock
-      ActionCable.server.broadcast('rebuild_classification_mappings', { type: 'lock', message_path: 'dash_board.maintenance.classification_mappings.queued' })
+    def broadcast_update(rebuilding: true)
+      TurboService.broadcast_localized_replace_to(
+        'admin_dashboard_concept_mapping_job',
+        partial: 'data_cycle_core/dash_board/concept_mappings_button',
+        locals: { rebuilding: }
+      )
     end
   end
 end

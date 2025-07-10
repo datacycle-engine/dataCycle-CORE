@@ -6,12 +6,11 @@
       <div class="card-divider accordion-title">
         <div class="header">
           <h5 class="copy-to-clipboard" data-value="<%= import_data[:name] %>" data-dc-tooltip="<%= import_data[:name] %>"><%= import_data[:name] %></h5>
-          <ul class="import-data-timestamps">
-            <% if import_data[:schedule].present? %>
-              <li class="schedule" data-dc-tooltip="<%= import_schedule(import_data[:schedule]) %>"></li>
-            <% end %>
-            <li class="download <%= import_data[:last_download_class] %>" data-dc-tooltip="<%= timestamp_tooltip(import_data, 'download') %>"></li>
-            <li class="import <%= import_data[:last_import_class] %>" data-dc-tooltip="<%= timestamp_tooltip(import_data, 'import') %>"></li>
+          <% if import_data[:schedule].present? %>
+            <div class="schedule" data-dc-tooltip="<%= import_schedule(import_data[:schedule]) %>"><i class="fa fa-clock-o" aria-hidden="true"></i></div>
+          <% end %>
+          <ul class="import-data-timestamps" id="import-timestamps-title-<%= import_data[:uuid] %>">
+            <%= render 'data_cycle_core/dash_board/import_timestamps_title', import_data: %>
           </ul>
         </div>
 
@@ -22,7 +21,13 @@
           </div>
         </div>
       </div>
-      <div class="accordion-content remote-render" data-tab-content data-remote-path="data_cycle_core/dash_board/import_module" data-remote-options="<%= to_query_params({ external_source_id: import_data[:uuid] }).to_json %>"></div>
+
+      <%= turbo_frame_tag "admin_dashboard_import_module_#{import_data[:uuid]}",
+                          src: admin_import_module_partial_path(id: import_data[:uuid]),
+                          loading: "lazy",
+                          refresh: 'morph',
+                          target: "_top",
+                          class: 'accordion-content', data: { tab_content: '' } %>
     </div>
   </div>
 </div>

@@ -21,7 +21,7 @@ en:
       uuid_or_list_of_uuid?: "must be a valid UUID or a list of UUIDs separated by commas"
       fields_wildcard?: "wildcard must only appear at the end of a field or not at all"
       api_sort_parameter?: "must be a valid sort parameter"
-      uuid_or_null_string?: "must be a valid UUID or a 'null' string"
+      uuid_or_null_string_or_list?: "must be a valid UUID or a 'null' string or a list of UUIDs or 'null' strings separated by commas"
       uuid?: "must be a valid UUID"
       api_weight_string?: "must be a valid weight string"
       ruby_module_or_class?: "must be a valid Ruby module or class"

@@ -50,9 +50,13 @@ module DataCycleCore
 
         self.last_download = ts_start
         save if skip_save.blank?
+        broadcast_update(:download, 'running')
 
         sorted_steps(:download).each do |name|
+          update_columns(last_download_time: Time.zone.now - ts_start) if skip_save.blank?
           success &&= download_single(name, options, &)
+          update_columns(last_download_time: Time.zone.now - ts_start) if skip_save.blank?
+          broadcast_update(:download, 'running')
         end
 
         ts_after = Time.zone.now
@@ -65,6 +69,8 @@ module DataCycleCore
 
         save if skip_save.blank?
         success
+      ensure
+        broadcast_update(:download)
       end
 
       def download_range(options = {}, &)
@@ -73,12 +79,15 @@ module DataCycleCore
         success = true
         min = options[:min] || 0
         max = options[:max] || Float::INFINITY
+        broadcast_update(:download, 'running')
 
         sorted_steps(:download, min..max).each do |name|
           success &&= download_single(name, options, &)
         end
 
         success
+      ensure
+        broadcast_update(:download)
       end
 
       def timestamp_key_for_step(name, type = nil)
@@ -127,17 +136,21 @@ module DataCycleCore
 
         ts_start = Time.zone.now
         update_columns(last_import: ts_start)
+        broadcast_update(:import, 'running')
 
         sorted_steps(:import).each do |name|
           update_columns(last_import_time: Time.zone.now - ts_start)
           import_single(name, options, &)
           update_columns(last_import_time: Time.zone.now - ts_start)
+          broadcast_update(:import, 'running')
         end
 
         update_columns(
           last_successful_import: ts_start,
           last_successful_import_time: Time.zone.now - ts_start
         )
+      ensure
+        broadcast_update(:import)
       end
 
       def import_range(options = {}, &)
@@ -145,10 +158,13 @@ module DataCycleCore
 
         min = options[:min] || 0
         max = options[:max] || Float::INFINITY
+        broadcast_update(:import, 'running')
 
         sorted_steps(:import, min..max).each do |name|
           import_single(name, options, &)
         end
+      ensure
+        broadcast_update(:import)
       end
 
       def import_single(name, options = {})
@@ -220,8 +236,7 @@ module DataCycleCore
         strategy_method = strategy.respond_to?(:import_data) ? :import_data : :download_content
         utility_object = utility_object_for_step(type, full_options)
 
-        merge_last_import_step_time_info(json_key, {last_try: last_start})
-        update_columns(last_import_step_time_info: last_import_step_time_info)
+        update_step_timestamp_start(last_start, name, json_key)
 
         success = strategy.send(strategy_method, utility_object:, options: full_options)
         success = true unless success.is_a?(FalseClass) # download strategies return true/false, import strategies dont return a normalized value
@@ -229,24 +244,71 @@ module DataCycleCore
         success = false
         raise
       ensure
-        duration = Time.zone.now - last_start
-        update_info = {
-          last_try_time: duration
-        }
-        if success
-          update_info = update_info.merge({
-            last_successful_try: last_start,
-            last_successful_try_time: duration
-          })
-        end
-
-        merge_last_import_step_time_info(json_key, update_info)
-        update_columns(last_import_step_time_info: last_import_step_time_info)
+        update_step_timestamp_end(last_start, name, json_key, success)
       end
 
       def import_one(name, external_key, options = {}, mode = 'full')
         raise 'no external key given' if external_key.blank?
         import_single(name, options.deep_merge({ mode:, import: { source_filter: { external_id: external_key } } }))
+      end
+
+      private
+
+      def update_step_timestamp_start(timestamp, name, step_key)
+        merge_last_import_step_time_info(step_key, {last_try: timestamp, status: 'running'})
+        update_columns(last_import_step_time_info: last_import_step_time_info)
+        broadcast_step_update(name, step_key)
+      end
+
+      def update_step_timestamp_end(timestamp, name, step_key, success)
+        duration = Time.zone.now - timestamp
+        update_info = {
+          last_try_time: duration,
+          status: 'error'
+        }
+        if success
+          update_info = update_info.merge({
+            last_successful_try: timestamp,
+            last_successful_try_time: duration,
+            status: 'finished'
+          })
+        end
+
+        merge_last_import_step_time_info(step_key, update_info)
+        update_columns(last_import_step_time_info: last_import_step_time_info)
+        broadcast_step_update(name, step_key)
+      end
+
+      def broadcast_update(type, status = nil)
+        data = last_download_and_import
+        data[:"last_#{type}_status"] = status if status.present?
+
+        TurboService.broadcast_localized_update_to(
+          'admin_dashboard_import_modules',
+          target: "import-timestamps-title-#{id}",
+          partial: 'data_cycle_core/dash_board/import_timestamps_title',
+          locals: { import_data: data }
+        )
+
+        TurboService.broadcast_localized_update_to(
+          'admin_dashboard_import_modules',
+          target: "#{type}-timestamps-#{id}",
+          partial: 'data_cycle_core/dash_board/import_timestamps',
+          locals: { data:, type: }
+        )
+      end
+
+      def broadcast_step_update(name, step_key)
+        value = send(:"step_info_#{step_key}") || {}
+        value['name'] = name
+        value['key'] = step_key
+
+        TurboService.broadcast_localized_replace_to(
+          'admin_dashboard_import_modules',
+          target: "step-timestamp-#{id}-#{step_key}",
+          partial: 'data_cycle_core/dash_board/import_timestamps_step',
+          locals: { value:, external_source_id: id }
+        )
       end
     end
   end

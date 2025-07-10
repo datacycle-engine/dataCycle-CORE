@@ -1,0 +1,14 @@
+<%
+  last_status = last_step_status(value)
+  last_tooltip = last_step_tooltip(value, last_status)
+%>
+
+<tr data-timestamp-key="<%= value['key'] %>" class="<%= last_status %>" id="step-timestamp-<%= local_assigns[:external_source_id] %>-<%= value['key'] %>">
+  <td class="import-step-name" data-dc-tooltip="<%= value['name'] %>"><%= last_step_icon(last_status) %> <%= value['name'] %></td>
+  <td class="import-step-timestamp" data-dc-tooltip="<%= last_tooltip %>">
+    <%= import_data_time(Time.zone.parse(value['last_try'].to_s)) %>
+  </td>
+  <td class="import-step-duration" data-dc-tooltip="<%= last_tooltip %>">
+    <%= last_step_duration(value['last_try_time'], last_status) %>
+  </td>
+</tr>

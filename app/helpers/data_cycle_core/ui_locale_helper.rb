@@ -3,9 +3,10 @@
 module DataCycleCore
   module UiLocaleHelper
     def active_ui_locale
-      current_user&.ui_locale || DataCycleCore.ui_locales.first
+      return @active_ui_locale if defined?(@active_ui_locale)
+      @active_ui_locale = current_user&.ui_locale || DataCycleCore.ui_locales.first
     rescue StandardError
-      DataCycleCore.ui_locales.first
+      @active_ui_locale = DataCycleCore.ui_locales.first
     end
 
     def i18n_digest

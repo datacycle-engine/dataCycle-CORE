@@ -140,6 +140,20 @@ curl --request POST \
 }
 ```
 
+#### Verfügbare Attribute
+
+* `@id`
+* `@type`
+* `name`
+* `dc:slug`
+* `dc:classification`
+  * `@id`
+  * `dc:path`
+* `image`
+  * `@id`
+  * `thumbnailUrl`
+* `dc:contentScore`
+
 #### Beeinflussung der Attribute
 
 Die Attribute können mit folgenden Parameter beeinflusst werden:

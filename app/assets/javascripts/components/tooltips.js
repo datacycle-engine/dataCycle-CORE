@@ -1,10 +1,10 @@
 import {
-	computePosition,
-	autoUpdate,
 	arrow,
-	offset,
-	hide,
+	autoUpdate,
+	computePosition,
 	flip,
+	hide,
+	offset,
 	shift,
 } from "@floating-ui/dom";
 import { nanoid } from "nanoid";
@@ -70,6 +70,7 @@ class Tooltips {
 		setTimeout(this.showTooltip.bind(this, event.target), 300);
 	}
 	async showTooltip(target) {
+		if (!this.referenceElement) return;
 		if (
 			this.referenceElement?.dataset.dcTooltipId !==
 				target.dataset.dcTooltipId ||
@@ -121,11 +122,11 @@ class Tooltips {
 		this.dataChangedObserver.disconnect();
 	}
 	updateTooltipContent() {
-		this.tooltipContent.innerHTML = this.referenceElement.dataset.dcTooltip
+		this.tooltipContent.innerHTML = this.referenceElement?.dataset.dcTooltip
 			? this.referenceElement.dataset.dcTooltip.trim()
 			: "";
 
-		if (this.referenceElement.dataset.dcTooltipClass)
+		if (this.referenceElement?.dataset.dcTooltipClass)
 			this.tooltip.classList.add(
 				this.referenceElement.dataset.dcTooltipClass.trim(),
 			);

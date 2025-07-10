@@ -1,6 +1,7 @@
+import { nanoid } from "nanoid";
+import { showToast } from "../components/toast_notification";
 import ObserverHelpers from "../helpers/observer_helpers";
 import DataCycleHttpClient from "./data_cycle_http_client";
-import { nanoid } from "nanoid";
 
 class DataCycle {
 	constructor(config = {}) {
@@ -39,6 +40,7 @@ class DataCycle {
 		this.globalPromises = {};
 		this.globals = {};
 		this.windowId = nanoid();
+		this.showToast = showToast;
 
 		this.htmlObserver = {
 			observer: new MutationObserver(this._addToCallbackQueue.bind(this)),

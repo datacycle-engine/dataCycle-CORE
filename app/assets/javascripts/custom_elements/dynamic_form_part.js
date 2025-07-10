@@ -1,6 +1,4 @@
-export const ELEM_NAME = "dynamic-form-part";
-
-export class DynamicFormPart extends HTMLElement {
+export default class DynamicFormPart extends HTMLElement {
 	constructor() {
 		super();
 
@@ -8,7 +6,7 @@ export class DynamicFormPart extends HTMLElement {
 			change: this.reloadDynamicParts.bind(this),
 		};
 	}
-	static registeredName = ELEM_NAME;
+	static registeredName = "dynamic-form-part";
 	connectedCallback() {
 		this.formElement = this.closest("form");
 		const identifierSelectId = this.getAttribute("dependent-on");

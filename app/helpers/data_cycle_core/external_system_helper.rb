@@ -92,37 +92,55 @@ module DataCycleCore
       }.keys
     end
 
-    def last_step_class(data)
-      return unless !data['deactivated'] && (data['last_try'].present? || data['last_successful_try'].present?)
+    def last_step_status(data)
+      return 'unkown' unless data['last_try'].present? || data['last_successful_try'].present?
 
-      data['last_try'] == data['last_successful_try'] ? 'success-color' : 'alert-color'
+      return data['status'] if data['status'].present?
+      return 'finished' if data['last_try'] == data['last_successful_try']
+      return 'running' if data['last_try'].present? && data['last_successful_try'].present? && data['last_try'] > data['last_successful_try']
+
+      'error'
     end
 
-    def last_step_icon(data)
-      icon_class = data['last_try'] == data['last_successful_try'] ? 'fa-check' : 'fa-times'
+    def last_step_icon(last_status)
+      icon_class = case last_status
+                   when 'running'
+                     'fa-spinner fa-spin'
+                   when 'finished'
+                     'fa-check'
+                   when 'error'
+                     'fa-times'
+                   else
+                     'fa-circle'
+                   end
+
       tag.i(class: "fa #{icon_class}")
     end
 
-    def last_step_duration(duration)
+    def last_step_duration(duration, last_status = nil)
+      return tag.span('(-)', class: 'duration-running') if last_status == 'running'
       return if duration.blank?
 
       duration = duration.to_i
       duration_unit = 's'
+      duration_size = 'duration-s'
 
       if duration > 60
         duration /= 60
         duration_unit = 'm'
+        duration_size = duration >= 30 ? 'duration-l' : 'duration-m'
       end
 
       if duration > 60
         duration /= 60
         duration_unit = 'h'
+        duration_size = 'duration-xl'
       end
 
-      "(#{duration}#{duration_unit})"
+      tag.span("(#{duration}#{duration_unit})", class: duration_size)
     end
 
-    def last_step_tooltip(data)
+    def last_step_tooltip(data, last_status = nil)
       last_try = data['last_try']
       last_try_time = data['last_try_time']
       last_successful_try = data['last_successful_try']
@@ -133,7 +151,8 @@ module DataCycleCore
       capture do
         concat(tag.b("#{t('import_steps.last_try', locale: active_ui_locale)}: "))
         concat(import_data_time(Time.zone.parse(last_try)))
-        concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_try_time, locale: active_ui_locale)})") if last_try_time.present?
+        concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_try_time, locale: active_ui_locale)})") if last_try_time.present? && last_status != 'running'
+        concat(' (-)') if last_status == 'running'
 
         if last_successful_try.present? && last_successful_try != last_try
           concat(tag.br)

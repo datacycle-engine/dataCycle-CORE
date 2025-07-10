@@ -1,5 +1,5 @@
-import { formDataToObject } from "../../helpers/dom_element_helpers";
 import { showCallout } from "../../helpers/callout_helpers";
+import { formDataToObject } from "../../helpers/dom_element_helpers";
 
 class ConceptSchemeLinkForm {
 	static #channel = "DataCycleCore::ConceptSchemeLinkChannel";
@@ -71,31 +71,33 @@ class ConceptSchemeLinkForm {
 		DataCycle.enableElement(this.postSubmitButton);
 	}
 	initActionCable(collection_id, concept_scheme_id) {
-		this.subscription = window.actionCable.subscriptions.create(
-			{
-				channel: ConceptSchemeLinkForm.#channel,
-				collection_id: collection_id,
-				concept_scheme_id: concept_scheme_id,
-				key: this.key,
-			},
-			{
-				received: (data) => {
-					if (data.type === "error") {
-						return I18n.t(`concept_scheme_${this.key}.error`).then((t) =>
-							showCallout(t, "alert"),
-						);
-					}
-
-					if (data.error) showCallout(data.error, "alert");
-
-					if (data.finished) this.finishedResult(data);
-					else if (Object.hasOwn(data, "progress"))
-						this.showProgress(data.progress);
+		this.subscription = window.actionCable.then((cable) => {
+			cable.subscriptions.create(
+				{
+					channel: ConceptSchemeLinkForm.#channel,
+					collection_id: collection_id,
+					concept_scheme_id: concept_scheme_id,
+					key: this.key,
 				},
-				disconnected: this.showGenericError.bind(this, "disconnected"),
-				rejected: this.showGenericError.bind(this, "disconnected"),
-			},
-		);
+				{
+					received: (data) => {
+						if (data.type === "error") {
+							return I18n.t(`concept_scheme_${this.key}.error`).then((t) =>
+								showCallout(t, "alert"),
+							);
+						}
+
+						if (data.error) showCallout(data.error, "alert");
+
+						if (data.finished) this.finishedResult(data);
+						else if (Object.hasOwn(data, "progress"))
+							this.showProgress(data.progress);
+					},
+					disconnected: this.showGenericError.bind(this, "disconnected"),
+					rejected: this.showGenericError.bind(this, "disconnected"),
+				},
+			);
+		});
 	}
 	actionFinished(message, calloutClass = "success") {
 		this.postSubmitText.innerHTML = `<div class="callout ${calloutClass}">${message}</div>`;

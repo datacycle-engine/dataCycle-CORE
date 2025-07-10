@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
 
   # rails
   s.add_dependency 'rails', '~> 7.1.0'
+  s.add_dependency 'turbo-rails'
   # Translations
   s.add_dependency 'mobility', '>= 1.3.1'
   # Frontend Asset Handling

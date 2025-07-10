@@ -209,32 +209,7 @@ module DataCycleCore
     end
 
     def last_download_and_import(external_source)
-      last_download = external_source.last_download.presence || 'never'
-      last_download_time = external_source.last_download_time.presence
-      last_successful_download = external_source.last_successful_download.presence || 'never'
-      last_successful_download_time = external_source.last_successful_download_time.presence
-      last_download_class = last_download == last_successful_download ? 'success-color' : 'alert-color' if !external_source.deactivated && (last_download != 'never' || last_successful_download != 'never')
-      last_download_class = 'primary-color' if last_download_class == 'alert-color' && Delayed::Job.where("delayed_reference_type ILIKE '%download%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
-
-      last_import = external_source.last_import.presence || 'never'
-      last_import_time = external_source.last_import_time.presence
-      last_successful_import = external_source.last_successful_import.presence || 'never'
-      last_successful_import_time = external_source.last_successful_import_time.presence
-      last_import_class = last_import == last_successful_import ? 'success-color' : 'alert-color' if !external_source.deactivated && (last_import != 'never' || last_successful_import != 'never')
-      last_import_class = 'primary-color' if last_import_class == 'alert-color' && last_download_class != 'primary-color' && Delayed::Job.where("delayed_reference_type ILIKE '%import%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
-
-      {
-        last_download:,
-        last_download_time:,
-        last_import:,
-        last_import_time:,
-        last_successful_download:,
-        last_successful_download_time:,
-        last_successful_import:,
-        last_successful_import_time:,
-        last_download_class:,
-        last_import_class:
-      }
+      external_source.last_download_and_import
     end
 
     def load_mongo_data
