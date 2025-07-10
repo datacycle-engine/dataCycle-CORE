@@ -393,6 +393,11 @@ ul.import-data-timestamps li {
   }
 
   .card.background-jobs {
+    span.info-icon {
+      float: right;
+      color: var(--dark-gray);
+    }
+
     .card-section {
       >div {
         color: var(--black);

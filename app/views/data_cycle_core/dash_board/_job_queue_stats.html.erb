@@ -5,6 +5,7 @@
     <div class="accordion-item" data-accordion-item>
       <div class="card-divider accordion-title" id="admin_dashboard_jobs_title">
         <h5>background jobs</h5>
+        <span class="info-icon" data-dc-tooltip="<%= t('dash_board.jobs_info_text', locale: active_ui_locale) %>"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
         <h6 id="jobs_queue_title">
           <%= render 'data_cycle_core/dash_board/job_queue_title', stat_job_queue: %>
         </h6>
