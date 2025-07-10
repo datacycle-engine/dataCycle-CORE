@@ -10,10 +10,6 @@ module DataCycleCore
 
     queue_as :importers
 
-    after_enqueue :broadcast_dashboard_jobs_reload
-    before_perform :broadcast_dashboard_jobs_reload
-    after_perform :broadcast_dashboard_jobs_reload
-
     def delayed_reference_id
       arguments[0]
     end
