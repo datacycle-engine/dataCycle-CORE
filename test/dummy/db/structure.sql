@@ -2933,13 +2933,6 @@ CREATE INDEX delayed_jobs_priority ON public.delayed_jobs USING btree (priority,
 
 
 --
--- Name: delayed_jobs_queue; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX delayed_jobs_queue ON public.delayed_jobs USING btree (queue);
-
-
---
 -- Name: deleted_at_classification_alias_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3539,6 +3532,13 @@ CREATE INDEX index_data_links_on_item_id ON public.data_links USING btree (item_
 --
 
 CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (item_type);
+
+
+--
+-- Name: index_delayed_jobs_on_queue_and_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_delayed_jobs_on_queue_and_type ON public.delayed_jobs USING btree (queue, delayed_reference_type);
 
 
 --
@@ -5163,6 +5163,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250709093540'),
 ('20250704063313'),
 ('20250626113312'),
 ('20250625103014'),

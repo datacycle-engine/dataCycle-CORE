@@ -46,7 +46,7 @@ module DataCycleCore
         failed_at: nil
       )
 
-      self.scheduled_at ||= 5.seconds.from_now.to_f
+      self.scheduled_at ||= 5.seconds.from_now
     end
   end
 end
