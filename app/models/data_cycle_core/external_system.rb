@@ -349,6 +349,30 @@ module DataCycleCore
       MasterData::ImportExternalSystems.full_module_path(module_base, 'Endpoint')&.safe_constantize
     end
 
+    def reload(options = nil)
+      reset_memoized_variables!
+      super
+    end
+
+    def reset_memoized_variables!
+      remove_instance_variable(:@export_config) if instance_variable_defined?(:@export_config)
+      remove_instance_variable(:@refresh_config) if instance_variable_defined?(:@refresh_config)
+      remove_instance_variable(:@download_config) if instance_variable_defined?(:@download_config)
+      remove_instance_variable(:@import_config) if instance_variable_defined?(:@import_config)
+      remove_instance_variable(:@download_list) if instance_variable_defined?(:@download_list)
+      remove_instance_variable(:@download_list_ranked) if instance_variable_defined?(:@download_list_ranked)
+      remove_instance_variable(:@download_pretty_list) if instance_variable_defined?(:@download_pretty_list)
+      remove_instance_variable(:@import_list) if instance_variable_defined?(:@import_list)
+      remove_instance_variable(:@import_list_ranked) if instance_variable_defined?(:@import_list_ranked)
+      remove_instance_variable(:@import_pretty_list) if instance_variable_defined?(:@import_pretty_list)
+      remove_instance_variable(:@credentials) if instance_variable_defined?(:@credentials)
+      remove_instance_variable(:@default_options) if instance_variable_defined?(:@default_options)
+      remove_instance_variable(:@download_accessors_keys) if instance_variable_defined?(:@download_accessors_keys)
+      remove_instance_variable(:@download_accessors) if instance_variable_defined?(:@download_accessors)
+      remove_instance_variable(:@import_accessors_keys) if instance_variable_defined?(:@import_accessors_keys)
+      remove_instance_variable(:@import_accessors) if instance_variable_defined?(:@import_accessors)
+    end
+
     private
 
     def download_accessors_keys
