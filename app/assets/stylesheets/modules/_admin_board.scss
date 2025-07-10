@@ -396,6 +396,14 @@ ul.import-data-timestamps li {
     .card-section {
       >div {
         color: var(--black);
+
+        &[data-count="0"] {
+          color: var(--dark-gray);
+        }
+
+        ul {
+          margin-left: 2rem;
+        }
       }
 
       h5 {
@@ -410,18 +418,6 @@ ul.import-data-timestamps li {
         .fa {
           font-size: 0.9rem;
         }
-      }
-
-      .queued-jobs {
-        color: var(--dark-gray);
-      }
-
-      .running-jobs {
-        color: var(--primary-color);
-      }
-
-      .failed-jobs {
-        color: var(--alert-color);
       }
 
       .import-jobs {
@@ -471,18 +467,10 @@ ul.import-data-timestamps li {
           align-items: center;
           box-shadow: 0 -1px 0 0 inset;
           font-weight: 600;
-        }
 
-        .jobs-queued {
-          color: var(--dark-gray);
-        }
-
-        .jobs-running {
-          color: var(--primary-color);
-        }
-
-        .jobs-failed {
-          color: var(--alert-color);
+          &[data-count="0"] {
+            color: var(--dark-gray);
+          }
         }
       }
     }

@@ -11,7 +11,7 @@ module DataCycleCore
         define_callbacks :success, :error, :failure
 
         after_enqueue :broadcast_dashboard_jobs_reload
-        before_perform :broadcast_dashboard_jobs_reload
+        before_perform :broadcast_dashboard_jobs_reload, if: :broadcast_dashboard_jobs_now?
         after_perform ->(job) { job.run_callbacks :success }
         after_perform :broadcast_dashboard_jobs_reload
 
@@ -58,6 +58,8 @@ module DataCycleCore
           false
         end
       end
+
+      delegate :broadcast_dashboard_jobs_now?, to: :class
 
       private
 

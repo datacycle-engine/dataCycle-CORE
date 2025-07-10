@@ -1,7 +1,8 @@
-<div class="queued-jobs">
+<% queued_sum = stat_job_queue[:queued].values.sum %>
+<div class="queued-jobs" data-count="<%= queued_sum %>">
   <h5>
     <i class="fa fa-tasks" aria-hidden="true"></i>
-    in queue: <%= number_with_delimiter(stat_job_queue[:queued].values.sum, locale: active_ui_locale) %>
+    in queue: <%= number_with_delimiter(queued_sum, locale: active_ui_locale) %>
   </h5>
 
   <% if stat_job_queue[:queued].present? %>
@@ -14,10 +15,11 @@
   <% end %>
 </div>
 
-<div class="running-jobs">
+<% running_sum = stat_job_queue[:running].values.sum %>
+<div class="running-jobs" data-count="<%= running_sum %>">
   <h5>
-    <i class="fa fa-spinner <%= 'fa-spin' if stat_job_queue[:running].values.sum.positive? %>" aria-hidden="true"></i>
-    running: <%= number_with_delimiter(stat_job_queue[:running].values.sum, locale: active_ui_locale) %>
+    <i class="fa fa-spinner <%= 'fa-spin' if running_sum.positive? %>" aria-hidden="true"></i>
+    running: <%= number_with_delimiter(running_sum, locale: active_ui_locale) %>
   </h5>
 
   <% if stat_job_queue[:running].present? %>
@@ -30,10 +32,11 @@
   <% end %>
 </div>
 
-<div class="failed-jobs">
+<% failed_sum = stat_job_queue[:failed].values.sum %>
+<div class="failed-jobs" data-count="<%= failed_sum %>">
   <h5>
     <i class="fa fa-times" aria-hidden="true"></i>
-    failed: <%= number_with_delimiter(stat_job_queue[:failed].values.sum, locale: active_ui_locale) %>
+    failed: <%= number_with_delimiter(failed_sum, locale: active_ui_locale) %>
   </h5>
 
   <% if stat_job_queue[:failed].present? %>
@@ -46,12 +49,13 @@
   <% end %>
 </div>
 
-<div class="import-jobs">
+<% importers_sum = stat_job_queue[:importers].size %>
+<div class="import-jobs" data-count="<%= importers_sum %>">
   <h5>
     <i class="fa fa-download" aria-hidden="true"></i>
-    import/download: <%= number_with_delimiter(stat_job_queue[:importers].size, locale: active_ui_locale) %>
+    import/download: <%= number_with_delimiter(importers_sum, locale: active_ui_locale) %>
   </h5>
-  <% if stat_job_queue[:importers].size.positive? %>
+  <% if importers_sum.positive? %>
     <ul>
       <% stat_job_queue[:importers].each do |job| %>
         <li>

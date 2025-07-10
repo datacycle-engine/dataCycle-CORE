@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class SearchUpdateJob < UniqueApplicationJob
-    PRIORITY = 0
+    PRIORITY = 1
 
     queue_as :search_update
 

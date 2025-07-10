@@ -10,8 +10,6 @@ module DelayedJobActiveRecordExtension
   private
 
   def broadcast_dashboard_jobs_reload
-    return if payload_object.job_data['job_class'] == 'DataCycleCore::BroadcastDashboardUpdateJob'
-
     if payload_object.job_data['job_class'].safe_constantize.try(:broadcast_dashboard_jobs_now?)
       DataCycleCore::StatsJobQueue.broadcast_jobs_reload
     else
