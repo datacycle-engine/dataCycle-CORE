@@ -68,6 +68,7 @@ module DataCycleCore
         format.html { redirect_to(admin_path, notice: I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)) }
         format.turbo_stream do
           flash.now[:success] = I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)
+          stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list
           render turbo_stream: [
             turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash'),
             turbo_stream.replace(
@@ -75,7 +76,9 @@ module DataCycleCore
               method: :morph,
               partial: 'data_cycle_core/dash_board/concept_mappings_button',
               locals: { rebuilding: true }
-            )
+            ),
+            turbo_stream.update(:jobs_queue_title, partial: 'data_cycle_core/dash_board/job_queue_title', locals: { stat_job_queue: }),
+            turbo_stream.update(:jobs_queue_body, partial: 'data_cycle_core/dash_board/job_queue_body', locals: { stat_job_queue: })
           ]
         end
       end
