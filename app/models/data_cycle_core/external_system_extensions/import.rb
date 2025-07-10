@@ -31,11 +31,11 @@ module DataCycleCore
         end
       end
 
-      def sorted_steps(type = :import, range = nil)
+      def sorted_steps(type = :import, range = nil, reject_depends_on = true)
         steps = send(:"#{type}_config")
         return [] if steps.blank?
 
-        steps = steps.filter { |_, v| v['depends_on'].blank? }
+        steps = steps.filter { |_, v| v['depends_on'].blank? } if reject_depends_on
         steps = steps.filter { |_, v| v['sorting'].in?(range) } if range.present?
 
         steps.sort_by { |_, v| v['sorting'] }.pluck(0)
