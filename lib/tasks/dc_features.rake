@@ -9,6 +9,7 @@ namespace :dc do
       missing_features = []
 
       DataCycleCore.features.each do |key, value|
+        next if value['only_config']
         next unless value['enabled']
         feature = DataCycleCore::Feature[key]
         missing_features << key unless feature
