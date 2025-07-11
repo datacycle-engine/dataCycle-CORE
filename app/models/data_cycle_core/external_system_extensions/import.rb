@@ -4,7 +4,7 @@ module DataCycleCore
   module ExternalSystemExtensions
     module Import
       def sorted_step_config_by_type(type)
-        sorted_steps(type.to_sym).map do |k|
+        full_sorted_steps(type.to_sym).map do |k|
           config = send(:"#{type}_config")[k]
           config.merge('name' => k, 'type' => step_type(config))
         end
@@ -31,14 +31,22 @@ module DataCycleCore
         end
       end
 
-      def sorted_steps(type = :import, range = nil, reject_depends_on = true)
+      def full_sorted_steps(type = :import, &)
         steps = send(:"#{type}_config")
         return [] if steps.blank?
 
-        steps = steps.filter { |_, v| v['depends_on'].blank? } if reject_depends_on
-        steps = steps.filter { |_, v| v['sorting'].in?(range) } if range.present?
+        steps = yield(steps) if block_given?
 
         steps.sort_by { |_, v| v['sorting'] }.pluck(0)
+      end
+
+      def sorted_steps(type = :import, range = nil)
+        full_sorted_steps(type) do |steps|
+          steps.filter do |_, v|
+            v['depends_on'].blank? &&
+              (range.nil? || v['sorting'].in?(range))
+          end
+        end
       end
 
       def download(options = {}, &)

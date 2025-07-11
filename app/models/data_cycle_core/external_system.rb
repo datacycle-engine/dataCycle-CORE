@@ -377,7 +377,7 @@ module DataCycleCore
 
     def download_accessors_keys
       return @download_accessors_keys if defined? @download_accessors_keys
-      @download_accessors_keys = sorted_steps(:download, nil, false).map { |name| timestamp_key_for_step(name, :download).to_sym }
+      @download_accessors_keys = full_sorted_steps(:download).map { |name| timestamp_key_for_step(name, :download).to_sym }
     end
 
     def download_accessors
@@ -389,7 +389,7 @@ module DataCycleCore
 
     def import_accessors_keys
       return @import_accessors_keys if defined? @import_accessors_keys
-      @import_accessors_keys = sorted_steps(:import, nil, false).map { |name| timestamp_key_for_step(name, :import).to_sym }
+      @import_accessors_keys = full_sorted_steps(:import).map { |name| timestamp_key_for_step(name, :import).to_sym }
     end
 
     def import_accessors
