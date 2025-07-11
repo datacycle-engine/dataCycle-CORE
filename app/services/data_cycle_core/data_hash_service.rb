@@ -114,7 +114,8 @@ module DataCycleCore
           current_user:,
           source:,
           new_content: true,
-          save_time:
+          save_time:,
+          check_for_duplicates: true
         )
       end
 

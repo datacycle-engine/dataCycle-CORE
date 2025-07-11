@@ -169,7 +169,6 @@
       :type: numeric
       :path: dcNominalCapacity
 
-
 :user_registration:
   :enabled: true
   :terms_condition_url: "https://datacycle.info/de/allgemeine-geschaeftsbedingungen/"

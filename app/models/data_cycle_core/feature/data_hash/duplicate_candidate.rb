@@ -10,7 +10,8 @@ module DataCycleCore
           super
 
           # add job to check for possible duplicates and add them as duplicate_candidates
-          add_check_for_duplicates_job if options.new_content || options.template_changed
+          add_check_for_duplicates_job if (options.new_content || options.template_changed) &&
+                                          options.check_for_duplicates
         end
 
         def create_duplicate_candidates
