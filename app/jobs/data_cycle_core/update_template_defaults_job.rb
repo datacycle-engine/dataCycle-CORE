@@ -24,7 +24,7 @@ module DataCycleCore
       I18n.with_locale(thing.first_available_locale) do
         data_hash = {}
         thing.add_default_values(data_hash:, force: true, keys: TEMPLATE_DEFAULT_KEYS)
-        thing.set_data_hash(data_hash:)
+        thing.set_data_hash(data_hash:, template_changed: true)
       end
     end
   end
