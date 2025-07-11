@@ -171,6 +171,7 @@ module DataCycleCore
       end
 
       def cast_tstz(date)
+        date = date.iso8601 if date.acts_like?(:time) # Ensure date is in ISO 8601 format to keep time zone information
         Arel::Nodes::NamedFunction.new(
           'CAST', [
             Arel::Nodes::As.new(
