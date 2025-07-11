@@ -96,7 +96,7 @@ module DataCycleCore
                   INNER JOIN concept_schemes ON concept_schemes.id = concepts.concept_scheme_id
                 WHERE
                   concept_schemes.name = :tree_label
-                  AND ST_Intersects (classification_polygons.geom, ST_GeomFromText (:geo, 4326)))
+                  AND ST_Intersects (classification_polygons.geom_simple, ST_GeomFromText (:geo, 4326)))
               SELECT DISTINCT filtered_classifications.classification_id
               FROM filtered_classifications
               WHERE NOT EXISTS (

@@ -60,7 +60,7 @@ module DataCycleCore
         classification_polygon: {
           type: 'FeatureCollection',
           features: classification_alias.classification_polygons.map do |p|
-            value_to_geojson(p.geom, classification_polygon_properties(p))
+            value_to_geojson(p.geom_simple, classification_polygon_properties(p))
           end
         }
       }.to_json
