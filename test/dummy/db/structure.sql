@@ -1168,10 +1168,10 @@ CREATE TABLE public.classification_polygons (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     admin_level integer,
     classification_alias_id uuid,
-    geog public.geography(MultiPolygon,4326),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    geom public.geometry(Geometry,4326)
+    geom public.geometry(Geometry,4326),
+    geom_simple public.geometry(Geometry,4326) GENERATED ALWAYS AS (public.st_makevalid(public.st_geomfromtext(public.st_astext(public.st_simplify(public.st_force2d(geom), (0.00001)::double precision, true), 5)))) STORED
 );
 
 
@@ -1856,7 +1856,7 @@ CREATE TABLE public.geometries (
     geom public.geometry(GeometryZ,4326) NOT NULL,
     priority integer NOT NULL,
     is_primary boolean DEFAULT false NOT NULL,
-    geom_simple public.geometry(Geometry,4326) GENERATED ALWAYS AS (public.st_geomfromtext(public.st_astext(public.st_simplify(public.st_force2d(geom), (0.00001)::double precision, true), 5))) STORED,
+    geom_simple public.geometry(Geometry,4326) GENERATED ALWAYS AS (public.st_makevalid(public.st_geomfromtext(public.st_astext(public.st_simplify(public.st_force2d(geom), (0.00001)::double precision, true), 5)))) STORED,
     CONSTRAINT chk_rails_278157ff08 CHECK ((priority > 0))
 );
 
@@ -2273,6 +2273,22 @@ ALTER TABLE ONLY public.asset_contents
 
 ALTER TABLE ONLY public.assets
     ADD CONSTRAINT assets_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: geometries check_geom_validity; Type: CHECK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE public.geometries
+    ADD CONSTRAINT check_geom_validity CHECK (public.st_isvalid(geom, 0)) NOT VALID;
+
+
+--
+-- Name: classification_polygons check_geom_validity; Type: CHECK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE public.classification_polygons
+    ADD CONSTRAINT check_geom_validity CHECK (public.st_isvalid(geom, 0)) NOT VALID;
 
 
 --
@@ -3147,6 +3163,13 @@ CREATE INDEX index_classification_groups_on_deleted_at ON public.classification_
 --
 
 CREATE INDEX index_classification_groups_on_external_source_id ON public.classification_groups USING btree (external_source_id);
+
+
+--
+-- Name: index_classification_polygons_on_geom_simple; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_polygons_on_geom_simple ON public.classification_polygons USING gist (geom_simple);
 
 
 --
@@ -5163,6 +5186,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250711083506'),
 ('20250709093540'),
 ('20250704063313'),
 ('20250626113312'),

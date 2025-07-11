@@ -39,7 +39,7 @@ module DataCycleCore
                   .from(
                     reselect(select_sql)
                     .joins(:classification_alias)
-                    .where("ST_Intersects(classification_polygons.geom_simple, ST_Transform(ST_TileEnvelope(#{z}, #{x}, #{y}), 4326))")
+                    .where(sanitize_sql(["ST_Intersects(classification_polygons.geom_simple, ST_Transform(ST_TileEnvelope(#{z}, #{x}, #{y}), 4326))"]))
                     .arel.as('t')
                   )
       )
