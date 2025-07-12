@@ -1,5 +1,5 @@
 <div>
-  <%= turbo_localized_stream_from 'admin_dashboard_jobs' %>
+  <%= turbo_localized_stream_from 'admin_dashboard_jobs', data: { throttle: 1 } %>
   <% stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list %>
   <div class="card background-jobs accordion" data-accordion data-allow-all-closed="true">
     <div class="accordion-item" data-accordion-item>

@@ -32,9 +32,6 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
-    after_initialize :init_step_timestamp_properties
-    after_find :init_step_timestamp_properties
-
     scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where(identifier: value).or(where(name: value)) }
     scope :by_names_identifiers_or_ids, lambda { |value|
       return none if value.blank?
@@ -351,6 +348,7 @@ module DataCycleCore
 
     def reload(options = nil)
       reset_memoized_variables!
+
       super
     end
 
@@ -367,61 +365,24 @@ module DataCycleCore
       remove_instance_variable(:@import_pretty_list) if instance_variable_defined?(:@import_pretty_list)
       remove_instance_variable(:@credentials) if instance_variable_defined?(:@credentials)
       remove_instance_variable(:@default_options) if instance_variable_defined?(:@default_options)
-      remove_instance_variable(:@download_accessors_keys) if instance_variable_defined?(:@download_accessors_keys)
-      remove_instance_variable(:@download_accessors) if instance_variable_defined?(:@download_accessors)
-      remove_instance_variable(:@import_accessors_keys) if instance_variable_defined?(:@import_accessors_keys)
-      remove_instance_variable(:@import_accessors) if instance_variable_defined?(:@import_accessors)
+    end
+
+    def step_info_for(key)
+      last_import_step_time_info[key.to_s] || {}
     end
 
     private
 
-    def download_accessors_keys
-      return @download_accessors_keys if defined? @download_accessors_keys
-      @download_accessors_keys = full_sorted_steps(:download).map { |name| timestamp_key_for_step(name, :download).to_sym }
-    end
-
     def download_accessors
       return @download_accessors if defined? @download_accessors
-      @download_accessors = download_accessors_keys.map do |accessor|
-        :"step_info_#{accessor}"
-      end
-    end
-
-    def import_accessors_keys
-      return @import_accessors_keys if defined? @import_accessors_keys
-      @import_accessors_keys = full_sorted_steps(:import).map { |name| timestamp_key_for_step(name, :import).to_sym }
+      @download_accessors = full_sorted_steps(:download)
+        .map { |name| timestamp_key_for_step(name, :download).to_sym }
     end
 
     def import_accessors
       return @import_accessors if defined? @import_accessors
-      @import_accessors = import_accessors_keys.map do |accessor|
-        :"step_info_#{accessor}"
-      end
-    end
-
-    def init_step_timestamp_properties
-      return unless respond_to?(:config) && respond_to?(:last_import_step_time_info)
-
-      download_keys = download_accessors_keys
-      import_keys = import_accessors_keys
-
-      singleton_class.instance_eval do
-        download_keys.each do |accessor|
-          store_accessor :last_import_step_time_info, accessor, prefix: :step_info
-          attribute :"step_info_#{accessor}", :jsonb
-
-          # might work in Rails 8.x
-          # store_accessor :"download_step_info_#{accessor}", :last_try, prefix: true
-        end
-
-        import_keys.each do |accessor|
-          store_accessor :last_import_step_time_info, accessor, prefix: :step_info
-          attribute :"step_info_#{accessor}", :jsonb
-
-          # might work in Rails 8.x
-          # store_accessor :"import_step_info_#{accessor}", :last_try, prefix: true
-        end
-      end
+      @import_accessors = full_sorted_steps(:import)
+        .map { |name| timestamp_key_for_step(name, :import).to_sym }
     end
   end
 end

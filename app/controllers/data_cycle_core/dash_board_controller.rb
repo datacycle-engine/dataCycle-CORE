@@ -8,7 +8,7 @@ module DataCycleCore
       @errors = nil
       @duplicates = nil
       @stat_database = StatsDatabase.new.load_all_stats
-      @rebuilding_classification_mappings = StatsJobQueue.new.rebuilding_classification_mappings?
+      @rebuilding_classification_mappings = StatsJobQueue.rebuilding_mappings_jobs.exists?
       @grouped_external_systems = DataCycleCore::ExternalSystem.grouped_by_type(@stat_database.import_modules)
     end
 

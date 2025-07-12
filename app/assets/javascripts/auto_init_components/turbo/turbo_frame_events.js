@@ -1,4 +1,4 @@
-class TurboFrameEvents {
+export default class TurboFrameEvents {
 	static selector = "turbo-frame";
 	static className = "dcjs-turbo-frame-events";
 	constructor(element) {
@@ -24,5 +24,3 @@ class TurboFrameEvents {
 		)}</button></div>`;
 	}
 }
-
-export default TurboFrameEvents;

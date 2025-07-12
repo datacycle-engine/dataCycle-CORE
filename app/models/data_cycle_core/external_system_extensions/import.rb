@@ -112,17 +112,17 @@ module DataCycleCore
       def sorted_step_times
         sorted_times = []
 
-        sorted_steps(:download).each do |name|
+        full_sorted_steps(:download).each do |name|
           key = timestamp_key_for_step(name, :download)
-          data = last_import_step_time_info[key]
+          data = step_info_for(key)
           next if data.blank?
 
           sorted_times << data.merge('name' => name, 'key' => key)
         end
 
-        sorted_steps(:import).each do |name|
+        full_sorted_steps(:import).each do |name|
           key = timestamp_key_for_step(name, :import)
-          data = last_import_step_time_info[key]
+          data = step_info_for(key)
           next if data.blank?
 
           sorted_times << data.merge('name' => name, 'key' => key)
@@ -307,7 +307,7 @@ module DataCycleCore
       end
 
       def broadcast_step_update(name, step_key)
-        value = send(:"step_info_#{step_key}") || {}
+        value = step_info_for(step_key)
         value['name'] = name
         value['key'] = step_key
 

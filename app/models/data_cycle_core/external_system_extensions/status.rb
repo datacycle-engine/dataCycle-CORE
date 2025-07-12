@@ -44,7 +44,7 @@ module DataCycleCore
       def last_status(type)
         return 'deactivated' if deactivated
 
-        stati = send(:"#{type}_accessors").map { |k| send(k) }.compact_blank.pluck('status')
+        stati = send(:"#{type}_accessors").map { |k| step_info_for(k) }.compact_blank.pluck('status')
 
         if stati.all?(nil)
           send(:"last_#{type}_status_legacy")

@@ -4,6 +4,12 @@ module DataCycleCore
   class StatsJobQueue < ApplicationRecord
     self.table_name = 'delayed_jobs_statistics'
 
+    scope :rebuilding_mappings_jobs, lambda {
+      query = where(queue_name: DataCycleCore::RebuildClassificationMappingsJob.queue_as)
+      query.where('running_types @> ?', ['RebuildClassificationMappingsJob'].to_pg_array)
+        .or(query.where('queued_types @> ?', ['RebuildClassificationMappingsJob'].to_pg_array))
+    }
+
     def readonly?
       true
     end
@@ -66,28 +72,27 @@ module DataCycleCore
       @job_list
     end
 
-    def rebuilding_classification_mappings?
-      query = self.class.where(queue_name: DataCycleCore::RebuildClassificationMappingsJob.queue_as)
-      query = query.where('running_types @> ?', ['RebuildClassificationMappingsJob'].to_pg_array)
-        .or(query.where('queued_types @> ?', ['RebuildClassificationMappingsJob'].to_pg_array))
-
-      query.exists?
+    def self.broadcast_throttled_jobs_reload
+      DataCycleCore::Turbo::ThreadThrottler.for('broadcast_admin_dashboard_jobs', interval: 2).throttle do
+        broadcast_jobs_reload({ data: { throttle: 2 } })
+      end
     end
 
-    def self.broadcast_jobs_reload
+    def self.broadcast_jobs_reload(attributes = {})
       stat_job_queue = new.job_list
-
       TurboService.broadcast_localized_update_to(
         'admin_dashboard_jobs',
         target: 'jobs_queue_title',
         partial: 'data_cycle_core/dash_board/job_queue_title',
-        locals: { stat_job_queue: }
+        locals: { stat_job_queue: },
+        attributes:
       )
       TurboService.broadcast_localized_update_to(
         'admin_dashboard_jobs',
         target: 'jobs_queue_body',
         partial: 'data_cycle_core/dash_board/job_queue_body',
-        locals: { stat_job_queue: }
+        locals: { stat_job_queue: },
+        attributes:
       )
     end
   end

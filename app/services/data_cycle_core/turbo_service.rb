@@ -6,12 +6,12 @@ module DataCycleCore
       BROADCAST_ACTIONS = [:update, :append, :prepend, :remove, :replace].freeze
 
       BROADCAST_ACTIONS.each do |action|
-        define_method("broadcast_#{action}_to") do |channel, target: nil, partial: nil, locals: {}, assigns: {}|
-          broadcast_action_to(channel, action, target:, partial:, locals:, assigns:)
+        define_method("broadcast_#{action}_to") do |channel, target: nil, partial: nil, locals: {}, assigns: {}, attributes: {}|
+          broadcast_action_to(channel, action, target:, partial:, locals:, assigns:, attributes:)
         end
 
-        define_method("broadcast_localized_#{action}_to") do |channel, target: nil, partial: nil, locals: {}|
-          broadcast_localized_action_to(channel, action, target:, partial:, locals:)
+        define_method("broadcast_localized_#{action}_to") do |channel, target: nil, partial: nil, locals: {}, attributes: {}|
+          broadcast_localized_action_to(channel, action, target:, partial:, locals:, attributes:)
         end
       end
 
@@ -21,16 +21,17 @@ module DataCycleCore
 
       private
 
-      def broadcast_action_to(channel, action, target: nil, partial: nil, locals: {}, assigns: {})
-        Turbo::StreamsChannel.broadcast_action_to(
+      def broadcast_action_to(channel, action, target: nil, partial: nil, locals: {}, assigns: {}, attributes: {})
+        ::Turbo::StreamsChannel.broadcast_action_to(
           channel,
           action:,
+          attributes:,
           target: target.presence || channel,
           html: render(partial:, locals:, assigns:)
         )
       end
 
-      def broadcast_localized_action_to(channel, action, target: nil, partial: nil, locals: {})
+      def broadcast_localized_action_to(channel, action, target: nil, partial: nil, locals: {}, attributes: {})
         DataCycleCore.ui_locales.each do |locale|
           broadcast_action_to(
             "#{channel}_#{locale}",
@@ -38,6 +39,7 @@ module DataCycleCore
             target: target.presence || channel,
             partial:,
             locals:,
+            attributes:,
             assigns: { active_ui_locale: locale }
           )
         end

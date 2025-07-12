@@ -565,6 +565,8 @@ table.import-steps {
 
   tr {
     font-size: 1rem;
+    color: var(--dark-gray);
+
 
     &.finished {
       color: var(--success-color);
@@ -578,21 +580,22 @@ table.import-steps {
       color: var(--primary-color);
     }
 
-    &.unknown {
-      color: var(--dark-gray);
-    }
-
     td {
       padding: 0.35rem 0.5rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
 
-
       &.import-step-name {
 
         .fa {
+          vertical-align: middle;
           font-size: 0.9rem;
+
+          &.fa-circle {
+            font-size: 0.4rem;
+            width: 0.5rem;
+          }
         }
       }
 

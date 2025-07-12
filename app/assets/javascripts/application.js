@@ -12,6 +12,8 @@ import autoInitComponents from "./auto_init_components";
 import DataCycleSingleton from "./components/data_cycle";
 import I18n from "./components/i18n";
 import initCustomElements from "./custom_elements";
+import initGlobalComponents from "./global_components";
+import initialize from "./initializers";
 
 Object.assign(window, {
 	$: jQuery,
@@ -36,17 +38,6 @@ import UrlReplacer from "./helpers/url_replacer";
 import foundationInit from "./initializers/foundation_init";
 import validationInit from "./initializers/validation_init";
 
-const initializers = import.meta.glob("./initializers/*.js", {
-	eager: true,
-	import: "default",
-});
-
-const initializerExceptions = [
-	"foundation_init",
-	"validation_init",
-	"app_signal_init",
-];
-
 export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
@@ -57,6 +48,7 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 		Rails.start();
 	} catch {}
 
+	initGlobalComponents();
 	autoInitComponents();
 
 	if (typeof postDataCycleInit === "function") postDataCycleInit();
@@ -71,17 +63,7 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	});
 
 	$(() => {
-		for (const path in initializers) {
-			if (!initializerExceptions.some((e) => path.includes(e))) {
-				try {
-					initializers[path]();
-				} catch (err) {
-					DataCycle.notifications.dispatchEvent(
-						new CustomEvent("error", { detail: err }),
-					);
-				}
-			}
-		}
+		initialize();
 		foundationInit();
 		validationInit();
 	});

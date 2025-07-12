@@ -10,10 +10,14 @@ module DataCycleCore
 
         define_callbacks :success, :error, :failure
 
+        after_perform ->(job) { job.run_callbacks :success }
+
         after_enqueue :broadcast_dashboard_jobs_reload
         before_perform :broadcast_dashboard_jobs_reload, if: :broadcast_dashboard_jobs_now?
-        after_perform ->(job) { job.run_callbacks :success }
-        after_perform :broadcast_dashboard_jobs_reload
+
+        # only for inline jobs, others get trigger via destroy hook
+        after_perform :broadcast_dashboard_jobs_reload, if: -> { enqueued_at.nil? }
+        after_failure :broadcast_dashboard_jobs_reload
 
         rescue_from StandardError do |exception|
           @last_error = exception
@@ -64,12 +68,10 @@ module DataCycleCore
       private
 
       def broadcast_dashboard_jobs_reload
-        return if is_a?(DataCycleCore::BroadcastDashboardUpdateJob)
-
         if self.class.try(:broadcast_dashboard_jobs_now?)
           DataCycleCore::StatsJobQueue.broadcast_jobs_reload
         else
-          DataCycleCore::BroadcastDashboardUpdateJob.perform_later
+          DataCycleCore::StatsJobQueue.broadcast_throttled_jobs_reload
         end
       end
     end
