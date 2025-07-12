@@ -3586,6 +3586,13 @@ CREATE UNIQUE INDEX index_external_system_syncs_on_unique_attributes ON public.e
 
 
 --
+-- Name: index_external_systems_on_config; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_external_systems_on_config ON public.external_systems USING gin (config);
+
+
+--
 -- Name: index_external_systems_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5186,6 +5193,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250712070915'),
 ('20250711083506'),
 ('20250709093540'),
 ('20250704063313'),
