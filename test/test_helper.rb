@@ -61,8 +61,6 @@ require 'helpers/data_helper'
 require 'helpers/mongo_helper'
 require 'helpers/api_v4_helper'
 require 'helpers/active_storage_helper'
-require 'helpers/disable_turbo_debouncer'
-require 'helpers/disable_turbo_throttler'
 
 if DataCycleCore::TestPreparations.cli_options[:ignore_preparations]
   Rails.backtrace_cleaner.remove_silencers!

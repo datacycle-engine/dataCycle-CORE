@@ -4,8 +4,8 @@
 # which can break transactional tests. Disable it.
 module DataCycleCore
   module DisableTurboDebouncer
-    def debounce(&block)
-      block.call # rubocop:disable Performance/RedundantBlockCall
+    def debounce(&)
+      yield
     end
   end
 end

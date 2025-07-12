@@ -2,6 +2,9 @@
 
 module DataCycleCore
   module TestPreparations
+    require 'helpers/disable_turbo_debouncer'
+    require 'helpers/disable_turbo_throttler'
+
     CONTENT_TABLES = [:creative_works, :events, :intangibles, :media_objects, :organizations, :persons, :places, :products, :things, :users].freeze
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
