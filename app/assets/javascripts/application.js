@@ -5,7 +5,7 @@ if (import.meta.hot) {
 	});
 }
 
-import { Turbo, cable } from "@hotwired/turbo-rails";
+import { cable, Turbo } from "@hotwired/turbo-rails";
 import Rails from "@rails/ujs";
 import jQuery from "jquery";
 import autoInitComponents from "./auto_init_components";
