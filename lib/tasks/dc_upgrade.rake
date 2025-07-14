@@ -124,8 +124,19 @@ namespace :dc do
 
       file_path = Rails.root.join('.npmrc')
       if File.exist?(file_path)
-        puts 'remove .npmrc ...'
-        FileUtils.rm_f(file_path)
+        text = File.read(file_path)
+        new_text = text.gsub("shamefully-hoist=true\n", '')
+        new_text = new_text.gsub("store-dir=/tmp/pnpm/store\n", '')
+
+        if new_text.present?
+          if text != new_text
+            puts 'remove useless lines from .npmrc ...'
+            File.write(file_path, new_text)
+          end
+        else
+          puts 'remove .npmrc ...'
+          FileUtils.rm_f(file_path)
+        end
       end
     end
 
