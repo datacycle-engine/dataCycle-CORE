@@ -31,6 +31,7 @@ module DataCycleCore
         @cluster_max_distance = (options[:cluster_max_distance]&.to_f || (@cluster_max_distance_dividend / (@cluster_max_distance_divisor**@z.to_f))).round(2)
         @cluster_min_points = options[:cluster_min_points]&.to_i || 2
         @include_linked = @include_parameters.any?(['linked'])
+        @start_points_only = options[:start_points_only] || false
       end
 
       def render
@@ -43,14 +44,24 @@ module DataCycleCore
         end
       end
 
+      def sanitize_sql(sql_array)
+        ActiveRecord::Base.send(:sanitize_sql_array, sql_array)
+      end
+
+      def geometry_column
+        @start_points_only ? 'ST_StartPoint(geometries.geom_simple)' : 'geometries.geom_simple'
+      end
+
       def contents_with_default_scope(*)
         q = super
 
         q = q.where(
-          ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(geometries.geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
+          sanitize_sql(
+            ["ST_Intersects(#{geometry_column}, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"]
+          )
         )
 
-        q = q.select('ST_GeometryType(MAX(geometries.geom_simple)) AS geometry_type').reorder(id: :desc) if cluster?
+        q = q.select(sanitize_sql("ST_GeometryType(MAX(#{geometry_column})) AS geometry_type")).reorder(id: :desc) if cluster?
 
         q
       end
@@ -62,7 +73,7 @@ module DataCycleCore
       def content_select_sql
         [
           'things.id AS id',
-          "ST_Transform(ST_Simplify (MAX(geometries.geom_simple), #{@simplify_factor}, TRUE), 3857) AS geometry"
+          "ST_Transform(ST_Simplify (MAX(#{geometry_column}), #{@simplify_factor}, TRUE), 3857) AS geometry"
         ]
           .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
           .join(', ').squish
@@ -104,7 +115,12 @@ module DataCycleCore
       end
 
       def mvt_unclustered_sql
-        as_mvt_select = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsMVT(mvtgeom, :layer_name) FROM mvtgeom', {layer_name: @layer_name}])
+        as_mvt_select = sanitize_sql(
+          [
+            'SELECT ST_AsMVT(mvtgeom, :layer_name) FROM mvtgeom',
+            {layer_name: @layer_name}
+          ]
+        )
 
         <<-SQL.squish
           #{base_contents_subquery}, mvtgeom AS (
@@ -130,11 +146,13 @@ module DataCycleCore
           FROM mvt_data
         SQL
 
-        ActiveRecord::Base.send(:sanitize_sql_array, [
-                                  layer_select_sql,
-                                  {layer_name: @layer_name,
-                                   cluster_layer_name: @cluster_layer_name}
-                                ])
+        sanitize_sql(
+          [
+            layer_select_sql,
+            {layer_name: @layer_name,
+             cluster_layer_name: @cluster_layer_name}
+          ]
+        )
       end
 
       def mvt_cluster_sql

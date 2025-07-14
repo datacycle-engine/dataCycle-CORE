@@ -1,9 +1,9 @@
-import pick from "lodash/pick";
-import isEmpty from "lodash/isEmpty";
 import turfBbox from "@turf/bbox";
 import turfCircle from "@turf/circle";
-import DomElementHelpers from "../helpers/dom_element_helpers";
+import isEmpty from "lodash/isEmpty";
+import pick from "lodash/pick";
 import throttle from "lodash/throttle";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 import MaplibreElevationProfileControl from "./map_controls/maplibre_elevation_profile_control";
 
 const MaplibreGl = () =>

@@ -74,9 +74,12 @@ Inkludiert zusätzliche Felder in die Ausgabe.
 Schränkt die Ausgabe auf die angegebenen Felder ein.
 
 ##### `classificationTrees`
-schränkt die ausgelieferten Klassifizierungen unter `dc:classification` auf einen Klassifizierungsbaum oder mehrere Klassifizierungsbäume ein.
+Schränkt die ausgelieferten Klassifizierungen unter `dc:classification` auf einen Klassifizierungsbaum oder mehrere Klassifizierungsbäume ein.
 Gültige Angaben sind eine einzelne UUID, mehrere Komma-getrennte UUIDs, oder ein Array mit UUIDs.
 Hat nur eine Auswirkung wenn `dc:classification` mittels `include` oder `fields` angefordert wird.
+
+##### `startPointsOnly` (default: false)
+Es wird für jede Geometrie nur der Startpunkt ausgeliefert.
 
 #### Clustering
 ##### ```cluster``` (default: false)

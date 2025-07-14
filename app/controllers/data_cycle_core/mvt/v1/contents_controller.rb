@@ -52,7 +52,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterPolygons, :clusterItems, :clusterMaxZoom, :clusterMinPoints, :clusterMaxDistance, :clusterMaxDistanceDividend, :clusterMaxDistanceDivisor])
+          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterPolygons, :clusterItems, :clusterMaxZoom, :clusterMinPoints, :clusterMaxDistance, :clusterMaxDistanceDividend, :clusterMaxDistanceDivisor, :startPointsOnly])
         end
 
         def prepare_url_parameters
@@ -76,7 +76,8 @@ module DataCycleCore
             cluster_min_points: permitted_params[:clusterMinPoints]&.to_i,
             cluster_max_distance: permitted_params[:clusterMaxDistance]&.to_f,
             cluster_max_distance_dividend: permitted_params[:clusterMaxDistanceDividend]&.to_f,
-            cluster_max_distance_divisor: permitted_params[:clusterMaxDistanceDivisor]&.to_f
+            cluster_max_distance_divisor: permitted_params[:clusterMaxDistanceDivisor]&.to_f,
+            start_points_only: permitted_params[:startPointsOnly]&.to_s == 'true'
           }
 
           @api_version = 1

@@ -65,6 +65,7 @@ module DataCycleCore
           optional(:clusterMaxDistance).value { (float? | int?) & gt?(0) }
           optional(:clusterMaxDistanceDividend).value { (float? | int?) & gt?(0) }
           optional(:clusterMaxDistanceDivisor).value { (float? | int?) & gt?(0) }
+          optional(:startPointsOnly).value(:bool)
         end
 
         WATCHLIST = Dry::Schema.Params do

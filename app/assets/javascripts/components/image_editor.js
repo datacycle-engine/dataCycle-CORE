@@ -1,5 +1,6 @@
 const TuiImageEditor = () =>
 	import("tui-image-editor").then((mod) => mod.default);
+
 import CalloutHelpers from "./../helpers/callout_helpers";
 
 class ImageEditor {
