@@ -1,11 +1,11 @@
 import {
-	arrow,
-	autoUpdate,
-	computePosition,
-	flip,
-	hide,
-	offset,
-	shift,
+  arrow,
+  autoUpdate,
+  computePosition,
+  flip,
+  hide,
+  offset,
+  shift,
 } from "@floating-ui/dom";
 import { nanoid } from "nanoid";
 
