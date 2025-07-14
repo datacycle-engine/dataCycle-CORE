@@ -1,6 +1,6 @@
 export default (() => {
 	String.prototype.attributeNameFromKey = function () {
-		return this.split(/[\[\]]+/)
+		return this.split(/[[\]]+/)
 			.filter((elem) => elem?.length)
 			.pop();
 	};
@@ -21,6 +21,6 @@ export default (() => {
 		return new Function(...names, `return \`${this}\`;`)(...vals);
 	};
 	String.prototype.sanitizeToId = function () {
-		return this.replaceAll("]", "").replaceAll(/[^-a-zA-Z0-9:\._]/g, "_");
+		return this.replaceAll("]", "").replaceAll(/[^-a-zA-Z0-9:._]/g, "_");
 	};
 })();

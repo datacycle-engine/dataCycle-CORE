@@ -1,5 +1,5 @@
-import Tooltips from '../components/tooltips';
+import Tooltips from "../components/tooltips";
 
 export default function () {
-  new Tooltips();
+	new Tooltips();
 }

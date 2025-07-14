@@ -63,7 +63,7 @@ class DashboardFilter {
 		this.$defaultFilterContainer
 			.find(`.${this.defaultFilterOptions.splitListClass}`)
 			.each((_, elem) => {
-				const itemsPerCol = new Array();
+				const itemsPerCol = [];
 				const items = $(elem).find(this.defaultFilterOptions.listItem);
 				const minItemsPerCol = Math.floor(
 					items.length / this.defaultFilterOptions.numCols,

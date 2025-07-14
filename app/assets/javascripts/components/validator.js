@@ -358,7 +358,7 @@ class Validator {
 
 		return (
 			key.includes("[translations]") &&
-			key.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1]
+			key.match(/\[translations\]\[([-a-zA-Z]+)\]/)[1]
 		);
 	}
 	formFieldChanged(fieldData, translationLocale, submitFormDataUpToDate) {

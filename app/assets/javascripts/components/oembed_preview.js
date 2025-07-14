@@ -24,7 +24,7 @@ class OembedPreview {
 	validateOembed(_event) {
 		const url = this.element.value;
 		this.previewTargetSpinner.classList.add("visible");
-    this.previewTarget.innerHTML = "";
+		this.previewTarget.innerHTML = "";
 
 		DataCycle.httpRequest(`/oembed?url=${encodeURIComponent(url)}`)
 			.then((response) => {
@@ -50,8 +50,9 @@ class OembedPreview {
 			errorToDisplay = "";
 		}
 
-    let errorDiv = '<div class="toast-notification alert">';
-		errorDiv += '<i class="fa fa-exclamation-triangle" aria_hidden="true"></i> &nbsp;';
+		let errorDiv = '<div class="toast-notification alert">';
+		errorDiv +=
+			'<i class="fa fa-exclamation-triangle" aria_hidden="true"></i> &nbsp;';
 		errorDiv += `<span>${errorToDisplay}</span>`;
 		errorDiv += "</div>";
 

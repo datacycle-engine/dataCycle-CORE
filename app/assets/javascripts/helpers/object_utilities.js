@@ -5,7 +5,7 @@ export function get(object, originalPath, defaultValue = undefined) {
 	let path = originalPath;
 
 	if (typeof path === "string") {
-		path = path.split(/[.\[\]\"]+/).filter((x) => x);
+		path = path.split(/[.[\]"]+/).filter((x) => x);
 	}
 
 	if (path.length === 0) {
@@ -25,7 +25,7 @@ export function set(object, originalPath, value) {
 	if (typeof path === "string") {
 		const isQuoted = (str) => str[0] === '"' && str.at(-1) === '"';
 		path = path
-			.split(/[.\[\]]+/)
+			.split(/[.[\]]+/)
 			.filter((x) => x)
 			.map((x) => (!Number.isNaN(Number(x)) ? Number(x) : x))
 			.map((x) => (typeof x === "string" && isQuoted(x) ? x.slice(1, -1) : x));
@@ -79,7 +79,7 @@ export function pick(object, keys) {
 	for (const key of keys) {
 		let keyPath;
 		if (typeof key === "string") {
-			keyPath = key.split(/[.\[\]\"]+/).filter((x) => x);
+			keyPath = key.split(/[.[\]"]+/).filter((x) => x);
 		} else if (Array.isArray(key)) {
 			keyPath = key;
 		} else {

@@ -2,9 +2,9 @@ import ConfirmationModal from "./../components/confirmation_modal";
 
 export default function () {
 	if ($(".edit-content-form").length) {
-		let today = new Date();
-		let id = $(".edit-content-form").find(':input[name="uuid"]').val();
-		let table = $(".edit-content-form").find(':input[name="table"]').val();
+		const today = new Date();
+		const id = $(".edit-content-form").find(':input[name="uuid"]').val();
+		const table = $(".edit-content-form").find(':input[name="table"]').val();
 
 		addReloadTimeout();
 
