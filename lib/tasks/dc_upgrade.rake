@@ -121,6 +121,26 @@ namespace :dc do
         puts '!!! WARNING: make sure PRODUCTION_ENVIRONMENT in gitlab CI/CD settings includes APPSIGNAL_PUSH_API_KEY !!!' if File.exist?(file_path)
         FileUtils.rm_f(file_path)
       end
+
+      file_path = Rails.root.join('.npmrc')
+      if File.exist?(file_path)
+        puts 'remove .npmrc ...'
+        FileUtils.rm_f(file_path)
+      end
+    end
+
+    desc 'adjust package.json'
+    task adjust_package_json: :environment do
+      package_json_path = Rails.root.join('package.json')
+      file = File.read(package_json_path)
+      pkg_cfg = JSON.parse(file)
+      pkg_cfg.deep_merge!({
+        'devDependencies' => {
+          'data-cycle-core-dev' => 'file:vendor/gems/data-cycle-core/dev_dependencies'
+        }
+      })
+
+      File.write(package_json_path, "#{JSON.pretty_generate(pkg_cfg)}\n")
     end
   end
 
@@ -130,7 +150,9 @@ namespace :dc do
     # Rake::Task['dc:upgrade:rails71'].reenable
     Rake::Task['dc:upgrade:clean_configs'].invoke
     Rake::Task['dc:upgrade:clean_configs'].reenable
-    Rake::Task['dc:upgrade:copy_templates'].invoke('rubocop')
+    Rake::Task['dc:upgrade:copy_templates'].invoke('global')
     Rake::Task['dc:upgrade:copy_templates'].reenable
+    Rake::Task['dc:upgrade:adjust_package_json'].invoke
+    Rake::Task['dc:upgrade:adjust_package_json'].reenable
   end
 end

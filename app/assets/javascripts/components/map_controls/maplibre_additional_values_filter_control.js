@@ -1,6 +1,6 @@
-import pick from "lodash/pick";
-import isEqual from "lodash/isEqual";
-import ObserverHelpers from "../../helpers/observer_helpers";
+import isEqual from 'lodash/isEqual';
+import pick from 'lodash/pick';
+import ObserverHelpers from '../../helpers/observer_helpers';
 
 class AdditionalValuesFilterControl {
 	constructor(editor) {
@@ -27,29 +27,29 @@ class AdditionalValuesFilterControl {
 		this._removeGeoJsonSource();
 	}
 	_setupControls() {
-		this.container = document.createElement("div");
+		this.container = document.createElement('div');
 		this.container.className =
-			"maplibregl-ctrl maplibregl-ctrl-group mapboxgl-ctrl-group additional-values-overlay-control";
+			'maplibregl-ctrl maplibregl-ctrl-group mapboxgl-ctrl-group additional-values-overlay-control';
 
-		this.controlButton = document.createElement("button");
+		this.controlButton = document.createElement('button');
 		this.controlButton.className =
-			"dc-additional-values-overlay-button dc-map-control-button";
-		this.controlButton.type = "button";
-		I18n.translate("frontend.map.filter.button_title").then((text) => {
+			'dc-additional-values-overlay-button dc-map-control-button';
+		this.controlButton.type = 'button';
+		I18n.translate('frontend.map.filter.button_title').then((text) => {
 			this.controlButton.title = text;
 		});
 		this.container.appendChild(this.controlButton);
 
-		const icon = document.createElement("i");
-		icon.className = "fa fa-map-marker";
+		const icon = document.createElement('i');
+		icon.className = 'fa fa-map-marker';
 		this.controlButton.appendChild(icon);
 	}
 	_setupOverlay() {
-		this.controlOverlay = document.createElement("div");
+		this.controlOverlay = document.createElement('div');
 		this.controlOverlay.className =
-			"dc-additional-values-overlay remote-render";
+			'dc-additional-values-overlay remote-render';
 		this.controlOverlay.dataset.remotePath =
-			"data_cycle_core/contents/editors/geographic/additional_values_overlay";
+			'data_cycle_core/contents/editors/geographic/additional_values_overlay';
 		this.controlOverlay.dataset.remoteOptions = JSON.stringify({
 			additional_values: this.config,
 		});
@@ -63,7 +63,7 @@ class AdditionalValuesFilterControl {
 			this.activeFilters[key] = {
 				enabled: false,
 				filter: [],
-				definition: pick(value.definition, ["template_name", "stored_filter"]),
+				definition: pick(value.definition, ['template_name', 'stored_filter']),
 			};
 
 			this.geojsonValues[key] = this.editor._createFeatureCollection();
@@ -72,7 +72,7 @@ class AdditionalValuesFilterControl {
 	}
 	_addEventHandlers() {
 		this.controlButton.addEventListener(
-			"click",
+			'click',
 			this._toggleOverlay.bind(this),
 		);
 	}
@@ -80,21 +80,21 @@ class AdditionalValuesFilterControl {
 		this._initClickableFeatures();
 
 		if (
-			this.controlOverlay.querySelector(".dc-additional-values-filter-item")
+			this.controlOverlay.querySelector('.dc-additional-values-filter-item')
 		) {
 			for (const group of this.controlOverlay.querySelectorAll(
-				".dc-additional-values-filter-item",
+				'.dc-additional-values-filter-item',
 			)) {
 				group
-					.querySelector("input.dc-additional-values-filter-group")
-					.addEventListener("change", this._groupChanged.bind(this));
+					.querySelector('input.dc-additional-values-filter-group')
+					.addEventListener('change', this._groupChanged.bind(this));
 
-				if (group.querySelector("input.dc-additional-values-filter-specific")) {
+				if (group.querySelector('input.dc-additional-values-filter-specific')) {
 					for (const specificFilter of group.querySelectorAll(
-						"input.dc-additional-values-filter-specific",
+						'input.dc-additional-values-filter-specific',
 					)) {
 						specificFilter.addEventListener(
-							"change",
+							'change',
 							this._specificFilterChanged.bind(this),
 						);
 					}
@@ -108,7 +108,7 @@ class AdditionalValuesFilterControl {
 	_addGeoJsonSource(key, data) {
 		const { sourceId } = this.editor._addAdditionalSourceAndLayers(key, data);
 
-		this.map.on("sourcedata", (d) => {
+		this.map.on('sourcedata', (d) => {
 			if (
 				this.enabled &&
 				d.sourceId === sourceId &&
@@ -118,14 +118,14 @@ class AdditionalValuesFilterControl {
 					.querySelector(
 						`.dc-additional-values-filter-item[data-group-key="${key}"]`,
 					)
-					.classList.remove("source-loading");
+					.classList.remove('source-loading');
 		});
 	}
 	_unselectFeature(feature, key) {
 		const index = this.editor
 			._additionalValuesByKey(key)
 			.features.findIndex(
-				(f) => f.properties["@id"] === feature.properties["@id"],
+				(f) => f.properties['@id'] === feature.properties['@id'],
 			);
 
 		if (index === -1) return;
@@ -134,15 +134,15 @@ class AdditionalValuesFilterControl {
 
 		$(this.editor.additionalValueTargets[key])
 			.find(
-				`ul.object-thumbs li.item[data-id="${feature.properties["@id"]}"] .delete-thumbnail`,
+				`ul.object-thumbs li.item[data-id="${feature.properties['@id']}"] .delete-thumbnail`,
 			)
-			.trigger("click", { preventDefault: true });
+			.trigger('click', { preventDefault: true });
 	}
 	_selectFeature(feature, key) {
 		this.editor._additionalValuesByKey(key).features.push(feature);
 
-		this.editor.additionalValueTargets[key].trigger("dc:import:data", {
-			value: [feature.properties["@id"]],
+		this.editor.additionalValueTargets[key].trigger('dc:import:data', {
+			value: [feature.properties['@id']],
 		});
 	}
 	_findFeatureAndKey(features) {
@@ -172,7 +172,7 @@ class AdditionalValuesFilterControl {
 		return false;
 	}
 	_addClickableFeatures() {
-		this.map.on("click", (e) => {
+		this.map.on('click', (e) => {
 			if (!this.enabled) return;
 
 			const [feature, key] = this._findFeatureAndKey(
@@ -181,7 +181,7 @@ class AdditionalValuesFilterControl {
 
 			if (!(feature && key)) return;
 
-			if (feature.source.includes("_selected"))
+			if (feature.source.includes('_selected'))
 				this._unselectFeature(feature, key);
 			else this._selectFeature(feature, key);
 
@@ -203,15 +203,15 @@ class AdditionalValuesFilterControl {
 	}
 	_showOverlay() {
 		this.enabled = true;
-		this.controlOverlay.classList.add("active");
-		this.controlButton.classList.add("active");
+		this.controlOverlay.classList.add('active');
+		this.controlButton.classList.add('active');
 
 		if (this.editor.draw) {
-			this.editor.draw.changeMode("simple_select", {});
-			this.editor.map.fire("draw.modechange", { mode: "simple_select" });
+			this.editor.draw.changeMode('simple_select', {});
+			this.editor.map.fire('draw.modechange', { mode: 'simple_select' });
 		}
 
-		if (this.controlOverlay.classList.contains("remote-render")) {
+		if (this.controlOverlay.classList.contains('remote-render')) {
 			const changeObserver = new MutationObserver(
 				this._checkForChangedFormData.bind(this),
 			);
@@ -221,7 +221,7 @@ class AdditionalValuesFilterControl {
 			);
 
 			this.controlOverlay.dispatchEvent(
-				new CustomEvent("dc:remote:render", {
+				new CustomEvent('dc:remote:render', {
 					bubbles: true,
 				}),
 			);
@@ -229,23 +229,23 @@ class AdditionalValuesFilterControl {
 	}
 	_hideOverlay() {
 		this.enabled = false;
-		this.controlOverlay.classList.remove("active");
-		this.controlButton.classList.remove("active");
+		this.controlOverlay.classList.remove('active');
+		this.controlButton.classList.remove('active');
 	}
 	_toggleOverlay(event) {
 		event.preventDefault();
 		event.stopPropagation();
 
-		if (this.controlOverlay.classList.contains("active")) this._hideOverlay();
+		if (this.controlOverlay.classList.contains('active')) this._hideOverlay();
 		else this._showOverlay();
 	}
 	_checkForChangedFormData(mutations, observer) {
 		if (
 			mutations.some(
 				(m) =>
-					m.type === "attributes" &&
-					m.target.classList.contains("remote-rendered") &&
-					(!m.oldValue || m.oldValue.includes("remote-rendering")),
+					m.type === 'attributes' &&
+					m.target.classList.contains('remote-rendered') &&
+					(!m.oldValue || m.oldValue.includes('remote-rendering')),
 			)
 		) {
 			observer.disconnect();
@@ -262,7 +262,7 @@ class AdditionalValuesFilterControl {
 		this._updateLayerVisibilities(target.value);
 	}
 	_updateLayerVisibilities(key) {
-		const visibility = this.activeFilters[key].enabled ? "visible" : "none";
+		const visibility = this.activeFilters[key].enabled ? 'visible' : 'none';
 
 		this._setLayerVisibility(
 			this.editor.additionalLayers[key].point,
@@ -291,20 +291,20 @@ class AdditionalValuesFilterControl {
 		);
 	}
 	_setLayerVisibility(layedId, visibility) {
-		this.map.setLayoutProperty(layedId, "visibility", visibility);
+		this.map.setLayoutProperty(layedId, 'visibility', visibility);
 	}
 	_updateParentsRecursive(target) {
 		const parent = target
-			.closest("ul")
-			.closest("li")
+			.closest('ul')
+			.closest('li')
 			.querySelector(':scope > .overlay-filter-label > input[type="checkbox"]');
 
-		if (!parent.classList.contains("dc-additional-values-filter-specific"))
+		if (!parent.classList.contains('dc-additional-values-filter-specific'))
 			return;
 
 		const siblings = parent
-			.closest("li")
-			.querySelector("ul")
+			.closest('li')
+			.querySelector('ul')
 			.querySelectorAll('input[type="checkbox"]');
 		const status = Array.from(siblings).map((cb) => cb.checked);
 
@@ -313,7 +313,7 @@ class AdditionalValuesFilterControl {
 	}
 	_updateAllChildren(target) {
 		const children = target
-			.closest("li")
+			.closest('li')
 			.querySelectorAll('input[type="checkbox"]');
 		for (const child of children) child.checked = target.checked;
 	}
@@ -325,8 +325,8 @@ class AdditionalValuesFilterControl {
 
 		this.activeFilters[target.dataset.groupKey].filter = Array.from(
 			target
-				.closest(".dc-additional-values-filter-item")
-				.querySelectorAll("input.dc-additional-values-filter-specific:checked"),
+				.closest('.dc-additional-values-filter-item')
+				.querySelectorAll('input.dc-additional-values-filter-specific:checked'),
 		).map((v) => v.value);
 
 		if (this.activeFilters[target.dataset.groupKey].enabled)
@@ -339,7 +339,7 @@ class AdditionalValuesFilterControl {
 			.querySelector(
 				`.dc-additional-values-filter-item[data-group-key="${key}"]`,
 			)
-			.classList.add("source-loading");
+			.classList.add('source-loading');
 
 		if (!isEqual(this.activeFilters[key].filter, this.lastLoadedFilter[key]))
 			await this._reloadGeoJson(key);

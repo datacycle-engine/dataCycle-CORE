@@ -2025,8 +2025,43 @@ select {
     flex: 2;
   }
 
-  .geographic.editable .geographic-map {
-    cursor: crosshair;
+  .geographic .geographic-map.maplibregl-map {
+
+    &.mouse-pointer .maplibregl-canvas-container.maplibregl-interactive {
+      cursor: pointer;
+    }
+
+    &.mouse-move .maplibregl-canvas-container.maplibregl-interactive {
+      cursor: move;
+    }
+
+    &.mouse-add .maplibregl-canvas-container.maplibregl-interactive {
+      cursor: crosshair;
+    }
+
+    &.mouse-move.mode-direct_select .maplibregl-canvas-container.maplibregl-interactive {
+      cursor: grab;
+      cursor: -moz-grab;
+      cursor: -webkit-grab;
+    }
+
+    &.mode-direct_select.feature-vertex.mouse-move .maplibregl-canvas-container.maplibregl-interactive {
+      cursor: move;
+    }
+
+    &.mode-direct_select.feature-midpoint.mouse-pointer .maplibregl-canvas-container.maplibregl-interactive {
+      cursor: cell;
+    }
+
+    &.mode-direct_select.feature-feature.mouse-move .maplibregl-canvas-container.maplibregl-interactive {
+      cursor: move;
+    }
+
+    &.mode-static.mouse-pointer .maplibregl-canvas-container.maplibregl-interactive {
+      cursor: grab;
+      cursor: -moz-grab;
+      cursor: -webkit-grab;
+    }
   }
 
   .ol-popup {

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "includes": [
+      "app/assets/**/*"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "css": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  }
+}
