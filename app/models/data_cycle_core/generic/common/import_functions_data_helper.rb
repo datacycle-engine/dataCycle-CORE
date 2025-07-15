@@ -116,28 +116,35 @@ module DataCycleCore
 
           created = false
           content.webhook_source = utility_object&.external_source&.name
-          if content.new_record?
-            content.metadata ||= {}
-            content.created_by = data['created_by']
-            created = true
-            content.save!
-          end
-
           global_data = data.except(*content.local_property_names, 'overlay')
           add_properties_with_imported_flag!(global_data)
-          global_data.except!('external_key') unless created
-
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
 
-          valid = content.set_data_hash(
-            data_hash: global_data,
-            prevent_history: !utility_object.history,
-            update_search_all: true,
-            current_user:,
-            new_content: created,
-            invalidate_related_cache:
-          )
+          valid = false
+
+          # wrap in transaction to ensure atomicity when creating new content
+          # and setting data hash, so that we don't end up with a content that has no
+          # data hash set, but is already persisted in the database.
+          ActiveRecord::Base.transaction do
+            if content.new_record?
+              content.metadata ||= {}
+              content.created_by = data['created_by']
+              created = true
+              content.save!
+            end
+
+            global_data.except!('external_key') unless created
+
+            valid = content.set_data_hash(
+              data_hash: global_data,
+              prevent_history: !utility_object.history,
+              update_search_all: true,
+              current_user:,
+              new_content: created,
+              invalidate_related_cache:
+            )
+          end
 
           if valid
             ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle.counter', {
