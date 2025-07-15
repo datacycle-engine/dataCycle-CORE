@@ -1,9 +1,9 @@
-import MapLibreGlEditor from "./maplibre_gl_editor";
-import isEmpty from "lodash/isEmpty";
 import fetchInject from "fetch-inject";
+import isEmpty from "lodash/isEmpty";
+import pick from "lodash/pick";
 import MtkAdditionalValuesFilterControl from "./map_controls/mtk_additional_values_filter_control";
 import UndoRedoControl from "./map_controls/mtk_maplibre_undo_redo_control";
-import pick from "lodash/pick";
+import MapLibreGlEditor from "./maplibre_gl_editor";
 
 const mtkVersion = "10.0.1";
 const mtkLibrary = [`https://static.maptoolkit.net/mtk/v${mtkVersion}/mtk.js`];

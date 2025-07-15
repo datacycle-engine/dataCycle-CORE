@@ -1,11 +1,11 @@
-import ConfirmationModal from "./confirmation_modal";
-import QuillHelpers from "./../helpers/quill_helpers";
-import isEqual from "lodash/isEqual";
-import uniqWith from "lodash/uniqWith";
-import unionWith from "lodash/unionWith";
 import isEmpty from "lodash/isEmpty";
+import isEqual from "lodash/isEqual";
 import collectionReject from "lodash/reject";
+import unionWith from "lodash/unionWith";
+import uniqWith from "lodash/uniqWith";
 import DomElementHelpers from "../helpers/dom_element_helpers";
+import QuillHelpers from "./../helpers/quill_helpers";
+import ConfirmationModal from "./confirmation_modal";
 
 class Validator {
 	constructor(formElement) {

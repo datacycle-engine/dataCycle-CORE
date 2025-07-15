@@ -1,5 +1,5 @@
-import ObserverHelpers from "../helpers/observer_helpers";
 import { parseDataAttribute } from "../helpers/dom_element_helpers";
+import ObserverHelpers from "../helpers/observer_helpers";
 
 class MasonryGrid {
 	constructor(selector) {
