@@ -78,8 +78,8 @@ module DataCycleCore
 
     has_many :duplicate_candidates, -> { where(false_positive: false).order(score: :desc) }, class_name: 'DuplicateCandidate', foreign_key: :original_id, inverse_of: :original
     has_many :duplicates, through: :duplicate_candidates, source: :duplicate
-    has_many :thing_duplicates, dependent: :destroy
-    has_many :thing_originals, class_name: 'DataCycleCore::ThingDuplicate', foreign_key: :thing_duplicate_id, dependent: :destroy, inverse_of: :original
+    has_many :thing_duplicates, dependent: :delete_all
+    has_many :thing_originals, class_name: 'DataCycleCore::ThingDuplicate', foreign_key: :thing_duplicate_id, dependent: :delete_all, inverse_of: :original
 
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 

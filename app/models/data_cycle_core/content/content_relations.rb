@@ -18,10 +18,10 @@ module DataCycleCore
 
         case name
         when 'DataCycleCore::Thing'
-          has_many :classification_contents, class_name: 'DataCycleCore::ClassificationContent', foreign_key: 'content_data_id', dependent: :destroy
+          has_many :classification_contents, class_name: 'DataCycleCore::ClassificationContent', foreign_key: 'content_data_id', dependent: :delete_all
           has_many :classifications, through: :classification_contents
         when 'DataCycleCore::Thing::History'
-          has_many :classification_content_histories, class_name: 'DataCycleCore::ClassificationContent::History', foreign_key: 'content_data_history_id', dependent: :destroy
+          has_many :classification_content_histories, class_name: 'DataCycleCore::ClassificationContent::History', foreign_key: 'content_data_history_id', dependent: :delete_all
           has_many :classifications, through: :classification_content_histories
         end
 
@@ -31,14 +31,14 @@ module DataCycleCore
         has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
 
         # relation content to all other contents
-        has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
+        has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :delete_all, inverse_of: :content_b
         has_many :content_a, through: :content_content_b
-        has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-        has_many :content_content_a, -> { order(order_a: :asc, content_b_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
+        has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :delete_all
+        has_many :content_content_a, -> { order(order_a: :asc, content_b_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :delete_all, inverse_of: :content_a
         has_many :content_b, through: :content_content_a
         has_many :content_b_linked, -> { where.not(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
         has_many :content_b_embedded, -> { where(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
-        has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
+        has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :delete_all, inverse_of: :content_a_history
 
         belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
         belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
@@ -49,10 +49,10 @@ module DataCycleCore
         has_many :watch_list_data_hashes, inverse_of: :thing, dependent: :destroy
         has_many :watch_lists, through: :watch_list_data_hashes
 
-        has_many :subscriptions, as: :subscribable, dependent: :destroy
+        has_many :subscriptions, as: :subscribable, dependent: :delete_all
         has_many :data_link_content_items, as: :content
         has_many :indirect_data_links, through: :data_link_content_items
-        has_many :data_links, as: :item, dependent: :destroy
+        has_many :data_links, as: :item, dependent: :delete_all
         has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
         has_many :asset_contents, dependent: :destroy, foreign_key: :thing_id
         has_many :assets, through: :asset_contents
