@@ -71,8 +71,8 @@ class ConceptSchemeLinkForm {
 		DataCycle.enableElement(this.postSubmitButton);
 	}
 	initActionCable(collection_id, concept_scheme_id) {
-		this.subscription = window.actionCable.then((cable) => {
-			cable.subscriptions.create(
+		window.actionCable.then((cable) => {
+			this.subscription = cable.subscriptions.create(
 				{
 					channel: ConceptSchemeLinkForm.#channel,
 					collection_id: collection_id,

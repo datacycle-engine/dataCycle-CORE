@@ -1,8 +1,11 @@
 class AiLector {
 	constructor() {
 		this.channelConnected = false;
-		this.channel = window.actionCable.then((cable) => {
-			cable.subscriptions.create(
+		this.channel;
+	}
+	initActionCable() {
+		window.actionCable.then((cable) => {
+			this.channel = cable.subscriptions.create(
 				{
 					channel: "DataCycleCore::AiLectorChannel",
 					window_id: DataCycle.windowId,
@@ -14,6 +17,7 @@ class AiLector {
 		});
 	}
 	send(data) {
+		if (!this.channel) throw new Error("ActionCable channel not initialized");
 		const sent = this.channel.send(data);
 		if (!sent) throw new Error("Could not send data");
 	}

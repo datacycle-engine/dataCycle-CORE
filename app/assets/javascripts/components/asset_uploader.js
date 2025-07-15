@@ -126,8 +126,8 @@ class AssetUploader {
 		$(".asset-selector-reveal:visible").trigger("open.zf.reveal");
 	}
 	initActionCable() {
-		this.bulkCreateChannel = window.actionCable.then((cable) => {
-			cable.subscriptions.create(
+		window.actionCable.then((cable) => {
+			this.bulkCreateChannel = cable.subscriptions.create(
 				{
 					channel: "DataCycleCore::BulkCreateChannel",
 					overlay_id: this.overlayId,
