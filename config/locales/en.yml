@@ -353,7 +353,7 @@ en:
     errors_were_encountered: errors were encountered
     schedule: "scheduled Imports:"
     inline: Inline
-    jobs_info_text: "The view is automatically updated, at most every 5 seconds."
+    jobs_info_text: "The view is automatically updated, at most every 2 seconds."
     maintenance:
       classification_mappings:
         button: rebuild classification_mappings
