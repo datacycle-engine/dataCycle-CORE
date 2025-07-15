@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# autoload_paths
-
 # rails essentials
 require 'rails'
 require 'active_model/railtie'
@@ -12,6 +10,7 @@ require 'action_controller/railtie'
 require 'action_mailer/railtie'
 require 'action_view/railtie'
 require 'action_cable/engine'
+require 'turbo-rails'
 
 # Databases
 require 'pg'
@@ -65,6 +64,8 @@ require 'redcarpet'
 require 'ruby-progressbar'
 
 require 'premailer'
+
+require 'dotiw'
 
 require 'dotenv/load'
 
@@ -247,6 +248,12 @@ module DataCycleCore
   mattr_accessor :cache_warmup
   self.cache_warmup = {}
 
+  mattr_accessor :thing_attributes
+  self.thing_attributes = ENV['THING_ATTRIBUTES'].to_s == 'true'
+
+  mattr_accessor :schedule
+  self.schedule = []
+
   def self.setup
     yield self
   end
@@ -299,9 +306,11 @@ module DataCycleCore
 
       next unless new_value.present? || new_value.is_a?(FalseClass)
 
-      if value.is_a?(::Hash) && new_value.is_a?(::Hash)
+      if value.is_a?(::Hash) && new_value.is_a?(::Hash) # deep merge hashes
         new_value = file_path.reverse.inject(new_value) { |assigned_value, key| { key => assigned_value } }
         new_value = value.deep_merge(new_value) { |_k, v1, _v2| v1 }.with_indifferent_access
+      elsif file_path.blank? && value.is_a?(::Array) && new_value.is_a?(::Array) # concatenate arrays only for top level
+        new_value.concat(value)
       end
 
       send(:"#{config_name}=", new_value).freeze
@@ -363,7 +372,7 @@ module DataCycleCore
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
-      unless app.root.to_s.match? root.to_s
+      unless app.root.to_s.match?(root.to_s)
         config.paths['db/migrate'].expanded.each do |expanded_path|
           app.config.paths['db/migrate'] << expanded_path
         end

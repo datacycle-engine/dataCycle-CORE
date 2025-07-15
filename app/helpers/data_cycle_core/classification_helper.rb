@@ -33,7 +33,7 @@ module DataCycleCore
       DataCycleCore::Classification
         .includes(:classification_groups, :classification_aliases)
         .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-        .where(classification_tree_labels: { name: treelabel }).count.positive?
+        .where(classification_tree_labels: { name: treelabel }).any?
     end
 
     def classification_title(classification_or_alias)
@@ -64,23 +64,23 @@ module DataCycleCore
       "--classification-color: #{classification_alias.color};"
     end
 
-    def classification_tooltip(classification_alias)
-      return if classification_alias.nil?
+    def classification_tooltip(concept)
+      return if concept.nil?
 
       tooltip_html = []
 
-      tooltip_html << tag.div(classification_alias.full_path, class: 'tag-full-path') if classification_alias.try(:full_path).present?
+      tooltip_html << tag.div(concept.full_path, class: 'tag-full-path') if concept.try(:full_path).present?
 
-      I18n.with_locale(classification_alias.first_available_locale(active_ui_locale)) do
-        tooltip_html << "<div class=\"tag-description\">#{classification_alias.description}</div>" if classification_alias.try(:description).present?
+      I18n.with_locale(concept.first_available_locale(active_ui_locale)) do
+        tooltip_html << "<div class=\"tag-description\">#{concept.description}</div>" if concept.try(:description).present?
       end
 
-      if classification_alias.name_i18n.keys.many?
+      if concept.name_i18n.keys.many?
         tooltip_html << tag.div(
           tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
           tag.ul(
             safe_join(
-              classification_alias
+              concept
                 .name_i18n
                 .each_with_object({}) { |(k, v), h|
                 (h[v] ||= []) << k
@@ -230,6 +230,31 @@ module DataCycleCore
         .sort_by { |group_key, _| group_key.to_s.downcase }
         .to_h
         .transform_values { |tree_labels| tree_labels.sort_by { |ctl| ctl.name.to_s.downcase } }
+    end
+
+    def concept_scheme_ccc_count(concept_scheme, collection, link_type)
+      DataCycleCore::CollectedClassificationContent.where(
+        link_type:,
+        classification_tree_label_id: concept_scheme.id,
+        thing_id: collection.things.reorder(nil).select(:id)
+      ).distinct.count(:thing_id)
+    end
+
+    def matched_concept_path(name, matches)
+      return name if matches.blank?
+      matched_name = ''
+      rest = name
+
+      matches.each do |m|
+        index = rest =~ /#{m}/i
+        next if index.nil?
+        index_end = index + m.size
+        matched_name += rest[0...index]
+        matched_name += "<mark>#{rest[index...index_end]}</mark>"
+        rest = rest[index_end..-1]
+      end
+
+      matched_name + rest
     end
   end
 end

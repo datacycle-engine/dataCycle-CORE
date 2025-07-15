@@ -7,9 +7,9 @@ module DataCycleCore
     end
 
     def active_duration(data, type)
-      return if data[:"last_#{type}_time"].blank? && data[:"last_#{type}_class"] != 'primary-color'
+      return if data[:"last_#{type}_time"].blank? && data[:"last_#{type}_status"] != 'running'
 
-      if data[:"last_#{type}_class"] == 'primary-color'
+      if data[:"last_#{type}_status"] == 'running'
         start_time = data[:"last_#{type}"]
         end_time = Time.zone.now
       else
@@ -28,6 +28,36 @@ module DataCycleCore
         concat(tag.b("#{type.titleize}: "))
         concat(timestamp)
         concat(active_duration(data, type))
+      end
+    end
+
+    def import_schedule(schedule)
+      return if schedule.blank?
+
+      value = schedule.map { |s|
+        next unless s[:timestamp].is_a?(EtOrbi::EoTime)
+        text = [l(s[:timestamp], locale: active_ui_locale, format: :edit)]
+        args = []
+        args << tag.b(t("dash_board.#{s[:mode]}", locale: active_ui_locale)) if s[:mode].present?
+        args << tag.i(class: 'fa fa-bolt') if s[:inline].present?
+        args << tag.i(s[:steps].join(', ')) if s[:steps].present?
+        text << " (#{args.join(', ')})" if args.any?
+        text.join(' ')
+      }.concat
+
+      value << '...'
+      value.unshift(tag.b(t('dash_board.schedule', locale: active_ui_locale, count: schedule.size)))
+
+      "<span class='import-schedule-tooltip'>#{value.join('<br>')}</span>"
+    end
+
+    def job_title_tooltip(text, jobs)
+      return tag.b(text) if jobs.blank?
+
+      capture do
+        concat(tag.b("#{text}:"))
+        concat(tag.br)
+        concat(jobs.map { |k, v| "#{k}: #{v}" }.join('<br>'))
       end
     end
   end

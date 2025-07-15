@@ -29,7 +29,6 @@ module DataCycleCore
     delegate :parse_iso8601_duration, to: :class
 
     def schedule_object_will_change!(*changed_properties)
-      remove_instance_variable(:@schedule_object) if instance_variable_defined?(:@schedule_object)
       attribute_will_change!(:schedule_object)
 
       changed_properties.each do |prop|
@@ -189,11 +188,11 @@ module DataCycleCore
           end
         )
       else
-        self.duration = hash[:duration] if hash.key?(:duration)
         self.dtstart = hash[:dtstart] if hash.key?(:dtstart)
         self.dtend = hash[:dtend] if hash.key?(:dtend)
       end
 
+      self.duration = hash[:duration] if hash.key?(:duration)
       self.holidays = hash[:holidays] if hash.key?(:holidays)
       self.relation = hash[:relation] || relation
       self.external_key = hash[:external_key] if hash.key?(:external_key)
@@ -233,27 +232,69 @@ module DataCycleCore
       }
     end
 
+    def to_opening_hours_specification_schema_org_legacy
+      r_hash = to_h
+      days = Array.wrap(r_hash&.dig(:rrules, 0, :validations, :day))
+      days.push(99) if holidays
+      out = []
+      generate_single_opening_hours_specification_object(
+        out,
+        r_hash[:dtstart]&.in_time_zone&.beginning_of_day&.to_date,
+        r_hash.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day&.to_date,
+        days
+      )
+      out&.first
+    end
+
     def to_opening_hours_specification_schema_org
       r_hash = to_h
       days = Array.wrap(r_hash&.dig(:rrules, 0, :validations, :day))
       days.push(99) if holidays
+      extimes = r_hash[:extimes]
+      out = []
 
-      {
-        '@id' => id,
-        '@type' => 'OpeningHoursSpecification',
-        'validFrom' => r_hash[:dtstart]&.in_time_zone&.beginning_of_day&.to_date&.iso8601,
-        'validThrough' => r_hash.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day&.to_date&.iso8601,
-        'opens' => r_hash.dig(:start_time, :time)&.in_time_zone&.to_fs(:only_time),
-        'closes' => r_hash.dig(:end_time, :time)&.in_time_zone&.to_fs(:only_time),
-        'dayOfWeek' => days.map { |day| dow(day) }.presence
-      }.compact
+      if extimes.present?
+        extimes.each_with_index do |extime, index|
+          previous_ex = index.zero? ? r_hash[:dtstart]&.to_date : extimes[index - 1][:time]&.to_date
+          current_ex = extime[:time]&.to_date
+          next_ex = index < extimes.size - 1 ? extimes[index + 1][:time]&.to_date : r_hash.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day&.to_date
+
+          next if previous_ex == current_ex
+
+          valid_from = previous_ex + 1.day
+          valid_until = current_ex - 1.day
+          generate_single_opening_hours_specification_object(out, valid_from, valid_until, days) if valid_from <= valid_until
+
+          next unless index == extimes.size - 1
+          valid_from = current_ex + 1.day
+          valid_until = next_ex # without -1 day as it is the until in the rrule
+          generate_single_opening_hours_specification_object(out, valid_from, valid_until, days) if valid_from <= valid_until
+        end
+      else
+        legacy = to_opening_hours_specification_schema_org_legacy
+        out << legacy if legacy.present?
+      end
+
+      out
     end
 
     def to_opening_hours_specification_schema_org_api_v3
-      to_opening_hours_specification_schema_org&.merge({
+      to_opening_hours_specification_schema_org_legacy&.merge({
         'contentType' => 'Öffnungszeit',
         '@context' => 'http://schema.org'
       })&.except('@id')
+    end
+
+    def generate_single_opening_hours_specification_object(out, valid_from, valid_until, days)
+      out << {
+        '@id' => id,
+        '@type' => 'OpeningHoursSpecification',
+        'validFrom' => valid_from&.iso8601,
+        'validThrough' => valid_until&.iso8601,
+        'opens' => self.class.opening_time_with_duration(schedule_object&.start_time)&.to_fs(:only_time),
+        'closes' => self.class.opening_time_with_duration(schedule_object&.start_time, duration)&.to_fs(:only_time),
+        'dayOfWeek' => days.map { |day| dow(day) }.presence
+      }.compact
     end
 
     def to_schedule_schema_org
@@ -627,6 +668,18 @@ module DataCycleCore
         end_time - start_time
       end
 
+      # used for opening_times
+      def opening_time_with_duration(start_date, duration = nil)
+        return if start_date.blank?
+
+        start_date = start_date.in_time_zone
+        date = Time.zone.now.beginning_of_year
+        start_time = date.change(hour: start_date.hour, min: start_date.min, sec: start_date.sec)
+        duration = parse_iso8601_duration(duration)
+
+        start_time + duration
+      end
+
       def parts_to_iso8601_duration(duration_hash)
         return ActiveSupport::Duration.build(0) if duration_hash.blank?
         return ActiveSupport::Duration.build(duration_hash.to_i) unless duration_hash.is_a?(::Hash)
@@ -819,8 +872,6 @@ module DataCycleCore
   class Schedule < ApplicationRecord
     attribute :duration, :interval
     attr_readonly :occurrences
-
-    require 'dotiw'
 
     include ActionView::Helpers::DateHelper
     include ActionView::Helpers::TextHelper

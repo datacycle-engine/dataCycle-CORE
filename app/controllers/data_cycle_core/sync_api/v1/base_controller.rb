@@ -63,7 +63,7 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.except('format')
-          @language = parse_language(permitted_params[:language]).presence || Array(I18n.available_locales.first.to_s)
+          @language = parse_language(permitted_params[:language]).presence || Array(I18n.default_locale.to_s)
           @api_subversion = permitted_params[:api_subversion] if DataCycleCore.main_config.dig(:sync_api, :v4, :subversions)&.include?(permitted_params[:api_subversion])
           @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
           @updated_since = permitted_params[:updated_since]&.try(:in_time_zone)

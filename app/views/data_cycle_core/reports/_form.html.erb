@@ -1,12 +1,13 @@
 <%= form_with(url: download_reports_path, local: true, namespace: SecureRandom.hex(10), class: 'report-overlay-form') do |f| %>
-  <%= f.hidden_field :identifier, value: key %>
-  <%= f.hidden_field :thing_id, value: local_assigns[:content]&.id %>
+  <div class="reveal-body">
+    <%= f.hidden_field :identifier, value: key %>
+    <%= f.hidden_field :thing_id, value: local_assigns[:content]&.id %>
 
-  <div class="form-element required">
-    <%= f.label :type, t('feature.report_generator.download_form.type', locale: active_ui_locale) %>
-    <% allowed_formats = Array.wrap(report.dig('allowed_formats')) %>
-    <ul class="no-bullet download-type">
-      <%= f.collection_radio_buttons :type,
+    <div class="form-element required">
+      <%= f.label :type, t('feature.report_generator.download_form.type', locale: active_ui_locale) %>
+      <% allowed_formats = Array.wrap(report.dig('allowed_formats')) %>
+      <ul class="no-bullet download-type">
+        <%= f.collection_radio_buttons :type,
                   allowed_formats.map { |e| OpenStruct.new(type: e) },
                   :type,
                   :type,
@@ -14,16 +15,16 @@
                   {
                     required: true,
                   } do |b| %>
-        <li>
-          <%= b.radio_button(checked: b.value == 'xlsx') %>
-          <%= b.label %>
-        </li>
-      <% end %>
-    </ul>
+          <li>
+            <%= b.radio_button(checked: b.value == 'xlsx') %>
+            <%= b.label %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
   </div>
-</div>
 
-<div class="buttons">
-  <%= f.button tag.i(class: 'fa fa-download') + t('actions.download', locale: active_ui_locale), type: :submit, class: 'button success' %>
-</div>
+  <div class="buttons reveal-footer">
+    <%= f.button tag.i(class: 'fa fa-download') + t('actions.download', locale: active_ui_locale), type: :submit, class: 'button success' %>
+  </div>
 <% end %>

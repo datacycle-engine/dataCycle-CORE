@@ -1,9 +1,10 @@
-import { showToast } from '../components/toast_notification';
+import { showToast } from "../components/toast_notification";
 
+export function showCallout(text, type = "", closeable = true) {
+	showToast(text, type, closeable);
+}
 const CalloutHelpers = {
-  show(text, type = '', closeable = true) {
-    showToast(text, type, closeable);
-  }
+	show: showCallout,
 };
 
 Object.freeze(CalloutHelpers);

@@ -106,7 +106,7 @@
           :edit:
             :disabled: true
       :thumbnail_url_override:
-        :label: Teaserbild (Manuel)
+        :label: Teaserbild (Manuell)
         :storage_location: value
         :type: string
         :ui:

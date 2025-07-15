@@ -90,16 +90,22 @@ module DataCycleCore
 
             concept_schemes_by_name = DataCycleCore::ConceptScheme.all.index_by(&:name)
 
-            data_array.map do |da|
+            data_array.filter_map do |da|
               existing = concept_schemes_by_name[da[:name]]
+
+              # Check if the concept_scheme already exists
               if existing.present? && existing.external_system_id != da[:external_source_id]
+                # prefix name if import_duplicates is true, ignore it otherwise
+                next if options.dig(:import, :import_duplicates).blank?
+
                 da[:name] = "#{utility_object.external_source.name} - #{da[:name]}"
               elsif existing.present? && existing.external_system_id == da[:external_source_id]
                 da[:external_key] = existing.external_key
               end
 
               existing = concept_schemes_by_name[da[:name]]
-              raise "ConceptScheme (#{da[:name]}) already exists from another source!" if existing.present? && existing.external_system_id != da[:external_source_id]
+              raise "ConceptScheme (#{da[:name]}) already exists from another source!" if existing.present? &&
+                                                                                          existing.external_system_id != da[:external_source_id]
 
               da[:visibility] = existing.visibility if existing.present?
               da.slice(*ALLOWED_CONCEPT_SCHEME_KEYS)

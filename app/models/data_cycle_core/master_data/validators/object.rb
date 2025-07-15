@@ -4,27 +4,25 @@ module DataCycleCore
   module MasterData
     module Validators
       class Object < BasicValidator
-        def basic_types
-          {
-            'object' => Validators::Object,
-            'key' => Validators::Key,
-            'string' => Validators::String,
-            'number' => Validators::Number,
-            'date' => Validators::Date,
-            'datetime' => Validators::Datetime,
-            'boolean' => Validators::Boolean,
-            'geographic' => Validators::Geographic,
-            'linked' => Validators::Linked,
-            'embedded' => Validators::Embedded,
-            'classification' => Validators::Classification,
-            'asset' => Validators::Asset,
-            'schedule' => Validators::Schedule,
-            'opening_time' => Validators::Schedule,
-            'collection' => Validators::Collection,
-            'table' => Validators::Table,
-            'oembed' => Validators::Oembed
-          }
-        end
+        BASIC_TYPES = {
+          'object' => Validators::Object,
+          'key' => Validators::Key,
+          'string' => Validators::String,
+          'number' => Validators::Number,
+          'date' => Validators::Date,
+          'datetime' => Validators::Datetime,
+          'boolean' => Validators::Boolean,
+          'geographic' => Validators::Geographic,
+          'linked' => Validators::Linked,
+          'embedded' => Validators::Embedded,
+          'classification' => Validators::Classification,
+          'asset' => Validators::Asset,
+          'schedule' => Validators::Schedule,
+          'opening_time' => Validators::Schedule,
+          'collection' => Validators::Collection,
+          'table' => Validators::Table,
+          'oembed' => Validators::Oembed
+        }.freeze
 
         def object_validations
           ['daterange']
@@ -42,7 +40,7 @@ module DataCycleCore
 
             next if key_item['type'].in?(['slug', 'timeseries'])
 
-            unless basic_types.include?(key_item['type'])
+            unless BASIC_TYPES.include?(key_item['type'])
               (@error[:error][key] ||= []) << {
                 path: 'validation.errors.object_type',
                 substitutions: {
@@ -55,7 +53,7 @@ module DataCycleCore
             end
 
             unless key_item['type'] == 'object'
-              validator_object = basic_types[key_item['type']].new(data[key], key_item, key, strict, @content)
+              validator_object = BASIC_TYPES[key_item['type']].new(data[key], key_item, key, strict, @content)
               merge_errors(validator_object.error) unless validator_object.nil?
               next
             end
@@ -69,7 +67,7 @@ module DataCycleCore
             end
 
             if key_item.key?('properties')
-              validator_object = basic_types[key_item['type']].new(data[key], key_item['properties'], '', strict)
+              validator_object = BASIC_TYPES[key_item['type']].new(data[key], key_item['properties'], '', strict)
               merge_errors(validator_object.error) unless validator_object.nil?
             else
               (@error[:error][key] ||= []) << {

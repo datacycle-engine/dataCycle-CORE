@@ -30,6 +30,8 @@ module DataCycleCore
     has_many :things, -> { unscope(:order).distinct }, through: :concepts
 
     scope :visible, ->(context) { where('? = ANY("classification_tree_labels"."visibility")', context) }
+    scope :search, ->(q) { where('classification_tree_labels.name ILIKE :q', { q: "%#{q.squish.gsub(/\s/, '%')}%" }) }
+    scope :order_by_similarity, ->(term) { order([Arel.sql('similarity(classification_tree_labels.name, ?) DESC'), term]) }
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
@@ -375,18 +377,23 @@ module DataCycleCore
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
-        id,
-        ActionController::Base.helpers.safe_join([
+        id:,
+        name: ActionController::Base.helpers.safe_join([
           ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon classification_tree_label-icon'),
           name
         ].compact, ' '),
-        model_name.param_key,
-        "#{model_name.human(count: 1, locale:)}: #{name}"
+        html_class: model_name.param_key,
+        dc_tooltip: "#{model_name.human(count: 1, locale:)}: #{name}",
+        class_key: model_name.param_key
       )
     end
 
     def self.to_select_options(locale = DataCycleCore.ui_locales.first)
       all.map { |v| v.to_select_option(locale) }
+    end
+
+    def stored_filters
+      DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%")
     end
 
     private
@@ -424,7 +431,7 @@ module DataCycleCore
       sets_assignable = filtered_attributes.any? { |row| row.key?(:assignable) }
 
       do_classifications = 'DO NOTHING'
-      if upsert && I18n.locale == I18n.available_locales.first
+      if upsert && I18n.locale == I18n.default_locale
         do_classifications = <<-SQL.squish
           DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, uri = EXCLUDED.uri, updated_at = NOW()
         SQL
@@ -440,7 +447,7 @@ module DataCycleCore
           updated_at = NOW()
         SQL
 
-        if I18n.locale == I18n.available_locales.first
+        if I18n.locale == I18n.default_locale
           do_classification_aliases += <<-SQL.squish
           , internal_name = EXCLUDED.internal_name
           SQL

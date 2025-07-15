@@ -21,12 +21,12 @@ def serialize_opening_hours_description_v4(description, filter, fields, options,
 
     data.merge! render 'content_translations', content: description, options: inherited_options
 
-    data.merge! render 'content_classifications', content: description, options: inherited_options if included_attribute?('dc:classification', inherited_options[:include]) || included_attribute?('dc:classification', inherited_options[:fields])
+    data.merge! render 'content_classifications', content: description, key: 'dc:classification', options: inherited_options if attribute_visible?('dc:classification', inherited_options)
 
     return data unless filter
 
     data&.select do |key, _value|
-      api_default_attributes.include?(key) || select_attributes(fields).include?(key) || select_attributes(includes).include?(key)
+      fields_attribute?(key, fields) || included_attribute?(key, includes)
     end
   end
 end

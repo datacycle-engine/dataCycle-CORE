@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 def load_classification_data(language, options)
-  Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, language, options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
+  Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, language, options[:include], options[:fields], @api_subversion, nil), expires_in: 1.year + Random.rand(7.days)) do
     I18n.with_locale(language) do
       render('classification', content: @classification_aliases.first, options: options.dup)
     end
@@ -12,8 +12,7 @@ default_options = {
   include: @include_parameters,
   fields: @fields_parameters,
   field_filter: @field_filter,
-  languages: @language,
-  full: true
+  languages: @language
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
@@ -26,7 +25,7 @@ if @classification_tree_label.present?
   if @classification_id.present?
     unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
       json['@graph'] = []
-      json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
+      json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, nil), expires_in: 1.year + Random.rand(7.days)) do
         I18n.with_locale(@classification_aliases.first.first_available_locale(options[:languages])) do
           render 'classification', content: @classification_aliases.first, options: options.dup
         end
@@ -35,7 +34,7 @@ if @classification_tree_label.present?
   else
     @classification_aliases.async_total_count unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
 
-    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options:, show_all_concepts: true
+    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options:, show_all_concepts: true unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
 
     json.merge! render 'pagination_links',
                        objects: @classification_aliases,

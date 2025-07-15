@@ -4,13 +4,15 @@ module DataCycleCore
   module Generic
     module Common
       module ImportFunctionsDataHelper
+        PROPERTIES_WITH_IMPORTED_FLAG = [
+          'data_pool'
+        ].freeze
+
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
 
           template = load_template(config&.dig(:template) || default[:template])
-
           raw_data = pre_process_data(raw_data:, config:, utility_object:)
-
           data = merge_default_values(
             config,
             transformation.call(raw_data || {}),
@@ -40,11 +42,20 @@ module DataCycleCore
           external_hash.seen_at = Time.zone.now
           external_hash.save if content&.persisted? && content.external_key == external_key && content.external_source_id == external_source_id
           content
+        rescue StandardError => e
+          ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', {
+            exception: e,
+            namespace: 'importer',
+            external_system: utility_object&.external_source,
+            item_id: data&.dig('external_key') || raw_data&.dig('id'),
+            template_name: template&.template_name
+          }
+          raise if Rails.env.local?
+          nil
         end
 
-        def create_or_update_content(utility_object:, template:, data:, local: false, **)
+        def create_or_update_content(utility_object:, template:, data:, local: false, config: {}, **)
           return nil if data.except('external_key', 'locale').blank?
-
           if local
             content = DataCycleCore::Thing.new(
               local_import: true,
@@ -84,7 +95,15 @@ module DataCycleCore
                 sync_data.update(update_data) if update_data.present?
               end
 
-              return content if content&.external_source_id != utility_object.external_source.id || content&.external_key != data['external_key']
+              if content&.external_source_id != utility_object.external_source.id
+                return content unless update_primary_system?(content, utility_object.external_source, data['external_key'], config)
+
+                data = change_primary_system(content:, data:, new_external_source: utility_object.external_source)
+              elsif content&.external_key != data['external_key']
+                return content
+              end
+
+              raise DataCycleCore::Error::Import::TemplateMismatchError.new(template_name: content.template_name, expected_template_name: template.template_name, external_source: utility_object&.external_source, external_key: content.external_key) if content.template_name != template.template_name
             end
 
             # no content found anywhere --> create new thing
@@ -97,17 +116,15 @@ module DataCycleCore
 
           created = false
           content.webhook_source = utility_object&.external_source&.name
-
           if content.new_record?
             content.metadata ||= {}
             content.created_by = data['created_by']
             created = true
             content.save!
-          elsif content.template_name != template.template_name
-            raise DataCycleCore::Error::Import::TemplateMismatchError.new(template_name: content.template_name, expected_template_name: template.template_name, external_source: utility_object&.external_source, external_key: content.external_key)
           end
 
           global_data = data.except(*content.local_property_names, 'overlay')
+          add_properties_with_imported_flag!(global_data)
           global_data.except!('external_key') unless created
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
@@ -123,13 +140,13 @@ module DataCycleCore
           )
 
           if valid
-            ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle', {
+            ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle.counter', {
               external_system: utility_object.external_source,
               step_name: utility_object.step_name,
               template_name: content.template_name
             }
           else
-            ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', {
+            ActiveSupport::Notifications.instrument 'object_import_failed.datacycle.counter', {
               external_system: utility_object.external_source,
               step_name: utility_object.step_name,
               template_name: content.template_name
@@ -164,6 +181,17 @@ module DataCycleCore
             namespace: 'importer',
             external_system: utility_object&.external_source
           }
+          nil
+        rescue StandardError => e
+          ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', {
+            exception: e,
+            namespace: 'importer',
+            external_system: utility_object&.external_source,
+            item_id: data['external_key'],
+            template_name: template.template_name
+          }
+          raise if Rails.env.local?
+          nil
         end
 
         def load_default_values(data_hash)
@@ -200,7 +228,13 @@ module DataCycleCore
         end
 
         def transform_external_system_data!(config, data_hash, utility_object)
-          data_hash.delete('external_system_data') && return unless utility_object.external_source.default_options.to_h.slice('import_external_system_data').merge(config&.slice(:import_external_system_data).to_h.stringify_keys)['import_external_system_data']
+          merged_config = utility_object
+            .external_source
+            .default_options
+            .to_h
+            .slice('import_external_system_data')
+            .merge(config&.slice(:import_external_system_data).to_h.stringify_keys)
+          data_hash.delete('external_system_data') && return if merged_config['import_external_system_data'].blank?
 
           return if data_hash['external_system_data'].blank?
 
@@ -269,12 +303,63 @@ module DataCycleCore
           data
         end
 
+        def add_properties_with_imported_flag!(data)
+          PROPERTIES_WITH_IMPORTED_FLAG.each do |key|
+            data["#{key}_imported"] = data.key?(key)
+          end
+        end
+
+        def change_primary_system(content:, data:, new_external_source:)
+          content.change_primary_system(new_external_source, data['external_key'])
+          data.reverse_merge(content.resettable_import_property_names.index_with { |_key| nil })
+        end
+
         def fixnum_max
           ((2**((0.size * 4) - 2)) - 1)
         end
 
         def logging_delta
           @logging_delta ||= 100
+        end
+
+        def primary_system_priority_list(config, **kwargs)
+          case config[:primary_system_priority]
+          when Array then config[:primary_system_priority]
+          when Hash
+            p_module = config.dig(:primary_system_priority, :module)
+            p_method = config.dig(:primary_system_priority, :method)
+            p_module.safe_constantize&.send(p_method, **kwargs)
+          end
+        end
+
+        def primary_system_index(priority_list, external_system)
+          return nil if priority_list.blank? || external_system.nil?
+
+          priority_list.index { |name| external_system.name == name || external_system.identifier == name }
+        end
+
+        # false if:
+        #   import step not a Hash
+        #   there is already a content with this system/key combo or key is blank
+        #   priority list is empty
+        #   current system is not in priority_list
+        #   current primary system is higher ranked in priority list
+        def update_primary_system?(content, new_external_system, new_external_key, config)
+          return false if content.external_source_id == new_external_system.id
+          return false unless config.is_a?(Hash)
+          return false if new_external_key.blank?
+
+          priority_list = primary_system_priority_list(config, content:, new_external_system:, new_external_key:, config:)
+
+          return false if priority_list.blank?
+
+          current_index = primary_system_index(priority_list, content.external_source)
+          new_index = primary_system_index(priority_list, new_external_system)
+
+          return true if current_index.nil?
+          return false if new_index.nil?
+
+          new_index < current_index
         end
       end
     end

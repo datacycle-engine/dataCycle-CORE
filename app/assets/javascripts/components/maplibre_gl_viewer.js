@@ -1,9 +1,9 @@
-import pick from "lodash/pick";
-import isEmpty from "lodash/isEmpty";
 import turfBbox from "@turf/bbox";
 import turfCircle from "@turf/circle";
-import DomElementHelpers from "../helpers/dom_element_helpers";
+import isEmpty from "lodash/isEmpty";
+import pick from "lodash/pick";
 import throttle from "lodash/throttle";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 import MaplibreElevationProfileControl from "./map_controls/maplibre_elevation_profile_control";
 
 const MaplibreGl = () =>
@@ -202,7 +202,10 @@ class MapLibreGlViewer {
 
 		if (isEmpty(bounds)) return;
 
-		if (this.filterLayers?.concept_ids && !isEmpty(this.defaultOptions.bounds))
+		if (
+			this.filterLayers?.concept_ids?.length &&
+			!isEmpty(this.defaultOptions.bounds)
+		)
 			bounds.extend(this.defaultOptions.bounds);
 
 		this.defaultOptions.bounds = bounds;
@@ -411,7 +414,7 @@ class MapLibreGlViewer {
 		this._addPopup();
 	}
 	drawFilterFeatures() {
-		if (this.filterLayers?.concept_ids) {
+		if (this.filterLayers?.concept_ids?.length) {
 			const key = "filter_concept_ids";
 			this.sources[key] = `filter_source_${key}`;
 			this._addVectorSource(
@@ -1140,6 +1143,11 @@ class MapLibreGlViewer {
 	}
 	isPolygon() {
 		return this.type?.includes("Polygon");
+	}
+	validTypes() {
+		if (this.isPoint()) return ["Point", "MultiPoint"];
+		if (this.isLineString()) return ["LineString", "MultiLineString"];
+		if (this.isPolygon()) return ["Polygon", "MultiPolygon"];
 	}
 }
 

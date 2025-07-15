@@ -66,10 +66,20 @@ module DataCycleCore
         content:
       }
 
-      content.classification_content.preload(classification: [primary_classification_alias: [:classification_tree_label, :classification_alias_path]]).group_by(&:relation).each { |key, ccs| ccs.each { |cc| add_content_header_classification_alias(**parameters, key:, classification_alias: cc.classification&.primary_classification_alias) } }
+      content.collected_classification_contents
+        .includes(classification_alias: [:classification_tree_label, :classification_alias_path])
+        .group_by(&:relation)
+        .each do |key, ccs|
+        ccs.each do |ccc|
+          next if ccc.link_type == 'broader'
 
-      content.mapped_classification_aliases.preload(:classification_tree_label, :classification_alias_path).find_each do |ca|
-        add_content_header_classification_alias(**parameters, key: '', classification_alias: ca, type: :mapped_value)
+          add_content_header_classification_alias(
+            **parameters,
+            key: ccc.link_type == 'direct' ? key : '',
+            classification_alias: ccc.classification_alias,
+            type: ccc.link_type == 'direct' ? :value : :mapped_value
+          )
+        end
       end
 
       classification_aliases.each_value do |v|
@@ -94,7 +104,7 @@ module DataCycleCore
 
     def add_content_header_classification_alias(allowed_properties:, classification_aliases:, key:, classification_alias:, scope:, context:, content:, options: {}, type: :value)
       return if classification_alias.nil?
-      return if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, DataCycleCore::Feature::LifeCycle.data_attribute(content)) && type == :value && key == DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first
+      return if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, content.try(:life_cycle_data_attribute)) && type == :value && key == DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first
 
       ui_config = content&.properties_for(key)&.[]('ui').to_h
       ui_config.merge!(ui_config[scope.to_s].to_h) if ui_config.present?
@@ -152,7 +162,7 @@ module DataCycleCore
       html_text = text.presence || ''
 
       out = []
-      out << tag.i(html_title.html_safe)
+      out << tag.span(html_title.html_safe)
       out << tag.b(html_text.html_safe)
       safe_join(out)
     end

@@ -4,7 +4,10 @@
       <% stage.merge!({ name: stage_name }) %>
 
       <span class="content-pool <%= stage_name.underscore_blanks %> <%= life_cycle_class(content, stage) %>">
-        <%= link_to_if(!content.life_cycle_stage?(stage[:id]) && can?(:set_life_cycle, content, stage),
+        <%= link_to_if(
+          content.life_cycle_editable? &&
+          !content.life_cycle_stage?(stage[:id]) &&
+          can?(:set_life_cycle, content, stage),
           stage_name,
           update_life_cycle_thing_path(content, life_cycle: {
             id: stage[:id],
@@ -15,12 +18,11 @@
           title: t('actions.move_to', data: stage_name, locale: active_ui_locale),
           data: {
             confirm: local_assigns.dig(:confirm, stage_name.to_sym),
-            disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw') + stage_name
+            disable_with: safe_join([stage_name, tag.i(class: 'fa fa-spinner fa-spin fa-fw')])
           }) do %>
           <%= tag.span(stage_name, class: 'content-pool-button') %>
         <% end %>
       </span>
-
     <% end %>
   </div>
 <% elsif DataCycleCore::Feature::LifeCycle.allowed?(content) && [@split_source, @diff_source].any?(&:present?) %>

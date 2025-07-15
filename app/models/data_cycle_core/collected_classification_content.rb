@@ -10,6 +10,7 @@ module DataCycleCore
 
     scope :without_broader, -> { where(link_type: ['direct', 'related']) }
     scope :related, -> { where(link_type: 'related') }
+    scope :for_scheme, ->(cs_name) { includes(:concept_scheme).where(concept_scheme: { name: cs_name }) }
 
     def readonly?
       true

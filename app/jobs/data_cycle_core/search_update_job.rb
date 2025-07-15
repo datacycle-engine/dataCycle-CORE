@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class SearchUpdateJob < UniqueApplicationJob
-    PRIORITY = 0
+    PRIORITY = 1
 
     queue_as :search_update
 
@@ -12,10 +12,6 @@ module DataCycleCore
 
     def delayed_reference_id
       "#{arguments[0]}_#{arguments[1].presence || 'all'}"
-    end
-
-    def delayed_reference_type
-      self.class.name.demodulize.underscore
     end
 
     def perform(thing_id, locale = nil)

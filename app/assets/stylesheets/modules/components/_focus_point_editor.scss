@@ -1,0 +1,71 @@
+.focus-point-ui-hint {
+  color: var(--dark-gray);
+  font-size: 0.8rem;
+  margin-top: -0.5rem;
+}
+
+.focus-point-clear {
+  margin-left: 0.5rem;
+
+  .fa {
+    font-size: 1.1rem;
+  }
+}
+
+.focus-point-ui {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  cursor: crosshair;
+
+  .focus-point-ui__overlay {
+    position: absolute;
+    left: var(--focus-point-ui-overlay-left);
+    top: var(--focus-point-ui-overlay-top);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    width: 50%;
+    height: 50%;
+    aspect-ratio: 1/1;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .focus-point-ui__crosshair {
+    position: absolute;
+    left: var(--focus-point-ui-crosshair-left);
+    top: var(--focus-point-ui-crosshair-top);
+    pointer-events: none;
+
+    &::after,
+    &::before {
+      content: '';
+      position: absolute;
+      box-sizing: border-box;
+      border-radius: 50%;
+    }
+
+    &::before {
+      width: 6px;
+      height: 6px;
+      left: calc(50% - 3px);
+      top: calc(50% - 3px);
+      background: var(--absolute-white);
+      mix-blend-mode: difference;
+    }
+
+    &::after {
+      width: 70px;
+      height: 70px;
+      left: calc(50% - 35px);
+      top: calc(50% - 35px);
+      border: 1px solid var(--absolute-white);
+      mix-blend-mode: difference;
+    }
+  }
+}

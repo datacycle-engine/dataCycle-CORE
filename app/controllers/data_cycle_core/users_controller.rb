@@ -30,6 +30,8 @@ module DataCycleCore
       @user = DataCycleCore::User.new(permitted_params.merge(creator: current_user))
       @user.raw_password = permitted_params[:password] if permitted_params[:password].present?
 
+      authorize! :generate_access_token, @user if permitted_params[:access_token].present?
+
       if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       else
@@ -49,11 +51,7 @@ module DataCycleCore
 
       method = current_user == @user && @permitted_params[:password].present? ? 'update_with_password' : 'update'
 
-      if params.dig(controller_name.singularize.to_sym, :access_token).present? && params.dig(controller_name.singularize.to_sym, :access_token) == '1' && @user.access_token.blank?
-        @permitted_params[:access_token] = SecureRandom.hex
-      elsif params.dig(controller_name.singularize.to_sym, :access_token).present? && params.dig(controller_name.singularize.to_sym, :access_token) == '0'
-        @permitted_params[:access_token] = nil
-      end
+      @permitted_params[:access_token] = @user.access_token if @permitted_params[:access_token].present? && @user.access_token.present?
 
       (@user.additional_attributes ||= {}).merge!(permitted_params[:additional_attributes]) if @permitted_params[:additional_attributes].present?
 
@@ -123,8 +121,8 @@ module DataCycleCore
     end
 
     def validate
-      user_type = "DataCycleCore::#{controller_name.classify}".safe_constantize
-      @user = user_type.find_by(id: params[:id]) || user_type.new
+      @user = DataCycleCore::User.find_by(id: params[:id]) ||
+              DataCycleCore::User.new
 
       if @user.new_record?
         authorize! :edit, DataCycleCore::User
@@ -182,9 +180,17 @@ module DataCycleCore
     end
 
     def permitted_params
-      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, {user_group_ids: [], additional_attributes: {}}]
-      allowed_params.push(:password, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present?
-      params.require(controller_name.singularize.to_sym).permit(allowed_params)
+      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, :access_token, {user_group_ids: [], additional_attributes: {}}]
+      allowed_params.push(:password, :current_password) if params.dig(:user, :password).present?
+      permitted = params.require(:user).permit(allowed_params)
+
+      if permitted[:access_token] == '1'
+        permitted[:access_token] = SecureRandom.hex
+      elsif permitted[:access_token] == '0'
+        permitted[:access_token] = nil
+      end
+
+      permitted
     end
 
     def set_user
@@ -218,7 +224,7 @@ module DataCycleCore
       @filters&.each do |filter|
         filter_method = (filter['c'] == 'd' ? filter['n'] : filter['t']).dup
         filter_method = "#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?(:"#{filter['t']}_#{filter['n']}")
-        filter_method.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
+        filter_method.prepend(DataCycleCore::Type::StoredFilter::Parameters::FILTER_PREFIX[filter['m']].to_s)
 
         next unless query.respond_to?(filter_method)
 

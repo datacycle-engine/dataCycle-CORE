@@ -51,7 +51,7 @@ module DataCycleCore
             .each_cons(2)
             .map { |from, to|
               {
-                'day_of_week' => days_in_range((from...to)).map { |day| day_of_week_classification_ids[day] },
+                'day_of_week' => days_in_range(from...to).map { |day| day_of_week_classification_ids[day] },
                 'validity' => @validity,
                 'time' => [{
                   'opens' => convert_to_time_string(from),
@@ -64,7 +64,7 @@ module DataCycleCore
 
         def empty?
           return true if @data.empty?
-          @data.count { |_day, ranges| ranges.present? }.zero?
+          @data.none? { |_day, ranges| ranges.present? }
         end
 
         def self.parse_opening_times(data, external_source_id, external_key, day_transformation = nil)

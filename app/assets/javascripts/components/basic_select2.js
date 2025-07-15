@@ -3,6 +3,7 @@ import difference from "lodash/difference";
 import i18nDe from "../helpers/select2_i18n_de";
 import i18nEn from "../helpers/select2_i18n_en";
 import Select2Helpers from "../helpers/select2_helpers";
+import { stripTags } from "../helpers/dom_element_helpers";
 
 class BasicSelect2 {
 	constructor(element) {
@@ -151,22 +152,49 @@ class BasicSelect2 {
 
 		if (diff.length) await this.loadNewOptions(value, diff);
 	}
+
 	async loadNewOptions(_value, _options) {}
-	markMatch(text, term) {
-		const match = text.toLowerCase().lastIndexOf(term.toLowerCase());
+
+	markTextMatches(node, child, term, match) {
+		const mark = document.createElement("mark");
+		mark.className = "select2-highlight";
+		mark.textContent = child.textContent.substring(match, match + term.length);
+		const beforeTextNode = document.createTextNode(
+			child.textContent.substring(0, match),
+		);
+		node.insertBefore(beforeTextNode, child);
+		node.insertBefore(mark, child);
+		child.textContent = child.textContent.substring(match + term.length);
+		return;
+	}
+	markMatchRecursively(node, term) {
+		for (const child of Array.from(node.childNodes)) {
+			if (child.nodeType === Node.TEXT_NODE) {
+				const match = child.textContent
+					.toLowerCase()
+					.indexOf(term.toLowerCase());
+				if (match >= 0) this.markTextMatches(node, child, term, match);
+			} else {
+				this.markMatchRecursively(child, term);
+			}
+		}
+	}
+	textMatches(text, term) {
+		if (!term.length) return false;
+		if (!text) return false;
+
+		return stripTags(text).toLowerCase().indexOf(term.toLowerCase()) > -1;
+	}
+	markMatch(text, term, highlight = true) {
 		const $result = $("<span></span>");
 
-		if (!term.length || match < 0) {
+		if (!term.length || !this.textMatches(text, term)) {
 			return $result.html(text);
 		}
 
-		$result.html(text.substring(0, match));
-
-		const $match = $('<span class="select2-highlight"></span>');
-		$match.html(text.substring(match, match + term.length));
-
-		$result.append($match);
-		$result.append(text.substring(match + term.length));
+		const parsed = new DOMParser().parseFromString(text, "text/html").body;
+		if (highlight) this.markMatchRecursively(parsed, term);
+		$result.html(parsed.innerHTML);
 
 		return $result;
 	}

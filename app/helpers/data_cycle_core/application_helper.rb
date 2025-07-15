@@ -33,13 +33,19 @@ module DataCycleCore
       rule_types.map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end
 
-    def display_flash_messages_new(closable: true)
+    def render_flash_messages
       capture do
-        tag.div(class: 'flash-messages') do
-          flash.each do |key, value|
-            alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
-            concat alert_box(value, alert_class, closable)
-          end
+        flash.each do |key, value|
+          alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
+          concat alert_box(value, alert_class, true)
+        end
+      end
+    end
+
+    def display_flash_messages_new
+      capture do
+        tag.div(class: 'flash-messages', id: 'flash-messages') do
+          render_flash_messages
         end
       end
     end
@@ -121,7 +127,7 @@ module DataCycleCore
 
       id_path = "f[#{SecureRandom.hex(10)}]"
 
-      form_tag(root_path) do |_f|
+      form_tag(root_path, class: 'geo-nearby-contents-form') do |_f|
         concat hidden_field_tag("#{id_path}[c]", 'a')
         concat hidden_field_tag("#{id_path}[m]", 'i')
         concat hidden_field_tag("#{id_path}[q]", 'geo_radius')
@@ -130,7 +136,7 @@ module DataCycleCore
         concat hidden_field_tag("#{id_path}[v][lat]", lat)
         concat hidden_field_tag("#{id_path}[v][lon]", lon)
         concat hidden_field_tag("#{id_path}[v][distance]", 5000)
-        concat submit_tag(t('activerecord.attributes.data_cycle_core/place.use_geo_for_perimeter_search', locale: active_ui_locale), class: 'button info')
+        concat button_tag(t('activerecord.attributes.data_cycle_core/place.use_geo_for_perimeter_search', locale: active_ui_locale), class: 'button info geo-nearby-contents-button', data: { disable: true })
       end
     end
 
@@ -152,11 +158,9 @@ module DataCycleCore
     # Returns the full title on a per-page basis.
     def full_title
       base_title = I18n.t('title', locale: active_ui_locale) || 'dataCycle'
-      if content_for(:title).blank?
-        base_title
-      else
-        "#{content_for(:title)} | #{base_title}"
-      end
+      title = sanitize(content_for(:title)&.strip)
+
+      safe_join([title, base_title].compact_blank, ' | ')
     end
 
     def previous_authorized_crumb
@@ -190,6 +194,15 @@ module DataCycleCore
       query = query.first(limit.to_i) if limit.present?
 
       query
+    end
+
+    def template_select_options(template_things)
+      template_things.map do |tt|
+        [
+          "#{tag.i(class: "fa dc-type-icon thing-icon #{tt.icon_type}")} #{tt.translated_template_name(active_ui_locale)}",
+          tt.template_name
+        ]
+      end
     end
 
     def to_query_params(options_hash)
@@ -282,6 +295,8 @@ module DataCycleCore
         return_html
       elsif parents[-2] == 'file_size'
         "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: active_ui_locale), locale: active_ui_locale)}</li>"
+      elsif parents[-2] == 'resolution'
+        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_with_delimiter(value, locale: active_ui_locale), locale: active_ui_locale)}</li>"
       else
         "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: active_ui_locale)}</li>"
       end
@@ -369,6 +384,15 @@ module DataCycleCore
         'default'
       ].compact_blank.map { |p| "data_cycle_core/contents/viewers/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
+    end
+
+    def render_life_cycle_viewer(content:)
+      partials = [
+        content.try(:life_cycle_property_name)&.underscore_blanks,
+        'life_cycle'
+      ].compact_blank.map { |p| "data_cycle_core/contents/viewers/#{p}" }
+
+      render_first_existing_partial(partials, { content: })
     end
 
     def render_content_tile(item:, parameters: {}, mode: 'grid')
@@ -462,13 +486,15 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ template: }))
     end
 
-    def link_to_condition(condition, name, options = {}, html_options = {}, &block)
-      if condition
-        link_to(name, options, html_options, &block)
+    def link_to_condition(condition, *args, **html_options, &block)
+      if condition && block
+        link_to(args[0], html_options, &block)
+      elsif condition
+        link_to(args[0], args[1], html_options)
       elsif block
-        tag.span(block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block))
+        tag.span(capture(args[0], &block), **html_options)
       else
-        tag.span(ERB::Util.html_escape(name), **html_options)
+        tag.span(ERB::Util.html_escape(args[0]), **html_options)
       end
     end
 
@@ -498,6 +524,13 @@ module DataCycleCore
       messages_html
     end
 
+    def turbo_localized_stream_from(*streamables, **attributes)
+      return turbo_stream_from(*streamables, **attributes) unless streamables.one? && (streamables.first.is_a?(String) || streamables.first.is_a?(Symbol))
+
+      localized_streamable = "#{streamables.first}_#{active_ui_locale}"
+      turbo_stream_from(localized_streamable, **attributes)
+    end
+
     private
 
     def render_core_partial(partial_name, parameters)
@@ -523,7 +556,7 @@ module DataCycleCore
 
         next if partial.nil?
 
-        logger.debug "  Rendered #{partial.virtual_path}"
+        logger.debug "  Rendered #{partial.short_identifier}"
         return render(partial_name, parameters)
       end
 

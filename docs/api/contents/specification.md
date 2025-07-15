@@ -369,7 +369,7 @@
     "meta": "Integer [1,0]: 1",
     "links": "Integer [1,0]: 1"
   },
-  "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, proximity.geographic_with(lon,lat), *proximity.inTime, proximity.occurrence, random): **default",
+  "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, proximity.geographic_with(lon,lat), *proximity.inTime, proximity.occurrence, proximity.occurrence(startDate,endDate,sortAttribute), random): **default",
   "token": "String"
 }
 ```
@@ -389,6 +389,17 @@
     "dct:modified",
     "dct:deleted",
     "schedule|eventSchedule|openingHoursSpecification|dc:diningHoursSpecification|hoursAvailable|validitySchedule"
+  ]
+}
+```
+
+
+## Available attributes for "sortAttribute"
+
+```json
+{
+  "sortAttribute": [
+    "eventSchedule|openingHoursSpecification|dc:diningHoursSpecification|hoursAvailable|validitySchedule"
   ]
 }
 ```

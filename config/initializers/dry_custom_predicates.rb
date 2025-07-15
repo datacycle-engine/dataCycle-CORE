@@ -16,8 +16,11 @@ Rails.application.reloader.to_prepare do
       v.nil? || v.between?(-1, 1)
     end
 
-    Dry::Logic::Predicates.predicate(:uuid_or_null_string?) do |value|
-      value.is_a?(String) && (format?(DataCycleCore::StringExtension::UUID_REGEX, value) || format?(/^NULL$/i, value))
+    Dry::Logic::Predicates.predicate(:uuid_or_null_string_or_list?) do |value|
+      value.is_a?(String) && value.split(',').map(&:strip).all? do |uuid|
+        format?(DataCycleCore::StringExtension::UUID_REGEX, uuid) ||
+          format?(/^NULL$/i, uuid)
+      end
     end
 
     Dry::Logic::Predicates.predicate(:api_weight_string?) do |value|
@@ -26,6 +29,22 @@ Rails.application.reloader.to_prepare do
 
     Dry::Logic::Predicates.predicate(:uuid?) do |value|
       value.is_a?(String) && format?(DataCycleCore::StringExtension::UUID_REGEX, value)
+    end
+
+    Dry::Logic::Predicates.predicate(:ruby_module_or_class?) do |value|
+      value.is_a?(String) && value.safe_constantize&.class&.in?([Module, Class])
+    end
+
+    Dry::Logic::Predicates.predicate(:ruby_module?) do |value|
+      value.is_a?(String) && value.safe_constantize&.class == Module
+    end
+
+    Dry::Logic::Predicates.predicate(:ruby_class?) do |value|
+      value.is_a?(String) && value.safe_constantize&.class == Class
+    end
+
+    Dry::Logic::Predicates.predicate(:fields_wildcard?) do |value|
+      value.is_a?(String) && value.split(',').map(&:strip).all? { |field| [field.length - 1, nil].include? field.index '*' }
     end
   end
 end

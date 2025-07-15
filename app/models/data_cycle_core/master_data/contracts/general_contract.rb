@@ -7,14 +7,6 @@ module DataCycleCore
         config.messages.default_locale = :en
         config.messages.backend = :i18n
 
-        register_macro(:dc_class) do
-          key.failure('the string given does not specify a valid ruby class.') if key? && value&.safe_constantize&.class != Class
-        end
-
-        register_macro(:dc_array_or_hash) do
-          key.failure('the value must be of type Array or Hash') if key? && !value.is_a?(Hash) && !value.is_a?(Array)
-        end
-
         register_macro(:dc_credential_keys) do
           if value.is_a?(Array)
             credential_keys = value.filter_map { |v| v[:credential_key] }
@@ -36,14 +28,6 @@ module DataCycleCore
           end
         end
 
-        register_macro(:dc_module) do
-          key.failure('the string given does not specify a valid ruby module.') if key? && value&.safe_constantize&.class != Module
-        end
-
-        register_macro(:dc_module_method) do
-          key.failure('the given module/method combination does not exist.') if key? && !value&.dig(:module)&.safe_constantize.respond_to?(value[:method])
-        end
-
         register_macro(:dc_logging_strategy) do
           temp = begin
             Class.new.instance_eval(value)
@@ -54,10 +38,49 @@ module DataCycleCore
           key.failure('the string given does not specify a valid logging class.') if temp == false && key?
         end
 
-        register_macro(:source_type_required) do
-          strategy = (values[:import_strategy] || values[:download_strategy])&.safe_constantize
+        register_macro(:dc_template_names) do
+          # remove Rails.env.development?, when database is available in gitlab for validations
+          key.failure('the specified template_names do not exist in this project') if key? && Rails.env.development? && !DataCycleCore::ThingTemplate.exists?(template_name: value)
+        end
 
-          key.failure('is missing') unless key? || strategy.try(:source_type?).is_a?(FalseClass)
+        register_macro(:ruby_module_and_method) do |macro:|
+          next unless key? && value.is_a?(Hash) && value.key?(:module) && value.key?(:method)
+
+          params = [
+            "Module: #{value[:module]}",
+            "Method: #{value[:method]}"
+          ]
+          params.unshift("Namespace: #{macro.args.first}") if macro.args.first.present?
+          message = "module and method combination not found (#{params.join(', ')})."
+          key.failure(message) unless DataCycleCore::ModuleService.load_module(value[:module], macro.args.first).respond_to?(value[:method])
+        rescue NameError
+          key.failure(message)
+        end
+
+        register_macro(:dc_property_validations) do
+          next unless key? && value.is_a?(Hash)
+
+          missing = []
+
+          value.each_key do |k|
+            validator = DataCycleCore::MasterData::Validators::Object::BASIC_TYPES[values['type']]
+
+            next missing << k unless validator&.private_method_defined?(k)
+          end
+
+          key.failure("The following Validations do not exist: #{missing.join(', ')}") if missing.present?
+        end
+
+        register_macro(:touch_step_required) do
+          next unless key? && value.demodulize.in?(['DownloadBulkMarkDeleted'])
+
+          source_type = values[:source_type]
+
+          next unless steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy]&.include?('DownloadDataFromData') }
+
+          next if steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy]&.include?('DownloadBulkTouchFromData') }
+
+          key.failure('DownloadBulkTouchFromData is required if DownloadBulkMarkDeleted is used in combination with DownloadDataFromData')
         end
       end
     end

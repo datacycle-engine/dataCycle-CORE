@@ -10,13 +10,14 @@ module DataCycleCore
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
-        id,
-        ActionController::Base.helpers.safe_join([
+        id:,
+        name: ActionController::Base.helpers.safe_join([
           ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon role-icon'),
           translated_name(locale)
         ].compact, ' '),
-        model_name.param_key,
-        "#{model_name.human(count: 1, locale:)}: #{translated_name(locale)}"
+        html_class: model_name.param_key,
+        dc_tooltip: "#{model_name.human(count: 1, locale:)}: #{translated_name(locale)}",
+        class_key: model_name.param_key
       )
     end
 

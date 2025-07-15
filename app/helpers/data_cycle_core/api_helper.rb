@@ -5,9 +5,9 @@ module DataCycleCore
     include DataHashHelper
     include ContentHelper
 
-    def api_default_attributes
-      ['@id', '@type']
-    end
+    API_DEFAULT_ATTRIBUTES = ['@id', '@type'].freeze
+
+    delegate :api_plain_context, to: 'DataCycleCore::ApiRenderer::ThingRendererV4'
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
       return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
@@ -15,8 +15,10 @@ module DataCycleCore
       api_property_definition = api_definition(definition)
       api_version = @api_version || 2
       if api_version == 4
+
         partials = [
           "#{definition&.dig('type')&.underscore}_#{key.underscore}",
+          definition.dig('features', 'overlay', 'overlay_for')&.then { |overlay_for| "#{definition&.dig('type')&.underscore}_#{overlay_for.underscore}" },
           (api_property_definition&.dig('partial').present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
           api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,
@@ -64,16 +66,35 @@ module DataCycleCore
     end
 
     def included_attribute?(name, attribute_list)
+      return true if API_DEFAULT_ATTRIBUTES.include?(name)
       return false if attribute_list.blank?
       return true if full_recursive?(attribute_list)
 
-      attribute_list.pluck(0).intersection(Array.wrap(name)).any?
+      attribute_list.pluck(0).intersect?(Array.wrap(name))
+    end
+
+    def fields_attribute?(name, attribute_list)
+      return true if attribute_wildcard?(attribute_list)
+
+      included_attribute?(name, attribute_list)
+    end
+
+    def included_attribute_not_full?(name, attribute_list)
+      included_attribute?(name, attribute_list) && !full_recursive?(attribute_list)
+    end
+
+    def attribute_visible?(name, options)
+      included_attribute?(name, options[:include]) || fields_attribute?(name, options[:fields])
     end
 
     def subtree_for(name, attribute_list)
       return attribute_list if full_recursive?(attribute_list)
 
       attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.compact_blank
+    end
+
+    def attribute_wildcard?(attribute_list)
+      attribute_list&.pluck(0)&.include?('*')
     end
 
     def full_recursive?(attribute_list)
@@ -153,7 +174,7 @@ module DataCycleCore
 
       return api_value_format(value, api_property_definition) unless content.translatable_property_names.include?(key)
 
-      single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first)) && !expand_language
+      single_value = languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first) && !expand_language
 
       if single_value
         data_value = api_value_format(value, api_property_definition)
@@ -208,7 +229,7 @@ module DataCycleCore
     end
 
     # TODO: add section parameter
-    def api_v4_cache_key(item, language, include_parameters, field_parameters, api_subversion = nil, full = nil, linked_stored_filter_id = nil, classification_trees = [])
+    def api_v4_cache_key(item, language, include_parameters, field_parameters, api_subversion = nil, _full = nil, linked_stored_filter_id = nil, classification_trees = [])
       include_params = include_parameters&.sort&.inject([]) { |carrier, param| carrier << param.join('.') }&.join(',')
       field_params = field_parameters&.sort&.inject([]) { |carrier, param| carrier << param.join('.') }&.join(',')
       tree_params = classification_trees&.compact&.sort&.join(',')
@@ -217,7 +238,7 @@ module DataCycleCore
         add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}_expand_language/#{@expand_language}")
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{add_params}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
-        add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_#{full}_expand_language/#{@expand_language}")
+        add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_expand_language/#{@expand_language}")
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{add_params}"
       else
         raise NotImplementedError
@@ -226,51 +247,22 @@ module DataCycleCore
       key
     end
 
-    def api_plain_context(languages, expanded = false)
-      display_language = nil
-      display_language = languages if languages.is_a?(::String)
-      display_language = languages.first if languages.is_a?(::Array) && languages.size == 1 && languages.first.is_a?(::String)
-      display_language = I18n.default_locale if languages.blank?
-      display_language = nil if expanded
-
-      [
-        'https://schema.org/',
-        {
-          '@base' => "#{api_v4_universal_url(id: nil)}/",
-          '@language' => display_language,
-          'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
-          'dct' => 'http://purl.org/dc/terms/',
-          'cc' => 'http://creativecommons.org/ns#',
-          'dc' => 'https://schema.datacycle.at/',
-          'dcls' => "#{schema_url}/",
-          'odta' => 'https://odta.io/voc/',
-          'sdm' => 'https://smartdatamodels.org/',
-          'alps' => 'http://json-schema.org/draft-07/schema/destinationdata/schemas/2022-04/datatypes#/definitions/'
-        }.compact
-      ]
-    end
-
     def api_plain_meta(count, pages)
-      {
-        total: count,
+      DataCycleCore::ApiRenderer::ThingRendererV4.api_plain_meta(
+        collection: @watch_list || @stored_filter,
+        permitted_params: @permitted_params,
+        count:,
         pages:
-      }
+      )
     end
 
     def api_plain_links(contents = nil)
-      contents ||= @contents
-      object_url = lambda do |params|
-        "#{File.join("#{request.protocol}#{request.host}:#{request.port}", request.path)}?#{params.to_query}"
-      end
-      if request.request_method == 'POST'
-        common_params = {}
-      else
-        common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
-      end
-      links = {}
-      links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page
-      links[:next] = object_url.call(common_params.merge(page: { number: contents.next_page, size: contents.limit_value })) if contents.next_page
-      links
+      DataCycleCore::ApiRenderer::ThingRendererV4.api_plain_links(
+        contents: contents || @contents,
+        pagination_url: @pagination_url,
+        request_method: request.request_method,
+        permitted_params: @permitted_params
+      )
     end
 
     def merge_overlay(data, overlay)
@@ -285,6 +277,38 @@ module DataCycleCore
           { key => data[key].reject { |item| item['identifier'].in?(value.pluck('identifier')) } + overlay[key] }
         end
       }.compact_blank.inject(&:merge) || {}
+    end
+
+    def geoshape_as_json(geom)
+      return if geom.nil?
+
+      key = if geom.is_a?(RGeo::Feature::MultiPolygon) || geom.is_a?(RGeo::Feature::Polygon)
+              'polygon'
+            elsif geom.is_a?(RGeo::Feature::MultiLineString) || geom.is_a?(RGeo::Feature::LineString)
+              'line'
+            end
+
+      return if key.nil?
+
+      { key => geom.as_json }
+    end
+
+    def build_new_options_object(attribute, options)
+      return options if attribute == '@graph'
+
+      new_fields = subtree_for(attribute, options[:fields])
+      new_include = subtree_for(attribute, options[:include])
+
+      if options[:field_filter] && new_fields.present?
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: options[:field_filter] }, options)
+      elsif included_attribute?(attribute, options[:include])
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: false }, options)
+      else
+        new_fields = API_DEFAULT_ATTRIBUTES.zip
+        new_options = inherit_options({ include: new_include, fields: new_fields, field_filter: true }, options)
+      end
+
+      new_options
     end
   end
 end

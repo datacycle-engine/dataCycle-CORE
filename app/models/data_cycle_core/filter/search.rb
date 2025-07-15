@@ -95,7 +95,7 @@ module DataCycleCore
 
         sql = <<-SQL.squish
           (
-            CASE WHEN thing_templates.computed_schema_types IS NOT NULL THEN thing_templates.computed_schema_types && ARRAY[:type]::VARCHAR[]
+            CASE WHEN thing_templates.api_schema_types IS NOT NULL THEN thing_templates.api_schema_types && ARRAY[:type]::VARCHAR[]
             ELSE (thing_templates.schema -> :attribute_path)::jsonb ? :type
             END
           )
@@ -247,9 +247,9 @@ module DataCycleCore
       end
 
       def duplicate_candidates(value, score = nil)
-        subquery = DataCycleCore::Thing::DuplicateCandidate.where(false_positive: false)
+        subquery = DataCycleCore::ThingDuplicate.where(false_positive: false)
         subquery = subquery.where(score: score.to_i..) if score.present?
-        subquery = subquery.where(duplicate_candidate[:duplicate_id].eq(thing[:id]))
+        subquery = subquery.where('thing_duplicates.thing_ids @> ARRAY[things.id]')
           .select(1)
           .arel.exists
 

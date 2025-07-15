@@ -5,19 +5,18 @@ module DataCycleCore
     module Templates
       class TemplateTransformer
         include Extensions::Overlay
-        include Extensions::Position
-        include Extensions::Visible
+        include Extensions::LinkedInText
 
-        attr_reader :template, :mixin_paths
+        attr_reader :template, :mixin_paths, :linked_to_text_keys, :api_schema_types
 
-        def initialize(template:, content_set: nil, mixins: nil, templates: nil)
+        def initialize(template:, content_set: nil, mixins: nil)
           @template = template.with_indifferent_access
           @content_set = content_set
           @mixins = mixins
-          @templates = templates
           @mixin_paths = []
           @errors = []
           @error_path = "#{@content_set}.#{@template[:name]}"
+          @api_schema_types = []
         end
 
         def self.merge_base_templates(template:, templates:)
@@ -41,12 +40,14 @@ module DataCycleCore
         def transform
           return @template, @errors if @transform_properties == false
 
-          @template[:boost] ||= 1.0
+          @template[:boost] = @template[:boost]&.to_i || 1
           (@template[:features] ||= {}).deep_merge!(main_config_property(:features))
           @template[:properties] = transform_properties
           @template[:api] = main_config_property(:api).presence || @template[:api].presence || {}
 
           @mixin_paths.uniq! { |v| v.split('=>')&.first }
+
+          generate_api_schema_types!
 
           return @template, @errors
         end
@@ -55,10 +56,10 @@ module DataCycleCore
           new_properties = replace_mixin_properties(@template[:properties])
 
           new_properties.deep_merge!(main_config_property(:properties))
+
           add_overlay_properties!(new_properties)
-          add_sorting_recursive!(new_properties)
+          add_linked_in_text_properties!(new_properties)
           add_missing_parameters!(new_properties)
-          transform_visibilities!(new_properties)
 
           new_properties
         end
@@ -68,6 +69,7 @@ module DataCycleCore
 
           resolve_computed_params_path!(properties)
           hide_inverse_linked_in_edit_mode!(properties)
+          filter_conditional_properties!(properties)
 
           properties
         end
@@ -84,7 +86,13 @@ module DataCycleCore
 
         def hide_inverse_linked_in_edit_mode!(properties)
           properties.filter { |_k, prop| prop&.dig(:link_direction) == 'inverse' }.each_value do |value|
-            value[:visible] = VISIBILITIES.keys.except('edit') unless value.key?(:visible)
+            value[:visible] = Extensions::Visible::VISIBILITIES.keys.except('edit') unless value.key?(:visible)
+          end
+        end
+
+        def filter_conditional_properties!(properties)
+          properties.reject! do |k, prop|
+            prop&.key?(:condition) && !allowed_property?(key: k, property: prop, properties:)
           end
         end
 
@@ -98,7 +106,7 @@ module DataCycleCore
               # deep reverse merge
               m_proc = ->(_, v1, v2) { v1.is_a?(::Hash) && v2.is_a?(::Hash) ? v1.merge(v2, &m_proc) : v1 }
               properties.merge!(replace_mixin_property(key, value[:name].to_sym, value.except(:name, :type), additional_path), &m_proc)
-            elsif !value.key?(:condition) || allowed_mixin?(value[:condition], additional_path + [key])
+            else
               properties.deep_merge!({ key => value&.merge(additional_attributes) })
             end
           end
@@ -128,18 +136,42 @@ module DataCycleCore
 
         private
 
-        def allowed_mixin?(condition, key_path)
-          condition.all? do |key, value|
-            if respond_to?(:"condition_#{key}", true)
-              send(:"condition_#{key}", value)
+        def keys_from_parameters(property)
+          return [] if property.blank?
+
+          property.dig(:compute, :parameters).presence ||
+            property.dig(:default_value, :parameters).presence ||
+            property.dig(:virtual, :parameters).presence
+        end
+
+        def allowed_property?(key:, property:, properties:)
+          property[:condition].blank? || property.delete(:condition).all? do |cond_key, value|
+            if respond_to?(:"condition_#{cond_key}", true)
+              send(:"condition_#{cond_key}", key:, property:, value:, properties:)
             else
-              @errors.push("#{@error_path}.properties.#{key_path.join('.')}.condition.#{key} => method not found!")
+              @errors.push("#{@error_path}.properties.#{key}.condition.#{cond_key} => method not found!")
             end
           end
         end
 
-        def condition_template_key?(key)
-          path = key.split('.')
+        def condition_parameters_exist?(property:, properties:, **)
+          keys = keys_from_parameters(property)
+
+          return true if keys.blank?
+
+          keys.any? { |path| properties.key?(path.split('.').first) }
+        end
+
+        def condition_parameters_exist_with_type?(property:, value:, properties:, **)
+          keys = keys_from_parameters(property)
+
+          return true if keys.blank?
+
+          keys.any? { |path| properties.dig(path.split('.').first, 'type').in?(Array.wrap(value)) }
+        end
+
+        def condition_template_key?(value:, **)
+          path = value.split('.')
           last = path.pop
           base = path.present? ? template.dig(*path) : template
 
@@ -148,21 +180,33 @@ module DataCycleCore
           base.key?(last)
         end
 
-        def condition_not_content_type?(content_type)
-          !condition_content_type?(content_type)
+        def condition_not_content_type?(**)
+          !condition_content_type?(**)
         end
 
-        def condition_content_type?(content_type)
-          content_types = Array.wrap(content_type)
+        def condition_content_type?(value:, **)
+          content_types = Array.wrap(value)
           content_types.include?(template['content_type'])
         end
 
-        def condition_feature_allowed?(feature)
-          DataCycleCore.features.dig(feature, 'enabled') &&
+        def condition_feature_allowed?(value:, **)
+          DataCycleCore.features.dig(value, 'enabled') &&
             (
-              DataCycleCore.features.dig(feature, 'allowed') ||
-              template.dig('features', feature, 'allowed')
+              DataCycleCore.features.dig(value, 'allowed') ||
+              template.dig('features', value, 'allowed')
             )
+        end
+
+        def generate_api_schema_types!
+          @api_schema_types = Array.wrap(@template[:schema_ancestors])
+            .map { |a| Array.wrap(a) }
+            .reduce(&:zip)
+            .flatten
+
+          @api_schema_types << "dcls:#{@template[:name]}"
+          @api_schema_types.concat(Array.wrap(@template.dig(:api, :type))) if @template.dig(:api, :type).present?
+          @api_schema_types.compact!
+          @api_schema_types.uniq!
         end
       end
     end

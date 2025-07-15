@@ -22,6 +22,10 @@ module DataCycleCore
       true
     end
 
+    def stored_filters
+      DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%")
+    end
+
     def self.create(attributes = nil, &)
       if attributes.is_a?(Array)
         attributes.collect { |attr| create(attr, &) }
@@ -73,13 +77,14 @@ module DataCycleCore
 
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
-        id,
-        ActionController::Base.helpers.safe_join([
+        id:,
+        name: ActionController::Base.helpers.safe_join([
           ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon concept_scheme-icon'),
           name
         ].compact, ' '),
-        model_name.param_key,
-        "#{model_name.human(count: 1, locale:)}: #{name}"
+        html_class: model_name.param_key,
+        dc_tooltip: "#{model_name.human(count: 1, locale:)}: #{name}",
+        class_key: model_name.param_key
       )
     end
 

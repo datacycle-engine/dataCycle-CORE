@@ -69,6 +69,17 @@ module DataCycleCore
       end
       alias sort_dct_modified sort_updated_at
 
+      def sort_cache_valid_since(ordering)
+        reflect(
+          query_without_order
+            .order(
+              thing[:cache_valid_since].send(sanitized_ordering(ordering)),
+              thing[:id].desc
+            )
+        )
+      end
+      alias sort_dc_touched sort_cache_valid_since
+
       def sort_created_at(ordering)
         reflect(
           query_without_order
@@ -81,7 +92,7 @@ module DataCycleCore
       alias sort_dct_created sort_created_at
 
       def sort_translated_name(ordering)
-        locale = @locale&.first || I18n.available_locales.first.to_s
+        locale = @locale&.first || I18n.default_locale.to_s
 
         reflect(
           query_without_order
@@ -95,7 +106,7 @@ module DataCycleCore
       alias sort_name sort_translated_name
 
       def sort_advanced_attribute(ordering, attribute_path)
-        locale = @locale&.first || I18n.available_locales.first.to_s
+        locale = @locale&.first || I18n.default_locale.to_s
 
         reflect(
           query_without_order
@@ -128,13 +139,15 @@ module DataCycleCore
         )
       end
 
+      # TODO: get the sort value for relation dynamically via data definitions
       def sort_by_proximity(ordering = '', value = {})
         start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
-
         return self if start_date.nil? && end_date.nil?
 
+        relation_value = find_relation(value)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
         joined_table_name = "so#{SecureRandom.hex(10)}"
-
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT schedules.thing_id,
@@ -143,13 +156,15 @@ module DataCycleCore
               UNNEST(schedules.occurrences) so(occurrence)
             WHERE things.id = schedules.thing_id
               AND so.occurrence && TSTZRANGE(?, ?)
+              #{relation_filter}
             GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
+        query_args = [start_date, end_date]
         reflect(
           query_without_order
-            .joins(sanitize_sql([order_parameter_join, start_date, end_date]))
+            .joins(sanitize_sql([order_parameter_join, *query_args]))
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               thing[:updated_at].desc,
@@ -164,12 +179,12 @@ module DataCycleCore
       def sort_proximity_geographic(ordering = '', value = {})
         return self if value&.first.blank? || value&.second.blank?
 
-        order_string = "things.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
-
+        join_query, order_query = order_params_for_geom(value)
         reflect(
           query_without_order
+            .joins(join_query)
             .order(
-              sanitized_order_string(order_string, ordering, true),
+              sanitized_order_string(order_query, ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
             )
@@ -196,17 +211,11 @@ module DataCycleCore
         proximity_occurrence_with_distance_pia(ordering, value, false)
       end
 
-      def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
+      def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true)
         return self if !value.is_a?(::Array) || value.first.blank?
         geo = value.first
         schedule = value.second
         return self if geo&.first.blank? || geo&.second.blank?
-
-        if use_spheroid
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
-        else
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
-        end
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
@@ -224,9 +233,15 @@ module DataCycleCore
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         end_of_day = Time.zone.now.end_of_day
         end_date_extended = [end_date, 1.month.from_now.end_of_month].max
+
+        # [TODO] @Samuel: check if it works as intended
+        relation_value = find_relation(schedule)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation = 'opening_hours_specification'"
+
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT a.thing_id,
+            SELECT schedules.thing_id,
               CASE
                 WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL
                 WHEN MIN(LOWER(so.occurrence)) FILTER (WHERE so.occurrence && TSTZRANGE(NOW(), '#{end_of_day}')) IS NOT NULL THEN 1
@@ -234,10 +249,11 @@ module DataCycleCore
                 ELSE 3
               END as occurrence_exists,
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
-            FROM schedules a
-            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
-            WHERE things.id = a.thing_id
-            GROUP BY a.thing_id
+            FROM schedules
+            LEFT OUTER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
+            WHERE things.id = schedules.thing_id
+            #{relation_filter}
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -255,32 +271,29 @@ module DataCycleCore
         #   ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
         # SQL
 
+        join_geo_query, order_geo_query = order_params_for_geom(geo)
+
         reflect(
           query_without_order
             .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
+            .joins(join_geo_query)
             # .joins(sanitize_sql([order_parameter_join2]))
             .order(
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               # sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
-              sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string(order_geo_query, ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
             )
         )
       end
 
-      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
+      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true)
         return self if !value.is_a?(::Array) || value.first.blank?
         geo = value.first
         schedule = value.second
         return self if geo&.first.blank? || geo&.second.blank?
-
-        if use_spheroid
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
-        else
-          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
-        end
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
@@ -295,26 +308,35 @@ module DataCycleCore
           min_start_date = '1'
         end
 
+        # [TODO] @Samuel: check if it works as intended
+        relation_value = find_relation(schedule)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
+
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT a.thing_id,
+            SELECT schedules.thing_id,
               1 AS "occurrence_exists",
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
-            FROM schedules a
-            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
-            WHERE things.id = a.thing_id
-            GROUP BY a.thing_id
+            FROM schedules
+            LEFT OUTER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
+            WHERE things.id = schedules.thing_id
+            #{relation_filter}
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
+
+        join_geo_query, order_geo_query = order_params_for_geom(geo)
 
         reflect(
           query_without_order
             .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
+            .joins(join_geo_query)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
-              sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string(order_geo_query, ordering, true),
               thing[:updated_at].desc,
               thing[:id].desc
             )
@@ -334,16 +356,22 @@ module DataCycleCore
           min_start_date = '1'
         end
 
+        # [TODO] @Samuel: check if it works as intended
+        relation_value = find_relation(value)
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
+
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT a.thing_id,
+            SELECT schedules.thing_id,
               1 AS "occurrence_exists",
               #{min_start_date} AS "min_start_date"
-            FROM schedules a
-            INNER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
-            WHERE things.id = a.thing_id
-            GROUP BY a.thing_id
+            FROM schedules
+            INNER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
+            WHERE things.id = schedules.thing_id
+            #{relation_filter}
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -361,7 +389,7 @@ module DataCycleCore
 
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
-        locale = @locale&.first || I18n.available_locales.first.to_s
+        locale = @locale&.first || I18n.default_locale.to_s
         normalized_value = DataCycleCore::MasterData::DataConverter.string_to_string(value)
         return self if normalized_value.blank?
         search_string = normalized_value.split.join('%')
@@ -391,7 +419,7 @@ module DataCycleCore
         return self if value.blank?
 
         q = text_to_websearch_tsquery(value)
-        locale = @locale&.first || I18n.available_locales.first.to_s
+        locale = @locale&.first || I18n.default_locale.to_s
 
         reflect(
           query_without_order
@@ -435,6 +463,25 @@ module DataCycleCore
           thing[:updated_at].desc,
           thing[:id].desc
         )
+      end
+
+      def find_relation(value)
+        return if value.blank?
+        if value['relation']
+          value['relation'].to_s.underscore
+        elsif value.dig('v', 'relation')
+          value.dig('v', 'relation').to_s.underscore
+        end
+      end
+
+      def order_params_for_geom(value)
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN geometries ON geometries.thing_id = things.id AND geometries.is_primary = true
+        SQL
+
+        order_string = "geometries.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+
+        return order_parameter_join, order_string
       end
     end
   end

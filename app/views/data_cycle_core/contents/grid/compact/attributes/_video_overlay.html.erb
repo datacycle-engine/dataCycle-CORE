@@ -1,5 +1,4 @@
-<% thumbnail_url = object.try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url) %>
-
+<% thumbnail_url = thing_thumbnail_url(object) %>
 <div class="width-content reveal" id="<%= html_id %>" data-reveal>
   <button class="close-button" data-close aria-label="Close modal" type="button">
     <span aria-hidden="true">&times;</span>

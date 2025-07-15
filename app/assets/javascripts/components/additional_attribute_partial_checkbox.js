@@ -150,6 +150,8 @@ class AdditionalAttributePartialCheckbox {
 		DomElementHelpers.disableElement(formField);
 		let key = formField.dataset.key;
 		if (DomElementHelpers.isListFormElement(formField)) key += "[]";
+		else if (DomElementHelpers.isObjectFormElement(formField))
+			key += "[additional-attribute-partial-disabled-dummy]";
 		formField.insertAdjacentHTML(
 			"beforeend",
 			`<input type="hidden" class="additional-attribute-partial-disabled-dummy" name="${key}" value="">`,

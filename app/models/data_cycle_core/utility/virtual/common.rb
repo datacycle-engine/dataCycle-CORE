@@ -84,7 +84,14 @@ module DataCycleCore
             override_key = virtual_parameters.detect { |v| v.ends_with?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX) } if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX)
             override_value = content.try(override_key) if override_key.present?
 
-            return override_value if DataHashService.present?(override_value)
+            if DataHashService.present?(override_value)
+              return override_value unless virtual_definition['type'] == 'object'
+
+              original_value = content.try(virtual_parameters.first)
+              return override_value if DataHashService.blank?(original_value)
+
+              return original_value.merge(override_value)
+            end
 
             add_key = virtual_parameters.detect { |v| v.ends_with?(MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX) } if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX)
             add_value = content.try(add_key) if add_key.present?
@@ -113,6 +120,8 @@ module DataCycleCore
 
                 return value if DataHashService.present?(value)
               end
+
+              nil
             end
           end
 

@@ -2,25 +2,29 @@
   <span class="inner-item">
     <%= link_to tree_label.name, classifications_path(classification_tree_label_id: tree_label.id), class: "name" %>
 
-    <%= link_to tag.i(class: 'fa fa-angle-double-down'), '#',
+    <%= button_tag tag.i(class: 'fa fa-angle-double-down'),
+                type: 'button',
                 class: 'classification-load-all-children',
                 data: {
                   dc_tooltip: t('embedded.open_all', locale: active_ui_locale)
                 } %>
 
-    <%= link_to tag.i(class: 'fa fa-angle-double-up'), '#',
+    <%= button_tag tag.i(class: 'fa fa-angle-double-up'),
+                type: 'button',
                 class: 'classification-close-all-children',
                 data: {
                   dc_tooltip: t('embedded.close_all', locale: active_ui_locale)
                 } %>
 
-    <%= link_to tag.span(tag.i(class: 'fa fa-stack-2x fa-list-ul') + tag.i(class: 'fa fa-stack-1x fa-arrows-v'), class: 'fa-stack'), '#',
+    <%= button_tag tag.span(tag.i(class: 'fa fa-stack-2x fa-list-ul') + tag.i(class: 'fa fa-stack-1x fa-arrows-v'), class: 'fa-stack'),
+                type: 'button',
                 class: 'classification-order-button',
                 data: {
                   dc_tooltip: t('classification_administration.move.button.tooltip', locale: active_ui_locale)
                 } if can?(:edit, tree_label) %>
 
-    <%= link_to tag.i(class: 'fa fa-pencil'), '#',
+    <%= button_tag tag.i(class: 'fa fa-pencil'),
+                type: 'button',
                 class: 'edit',
                 data: {
                   dc_tooltip: t('actions.edit_data', data: tree_label.name, locale: active_ui_locale)
@@ -31,13 +35,24 @@
                 class: 'destroy',
                 data: {
                   confirm: tag.div(class: 'remote-render', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_removal_warning', remote_options: CGI::escapeHTML(to_query_params(classification_tree_label: tree_label).to_json) }),
+                  confirmation_text: t('actions.delete', locale: active_ui_locale) + tag.i(class: 'fa fa-trash-o'),
+                  confirmation_header_text: t('actions.delete_with_data', data: tag.b(tree_label.name), locale: active_ui_locale),
                   disable_with: tag.i(class: 'fa fa-spinner fa-spin'),
                   dc_tooltip: t('actions.delete_with_data', data: tree_label.name, locale: active_ui_locale)
                 } if can?(:destroy, tree_label) %>
 
+    <%= link_to tag.i(class: 'fa fa-list'),
+                root_path(mode: 'tree', ctl_id: tree_label.id, reset: true),
+                class: 'contents-list',
+                target: :_blank,
+                data: {
+                  dc_tooltip: t('data_cycle_core.show_contents_for_tree_label', data: tree_label.name, locale: active_ui_locale)
+                } %>
+
     <% if can?(:download, tree_label) %>
       <div class="download-container">
-        <%= link_to tag.i(class: 'fa fa-download'), '#',
+        <%= button_tag tag.i(class: 'fa fa-download'),
+                  type: 'button',
                   class: 'download-dropdown-link',
                   data: {
                     toggle: "download-tree-#{tree_label.id}",
@@ -70,27 +85,24 @@
       </div>
     <% end %>
 
-    <%= link_to tag.i(class: 'fa fa-hashtag'), '#',
-                class: 'copy-to-clipboard',
-                data: {
-                  value: tree_label.id,
-                  dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: 'ID')
-                } if can?(:copy_to_clipboard, tree_label) %>
+    <% content_for(:overflow_buttons, render('data_cycle_core/classifications/concept_scheme_overflow_buttons', concept_scheme: tree_label), flush: true) %>
 
-    <%= link_to tag.i(class: 'fa fa-clipboard'), '#',
-                class: 'copy-to-clipboard',
-                data: {
-                  value: api_v4_concept_scheme_url(id: tree_label.id),
-                  dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale))
-                } if can?(:copy_api_link, tree_label) %>
+    <% if content_for?(:overflow_buttons) %>
+      <div class="overflow-button-container">
+        <%= button_tag tag.i(class: 'fa fa-ellipsis-v '),
+                  type: 'button',
+                  class: 'overflow-dropdown-link',
+                  data: {
+                    toggle: "overflow-dropdown-#{tree_label.id}"
+                  } %>
 
-    <%= link_to tag.i(class: 'fa fa-list'),
-                root_path(mode: 'tree', ctl_id: tree_label.id, reset: true),
-                class: 'contents-list',
-                target: :_blank,
-                data: {
-                  dc_tooltip: t('data_cycle_core.show_contents_for_tree_label', data: tree_label.name, locale: active_ui_locale)
-                } %>
+        <div id="<%= "overflow-dropdown-#{tree_label.id}" %>" class="overflow-dropdown-container dropdown-pane" data-dropdown>
+          <ul class="no-bullet list-items">
+            <%= yield_content!(:overflow_buttons) %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
   </span>
 
   <%= tag.div(class: 'remote-render inverted classification-tree-label-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: tree_label).to_json }) if can?(:edit, tree_label) %>

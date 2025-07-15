@@ -8,8 +8,17 @@ module DataCycleCore
           life_cycle_changed
         end
 
+        def life_cycle_editable?
+          computed_property_names.exclude?(life_cycle_property_name) &&
+            virtual_property_names.exclude?(life_cycle_property_name)
+        end
+
+        def life_cycle_property_name
+          DataCycleCore::Feature::LifeCycle.attribute_keys(self)&.first
+        end
+
         def life_cycle_stage
-          @life_cycle_stage ||= try(DataCycleCore::Feature::LifeCycle.attribute_keys(self)&.first)&.first
+          @life_cycle_stage ||= try(life_cycle_property_name)&.first
         end
 
         def life_cycle_stage?(stage_id)
@@ -36,6 +45,16 @@ module DataCycleCore
                                   content_type?('container')
 
           "#{base_type}_#{life_cycle_stage&.name&.underscore_blanks}"
+        end
+
+        def life_cycle_data_attribute
+          DataCycleCore::DataAttribute.new(
+            life_cycle_property_name,
+            properties_for(life_cycle_property_name) || {},
+            {},
+            self,
+            :show
+          )
         end
       end
     end

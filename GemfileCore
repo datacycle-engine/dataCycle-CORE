@@ -9,8 +9,6 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'appsignal', '>= 4.1.1'
-
 # Excel Generator
 gem 'caxlsx'
 gem 'caxlsx_rails'
@@ -41,7 +39,7 @@ group :development do
   gem 'bundler-audit', require: false
   gem 'faker'
   gem 'fasterer', require: false
-  gem 'rubocop', require: false
+  gem 'rubocop', '!= 1.76.0', require: false
   gem 'rubocop-ast'
   gem 'rubocop-minitest', require: false
   gem 'rubocop-rake', require: false

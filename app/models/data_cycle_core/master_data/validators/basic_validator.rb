@@ -40,8 +40,25 @@ module DataCycleCore
 
         private
 
+        def validate_with_method(key, data, value)
+          return unless self.class.private_method_defined?(key)
+
+          m = method(key)
+          return unless m.parameters.size == 2
+
+          m.call(data, value)
+        end
+
         def blank?(data)
           DataCycleCore::DataHashService.blank?(data)
+        end
+
+        def required(data, value)
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
+        end
+
+        def soft_required(data, value)
+          (@error[:warning][@template_key] ||= []) << { path: 'validation.warnings.required' } if value && blank?(data)
         end
       end
     end

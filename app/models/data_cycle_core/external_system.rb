@@ -3,6 +3,7 @@
 module DataCycleCore
   class ExternalSystem < ApplicationRecord
     include ExternalSystemExtensions::Import
+    include ExternalSystemExtensions::Status
 
     attribute :last_import_time, :interval
     attribute :last_successful_import_time, :interval
@@ -31,7 +32,15 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
-    scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where('identifier IN (:value) OR name IN (:value)', value:) }
+    scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where(identifier: value).or(where(name: value)) }
+    scope :by_names_identifiers_or_ids, lambda { |value|
+      return none if value.blank?
+
+      ids = Array.wrap(value).filter(&:uuid?)
+      query = where(identifier: value).or(where(name: value))
+      query = query.or(where(id: ids)) if ids.present?
+      query
+    }
 
     validates :name, presence: true
 
@@ -101,6 +110,34 @@ module DataCycleCore
       export_config&.dig(method_name.to_sym, 'filter', key) || export_config&.dig(:filter, key)
     end
 
+    def step_timestamp(key, name, type)
+      k = timestamp_key_for_step(name, type)
+      last_import_step_time_info.dig(k, key.to_s)
+    end
+
+    def last_try(name, type)
+      step_timestamp(__method__, name, type)&.in_time_zone
+    end
+
+    def last_successful_try(name, type)
+      step_timestamp(__method__, name, type)&.in_time_zone
+    end
+
+    def last_try_time(name, type)
+      step_timestamp(__method__, name, type)&.then { |t| ActiveSupport::Duration.build(t) }
+    end
+
+    def last_successful_try_time(name, type)
+      step_timestamp(__method__, name, type)&.then { |t| ActiveSupport::Duration.build(t) }
+    end
+
+    def merge_last_import_step_time_info(import_step = nil, values = {})
+      return if import_step.blank?
+      last_import_step_time_info[import_step] ||= {}
+      last_import_step_time_info[import_step] = last_import_step_time_info[import_step].merge(values)
+      invalidate_last_download_and_import
+    end
+
     def full_options(name, type = 'import', options = {})
       (default_options(type) || {})
         .deep_symbolize_keys
@@ -160,7 +197,7 @@ module DataCycleCore
       raise "Missing refresh_strategy for #{name}, options given: #{options}" if export_config.dig(:refresh, :strategy).blank?
       utility_object = DataCycleCore::Export::PushObject.new(
         external_system: self,
-        action: :update
+        action: :refresh
       )
       export_config.dig(:refresh, :strategy).safe_constantize.process(utility_object:, options:)
     end
@@ -301,6 +338,51 @@ module DataCycleCore
         service: external_systems.filter(&:service_module?).as_json(only: [:id, :name, :identifier]),
         foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name, :identifier])
       }.with_indifferent_access
+    end
+
+    def endpoint_module
+      return if module_base.blank?
+
+      MasterData::ImportExternalSystems.full_module_path(module_base, 'Endpoint')&.safe_constantize
+    end
+
+    def reload(options = nil)
+      reset_memoized_variables!
+
+      super
+    end
+
+    def reset_memoized_variables!
+      remove_instance_variable(:@export_config) if instance_variable_defined?(:@export_config)
+      remove_instance_variable(:@refresh_config) if instance_variable_defined?(:@refresh_config)
+      remove_instance_variable(:@download_config) if instance_variable_defined?(:@download_config)
+      remove_instance_variable(:@import_config) if instance_variable_defined?(:@import_config)
+      remove_instance_variable(:@download_list) if instance_variable_defined?(:@download_list)
+      remove_instance_variable(:@download_list_ranked) if instance_variable_defined?(:@download_list_ranked)
+      remove_instance_variable(:@download_pretty_list) if instance_variable_defined?(:@download_pretty_list)
+      remove_instance_variable(:@import_list) if instance_variable_defined?(:@import_list)
+      remove_instance_variable(:@import_list_ranked) if instance_variable_defined?(:@import_list_ranked)
+      remove_instance_variable(:@import_pretty_list) if instance_variable_defined?(:@import_pretty_list)
+      remove_instance_variable(:@credentials) if instance_variable_defined?(:@credentials)
+      remove_instance_variable(:@default_options) if instance_variable_defined?(:@default_options)
+    end
+
+    def step_info_for(key)
+      last_import_step_time_info[key.to_s] || {}
+    end
+
+    private
+
+    def download_accessors
+      return @download_accessors if defined? @download_accessors
+      @download_accessors = full_sorted_steps(:download)
+        .map { |name| timestamp_key_for_step(name, :download).to_sym }
+    end
+
+    def import_accessors
+      return @import_accessors if defined? @import_accessors
+      @import_accessors = full_sorted_steps(:import)
+        .map { |name| timestamp_key_for_step(name, :import).to_sym }
     end
   end
 end

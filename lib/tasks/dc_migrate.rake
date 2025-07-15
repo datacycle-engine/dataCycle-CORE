@@ -121,10 +121,12 @@ namespace :dc do
 
     desc 'download external assets into dataCycle for things with external_system_id or collection_id'
     task :download_external_assets, [:external_system_id, :collection_id] => :environment do |_, args|
-      collection_id = args[:collection_id]
+      collection_id = args.collection_id
+      external_system_id = args.external_system_id
+
       logger = Logger.new('log/download_assets.log')
       logger.info('Started Downloading...')
-      if args[:external_system_id].blank? && collection_id.blank?
+      if external_system_id.blank? && collection_id.blank?
         error = 'external_system_id or collection_id not given'
         logger.error(error) && abort(error)
       end
@@ -134,11 +136,10 @@ namespace :dc do
         logger.error(error) && abort(error)
       end
 
-      external_system_id = args[:external_system_id]
       allowed_template_names = DataCycleCore::ThingTemplate.where("thing_templates.schema -> 'properties' ->> 'asset' IS NOT NULL").pluck(:template_name)
 
-      if external_system_id.blank? || allowed_template_names.blank?
-        error = 'external_system_id not given or no viable Templates found'
+      if allowed_template_names.blank?
+        error = 'no viable Templates found'
         logger.error(error) && abort(error)
       end
 
@@ -162,8 +163,8 @@ namespace :dc do
       if collection_id.present? && external_system_id.present?
         contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).apply.select(:id)).by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
       elsif collection_id.present?
-        contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).apply.select(:id)).where(template_name: allowed_template_names).where(asset_sql)
-      else
+        contents = DataCycleCore::Thing.where(id: DataCycleCore::Collection.find(collection_id).things.select(:id)).where(template_name: allowed_template_names).where(asset_sql)
+      elsif external_system_id.present?
         contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
       end
 
@@ -758,6 +759,81 @@ namespace :dc do
       end
 
       puts "updated #{count} things"
+    end
+
+    desc 'create missing translations for aggregates'
+    task create_missing_translations_for_aggregates: :environment do
+      things = DataCycleCore::Thing.where(aggregate_type: 'belongs_to_aggregate')
+      things = things.where('exists(select 1 from thing_translations tt where tt.thing_id = things.id and tt.locale != ?)', 'de')
+
+      puts "Processing #{things.count} things"
+
+      things.find_each do |thing|
+        aggregate = thing.belongs_to_aggregate.first
+
+        next print('~') if aggregate.nil?
+        next print('~') unless aggregate.translatable?
+
+        aggregate_for = aggregate.aggregate_for.map(&:id)
+        missing_locales = aggregate.aggregate_for.flat_map(&:translated_locales).uniq - aggregate.translated_locales
+
+        next print('~') if missing_locales.blank?
+
+        missing_locales.each do |locale|
+          I18n.with_locale(locale) do
+            valid = aggregate.set_data_hash(data_hash: { aggregate_for: })
+            valid ? print('.') : print('x')
+          end
+        end
+      end
+
+      puts "\nProcessed things"
+    end
+
+    desc 'overlays to overlay attributes'
+    task overlays_to_overlay_attributes: :environment do
+      overlays = DataCycleCore::ContentContent.where(relation_a: 'overlay')
+      puts('No overlays found!') if overlays.blank?
+
+      progressbar = ProgressBar.create(total: overlays.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      overlays.preload(:content_a, :content_b).find_each do |overlay|
+        content = overlay.content_a
+        overlay_content = overlay.content_b
+        remove_overlay = true
+
+        overlay_content.available_locales.each do |locale|
+          I18n.with_locale(locale) do
+            hash = overlay_content.to_h
+            to_write = {}
+            props = (overlay_content.writable_property_names - overlay_content.computed_property_names - ['id', 'external_key', 'external_source_id'])
+
+            props.each do |pn|
+              next if DataCycleCore::DataHashService.blank?(hash[pn])
+
+              override_key = "#{pn}_override"
+              add_key = "#{pn}_add"
+
+              if content.property_names.include?(override_key)
+                to_write[override_key] = hash[pn]
+              elsif content.property_names.include?(add_key)
+                to_write[add_key] = hash[pn]
+              else
+                remove_overlay = false
+                puts("#{overlay_content.template_name} (#{pn}) -> #{content.template_name} (#{override_key}) override attribute does not exist!")
+              end
+            end
+
+            content.set_data_hash(data_hash: to_write, prevent_history: true)
+          end
+        end
+
+        overlay_content.destroy if remove_overlay
+
+        progressbar.increment
+      end
+
+      puts 'MIGRATION SUCCESSFUL'
     end
   end
 end

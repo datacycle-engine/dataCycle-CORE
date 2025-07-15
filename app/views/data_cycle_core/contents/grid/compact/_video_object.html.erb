@@ -1,13 +1,14 @@
-<% thumbnail_url = object.try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url) %>
+<%
+    render_locale = I18n.locale
+    random_id = SecureRandom.hex(10)
+    thumbnail_url = thing_thumbnail_url(object, 'thumbnail_image')
+%>
+<% content_for(:tile_header_buttons, render_linked_content_warnings(content, { content: object, locale: render_locale })) %>
 
 <% if thumbnail_url.blank? %>
   <%= render 'data_cycle_core/contents/grid/compact/default', local_assigns %>
 <% else %>
   <%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'video asset') do %>
-    <%
-        render_locale = I18n.locale
-        random_id = SecureRandom.hex(10)
-    %>
     <% I18n.with_locale(object.first_available_locale) do %>
       <div class="thumbnail media item lazyload <%= local_assigns[:class] %>" data-open="<%= random_id %>" data-bg="<%= thumbnail_url %>">
         <% if object.title.present? %>
@@ -16,7 +17,6 @@
           </div>
         <% end %>
         <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && attribute_editable?(key, definition, options, content) %>
-        <%= render_linked_content_warnings(content, { content: object, locale: render_locale }) %>
       </div>
 
       <div class="width-content reveal media-preview" id="<%= random_id %>" data-reveal>

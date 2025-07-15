@@ -16,6 +16,7 @@
 @import 'modules/structure';
 @import 'modules/responsive';
 // load components
+@import 'modules/components/reveal';
 @import 'modules/components/breadcrumb';
 @import 'modules/components/filters';
 @import 'modules/components/stored_filters';
@@ -56,7 +57,7 @@
 @import 'flatpickr/dist/flatpickr.min';
 @import 'modules/components/date_picker';
 @import 'maplibre-gl/dist/maplibre-gl';
-@import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw';
+@import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 @import 'select2/dist/css/select2.min';
 // load tui-image-editor
 @import 'tui-image-editor/dist/tui-image-editor';
@@ -79,6 +80,9 @@
 @import 'modules/components/_video_player';
 
 @import 'modules/components/_gravity_ui_editor';
+@import 'modules/components/focus_point_editor';
 @import 'modules/external_systems';
 @import 'modules/components/table_editor';
 @import 'modules/components/ai_lector';
+@import 'modules/components/multi_step_form';
+@import 'modules/components/content_warnings';

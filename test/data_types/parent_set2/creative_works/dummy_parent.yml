@@ -1,0 +1,17 @@
+---
+- :data:
+    :name: DummyParent
+    :extends: DummyParent
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :dummy_parent2:
+        :label: DummyParent2
+        :type: string
+        :storage_location: value

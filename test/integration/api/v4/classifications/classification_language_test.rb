@@ -58,12 +58,7 @@ module DataCycleCore
             assert_equal('en', json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
-              required(:'skos:prefLabel').value(:array, min_size?: 1).each do
-                hash do
-                  required(:@language).value(eql?: 'de')
-                  required(:@value).value(:string)
-                end
-              end
+              required(:'skos:prefLabel').value(:string)
             end
 
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
@@ -112,7 +107,7 @@ module DataCycleCore
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
-                  required(:@language).value(eql?: 'de')
+                  required(:@language).value(included_in?: ['de', 'en', 'it'])
                   required(:@value).value(:string)
                 end
               end
@@ -184,7 +179,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
-            assert_api_count_result(@tree.classification_aliases.count)
+            assert_api_count_result(1)
 
             json_data = response.parsed_body
             assert_equal('en', json_data.dig('@context', 1, '@language'))
@@ -234,7 +229,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
-            assert_api_count_result(@tree.classification_aliases.count)
+            assert_api_count_result(1)
 
             json_data = response.parsed_body
             assert_equal('en', json_data.dig('@context', 1, '@language'))

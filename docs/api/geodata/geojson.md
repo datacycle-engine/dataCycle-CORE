@@ -22,6 +22,18 @@ Es können Einzelobjekte oder Ergebnisse von Suchen bzw. Inhaltssammlungen abgef
 
 Anfragen können als GET oder POST-Methoden gesendet werden.
 
+### Parameter
+##### `include`
+Inkludiert zusätzliche Felder in die Ausgabe.
+
+##### `fields`
+Schränkt die Ausgabe auf die angegebenen Felder ein.
+
+##### `classificationTrees`
+schränkt die ausgelieferten Klassifizierungen unter `dc:classification` auf einen Klassifizierungsbaum oder mehrere Klassifizierungsbäume ein.
+Gültige Angaben sind eine einzelne UUID, mehrere Komma-getrennte UUIDs, oder ein Array mit UUIDs.
+Hat nur eine Auswirkung wenn `dc:classification` mittels `include` oder `fields` angefordert wird.
+
 ### Einzelobjekte
 
 Die Anfrage eines Einzelobjektes liefert ein GeoJSON mit einem Feature.
@@ -140,15 +152,23 @@ curl --request POST \
 }
 ```
 
-#### Beeinflussung der Attribute
+#### Verfügbare Attribute
+###### Basis (wird immer ausgeliefert)
+* `@id`
+* `@type`
 
-Die Attribute können mit folgenden Parameter beeinflusst werden:
+###### Standard (außer bei Einschränkung durch `fields`)
+* `name`
 
-- `include` - zeigt die Klassifizierungen des Objektes an
-
-- `classification_trees` - schränkt die Klassifizierungen auf einen Klassifizierungsbaum ein
-
-- `fields`  - schränkt die Ausgabe auf die angegebenen Felder ein
+###### Optional (nur bei Anforderung durch `fields` oder `include`)
+* `dc:slug`
+* `dc:classification`
+  * `@id`
+  * `dc:path`
+* `image`
+  * `@id`
+  * `thumbnailUrl`
+* `dc:contentScore`
 
 #### Anfrage
 

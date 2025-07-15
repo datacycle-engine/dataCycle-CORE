@@ -17,6 +17,8 @@ class ClassificationDestroyButton {
 
 		new ConfirmationModal({
 			text: this.item.dataset.confirm,
+			confirmationHeaderText: this.item.dataset.confirmationHeaderText,
+			confirmationText: this.item.dataset.confirmationText,
 			confirmationClass: "alert",
 			cancelable: true,
 			confirmationCallback: () => {

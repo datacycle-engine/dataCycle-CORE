@@ -1,0 +1,71 @@
+<% queued_sum = stat_job_queue[:queued].values.sum %>
+<div class="queued-jobs" data-count="<%= queued_sum %>">
+  <h5>
+    <i class="fa fa-tasks" aria-hidden="true"></i>
+    in queue: <%= number_with_delimiter(queued_sum, locale: active_ui_locale) %>
+  </h5>
+
+  <% if stat_job_queue[:queued].present? %>
+    <ul>
+      <% stat_job_queue[:queued].each do |queue, count| %>
+        <% queued_types = stat_job_queue.dig(:delayed_reference_types, queue, 'queued_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+        <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: queued_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+
+<% running_sum = stat_job_queue[:running].values.sum %>
+<div class="running-jobs" data-count="<%= running_sum %>">
+  <h5>
+    <i class="fa fa-spinner <%= 'fa-spin' if running_sum.positive? %>" aria-hidden="true"></i>
+    running: <%= number_with_delimiter(running_sum, locale: active_ui_locale) %>
+  </h5>
+
+  <% if stat_job_queue[:running].present? %>
+    <ul>
+      <% stat_job_queue[:running].each do |queue, count| %>
+        <% running_types = stat_job_queue.dig(:delayed_reference_types, queue, 'running_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+        <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: running_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+
+<% failed_sum = stat_job_queue[:failed].values.sum %>
+<div class="failed-jobs" data-count="<%= failed_sum %>">
+  <h5>
+    <i class="fa fa-times" aria-hidden="true"></i>
+    failed: <%= number_with_delimiter(failed_sum, locale: active_ui_locale) %>
+  </h5>
+
+  <% if stat_job_queue[:failed].present? %>
+    <ul>
+      <% stat_job_queue[:failed].each do |queue, count| %>
+        <% failed_types = stat_job_queue.dig(:delayed_reference_types, queue, 'failed_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+        <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: failed_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+
+<% importers_sum = stat_job_queue[:importers].size %>
+<div class="import-jobs" data-count="<%= importers_sum %>">
+  <h5>
+    <i class="fa fa-download" aria-hidden="true"></i>
+    import/download: <%= number_with_delimiter(importers_sum, locale: active_ui_locale) %>
+  </h5>
+  <% if importers_sum.positive? %>
+    <ul>
+      <% stat_job_queue[:importers].each do |job| %>
+        <li>
+          <%= tag.span(job['status'], class: "job-status #{job['status']}") %>
+          <%= button_to(t('dash_board.delete', locale: active_ui_locale), admin_delete_queue_path(id: job['id']), class: 'import-job-destroy-link alert-color', method: :delete, form: { data: { turbo: true, turbo_stream: true } })%>
+          <br>
+          <b><%= job['external_system_name'] %></b>
+          <i>(<%= job['job'] %>)</i> <br/>
+          <%= l(job['created_at'], locale: active_ui_locale, format: :history) %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>

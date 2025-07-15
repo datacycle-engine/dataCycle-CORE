@@ -17,7 +17,8 @@
     border-color: $success-color;
     background: rgba($success-color, 0.5);
   }
-  > * {
+
+  >* {
     pointer-events: none;
     margin-bottom: 0.5rem;
 
@@ -26,6 +27,7 @@
     }
   }
 }
+
 .content-uploader-validations {
   font-size: 0.9rem;
 
@@ -55,7 +57,7 @@
       border-top: 2px solid $medium-gray;
     }
 
-    > * {
+    >* {
       position: relative;
       padding: 0 0.5rem;
       background: $white;
@@ -66,6 +68,7 @@
     input {
       display: none;
     }
+
     label {
       width: 100%;
       background-color: $light-gray;
@@ -77,32 +80,38 @@
       }
     }
   }
+
   .asset-selector-button {
     width: 100%;
   }
+
   .callout {
     margin-top: 0.5rem;
   }
 }
 
 .button-prime {
+
   &.next-asset-button,
   &.prev-asset-button {
     z-index: 1008;
     position: fixed;
     top: calc(50% - 2.5rem);
   }
+
   &.prev-asset-button {
     left: 1rem;
   }
+
   &.next-asset-button {
     right: 1rem;
   }
 }
 
-.prev-asset-button ~ .reveal {
+.prev-asset-button~.reveal {
   max-width: 80%;
 }
+
 .content-create-button.button.success {
   margin: 0;
   padding: 1.25rem;
@@ -112,9 +121,11 @@
   .button-text {
     position: relative;
   }
+
   .fa-check {
     font-size: 1.4rem;
   }
+
   &[disabled] {
     background: rgba($success-color, 0.7);
     color: $white;
@@ -137,8 +148,9 @@
       height: 100%;
       display: block;
     }
+
     .progress-filled {
-      transition: $global-transition;
+      transition: width linear 100ms;
       width: 0;
       background: rgba($success-color, 1);
     }

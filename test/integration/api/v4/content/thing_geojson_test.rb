@@ -19,12 +19,9 @@ module DataCycleCore
 
             @test_poi = DataCycleCore::DummyDataHelper.create_data('poi')
             lat_long = {
-              latitude: 46.123456789,
-              longitude: 14.123456789
+              location: RGeo::Geographic.spherical_factory(srid: 4326).point(14.123456789, 46.123456789)
             }
             @test_poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
-            @test_poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@test_poi.longitude, @test_poi.latitude)
-            @test_poi.save
 
             @test_article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
           end
@@ -99,7 +96,7 @@ module DataCycleCore
             assert_equal('application/geo+json; charset=utf-8', response.content_type)
             geojson_data = RGeo::GeoJSON.decode(response.body)
 
-            assert_equal(@test_poi.location.coordinates.map { |c| c.round(DataCycleCore::Geo::GeojsonRenderer::GEOMETRY_PRECISION) }, geojson_data.geometry.coordinates)
+            assert_equal(@test_poi.location.coordinates.first(2).map { |c| c.round(DataCycleCore::Geo::GeojsonRenderer::GEOMETRY_PRECISION) }, geojson_data.geometry.coordinates)
             assert_equal('Point', geojson_data.geometry.geometry_type.type_name)
             assert_equal(@test_poi.id, geojson_data.feature_id)
             assert_equal('Test-POI', geojson_data['name'])

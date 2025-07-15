@@ -8,8 +8,13 @@ module DataCycleCore
           DataCycleCore::Feature::Content::Overlay
         end
 
-        def attribute_keys(_content = nil)
-          configuration['attribute_keys'] || [] # only return "overlay" for legacy purposes
+        def attribute_keys(content = nil)
+          overlay_attribute_keys = configuration['attribute_keys'] || [] # only return "overlay" for legacy purposes
+          return overlay_attribute_keys if overlay_attribute_keys.blank? || content.nil?
+
+          return [] unless content.respond_to?(overlay_attribute_keys.first&.to_sym)
+
+          overlay_attribute_keys
         end
       end
     end

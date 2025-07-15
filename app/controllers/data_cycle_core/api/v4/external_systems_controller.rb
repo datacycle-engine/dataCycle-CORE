@@ -24,10 +24,12 @@ module DataCycleCore
         end
 
         def search_availability
+          @pagination_url = method(:api_v4_external_source_search_availability_url)
           search_feratel_api(:search_availabilities)
         end
 
         def search_additional_service
+          @pagination_url = method(:api_v4_external_source_search_additional_service_url)
           search_feratel_api(:search_additional_services)
         end
 
@@ -109,7 +111,7 @@ module DataCycleCore
           end
 
           locale = params.dig(:@context, :@language)
-          locale = I18n.available_locales.first if locale.blank?
+          locale = I18n.default_locale if locale.blank?
           unless locale.to_sym.in?(I18n.available_locales)
             return_value = { error: "Invalid locale. Allowed are: #{I18n.available_locales.join(', ')}" }
             status = :bad_request
@@ -150,13 +152,28 @@ module DataCycleCore
 
           feratel_params = [:days, :units, :from, :to, :page_size, :start_index, :occupation]
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
-          endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(**credentials)
+
+          if external_system.module_base.present?
+            endpoint_class = external_system.endpoint_module
+
+            if endpoint_class.nil?
+              error = 'Configured Endpoint Module not found.'
+              render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
+              return
+            end
+
+            endpoint = endpoint_class.new(**credentials)
+          else
+            endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(**credentials)
+          end
+
           search_data = endpoint.send(search_method)
           if search_data&.first.try(:[], 'error').present?
             error = search_data.first['error']
           else
+            thing_ids = DataCycleCore::Thing.where(external_key: search_data.pluck('id')).pluck(:external_key, :id).to_h
             live_data = search_data
-              .map { |i| { '@id' => DataCycleCore::Thing.find_by(external_key: i['id'])&.id, 'minPrice' => i['base_price'] } }
+              .map { |i| { '@id' => thing_ids[i['id']], 'minPrice' => i['base_price'], **i.except('id', 'base_price') } }
               .select { |i| i['@id'].present? }
             content_ids = live_data.pluck('@id')
             error = 'No suitable results found.' if content_ids.blank?
@@ -165,12 +182,18 @@ module DataCycleCore
           if error.present?
             render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
           else
-            query_params = permitted_params
+            permitted = permitted_params
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)
-              .merge('filter' => (permitted_params[:filter] || {}).merge({ 'contentId' => { 'in' => [content_ids.join(',')] } }), 'dc:liveData' => live_data, id: permitted_params[:endpoint_id])
-              .to_hash
+              .to_h
+            validate_api_params(permitted, validate_params_exceptions, self.class::VALIDATE_PARAMS_CONTRACT)
+
+            @permitted_params = permitted
+              .deep_merge({
+                'filter' => { 'contentId' => { 'in' => [content_ids.join(',')] } },
+                'dc:liveData' => live_data,
+                'id' => permitted_params[:endpoint_id]
+              })
               .deep_symbolize_keys
-            @permitted_params = query_params
 
             query = build_search_query
             @pagination_contents = apply_paging(query)

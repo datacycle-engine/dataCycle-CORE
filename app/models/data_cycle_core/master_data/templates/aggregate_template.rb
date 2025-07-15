@@ -13,6 +13,7 @@ module DataCycleCore
         PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type', 'slug'].freeze # keys that should not be aggregated
         ALLOWED_PROP_OVERRIDES = ['features', 'ui'].freeze
         AGGREGATE_TEMPLATE_SUFFIX = ' (Aggregate)'
+        KEEP_PROP_FEATURES = ['life_cycle'].freeze # features that should be kept on the property
 
         def initialize(data:)
           @data = data
@@ -25,7 +26,6 @@ module DataCycleCore
           else
             data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym] = {
               type: 'linked',
-              sorting: data[:properties].values.pluck('sorting').max + 1,
               inverse_of: AGGREGATE_PROPERTY_NAME,
               link_direction: 'inverse',
               template_name: aggregate_name,
@@ -107,6 +107,7 @@ module DataCycleCore
           new_prop[:compute] = {
             module: 'Slug',
             method: 'slug_value_from_first_existing_linked',
+            fallback: false,
             parameters: [
               "#{self.class.aggregate_property_key(key)}.#{key}",
               "#{AGGREGATE_PROPERTY_NAME}.#{key}"
@@ -117,6 +118,7 @@ module DataCycleCore
         end
 
         def transform_aggregate_property(key:, prop:)
+          return [] if prop.blank?
           return [] if AGGREGATE_KEY_EXCEPTIONS.include?(key)
           return [] if prop.dig(:features, :overlay)&.key?(:overlay_for) || prop.dig(:features, :aggregate)&.key?(:aggregate_for)
           return slug_definition(key:, prop:) if key == 'slug'
@@ -147,11 +149,12 @@ module DataCycleCore
 
         def aggregate_property_definition(key:, prop:)
           # embedded should use plural for labels
+
           {
             label: { key:, key_prefix: 'aggregate_for_override', count: prop['type'] == 'embedded' ? 2 : nil },
             type: 'linked',
             template_name: aggregate_base_template_name,
-            visible: ['show', 'edit'],
+            visible: Extensions::Visible.merge_visibility(prop[:visible], ['show', 'edit']),
             features: { aggregate: { aggregate_for: key } },
             ui: {
               show: {
@@ -167,7 +170,7 @@ module DataCycleCore
               },
               attribute_group: prop.dig(:ui, :attribute_group)
             }
-          }.deep_reject { |_, v| DataHashService.blank?(v) }
+          }.deep_reject { |_, v| DataHashService.blank?(v) }.with_indifferent_access
         end
 
         def aggregate_base_template_name
@@ -188,18 +191,18 @@ module DataCycleCore
           prop[:compute] = {
             module: 'Common',
             method: 'attribute_value_from_first_existing_linked',
+            fallback: false,
             parameters: [
-              "#{self.class.aggregate_property_key(key)}.#{key}",
-              "#{AGGREGATE_PROPERTY_NAME}.#{key}"
+              "#{self.class.aggregate_property_key(key)}.#{key}_overlay",
+              "#{AGGREGATE_PROPERTY_NAME}.#{key}_overlay"
             ]
           }
         end
 
         def add_feature_definition_for_prop!(prop:)
           override_props = prop.dig('features', 'aggregate')&.slice(*ALLOWED_PROP_OVERRIDES) || {}
-          prop[:features] = {
-            aggregate: { allowed: true }
-          }
+          keep_features = prop['features']&.slice(*KEEP_PROP_FEATURES) || {}
+          prop[:features] = keep_features.deep_merge({ aggregate: { allowed: true } })
           prop.deep_merge!(override_props)
         end
 

@@ -17,6 +17,7 @@
   border-bottom-right-radius: var(--large-radius);
   position: absolute;
   pointer-events: auto;
+  will-change: transform;
 
   .settings-row {
     padding: 1.5rem;

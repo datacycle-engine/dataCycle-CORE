@@ -98,6 +98,7 @@
     }
 
     &.image_object,
+    &.embedded_image_object,
     &.bild,
     &.foto-serie {
       &::before {
@@ -236,6 +237,7 @@
     }
 
     &.video_object,
+    &.embedded_video_object,
     &.video,
     &.video_serie,
     &.webcam,
@@ -253,6 +255,7 @@
     }
 
     &.prospekt,
+    &.embedded_pdf_object, 
     &.pdf {
       &::before {
         content: '\f1c1';
@@ -359,6 +362,24 @@
         content: '\f0f6';
       }
     }
+
+    &.wine_soil {
+      &::before {
+        content: '\f18c';
+      }
+    }
+
+    &.special_announcement {
+      &::before {
+        content: '\f0a1';
+      }
+    }
+
+    &.occupancy_rate {
+      &::before {
+        content: '\f080';
+      }
+    }
   }
 
   &.wetterstation,
@@ -424,7 +445,7 @@
   &.classification_tree_label-icon,
   &.concept_scheme-icon {
     &::before {
-      content: '\f02c';
+      content: '\f02b';
     }
 
     &.bundeslander::before {
@@ -448,10 +469,6 @@
 
     &.jahreszeiten::before {
       content: '\f073';
-    }
-
-    &.ausgabekanale::before {
-      content: '\f02b';
     }
   }
 
@@ -480,6 +497,7 @@
   }
 
   &.property-icon {
+
     &.type-date::before,
     &.type-daterange::before,
     &.type-object.key-duration::before {
@@ -487,6 +505,10 @@
     }
 
     &.type-classification::before {
+      content: '\f02b';
+    }
+
+    &.type-classification.key-universal_classifications::before {
       content: '\f02c';
     }
 

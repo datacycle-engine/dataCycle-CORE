@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module Date
         def in_schedule(value = nil, mode = nil, attribute_key = nil)
-          return if value.blank?
+          return none if value.blank?
 
           attribute_key = 'event_schedule' if attribute_key == 'schedule' # keep backwards compatibity for APIv4 filter[attribute][schedule]
           from_date, to_date = date_from_filter_object(value, mode)
@@ -32,7 +32,7 @@ module DataCycleCore
         end
 
         def validity_period(value = nil, mode = nil)
-          return if value.blank?
+          return none if value.blank?
 
           from_date, to_date = date_from_filter_object(value, mode)
           from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
@@ -53,7 +53,7 @@ module DataCycleCore
         end
 
         def inactive_things(value = nil, mode = nil)
-          return if value.blank?
+          return none if value.blank?
 
           from_date, to_date = date_from_filter_object(value, mode)
           from_node = from_date.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from_date.is_a?(::Date) ? from_date.beginning_of_day : from_date)
@@ -82,7 +82,7 @@ module DataCycleCore
         end
 
         def offer_period(value = nil, mode = nil)
-          return if value.blank?
+          return none if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
 
           schedule_search(from_date, to_date, ['offer_period_schedules', 'offers'])
@@ -141,20 +141,19 @@ module DataCycleCore
           DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
 
-        def date_from_filter_object(value, mode = nil)
-          mode ||= 'absolute'
+        def date_from_filter_object(value, _mode = nil)
           value ||= {}
           value.stringify_keys!
           min = value['from'] || value['min']
           max = value['until'] || value['max']
 
-          if mode == 'absolute'
+          if min.is_a?(Hash) || max.is_a?(Hash)
+            from_date = relative_to_absolute_date(min)
+            to_date = relative_to_absolute_date(max)
+          else
             from_date = date_from_single_value(min)
             to_date = date_from_single_value(max)
             to_date = to_date.end_of_day if to_date&.to_fs(:only_time) == '00:00'
-          else
-            from_date = relative_to_absolute_date(min)
-            to_date = relative_to_absolute_date(max)
           end
 
           raise DataCycleCore::Error::Filter::DateFilterRangeError, [from_date, to_date] if !to_date.nil? && from_date&.>(to_date)

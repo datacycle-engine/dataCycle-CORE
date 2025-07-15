@@ -4,6 +4,10 @@ class RemoteRenderer {
 	constructor() {
 		this.$container = $(document);
 		this.renderQueue = [];
+		this.strategies = {
+			replaceSelf: "outerHTML",
+			replaceContent: "innerHTML",
+		};
 		this.intersectionObserver = new IntersectionObserver(
 			this.checkForNewVisibleElements.bind(this),
 			{
@@ -49,6 +53,10 @@ class RemoteRenderer {
 		$(element).on("dc:remote:render", () => {
 			if (DataCycle.config.remoteRenderFull) this.loadRemote(element);
 		});
+
+		element.addEventListener("dc:remote:reloadOnNextOpen", (e) =>
+			this.reloadOnNextOpen(e, e.detail),
+		);
 
 		if (element.classList.contains("translatable-attribute"))
 			this.addForceRenderTranslationHandler(element);
@@ -169,10 +177,14 @@ class RemoteRenderer {
 	}
 	renderNewHtml() {
 		for (const [target, html] of this.renderQueue) {
+			const strategy =
+				this.strategies[target.dataset.remoteStrategy?.camelize()] ||
+				this.strategies.replaceContent;
 			const trimmedHtml = typeof html === "string" ? html.trim() : html;
-			target.innerHTML = trimmedHtml;
+			target[strategy] = trimmedHtml;
 			target.classList.add("remote-rendered");
 			target.classList.remove("remote-rendering");
+			target.dispatchEvent(new CustomEvent("dc:remote:rendered"));
 		}
 
 		this.renderQueue.length = 0;

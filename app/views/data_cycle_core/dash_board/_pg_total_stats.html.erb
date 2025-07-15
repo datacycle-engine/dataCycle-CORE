@@ -6,10 +6,7 @@
         <h6>Total-size <b><%= number_to_human_size(@stat_database.pg_size, locale: active_ui_locale) %></b></h6>
       </div>
 
-      <div class="accordion-content card-section remote-render"
-            data-tab-content
-            data-remote-path="data_cycle_core/dash_board/pg_stats">
-      </div>
+      <%= turbo_frame_tag "admin_dashboard_pg_stats", src: remote_render_path(partial: 'data_cycle_core/dash_board/pg_stats'), class: 'accordion-content card-section', loading: 'lazy', data: { tab_content: '' } %>
     </div>
   </div>
 </div>

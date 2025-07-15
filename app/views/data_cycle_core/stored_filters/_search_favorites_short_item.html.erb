@@ -1,20 +1,20 @@
-<li>
+<li class="search-result-item">
   <%= link_to root_path(stored_filter: stored_filter.id) do %>
     <span class="title" title="<%= stored_filter.name %>">
       <%= tag.i(class: 'fa fa-filter') %> <%= stored_filter.name %>
     </span>
-
-    <%= tag.span(
-      'API',
-      class: "content-title-api copy-to-clipboard",
-      data: {
-        value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_filter),
-        dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
-      }
-    ) if stored_filter.api %>
-
-    <%= tag.span(stored_filter.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale), locale: active_ui_locale) }) if stored_filter.slug.present? %>
   <% end %>
+
+  <%= tag.span(
+    'API',
+    class: "content-title-api copy-to-clipboard",
+    data: {
+      value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_filter),
+      dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
+    }
+  ) if stored_filter.api %>
+
+  <%= tag.span(stored_filter.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale), locale: active_ui_locale) }) if stored_filter.slug.present? %>
 
   <div class="buttons">
     <span class = "api-restrictions">

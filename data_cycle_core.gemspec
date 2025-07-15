@@ -22,11 +22,12 @@ Gem::Specification.new do |s|
 
   # rails
   s.add_dependency 'rails', '~> 7.1.0'
+  s.add_dependency 'turbo-rails'
   # Translations
   s.add_dependency 'mobility', '>= 1.3.1'
   # Frontend Asset Handling
-  s.add_dependency 'vite_rails', '3.0.15' # lock version, as newer version have problems with finding assets
-  s.add_dependency 'vite_ruby', '3.3.4' # lock version, as newer version have problems with finding assets
+  s.add_dependency 'vite_rails', '>= 3.0.19' # , '3.0.15' # lock version, as newer version have problems with finding assets
+  s.add_dependency 'vite_ruby', '>= 3.9.2' # , '3.3.4' # lock version, as newer version have problems with finding assets
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
@@ -46,7 +47,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'nokogiri'
   # authentication
   s.add_dependency 'devise'
-  s.add_dependency 'jwt'
+  s.add_dependency 'jwt', '~> 2.10.0' # omniauth does not work with jwt 3.x
   # authorization
   s.add_dependency 'cancancan', '>= 3.3.0'
   # pagination
@@ -82,7 +83,9 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # rufus scheduler
+  s.add_dependency 'fugit' # also used to render cron schedules in admin dashboard
   s.add_dependency 'rufus-scheduler'
+
   # redis
   s.add_dependency 'hiredis'
   s.add_dependency 'redis', '< 5'
@@ -134,4 +137,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'rexml' # used for Hash.from_xml
 
   s.add_dependency 'fastimage'
+
+  s.post_install_message = 'run `bundle update & rails dc:upgrade` after updating this gem.'
 end

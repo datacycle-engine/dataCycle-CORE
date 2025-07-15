@@ -7,7 +7,7 @@ related_objects = DataCycleCore::CreativeWork
 json.hasPart(related_objects) do |part|
   json.content_partial! 'header', content: part, options: { parent: false }
 
-  if part.translations.count { |t| !t.id.nil? } == 1
+  if part.translations.one? { |t| !t.id.nil? }
     json.set! 'inLanguage', part.translations.first.locale
     json.partial! 'translated_properties', content: part, locale: part.translations.first.locale, options:
   else

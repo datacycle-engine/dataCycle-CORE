@@ -53,30 +53,35 @@ module DataCycleCore
           relation_name = :content_a
           relation_a_name = relation_b
           relation_b_name = relation_a
-          content_filter = :content_a_id
         else
           relation_name = :content_b
           relation_a_name = relation_a
           relation_b_name = relation_b
-          content_filter = :content_b_id
         end
 
         content_contents_condition = {
           relation_a: relation_a_name,
           relation_b: relation_b_name
         }
-        content_contents_condition[content_filter] = filter.apply(skip_ordering: true).select(:id).except(:order) if filter.present?
 
         relation_contents = self.class.unscoped do
           send(relation_name).where(content_contents: content_contents_condition).i18n.includes(:thing_template)
         end
 
         relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: languages }) if same_language
+
+        if filter.present?
+          filtered_contents = relation_contents.to_a.filter { |c| filter.thing_ids.include?(c.id) }
+          relation_contents = relation_contents
+            .where(id: filtered_contents.pluck(:id))
+            .tap { |rel| rel.send(:load_records, filtered_contents) }
+        end
+
         relation_contents
       end
 
       def load_classifications(relation_name, _overlay_flag = false)
-        classification_content.with_relation(relation_name).classifications
+        classification_contents.with_relation(relation_name).classifications
       end
 
       def load_default_classification(tree_label, alias_name)
@@ -98,6 +103,10 @@ module DataCycleCore
 
       def load_collections(property_name)
         DataCycleCore::Collection.joins(:content_collection_links).where(content_collection_links: { thing_id: id, relation: property_name }).order(order_a: :asc)
+      end
+
+      def load_geometry(property_name)
+        geometries.detect { |g| g.relation == property_name }&.geom
       end
 
       def as_of(timestamp)

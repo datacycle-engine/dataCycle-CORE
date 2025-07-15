@@ -39,7 +39,18 @@
       <ul class="object-thumbs no-bullet<%= ' has-items' if objects.present? %>">
         <% if objects.present? %>
           <% objects.each do |object| %>
-            <%= render_linked_partial(key: "#{key}[]", definition: definition, parameters: { object: object, prefix: local_assigns.dig(:options, :prefix), options: options, edit_buttons: true }, content: content) %>
+            <%= render_linked_partial(
+                  key: "#{key}[]",
+                  definition: definition,
+                  parameters: {
+                    object: object,
+                    prefix: local_assigns.dig(:options, :prefix),
+                    options: options,
+                    editable: attribute_editable,
+                    edit_buttons: true
+                  },
+                  content: content
+                ) %>
           <% end %>
 
           <% value&.pluck(:id)&.reject { |v| objects&.pluck(:id)&.include?(v) }&.each do |id| %>

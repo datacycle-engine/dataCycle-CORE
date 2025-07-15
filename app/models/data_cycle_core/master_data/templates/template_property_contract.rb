@@ -4,16 +4,22 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
-        attr_accessor :property_name, :nested_property
+        attr_accessor :property_name
 
         ALLOWED_OVERLAY_TYPES = ['string', 'text', 'number', 'boolean',
                                  'datetime', 'date', 'embedded', 'linked',
-                                 'classification', 'schedule', 'opening_time'].freeze
+                                 'classification', 'schedule', 'opening_time', 'object'].freeze
+        ALLOWED_PROPERTY_TYPES = ['key', 'string', 'text', 'number', 'boolean',
+                                  'datetime', 'date', 'geographic', 'slug',
+                                  'object', 'embedded', 'linked', 'classification',
+                                  'asset', 'schedule', 'opening_time',
+                                  'timeseries', 'collection', 'table', 'oembed'].freeze
         OVERLAY_KEY_EXCEPTIONS = ['overlay', 'id', 'data_type', 'external_key', 'external_source_id'].freeze
         # validation in gitlab has no access to database, so we need to define the reserved property names here
         RESERVED_PROPERTY_NAMES = ['thing_id', 'locale', 'content', 'created_at', 'updated_at', 'metadata', 'template_name', 'external_source_id', 'created_by', 'updated_by', 'deleted_by', 'cache_valid_since', 'deleted_at', 'is_part_of', 'validity_range', 'boost', 'content_type', 'representation_of_id', 'version_name', 'last_updated_locale', 'write_history', 'geom_simple', 'aggregate_type'].freeze
-
-        schema do
+        ALLOWED_STORAGE_LOCATIONS = ['column', 'value', 'translated_value', 'classification'].freeze
+        ALLOWED_ASSET_TYPES = ['asset', 'audio', 'image', 'video', 'pdf', 'data_cycle_file', 'srt_file'].freeze
+        BASE_PARAMS = Dry::Schema.Params do
           optional(:label) do
             str? | (hash? & hash do
                               optional(:key) { str? }
@@ -21,17 +27,8 @@ module DataCycleCore
                               optional(:key_suffix) { str? }
                             end)
           end
-          required(:type) do
-            str? & included_in?(
-              ['key', 'string', 'text', 'number', 'boolean',
-               'datetime', 'date', 'geographic', 'slug',
-               'object', 'embedded', 'linked', 'classification',
-               'asset', 'schedule', 'opening_time',
-               'timeseries', 'collection', 'table', 'oembed']
-            )
-          end
           optional(:storage_location) do
-            str? & included_in?(['column', 'value', 'translated_value', 'classification'])
+            str? & included_in?(ALLOWED_STORAGE_LOCATIONS)
           end
           optional(:template_name) { str? | (array? & each { str? }) }
           optional(:validations) { hash? }
@@ -76,13 +73,11 @@ module DataCycleCore
 
           # for type asset
           optional(:asset_type) do
-            str? & included_in?(
-              ['asset', 'audio', 'image', 'video', 'pdf', 'data_cycle_file', 'srt_file']
-            )
+            str? & included_in?(ALLOWED_ASSET_TYPES)
           end
 
           optional(:default_value) do
-            str? | number? | (hash? & hash do
+            bool? | str? | number? | (hash? & hash do
               required(:module) { str? }
               required(:method) { str? }
               optional(:parameters) { array? }
@@ -114,9 +109,19 @@ module DataCycleCore
           end
 
           optional(:visible) do
-            bool? | (str? & included_in?(TemplateTransformer::VISIBILITIES.keys)) | (array? & array { included_in?(TemplateTransformer::VISIBILITIES.keys) })
+            bool? | (str? & included_in?(Extensions::Visible::VISIBILITIES.keys)) | (array? & array { included_in?(Extensions::Visible::VISIBILITIES.keys) })
+          end
+
+          optional(:priority).filled { int? & gt?(0) }
+        end
+
+        TYPE_PARAMS = Dry::Schema.Params do
+          required(:type) do
+            str? & included_in?(ALLOWED_PROPERTY_TYPES)
           end
         end
+
+        schema(BASE_PARAMS, TYPE_PARAMS)
 
         rule(:type) do
           case value
@@ -133,37 +138,11 @@ module DataCycleCore
           end
         end
 
-        rule(:default_value) do
-          next unless key? && value.present? && value.is_a?(::Hash)
-
-          key.failure(:invalid_default_value) unless DataCycleCore::ModuleService.load_module(value[:module].classify, 'Utility::DefaultValue').respond_to?(value[:method])
-        rescue NameError
-          key.failure(:invalid_default_value)
-        end
-
-        rule(:compute) do
-          next unless key? && value.present?
-
-          key.failure(:invalid_computed) unless DataCycleCore::ModuleService.load_module(value[:module].classify, 'Utility::Compute').respond_to?(value[:method])
-        rescue NameError
-          key.failure(:invalid_computed)
-        end
-
-        rule(:virtual) do
-          next unless key? && value.present?
-
-          key.failure(:invalid_virtual) unless DataCycleCore::ModuleService.load_module(value[:module].classify, 'Utility::Virtual').respond_to?(value[:method])
-        rescue NameError
-          key.failure(:invalid_virtual)
-        end
-
-        rule(:content_score) do
-          next unless key? && value.present?
-
-          key.failure(:invalid_content_score) unless DataCycleCore::ModuleService.load_module(value[:module].classify, 'Utility::ContentScore').respond_to?(value[:method])
-        rescue NameError
-          key.failure(:invalid_content_score)
-        end
+        rule(:default_value).validate(ruby_module_and_method: 'Utility::DefaultValue')
+        rule(:compute).validate(ruby_module_and_method: 'Utility::Compute')
+        rule(:virtual).validate(ruby_module_and_method: 'Utility::Virtual')
+        rule(:content_score).validate(ruby_module_and_method: 'Utility::ContentScore')
+        rule(:validations).validate(:dc_property_validations)
 
         rule(:properties) do
           key.failure(:invalid_object) if key? && !(values[:type] == 'object' && ['value', 'translated_value'].include?(values[:storage_location]))
@@ -178,7 +157,7 @@ module DataCycleCore
         end
 
         rule do
-          base.failure(:reserved_property_name) if !nested_property && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
+          base.failure(:reserved_property_name) if !_contract.is_a?(ObjectPropertyContract) && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
         end
       end
     end

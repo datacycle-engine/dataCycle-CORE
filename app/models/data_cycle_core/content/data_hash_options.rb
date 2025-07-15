@@ -14,9 +14,10 @@ module DataCycleCore
       force_update: false,
       version_name: nil,
       invalidate_related_cache: true,
-      check_for_duplicates: false,
+      check_for_duplicates: false, # used to disable check in tests
       ui_locale: DataCycleCore.ui_locales.first,
-      update_computed: true
+      update_computed: true,
+      template_changed: false
     }.freeze
 
     DataHashOptions = Struct.new(*SET_DATA_HASH_ARGUMENTS.keys, keyword_init: true) do

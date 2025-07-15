@@ -1,0 +1,20 @@
+---
+- :data:
+    :name: DummyParent
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :dummy_parent1:
+        :label: DummyParent1
+        :type: string
+        :storage_location: value

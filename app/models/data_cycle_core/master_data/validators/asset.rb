@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Asset < BasicValidator
-        def asset_keywords
-          ['required']
-        end
-
         def validate(data, template, _strict = false)
           check_reference_array(Array(data), template)
 
@@ -20,7 +16,7 @@ module DataCycleCore
           # check given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              method(key).call(data, template['validations'][key]) if asset_keywords.include?(key)
+              validate_with_method(key, data, template['validations'][key])
             end
           end
 
@@ -50,7 +46,7 @@ module DataCycleCore
           (@error[:warning][@template_key] ||= []) << { path: 'validation.errors.asset_upload' } if !check_asset_type(find_asset, template) || find_asset.nil?
         end
 
-        def check_asset_type(asset, template)
+        def check_asset_type(asset, template) # rubocop:disable Naming/PredicateMethod
           (asset.type == "DataCycleCore::#{template['asset_type'].camelize}")
         end
 

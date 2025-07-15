@@ -1,6 +1,7 @@
+import { nanoid } from "nanoid";
+import { showToast } from "../components/toast_notification";
 import ObserverHelpers from "../helpers/observer_helpers";
 import DataCycleHttpClient from "./data_cycle_http_client";
-import { nanoid } from "nanoid";
 
 class DataCycle {
 	constructor(config = {}) {
@@ -39,6 +40,7 @@ class DataCycle {
 		this.globalPromises = {};
 		this.globals = {};
 		this.windowId = nanoid();
+		this.showToast = showToast;
 
 		this.htmlObserver = {
 			observer: new MutationObserver(this._addToCallbackQueue.bind(this)),
@@ -185,11 +187,11 @@ class DataCycle {
 		if (callback) callback(element);
 	}
 	_runRemoveCallbacks(node) {
-		for (const selector of Object.keys(this.htmlObserver.removeCallbacks)) {
-			if (node.querySelector(selector))
-				for (const element of node.querySelectorAll(selector))
-					this._runRemoveCallback(element, selector);
-			if (node.matches(selector)) this._runRemoveCallback(element, selector);
+		for (const selectorKey of Object.keys(this.htmlObserver.removeCallbacks)) {
+			if (node.querySelector(selectorKey))
+				for (const element of node.querySelectorAll(selectorKey))
+					this._runRemoveCallback(element, selectorKey);
+			if (node.matches(selectorKey)) this._runRemoveCallback(node, selectorKey);
 		}
 	}
 	_addToCallbackQueue(mutations) {

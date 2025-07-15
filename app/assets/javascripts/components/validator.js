@@ -1,11 +1,11 @@
-import ConfirmationModal from "./confirmation_modal";
-import QuillHelpers from "./../helpers/quill_helpers";
-import isEqual from "lodash/isEqual";
-import uniqWith from "lodash/uniqWith";
-import unionWith from "lodash/unionWith";
 import isEmpty from "lodash/isEmpty";
+import isEqual from "lodash/isEqual";
 import collectionReject from "lodash/reject";
+import unionWith from "lodash/unionWith";
+import uniqWith from "lodash/uniqWith";
 import DomElementHelpers from "../helpers/dom_element_helpers";
+import QuillHelpers from "./../helpers/quill_helpers";
+import ConfirmationModal from "./confirmation_modal";
 
 class Validator {
 	constructor(formElement) {
@@ -358,7 +358,7 @@ class Validator {
 
 		return (
 			key.includes("[translations]") &&
-			key.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1]
+			key.match(/\[translations\]\[([-a-zA-Z]+)\]/)[1]
 		);
 	}
 	formFieldChanged(fieldData, translationLocale, submitFormDataUpToDate) {
@@ -504,13 +504,16 @@ class Validator {
 			data.duplicate_search?.filter_params,
 		);
 
-		const buttonHtml = `<a class="button show-duplicate-search-result" target="_blank" data-search-params='${JSON.stringify(
+		const buttonHtml = `<a class="button show-duplicate-search-result hollow warning" target="_blank" data-search-params='${JSON.stringify(
 			searchParams,
-		)}'>${await I18n.t("duplicate_search.show")}</a>`;
+		)}'><i class="fa fa-clone" aria-hidden="true"></i>${await I18n.t("duplicate_search.show")}</a>`;
 
-		this.form
-			.querySelector(":scope > div.buttons")
-			?.insertAdjacentHTML("afterbegin", buttonHtml);
+		const prev = this.form.querySelector(":scope > div.buttons > button.prev");
+		if (prev) prev.insertAdjacentHTML("afterend", buttonHtml);
+		else
+			this.form
+				.querySelector(":scope > div.buttons")
+				?.insertAdjacentHTML("afterbegin", buttonHtml);
 
 		this.form
 			.querySelector("a.show-duplicate-search-result")
@@ -686,7 +689,7 @@ class Validator {
 
 					const warnings = values
 						.filter(Boolean)
-						.filter((v) => v.warnings ? Object.keys(v.warnings).length : 0);
+						.filter((v) => (v.warnings ? Object.keys(v.warnings).length : 0));
 					if (warnings.length) Object.assign(data, { warnings: warnings });
 
 					this.submitForm(data);

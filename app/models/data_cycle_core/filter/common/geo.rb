@@ -21,7 +21,12 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              intersects(thing[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
+              DataCycleCore::Geometry.select(1).arel
+              .where(
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(intersects(geometries_table[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326)))
+              ).exists
             )
           )
         end
@@ -30,8 +35,13 @@ module DataCycleCore
           return self if sw_lon.blank? || sw_lat.blank? || ne_lon.blank? || ne_lat.blank?
 
           reflect(
-            @query.where.not(
-              intersects(thing[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
+            @query.where(
+              DataCycleCore::Geometry.select(1).arel
+              .where(
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(intersects(geometries_table[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326)).not)
+              ).exists
             )
           )
         end
@@ -42,25 +52,21 @@ module DataCycleCore
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
 
-          t_alias = generate_thing_alias
-
           reflect(
-            @query
-              .where.not(thing[:geom_simple].eq(nil))
+            @query.where(
+              DataCycleCore::Geometry.select(1).arel
               .where(
-                DataCycleCore::Thing.select(1).arel
-                .from(t_alias)
-                .where(
-                  t_alias[:id].eq(thing[:id])
-                  .and(
-                    st_dwithin(
-                      cast_geography(t_alias[:geom_simple]),
-                      cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                      distance
-                    )
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(
+                  st_dwithin(
+                    cast_geography(geometries_table[:geom_simple]),
+                    cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                    distance
                   )
-                ).exists
-              )
+                )
+              ).exists
+            )
           )
         end
 
@@ -70,25 +76,21 @@ module DataCycleCore
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
 
-          t_alias = generate_thing_alias
-
           reflect(
-            @query
-              .where.not(thing[:geom_simple].eq(nil))
-              .where.not(
-                DataCycleCore::Thing.select(1).arel
-                .from(t_alias)
-                .where(
-                  t_alias[:id].eq(thing[:id])
-                  .and(
-                    st_dwithin(
-                      cast_geography(t_alias[:geom_simple]),
-                      cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                      distance
-                    )
-                  )
-                ).exists
-              )
+            @query.where(
+              DataCycleCore::Geometry.select(1).arel
+              .where(
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(
+                  st_dwithin(
+                    cast_geography(geometries_table[:geom_simple]),
+                    cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                    distance
+                  ).not
+                )
+              ).exists
+            )
           )
         end
 
@@ -101,20 +103,25 @@ module DataCycleCore
           # * ST_Intersect on all classification-geometries whith pre-filter on classification_alias_id and a BBOX-filter on geometries (&&) -> inides not optimally used
           contains_queries = []
           ids.each do |id|
-            sub_query = Arel::SelectManager.new
-              .project(classification_polygon[:geom])
-              .from(classification_polygon)
-              .where(classification_polygon[:classification_alias_id].eq(id))
+            sub_query = DataCycleCore::ClassificationPolygon
+              .select(:geom)
+              .limit(1)
+              .where(classification_alias_id: id)
+              .arel
 
-            contains_queries << st_intersects(sub_query, thing[:geom_simple])
+            contains_queries << st_intersects(sub_query, geometries_table[:geom_simple])
           end
 
           reflect(
             @query
               .where(
-                contains(thing[:geom_simple], st_makeenvelope(-180.0, -90.0, 180.0, 90.0, 4326))
+                DataCycleCore::Geometry.select(1).arel
+                .where(
+                  geometries_table[:thing_id].eq(thing[:id])
+                  .and(geometries_table[:is_primary].eq(true))
+                  .and(contains_queries.reduce(:or))
+                ).exists
               )
-            .where(contains_queries.reduce(:or))
           )
         end
 
@@ -123,28 +130,37 @@ module DataCycleCore
 
           contains_queries = []
           ids.each do |id|
-            sub_query = Arel::SelectManager.new
-              .project(classification_polygon[:geom])
-              .from(classification_polygon)
-              .where(classification_polygon[:classification_alias_id].eq(id))
+            sub_query = DataCycleCore::ClassificationPolygon
+              .select(:geom)
+              .limit(1)
+              .where(classification_alias_id: id)
+              .arel
 
-            contains_queries << st_intersects(sub_query, thing[:geom_simple]).not
+            contains_queries << st_intersects(sub_query, geometries_table[:geom_simple]).not
           end
 
           reflect(
             @query
               .where(
-                contains(thing[:geom_simple], st_makeenvelope(-180.0, -90.0, 180.0, 90.0, 4326))
+                DataCycleCore::Geometry.select(1).arel
+                .where(
+                  geometries_table[:thing_id].eq(thing[:id])
+                  .and(geometries_table[:is_primary].eq(true))
+                  .and(contains_queries.reduce(:or))
+                ).exists
               )
-              .where(contains_queries.reduce(:or))
           )
         end
 
         def with_geometry
           reflect(
             @query
-              .where.not(
-                thing[:geom_simple].eq(nil)
+              .where(
+                DataCycleCore::Geometry.select(1).arel
+                .where(
+                  geometries_table[:thing_id].eq(thing[:id])
+                  .and(geometries_table[:is_primary].eq(true))
+                ).exists
               )
           )
         end
@@ -152,8 +168,12 @@ module DataCycleCore
         def not_with_geometry
           reflect(
             @query
-              .where(
-                thing[:geom_simple].eq(nil)
+              .where.not(
+                DataCycleCore::Geometry.select(1).arel
+                .where(
+                  geometries_table[:thing_id].eq(thing[:id])
+                  .and(geometries_table[:is_primary].eq(true))
+                ).exists
               )
           )
         end
@@ -166,9 +186,15 @@ module DataCycleCore
           geom_type = geom_type_filter_builder(value)
 
           reflect(
-            @query.where(
-              'GeometryType(geom_simple) IN (?)', geom_type
-            )
+            @query
+              .where(
+                DataCycleCore::Geometry.select(1).arel
+                .where(
+                  geometries_table[:thing_id].eq(thing[:id])
+                  .and(geometries_table[:is_primary].eq(true))
+                  .and(geometry_type(geometries_table[:geom_simple]).in(geom_type))
+                ).exists
+              )
           )
         end
 
@@ -181,11 +207,18 @@ module DataCycleCore
 
           reflect(
             @query
-              .where(
-                'GeometryType(geom_simple) NOT IN (?)', geom_type
+              .where.not(
+                DataCycleCore::Geometry.select(1).arel
+                .where(
+                  geometries_table[:thing_id].eq(thing[:id])
+                  .and(geometries_table[:is_primary].eq(true))
+                  .and(geometry_type(geometries_table[:geom_simple]).in(geom_type))
+                ).exists
               )
           )
         end
+
+        private
 
         def geom_type_filter_builder(value)
           geom_type = []

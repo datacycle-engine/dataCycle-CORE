@@ -32,7 +32,7 @@ combined.each do |combined_key, combined_value|
       combined_value['items'].each do |key, definition|
         content.translations.each do |translation|
           I18n.with_locale(translation.locale) do
-            (concated_translated_value[translation.locale] ||= []) << concat_string((definition.dig('api', 'transformation', 'section_name') || key), content.send(key)).to_s
+            (concated_translated_value[translation.locale] ||= []) << concat_string(definition.dig('api', 'transformation', 'section_name') || key, content.send(key)).to_s
           end
         end
         json.set! combined_key, concated_translated_value
@@ -40,7 +40,7 @@ combined.each do |combined_key, combined_value|
     else
       concated_value = ''
       combined_value['items'].each do |key, definition|
-        concated_value << concat_string((definition.dig('api', 'transformation', 'section_name') || key), content.try(key.to_sym)).to_s
+        concated_value << concat_string(definition.dig('api', 'transformation', 'section_name') || key, content.try(key.to_sym)).to_s
       end
       json.set! combined_key, concated_value
     end

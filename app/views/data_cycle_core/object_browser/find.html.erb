@@ -1,15 +1,16 @@
 <% @objects.each do |object| %>
   <%= render_linked_partial(
-    key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'),
-    definition: params[:definition],
+    key: local_assigns[:key] + (local_assigns[:definition]['type'] == "object" ? '[][id]' : '[]'),
+    definition: local_assigns[:definition],
     parameters: {
       object: object,
-      prefix: params[:prefix],
-      options: params[:options],
-      objects: params[:objects],
+      prefix: local_assigns[:prefix],
+      options: local_assigns[:options],
+      objects: local_assigns[:objects],
+      editable: local_assigns[:editable],
       edit_buttons: true,
       parent: @parent
     },
     content: @content
-  ) unless params[:objects]&.include?(object.id) %>
+  ) unless local_assigns[:objects]&.include?(object.id) %>
 <% end %>

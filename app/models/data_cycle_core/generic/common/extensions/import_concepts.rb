@@ -34,7 +34,6 @@ module DataCycleCore
                       logging.phase_finished(step_label, item_count)
                     rescue StandardError => e
                       logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
-                      raise
                     end
                   end
                 end
@@ -71,6 +70,17 @@ module DataCycleCore
                           logging.phase_partial(step_label, tree_item_count, times, concept_scheme.name)
 
                           item_count += tree_item_count
+                        rescue StandardError => e
+                          logging.error_instrument(
+                            exception: e,
+                            external_system: utility_object.external_source,
+                            step_label:,
+                            channel: 'object_import_failed.datacycle',
+                            namespace: 'importer',
+                            item_id: "#{concept_scheme.name} (#{concept_scheme.external_key})"
+                          )
+                          raise if Rails.env.local?
+                          item_count
                         end
 
                         additional_text = []
@@ -93,7 +103,6 @@ module DataCycleCore
                       logging.phase_finished(step_label, item_count, times.last - times.first)
                     rescue StandardError => e
                       logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
-                      raise
                     end
                   end
                 end

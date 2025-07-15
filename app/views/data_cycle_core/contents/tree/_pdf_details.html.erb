@@ -4,10 +4,10 @@
       <div class="thumbnails large">
         <% if item.try(:image).is_a?(ActiveRecord::Relation) %>
           <% item.image.presence&.includes(:translations)&.each do |image| %>
-            <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload" data-dc-tooltip="<img src='<%= image.thumbnail_url %>' />" />
+            <img data-src="<%= thing_thumbnail_url(image) %>" alt="<%= image.title %>" class="lazyload" data-dc-tooltip="<img src='<%= thing_thumbnail_url(image) %>' />" />
           <% end %>
-        <% elsif item.try(:thumbnail_url).present? %>
-          <img data-src="<%= item.thumbnail_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
+        <% elsif thing_thumbnail_url(item).present? %>
+          <img data-src="<%= thing_thumbnail_url(item) %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= thing_thumbnail_url(item) %>' />" />
         <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>
           <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.image %>' />" />
         <% end %>

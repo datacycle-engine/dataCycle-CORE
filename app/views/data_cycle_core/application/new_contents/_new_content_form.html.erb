@@ -2,7 +2,7 @@
     id="new_<%= local_assigns.fetch(:key, 'default') %>"
     data-reveal
     data-multiple-opened="true">
-  <h3 class="new_content_form_title"><%= t('common.create_new_content', locale: active_ui_locale) %></h3>
+  <div class="new_content_form_title reveal-header"><%= t('common.create_new_content', locale: active_ui_locale) %></div>
 
   <div class="new-content-form remote-render"
       id="<%= local_assigns.fetch(:key, 'default') %>_new_form"

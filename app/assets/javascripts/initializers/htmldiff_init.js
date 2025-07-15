@@ -1,4 +1,4 @@
-import htmldiff from "htmldiff/src/htmldiff";
+import htmldiff from "../components/htmldiff.js";
 
 export default function () {
 	DataCycle.registerAddCallback(

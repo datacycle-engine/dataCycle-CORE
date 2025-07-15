@@ -12,65 +12,56 @@ module DataCycleCore
 
       included do
         extend DataCycleCore::Common::RelationClassMethods
+
+        belongs_to :parent, class_name: name, foreign_key: 'is_part_of', inverse_of: :children, touch: false
+        has_many :children, class_name: name, foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
+
+        case name
+        when 'DataCycleCore::Thing'
+          has_many :classification_contents, class_name: 'DataCycleCore::ClassificationContent', foreign_key: 'content_data_id', dependent: :delete_all
+          has_many :classifications, through: :classification_contents
+        when 'DataCycleCore::Thing::History'
+          has_many :classification_content_histories, class_name: 'DataCycleCore::ClassificationContent::History', foreign_key: 'content_data_history_id', dependent: :delete_all
+          has_many :classifications, through: :classification_content_histories
+        end
+
+        has_many :classification_groups, through: :classifications
+        has_many :classification_aliases, -> { distinct }, through: :classification_groups
+        has_many :primary_classification_aliases, through: :classifications, source: :primary_classification_alias
+        has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
+
+        # relation content to all other contents
+        has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :delete_all, inverse_of: :content_b
+        has_many :content_a, through: :content_content_b
+        has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :delete_all
+        has_many :content_content_a, -> { order(order_a: :asc, content_b_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :delete_all, inverse_of: :content_a
+        has_many :content_b, through: :content_content_a
+        has_many :content_b_linked, -> { where.not(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
+        has_many :content_b_embedded, -> { where(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
+        has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :delete_all, inverse_of: :content_a_history
+
+        belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
+        belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
+        belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
+        belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
+        belongs_to :representation_of, class_name: 'DataCycleCore::User'
+
+        has_many :watch_list_data_hashes, inverse_of: :thing, dependent: :destroy
+        has_many :watch_lists, through: :watch_list_data_hashes
+
+        has_many :subscriptions, as: :subscribable, dependent: :delete_all
+        has_many :data_link_content_items, as: :content
+        has_many :indirect_data_links, through: :data_link_content_items
+        has_many :data_links, as: :item, dependent: :delete_all
+        has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
+        has_many :asset_contents, dependent: :destroy, foreign_key: :thing_id
+        has_many :assets, through: :asset_contents
+
+        belongs_to :thing_template, inverse_of: :things, foreign_key: :template_name, primary_key: :template_name
+        delegate :schema, :api_schema_types, to: :thing_template
       end
 
       module ClassMethods
-        def content_relations(options = {})
-          table_given = options[:table_name]
-          postfix = options[:postfix]
-
-          self_class = "DataCycleCore::#{table_given.classify}"
-          self_class += "::#{postfix.capitalize}" unless postfix.nil?
-
-          classification_content_table = 'classification_content'
-          classification_content_table += "_#{postfix}" unless postfix.nil?
-          class_name = 'DataCycleCore::ClassificationContent'
-          class_name += "::#{postfix.capitalize}" unless postfix.nil?
-          content_name = 'content_data'
-          content_name += "_#{postfix}" unless postfix.nil?
-
-          # relation content to classification
-          has_many classification_content_table.to_sym, class_name:, foreign_key: content_name.foreign_key, dependent: :destroy
-          has_many :classifications, through: classification_content_table.to_sym
-          has_many :classification_groups, through: :classifications
-          has_many :classification_aliases, -> { distinct }, through: :classification_groups
-          has_many :primary_classification_aliases, through: :classifications, source: :primary_classification_alias
-          has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
-
-          # relation content to all other contents
-          has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
-          has_many :content_a, through: :content_content_b
-          has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-          has_many :content_content_a, -> { order(order_a: :asc, content_b_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
-          has_many :content_b, through: :content_content_a
-          has_many :content_b_linked, -> { where.not(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
-          has_many :content_b_embedded, -> { where(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
-          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
-
-          belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
-          belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
-          belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
-          belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
-          belongs_to :representation_of, class_name: 'DataCycleCore::User'
-
-          belongs_to :parent, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :children, touch: false
-          has_many :children, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
-
-          has_many :watch_list_data_hashes, inverse_of: :thing, dependent: :destroy
-          has_many :watch_lists, through: :watch_list_data_hashes
-
-          has_many :subscriptions, as: :subscribable, dependent: :destroy
-          has_many :data_link_content_items, as: :content
-          has_many :indirect_data_links, through: :data_link_content_items
-          has_many :data_links, as: :item, dependent: :destroy
-          has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
-          has_many :asset_contents, dependent: :destroy, foreign_key: :thing_id
-          has_many :assets, through: :asset_contents
-
-          belongs_to :thing_template, inverse_of: :things, foreign_key: :template_name, primary_key: :template_name
-          delegate :schema, :computed_schema_types, to: :thing_template
-        end
-
         def data_links
           return DataCycleCore::DataLink.none if self == DataCycleCore::Thing::History
 
@@ -88,7 +79,7 @@ module DataCycleCore
         def classification_contents(preload: false)
           return DataCycleCore::ClassificationContent.none if self == DataCycleCore::Thing::History
 
-          load_relation(relation_name: :classification_content, preload:)
+          load_relation(relation_name: :classification_contents, preload:)
         end
 
         def collected_classification_contents(preload: false)
@@ -131,7 +122,7 @@ module DataCycleCore
           ca_query = classification_aliases
           ca_query = ca_query.includes(:classification_tree_label) unless classification_aliases.first&.association(:classification_tree_label)&.loaded?
           ca_query = ca_query.includes(:classification_alias_path) unless classification_aliases.first&.association(:classification_alias_path)&.loaded?
-          ca_query.to_a.select { |ca| Array.wrap(ca.classification_tree_label&.visibility).intersection(Array.wrap(context)).any? }
+          ca_query.to_a.select { |ca| Array.wrap(ca.classification_tree_label&.visibility).intersect?(Array.wrap(context)) }
         else
           classification_aliases.includes(:classification_alias_path).in_context(context)
         end
@@ -167,15 +158,15 @@ module DataCycleCore
         classification_aliases_for_tree(tree_name:).primary_classifications
       end
 
-      def is_related? # rubocop:disable Naming/PredicateName(RuboCop)
+      def is_related? # rubocop:disable Naming/PredicatePrefix
         content_content_b.except(:order).exists?
       end
 
-      def has_related? # rubocop:disable Naming/PredicateName(RuboCop)
+      def has_related? # rubocop:disable Naming/PredicatePrefix
         content_content_a.except(:order).exists?
       end
 
-      def has_cached_related_contents? # rubocop:disable Naming/PredicateName(RuboCop)
+      def has_cached_related_contents? # rubocop:disable Naming/PredicatePrefix
         cached_related_contents.exists?
       end
 
@@ -195,11 +186,13 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        query = self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
-                                                                                              tree_query,
-                                                                                              {id:,
-                                                                                               content_type_embedded: CONTENT_TYPE_EMBEDDED}
-                                                                                            ])})")
+        sanitized_base = ActiveRecord::Base.send(
+          :sanitize_sql_array, [
+            tree_query,
+            {id:, content_type_embedded: CONTENT_TYPE_EMBEDDED}
+          ]
+        )
+        query = self.class.where("#{self.class.table_name}.id IN (#{sanitized_base})")
         query = query.where.not(content_type: CONTENT_TYPE_EMBEDDED) unless embedded
         query
       end
@@ -252,11 +245,13 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
-                                                                                      tree_query,
-                                                                                      {id:,
-                                                                                       content_type_embedded: CONTENT_TYPE_EMBEDDED}
-                                                                                    ])})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
+          :sanitize_sql_array, [
+            tree_query,
+            {id:,
+             content_type_embedded: CONTENT_TYPE_EMBEDDED}
+          ]
+        )})")
       end
 
       def embedded_contents
@@ -278,11 +273,13 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
-                                                                                      tree_query,
-                                                                                      {id:,
-                                                                                       content_type_embedded: CONTENT_TYPE_EMBEDDED}
-                                                                                    ])})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
+          :sanitize_sql_array, [
+            tree_query,
+            {id:,
+             content_type_embedded: CONTENT_TYPE_EMBEDDED}
+          ]
+        )})")
       end
 
       def cached_related_contents
@@ -305,7 +302,28 @@ module DataCycleCore
           SELECT DISTINCT paths.content_a_id FROM paths
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, {id:, depth: DataCycleCore.cache_invalidation_depth}])})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
+          :sanitize_sql_array, [tree_query, {id:, depth: DataCycleCore.cache_invalidation_depth}]
+        )})")
+      end
+
+      def template_name=(value)
+        super
+
+        return if new_record? || !template_name_changed?
+
+        validate_template!
+        update_template_properties
+      end
+
+      def thing_template=(value)
+        super
+
+        return if new_record? || !thing_template_changed?
+
+        validate_template!
+        self.template_name = thing_template.template_name
+        update_template_properties
       end
 
       private

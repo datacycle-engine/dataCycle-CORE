@@ -15,10 +15,6 @@ module DataCycleCore
       arguments[0]
     end
 
-    def delayed_reference_type
-      DataCycleCore::Thing.name
-    end
-
     def perform(content_id, _changed_attributes)
       DataCycleCore::Thing
         .where(id: DataCycleCore::Thing::PropertyDependency.select(:content_id).where(dependent_content_id: content_id))
@@ -32,9 +28,10 @@ module DataCycleCore
         content.available_locales.each do |locale|
           translated_computed_keys = content.computed_property_names.intersection(content.translatable_property_names)
 
+          data_hash = {}
+          keys = locale == content.first_available_locale ? content.computed_property_names : translated_computed_keys
+
           I18n.with_locale(locale) do
-            data_hash = {}
-            keys = locale == content.first_available_locale ? content.computed_property_names : translated_computed_keys
             content.add_computed_values(data_hash:, keys:, force: true)
             content.webhook_priority = WEBHOOK_PRIORITY
             content.set_data_hash(data_hash:, update_computed: false)

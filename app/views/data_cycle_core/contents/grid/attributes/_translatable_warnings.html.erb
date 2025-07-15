@@ -1,12 +1,12 @@
 <div class="translatable-field-container">
   <span class="translatable-field linked-content-warnings active <%= locale.to_s %>">
-    <%= render 'data_cycle_core/contents/grid/attributes/warnings', content: content, locale: locale %>
+    <%= render 'data_cycle_core/contents/grid/attributes/warnings', local_assigns %>
   </span>
 
   <% I18n.available_locales.except(locale.to_sym).each do |a_locale| %>
     <span class="translatable-field linked-content-warnings remote-render <%= a_locale.to_s %>"
       data-remote-path="data_cycle_core/contents/grid/attributes/warnings"
-      data-remote-options="<%= to_query_params({ content: content, locale: a_locale }).to_json %>">
+      data-remote-options="<%= to_query_params(local_assigns.merge(locale: a_locale)).to_json %>">
     </span>
   <% end %>
 </div>

@@ -50,7 +50,7 @@ namespace :dc do
           print '.'
         end
 
-        print AmazingPrint::Colors.green('✓')
+        print AmazingPrint::Colors.green('✔')
       end
 
       puts AmazingPrint::Colors.green("\n[done] finished merge")

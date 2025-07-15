@@ -14,98 +14,104 @@ def external_identifier(content)
 end
 
 def render_classification(attribute, partial, content, options)
-  new_options = options.dup
-  new_include = subtree_for(attribute, options[:include])
-  new_fields = subtree_for(attribute, options[:fields])
-  render_full =
-    (included_attribute?(attribute, options[:include]) && !included_attribute?(attribute, options[:fields])) ||
-    (included_attribute?(attribute, options[:fields]) && new_fields.present?) ||
-    included_attribute?(attribute, new_fields)
-
-  Rails.cache.fetch(api_v4_cache_key(content, options[:languages], new_include, new_fields, @api_subversion, render_full), expires_in: 1.year + Random.rand(7.days)) do
+  Rails.cache.fetch(api_v4_cache_key(content, options[:languages], options[:include], options[:fields], @api_subversion, nil), expires_in: 1.year + Random.rand(7.days)) do
     I18n.with_locale(content.first_available_locale(options[:languages])) do
-      render(partial, content:, options: new_options.merge(full: render_full, fields: new_fields, include: new_include))
+      render(partial, content:, options: options, key: attribute)
     end
   end
 end
 
-def render_pref_label(content, languages, one)
-  return unless languages.size.positive?
+def render_pref_label(content, languages)
+  return if languages.blank?
+
   return_data = nil
-  if one
-    return_data = content.name || content.internal_name
+
+  if languages.one?
+    return_data = I18n.with_locale(languages.first) { content.name }
   else
     value_container = []
+
     languages.each do |language|
       I18n.with_locale(language) do
         next if content.name.blank?
         value_container << { '@language' => language, '@value' => content.name }
       end
     end
+
     return_data = value_container.presence || [{ '@language' => I18n.default_locale, '@value' => content.internal_name }]
   end
+
   return_data.presence
 end
 
-def render_description(content, languages, one)
-  return unless languages.size.positive?
+def render_description(content, languages)
+  return if languages.blank?
+
   return_data = nil
-  if one
-    return_data = content.description
+
+  if languages.one?
+    return_data = I18n.with_locale(languages.first) { content.description }
   else
     value_container = []
+
     languages.each do |language|
       I18n.with_locale(language) do
         next if content.description.blank?
         value_container << { '@language' => language, '@value' => content.description }
       end
     end
+
     # return_data = value_container
     return_data = value_container.presence || (content.description.present? ? [{ '@language' => I18n.default_locale, '@value' => content.description }] : nil)
   end
+
   return_data.presence
 end
 
-json = {}
 uri = classifications_api_v4_concept_scheme_url(content.classification_tree_label.id, classification_id: content.id, api_subversion: @subversion, language: serialize_language(options[:languages]))
 
-render_present_language_only = @language.size == 1 && options[:languages] == [I18n.locale.to_s]
+ancestors = content.ancestors.to_a
+scheme = ancestors.last
+concept_ancestors = ancestors[0..-2]
 
-if options[:full]
-  ancestors = content.ancestors.to_a
-  scheme = ancestors.last
-  concept_ancestors = ancestors[0..-2]
-  json = {
-    '@id' => content.id,
-    '@type' => 'skos:Concept',
-    'dc:multilingual' => true,
-    'dc:translation' => content.available_locales,
-    'dc:entityUrl' => uri,
-    'skos:prefLabel' => render_pref_label(content, options[:languages], render_present_language_only),
-    'dct:description' => render_description(content, options[:languages], render_present_language_only),
-    'url' => content.uri,
-    'skos:inScheme' => render_classification('skos:inScheme', 'classification_tree', scheme, options),
-    'skos:topConceptOf' => concept_ancestors.size.positive? ? nil : render_classification('skos:topConceptOf', 'classification_tree', scheme, options),
-    'skos:broader' => concept_ancestors.size.positive? ? render_classification('skos:broader', 'classification', concept_ancestors&.first, options) : nil,
-    'skos:ancestors' => concept_ancestors&.map { |concept_ancestor| render_classification('skos:ancestors', 'classification', concept_ancestor, options) }.presence,
-    'dct:created' => content.created_at,
-    'dct:modified' => content.updated_at,
-    'dct:deleted' => content.deleted_at
-  }.compact
-else
-  json = {
-    '@id' => content.id,
-    '@type' => 'skos:Concept'
-  }.compact
+json = {
+  '@id' => content.id,
+  '@type' => 'skos:Concept'
+}.compact
+
+attributes = {
+  'dc:multilingual' => -> { true },
+  'dc:translation' => -> { content.available_locales },
+  'dc:entityUrl' => -> { uri },
+  'skos:prefLabel' => -> { render_pref_label(content, options[:languages]) },
+  'dct:description' => -> { render_description(content, options[:languages]) },
+  'url' => -> { content.uri },
+  'skos:inScheme' => -> { render_classification('skos:inScheme', 'classification_tree', scheme, build_new_options_object('skos:inScheme', options)) },
+  'skos:topConceptOf' => -> { concept_ancestors.size.positive? ? nil : render_classification('skos:topConceptOf', 'classification_tree', scheme, build_new_options_object('skos:topConceptOf', options)) },
+  'skos:broader' => -> { concept_ancestors.size.positive? ? render_classification('skos:broader', 'classification', concept_ancestors&.first, build_new_options_object('skos:broader', options)) : nil },
+  'skos:ancestors' => -> { concept_ancestors&.map { |concept_ancestor| render_classification('skos:ancestors', 'classification', concept_ancestor, build_new_options_object('skos:ancestors', options)) }.presence },
+  'dct:created' => -> { content.created_at },
+  'dct:modified' => -> { content.updated_at },
+  'dct:deleted' => -> { content.deleted_at }
+}
+
+attributes.each do |attribute, operation|
+  json[attribute] = operation.call if options[:field_filter] == false || attribute_visible?(attribute, options)
 end
 
-json.merge!(external_identifier(content)) if included_attribute?('identifier', options[:include]) || included_attribute?('identifier', options[:fields])
+json.merge!(external_identifier(content)) if attribute_visible?('identifier', options)
 
-json['dc:color'] = content.color if included_attribute?('dc:color', options[:include] + options[:fields]) && content.color?
-json['dc:icon'] = content.icon if included_attribute?('dc:icon', options[:include] + options[:fields]) && content.icon?
+include_fields = options[:include] + options[:fields]
+json['dc:color'] = content.color if included_attribute_not_full?('dc:color', include_fields) && content.color?
+json['dc:icon'] = content.icon if included_attribute_not_full?('dc:icon', include_fields) && content.icon?
 
-if options[:field_filter] && options[:fields].present?
-  json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
-else
-  json
+if included_attribute_not_full?('geo', include_fields) &&
+   (geom = geoshape_as_json(content.classification_polygons&.first&.geom)).present?
+  json['geo'] = {
+    '@id' => generate_uuid(content.id, 'geo'),
+    '@type' => 'GeoShape',
+    **geom
+  }
 end
+
+json.compact

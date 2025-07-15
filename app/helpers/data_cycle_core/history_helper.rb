@@ -128,7 +128,7 @@ module DataCycleCore
       if item.version_name.present?
         version_name.push(
           tag.i(
-            class: 'fa fa-tag version-name has-tip copy-to-clipboard',
+            class: 'fa fa-info-circle version-name has-tip copy-to-clipboard',
             data: {
               value: item.version_name,
               dc_tooltip: t('feature.named_version.version_name', name: item.version_name, locale: active_ui_locale)
@@ -220,7 +220,7 @@ module DataCycleCore
     def add_translations_history_entries(content, history_entries)
       created_locales = content
         .translations
-        .where(thing_translations: { created_at: ..content.created_at&.+(10.seconds) })
+        .where(thing_translations: { created_at: ..(content.created_at&.+(10.seconds)) })
         .pluck(:locale)
 
       content.translations.where.not(locale: content.histories.translated_locales + created_locales + [content.last_updated_locale]).find_each do |created_translation|

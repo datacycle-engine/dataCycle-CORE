@@ -33,13 +33,13 @@
   }
 }
 
-.mapboxgl-ctrl-group {
+.maplibregl-ctrl-group {
   .dc-map-control-button {
     position: relative;
     color: var(--black);
     background-color: var(--white);
 
-    &.mapbox-gl-draw_line_auto::before {
+    &.maplibregl-draw_line_auto::before {
       font-family: 'FontAwesome';
       content: '\f1b9';
       position: absolute;
@@ -52,7 +52,7 @@
       justify-content: center;
     }
 
-    &.mapbox-gl-draw_line_bicycle::before {
+    &.maplibregl-draw_line_bicycle::before {
       font-family: 'FontAwesome';
       content: '\f206';
       position: absolute;
@@ -65,7 +65,7 @@
       justify-content: center;
     }
 
-    &.mapbox-gl-draw_line_pedestrian::before {
+    &.maplibregl-draw_line_pedestrian::before {
       font-family: 'FontAwesome';
       content: '\f183';
       position: absolute;

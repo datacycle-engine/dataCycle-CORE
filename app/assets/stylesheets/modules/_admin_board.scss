@@ -64,7 +64,7 @@
   }
 }
 
-.accordion-content {
+.accordion-title .accordion-content {
   border: none;
 
   &.remote-render,
@@ -169,11 +169,11 @@
 
 .accordion.card.import-module {
   &.deactivated {
-    border-color: var(--nearly-white);
+    border-color: var(--very-light-gray);
 
     .card-divider {
-      border-color: var(--nearly-white);
-      background-color: var(--nearly-white);
+      border-color: var(--very-light-gray);
+      background-color: var(--very-light-gray);
 
       h5 {
         text-decoration: line-through;
@@ -183,25 +183,38 @@
 
 }
 
-.accordion.import-module .accordion-item {
-  .accordion-title {
+.accordion.import-module>.accordion-item {
+  >.accordion-title {
     border-radius: 0;
 
     .header {
+      h5 {
+        margin-right: auto;
+      }
+
       .import-data-timestamps {
         display: flex;
-        flex: auto;
         justify-content: flex-end;
         align-items: flex-start;
         color: var(--dark-gray);
         margin: 0;
         gap: 0.1rem;
       }
+
+      .schedule {
+        color: var(--dark-gray);
+      }
     }
   }
 
-  .accordion-content:not(.remote-render):not(.remote-rendering) {
+  >.accordion-content:not(.remote-render):not(.remote-rendering):not(.indented) {
     padding: 0;
+  }
+}
+
+.import-schedule-tooltip {
+  i.fa::before {
+    font-size: 0.7rem;
   }
 }
 
@@ -219,7 +232,7 @@
   background-color: var(--light-gray);
 
   &.deactivated {
-    background-color: var(--nearly-white);
+    background-color: var(--very-light-gray);
   }
 
   .button-row {
@@ -273,6 +286,13 @@
     }
   }
 
+  .button,
+  .button_to {
+    &.download-full {
+      grid-column: span 2;
+    }
+  }
+
   .button {
     display: flex;
     align-items: center;
@@ -284,9 +304,7 @@
     font-weight: 600;
     gap: 0.3rem;
 
-    &.download-full {
-      grid-column: span 2;
-    }
+
   }
 
   .deactivated {
@@ -333,7 +351,7 @@ ul.import-data-timestamps li {
     }
   }
 
-  &.success-color {
+  &.finished {
     color: var(--success-color);
 
     &::before {
@@ -342,7 +360,7 @@ ul.import-data-timestamps li {
     }
   }
 
-  &.alert-color {
+  &.error {
     color: var(--alert-color);
 
     &::before {
@@ -351,7 +369,7 @@ ul.import-data-timestamps li {
     }
   }
 
-  &.primary-color {
+  &.running {
     color: var(--primary-color);
 
     &::before {
@@ -375,16 +393,99 @@ ul.import-data-timestamps li {
   }
 
   .card.background-jobs {
-    .card-section {
-      h5 {
-        font-size: 1.1rem;
-        color: var(--dark-gray);
-        margin-bottom: 0.1rem;
+    span.info-icon {
+      float: right;
+      color: var(--dark-gray);
+    }
 
-        &.has-jobs {
-          color: var(--black);
-          font-weight: normal;
+    .card-section {
+      >div {
+        color: var(--black);
+
+        &[data-count="0"] {
+          color: var(--dark-gray);
         }
+
+        ul {
+          margin-left: 2rem;
+        }
+      }
+
+      h5 {
+        font-size: 1rem;
+        margin-bottom: 0.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: inherit;
+        font-weight: 600;
+
+        .fa {
+          font-size: 0.9rem;
+        }
+      }
+
+      .import-jobs {
+        margin-top: 1rem;
+        border-top: 1px dashed var(--dark-gray);
+        padding-top: 1rem;
+
+        .import-job-destroy-link {
+          margin: 0;
+          padding: 0.1rem;
+          font-style: italic;
+        }
+
+        .job-status {
+          border-radius: var(--global-radius);
+          padding: 0.1rem 0.3rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+
+          &.queued {
+            background-color: var(--dark-gray);
+            color: var(--white);
+          }
+
+          &.running {
+            background-color: var(--primary-color);
+            color: var(--white);
+          }
+        }
+      }
+    }
+
+    #admin_dashboard_jobs_title {
+      #jobs_queue_title {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 1rem;
+        margin-right: 1.6rem;
+
+        .fa {
+          font-size: 0.8rem;
+        }
+
+        .job-count {
+          display: flex;
+          gap: 0.3rem;
+          align-items: center;
+          box-shadow: 0 -1px 0 0 inset;
+          font-weight: 600;
+
+          &[data-count="0"] {
+            color: var(--dark-gray);
+          }
+        }
+      }
+    }
+  }
+
+  .card.accordion {
+    .accordion-item {
+      .accordion-content {
+        border: none;
+        border-bottom: 1px solid var(--light-gray);
       }
     }
   }
@@ -399,5 +500,131 @@ ul.import-data-timestamps li {
 .maintenance-administration {
   a>.fa {
     font-size: 0.9rem;
+  }
+}
+
+.card-section.accordion {
+  .accordion-item {
+    .accordion-title {
+      padding: 0;
+      cursor: pointer;
+      background-color: var(--light-gray);
+      border-radius: var(--global-radius);
+      font-weight: bold;
+      font-size: 1rem;
+      color: var(--dark-gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      h6 {
+        padding: 0.5rem 0.7rem;
+        margin: 0;
+        color: #000
+      }
+    }
+
+    .accordion-content {
+      border-radius: 0 0 var(--global-radius) var(--global-radius);
+      padding: 0;
+      background-color: var(--nearly-white);
+
+      >*:last-child {
+        margin-bottom: 0;
+      }
+
+      &.import-steps {
+        overflow: hidden;
+
+        div.no-content {
+          padding: 0.5rem 0.7rem
+        }
+      }
+
+      &.indented {
+        padding: 0.5rem;
+      }
+    }
+
+    &.is-active {
+      .accordion-title {
+        border-radius: var(--global-radius) var(--global-radius) 0 0;
+      }
+    }
+  }
+}
+
+
+
+table.import-steps {
+  table-layout: fixed;
+
+  tbody {
+    border: none;
+  }
+
+  tr {
+    font-size: 1rem;
+    color: var(--dark-gray);
+
+
+    &.finished {
+      color: var(--success-color);
+    }
+
+    &.error {
+      color: var(--alert-color);
+    }
+
+    &.running {
+      color: var(--primary-color);
+    }
+
+    td {
+      padding: 0.35rem 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &.import-step-name {
+
+        .fa {
+          vertical-align: middle;
+          font-size: 0.9rem;
+
+          &.fa-circle {
+            font-size: 0.4rem;
+            width: 0.5rem;
+          }
+        }
+      }
+
+      &.import-step-timestamp {
+        width: 130px;
+        text-align: right;
+        padding: 0.35rem 0;
+      }
+
+      &.import-step-duration {
+        width: 65px;
+        text-align: right;
+
+        .duration-s {
+          font-weight: 300;
+        }
+
+        .duration-m {
+          font-weight: 500;
+        }
+
+        .duration-l {
+          font-weight: 600;
+        }
+
+        .duration-xl {
+          font-weight: 700;
+        }
+      }
+    }
   }
 }

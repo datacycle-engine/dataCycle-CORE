@@ -10,6 +10,7 @@ import ClassificationDragAndDrop from "../components/classification_administrati
 import ClassificationJumpToParent from "../components/classification_administration/classification_jump_to_parent";
 import DetailToggler from "../components/detail_toggler";
 import ClassificationUpdateChannel from "../components/classification_administration/classification_update_channel";
+import ConceptSchemeLinkForm from "../components/classification_administration/concept_scheme_link_form";
 
 export default function () {
 	if (document.getElementById("classification-administration")) {
@@ -34,7 +35,7 @@ export default function () {
 		);
 
 		DataCycle.registerAddCallback(
-			"a.create, a.edit",
+			"button.create, button.edit",
 			"classification-edit-button",
 			(e) => new ClassificationEditButton(e),
 		);
@@ -73,6 +74,18 @@ export default function () {
 			"li.direct, li.mapped, li.new-button",
 			"classification-jump-to-parent",
 			(e) => new ClassificationJumpToParent(e),
+		);
+
+		DataCycle.registerAddCallback(
+			".concept-scheme-unlink-form",
+			"concept-scheme-unlink-form",
+			(e) => new ConceptSchemeLinkForm(e, "unlink", "direct"),
+		);
+
+		DataCycle.registerAddCallback(
+			".concept-scheme-link-form",
+			"concept-scheme-link-form",
+			(e) => new ConceptSchemeLinkForm(e, "link", "related"),
 		);
 	}
 

@@ -1,19 +1,29 @@
 <% @user_group = DataCycleCore::UserGroup.new %>
 
-<div class="reveal new-item" id="newContent" data-reveal>
-  <h3><%= t('actions.new', data: @user_group.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></h3>
+<div class="reveal new-item new-user-group-dialog" id="newContent" data-reveal>
+  <div class="reveal-header"><%= t('actions.new', data: @user_group.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></div>
 
   <%= form_with(url: create_user_groups_path, local: true, scope: @user_group) do |f| %>
-
-    <div class="form-element validation-container">
-      <%= f.label :name do %>
-        <%= DataCycleCore::UserGroup.human_attribute_name(:name, locale: active_ui_locale) %>
-        <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
-      <% end %>
-      <%= f.text_field :name, required: true %>
+    <div class="reveal-body">
+      <div class="form-element validation-container">
+        <%= f.label :name do %>
+          <%= DataCycleCore::UserGroup.human_attribute_name(:name, locale: active_ui_locale) %>
+          <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+        <% end %>
+        <%= f.text_field :name, required: true %>
+      </div>
     </div>
 
-    <%= f.submit t(:submit, locale: active_ui_locale), class: "button primary", data: { disable: true } %>
+    <div class="reveal-footer">
+      <%= f.button safe_join([
+            t(:submit, locale: active_ui_locale),
+            tag.i(class: 'fa fa-check')
+          ]),
+          type: :submit,
+          class: "button primary",
+          data: { disable: true }
+        %>
+    </div>
 
   <% end %>
 

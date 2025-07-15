@@ -6,6 +6,15 @@ module DataCycleCore
       module Asset
         extend DataCycleCore::Engine.routes.url_helpers
 
+        CONTENT_TYPE_MAPPING = {
+          'Bild' => 'image',
+          'ImageObject' => 'image',
+          'Audio' => 'audio',
+          'AudioObject' => 'audio',
+          'Video' => 'video',
+          'VideoObject' => 'video'
+        }.freeze
+
         class << self
           def url_options
             Rails.application.config.action_mailer.default_url_options
@@ -19,8 +28,16 @@ module DataCycleCore
             DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:file_size)&.to_i
           end
 
-          def file_format(computed_parameters:, data_hash:, **_args)
-            DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:content_type) || MiniMime.lookup_by_extension(data_hash['content_url']&.match(/.*\.(.*)/)&.[](1).to_s)&.content_type
+          def file_format(computed_parameters:, data_hash:, content:, **_args)
+            content_type = DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:content_type)
+            return content_type if content_type.present?
+
+            mapped_content_type = CONTENT_TYPE_MAPPING[content.template_name]
+
+            MiniMime
+              .lookup_by_extension(data_hash['content_url']&.match(/.*\.(.*)/)&.[](1).to_s)
+              &.content_type
+              &.then { |s| mapped_content_type.present? ? s.gsub('application', mapped_content_type.to_s) : s }
           end
 
           def file_type_classification(computed_parameters:, computed_definition:, **_args)
@@ -75,16 +92,38 @@ module DataCycleCore
             end
           end
 
-          def imgproxy_url(content:, computed_parameters:, computed_definition:, **_args)
+          def imgproxy_url(content:, key:, computed_parameters:, computed_definition:, **_args)
+            # check if any attributes changed
+            changed = computed_parameters.any? { |k, v| v != content&.attribute_to_h(k) }
+            return content.try(key) unless changed
+
             variant = computed_definition&.dig('compute', 'transformation', 'version')
-            image_processing = computed_definition&.dig('compute', 'processing')
-            Virtual::Asset.send(:transform_gravity!, content, image_processing) if image_processing&.key?('gravity')
+            image_processing = computed_definition&.dig('compute', 'processing') || {}
+            DataCycleCore::Feature::GravityEditor.transform_gravity!(image_processing, computed_parameters) if image_processing.present? && DataCycleCore::Feature::GravityEditor.allowed?(content)
+            DataCycleCore::Feature::FocusPointEditor.apply_focus_point!(image_processing, computed_parameters) if image_processing.present? && DataCycleCore::Feature::FocusPointEditor.allowed?(content)
 
             DataCycleCore::Feature::ImageProxy.process_image(
               content: thing_dummy(content:, computed_parameters:),
               variant:,
               image_processing:
             )
+          end
+
+          # :compute:
+          #   :module: Asset
+          #   :method: etag
+          #   :parameters:
+          #     - asset
+          #     - content_url
+          def etag(content:, computed_parameters:, **_args)
+            response = Faraday.default_connection.head(computed_parameters['content_url']) do |f|
+              f.headers['If-None-Match'] = content.try(:etag)
+            end
+
+            return response['etag'] if response.status == 200
+            nil
+          rescue StandardError
+            nil
           end
 
           private
@@ -97,7 +136,7 @@ module DataCycleCore
             thing_dummy.cache_valid_since = content.cache_valid_since
 
             computed_parameters&.each do |key, value|
-              thing_dummy.send(:"#{key}=", value)
+              thing_dummy.set_memoized_attribute(key, value)
             end
 
             thing_dummy

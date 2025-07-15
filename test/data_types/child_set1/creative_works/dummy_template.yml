@@ -1,0 +1,9 @@
+---
+- :data:
+    :name: DummyTemplate
+    :extends: DummyParent
+    :properties:
+      :dummy1:
+        :label: Dummy1
+        :type: string
+        :storage_location: value

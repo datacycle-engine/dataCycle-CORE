@@ -3,7 +3,7 @@
               local: true,
               class: 'download-content-form' do %>
 
-  <fieldset class="active template">
+  <fieldset class="active template reveal-body">
     <legend><%= t('common.choose_language', locale: active_ui_locale) %></legend>
     <div class="form-element">
       <div class="v-select white">
@@ -22,7 +22,7 @@
     </div>
   </fieldset>
 
-  <fieldset class="active template">
+  <fieldset class="active template reveal-body">
     <legend><%= t('common.download.available_formats', locale: active_ui_locale) %></legend>
     <div class="form-element">
       <% available_download_serializers(content, [:archive, :zip]).each_key.with_index do |serializer_key, index| %>
@@ -34,10 +34,13 @@
     </div>
   </fieldset>
 
-  <div class="buttons">
-    <%= button_tag 'download',
-                       type: :submit,
-                       class: "button submit" %>
+  <div class="buttons reveal-footer">
+    <%= button_tag safe_join([
+        'download',
+        tag.i(class: 'fa fa-download')
+      ]),
+      type: :submit,
+      class: "button submit" %>
   </div>
 
 <% end %>

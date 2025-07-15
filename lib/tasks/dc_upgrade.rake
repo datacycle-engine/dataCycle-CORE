@@ -2,6 +2,25 @@
 
 namespace :dc do
   namespace :upgrade do
+    desc 'copy core templates to project'
+    task :copy_templates, [:folder] => :environment do |_, args|
+      abort('Please provide a folder name') if args.folder.nil?
+
+      project_path = Rails.root
+      template_path = DataCycleCore::Engine.root.join('lib/templates', args.folder)
+
+      Dir.glob(template_path.join('**', '*'), File::FNM_DOTMATCH).each do |f|
+        next unless File.file?(f)
+
+        file_name = File.basename(f, '.template')
+        file_path = File.dirname(f)
+        dest_path = project_path.join(file_path.gsub(template_path.to_s, ''))
+
+        FileUtils.mkdir_p(dest_path)
+        FileUtils.cp(f, dest_path.join(file_name))
+      end
+    end
+
     desc 'override some files in project from core templates'
     task rails71: :environment do
       project_path = Rails.root
@@ -102,14 +121,49 @@ namespace :dc do
         puts '!!! WARNING: make sure PRODUCTION_ENVIRONMENT in gitlab CI/CD settings includes APPSIGNAL_PUSH_API_KEY !!!' if File.exist?(file_path)
         FileUtils.rm_f(file_path)
       end
+
+      file_path = Rails.root.join('.npmrc')
+      if File.exist?(file_path)
+        text = File.read(file_path)
+        new_text = text.gsub("shamefully-hoist=true\n", '')
+        new_text = new_text.gsub("store-dir=/tmp/pnpm/store\n", '')
+
+        if new_text.present?
+          if text != new_text
+            puts 'remove useless lines from .npmrc ...'
+            File.write(file_path, new_text)
+          end
+        else
+          puts 'remove .npmrc ...'
+          FileUtils.rm_f(file_path)
+        end
+      end
+    end
+
+    desc 'adjust package.json'
+    task adjust_package_json: :environment do
+      package_json_path = Rails.root.join('package.json')
+      file = File.read(package_json_path)
+      pkg_cfg = JSON.parse(file)
+      pkg_cfg.deep_merge!({
+        'devDependencies' => {
+          'data-cycle-core-dev' => 'file:vendor/gems/data-cycle-core/dev_dependencies'
+        }
+      })
+
+      File.write(package_json_path, "#{JSON.pretty_generate(pkg_cfg)}\n")
     end
   end
 
   desc 'run all available upgrades'
   task upgrade: :environment do
-    Rake::Task['dc:upgrade:rails71'].invoke
-    Rake::Task['dc:upgrade:rails71'].reenable
+    # Rake::Task['dc:upgrade:rails71'].invoke
+    # Rake::Task['dc:upgrade:rails71'].reenable
     Rake::Task['dc:upgrade:clean_configs'].invoke
     Rake::Task['dc:upgrade:clean_configs'].reenable
+    Rake::Task['dc:upgrade:copy_templates'].invoke('global')
+    Rake::Task['dc:upgrade:copy_templates'].reenable
+    Rake::Task['dc:upgrade:adjust_package_json'].invoke
+    Rake::Task['dc:upgrade:adjust_package_json'].reenable
   end
 end

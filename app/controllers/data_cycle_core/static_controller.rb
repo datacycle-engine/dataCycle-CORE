@@ -36,7 +36,8 @@ module DataCycleCore
       raise ActiveRecord::RecordNotFound if markdown_path.nil?
 
       markdown = Redcarpet::Markdown.new(DataCycleCore::Static::MarkdownHtmlRenderer.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
-      markdown.render(markdown_path.end_with?('.erb') ? ERB.new(File.read(markdown_path)).result(binding) : File.read(markdown_path))
+
+      markdown.render(render_to_string(inline: File.read(markdown_path)))
     end
 
     def sanitized_path

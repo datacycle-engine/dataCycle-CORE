@@ -6,8 +6,15 @@ module DataCycleCore
     include DataCycleCore::ErrorHandler
 
     layout 'data_cycle_core/devise'
+    HONEYPOT_FIELDS = [:user_full_name, :user_notes].freeze
 
     def create
+      if honeypot_params.values.any?(&:present?)
+        # set_flash_message! :notice, :signed_up
+        redirect_to new_user_registration_path
+        return
+      end
+
       build_resource(sign_up_params)
       resource.save if valid_additional_attributes?(params.dig('user', 'additional_attributes'))
 
@@ -40,6 +47,10 @@ module DataCycleCore
     end
 
     private
+
+    def honeypot_params
+      params.permit(*HONEYPOT_FIELDS)
+    end
 
     def valid_additional_attributes?(additional_attributes)
       (DataCycleCore::Feature::UserRegistration.terms_conditions_url.blank? || additional_attributes&.key?('terms_conditions_at')) &&

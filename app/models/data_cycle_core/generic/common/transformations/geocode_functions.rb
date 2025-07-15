@@ -6,9 +6,9 @@ module DataCycleCore
       module Transformations
         module GeocodeFunctions
           def self.geocode(data, *)
-            return data unless Feature::Geocode.enabled? && data&.key?('address') && data.dig('address', 'postal_code').present? && data.dig('address', 'street_address').present? && data.dig('address', 'address_locality').present? && data['location'].blank?
+            return data unless DataCycleCore::Feature['Geocode']&.enabled? && data&.key?('address') && data.dig('address', 'postal_code').present? && data.dig('address', 'street_address').present? && data.dig('address', 'address_locality').present? && data['location'].blank?
 
-            location = Feature::Geocode.geocode_address(data['address'])
+            location = DataCycleCore::Feature['Geocode'].geocode_address(data['address'])
 
             if location.is_a?(RGeo::Feature::Point) && location.present?
               data['location'] = location
@@ -21,9 +21,9 @@ module DataCycleCore
           end
 
           def self.reverse_geocode(data, *)
-            return data unless Feature::Geocode.reverse_geocode_enabled? && data&.key?('location') && data['address']&.compact_blank.blank?
+            return data unless DataCycleCore::Feature['Geocode'].reverse_geocode_enabled? && data&.key?('location') && data['address']&.compact_blank.blank?
 
-            address_hash = Feature::Geocode.reverse_geocode(data['location'])
+            address_hash = DataCycleCore::Feature['Geocode'].reverse_geocode(data['location'])
 
             if address_hash.is_a?(DataCycleCore::OpenStructHash) && address_hash.present?
               data['address'] = address_hash.to_h

@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module DownloadBulkTouchFromData
         def self.download_content(utility_object:, options:)
-          DataCycleCore::Generic::Common::DownloadFunctions.bulk_touch_items(
+          DownloadFunctions.bulk_touch_items(
             download_object: utility_object,
             iterator: method(:load_contents).to_proc,
             options:,
@@ -13,8 +13,17 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(**)
-          DataCycleCore::Generic::Common::DownloadDataFromData.load_data_from_mongo(**).pluck('id')
+        def self.load_contents(options: {}, **)
+          data = DownloadDataFromData.load_data_from_mongo(options:, **)
+
+          if options.dig(:download, :data_id_transformation)
+            data.each do |s|
+              s['id'] =
+                DownloadDataFromData.data_id(options.dig(:download, :data_id_transformation), s)
+            end
+          end
+
+          data.pluck('id')
         end
       end
     end

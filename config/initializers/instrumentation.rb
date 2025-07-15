@@ -91,3 +91,18 @@ end
 ActiveSupport::Notifications.subscribe('asset_version_generation_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
   Rails.logger.warn "Asset #{data[:version]} version generation failed for ##{data[:asset].id}: #{data[:exception].message}" if Rails.env.development?
 end
+
+ActiveSupport::Notifications.subscribe('object_import_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'import') do |logger|
+    logger.dc_log(:error, data)
+  end
+end
+
+ActiveSupport::Notifications.subscribe(/(download|import|export)_faulty_items_processing_report.datacycle/) do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: data[:namespace]) do |logger|
+    data[:faulty_items].each do |faulty_item|
+      text = faulty_item[:log_message].presence || faulty_item.to_json
+      logger.dc_log(:warn, text)
+    end
+  end
+end

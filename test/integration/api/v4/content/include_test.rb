@@ -31,7 +31,9 @@ module DataCycleCore
               'opening_hours_description',
               'schedule',
               'sd_publisher',
-              'external_content_score'
+              'external_content_score',
+              'linked_in_text',
+              'linked_to_text'
             ]
           end
 

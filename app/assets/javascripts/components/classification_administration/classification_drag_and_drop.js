@@ -1,8 +1,8 @@
 import { Sortable } from "sortablejs";
-import { CancelSortPlugin } from "../sortable/cancel_sort_plugin";
-Sortable.mount(CancelSortPlugin());
 import CalloutHelpers from "../../helpers/callout_helpers";
 import ConfirmationModal from "../confirmation_modal";
+import { CancelSortPlugin } from "../sortable/cancel_sort_plugin";
+Sortable.mount(CancelSortPlugin());
 
 class ClassificationDragAndDrop {
 	constructor(item) {
@@ -161,7 +161,7 @@ class ClassificationDragAndDrop {
 				text: await I18n.translate(
 					"classification_administration.move.confirm_tree_label_id",
 				),
-				confirmationClass: "alert",
+				confirmationClass: "warning",
 				cancelable: true,
 				confirmationCallback: this.sendMoveRequest.bind(this, element),
 				cancelCallback: () => {

@@ -7,8 +7,6 @@ module DataCycleCore
     PRIORITY = 12
     WEBHOOK_PRIORITY = 6
 
-    REFERENCE_TYPE = 'write_exif_data'
-
     EXIF_ARRAY_DATA_TYPES = ['Keywords', 'Subject'].freeze
 
     queue_as :cache_invalidation
@@ -21,12 +19,8 @@ module DataCycleCore
       arguments[0]
     end
 
-    def delayed_reference_type
-      REFERENCE_TYPE
-    end
-
     def perform(content_id)
-      update_exif_values DataCycleCore::Thing.find_by(id: content_id)
+      update_exif_values(DataCycleCore::Thing.find(content_id))
     end
 
     private
@@ -35,9 +29,11 @@ module DataCycleCore
       asset = thing&.asset
       return if asset.blank?
 
-      asset_path = asset.file.service.path_for(asset.file.key)
+      asset_path = asset.file&.service&.path_for(asset.file.key)
 
-      exif_data = MiniExiftool.new(asset_path, { replace_invalid_chars: true, ignore_minor_errors: true })
+      raise ActiveRecord::RecordNotFound, "Asset not found for content ID: #{thing.id}" if asset_path.blank?
+
+      exif_data = MiniExiftool.new(asset_path, { replace_invalid_chars: '', ignore_minor_errors: true })
 
       updated_values = {}
 

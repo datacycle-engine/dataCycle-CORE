@@ -66,7 +66,7 @@ module DataCycleCore
                   'longitude' => @content.longitude,
                   'latitude' => @content.latitude,
                   'elevation' => @content.elevation
-                }
+                }.compact
                 assert_equal(geo, json_data['geo'])
 
                 # TODO: (move to Transformations tests)

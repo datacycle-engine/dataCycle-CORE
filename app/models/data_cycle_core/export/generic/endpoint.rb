@@ -17,6 +17,7 @@ module DataCycleCore
         def content_request(utility_object:, data:)
           method = utility_object.http_method
           path = utility_object.transformed_path(data)
+          ess = data.try(:external_system_sync_by_system, external_system: utility_object.external_system)
           transformation = utility_object.transformation
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
@@ -28,6 +29,9 @@ module DataCycleCore
             else
               transformed_data = transformations.try(transformation, utility_object, data)
             end
+
+            exported_data = transformed_data.is_a?(::Hash) ? transformed_data : JSON.parse(transformed_data) rescue nil # rubocop:disable Style/RescueModifier
+            ess&.update(exported_data:)
 
             @response = Faraday.run_request(
               method,

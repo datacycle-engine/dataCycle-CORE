@@ -24,6 +24,20 @@ module DataCycleCore
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 
+          def add_content_header_fields(array)
+            expanded_fields = array.dup
+            expanded_fields += ['dct:modified', 'dct:created', 'dc:touched', 'dc:entityUrl']
+
+            array.each do |field|
+              expanded_fields += ["#{field}.dct:modified"]
+              expanded_fields += ["#{field}.dct:created"]
+              expanded_fields += ["#{field}.dc:touched"]
+              expanded_fields += ["#{field}.dc:entityUrl"]
+            end
+
+            expanded_fields
+          end
+
           test 'concepts at /api/v4/things/:id serializes with only minimal header' do
             get api_v4_thing_path(id: @content.id)
             assert_response :success
@@ -117,6 +131,44 @@ module DataCycleCore
               assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
             end
             assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
+          end
+
+          test 'testing fields for wildcard - nested classification fields' do
+            fields = ['*', 'dc:classification.*', 'dc:classification.skos:inScheme.*', 'dc:classification.skos:topConceptOf.*']
+            includes = ['dc:classification', 'dc:classification.skos:inScheme', 'dc:classification.skos:topConceptOf']
+
+            get api_v4_thing_path(id: @content.id, fields: nil, include: add_content_header_fields(includes)&.join(','))
+            assert_response(:success)
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data_includes = response.parsed_body['@graph'].first
+
+            get api_v4_thing_path(id: @content.id, fields: fields&.join(','), include: nil)
+            assert_response(:success)
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data_wildcard = response.parsed_body['@graph'].first
+
+            assert_equal(json_data_includes.keys.sort, json_data_wildcard.keys.sort)
+            assert_equal(json_data_includes['dc:classification'].first.keys.sort, json_data_wildcard['dc:classification'].first.keys.sort)
+            assert_equal(json_data_includes['dc:classification'][0]['skos:inScheme'].keys.sort, json_data_wildcard['dc:classification'][0]['skos:inScheme'].keys.sort)
+            assert_equal(json_data_includes['dc:classification'][0]['skos:topConceptOf'].keys.sort, json_data_wildcard['dc:classification'][0]['skos:topConceptOf'].keys.sort)
+          end
+
+          test 'testing fields for wildcard - dc:classification' do
+            fields = ['dc:classification.*']
+            includes = ['dc:classification']
+
+            get api_v4_thing_path(id: @content.id, fields: nil, include: add_content_header_fields(includes)&.join(','))
+            assert_response(:success)
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data_includes = response.parsed_body['@graph'].first
+
+            get api_v4_thing_path(id: @content.id, fields: fields&.join(','), include: nil)
+            assert_response(:success)
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data_wildcard = response.parsed_body['@graph'].first
+
+            assert_equal(['@id', '@type', 'dc:classification'], json_data_wildcard.keys.sort)
+            assert_equal(json_data_includes['dc:classification'].first.keys.sort, json_data_wildcard['dc:classification'].first.keys.sort)
           end
         end
       end

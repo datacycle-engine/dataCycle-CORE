@@ -1,16 +1,16 @@
 <% I18n.with_locale(local_assigns.fetch(:locale, I18n.locale)) do %>
-  <% if content.content_warnings? && local_assigns[:text] %>
-    <p class="content-warnings-text">
-      <i class="fa fa-exclamation-triangle<%= ' alert' if content.hard_content_warnings? %>" aria-hidden="true"></i>
-      <strong><%= t('common.warnings', locale: active_ui_locale) %>: </strong>
-      <%= content_warning_text(content).join(', ') %>
-    </p>
-  <% elsif content.content_warnings? %>
-    <%= tag.i class: 'fa fa-exclamation-triangle content-warning',
+  <% if content.content_warnings? %>
+    <% if local_assigns[:text] %>
+      <div class="content-warning-text callout <%= content_warning_class(content) %>">
+        <%= content_warning_text(content) %>
+      </div>
+    <% else %>
+      <%= tag.i class: "fa fa-exclamation-triangle #{content_warning_class(content)}",
       aria_hidden: true,
       data: {
-        dc_tooltip: content_warning_text(content).join('<br>'),
-        title: content_warning_text(content).join('<br>')
+        dc_tooltip: content_warning_text(content),
+        title: content_warning_text(content)
       } %>
+    <% end %>
   <% end %>
 <% end %>

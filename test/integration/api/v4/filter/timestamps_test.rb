@@ -239,6 +239,118 @@ module DataCycleCore
             @food_establishment_a.update_column(:updated_at, orig_ts)
           end
 
+          test 'api/v4/things parameter filter[:dc:touched]' do
+            orig_ts = @food_establishment_a.cache_valid_since
+            @food_establishment_a.update_column(:cache_valid_since, 10.days.from_now)
+
+            params = {}
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count)
+
+            params = {
+              fields: 'dc:touched',
+              filter: {
+                attribute: {
+                  'dc:touched': {
+                    in: {
+                      min: 5.days.from_now.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(1)
+
+            json_data = response.parsed_body
+            assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
+
+            params = {
+              fields: 'dc:touched',
+              filter: {
+                attribute: {
+                  'dc:touched': {
+                    in: {
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(1)
+
+            @food_establishment_a.update_column(:cache_valid_since, 10.days.ago)
+            params = {
+              fields: 'dc:touched',
+              filter: {
+                attribute: {
+                  'dc:touched': {
+                    in: {
+                      max: 5.days.ago.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(1)
+
+            @food_establishment_a.update_column(:cache_valid_since, 10.days.from_now)
+            params = {
+              fields: 'dc:touched',
+              filter: {
+                attribute: {
+                  'dc:touched': {
+                    notIn: {
+                      min: 5.days.from_now.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count - 1)
+
+            params = {
+              fields: 'dc:touched',
+              filter: {
+                attribute: {
+                  'dc:touched': {
+                    notIn: {
+                      min: 5.days.from_now.to_fs(:iso8601),
+                      max: 12.days.from_now.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count - 1)
+
+            @food_establishment_a.update_column(:cache_valid_since, 10.days.ago)
+            params = {
+              fields: 'dc:touched',
+              filter: {
+                attribute: {
+                  'dc:touched': {
+                    in: {
+                      max: 5.days.ago.to_fs(:iso8601)
+                    },
+                    notIn: {
+                      max: 15.days.ago.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(1)
+
+            @food_establishment_a.update_column(:cache_valid_since, orig_ts)
+          end
+
           test 'api/v4/things parameter filter[:dct:modified] + filter[:dct:created]' do
             orig_ts = @food_establishment_a.updated_at
             @food_establishment_a.update_column(:updated_at, 10.days.from_now)

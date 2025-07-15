@@ -53,13 +53,13 @@ module DataCycleCore
           presence_check.present? ? presence_check.all? { |p| data.try(p).present? } : true
         end
 
-        def self.filter_template_names(data:, external_system:, method_name:)
+        def self.filter_template_names(data:, external_system:, method_name:) # rubocop:disable Naming/PredicateMethod
           template_names = Array.wrap(external_system.export_config_by_filter_key(method_name, 'template_names'))
 
           template_names.present? ? data.template_name.in?(template_names) : true
         end
 
-        def self.filter_external_system_names(data:, external_system:, method_name:)
+        def self.filter_external_system_names(data:, external_system:, method_name:) # rubocop:disable Naming/PredicateMethod
           external_system_names = Array.wrap(external_system.export_config_by_filter_key(method_name, 'external_systems'))
 
           external_system_names.present? ? data.external_source&.identifier&.in?(external_system_names) : true
@@ -86,7 +86,7 @@ module DataCycleCore
           return true if filter_conf.blank?
 
           Array.wrap(filter_conf)
-            .map { |f| DataCycleCore::StoredFilter.find(f).apply.query.exists?(id: data.id) }
+            .map { |f| DataCycleCore::StoredFilter.by_id_or_slug(f).first!&.things&.exists?(id: data.id) }
             .reduce(&:|)
         end
 

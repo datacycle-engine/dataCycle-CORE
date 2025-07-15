@@ -97,6 +97,29 @@ module DataCycleCore
           end
         end
       end
+
+      def change_primary_system(new_external_system, new_external_key)
+        external_system_syncs.detect { |s|
+          s.external_system_id == new_external_system.id &&
+            s.external_key == new_external_key
+        }&.mark_for_destruction
+
+        if external_source_id.present? && external_system_syncs.none? do |s|
+          s.external_system_id == external_source_id &&
+          s.external_key == external_key &&
+          s.sync_type == 'duplicate'
+        end
+          external_system_syncs.build(
+            external_system_id: external_source_id,
+            external_key: external_key,
+            sync_type: 'duplicate',
+            status: 'success'
+          )
+        end
+
+        self.external_key = new_external_key
+        self.external_source_id = new_external_system.id
+      end
     end
   end
 end

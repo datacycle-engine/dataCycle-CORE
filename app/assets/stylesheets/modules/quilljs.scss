@@ -74,7 +74,13 @@ $fa-font-path: '/assets';
 
     &.dc--contentlink-tooltip {
       &::before {
-        content: 'dataCycle-Referenz:';
+        display: none;
+      }
+
+      .ql-preview {
+        button.show-objectbrowser {
+          display: none;
+        }
       }
     }
 
@@ -182,27 +188,20 @@ $fa-font-path: '/assets';
 
     .ql-contentlink {
       path {
-        transition: fill 0.25s ease-out;
+        transition: fill 0.1s linear;
       }
 
-      .st1 {
-        fill: #e6007e;
-      }
-
-      .st0 {
-        fill: #009fe3;
-      }
-
-      .st3 {
-        fill: #333;
+      #path1,
+      #path2 {
+        fill: #221c36;
       }
 
       &.ql-active,
       &:hover {
 
-        .st0,
-        .st3 {
-          fill: #009fe3;
+        #path1,
+        #path2 {
+          fill: #FFCC00;
         }
       }
 
@@ -336,4 +335,10 @@ $fa-font-path: '/assets';
   color: #e6007e;
   border-bottom: 1px dotted;
   cursor: help;
+}
+
+.quill-editor {
+  .object-browser-container {
+    display: none;
+  }
 }

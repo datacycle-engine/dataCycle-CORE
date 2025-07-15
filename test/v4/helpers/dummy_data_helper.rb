@@ -25,6 +25,9 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
           data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
+
+        data_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['latitude'].present? && data_hash['longitude'].present?
+
         DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash:, user: @user)
       end
 
@@ -41,6 +44,9 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
           data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
+
+        data_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['latitude'].present? && data_hash['longitude'].present?
+
         DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash:, user: @user)
       end
 
@@ -62,6 +68,9 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
           data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
+
+        data_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['latitude'].present? && data_hash['longitude'].present?
+
         DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash:, user: @user)
       end
 
@@ -274,6 +283,12 @@ module DataCycleCore
           data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash:, user: @user)
+      end
+
+      def charging_station
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'charging_station')
+        data_hash['name'] = "carging_station_#{SecureRandom.uuid}"
+        DataCycleCore::TestPreparations.create_content(template_name: 'Ladestation', data_hash:, user: @user)
       end
 
       def offer

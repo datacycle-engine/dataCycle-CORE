@@ -4,8 +4,7 @@ default_options = {
   include: @include_parameters,
   fields: @fields_parameters,
   field_filter: @field_filter,
-  languages: @language,
-  full: true
+  languages: @language
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?

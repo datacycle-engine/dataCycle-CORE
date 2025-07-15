@@ -14,11 +14,10 @@ module DataCycleCore
 
             return if properties['default_value'].is_a?(::Hash) && properties.dig('default_value', 'condition').present? && !properties.dig('default_value', 'condition').all? { |k, v| send(:"condition_#{k}", current_user, v, content) }
 
-            if properties['default_value'].is_a?(::String) && properties['type'] == 'classification'
+            case properties['default_value']
+            when ::String, ::Numeric, ::TrueClass, ::FalseClass
+              return data_hash[key] = properties['default_value'] if properties['type'] != 'classification'
               method_name = DataCycleCore::Utility::DefaultValue::Classification.method(:by_name)
-            elsif properties['default_value'].is_a?(::String) || properties['default_value'].is_a?(::Numeric)
-              data_hash[key] = properties['default_value']
-              return
             else
               method_name = DataCycleCore::ModuleService
                 .load_module(properties.dig('default_value', 'module').classify, 'Utility::DefaultValue')
@@ -43,15 +42,15 @@ module DataCycleCore
 
           private
 
-          def condition_user(user, config, _content)
+          def condition_user(user, config, _content) # rubocop:disable Naming/PredicateMethod
             user&.is_rank?(config['rank'].to_i) if config&.dig('rank').present?
           end
 
-          def condition_except_content_type(_user, config, content)
+          def condition_except_content_type(_user, config, content) # rubocop:disable Naming/PredicateMethod
             content.content_type != config
           end
 
-          def condition_schema_key_present(_user, config, content)
+          def condition_schema_key_present(_user, config, content) # rubocop:disable Naming/PredicateMethod
             content.schema.key?(config)
           end
 

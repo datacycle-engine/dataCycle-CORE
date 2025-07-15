@@ -4,7 +4,7 @@
               class: 'download-content-form',
               namespace: SecureRandom.hex(10) do |f| %>
 
-  <fieldset class="active template">
+  <fieldset class="active template reveal-body">
     <legend><%= t('common.choose_language', locale: active_ui_locale) %></legend>
     <div class="form-element">
       <div class="v-select white">
@@ -23,7 +23,7 @@
     </div>
   </fieldset>
 
-  <fieldset class="active serialize_formats">
+  <fieldset class="active serialize_formats reveal-body">
     <legend><%= t('common.download.available_formats', locale: active_ui_locale) %></legend>
     <div class="form-element">
       <% available_download_serializers(content).each_key.with_index do |serializer_key, i| %>
@@ -36,7 +36,7 @@
   </fieldset>
 
   <% if available_download_serializers(content).key?('asset') %>
-    <fieldset class="active version hidden">
+    <fieldset class="active version hidden reveal-body">
       <legend><%= t('common.download.available_versions', locale: active_ui_locale) %></legend>
       <div class="form-element">
         <% (DataCycleCore::Asset::DEFAULT_ASSET_VERSIONS + Array.wrap(content.asset&.versions&.keys)).uniq.each_with_index do |version, i| %>
@@ -49,7 +49,7 @@
       </div>
     </fieldset>
     <% DataCycleCore::Feature::Serialize.asset_versions(content)&.each do |key, value| %>
-      <fieldset class="active transformation hidden <%= key %>">
+      <fieldset class="active transformation hidden <%= key %> reveal-body">
         <legend><%= t('common.download.available_transformations', locale: active_ui_locale) %></legend>
         <div class="form-element">
 
@@ -65,10 +65,13 @@
     <% end %>
   <% end %>
 
-  <div class="buttons">
-    <%= button_tag 'download',
-                       type: :submit,
-                       class: "button submit" %>
+  <div class="buttons reveal-footer">
+    <%= button_tag safe_join([
+        'download',
+        tag.i(class: 'fa fa-download')
+      ]),
+      type: :submit,
+      class: "button submit" %>
   </div>
 
 <% end %>

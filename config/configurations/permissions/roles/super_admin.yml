@@ -9,7 +9,9 @@ manage_subjects:
       - :cache
       - :report
       - DataCycleCore::ClassificationTreeLabel
+      - DataCycleCore::ConceptScheme
       - DataCycleCore::ClassificationAlias
+      - DataCycleCore::Concept
       - DataCycleCore::User
       - DataCycleCore::UserGroup
       - DataCycleCore::DataLink
@@ -63,7 +65,6 @@ thing_actions:
     - history
     - merge_duplicates
     - remove_lock
-    - set_life_cycle
     - view_life_cycle
     - move_content
     - switch_primary_external_system
@@ -72,6 +73,11 @@ thing_actions:
     - remove_external_connection
   segment: SubjectByConditions
   parameters: DataCycleCore::Thing
+
+life_cycle_actions:
+  actions:
+    - set_life_cycle
+  segment: LifeCycleIsEditable
 
 translate_feature:
   actions: translate

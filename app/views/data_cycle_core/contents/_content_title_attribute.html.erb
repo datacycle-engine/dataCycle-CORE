@@ -1,11 +1,12 @@
 <div class="translatable-attribute-container">
-  <div class="translatable-attribute active <%= I18n.locale.to_s %>">
-    <%= render_specific_translatable_title_attribute_viewer(
+  <%= tag.div(
+    render_specific_translatable_title_attribute_viewer(
           key: key,
           locale: I18n.locale,
           content: content
-        ) %>
-  </div>
+        ),
+    class: "translatable-attribute active #{I18n.locale.to_s}"
+  ) -%>
 
   <% content&.translated_locales&.except(I18n.locale)&.each do |a_locale| %>
     <div class="translatable-attribute remote-render <%= a_locale.to_s %>"
@@ -14,7 +15,6 @@
         locale: a_locale,
         key: key,
         content: content
-      ).to_json %>">
-    </div>
+      ).to_json %>"></div>
   <% end %>
 </div>

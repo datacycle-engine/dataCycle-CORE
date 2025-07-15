@@ -21,7 +21,7 @@ module DataCycleCore
         end
 
         def allowed?(content, locale, source_locale, user)
-          super(content) && allowed_languages.include?(locale.to_s) && allowed_languages.include?(source_locale.to_s) && user&.can?(:translate, content)
+          super(content) && target_locale_allowed?(locale) && source_locale_allowed?(source_locale) && user&.can?(:translate, content)
         end
 
         def external_source
@@ -39,13 +39,31 @@ module DataCycleCore
         end
 
         def allowed_attribute?(content, key, locale, user)
-          enabled? && allowed_languages.include?(locale.to_s) && configuration(content, key)[:inline] && user&.can?(:translate, content)
+          enabled? && target_locale_allowed?(locale) && configuration(content, key)[:inline] && user&.can?(:translate, content)
         end
 
-        def allowed_languages
-          configured_languages = Array.wrap(configuration[:allowed_languages]).map(&:to_s)
-          available_locales = I18n.available_locales.map(&:to_s)
-          configured_languages & available_locales
+        def allowed_target_languages
+          return [] if external_source.blank?
+
+          allowed_target_languages = configuration[:endpoint].safe_constantize.try(:allowed_target_languages) || I18n.available_locales
+
+          allowed_target_languages.map(&:to_s) & I18n.available_locales.map(&:to_s)
+        end
+
+        def allowed_source_languages
+          return [] if external_source.blank?
+
+          allowed_source_languages = configuration[:endpoint].safe_constantize.try(:allowed_source_languages) || I18n.available_locales
+
+          allowed_source_languages.map(&:to_s) & I18n.available_locales.map(&:to_s)
+        end
+
+        def target_locale_allowed?(locale)
+          allowed_target_languages.intersect?([locale.to_s, locale.to_s.split('-').first])
+        end
+
+        def source_locale_allowed?(locale)
+          allowed_source_languages.intersect?([locale.to_s, locale.to_s.split('-').first])
         end
       end
     end

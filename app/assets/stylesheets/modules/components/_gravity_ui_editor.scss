@@ -34,9 +34,17 @@
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
 }
 
-.gravity-ui .thumb {
+.image-container .thumb {
   width: fit-content;
   margin: 0 auto;
+  position: relative;
+
+  &.editing {
+    a.link-to-image {
+      cursor: default;
+      pointer-events: none;
+    }
+  }
 }
 
 .gravity-editor-hint {

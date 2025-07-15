@@ -11,6 +11,7 @@ module DataCycleCore
           restore_classification_contents
           restore_content_contents
           restore_schedules
+          restore_geometries
 
           content.search_languages(true)
         end
@@ -19,19 +20,21 @@ module DataCycleCore
       private
 
       def restore_content
+        content = DataCycleCore::Thing.create!(attributes.slice(*DataCycleCore::Thing.column_names).merge(
+                                                 'id' => thing_id,
+                                                 'version_name' => I18n.t('history.restored', date: I18n.l(Time.zone.now, format: :edit)),
+                                                 'created_at' => DataCycleCore::Thing::History.order(created_at: :asc).find_by(thing_id:)&.created_at
+                                               ))
+
         translations.each do |translated_entry|
           DataCycleCore::Thing::Translation.create!(translated_entry.attributes.slice(*DataCycleCore::Thing::Translation.column_names.except('id')).merge('thing_id' => thing_id))
         end
 
-        DataCycleCore::Thing.create!(attributes.slice(*DataCycleCore::Thing.column_names).merge(
-                                       'id' => thing_id,
-                                       'version_name' => I18n.t('history.restored', date: I18n.l(Time.zone.now, format: :edit)),
-                                       'created_at' => DataCycleCore::Thing::History.order(created_at: :asc).find_by(thing_id:)&.created_at
-                                     ))
+        content
       end
 
       def restore_classification_contents
-        classification_content_history.where.not(classification_id: nil).find_each do |clc_history|
+        classification_content_histories.where.not(classification_id: nil).find_each do |clc_history|
           DataCycleCore::ClassificationContent.create!(clc_history.attributes.slice(*DataCycleCore::ClassificationContent.column_names.except('id')).merge('content_data_id' => thing_id))
         rescue ActiveRecord::RecordNotUnique
           nil
@@ -63,6 +66,14 @@ module DataCycleCore
       def restore_schedules
         scheduled_history_data.each do |schedule_history|
           DataCycleCore::Schedule.create!(schedule_history.attributes.slice(*DataCycleCore::Schedule.column_names.except('id')).merge('thing_id' => thing_id))
+        rescue ActiveRecord::RecordNotUnique
+          nil
+        end
+      end
+
+      def restore_geometries
+        geometry_histories.each do |geometry_history|
+          DataCycleCore::Geometry.create!(geometry_history.attributes.slice(*DataCycleCore::Geometry.column_names.except('id')).merge('thing_id' => thing_id))
         rescue ActiveRecord::RecordNotUnique
           nil
         end

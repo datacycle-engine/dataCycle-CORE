@@ -22,6 +22,7 @@ module DataCycleCore
             @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:'dct:deleted')
             @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
           end
+          @classification_tree_labels = @classification_tree_labels.search(@full_text_search) if @full_text_search
           @classification_tree_labels = apply_ordering(@classification_tree_labels)
           @classification_tree_labels = apply_paging(@classification_tree_labels)
         end
@@ -47,6 +48,9 @@ module DataCycleCore
             @classification_aliases = apply_filters(@classification_aliases, filter)
           end
 
+          @classification_aliases = @classification_aliases.includes(:classification_polygons) if helpers.included_attribute?('geo', @fields_parameters + @include_parameters)
+
+          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
           @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
           @classification_aliases = apply_ordering(@classification_aliases)
           @classification_aliases = apply_paging(@classification_aliases)
@@ -100,6 +104,7 @@ module DataCycleCore
             @classification_aliases = @classification_aliases.where(id: permitted_params[:classification_ids].split(','))
           end
 
+          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
           @classification_aliases = apply_order_query(@classification_aliases, permitted_params[:sort])
           @classification_aliases = apply_paging(@classification_aliases)
           @classification_aliases = @classification_aliases.includes(:classification_tree_label)
@@ -129,6 +134,7 @@ module DataCycleCore
           end
 
           @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
+          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
           @classification_aliases = apply_ordering(@classification_aliases)
           @classification_aliases = apply_paging(@classification_aliases)
         end
@@ -141,6 +147,8 @@ module DataCycleCore
           if action_name == 'index'
             {
               filter: [
+                :search,
+                :q,
                 {
                   attribute: {
                     'dct:modified': attribute_filter_operations,
@@ -225,16 +233,17 @@ module DataCycleCore
         end
 
         def apply_broader_filter(query, attribute_path, k, v)
-          clean_ids = v.grep_v(NULL_REGEX)
+          flattened_v = v.flat_map { |v| v.split(',') }.map(&:strip)
+          clean_ids = flattened_v.grep_v(NULL_REGEX)
           query_strings = []
 
           if k == :in
             query_strings << "classification_trees.#{attribute_path} IN (?)" if clean_ids.present?
-            query_strings << "classification_trees.#{attribute_path} IS NULL" if v.any?(NULL_REGEX)
+            query_strings << "classification_trees.#{attribute_path} IS NULL" if flattened_v.any?(NULL_REGEX)
             where_part = query_strings.join(' OR ')
           elsif k == :notIn
             query_strings << "classification_trees.#{attribute_path} NOT IN (?)" if clean_ids.present?
-            if v.any?(NULL_REGEX)
+            if flattened_v.any?(NULL_REGEX)
               query_strings << "classification_trees.#{attribute_path} IS NOT NULL"
               where_part = query_strings.join(' AND ')
             else
@@ -247,8 +256,9 @@ module DataCycleCore
         end
 
         def apply_ancestor_filter(query, attribute_path, k, v)
+          flattened_v = v.flat_map { |v| v.split(',') }.map(&:strip)
           query = query.joins(:classification_alias_path)
-          where_part = ActiveRecord::Base.send(:sanitize_sql_array, ["classification_alias_paths.#{attribute_path} && ARRAY[?]::UUID[]", v])
+          where_part = ActiveRecord::Base.send(:sanitize_sql_array, ["classification_alias_paths.#{attribute_path} && ARRAY[?]::UUID[]", flattened_v])
 
           if k == :in
             query.where(where_part)
@@ -276,7 +286,6 @@ module DataCycleCore
           if order_query.blank?
             query = query.reorder(nil)
             query = query.order_by_similarity(full_text_search) if full_text_search.present?
-
             query = case query
                     when DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_AssociationRelation), DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_Relation)
                       query.order(order_a: :asc, id: :asc)

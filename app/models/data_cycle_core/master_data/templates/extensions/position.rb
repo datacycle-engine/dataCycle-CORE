@@ -55,7 +55,15 @@ module DataCycleCore
             properties
           end
 
-          def related_keys(k1, p1, k2)
+          def add_sorting!
+            @templates.each do |template|
+              next if template.dig(:data, :properties).blank?
+
+              template[:data][:properties] = add_sorting_recursive!(template[:data][:properties])
+            end
+          end
+
+          def related_keys(k1, p1, k2) # rubocop:disable Naming/PredicateMethod
             (p1.dig('features', 'overlay', 'overlay_for') || p1.dig('features', 'aggregate', 'aggregate_for') || k1) == k2
           end
         end

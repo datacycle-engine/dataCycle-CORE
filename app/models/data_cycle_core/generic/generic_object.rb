@@ -4,7 +4,8 @@ module DataCycleCore
   module Generic
     class GenericObject
       attr_accessor :mode
-      attr_reader :external_source, :options, :source_type, :source_object, :database_name, :logger, :strategy, :locales, :locale, :type, :step_name
+      attr_reader :external_source, :options, :source_type, :source_name, :source_object,
+                  :database_name, :logger, :strategy, :locales, :locale, :type, :step_name
 
       def initialize(**options)
         @options = options.with_indifferent_access
@@ -53,6 +54,14 @@ module DataCycleCore
         step_options.push("[#{Array.wrap(opts[:locales]).join(', ')}]") if opts[:locales].present?
         label.push(step_options.join) if step_options.present?
         label.join(' ')
+      end
+
+      def last_try
+        external_source.last_try(step_name, type)
+      end
+
+      def last_successful_try
+        external_source.last_successful_try(step_name, type)
       end
     end
   end

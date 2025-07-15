@@ -10,7 +10,7 @@ import ConfirmationModal from "../confirmation_modal";
 
 class AssetFile {
 	constructor(uploader, config = {}) {
-		this.id = DomElementHelpers.randomId("asset");
+		this.id = DomElementHelpers.randomId();
 		this.uploaded = config.uploaded;
 		this.file = config.file || {};
 		this.fileUrl = config.fileUrl;
@@ -99,7 +99,7 @@ class AssetFile {
 						? fields
 						: fields.filter(
 								(v) => !v.name.includes(`[${primaryAttributeKey}]`),
-						  ),
+							),
 				);
 			}
 
@@ -336,7 +336,7 @@ class AssetFile {
 	}
 	_updateIdsInClonedErrors(errorText) {
 		let text = errorText;
-		const randomId = DomElementHelpers.randomId("cloned_asset");
+		const randomId = DomElementHelpers.randomId();
 
 		text = text.replaceAll(
 			/(")([^"-]*)(-duplicates-list)/gi,
@@ -364,7 +364,7 @@ class AssetFile {
 		}
 	}
 	async _renderDuplicateHtml(duplicates) {
-		const randomId = DomElementHelpers.randomId("duplicate");
+		const randomId = DomElementHelpers.randomId();
 		return await uploadDuplicate(randomId, duplicates);
 	}
 	_attributesWithBlankDefaultValues() {

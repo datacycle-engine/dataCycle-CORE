@@ -941,6 +941,14 @@ $filter-border: #aaa;
       a.tag:hover {
         background: $alert-color;
       }
+
+      a.open-selection-link {
+        color: var(--white);
+
+        &:hover {
+          color: var(--primary-color)
+        }
+      }
     }
 
     .result-count {
@@ -1224,6 +1232,8 @@ $filter-border: #aaa;
 
         &.search-favorites-short {
           >ul li {
+            display: flex;
+            align-items: center;
             gap: 1rem;
 
             &.search-favorites-list-input {
@@ -1262,7 +1272,11 @@ $filter-border: #aaa;
                 display: flex;
                 flex-flow: column;
                 gap: 0.4rem;
-                overflow: hidden;
+                width: 100%;
+
+                li {
+                  padding: 1rem;
+                }
 
                 &.list-loading {
                   cursor: wait;
@@ -1301,6 +1315,7 @@ $filter-border: #aaa;
               align-items: center;
               justify-content: flex-end;
               z-index: 1;
+              margin-left: auto;
 
               a {
                 position: relative;
@@ -1325,6 +1340,7 @@ $filter-border: #aaa;
         }
 
         &.search-history-short>ul li {
+          padding: 1rem;
 
           .stored-date,
           .api-restrictions {
@@ -1334,6 +1350,102 @@ $filter-border: #aaa;
 
             i.fa {
               font-size: 0.9rem;
+            }
+          }
+
+          >a:not(.button) {
+            flex: 0;
+            padding: 0;
+
+            &:hover .stored-date {
+              color: var(--black);
+            }
+          }
+
+          >a.button {
+            margin: 0;
+          }
+
+          .stored-filter-params {
+            font-size: 0.8rem;
+            color: $dark-gray;
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+            gap: 0.5rem;
+            flex: auto;
+            min-width: 1rem;
+
+            a.open-selection-link {
+              padding: 0;
+              color: var(--white);
+              flex: 0;
+
+              &:hover {
+                color: var(--primary-color)
+              }
+            }
+
+            .tag-group {
+              color: var(--black);
+              display: flex;
+              align-items: center;
+              gap: 0.3rem;
+              border-radius: $global-radius;
+              padding: 2px 4px;
+              background-color: lighten($dark-gray, 32%);
+              box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
+              max-width: 100%;
+
+              .tag {
+                font-style: normal;
+                padding: 0 0.3rem;
+                line-height: 1.2rem;
+                border-radius: $global-radius;
+              }
+
+              &.e,
+              &.u,
+              &.b {
+                background-color: lighten($alert-color, 41%);
+                box-shadow: 0 0 0 1px lighten($alert-color, 20%);
+
+                .tag {
+                  position: relative;
+
+                  &::after {
+                    content: '';
+                    display: block;
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    border-bottom: 1px solid;
+                    width: calc(100% - 0.4rem);
+                    margin: 0 0.2rem;
+                  }
+                }
+              }
+
+              &.i,
+              &.s,
+              &.p {
+                background-color: lighten($success-color, 36%);
+                box-shadow: 0 0 0 1px lighten($success-color, 3%);
+              }
+
+              &.user-force-filter {
+                background-color: lighten($dark-gray, 32%);
+                box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
+              }
+
+              &.language {
+                background-color: lighten($primary-color, 55%);
+                box-shadow: 0 0 0 1px lighten($primary-color, 25%);
+
+                .tag {
+                  background-color: lighten($primary-color, 2%);
+                }
+              }
             }
           }
         }
@@ -1355,6 +1467,7 @@ $filter-border: #aaa;
           padding: 0.4rem;
           border-radius: $global-radius;
           gap: 0.4rem;
+          cursor: default;
 
           &.remote-render,
           &.remote-rendering {
@@ -1369,15 +1482,17 @@ $filter-border: #aaa;
             background: $white;
             position: relative;
             display: flex;
-            overflow: hidden;
             width: 100%;
+
+            &.search-result-item {
+              overflow: hidden;
+              box-shadow: 0 1px 2px var(--black-01);
+            }
 
             a:not(.button) {
               color: $dark-gray;
-              padding: 1rem;
               display: flex;
               height: 100%;
-              width: 100%;
               transition: background-color ease-out 0.25s, color ease-out 0.25s;
 
               span {
@@ -1423,78 +1538,6 @@ $filter-border: #aaa;
                 &.right {
                   float: right;
                 }
-
-                &.stored-filter-params {
-                  font-size: 0.8rem;
-                  color: $dark-gray;
-                  display: flex;
-                  flex-flow: row wrap;
-                  gap: 0.5rem;
-                  flex: auto;
-                  min-width: 1rem;
-
-                  .tag-group {
-                    color: var(--black);
-                    display: flex;
-                    align-items: center;
-                    gap: 0.3rem;
-                    border-radius: $global-radius;
-                    padding: 2px 4px;
-                    background-color: lighten($dark-gray, 32%);
-                    box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
-                    max-width: 100%;
-
-                    .tag {
-                      font-style: normal;
-                      padding: 0 0.3rem;
-                      line-height: 1.2rem;
-                      border-radius: $global-radius;
-                    }
-
-                    &.e,
-                    &.u,
-                    &.b {
-                      background-color: lighten($alert-color, 41%);
-                      box-shadow: 0 0 0 1px lighten($alert-color, 20%);
-
-                      .tag {
-                        position: relative;
-
-                        &::after {
-                          content: '';
-                          display: block;
-                          position: absolute;
-                          top: 50%;
-                          left: 0;
-                          border-bottom: 1px solid;
-                          width: calc(100% - 0.4rem);
-                          margin: 0 0.2rem;
-                        }
-                      }
-                    }
-
-                    &.i,
-                    &.s,
-                    &.p {
-                      background-color: lighten($success-color, 36%);
-                      box-shadow: 0 0 0 1px lighten($success-color, 3%);
-                    }
-
-                    &.user-force-filter {
-                      background-color: lighten($dark-gray, 32%);
-                      box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
-                    }
-
-                    &.language {
-                      background-color: lighten($primary-color, 55%);
-                      box-shadow: 0 0 0 1px lighten($primary-color, 25%);
-
-                      .tag {
-                        background-color: lighten($primary-color, 2%);
-                      }
-                    }
-                  }
-                }
               }
             }
 
@@ -1521,7 +1564,7 @@ $filter-border: #aaa;
         }
 
         &.active {
-          background-color: darken($white, 2%);
+          background-color: var(--nearly-white-09);
           box-shadow: 0 5px 3px rgba($black, 0.3);
           color: $black;
           border-radius: $global-radius $global-radius 0 0;
@@ -1536,9 +1579,10 @@ $filter-border: #aaa;
             left: 0;
             top: calc(100% - 1px);
             width: 100%;
-            background-color: darken($white, 2%);
+            background-color: var(--nearly-white-09);
             box-shadow: 0 5px 3px rgba($black, 0.3);
             z-index: 3;
+            backdrop-filter: blur(5px);
           }
 
           &::after {

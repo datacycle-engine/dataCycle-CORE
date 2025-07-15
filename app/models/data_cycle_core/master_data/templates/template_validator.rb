@@ -12,8 +12,8 @@ module DataCycleCore
           @templates = templates
           @template_header_contract = TemplateHeaderContract.new
           @template_property_contract = TemplatePropertyContract.new
-          @all_templates = @templates.values.flatten
-          @existing_template_names = @all_templates.pluck(:name)
+          @object_property_contract = ObjectPropertyContract.new
+          @existing_template_names = @templates.pluck(:name)
           @overlay_key = DataCycleCore.features.dig('overlay', 'attribute_keys')&.first
           @errors = []
         end
@@ -25,17 +25,15 @@ module DataCycleCore
         def validate
           return [] if @templates.blank?
 
-          @templates.each do |set, templates|
-            templates.each do |template|
-              prefix = [set, template[:name]]
-              result_header = @template_header_contract.call(template)
-              merge_errors!(result_header, prefix + [:header])
+          @templates.each do |template|
+            prefix = [template[:set], template[:name]]
+            result_header = @template_header_contract.call(template)
+            merge_errors!(result_header, prefix + [:header])
 
-              validate_properties!(template[:data], prefix)
-              validate_translatable_embedded!(template, prefix)
-              validate_property_names!(template.dig(:data, :properties), prefix)
-              validate_overlay_properties(template[:data], prefix)
-            end
+            validate_properties!(template[:data], prefix)
+            validate_translatable_embedded!(template, prefix)
+            validate_property_names!(template.dig(:data, :properties), prefix)
+            validate_overlay_properties(template[:data], prefix)
           end
 
           @errors
@@ -50,7 +48,7 @@ module DataCycleCore
         def validate_overlay_properties(template, prefix)
           return if @overlay_key.blank?
 
-          belongs_to_templates = @all_templates.filter { |t| t.dig(:data, :features, :overlay, :allowed) && template[:name] == t.dig(:data, :properties, @overlay_key, 'template_name') }
+          belongs_to_templates = @templates.filter { |t| t.dig(:data, :features, :overlay, :allowed) && template[:name] == t.dig(:data, :properties, @overlay_key, 'template_name') }
 
           return if belongs_to_templates.blank?
 
@@ -74,12 +72,10 @@ module DataCycleCore
         end
 
         def validate_translatable_embedded!(template, prefix)
-          template_list = @templates.values.flatten
-
           template.dig(:data, :properties).each do |key, value|
             next if value[:type] != 'embedded'
 
-            embedded_template = template_list.find { |t| t[:name] == value[:template_name] }
+            embedded_template = @templates.find { |t| t[:name] == value[:template_name] }
 
             next if embedded_template.nil? || translatable_properties?(embedded_template.dig(:data, :properties))
             next if value[:translated]
@@ -88,17 +84,13 @@ module DataCycleCore
           end
         end
 
-        def validate_properties!(template, prefix)
+        def validate_properties!(template, prefix, contract = @template_property_contract)
           template[:properties].each do |key, definition|
-            @template_property_contract.property_name = key
-            result_property = @template_property_contract.call(definition)
+            contract.property_name = key
+            result_property = contract.call(definition)
             merge_errors!(result_property, prefix + [:properties, key])
 
-            if definition.key?(:properties)
-              @template_property_contract.nested_property = true
-              validate_properties!(definition, prefix + [:properties, key]) if definition.key?(:properties)
-              @template_property_contract.nested_property = false
-            end
+            validate_properties!(definition, prefix + [:properties, key], @object_property_contract) if definition.key?(:properties)
 
             validate_linked_template!(definition, prefix + [:properties, key]) if definition.key?(:template_name)
 

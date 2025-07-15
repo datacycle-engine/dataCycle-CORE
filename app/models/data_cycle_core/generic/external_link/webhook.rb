@@ -8,7 +8,7 @@ module DataCycleCore
       class Webhook < DataCycleCore::Generic::Common::Webhook
         def update(raw_data, external_system)
           validator = Contract.new
-          errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h || {}
+          errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h
           return { error: errors } if errors.present?
           data = DataCycleCore::Generic::ExternalLink::Transformations.transformation(external_system.id).call(raw_data)
 
@@ -27,7 +27,7 @@ module DataCycleCore
 
         def delete(raw_data, external_system)
           validator = Contract.new
-          errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h || {}
+          errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h
           return { error: errors } if errors.present?
           data = DataCycleCore::Generic::ExternalLink::Transformations.transformation(external_system.id).call(raw_data)
 

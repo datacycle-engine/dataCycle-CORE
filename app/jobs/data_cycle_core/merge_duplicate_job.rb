@@ -6,16 +6,10 @@ module DataCycleCore
     # @provider_job_id to be available in the perform actions and callbacks!!
     # it is available in the enque-callbacks
 
-    REFERENCE_TYPE = 'merge_duplicates'
-
     queue_as :default
 
     def delayed_reference_id
       "#{arguments[0]}_#{arguments[1]}"
-    end
-
-    def delayed_reference_type
-      REFERENCE_TYPE
     end
 
     def perform(original_id, duplicate_id)
@@ -48,7 +42,7 @@ module DataCycleCore
 
         content.to_history
         update_contents.each do |c|
-          c.update_columns(updated_at: save_time, updated_by: nil)
+          c.update_columns(updated_at: save_time, updated_by: nil, cache_valid_since: save_time)
         end
         linked_content.update_column(:content_b_id, original.id)
         content.send(:execute_update_webhooks) unless content.embedded?
@@ -61,8 +55,16 @@ module DataCycleCore
 
       ActiveRecord::Base.transaction do
         duplicate.original_id = original.id
-        duplicate_sync_query(duplicate.id, original.id)
+        duplicate_sync_query(duplicate, original)
+
+        duplicate_thing_history_links = duplicate.thing_history_links
+
+        original.thing_history_links << duplicate_thing_history_links
+
         duplicate.destroy
+        duplicate_delete_history = DataCycleCore::Thing::History.where(id: duplicate.history_ids).where.not(deleted_at: nil)
+
+        DataCycleCore::ThingHistoryLink.create!(thing_id: original.id, thing_history_id: duplicate_delete_history.first.id) if duplicate_delete_history.present?
 
         if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
           duplicate_external_key.split(';').compact_blank.each do |d_external_key|
@@ -74,7 +76,7 @@ module DataCycleCore
 
     private
 
-    def duplicate_sync_query(duplicate_id, original_id)
+    def duplicate_sync_query(duplicate, original)
       column_names = DataCycleCore::ExternalSystemSync
         .column_names
         .except(['id', 'sync_type', 'syncable_id'])
@@ -87,7 +89,7 @@ module DataCycleCore
 
       insert_columns = column_names + [
         "'#{DataCycleCore::ExternalSystemSync::DUPLICATE_SYNC_TYPE}' AS sync_type",
-        "'#{original_id}'::UUID AS syncable_id"
+        "'#{original.id}'::UUID AS syncable_id"
       ]
 
       insert_sql = <<-SQL.squish
@@ -96,15 +98,22 @@ module DataCycleCore
         FROM #{DataCycleCore::ExternalSystemSync.table_name}
         WHERE syncable_id = :duplicate_id
         AND syncable_type = :model_name
+        AND NOT (external_system_id = :original_system_id AND external_key = :original_external_key AND sync_type = '#{DataCycleCore::ExternalSystemSync::DUPLICATE_SYNC_TYPE}')
         ON CONFLICT DO NOTHING
       SQL
 
       ActiveRecord::Base.connection.exec_query(
-        ActiveRecord::Base.send(:sanitize_sql_array, [
-                                  insert_sql,
-                                  {duplicate_id:,
-                                   model_name: DataCycleCore::Thing.model_name.to_s}
-                                ])
+        ActiveRecord::Base.send(
+          :sanitize_sql_array, [
+            insert_sql,
+            {
+              duplicate_id: duplicate.id,
+              original_system_id: original.external_source_id,
+              original_external_key: original.external_key,
+              model_name: DataCycleCore::Thing.model_name.to_s
+            }
+          ]
+        )
       )
     end
   end

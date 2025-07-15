@@ -8,7 +8,8 @@ unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
     '@type': 'dcls:User',
     watchLists: @watch_lists.as_json(only: [:id, :name], methods: :path),
     storedFilters: @stored_filter.as_json(only: [:id, :name]),
-    userData: @user_data.as_json(only: [:email])
+    userData: @user_data.as_json(only: [:email]),
+    availableLocales: I18n.available_locales
   }
 end
 

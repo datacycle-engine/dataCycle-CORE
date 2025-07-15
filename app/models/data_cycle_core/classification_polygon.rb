@@ -7,46 +7,47 @@ module DataCycleCore
     def self.to_bbox
       select_sql = <<-SQL.squish
         json_build_object(
-          'xmin', st_xmin(ST_Extent(classification_polygons."geom")),
-          'ymin', st_ymin(ST_Extent(classification_polygons."geom")),
-          'xmax', st_xmax(ST_Extent(classification_polygons."geom")),
-          'ymax', st_ymax(ST_Extent(classification_polygons."geom"))
+          'xmin', st_xmin(ST_Extent(classification_polygons.geom_simple)),
+          'ymin', st_ymin(ST_Extent(classification_polygons.geom_simple)),
+          'xmax', st_xmax(ST_Extent(classification_polygons.geom_simple)),
+          'ymax', st_ymax(ST_Extent(classification_polygons.geom_simple))
         )
       SQL
-      query = reorder(nil).except(:limit, :offset).select(select_sql).to_sql
+      query = reorder(nil).except(:limit, :offset).select(select_sql)
 
-      ActiveRecord::Base.connection.select_all(
-        Arel.sql(query)
-      ).first&.values&.first
+      connection.select_all(query).first&.values&.first
     end
 
     def self.to_mvt(x, y, z, layer_name)
       select_sql = <<-SQL.squish
         classification_polygons.classification_alias_id AS id,
-        ST_Simplify (geom, 0.00001, TRUE) AS geometry,
+        classification_polygons.geom_simple AS geometry,
         array_to_json(ARRAY ['skos:Concept']::VARCHAR []) AS "@type",
         classification_alias.internal_name AS name
       SQL
 
-      query = <<-SQL.squish
-        WITH mvtgeom AS (
-          SELECT ST_AsMVTGeom(
-              ST_Transform(t.geometry, 3857),
-              ST_TileEnvelope(#{z}, #{x}, #{y})
-            ) AS geom,
-            t.id AS "@id",
-            t."@type" AS "@type",
-            t.name AS name
-          FROM (#{reselect(select_sql).joins(:classification_alias).where("ST_Intersects(geom, ST_Transform(ST_TileEnvelope(#{z}, #{x}, #{y}), 4326))").to_sql}) AS t
-        )
-        SELECT ST_AsMVT(mvtgeom, '#{layer_name.presence || 'dcConcepts'}')
-        FROM mvtgeom;
+      outer_select_sql = <<-SQL.squish
+        ST_AsMVTGeom(ST_Transform(t.geometry, 3857), ST_TileEnvelope(#{z}, #{x}, #{y})) AS geom,
+        t.id AS "@id",
+        t."@type" AS "@type",
+        t.name AS name
       SQL
 
-      ActiveRecord::Base.connection.unescape_bytea(
-        ActiveRecord::Base.connection.select_all(
-          Arel.sql(query)
-        ).first&.values&.first
+      query = unscoped.with(
+        mvtgeom: unscoped
+                  .select(outer_select_sql)
+                  .from(
+                    reselect(select_sql)
+                    .joins(:classification_alias)
+                    .where(sanitize_sql(["ST_Intersects(classification_polygons.geom_simple, ST_Transform(ST_TileEnvelope(#{z}, #{x}, #{y}), 4326))"]))
+                    .arel.as('t')
+                  )
+      )
+        .select("ST_AsMVT(mvtgeom, '#{layer_name.presence || 'dcConcepts'}')")
+        .from('mvtgeom')
+
+      connection.unescape_bytea(
+        connection.select_all(query).first&.values&.first
       )
     end
 
@@ -55,10 +56,10 @@ module DataCycleCore
       return count if data.blank?
 
       data.each_slice(1000) do |group|
-        DataCycleCore::ClassificationPolygon.transaction(joinable: false, requires_new: true) do
-          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
-          DataCycleCore::ClassificationPolygon.where(classification_alias_id: group.pluck(:classification_alias_id)).delete_all
-          inserted = DataCycleCore::ClassificationPolygon.insert_all(group, returning: :id)
+        transaction(joinable: false, requires_new: true) do
+          connection.exec_query('SET LOCAL statement_timeout = 0;')
+          where(classification_alias_id: group.pluck(:classification_alias_id)).delete_all
+          inserted = insert_all(group, returning: :id)
           count += inserted.count
         end
       end

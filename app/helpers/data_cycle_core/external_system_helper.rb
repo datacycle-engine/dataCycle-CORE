@@ -3,7 +3,9 @@
 module DataCycleCore
   module ExternalSystemHelper
     def external_systems_tooltip(external_source, external_system_syncs)
-      syncs = external_system_syncs&.joins(:external_system)&.select('external_systems.name')&.group('external_systems.name')&.size || {}
+      syncs = external_system_syncs
+        &.group_by { |sync| sync.external_system.name }
+        &.transform_values(&:size) || {}
 
       unless external_source.nil?
         syncs[external_source.name] = syncs[external_source.name].to_i + 1
@@ -88,6 +90,77 @@ module DataCycleCore
 
         external_system_identifiers.exclude?(data['identifier'])
       }.keys
+    end
+
+    def last_step_status(data)
+      return 'unkown' unless data['last_try'].present? || data['last_successful_try'].present?
+
+      return data['status'] if data['status'].present?
+      return 'finished' if data['last_try'] == data['last_successful_try']
+      return 'running' if data['last_try'].present? && data['last_successful_try'].present? && data['last_try'] > data['last_successful_try']
+
+      'error'
+    end
+
+    def last_step_icon(last_status)
+      icon_class = case last_status
+                   when 'running'
+                     'fa-spinner fa-spin'
+                   when 'finished'
+                     'fa-check'
+                   when 'error'
+                     'fa-times'
+                   else
+                     'fa-circle'
+                   end
+
+      tag.i(class: "fa #{icon_class}")
+    end
+
+    def last_step_duration(duration, last_status = nil)
+      return tag.span('(-)', class: 'duration-running') if last_status == 'running'
+      return if duration.blank?
+
+      duration = duration.to_i
+      duration_unit = 's'
+      duration_size = 'duration-s'
+
+      if duration > 60
+        duration /= 60
+        duration_unit = 'm'
+        duration_size = duration >= 30 ? 'duration-l' : 'duration-m'
+      end
+
+      if duration > 60
+        duration /= 60
+        duration_unit = 'h'
+        duration_size = 'duration-xl'
+      end
+
+      tag.span("(#{duration}#{duration_unit})", class: duration_size)
+    end
+
+    def last_step_tooltip(data, last_status = nil)
+      last_try = data['last_try']
+      last_try_time = data['last_try_time']
+      last_successful_try = data['last_successful_try']
+      last_successful_try_time = data['last_successful_try_time']
+
+      return if last_try.blank?
+
+      capture do
+        concat(tag.b("#{t('import_steps.last_try', locale: active_ui_locale)}: "))
+        concat(import_data_time(Time.zone.parse(last_try)))
+        concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_try_time, locale: active_ui_locale)})") if last_try_time.present? && last_status != 'running'
+        concat(' (-)') if last_status == 'running'
+
+        if last_successful_try.present? && last_successful_try != last_try
+          concat(tag.br)
+          concat(tag.b("#{t('import_steps.last_successful_try', locale: active_ui_locale)}: "))
+          concat(import_data_time(Time.zone.parse(last_successful_try)))
+          concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_successful_try_time, locale: active_ui_locale)})") if last_successful_try_time.present?
+        end
+      end
     end
   end
 end

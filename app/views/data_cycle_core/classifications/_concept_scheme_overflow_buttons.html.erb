@@ -1,0 +1,51 @@
+<% if can?(:copy_to_clipboard, concept_scheme) %>
+  <li>
+    <button type="button" class="copy-to-clipboard" value="<%= concept_scheme.id %>">
+      <i class="fa fa-hashtag icon"></i>
+      <span class="text"><%= t('actions.copy_to_clipboard_data', data: 'ID', locale: active_ui_locale) %></span>
+    </button>
+  </li>
+<% end %>
+
+<% if can?(:copy_api_link, concept_scheme) %>
+  <li>
+    <button type="button" class="copy-to-clipboard" value="<%= api_v4_concept_scheme_url(id: concept_scheme.id) %>">
+      <i class="fa fa-clipboard icon"></i>
+      <span class="text"><%= t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale) %></span>
+    </button>
+  </li>
+<% end %>
+
+<% if can?(:link_contents, concept_scheme) %>
+  <li>
+    <button type="button" class="concept-scheme-link-button" data-open="concept-scheme-link-reveal-<%= concept_scheme.id %>">
+      <i class="fa fa-link icon"></i>
+      <span class="text"><%= t('concept_scheme_link.link_title', locale: active_ui_locale) %></span>
+    </button>
+
+    <div id="concept-scheme-link-reveal-<%= concept_scheme.id %>"
+         class="reveal concept-scheme-link-reveal remote-render"
+         data-reveal
+         data-delayed-init
+         data-remote-path="data_cycle_core/classifications/concept_scheme_link_reveal"
+         data-remote-options="<%= to_query_params({ concept_scheme:, key: 'link', link_type: 'related' }).to_json %>">
+    </div>
+  </li>
+<% end %>
+
+<% if can?(:unlink_contents, concept_scheme) %>
+  <li>
+    <button type="button" class="concept-scheme-unlink-button" data-open="concept-scheme-unlink-reveal-<%= concept_scheme.id %>">
+      <i class="fa fa-chain-broken icon"></i>
+      <span class="text"><%= t('concept_scheme_unlink.link_title', locale: active_ui_locale) %></span>
+    </button>
+
+    <div id="concept-scheme-unlink-reveal-<%= concept_scheme.id %>"
+         class="reveal concept-scheme-unlink-reveal remote-render"
+         data-reveal
+         data-delayed-init
+         data-remote-path="data_cycle_core/classifications/concept_scheme_link_reveal"
+         data-remote-options="<%= to_query_params({ concept_scheme:, key: 'unlink', link_type: 'direct' }).to_json %>">
+    </div>
+  </li>
+<% end %>

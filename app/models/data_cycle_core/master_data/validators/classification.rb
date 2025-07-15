@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Classification < BasicValidator
-        def keywords
-          ['min', 'max', 'required', 'soft_required']
-        end
-
         def validate(data, template, _strict = false)
           if blank?(data)
             check_reference_array(data, template)
@@ -34,44 +30,42 @@ module DataCycleCore
           # check given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              method(key).call(data, template['validations'][key]) if keywords.include?(key)
+              validate_with_method(key, data, template['validations'][key])
             end
           end
 
           # validate references themself
           return if blank?(data)
 
+          uuids = []
+
           data.each do |key|
-            if key.is_a?(::String)
-              check_reference(key, template)
-            else
-              (@error[:error][@template_key] ||= []) << {
-                path: 'validation.errors.data_array_format',
-                substitutions: {
-                  key:,
-                  template: template['label']
-                }
+            next uuids.push(key) if key.is_a?(::String) && key.uuid?
+
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.data_array_format',
+              substitutions: {
+                key:,
+                template: template['label']
               }
-            end
+            }
           end
+
+          check_references(uuids, template)
         end
 
-        def check_reference(key, template)
-          return unless uuid?(key)
+        def check_references(data, template)
+          uniq_data = data.uniq
+          concepts = DataCycleCore::Concept.where(classification_id: uniq_data)
+          concepts = concepts.includes(:concept_scheme).where(concept_scheme: { name: template['tree_label'] }) unless template['universal']
+          concept_ids = concepts.pluck(:classification_id).uniq
 
-          where_hash = { classifications: { id: key } }
-          where_hash[:classification_tree_labels] = { name: template['tree_label'] } if template['universal'].blank?
-          find_classification_alias = DataCycleCore::ClassificationTree
-            .joins(:classification_tree_label)
-            .joins(sub_classification_alias: [classification_groups: [:classification]])
-            .where(where_hash)
-
-          return unless find_classification_alias.count < 1
+          return if concept_ids.size == uniq_data.size && concept_ids.to_set == uniq_data.to_set
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.classification',
             substitutions: {
-              key:,
+              key: (uniq_data - concept_ids).join(', '),
               label: template['label'],
               tree_label: template['tree_label']
             }
@@ -100,14 +94,6 @@ module DataCycleCore
               value:
             }
           }
-        end
-
-        def required(data, value)
-          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
-        end
-
-        def soft_required(data, value)
-          (@error[:warning][@template_key] ||= []) << { path: 'validation.warnings.required' } if value && blank?(data)
         end
       end
     end

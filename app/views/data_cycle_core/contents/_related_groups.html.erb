@@ -1,4 +1,4 @@
-<% grouped_objects = related_objects.presence&.group_by(&:template_name) %>
+<% grouped_objects = related_objects.includes(:external_source, :external_system_syncs).group_by(&:template_name) %>
 <% grouped_objects&.each do |group| %>
 
   <li class="grouped_by <%= group.first.underscore_blanks %>">
@@ -14,7 +14,6 @@
           item.class.name.demodulize.underscore.dasherize,
           item.schema_type&.underscore&.dasherize,
           item.template_name.underscore.dasherize,
-          (item.hard_content_warnings? ? 'hard-warnings' : nil),
           thing_content_score_class(item),
         ].compact_blank.join(' '),
         data: {

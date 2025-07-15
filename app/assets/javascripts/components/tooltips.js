@@ -1,13 +1,13 @@
 import {
-	computePosition,
-	autoUpdate,
-	arrow,
-	offset,
-	hide,
-	flip,
-	shift,
+  arrow,
+  autoUpdate,
+  computePosition,
+  flip,
+  hide,
+  offset,
+  shift,
 } from "@floating-ui/dom";
-import domElementHelpers from "../helpers/dom_element_helpers";
+import { nanoid } from "nanoid";
 
 class Tooltips {
 	constructor() {
@@ -51,7 +51,7 @@ class Tooltips {
 		);
 	}
 	addEventsForTooltip(element) {
-		element.dataset.dcTooltipId = domElementHelpers.randomId();
+		element.dataset.dcTooltipId = nanoid();
 		element.addEventListener("mouseenter", this.showTooltipDelayed.bind(this));
 		element.addEventListener("mouseleave", this.hideTooltip.bind(this));
 	}
@@ -70,6 +70,7 @@ class Tooltips {
 		setTimeout(this.showTooltip.bind(this, event.target), 300);
 	}
 	async showTooltip(target) {
+		if (!this.referenceElement) return;
 		if (
 			this.referenceElement?.dataset.dcTooltipId !==
 				target.dataset.dcTooltipId ||
@@ -121,11 +122,11 @@ class Tooltips {
 		this.dataChangedObserver.disconnect();
 	}
 	updateTooltipContent() {
-		this.tooltipContent.innerHTML = this.referenceElement.dataset.dcTooltip
+		this.tooltipContent.innerHTML = this.referenceElement?.dataset.dcTooltip
 			? this.referenceElement.dataset.dcTooltip.trim()
 			: "";
 
-		if (this.referenceElement.dataset.dcTooltipClass)
+		if (this.referenceElement?.dataset.dcTooltipClass)
 			this.tooltip.classList.add(
 				this.referenceElement.dataset.dcTooltipClass.trim(),
 			);

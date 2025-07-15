@@ -1,18 +1,32 @@
-<%= t('common.are_you_sure', locale: active_ui_locale) %>
+<p><%= t('actions.delete_confirmation_html', type: classification_tree_label.model_name.human(locale: active_ui_locale), name: classification_tree_label.name, locale: active_ui_locale) %></p>
 
 <% if classification_tree_label.things.exists? %>
-  <div class='warning'>
-    <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
+  <div class='warning callout'>
     <%= t('data_cycle_core.classification_tree_relations', locale: active_ui_locale) %>
   </div>
 <% end %>
 
 <% if classification_tree_label.concepts.exists? %>
-  <div class='warning'>
-    <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
+  <div class='warning callout'>
     <%= t('data_cycle_core.child_classification_relations_html',
           count: classification_tree_label.concepts.size,
           data: t('data_cycle_core.this_classification_tree', locale: active_ui_locale),
           locale: active_ui_locale) %>
+  </div>
+<% end %>
+
+<% if classification_tree_label.stored_filters.named.exists? %>
+  <% sf = classification_tree_label.stored_filters.named %>
+  <div class='warning callout'>
+    <%= t('data_cycle_core.concept_scheme_stored_filter_html',
+          count: sf.size,
+          data: DataCycleCore::ConceptScheme.model_name.human(locale: active_ui_locale, count: 1),
+          search: DataCycleCore::StoredFilter.model_name.human(locale: active_ui_locale, count: sf.size),
+          locale: active_ui_locale) %>
+    <ul>
+      <% sf.each do |stored_filter| %>
+        <li><%= link_to(stored_filter.name, root_path(stored_filter: stored_filter), target: :_blank) %></li>
+      <% end %>
+    </ul>
   </div>
 <% end %>

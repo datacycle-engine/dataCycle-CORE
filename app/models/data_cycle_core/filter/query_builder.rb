@@ -44,6 +44,10 @@ module DataCycleCore
         ActiveRecord::Base.send(:sanitize_sql_array, sql_array)
       end
 
+      def none
+        reflect(@query.none)
+      end
+
       private
 
       def get_point(longitude, latitude)
@@ -167,6 +171,7 @@ module DataCycleCore
       end
 
       def cast_tstz(date)
+        date = date.iso8601 if date.acts_like?(:time) # Ensure date is in ISO 8601 format to keep time zone information
         Arel::Nodes::NamedFunction.new(
           'CAST', [
             Arel::Nodes::As.new(
@@ -206,6 +211,14 @@ module DataCycleCore
               string,
               Arel::Nodes::SqlLiteral.new(type_string)
             )
+          ]
+        )
+      end
+
+      def geometry_type(column)
+        Arel::Nodes::NamedFunction.new(
+          'GeometryType', [
+            column
           ]
         )
       end
@@ -270,6 +283,10 @@ module DataCycleCore
         DataCycleCore::Thing::DuplicateCandidate.arel_table
       end
 
+      def thing_duplicate
+        DataCycleCore::ThingDuplicate.arel_table
+      end
+
       def external_system_sync
         DataCycleCore::ExternalSystemSync.arel_table
       end
@@ -292,6 +309,10 @@ module DataCycleCore
 
       def ccc_table
         DataCycleCore::CollectedClassificationContent.arel_table
+      end
+
+      def geometries_table
+        DataCycleCore::Geometry.arel_table
       end
 
       def generate_thing_alias

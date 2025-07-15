@@ -24,7 +24,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :linked_creative_work:
         :label: Linked Entity
         :type: linked

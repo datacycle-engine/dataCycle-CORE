@@ -289,9 +289,9 @@
   #     :attribute_keys:
   #       - live_date_from
   #       - live_date_until
-  #  :graph_filter:
-  #    :items_linked_to: true
-  #    :linked_items_in: true
+  # :graph_filter:
+  #   :items_linked_to: true
+  #   :linked_items_in: true
 
 :sortable:
   :enabled: false
@@ -320,33 +320,6 @@
 
 :translate:
   :enabled: false
-  :allowed_languages:
-    - bg
-    - zh
-    - da
-    - de
-    - de-CH
-    - en
-    - et
-    - fi
-    - fr
-    - el
-    - it
-    - ja
-    - ko
-    - lv
-    - lt
-    - nl
-    - pl
-    - pt
-    - ro
-    - ru
-    - sv
-    - sk
-    - sl
-    - es
-    - cs
-    - hu
 
 :external_media_archive:
   :enabled: false
@@ -627,6 +600,12 @@
   :attribute_keys:
     - gravity
 
+:focus_point_editor:
+  :enabled: false
+  :attribute_keys:
+    - focus_point_x
+    - focus_point_y
+
 :ts_query_fulltext_search:
   :enabled: false
 
@@ -634,4 +613,10 @@
   :enabled: false
 
 :custom_asset_previewer:
+  :enabled: false
+
+:string_sanitizer:
+  :enabled: false
+
+:preview_link:
   :enabled: false

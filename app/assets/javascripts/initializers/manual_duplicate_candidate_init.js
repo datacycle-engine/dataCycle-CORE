@@ -1,3 +1,5 @@
+import DomElementHelpers from "../helpers/dom_element_helpers";
+
 export default function () {
 	const manualDuplicates = document.querySelector(".manual-duplicates");
 
@@ -10,7 +12,10 @@ export default function () {
 		event.preventDefault();
 		event.stopPropagation();
 
-		if (data.ids?.length) {
+		const currentTarget = event.currentTarget;
+		const formData = DomElementHelpers.getFormDataAsObject(currentTarget);
+
+		if (formData.source_id?.length) {
 			$(window).off("beforeunload");
 			form.submit();
 		} else console.warn("no ids given for manual duplicate_candidate");

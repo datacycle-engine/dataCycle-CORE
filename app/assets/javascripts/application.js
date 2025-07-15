@@ -5,54 +5,54 @@ if (import.meta.hot) {
 	});
 }
 
-import jQuery from "jquery";
+import { cable, Turbo } from "@hotwired/turbo-rails";
 import Rails from "@rails/ujs";
-import { createConsumer } from "@rails/actioncable";
+import jQuery from "jquery";
+import autoInitComponents from "./auto_init_components";
 import DataCycleSingleton from "./components/data_cycle";
 import I18n from "./components/i18n";
+import initCustomElements from "./custom_elements";
+import initGlobalComponents from "./global_components";
+import initialize from "./initializers";
 
 Object.assign(window, {
 	$: jQuery,
 	jQuery,
 	Rails,
-	actionCable: createConsumer(),
 	I18n,
+	actionCable: cable.createConsumer(),
 });
+
+import { turboConfirmMethod } from "./initializers/rails_confirmation_init";
+
+Turbo.session.drive = false;
+Turbo.config.forms.confirm = turboConfirmMethod;
 
 import "jquery-serializejson";
 import "lazysizes";
 import "lazysizes/plugins/unveilhooks/ls.unveilhooks.js";
+import CalloutHelpers from "./helpers/callout_helpers";
 import "./helpers/number_helpers";
 import "./helpers/string_helpers";
-
-const initializers = import.meta.glob("./initializers/*.js", {
-	eager: true,
-	import: "default",
-});
+import UrlReplacer from "./helpers/url_replacer";
 import foundationInit from "./initializers/foundation_init";
 import validationInit from "./initializers/validation_init";
-import CustomElementsInit from "./initializers/custom_elements_init";
-import UrlReplacer from "./helpers/url_replacer";
-import CalloutHelpers from "./helpers/callout_helpers";
-
-const initializerExceptions = [
-	"foundation_init",
-	"validation_init",
-	"app_signal_init",
-	"custom_elements",
-];
 
 export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
+	initCustomElements();
 	UrlReplacer.cleanSearchFormParams();
-	CustomElementsInit();
 
 	try {
 		Rails.start();
 	} catch {}
 
+	initGlobalComponents();
+	autoInitComponents();
+
 	if (typeof postDataCycleInit === "function") postDataCycleInit();
+
 	DataCycle.notifications.addEventListener("error", ({ detail }) => {
 		if (detail.message?.includes("not a valid selector"))
 			I18n.t("frontend.update_browser").then((text) =>
@@ -63,17 +63,7 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	});
 
 	$(() => {
-		for (const path in initializers) {
-			if (!initializerExceptions.some((e) => path.includes(e))) {
-				try {
-					initializers[path]();
-				} catch (err) {
-					DataCycle.notifications.dispatchEvent(
-						new CustomEvent("error", { detail: err }),
-					);
-				}
-			}
-		}
+		initialize();
 		foundationInit();
 		validationInit();
 	});

@@ -43,9 +43,9 @@ module DataCycleCore
             orientation = exif_value(image, ['Orientation'])
 
             if orientation&.include?('90') || orientation&.include?('270')
-              exif_value(image, ['ImageHeight'])&.to_i
-            else
               exif_value(image, ['ImageWidth'])&.to_i
+            else
+              exif_value(image, ['ImageHeight'])&.to_i
             end
           end
 
@@ -97,6 +97,14 @@ module DataCycleCore
             end
           end
 
+          def web_url(computed_parameters:, **_args)
+            DataCycleCore::ActiveStorageService.with_current_options do
+              DataCycleCore::Image.find_by(id: computed_parameters.values.first)&.web&.url
+            end
+          rescue StandardError
+            nil
+          end
+
           def exif_value(image, path)
             image = DataCycleCore::Image.find_by(id: image) unless image.is_a?(DataCycleCore::Image)
             return nil if image.blank? || path.blank?
@@ -105,8 +113,9 @@ module DataCycleCore
 
           def remote_value(computed_parameters:, data_hash:, content:, key:, **_args)
             url_key, new_url = computed_parameters.find { |_, v| v.is_a?(::String) && v =~ URI::DEFAULT_PARSER.make_regexp }
-            old_url = content&.send(url_key)
+            return if url_key.blank? && new_url.blank?
 
+            old_url = content&.send(url_key)
             old_value = content&.send(key)
 
             if data_hash[key].present?

@@ -1,0 +1,17 @@
+.DS_Store
+.idea/
+.bundle/
+node_modules/
+**/log/
+*.log
+tmp/
+.env
+.tool-versions
+public/**/*
+private/
+coverage/
+cache/
+docker/hist
+**/db/backups
+lib/assets
+compose.overrides.yaml

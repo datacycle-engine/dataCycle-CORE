@@ -80,12 +80,11 @@ describe DataCycleCore::MasterData::DataConverter do
 
   describe 'convert geo objects' do
     it 'converts wkt_strings to geographic objects' do
-      factory = RGeo::Geographic.spherical_factory(srid: 4326)
-      point = factory.point(12.3, 40.344)
-      line = factory.line_string([factory.point(1.0, 2.0), factory.point(1.5, 2.5)])
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
+      point = factory3d.point(12.3, 40.344)
+      line = factory3d.line_string([factory3d.point(1.0, 2.0), factory3d.point(1.5, 2.5)])
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
-      wkt_string = 'POINT (10.0 47.0)'
+      wkt_string = 'POINT Z (10.0 47.0 0.0)'
       wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         converted_data = subject.string_to_geographic(test_case)
@@ -96,10 +95,9 @@ describe DataCycleCore::MasterData::DataConverter do
     end
 
     it 'converts geographic data to strings' do
-      factory = RGeo::Geographic.spherical_factory(srid: 4326)
-      point = factory.point(12.3, 40.344)
-      line = factory.line_string([factory.point(1.0, 2.0), factory.point(1.5, 2.5)])
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
+      point = factory3d.point(12.3, 40.344)
+      line = factory3d.line_string([factory3d.point(1.0, 2.0), factory3d.point(1.5, 2.5)])
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
       wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
@@ -344,6 +342,220 @@ describe DataCycleCore::MasterData::DataConverter do
         converted_data = subject.convert_to_type('number', test_case, definition)
         assert(converted_data.is_a?(Integer))
         assert_equal(test_case.to_i, converted_data)
+      end
+    end
+
+    describe 'sanitize html strings ' do
+      sanitization_html = <<~TEXT.squish
+        <p>paragraph</p><p class="ql-align-center">paragraph center</p><p class="ql-align-right">paragraph right</p><p class="ql-align-justify">paragraph justify</p>
+        <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
+        <ol><li>ordered listitem 1</li><li>ordered listitem 2</li></ol>
+        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4><h5>headline5</h5><h6>headline6</h6><p>something<sub>sub</sub></p>
+        <a href="#" onclick="alert('Test')" ;="">a tag with onclick event</a><p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+        <p>something<em>cursive</em></p><p>something<u>underlined</u></p><blockquote>blockquoted</blockquote><p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+        <p><a href="asdfasdf" rel="noopener noreferrer" target="_blank">external link</a></p>
+        <p><span class="dc--contentlink dcjs-tooltip" data-href="#" data-dc-tooltip="dataCycle: reference" data-dc-tooltip-id="1">Internal Link</span></p><p>paragraph</p>
+        <script>alert('alert from scripttag')</script>
+      TEXT
+
+      it 'sanitize html for data-size none' do
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'none'}}}}
+        expected = <<~TEXT.squish
+          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+          unordered listitem 1unordered listitem 2
+          ordered listitem 1ordered listitem 2
+          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4headline5headline6<p>somethingsub</p>
+          a tag with onclick event<p>somethingsup</p><p>somethingstrong</p>
+          <p>somethingcursive</p><p>somethingunderlined</p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+          <p>external link</p>
+          <p>Internal Link</p><p>paragraph</p>
+          alert('alert from scripttag')
+        TEXT
+
+        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html for data-size minimal' do
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'minimal'}}}}
+        expected = <<~TEXT.squish
+          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+          unordered listitem 1unordered listitem 2
+          ordered listitem 1ordered listitem 2
+          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4headline5headline6<p>somethingsub</p>
+          a tag with onclick event<p>somethingsup</p><p>something<strong>strong</strong></p>
+          <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+          <p>external link</p>
+          <p>Internal Link</p><p>paragraph</p>
+          alert('alert from scripttag')
+        TEXT
+
+        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html for data-size basic' do
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'basic'}}}}
+        expected = <<~TEXT.squish
+          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+          unordered listitem 1unordered listitem 2
+          ordered listitem 1ordered listitem 2
+          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4>headline5headline6<p>something<sub>sub</sub></p>
+          a tag with onclick event<p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+          <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+          <p>external link</p>
+          <p>Internal Link</p><p>paragraph</p>
+          alert('alert from scripttag')
+        TEXT
+
+        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html for data-size full' do
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
+        expected = <<~TEXT.squish
+          <p>paragraph</p><p class="ql-align-center">paragraph center</p><p class="ql-align-right">paragraph right</p><p class="ql-align-justify">paragraph justify</p>
+          <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
+          <ol><li>ordered listitem 1</li><li>ordered listitem 2</li></ol>
+          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4>headline5headline6<p>something<sub>sub</sub></p>
+          <a href="#">a tag with onclick event</a><p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+          <p>something<em>cursive</em></p><p>something<u>underlined</u></p><blockquote>blockquoted</blockquote><p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+          <p><a href="asdfasdf" rel="noopener noreferrer" target="_blank">external link</a></p>
+          <p><span class="dc--contentlink dcjs-tooltip" data-href="#" data-dc-tooltip="dataCycle: reference" data-dc-tooltip-id="1">Internal Link</span></p><p>paragraph</p>
+          alert('alert from scripttag')
+        TEXT
+        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html sanitize=true but no data-size' do
+        DataCycleCore.features[:string_sanitizer][:enabled] = true
+        DataCycleCore::Feature['StringSanitizer'].reload
+
+        definition = {}
+        html_string = <<~TEXT.squish
+          paragraphparagraph centerparagraph rightparagraph justify
+          unordered listitem 1unordered listitem 2
+          ordered listitem 1ordered listitem 2
+          paragraph before multiple breaksheadline 1headline 2headline 3headline4headline5headline6somethingsub
+          a tag with onclick eventsomethingsupsomethingstrong
+          somethingcursivesomethingunderlinedblockquotedsome&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspacessome         blankspaces
+          external link
+          Internal Linkparagraph
+          alert('alert from scripttag')
+        TEXT
+        assert_equal html_string, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html sanitize=false' do
+        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
+        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html no sanitize attribute' do
+        definition = {'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
+        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html, definition)
+      end
+
+      it 'sanitize html without definition' do
+        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html)
+      end
+
+      after do
+        DataCycleCore.features[:string_sanitizer][:enabled] = false
+        DataCycleCore::Feature['StringSanitizer'].reload
+      end
+    end
+
+    describe '.truncate_ignoring_blank_spaces' do
+      limit = 5
+
+      it 'truncates visible characters only, ignoring spaces' do
+        input = 'a b  c   d e f g'
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('a b  c   d e...', text)
+        assert_equal(5, count)
+      end
+
+      it 'returns full string if visible characters are under limit' do
+        input = 'ab c'
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('ab c', text)
+        assert_equal(3, count)
+      end
+
+      it 'removes trailing spaces before omission' do
+        input = '   abc   def   '
+        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+        assert_equal('abc   de...', text)
+        assert_equal(5, count)
+      end
+    end
+
+    describe '.truncate_node' do
+      limit = 5
+      char_count = 0
+
+      it 'truncates plain text node correctly without ignoring whitespace' do
+        node = Nokogiri::HTML::DocumentFragment.parse('abc def').children.first
+        result_node, count = subject.truncate_node(node, char_count, limit, ignore_whitespace: false)
+
+        assert_equal('abc d...', result_node.text)
+        assert_equal(5, count)
+      end
+
+      it 'truncates plain text node correctly' do
+        node = Nokogiri::HTML::DocumentFragment.parse('abc defg').children.first
+        result_node, count = subject.truncate_node(node, char_count, limit)
+
+        assert_equal(5, count)
+        assert_equal('abc de...', result_node.text)
+      end
+
+      it 'preserves html structure and truncates inner text' do
+        node = Nokogiri::HTML::DocumentFragment.parse('<strong>abc def ghi</strong>').children.first
+        result_node, count = subject.truncate_node(node, char_count, limit)
+
+        assert_equal(5, count)
+        assert_equal('strong', result_node.name)
+        assert_equal('abc de...', result_node.text)
+      end
+
+      it 'returns nil when limit already exceeded' do
+        node = Nokogiri::HTML::DocumentFragment.parse('extra').children.first
+        result_node, count = subject.truncate_node(node, 10, limit)
+
+        assert_equal('', result_node)
+        assert_equal(10, count)
+      end
+    end
+
+    describe '.truncate_html_preserving_structure' do
+      it 'preserves structure and truncates visible content' do
+        html = '<p>Hallo <strong>Welt!</strong> Das ist <em>ein Test</em>.</p>'
+        limit = 10
+        assert_equal('<p>Hallo <strong>Welt!...</strong></p>', subject.truncate_html_preserving_structure(html, limit))
+      end
+
+      it 'returns original html if under limit' do
+        html = '<p>Hi!</p>'
+        limit = 10
+        assert_equal('<p>Hi!</p>', subject.truncate_html_preserving_structure(html, limit))
+      end
+
+      it 'truncates correctly with many spaces between words' do
+        html = '<div>Hello     world</div>'
+        limit = 6
+        assert_equal('<div>Hello     w...</div>', subject.truncate_html_preserving_structure(html, limit))
       end
     end
   end

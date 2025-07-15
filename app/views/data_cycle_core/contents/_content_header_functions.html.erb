@@ -2,7 +2,7 @@
   <ul class="no-bullet">
     <li class="has-dropdown"><%= render 'history_links', dataCycleObject: content %></li>
 
-    <%= render 'locale_links', local_assigns if content.try(:translated_locales)&.many? %>
+    <%= render 'data_cycle_core/contents/locale_links', local_assigns if content.try(:translated_locales)&.many? %>
 
     <%= render 'content_header_preview_links', content: content if content.try(:output_channel)&.includes(:primary_classification_alias)&.any? { |c| c.uri.present? || c.primary_classification_alias&.uri.present? } %>
 
@@ -38,11 +38,6 @@
     <% if can?(:index, DataCycleCore::WatchList) %>
       <li class="has-dropdown"><%= render 'watch_lists', content: content %></li>
     <% end %>
-    <% if can?(:print, content) %>
-      <li class="buttons">
-        <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
-      </li>
-    <% end %>
     <% if can?(:download_content_report, content) && DataCycleCore::Feature::ReportGenerator.content_reports(content).present? %>
       <li class="has-dropdown">
         <%= render 'content_reports', content: content %>
@@ -54,7 +49,7 @@
                       method: :get,
                       data: {
                           confirm: "#{t('common.confirm_delete_cache', locale: active_ui_locale) }",
-                          dc_tooltip: t('data_cycle_core.cache.clear', locale: active_ui_locale)
+                          dc_tooltip: "#{t('data_cycle_core.cache.clear', locale: active_ui_locale)} (#{l(content.cache_valid_since, format: :edit, locale: active_ui_locale)})",
                       } do %>
           <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
         <% end %>

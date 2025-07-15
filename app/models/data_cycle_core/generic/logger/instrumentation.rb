@@ -30,8 +30,8 @@ module DataCycleCore
           ].join(' ')
 
           if times.present?
-            step_time = DataCycleCore::Generic::GenericObject.format_float((times[-1] - times[0]), 6, 3)
-            step_delta = DataCycleCore::Generic::GenericObject.format_float((times[-1] - times[-2]), 6, 3)
+            step_time = DataCycleCore::Generic::GenericObject.format_float(times[-1] - times[0], 6, 3)
+            step_delta = DataCycleCore::Generic::GenericObject.format_float(times[-1] - times[-2], 6, 3)
             message += " in #{step_time}s, ðt: #{step_delta}s"
           end
 
@@ -74,7 +74,7 @@ module DataCycleCore
         end
 
         def validation_error(label, data, error_text)
-          text = [@kind_short, label.to_s]
+          text = [@kind_short, label.to_s, '| external_key:', data['external_key'], "\n"]
           text.push(error_text.to_s) if error_text.present?
 
           if data.present?
@@ -116,8 +116,6 @@ module DataCycleCore
           debug_instrument(message: "#{title} | #{id} | #{JSON.pretty_generate(data.as_json).gsub("\n", "\n  ")}")
         end
 
-        private
-
         def info_instrument(**keyword_args)
           log_instrument(severity: 'info', **keyword_args)
         end
@@ -133,6 +131,8 @@ module DataCycleCore
         def error_instrument(**keyword_args)
           log_instrument(severity: 'error', **keyword_args)
         end
+
+        private
 
         def log_instrument(
           message: '',

@@ -3,9 +3,10 @@
 module DataCycleCore
   module UiLocaleHelper
     def active_ui_locale
-      current_user&.ui_locale || DataCycleCore.ui_locales.first
+      return @active_ui_locale if defined?(@active_ui_locale)
+      @active_ui_locale = current_user&.ui_locale || DataCycleCore.ui_locales.first
     rescue StandardError
-      DataCycleCore.ui_locales.first
+      @active_ui_locale = DataCycleCore.ui_locales.first
     end
 
     def i18n_digest
@@ -37,7 +38,7 @@ module DataCycleCore
       @available_locales_with_all[active_ui_locale]
     end
 
-    def translated_attribute_label(key, definition, content, options, count = 1)
+    def translated_attribute_label(key, definition, content, options = {}, count = 1)
       DataCycleCore::Thing.human_attribute_name(key.attribute_name_from_key.to_s, (options || {}).merge({ base: content, count:, definition:, locale: active_ui_locale }))
     end
 
@@ -55,7 +56,7 @@ module DataCycleCore
       parent = contextual_content({ content: }.merge(args.slice(:parent)))
 
       label_html = ActionView::OutputBuffer.new
-      label_html << tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}")
+      label_html << tag.i(class: "dc-type-icon property-icon #{key&.attribute_name_from_key.presence&.then { |k| "key-#{k}" }} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}", data: { dc_tooltip: key&.attribute_name_from_key })
       label_html << tag.i(class: 'fa fa-language translatable-attribute-icon') if attribute_translatable?(key, definition, parent)
       label_html << tag.span(translated_attribute_label(key, definition, parent, options, i18n_count), class: 'attribute-label-text', title: translated_attribute_label(key, definition, parent, options, i18n_count))
       label_html << render('data_cycle_core/contents/content_score', key:, content: parent, definition:) if definition.key?('content_score')
@@ -150,6 +151,15 @@ module DataCycleCore
       return if helper_text.blank?
 
       tag.i(class: 'fa fa-info-circle', data: { dc_tooltip: helper_text })
+    end
+
+    def collection_model_name_human(count: 1)
+      t(
+        'filter.relation_filter.placeholder.collection_or_stored_filter',
+        collection: DataCycleCore::WatchList.model_name.human(count:, locale: active_ui_locale),
+        stored_filter: DataCycleCore::StoredFilter.model_name.human(count:, locale: active_ui_locale),
+        locale: active_ui_locale
+      )
     end
   end
 end

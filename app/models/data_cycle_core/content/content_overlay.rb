@@ -48,7 +48,7 @@ module DataCycleCore
       end
 
       def property_names_with_overlay
-        property_names + add_overlay_property_names
+        (property_names + add_overlay_property_names).flat_map { |k| [k, "#{k}_#{overlay_name}"] }
       end
 
       def value_from_overlay(method_name, *args)
@@ -81,6 +81,11 @@ module DataCycleCore
       end
 
       def load_schedule(*args)
+        value = value_from_overlay(__method__, *args) if args[1]
+        value.presence || super
+      end
+
+      def load_geometry(*args)
         value = value_from_overlay(__method__, *args) if args[1]
         value.presence || super
       end

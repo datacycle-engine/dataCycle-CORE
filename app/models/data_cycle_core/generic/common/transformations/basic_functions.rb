@@ -17,6 +17,18 @@ module DataCycleCore
             data.slice(*keys.flatten)
           end
 
+          def self.ensure_keys(data, keys)
+            data = Dry::Transformer::HashTransformations.accept_keys(data, keys)
+            ensure_nil_defaults(data, keys)
+          end
+
+          def self.ensure_nil_defaults(data, keys)
+            keys.each do |key|
+              data[key] = nil if data[key].blank?
+            end
+            data
+          end
+
           def self.compact(data_hash)
             data_hash.compact
           end
@@ -37,8 +49,14 @@ module DataCycleCore
           end
 
           def self.location(data_hash)
-            location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['longitude'].present? && data_hash['latitude'].present? && !(data_hash['longitude'].zero? && data_hash['latitude'].zero?)
-            data_hash.nil? ? { 'location' => location.presence } : data_hash.merge({ 'location' => location.presence })
+            if data_hash['longitude'].present? && !data_hash['longitude'].to_f.zero? && data_hash['latitude'].present? && !data_hash['latitude'].to_f.zero?
+              location = RGeo::Geographic.spherical_factory(srid: 4326).point(
+                data_hash['longitude'].to_f,
+                data_hash['latitude'].to_f
+              )
+            end
+
+            data_hash.merge({ 'location' => location.presence })
           end
 
           def self.geom_from_binary(data_hash)
@@ -55,6 +73,18 @@ module DataCycleCore
             )
 
             data_hash.merge({ 'geom' => RGeo::WKRep::WKBParser.new(factory).parse(geom) })
+          end
+
+          def self.geom_from_geojson(data_hash)
+            return data_hash if data_hash&.dig('geometry').blank?
+
+            @geo_factory_z = RGeo::Cartesian.simple_factory(srid: 4326, has_z_coordinate: true)
+
+            geom_decode = RGeo::GeoJSON.decode(data_hash['geometry'], geo_factory: @geo_factory_z)
+
+            return data_hash if geom_decode.blank?
+
+            data_hash.merge({ 'geom' => geom_decode })
           end
         end
       end

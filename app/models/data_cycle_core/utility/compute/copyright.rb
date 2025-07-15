@@ -11,24 +11,25 @@ module DataCycleCore
             cc_license = false
 
             computed_parameters.each do |computed_key, value|
+              next if DataCycleCore::DataHashService.blank?(value)
+
               case content&.properties_for(computed_key)&.dig('type')
               when 'classification'
-                license_classifications = DataCycleCore::Classification.where(id: value)
-
-                if computed_key == 'license_classification' && license_classifications.blank?
-                  license_classifications = content
-                    .classification_aliases
-                    .includes(:classification_tree_label)
-                    .where(classification_tree_labels: { name: content&.properties_for('license_classification')&.dig('tree_label') })
-                    .primary_classifications
+                if computed_key == 'universal_classifications' && classification_copyright_notice.blank?
+                  # license_classifications = DataCycleCore::Classification.where(id: value).classification_aliases.includes(:classification_tree_label).where(classification_tree_labels: { name: content&.properties_for('license_classification')&.dig('tree_label') }).primary_classifications
+                  license_classifications = DataCycleCore::Concept.where(classification_id: value).preload(:concept_scheme, mapped_inverse_concepts: :concept_scheme).to_a
+                  license_classifications += license_classifications.flat_map(&:mapped_inverse_concepts)
+                  license_classifications.select! { |c| c.concept_scheme.name == content&.properties_for('license_classification')&.dig('tree_label') }
+                elsif computed_key != 'universal_classifications'
+                  license_classifications = DataCycleCore::Concept.where(classification_id: value)
                 end
 
                 next if license_classifications.blank?
 
                 # CreativeCommon https://creativecommons.org/
                 # CC0 https://creativecommons.org/publicdomain/zero/1.0/
-                cc_license = license_classifications.all? { |c| c.try(:uri)&.starts_with?('https://creativecommons.org/') }
-                classification_copyright_notice.concat(license_classifications.primary_classification_aliases.pluck(:internal_name))
+                cc_license = true if license_classifications.all? { |c| c.try(:uri)&.starts_with?('https://creativecommons.org/') }
+                classification_copyright_notice.concat(license_classifications.pluck(:internal_name))
                 break if license_classifications.any? { |c| c.try(:uri) == 'https://creativecommons.org/publicdomain/zero/1.0/' } && license_classifications.size == 1
               when 'linked'
                 copyright_notice.push(DataCycleCore::Thing.where(id: value).filter_map { |c| I18n.with_locale(c.first_available_locale) { c.title.presence } }.join(', ').presence)

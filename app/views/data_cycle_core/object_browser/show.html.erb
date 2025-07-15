@@ -1,13 +1,14 @@
-<% I18n.with_locale(params[:locale] || I18n.locale) do %>
+<% I18n.with_locale(local_assigns[:locale] || I18n.locale) do %>
   <% @results.each do |object| %>
     <%= render_linked_partial(
-      key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'),
-      definition: params[:definition],
+      key: local_assigns[:key] + (local_assigns[:definition]['type'] == "object" ? '[][id]' : '[]'),
+      definition: local_assigns[:definition],
       parameters: {
         object: object,
-        prefix: params[:prefix],
-        options: params[:options],
-        objects: params[:objects],
+        prefix: local_assigns[:prefix],
+        options: local_assigns[:options],
+        objects: local_assigns[:objects],
+        editable: local_assigns[:editable],
         edit_buttons: true,
         parent: @parent
       },

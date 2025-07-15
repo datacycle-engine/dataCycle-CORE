@@ -17,17 +17,6 @@ module DataCycleCore
           super
         end
 
-        def asset_web_url
-          return unless try(:asset)&.versions&.key?(:web)
-          return if Rails.env.development? && !asset&.web&.service&.exist?(asset&.web&.key)
-
-          DataCycleCore::ActiveStorageService.with_current_options do
-            asset&.web&.url
-          end
-        rescue StandardError
-          nil
-        end
-
         def validation_messages_as_json
           {
             valid: valid?,
@@ -58,14 +47,15 @@ module DataCycleCore
 
         def to_select_option(locale = DataCycleCore.ui_locales.first)
           DataCycleCore::Filter::SelectOption.new(
-            id,
-            ActionController::Base.helpers.safe_join([
-              ActionController::Base.helpers.tag.i(class: "fa dc-type-icon thing-icon #{template_name.underscore_blanks}"),
+            id:,
+            name: ActionController::Base.helpers.safe_join([
+              ActionController::Base.helpers.tag.i(class: "fa dc-type-icon thing-icon #{icon_type}"),
               I18n.with_locale(first_available_locale) { title },
               "(#{translated_locales.join(', ')})"
             ].compact, ' '),
-            "#{template_name.underscore_blanks} #{schema_type.underscore_blanks}",
-            "#{translated_template_name(locale)}: #{I18n.with_locale(first_available_locale) { title }} (#{translated_locales.join(', ')})"
+            html_class: "#{template_name.underscore_blanks} #{schema_type.underscore_blanks}",
+            dc_tooltip: "#{translated_template_name(locale)}: #{I18n.with_locale(first_available_locale) { title }} (#{translated_locales.join(', ')})",
+            class_key: model_name.param_key
           )
         end
       end

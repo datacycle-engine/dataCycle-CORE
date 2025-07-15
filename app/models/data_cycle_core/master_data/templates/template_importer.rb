@@ -4,6 +4,10 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplateImporter
+        include Extensions::Position
+        include Extensions::Visible
+        include Extensions::Geographic
+
         CONTENT_SETS = [:creative_works, :events, :media_objects, :organizations, :persons, :places, :products, :things, :intangibles].freeze
 
         attr_reader :duplicates, :mixin_errors, :errors, :mixin_paths, :templates
@@ -24,7 +28,7 @@ module DataCycleCore
 
           @template_definitions = []
           @extended_templates = []
-          @templates = {}
+          @templates = []
 
           load_templates
 
@@ -32,8 +36,6 @@ module DataCycleCore
         end
 
         def import
-          return unless valid?
-
           @validator.validate
 
           return @errors.concat(@validator.errors) unless @validator.valid?
@@ -52,8 +54,6 @@ module DataCycleCore
         end
 
         def validate
-          return unless valid?
-
           @validator.validate
 
           @errors.concat(@validator.errors)
@@ -101,10 +101,13 @@ module DataCycleCore
           #   .filter { |railtie| railtie.is_a?(::Rails::Engine) }
           #   .to_h { |rt| [rt.root.to_s, rt.class.name.delete_suffix('::Engine')] }
 
-          DataCycleCore::ThingTemplate.upsert_all(@templates.values.flatten.map do |t|
+          DataCycleCore::ThingTemplate.upsert_all(@templates.map do |t|
             {
               template_name: t[:name],
               schema: t[:data],
+              boost: t.dig(:data, :boost),
+              content_type: t.dig(:data, :content_type),
+              api_schema_types: t[:api_schema_types],
               updated_at: Time.zone.now,
               template_paths: t[:paths]
             }
@@ -170,7 +173,11 @@ module DataCycleCore
               data_template = @template_definitions.shift
               template = data_template[:data]
 
-              next @template_definitions.push(data_template) unless template_dependencies_ready?(template)
+              unless template_dependencies_ready?(template)
+                additional_templates = @template_definitions.extract! { |dt| dt.dig(:data, :name) == template[:name] }
+                @template_definitions.push(data_template, *additional_templates)
+                next
+              end
 
               data = extend_template_data(template:, data_template:)
               next if data.nil?
@@ -197,11 +204,16 @@ module DataCycleCore
           end
 
           add_inverse_aggregate_property!
+          add_inverse_linked_to_text_properties!
+          disable_original_property_for_overlays!
+          check_priorities_for_geographic_properties!
+
+          add_sorting!
+          transform_visibilities!
         end
 
         def append_template!(data:)
-          @templates[data[:set]] ||= []
-          @templates[data[:set]].push(data)
+          @templates.push(data)
           @mixin_paths.concat(data[:mixins])
         end
 
@@ -217,8 +229,7 @@ module DataCycleCore
         end
 
         def add_inverse_aggregate_property!
-          all_templates = @templates.values.flatten
-          all_templates.each do |template|
+          @templates.each do |template|
             next unless template.dig(:data, :features, :aggregate, :aggregate)
 
             aggregated_templates = Array.wrap(
@@ -226,7 +237,7 @@ module DataCycleCore
             )
 
             aggregated_templates.each do |template_name|
-              aggregated_template = all_templates.find { |v| v[:name] == template_name }
+              aggregated_template = @templates.find { |v| v[:name] == template_name }
 
               raise TemplateError.new('features.aggregate.additional_base_templates'), "BaseTemplate missing for #{template_name}" if aggregated_template.nil?
 
@@ -237,6 +248,18 @@ module DataCycleCore
             rescue StandardError => e
               append_error!(e, template, template[:data])
             end
+          end
+        end
+
+        def add_inverse_linked_to_text_properties!
+          @templates.each do |template|
+            Extensions::LinkedInText.append_linked_to_text_props!(template.dig(:data, :properties))
+          end
+        end
+
+        def disable_original_property_for_overlays!
+          @templates.each do |template|
+            Extensions::Overlay.disable_original_properties!(template.dig(:data, :properties))
           end
         end
 
@@ -252,7 +275,7 @@ module DataCycleCore
         end
 
         def transform_template_data(template:, data_template:)
-          transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates: @templates)
+          transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins)
           transformed_data, errors = transformer.transform
           @errors.concat(errors) && return if errors.present?
 
@@ -261,7 +284,8 @@ module DataCycleCore
             paths: data_template[:paths],
             data: transformed_data,
             set: data_template[:set],
-            mixins: transformer.mixin_paths
+            mixins: transformer.mixin_paths,
+            api_schema_types: transformer.api_schema_types
           }
         end
 
@@ -315,7 +339,7 @@ module DataCycleCore
         def template_dependencies_ready?(template)
           return true unless template.key?(:extends)
 
-          extends_templates = Array.wrap(template[:extends])
+          extends_templates = Array.wrap(template[:extends]).dup
 
           # check if all BaseTemplates for extends templates exist
           return false unless base_templates_exist?(extends_templates)

@@ -48,19 +48,23 @@ module DataCycleCore
     scope :from_tree, ->(tree_name) { for_tree(tree_name) }
     scope :with_name, ->(*names) { where(name: names.flatten) }
     scope :with_internal_name, ->(*names) { where(internal_name: names.flatten) }
+    scope :with_external_key, ->(*external_keys) { where(external_key: external_keys.flatten) }
     scope :without_name, ->(*names) { where.not(name: names.flatten) }
     scope :order_by_similarity, lambda { |term|
                                   max_cardinality = ClassificationAlias::Path.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
+                                  order_string = (1..max_cardinality).map { |c| "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)" }.join(' + ')
+                                  order_string += ' DESC'
 
                                   joins(:classification_alias_path).reorder(nil).order(
-                                    [
-                                      Arel.sql(
-                                        (1..max_cardinality).map { |c|
-                                          "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)"
-                                        }.join(' + ') + ' DESC'.to_s
-                                      ),
-                                      {term:}
-                                    ]
+                                    Arel.sql(
+                                      ActiveRecord::Base.send(
+                                        :sanitize_sql_array,
+                                        [
+                                          order_string,
+                                          {term:}
+                                        ]
+                                      )
+                                    )
                                   )
                                 }
     scope :by_external_sources_and_keys, -> { _1.blank? ? none : where(Array.new(_1.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *_1.pluck(:external_source_id, :external_key).flatten) }
@@ -70,6 +74,10 @@ module DataCycleCore
     # keep readonly until reverse triggers are defined and working
     def readonly?
       true
+    end
+
+    def self.classification_polygons
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: pluck(:id))
     end
 
     def self.create(attributes = nil, &)
@@ -160,7 +168,7 @@ module DataCycleCore
     end
 
     def to_sync_data
-      Rails.cache.fetch("sync_api/v1/concepts/#{id}/#{updated_at}", expires_in: 1.year + Random.rand(7.days)) do
+      Rails.cache.fetch("sync_api/v1/concepts/#{id}/#{updated_at}/#{I18n.locale}", expires_in: 1.year + Random.rand(7.days)) do
         next if available_locales.exclude?(I18n.locale)
 
         as_json(

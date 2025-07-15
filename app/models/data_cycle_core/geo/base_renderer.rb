@@ -3,13 +3,12 @@
 module DataCycleCore
   module Geo
     class BaseRenderer
-      def initialize(contents:, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, **_options)
-        @contents = contents
-        @simplify_factor = simplify_factor
-        @include_parameters = include_parameters
-        @fields_parameters = fields_parameters
-        @classification_trees_parameters = classification_trees_parameters
-        @single_item = single_item
+      def initialize(**options)
+        @contents = options[:contents]
+        @include_parameters = Array.wrap(options[:include_parameters])
+        @fields_parameters = Array.wrap(options[:fields_parameters])
+        @classification_trees_parameters = Array.wrap(options[:classification_trees_parameters])
+        @single_item = options[:single_item] || false
       end
 
       def render
@@ -19,7 +18,7 @@ module DataCycleCore
       end
 
       def contents_with_default_scope(query = @contents)
-        query = query.reorder(nil).reselect(content_select_sql).group('things.id')
+        query = query.reorder(nil).joins(:primary_geometry).reselect(content_select_sql).group('things.id, geometries.id')
 
         joins = include_config.pluck(:joins)
         joins.uniq!
@@ -33,7 +32,7 @@ module DataCycleCore
       def content_select_sql
         [
           'things.id AS id',
-          'things.geom_simple AS geometry'
+          'geometries.geom_simple AS geometry'
         ]
           .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
           .join(', ').squish
@@ -48,8 +47,10 @@ module DataCycleCore
 
         config << include_type
         config << include_name if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
+        config << include_slug if field_required?('dc:slug')
         config << include_dc_classification if field_required?('dc:classification')
         config << include_image if field_required?('image')
+        config << include_internal_content_score if field_required?('dc:contentScore')
 
         config
       end
@@ -57,15 +58,15 @@ module DataCycleCore
       private
 
       def field_required?(key)
-        @include_parameters&.any? { |p| p.first == key } ||
-          @fields_parameters&.any? { |p| p.first == key }
+        @include_parameters&.any? { |p| p.first.underscore == key.underscore } ||
+          @fields_parameters&.any? { |p| p.first.underscore == key.underscore }
       end
 
       def include_type
         {
           identifier: '"@type"',
           joins: 'LEFT OUTER JOIN thing_templates ON thing_templates.template_name = things.template_name',
-          select: 'array_to_json(MAX(thing_templates.computed_schema_types))'
+          select: 'array_to_json(MAX(thing_templates.api_schema_types))'
         }
       end
 
@@ -74,6 +75,17 @@ module DataCycleCore
           identifier: 'name',
           select: "MAX(thing_translations.content ->> 'name') FILTER (
             WHERE thing_translations.content ->> 'name' IS NOT NULL
+          )",
+          joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
+                      AND thing_translations.locale = '#{I18n.locale}'"
+        }
+      end
+
+      def include_slug
+        {
+          identifier: '"dc:slug"',
+          select: "MAX(thing_translations.slug) FILTER (
+            WHERE thing_translations.slug IS NOT NULL
           )",
           joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
                       AND thing_translations.locale = '#{I18n.locale}'"
@@ -125,6 +137,17 @@ module DataCycleCore
                   INNER JOIN things ON things.id = content_content_links.content_b_id
                 WHERE content_content_links.relation = 'image'
               ) AS tmp2 ON tmp2.thing_id = things.id"
+        }
+      end
+
+      def include_internal_content_score
+        {
+          identifier: '"dc:contentScore"',
+          select: "MAX((thing_translations.content ->> 'internal_content_score')::integer) FILTER (
+            WHERE thing_translations.content ->> 'internal_content_score' IS NOT NULL
+          )",
+          joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
+                      AND thing_translations.locale = '#{I18n.locale}'"
         }
       end
 

@@ -632,6 +632,12 @@ ul.footer-links {
 
 .close-button {
   padding: 0;
+  color: var(--black);
+  transition: color linear 100ms;
+
+  &:hover {
+    color: var(--absolute-black);
+  }
 }
 
 // compact flash-notifications

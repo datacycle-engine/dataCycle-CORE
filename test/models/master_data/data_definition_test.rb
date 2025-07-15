@@ -31,7 +31,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'CreativeWork',
-          boost: 10.0,
+          schema_ancestors: ['CreativeWork'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -42,14 +43,14 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
               type: 'string',
               storage_location: 'translated_value',
               search: true,
-              validations: { minLength: 1 }
+              validations: { min: 1 }
             },
             headline_external: {
               label: 'Titel',
               type: 'string',
               storage_location: 'translated_value',
               search: true,
-              validations: { minLength: 1 }
+              validations: { min: 1 }
             },
             validity_period: {
               label: 'Gültigkeitszeitraum',
@@ -274,7 +275,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'MediaObject',
-          boost: 10.0,
+          schema_ancestors: ['MediaObject'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -295,7 +297,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'MediaObject',
-          boost: 10.0,
+          schema_ancestors: ['MediaObject'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -316,7 +319,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'MediaObject',
-          boost: 10.0,
+          schema_ancestors: ['MediaObject'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -342,7 +346,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           type: 'object',
           content_type: 'entity',
           schema_type: 'MediaObject',
-          boost: 10.0,
+          schema_ancestors: ['MediaObject'],
+          boost: 10,
           properties: {
             id: {
               label: 'id',
@@ -359,19 +364,20 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
           name: 'whatever',
           type: 'object',
           schema_type: 'CreativeWork',
+          schema_ancestors: ['MediaObject'],
           content_type: 'entity'
         }
       }
     end
 
     it 'check a complex data_template' do
-      validator = subject.new(templates: { creative_works: [
-        data_template,
-        video,
-        bild,
-        mobile_application,
-        person
-      ] }.with_indifferent_access)
+      validator = subject.new(templates: [
+                                data_template,
+                                video,
+                                bild,
+                                mobile_application,
+                                person
+                              ])
       errors = validator.validate
       assert_equal [], errors
     end

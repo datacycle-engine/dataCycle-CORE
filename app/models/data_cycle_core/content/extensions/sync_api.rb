@@ -70,7 +70,8 @@ module DataCycleCore
           property_name_with_overlay = property_name
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
 
-          if plain_property_names.include?(property_name)
+          if plain_property_names.include?(property_name) ||
+             geo_property_names.include?(property_name)
             send(property_name_with_overlay)&.as_json
           elsif classification_property_names.include?(property_name)
             send(property_name_with_overlay).try(:pluck, :id)
@@ -88,8 +89,6 @@ module DataCycleCore
 
             translated = property_definitions[property_name]['translated']
             embedded_array&.filter_map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:) } || []
-          elsif asset_property_names.include?(property_name)
-          # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
             schedule_array = send(property_name_with_overlay)
 
@@ -100,6 +99,11 @@ module DataCycleCore
             preloaded['classifications']
               &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
               &.keys
+          elsif asset_property_names.include?(property_name) ||
+                collection_property_names.include?(property_name) ||
+                oembed_property_names.include?(property_name) ||
+                table_property_names.include?(property_name)
+            # TODO: check if we need to serialize these properties
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
@@ -228,11 +232,8 @@ module DataCycleCore
               .select(:content_a_id, :relation_a, :content_b_id)
 
             if linked_stored_filter.present?
-              sub_query = <<-SQL.squish
-                things.content_type = 'embedded'
-                OR EXISTS (#{linked_stored_filter.apply(skip_ordering: true).except(:order).select(1).where('things.id = content_contents.content_b_id').to_sql})
-              SQL
-              preloaded_content_contents = preloaded_content_contents.joins(:content_b).where(send(:sanitize_sql_array, [sub_query]))
+              preloaded_content_contents = preloaded_content_contents.joins(:content_b)
+              preloaded_content_contents = preloaded_content_contents.where(content_b: { content_type: 'embedded' }).or(preloaded_content_contents.where(content_b: { id: linked_stored_filter.things(skip_ordering: true).reorder(nil).select(:id).where('things.id = content_contents.content_b_id') }))
             end
             preloaded_content_contents = preloaded_content_contents.to_a
 
@@ -244,7 +245,7 @@ module DataCycleCore
               .preload(
                 :translations,
                 :external_source,
-                :classification_content,
+                :classification_contents,
                 :schedules,
                 :related_classification_contents,
                 external_system_syncs: [:external_system],
@@ -294,7 +295,7 @@ module DataCycleCore
               }
             }&.index_by { |v| v[:classification].id } || {}
 
-            preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_content).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
+            preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_contents).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
             preloaded['full_classifications'] = collected_classification_contents.group_by(&:thing_id).transform_values! do |v|
               v.filter_map { |ccc| ccc.classification_alias.primary_classification&.id }
             end

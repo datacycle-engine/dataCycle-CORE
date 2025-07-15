@@ -14,8 +14,9 @@ module DataCycleCore
     before_create :update_asset_attributes
 
     validates :file, presence: true
-    validate :custom_validators
     validate :file_extension_validation
+    validate :content_type_validation
+    validate :custom_validators
 
     include AssetHelpers
     include DataCycleCore::Common::Routing
@@ -69,8 +70,12 @@ module DataCycleCore
       []
     end
 
+    def self.normalized_extension_white_list
+      extension_white_list.filter_map { |extension| MiniMime.lookup_by_extension(extension)&.extension }.uniq
+    end
+
     def self.content_type_white_list
-      extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
+      extension_white_list.filter_map { |extension| MiniMime.lookup_by_extension(extension)&.content_type }.uniq
     end
 
     def filename_without_extension
@@ -97,22 +102,33 @@ module DataCycleCore
 
     def file_extension_validation
       if file.present?
-        return if self.class.content_type_white_list.include?(file_extension)
+        return if self.class.normalized_extension_white_list.include?(file_extension)
 
         specific_mime_type = file.content_type&.then { |mt| [model_name.element, mt.split('/').last].join('/') }
         extension = MiniMime.lookup_by_content_type(specific_mime_type.to_s)&.extension
-        return if self.class.content_type_white_list.include?(extension)
+        return if self.class.normalized_extension_white_list.include?(extension)
 
         extension = MiniMime.lookup_by_filename(file.record&.name.to_s)&.extension
-        return if self.class.content_type_white_list.include?(extension)
+        return if self.class.normalized_extension_white_list.include?(extension)
       end
 
       errors.add :file,
                  :invalid,
                  path: 'uploader.validation.format_not_supported',
                  substitutions: {
-                   data: file.content_type
+                   data: extension
                  }
+    end
+
+    def content_type_validation
+      return if file.present? && self.class.content_type_white_list.include?(file.content_type)
+
+      errors.add(:file,
+                 :invalid,
+                 path: 'uploader.validation.content_type_not_supported',
+                 substitutions: {
+                   data: file.content_type
+                 })
     end
 
     def file_size_validation(options)

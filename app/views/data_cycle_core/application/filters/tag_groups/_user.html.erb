@@ -6,11 +6,11 @@
 
   <% if filter_method.in?(['p', 'b']) %>
     <span>
-      <%= t("filter.#{local_assigns[:filter_type]}.#{DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter_method]&.delete_suffix('_')}", default: title, locale: active_ui_locale) %>
+      <%= t("filter.#{local_assigns[:filter_type]}.#{DataCycleCore::Type::StoredFilter::Parameters::FILTER_PREFIX[filter_method]&.delete_suffix('_')}", default: title, locale: active_ui_locale) %>
     </span>
   <% elsif filter_method.in?(['s', 'u']) %>
     <span>
-      <%= t("filter.#{local_assigns[:filter_type]}.#{DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter_method]&.delete_suffix('_')}", default: title, locale: active_ui_locale) %>
+      <%= t("filter.#{local_assigns[:filter_type]}.#{DataCycleCore::Type::StoredFilter::Parameters::FILTER_PREFIX[filter_method]&.delete_suffix('_')}", default: title, locale: active_ui_locale) %>
       <%= tag.span(value&.dig('text'), class: 'tag', data: { dc_tooltip: value&.dig('text') }) %>
     </span>
   <% else %>

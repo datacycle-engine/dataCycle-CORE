@@ -22,6 +22,7 @@ de:
   template_names:
     skos:Concept: Klassifizierung
     Article: Artikel
+    StructuredArticle: Strukturierter Artikel
     AdditionalDescription: Beschreibungstext
     AudioObject: Audio
     ImageObject: Bild
@@ -48,6 +49,8 @@ de:
     Snowpark: Schneepark
     TouristDestination: Touristische Destination
     ContentPage: Inhaltsseite
+    SpecialAnnouncement: Meldung
+    WineSoil: Weinboden
     # embedded
     ContentBlockTextImage: Text mit Bild
     ContentBlockAccordion: Akkordion
@@ -84,6 +87,7 @@ de:
     belongs_to_aggregate: mit Aggregat verknüpft
     aggregate_for: Aggregats-Basis
     aggregate_for_override: Aggregats-Basis für
+    overlay_overlay: (Overlay)
     overlay_override: (Overlay)
     overlay_add: (Anhang)
 
@@ -135,6 +139,10 @@ de:
     external_user: Externer Benutzer
     all: Alle
 
+  import_steps:
+    last_try: Letzter Versuch
+    last_successful_try: Letzter erfolgreicher Versuch
+
   view_modes:
     grid: Kacheln
     list: Listenansicht
@@ -149,6 +157,7 @@ de:
   admin_panel:
     schema: Schema
     datahash: Datahash
+    thing_history_links: Mit aktuellem Inhalt zusammengeführt
     api: JSON API
     relations: Relationen
     meta-data: Metadaten
@@ -163,6 +172,9 @@ de:
     download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
+    schedule: "geplante Importe:"
+    inline: Inline
+    jobs_info_text: "Die Ansicht wird automatisch aktualisiert, maximal alle 2 Sekunden."
     maintenance:
       classification_mappings:
         button: Klassifizierungsmappings neu generieren
@@ -186,7 +198,7 @@ de:
   user:
     user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
     confirm: E-Mail Adresse wurde noch nicht bestätigt, jetzt bestätigen!
-    delete_user_html: Benutzer löschen?
+    delete_user_html: Benutzer <b>%{email}</b> wirklich löschen?
     consents:
       header:
         terms_conditions: Allgemeine Geschäftsbedingungen (AGB) wurden aktualisiert
@@ -232,8 +244,9 @@ de:
       remove_file: Datei entfernen
       file: Datei
       confirm_single_to_all_html: "%{label} wirklich für alle %{template} übernehmen?"
-      confirm_all_to_all_html: "<h5>Alle Attribute für alle %{template} übernehmen</h5><p>Soll auch <b>%{label}</b> für alle %{template} übernommen werden?</p>"
-    cancel: Abbrechen
+      confirm_all_to_all_html: "Soll auch <b>%{label}</b> für alle %{template} übernommen werden?"
+      confirm_all_to_all_header: Alle Attribute für alle %{template} übernehmen
+    cancel: abbrechen
     ok: Ok
     content_lock:
       renew_lock: Der Inhalt wird in %{min}min wieder freigegeben.<br><br>Wollen Sie die Sperre um %{renew}min verlängern?
@@ -241,9 +254,6 @@ de:
     update_stored_filter: "Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden."
     maximum_embedded: "Maximalanzahl: %{data}"
     minimum_embedded: "Mindestanzahl: %{data}"
-    gpx:
-      file_missing: Datei nicht gefunden!
-      empty: Die GPX-Datei beinhaltet keinen Track.
     map:
       scroll_notice:
         ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
@@ -255,8 +265,13 @@ de:
           popup: "Mittelpunkt: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: Letzte Änderung rückgängig machen
       redo: Rückgängig gemachte Änderungen erneut anwenden
-      upload_gpx:
-        button_title: "GPX-Datei hochladen"
+      upload:
+        button_title: "Datei hochladen (%{types})"
+        error:
+          file_missing: Datei nicht gefunden!
+          empty: Die Datei beinhaltet keine gültigen Geodaten!
+          file_type_not_supported: Dateityp wird nicht unterstützt!
+          invalid_json: Ungültiges JSON-Format!
       elevation_profile:
         button_title: "Höhenprofil anzeigen"
         y_label: Seehöhe
@@ -323,7 +338,6 @@ de:
       success_set: "Bildausschnitt wurde erfolgreich auf %{data} gesetzt"
       success_reset: "Bildausschnitt wurde erfolgreich zurückgesetzt"
       error: "Bildausschnitt konnte nicht gesetzt werden"
-      hint: "Standardmäßig wird die Option 'smart' verwendet, sofern keine andere Option ausgewählt wurde."
     oembed:
       preview:
         title: oEmbed Vorschau
@@ -519,7 +533,7 @@ de:
     height: Höhe
     width: Breite
     exclude: Ausnahme
-    children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>"
+    children_present_html: "<b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>"
     creator: Ersteller
     abo_changed_title:
       one: Ein abonnierter Inhalt (%{title}) wurde geändert
@@ -643,6 +657,13 @@ de:
     number: Anzahl
     preview_links: Vorschau-Links
     or: oder
+    irreversible: Diese Aktion kann nicht rückgängig gemacht werden.
+    thing_count: Anzahl der betroffenen Inhalte
+    delete_all_translations_info: "Es werden alle Übersetzungen gelöscht.<br>Diese Aktion kann nicht rückgängig gemacht werden."
+    delete_thing_linked_info: "Verknüpfte Inhalte werden nicht gelöscht."
+    delete_thing_translation_info_html: "Es wird nur die Übersetzung <b>(%{data})</b> gelöscht."
+    delete_collection_info_html: "Es wird nur die %{type} gelöscht.<br>Die Inhalte werden NICHT aus dem System gelöscht."
+    delete_collection_things_html: "Diese Aktion kann nicht rückgängig gemacht werden.<br>Die Inhalte werden dauerhaft aus dem System gelöscht."
 
   embedded:
     move_down: nach unten verschieben
@@ -674,11 +695,11 @@ de:
     remove_external_system_sync:
       tooltip: Externe Verknüpfung entfernen
       success: Externe Verknüpfung wurde entfernt
-      warning_html: 'Externe Verknüpfung entfernen?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+      warning_html: '<p>Externe Verknüpfung entfernen?</p><div class="callout alert">Das beeinflusst möglicherweise die Funktion eines Importers!</div>'
     demote_to_sync:
       tooltip: primäres externes System in externe Verknüpfung umwandeln
       success: primäres externes System wurde in externe Verknüpfung umgewandelt
-      warning_html: 'primäres externes System in externe Verknüpfung umwandeln?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+      warning_html: '<p>primäres externes System in externe Verknüpfung umwandeln?</p><div class="callout alert">Das beeinflusst möglicherweise die Funktion eines Importers!</div>'
 
   duplicate:
     candidates: Mögliche Duplikate
@@ -810,6 +831,18 @@ de:
         belongs_to_aggregate: mit Aggregat verknüpft
       check_box_labels:
         aggregate_for_override: Aggregats-Basis überschreiben
+    focus_point_editor:
+      button_title: Fokuspunkt festlegen
+      editing_button_title: Bearbeitung beenden
+      updated_successfully: Der Fokuspunkt wurde erfolgreich gesetzt
+      update_error: Der Fokuspunkt konnte nicht gesetzt werden
+      reset_successfully: Der Fokuspunkt wurde erfolgreich zurückgesetzt
+      clear_focus_point: Fokuspunkt zurücksetzen
+      hint: Der Fokuspunkt wird bevorzugt.
+    gravity_editor:
+      button_title: Bildausschnitt festlegen (Gravity)
+      editing_button_title: Bearbeitung beenden
+      hint: "Standardmäßig wird die Option 'smart' verwendet, sofern keine andere Option ausgewählt wurde."
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -1022,8 +1055,8 @@ de:
         linked_items_in:
           prefix: Verknüpfte/r/s
     related_to: ist verknüpft mit
-    feratel_content_score: Feratel - Content Score
-    internal_content_score: Content Score - dataCycle
+    feratel_content_score: Content Score (feratel)
+    internal_content_score: Content Score (dataCycle)
     union_filter_ids: in gespeicherten Suchen / %{collections}
     related_to_method:
       related: verknüpft mit
@@ -1066,6 +1099,8 @@ de:
       not_exists: ist System
       like: E-Mail enthält
       not_like: E-Mail enthält nicht
+    content_ids: Inhalt
+    publication_date: Publikationsdatum
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -1101,7 +1136,7 @@ de:
     content_size: Dateigröße
     height: Höhe
     upload_date: Uploaddatum
-    internal_content_score: Content Score (intern)
+    internal_content_score: Content Score (dataCycle)
     users_context:
       given_name: Vorname
       family_name: Nachname
@@ -1188,6 +1223,7 @@ de:
     unlock: freischalten
     delete: löschen
     choose_type: "Inhaltstyp wählen"
+    choose_data: "%{data} wählen"
     new: "%{data} erstellen"
     new_asset: "%{data} speichern"
     generate: "%{data} generieren"
@@ -1244,16 +1280,16 @@ de:
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
     searching: suche
-    next: Weiter
-    back: Zurück
+    next: weiter
+    back: zurück
     add_files: Dateien hinzufügen
     delete_file: Datei wirklich löschen?
     delete_files: Dateien wirklich löschen?
     delete_all_files: ALLE Dateien wirklich löschen?
     uploaded: hochgeladen
     back_to_select: Zurück zur Auswahl
-    delete_translation: "Übersetzung (%{data}) löschen"
-    delete_with_translated_html: "Eingebetteten Datensatz löschen?<br><br>Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!"
+    delete_translation: "Übersetzung löschen"
+    delete_with_translated_html: <p>Eingebetteten Datensatz löschen?</p><div class="callout warning">Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!</div>
     discard_changes: Änderungen verwerfen
     save_changes: Speichern und schließen
     merge_with_duplicate: Änderungen speichern, Duplikat löschen und Ansicht schließen
@@ -1267,7 +1303,7 @@ de:
     add_items_to_watch_list: "zu %{data} hinzufügen"
     add: hinzufügen
     delete_items_in_watch_list_tooltip: "Alle Inhalte aus dieser Inhaltssammlung löschen"
-    delete_items_in_watch_list: "Möchten Sie wirklich alle Inhalte aus dieser Inhaltssammlung aus dem System löschen? <b>Diese Aktion kann nicht rückgängig gemacht werden und löscht die Inhalte dauerhaft aus dem System.</b>"
+    delete_items_in_watch_list: "Möchten Sie wirklich <b>alle</b> Inhalte in dieser Inhaltssammlung aus dem System <b>löschen</b>?"
     delete_items_in_watch_list_confirmation_text: "Alle Inhalte dauerhaft löschen"
     save_without_redirect: Zwischenspeichern
     set_and_next: "übernehmen und weiter"
@@ -1276,14 +1312,49 @@ de:
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
     copyable_from: "%{data} übernehmen"
     copyable_from_clear: "%{data} verwerfen"
-    logout: Abmelden
+    logout: abmelden
     clear_tooltip: "Alle Inhalte aus %{data} entfernen"
-    clear: "Möchten Sie wirklich alle Inhalte aus %{data} entfernen? Diese Aktion entfernt die Daten NICHT aus dem System."
+    clear: entfernen
     remove_content_from: "%{name} aus %{collection} entfernen?"
     remove_from: "aus %{collection} entfernen"
-    set_gravity: "Bildausschnitt festlegen (Gravity)"
-    deactivate_gravity_editor: "Bearbeitung beenden"
     download_user_info_activity: "Nutzeraktivitäten herunterladen"
+    cancel: abbrechen
+    delete_translation_confirmation_html: "Übersetzung <b>(%{data})</b> von %{template} <b>%{title}</b> wirklich löschen?"
+    delete_confirmation_html: "%{type} <b>%{name}</b> wirklich löschen?"
+
+  concept_scheme_unlink:
+    link_title: Direkte Zuweisung zu Inhalten entfernen
+    submit_button: Zuweisung entfernen
+    warning_html:
+      zero: "Es sind keine direkten Zuweisungen von Klassifizierungen aus <b>%{name}</b> zu Inhalten aus der gewählten %{collection} <b>%{collection_name}</b> vorhanden."
+      one: "<p>Folgende, direkt zugewiesene, Klassifizierungen werden entfernt!</p><p>Bitte Überprüfen Sie die Angaben:</p>"
+      other: "<p>Folgende, direkt zugewiesene, Klassifizierungen werden entfernt!</p><p>Bitte Überprüfen Sie die Angaben:</p>"
+    error: Die Zuweisung konnte nicht entfernt werden
+    finished:
+      one: Die Zuweisung von <b>%{name}</b> zu <b>%{count}</b> Inhalt aus %{collection} <b>%{collection_name}</b> wurde entfernt
+      other: Die Zuweisung von <b>%{name}</b> zu <b>%{count}</b> Inhalten aus %{collection} <b>%{collection_name}</b> wurde entfernt
+    enqueued: Es wurde ein Job zum Entfernen der Zuweisung erstellt
+    version_name: "zugewiesene Klassifizierungen für %{data} wurden entfernt"
+    info_html: Alle direkten Zuweisungen von Klassifizierungen aus <b>%{name}</b> zu Inhalten aus der gewählten <b>%{collection}</b> werden entfernt.
+    disconnected: Die Verbingung zum Server wurde unterbrochen. Bitte versuchen Sie es erneut.
+    post_submit_info_html: "Das Entfernen der Zuweisung wird im Hintergrund durchgeführt.<br>Es kann einen Moment dauert, bis der Job gestartet wird."
+
+  concept_scheme_link:
+    link_title: Gemappte Klassifizierungen direkt Inhalten zuweisen
+    submit_button: Klassifizierungen zuweisen
+    warning_html:
+      zero: "Keine Klassifizierungen aus <b>%{name}</b> sind über Mappings mit Inhalten aus der gewählten %{collection} <b>%{collection_name}</b> verknüpft."
+      one: "<p>Folgende Klassifizierungen, die über Mappings mit dem Inhalt verknüpft sind, werden direkt dem Inhalt zugewiesen!</p><p>Bitte Überprüfen Sie die Angaben:</p>"
+      other: "<p>Folgende Klassifizierungen, die über Mappings mit Inhalten verknüpft sind, werden direkt den Inhalten zugewiesen!</p><p>Bitte Überprüfen Sie die Angaben:</p>"
+    version_name: "gemappte Klassifizierungen für %{data} wurden dem entsprechenden Attribut zugewiesen"
+    error: Die Klassifizierungen konnten nicht zugewiesen werden
+    finished:
+      one: Die Klassifizierungen aus <b>%{name}</b> wurden direkt <b>%{count}</b> Inhalt aus %{collection} <b>%{collection_name}</b> zugewiesen
+      other: Die Klassifizierungen aus <b>%{name}</b> wurden direkt <b>%{count}</b> Inhalten aus %{collection} <b>%{collection_name}</b> zugewiesen
+    info_html: Alle Klassifizierungen des Klassifizierungsbaums <b>%{name}</b>, die über Mappings mit Inhalten aus der gewählten <b>%{collection}</b> verknüpft sind, werden direkt den Inhalten zugewiesen.
+    disconnected: Die Verbingung zum Server wurde unterbrochen. Bitte versuchen Sie es erneut.
+    post_submit_info_html: "Die Zuweisung der Klassifizierungen wird im Hintergrund durchgeführt.<br>Es kann einen Moment dauert, bis der Job gestartet wird."
+
   validation:
     errors:
       slug: "%{data} ist bereits der slug von einem anderen Datensatz."
@@ -1294,6 +1365,7 @@ de:
       min_datetime: "Zeitpunkt %{data} sollte nach %{min} liegen."
       min_date: "Datum %{data} sollte nach %{min} liegen."
       match: "%{data} stimmt nicht mit %{expression} überein."
+      not_contains: '"%{data}" enthält "%{expression}"'
       format: "Format-String %{format_string} für %{data} unbekannt."
       uuid: "Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
       date_time: "%{data} ist kein gültiges Zeit/Datum Format."
@@ -1353,6 +1425,8 @@ de:
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
       unknown_activity_type: "Unbekannter Typ für Activity"
       unknown: Unbekannter Fehler
+      geocoding_endpoint_error: "GeoCoding: Der Endpunkt liefert keine Daten"
+
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -1398,6 +1472,7 @@ de:
       bulk_created:
         one: "<b>%{count}</b> Inhalt konnte nicht erstellt werden!"
         other: "<b>%{count}</b> Inhalte konnten nicht erstellt werden!"
+      feature_not_enabled: "Feature ist nicht aktiviert"
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -1604,6 +1679,8 @@ de:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten
         external_key: Externe ID
+        internal: intern (Systemklassifizierungsbaum)
+        mappable: Klassifizierungen dürfen gemapped werden
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: "Beschreibungstext"
@@ -1616,6 +1693,7 @@ de:
         ui_configs: UI-Konfiguration
         ui_configs/color: Farbe
         ui_configs/icon: Icon
+        internal: intern (Systemklassifizierung)
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
@@ -1675,7 +1753,7 @@ de:
         longitude: Längengrad
         latitude: Breitengrad
         elevation: Meereshöhe (m)
-        use_geo_for_perimeter_search: Koordinaten für Umkreissuche übernehmen
+        use_geo_for_perimeter_search: Inhalte in der Nähe suchen
       data_cycle_core/data_link:
         comment: Kommentar
         permissions: Berechtigungen
@@ -1751,6 +1829,9 @@ de:
     child_classification_relations_html:
       one: "ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Diese wird mitgelöscht!"
       other: "ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!"
+    concept_scheme_stored_filter_html:
+      one: "ACHTUNG: Dieser %{data} wird in folgender %{search} verwendet:"
+      other: "ACHTUNG: Dieser %{data} wird in folgenden %{search} verwendet:"
     stored_searches:
       my_searches: Meine Suchen
       my_saved: Meine gespeicherten Suchen
@@ -1776,6 +1857,7 @@ de:
         shares: Freigaben
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
+      clear_warning: '<p>Möchten Sie wirklich alle Inhalte aus <b>%{data}</b> entfernen?</p><div class="callout primary">Diese Aktion löscht die Inhalte NICHT aus dem System.</div>'
       mailer:
         subject:
           one: "Inhalte wurden zu/von einer %{type} hinzugefügt/entfernt"
@@ -1835,105 +1917,35 @@ de:
 
   import:
     generic:
-      description: Beschreibung
+      description: Kurzbeschreibung
       text: Detailbeschreibung
       snow_report: Schneebericht
+      valley: Tal
+      mountain: Berg
     booking:
       hotel_important_information: Wichtige Informationen
       hotel_description: Kurzbeschreibung
-    feratel:
-      meeting_point: Treffpunkt
-      additional_service:
-        Payment: Zahlungsmodalitäten
-        ServiceDescription: Beschreibung
-        Included Services: Enthaltene Leistungen
-        Not included Services: Nicht inkludierte Leistungen
-        Equipment: Ausrüstung
-        Bring along: Zum Mitbringen
-        Rental Equipment: Leihausrüstung
-        Suitable for: Geeignet für
-        Difficulty: Schwierigkeitsgrad
-        Requirements: Voraussetzungen
-        Meeting Point: Treffpunkt
-        Opening hours: Öffnungszeiten
-        Price Information: Preis Information
-        Payment conditions: Zahlungskonditionen
-        Cancellation Information: Stornierungsregelungen
-        Arrival Information: Informationen zur Anreise
-        "FAQ / good to know": Häufige Fragen und Antworten
-        "Hint / Advice": Hinweis
-        Important information: Wichtige Informationen
-      event:
-        EventHeader: Beschreibung
-        EventHeaderShort: Kurzbeschreibung
-        AdditionalService: Zusatzleistung
-        CurrentInformation: Aktuelle Informationen
-        GuestCardClassification: Gästekartenleistungen
-      serial_event:
-        EventGroup: Beschreibung
-      infrastructure:
-        AdditionalService: Zusatzleistung
-        Arrival Information: Informationen zur Anreise
-        CurrentInformation: Aktuelle Informationen
-        GuestCardClassification: Gästekartenleistungen
-        InfrastructureLong: Detailbeschreibung
-        InfrastructureOpeningTimes: Öffnungszeiten
-        InfrastructurePriceInfo: Preisinformation
-        InfrastructureShort: Kurzbeschreibung
-        Payment: Zahlungsmodalitäten
-        Price Information: Preis
-        ServiceDescription: Beschreibung
-      GuestCards:
-        GuestCardClassification: Gästekartenleistungen
-      accommodation:
-        CurrentInformation: Aktuelle Informationen
-        SEOKeywords: SEO-Schlagwörter
-        ServiceProviderArrivalVoucher: Anreisemodalitäten
-        ServiceProviderConditions: Zusatzinformationen
-        ServiceProviderDescription: Beschreibung
-      GTC:
-        GTC: Allgemeine Geschäftsbedingungen
-      package:
-        PackageShortText: Kurzbeschreibung
-        Package: Beschreibung
     hrs:
       text: Beschreibung
       description: Kurzbeschreibung
     regiondo:
-      text: Beschreibung
+      text: Detailbeschreibung
       description: Kurzbeschreibung
-    outdoor_active:
-      place:
-        directions: Anfahrt
-        parking: Parken
-        hours_available: Öffnungszeiten
-        text: Beschreibung
-        price: Preis
-        description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-      tour:
-        directions: Anfahrt
-        parking: Parken
-        hours_available: Öffnungszeiten
-        text: Beschreibung
-        price: Preis
-        description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verkehrsmittel
-        instructions: Wegbeschreibung
-        safety_instructions: Sicherheitshinweise
-        equipment: Ausrüstung
-        suggestion: Tipps
-        additional_information: Zusatzinformationen
-        maps: Literatur
-        starting_point_descr: Start
-        destination: Ziel
+      faq_included: "FAQ: Inklusive Leistungen"
+      faq_not_included: "FAQ: Nicht inklusive Leistungen"
+      faq_participants: "FAQ: Teilnehmerinformationen"
+      faq_customer_requirements: "FAQ: Voraussetzungen für Kunden"
+      faq_other_info: "FAQ: Weitere Informationen"
+      meta_description: "Meta-Beschreibung"
+    tourdata:
+      OBJECT_TEXT_BESCHREIBUNG: Beschreibung
+      OBJECT_TEXT_TEASER: Kurzbeschreibung
+      OBJECT_ANREISE: Anreise
+      ROUTE_START: Ausgangspunkt
+      ROUTE_ZIEL: Zielpunkt
       ratings:
-        technique_rating: Technik
-        condition_rating: Kondition
-        experience_rating: Erlebnis
-        landscape_rating: Landschaft
-        difficulty_rating: Schwierigkeit
-        panoramic_view_rating: Panoramaaussicht
+        stamina_rating: Kondition
+        skill_rating: Fähigkeiten
     general_solutions:
       directions: Anfahrt
       parking: Parken
@@ -1958,8 +1970,10 @@ de:
       tour:
       poi:
     imx_platform:
-      description: Beschreibung
+      description: Kurzbeschreibung
       text: Detailbeschreibung
+      shortDesc: Kurzbeschreibung
+      longDesc: Detailbeschreibung
       startingPointDescr: Beschreibung Startpunkt
       destination: Ziel
       gettingThere: Anreise
@@ -1991,24 +2005,81 @@ de:
         noOpeningHours: ohne Öffnungszeiten
         permanentlyOpen: Jederzeit frei zugänglich
         openOnRequest: geöffnet auf Anfrage
+      seatsIndoor: Sitzplätze innen
+      seatsOutdoor: Sitzplätze außen
+      winery:
+        description: Weingutbeschreibung
+      winesoil:
+        percentage: Anteil
+        area: Rebfläche (in ha)
+        soilCharacteristics: Bodenbeschaffenheit
+        wineCharacteristics: Weineigenschaften
+        soilNumber: Bodennummer
+    imx_ausflugsticker:
+      description: Beschreibung
     gem2go:
       description: Beschreibung
-    timm4:
-      intro: Beschreibung
-      description: Detailbeschreibung
-      positionDescription: Lage
-      pricesDescription: Preisinformation
-      keywords: Stichworte
-      culinarySpecialities: Kulinarische Spezialitäten
-      furtherSpecialities: Weiter Spezialitäten
-      dishes: Gerichte
-      barrierFreeDescription: Barrierefreiheit
-      restDays: Ruhetage
-      companyHoliday: Betriebsferien
-      meetingPoint: Treffpunkt
-      timesComment: Erläuterung Beginnzeiten
-      menuDownload: Speisekarte herunterladen
-      recipeSuggestionDownload: Rezept herunterladen
+    thue_cat:
+      description: Beschreibung
+      longDescription: Detailbeschreibung
+      shortDescription: Kurzbeschreibung
+      directions: Wegbeschreibung
+      parking: Parkmöglichkeiten
+      maps: Karten
+      shortText: Kurzbeschreibung
+      longText: Detailbeschreibung
+      additionalInformation: Zusätzliche Informationen
+      destination: Zielbeschreibung
+      gettingThere: Anfahrtsbeschreibung
+      literature: Literatur
+      startingPointDescr: Startpunktbeschreibung
+      tip: Tipps
+      publicTransit: Öffentliche Verkehrsmittel
+      equipment: Ausrüstung
+      seasonDescription: Begehbare Monate
+      safetyGuidelines: Sicherheitsvorschriften
+      thuecat:distanceToPublicTransport: Distanz zum nächsten öffentlichen Transportmittel
+      TrainStation: Bahnhof
+      MountainRailroad: Bergbahn
+      BusTerminal: Busbahnhof
+      BicycleBus: Fahrradbus
+      Coach: Fernbus
+      FerryEnum: Fährhafen
+      SchoolBus: Schulbus
+      RegionalBus: Regionalbus
+      CityBus: Stadtbus
+      Streetcar: Straßenbahn
+      ForestRailroad: Waldbahn
+      HikingBus: Wanderbus
+      Subway: U-Bahn
+      thuecat:parkingFacility: Parkmöglichkeiten
+      thuecat:BusOrCoach: Bus oder Reisebus
+      thuecat:Car: Auto
+      thuecat:HandicappedParking: Behindertenparkplatz
+      thuecat:Motorcycle: Motorrad
+      thuecat:ElectricVehicleCarChargingStationEnumMem: Ladestation für Elektrofahrzeuge
+    pimcore_ats:
+      description: Beschreibung
+      longDescription: Beschreibung
+      shortDescription: Kurzbeschreibung
+      directions: Wegbeschreibung
+      parking: Parkmöglichkeiten
+      maps: Karten
+      shortText: Kurzbeschreibung
+      longText: Detailbeschreibung
+      additionalInformation: Zusätzliche Informationen
+      destination: Zielbeschreibung
+      gettingThere: Anfahrtsbeschreibung
+      literature: Literatur
+      startingPointDescr: Startpunktbeschreibung
+      tip: Tipps
+      publicTransit: Öffentliche Verkehrsmittel
+      equipment: Ausrüstung
+      ratings:
+        difficulty_rating: Schwierigkeit
+        condition_rating: Kondition
+        experience_rating: Erlebnis
+        technique_rating: Technik
     toubiz:
       abstract: Zusammenfassung
       description: Beschreibung
@@ -2040,32 +2111,28 @@ de:
       kitchen_zeiten: Küche Öffnungszeiten
       object_betriebsurlaub: Betriebsurlaub
       price_info: Preisinformation
-      price_reducedinfo: Preisinformation Überblick
+      price_reducedinfo: Ermäßigungen
+      price_info_extra: Preisinformationen
+      price_presale_html: Vorverkauf
       room_sonstige: Raum Sonstiges
       route_start: Startpunkt
       route_start_ort: Route Startort
       route_ziel: Zielpunkt
-      socialdescription: Socialdescription
-      socialtitle: Socialtitle
-      web_seo_beschreibung: web_seo_beschreibung
-      web_seo_keywords: web_seo_keywords
-      web_seo_titel: web_seo_titel
       additionaltext_feature_barrierefreiheit: Barrierefreiheit
       additionaltext_feature_eignung: Eignung
       additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: Hygiene- und Infektionsmaßnahmen
       dayoff: Ruhetag
       details: Details
+      details_speech: Details
+      details_infotext: Details
       directions: Wegbeschreibung
-      iframe_height: iframe_height
-      iframe_titel: iframe_title
-      iframe_url: iframe_url
       moreinfo: Weitere Informationen
       openings: Öffnungszeiten
       packagefeature: Pauschalangebot Details
       packagetripinfo: Pauschalangebot Informationen
       station: Bahnhof
       subtitle: Untertitel
-      teaser: Teaser
+      teaser: Kurzbeschreibung
       Persons: Person
       season_header: Saison (Monat - Eignung)
       Season: Saison
@@ -2078,10 +2145,14 @@ de:
       tourmoreinfos_tip: Tipp des Autors
       tourmoreinfos_gettingthere: Anfahrt
       tourmoreinfos_parking: Parken
+      tourmoreinfos_publictransit: Weitere Infos
+      tourmoreinfos_additionalinformation: Weitere Infos
+      parking_fee: Parkgebühren
+      shuttle_service: Shuttle Service
     bierfinder:
       description: Beschreibung
-      book: Detailbeschreibung
-      tipp: Tip
+      book: Beschreibung
+      tipp: Tipp
       essenUndSpezial: Essen und Spezialitäten
       biersorten: Biersorten
       classics: Klassiker
@@ -2105,20 +2176,17 @@ de:
       teaser: Teaser
       zusatzinfo: Zusatzinformationen
       anreisebeschreibung: Anreisebeschreibung
-    pimcore:
-      description: Beschreibung
-      text: Detailbeschreibung
     lottaleben:
-      description: Beschreibung
+      description: Kurzbeschreibung
       text: Detailbeschreibung
     tramino:
       info: Kurzbeschreibung
       intro: Kurzbeschreibung
-      slogan: Slogan
+      slogan: weitere Info
       text: Beschreibung
     jugendherberge:
       titel: Titel
-      teaser: Teaser
+      teaser: Kurzbeschreibung
       text: Detailbeschreibung
     green_solutions:
       TourMoreInfos_additionalInformation: Zusatzinformationen zur Tour
@@ -2136,9 +2204,26 @@ de:
       opening_hours: Öffnungszeiten Beschreibung
     oya_media:
       description: Beschreibung
-      short_description: Teaser
+      short_description: Kurzbeschreibung
       price_description: Preisbeschreibung
       price_from: Preis ab (€)
+    arcgis_cham:
+      BSR: Kurzbeschreibung
+      BSR_DE: Beschreibung
+    makrohaus:
+      short_description: Kurzbeschreibung
+      description_1: Beschreibung
+      description_2: weitere Infos
+      description_3: weitere Infos
+      openings: Öffnungszeiten
+      starting_point_description: Anfahrt
+      sub_title: Untertitel
+      teaser_title: Alternativ Titel
+    digitize_the_planet:
+      abstract: Beschreibung
+      abstract_short: Kurzbeschreibung
+      geometry_source_organization: Quelle der Geometriedaten
+      legal_doc: Rechtsdokument
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">
@@ -2162,6 +2247,7 @@ de:
       invalid_file: beschädigte Datei
       format: 'Erlaubte Formate: <span class="value">%{data}</span>'
       format_not_supported: Nicht unterstütztes Format (%{data})
+      content_type_not_supported: Nicht unterstützter MIME-Type (%{data})
       dimensions:
         exclude:
           format: 'Folgende Formate sind in jeder Größe erlaubt: <span class="value">%{data}</span>'
@@ -2188,6 +2274,9 @@ de:
       file_size:
         max: 'Maximale Dateigröße: <span class="value">%{data}</span>'
         min: 'Minimale Dateigröße: <span class="value">%{data}</span>'
+      resolution:
+        max: 'Maximale Auflösung (Breite x Höhe): <span class="value">%{data}</span>'
+        min: 'Minimale Auflösung (Breite x Höhe): <span class="value">%{data}</span>'
 
     close_warning_html:
       "<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
@@ -2231,6 +2320,8 @@ de:
       short: "%e. %b"
       full: "%A, %e. %B %Y"
       edit: "%d.%m.%Y"
+      validity_schedule_terminating: "%e. %B %Y"
+      validity_schedule: "%e. %b"
     month_names:
       -
       - Januar
@@ -2373,6 +2464,8 @@ de:
       edit: "%d.%m.%Y %H:%M"
       history: "%d.%m.%Y, %H:%M Uhr"
       time_only: "%H:%M"
+      validity_schedule_terminating: "%d. %B %Y, %H:%M Uhr"
+      validity_schedule: "%e. %b, %H:%M Uhr"
     pm: nachmittags
 
   external_sources:
@@ -2390,6 +2483,7 @@ de:
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
     data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt
+    data_cycle_core/error/download/serialization_error: Beim Download ist ein Fehler aufgetreten
     data_cycle_core/error/api/bad_request_error:
       unknown_parameter: Unbekannter Query Parameter
       invalid_parameter: Ungültiger Query Parameter

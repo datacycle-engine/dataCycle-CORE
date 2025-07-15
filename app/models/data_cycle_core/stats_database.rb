@@ -1,8 +1,17 @@
 # frozen_string_literal: true
 
+require 'fugit'
+
 module DataCycleCore
   class StatsDatabase
     include ActionView::Helpers::NumberHelper
+
+    VALID_JOB_TYPES = {
+      'dc:import:append_job' => [:key, :mode, :inline],
+      'dc:import:append_partial_job' => [:key, :download_names, :import_names, :mode],
+      'dc:downport:partial' => [:key, :download_names, :import_names, :mode, :max_count],
+      'data_cycle_core:import:perform' => [:key, :mode, :max_count]
+    }.freeze
 
     attr_accessor(
       :stat_update, :pg_name, :pg_size, :pg_overlays,
@@ -81,11 +90,17 @@ module DataCycleCore
             {
               '$facet' => {
                 'deleted' => [
-                  { '$match' => { 'dump.de.deleted_at' => { '$exists' => true } } },
+                  { '$match' => { '$or' => [
+                    { 'dump.deleted_at' => { '$exists' => true } },
+                    { 'dump.de.deleted_at' => { '$exists' => true } }
+                  ] } },
                   { '$count' => 'count' }
                 ],
                 'archived' => [
-                  { '$match' => { 'dump.de.archived_at' => { '$exists' => true } } },
+                  { '$match' => { '$or' => [
+                    { 'dump.archived_at' => { '$exists' => true } },
+                    { 'dump.de.archived_at' => { '$exists' => true } }
+                  ] } },
                   { '$count' => 'count' }
                 ],
                 'total' => [
@@ -126,7 +141,8 @@ module DataCycleCore
         tables: mongo_data,
         languages: external_source.default_options&.dig('locales'),
         credentials: external_source.credentials.is_a?(::Array) ? number_with_delimiter(external_source.credentials.size) : 1,
-        updated_at: external_source.updated_at
+        updated_at: external_source.updated_at,
+        sorted_step_times: external_source.sorted_step_times
       }.merge(last_download_and_import(external_source))
 
       client.close
@@ -137,6 +153,53 @@ module DataCycleCore
 
     private
 
+    def schedule(external_source)
+      schedules = []
+
+      DataCycleCore.schedule.each do |config|
+        next if config.key?('type') || config.key?('task')
+
+        config&.each do |cron_rule, tasks|
+          tasks&.each do |task|
+            t_name, t_args = task.delete_suffix(']').split('[')
+            next unless VALID_JOB_TYPES.key?(t_name.to_s)
+
+            opts = VALID_JOB_TYPES[t_name.to_s].zip(t_args.split(',')).to_h
+            next if opts[:key].blank?
+
+            opts.transform_values! { |v| v&.delete('\'"') }
+
+            next if opts[:key].start_with?(' ') ||
+                    opts[:key].end_with?(' ') ||
+                    opts[:mode]&.include?(' ') ||
+                    opts[:inline]&.include?(' ')
+
+            next unless opts[:key] == external_source.id ||
+                        opts[:key] == external_source.name ||
+                        opts[:key] == external_source.identifier
+
+            parsed_schedule = Fugit.parse(cron_rule)
+            next unless parsed_schedule
+
+            steps = []
+            steps = opts[:download_names].to_s.split('|').map(&:strip).compact_blank if opts[:download_names].present?
+            steps += opts[:import_names].to_s.split('|').map(&:strip).compact_blank if opts[:import_names].present?
+
+            parsed_schedule.next.take(7).map do |next_time|
+              schedules << {
+                timestamp: next_time,
+                mode: opts[:mode],
+                inline: opts[:inline].to_s == 'true',
+                steps: steps.uniq
+              }
+            end
+          end
+        end
+      end
+
+      schedules.sort_by { |s| s[:timestamp] }.first(7)
+    end
+
     def load_postgres_data
       @stat_update = Time.zone.now
 
@@ -146,32 +209,7 @@ module DataCycleCore
     end
 
     def last_download_and_import(external_source)
-      last_download = external_source.last_download.presence || 'never'
-      last_download_time = external_source.last_download_time.presence
-      last_successful_download = external_source.last_successful_download.presence || 'never'
-      last_successful_download_time = external_source.last_successful_download_time.presence
-      last_download_class = last_download == last_successful_download ? 'success-color' : 'alert-color' if !external_source.deactivated && (last_download != 'never' || last_successful_download != 'never')
-      last_download_class = 'primary-color' if last_download_class == 'alert-color' && Delayed::Job.where("delayed_reference_type ILIKE '%download%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
-
-      last_import = external_source.last_import.presence || 'never'
-      last_import_time = external_source.last_import_time.presence
-      last_successful_import = external_source.last_successful_import.presence || 'never'
-      last_successful_import_time = external_source.last_successful_import_time.presence
-      last_import_class = last_import == last_successful_import ? 'success-color' : 'alert-color' if !external_source.deactivated && (last_import != 'never' || last_successful_import != 'never')
-      last_import_class = 'primary-color' if last_import_class == 'alert-color' && last_download_class != 'primary-color' && Delayed::Job.where("delayed_reference_type ILIKE '%import%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
-
-      {
-        last_download:,
-        last_download_time:,
-        last_import:,
-        last_import_time:,
-        last_successful_download:,
-        last_successful_download_time:,
-        last_successful_import:,
-        last_successful_import_time:,
-        last_download_class:,
-        last_import_class:
-      }
+      external_source.last_download_and_import
     end
 
     def load_mongo_data
@@ -188,7 +226,9 @@ module DataCycleCore
           downloadable: external_source.download_config.present?,
           importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
           name: external_source.name,
-          identifier: external_source.identifier
+          identifier: external_source.identifier,
+          last_import_step_time_info: external_source.last_import_step_time_info,
+          schedule: schedule(external_source)
         }.merge(last_download_and_import(external_source))
       end
     end

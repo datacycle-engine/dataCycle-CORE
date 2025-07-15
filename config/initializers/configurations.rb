@@ -8,13 +8,13 @@ if Rails.env.development?
     DataCycleCore.load_configurations_for_file('*')
 
     DataCycleCore.features.each_key do |feature|
-      "DataCycleCore::Feature::#{feature.classify}".safe_constantize&.reload
+      DataCycleCore::Feature[feature]&.reload
     end
 
     DataCycleCore::Abilities::PermissionsList.reload
   end
 
-  Rails.application.reloader.to_prepare do
+  Rails.application.reloader.before_class_unload do
     config_for_reloader.execute_if_updated
   end
 end

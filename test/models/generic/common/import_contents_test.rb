@@ -32,11 +32,11 @@ module DummyTransformations
     }
   end
 
-  def self.filter_true(_data, _options)
+  def self.filter_true(_data, _options) # rubocop:disable Naming/PredicateMethod
     true
   end
 
-  def self.filter_false(_data, _options)
+  def self.filter_false(_data, _options) # rubocop:disable Naming/PredicateMethod
     false
   end
 end
@@ -48,7 +48,11 @@ module DummyNestedFilter
 end
 
 ExternalSystemDummyStruct = Struct.new('ExternalSystemDummy', :id, :default_options)
-UtilityObjectDummyStruct = Struct.new('UtilityObjectDummy', :external_source)
+UtilityObjectDummyStruct = Struct.new('UtilityObjectDummy', :external_source) do
+  def step_config(config)
+    (config || {}).with_indifferent_access
+  end
+end
 
 describe DataCycleCore::Generic::Common::ImportContents do
   include DataCycleCore::MinitestSpecHelper

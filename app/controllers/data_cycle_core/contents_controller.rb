@@ -48,11 +48,17 @@ module DataCycleCore
 
       finished = item_count == content_ids.size
 
+      sf = DataCycleCore::StoredFilter.create!(
+        user: current_user,
+        language: ['all'],
+        parameters: [{ content_ids: content_ids.pluck(:id) }]
+      )
+
       ActionCable.server.broadcast(
         "bulk_create_#{params[:overlay_id]}_#{current_user.id}",
         {
           created: finished,
-          redirect_path: finished ? root_path : nil,
+          redirect_path: finished ? root_path(stored_filter: sf.id) : nil,
           content_ids:,
           error: finished ? nil : I18n.t('controllers.error.bulk_created', count: item_count - content_ids.size, locale: helpers.active_ui_locale)
         }
@@ -114,29 +120,21 @@ module DataCycleCore
       content = DataCycleCore::Thing.find(params[:id])
       raise ActiveRecord::RecordInvalid if ['Audio', 'AudioObject'].include?(content.template_name)
 
-      content = content.try(:image)&.first unless content.respond_to?(:asset)
+      content = content.try(:image)&.first unless content.respond_to?(:content_url) || content.respond_to?(:preview_url) || content.respond_to?(:thumbnail_url)
+      attributes = [:thumbnail_url]
 
-      attribute = asset_proxy_params[:type] == 'content' && ['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
-
-      raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
-
-      if content.try(:asset)&.file&.attached?
-        # active storage
-        if content.asset.instance_of?(::DataCycleCore::Image)
-          rendered_attribute = content.send(attribute)
-        else
-          content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
-          rendered_attribute = content.asset.file.preview_image.url
-        end
-      else
-        # external thing
-        rendered_attribute = content.send(attribute)
+      if asset_proxy_params[:type] == 'content'
+        attributes.unshift(:preview_url)
+        attributes.unshift(:content_url) if content.template_name.in?(['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'])
       end
 
+      attribute = attributes.find { |a| content.respond_to?(a) }
+      raise ActiveRecord::RecordNotFound if attribute.nil?
+
+      rendered_attribute = content.send(attribute)
       raise ActiveRecord::RecordNotFound if rendered_attribute.blank?
 
       uri = Addressable::URI.parse(rendered_attribute)
-      # used for local development and docker env.
       redirect_to(uri.to_s, allow_other_host: true)
     end
 
@@ -187,11 +185,10 @@ module DataCycleCore
         end
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
-        if @content.try(:errors).present?
-          flash[:error] = @content.errors.full_messages # rubocop:disable Rails/ActionControllerFlashBeforeRender
-        elsif @content.present?
-          flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
-        end
+
+        flash[:error] = @content.errors.full_messages if @content.try(:errors).present? # rubocop:disable Rails/ActionControllerFlashBeforeRender
+        flash[:info] = @content.warnings.full_messages if @content.try(:warnings).present? # rubocop:disable Rails/ActionControllerFlashBeforeRender
+        flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale) if @content.persisted? # rubocop:disable Rails/ActionControllerFlashBeforeRender
 
         respond_to do |format|
           format.html do
@@ -321,7 +318,7 @@ module DataCycleCore
         end
 
         render
-      rescue StandardError => e
+      rescue StandardError, SystemStackError => e
         redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(250)}\n\n#{e.backtrace.first(10).join("\n")}")) && return
       end
     end
@@ -356,7 +353,7 @@ module DataCycleCore
         end
 
         render
-      rescue StandardError => e
+      rescue StandardError, SystemStackError => e
         redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(100)}\n\n#{e.backtrace.first(5).join("\n")}"), allow_other_host: false) && return
       end
     end
@@ -379,30 +376,8 @@ module DataCycleCore
         end
 
         redirect_to thing_path(@content, watch_list_params)
-      rescue StandardError
+      rescue StandardError, SystemStackError
         redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale))
-      end
-    end
-
-    def import
-      content = params[:data].as_json
-      external_source = DataCycleCore::ExternalSystem.find(content['source_key'])
-      api_strategy_class = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
-      api_strategy = api_strategy_class&.constantize&.new(external_source, 'thing', content.values.first['url'].split('/').last, nil)
-      @content = api_strategy.create(content.except('source_key'))
-      @content = @content.try(:first)
-
-      flash.now[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
-
-      if params[:render_html]
-        render js: "document.location = '#{thing_path(@content)}'"
-      else
-        render json: {
-          html: render_to_string(formats: [:html], layout: false, action: 'create', assigns: { objects: Array.wrap(@content) }).strip,
-          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, assigns: { object: @content }).strip,
-          ids: Array.wrap(@content&.id),
-          **flash.discard.to_h
-        }
       end
     end
 
@@ -461,7 +436,10 @@ module DataCycleCore
       @locale = linked_object_params[:locale]
 
       I18n.with_locale(@locale) do
-        @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.offset(DataCycleCore.linked_objects_page_size)&.includes(:translations)
+        @linked_objects = @object.try(linked_object_params[:key])
+          &.where&.not(id: linked_object_params[:load_more_except])
+          &.offset(DataCycleCore.linked_objects_page_size)
+          &.includes(:translations, :external_source, external_system_syncs: :external_system)
         @params = linked_object_params.to_h
 
         render_action = case linked_object_params[:load_more_action]

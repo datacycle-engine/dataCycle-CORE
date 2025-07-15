@@ -1,0 +1,13 @@
+{
+  "name": "data-cycle-core-dev",
+  "version": "25.07.0",
+  "description": "data-cycle-core dev dependencies",
+  "author": "dataCycle GmbH",
+  "engineStrict": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@biomejs/biome": "^2.0.6"
+  }
+}

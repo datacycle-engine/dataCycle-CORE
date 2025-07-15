@@ -22,10 +22,14 @@ module DataCycleCore
       'given_name',
       'name',
       'notification_frequency',
-      'provider',
+      'providers',
       'role_id',
       'default_locale'
     ].freeze
+
+    Devise.omniauth_configs.each_key do |provider|
+      store_accessor :providers, provider.to_sym, suffix: 'uid'
+    end
 
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
@@ -92,6 +96,10 @@ module DataCycleCore
       widgetType: 'X-Dc-Widget-Type',
       widgetVersion: 'X-Dc-Widget-Version'
     }.freeze
+
+    def additional_webhook_attributes
+      Devise.omniauth_configs.keys.map { |k| "#{k}_uid" } + ['providers']
+    end
 
     def user_api_feature
       @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
@@ -209,32 +217,46 @@ module DataCycleCore
       end
     end
 
+    def self.find_by_provider_uid(provider, uid)
+      return if provider.blank? || uid.blank?
+
+      find_by('users.providers @> ?', { provider => uid }.to_json)
+    end
+
+    def self.find_by_omniauth(auth, case_sensitive = false)
+      return if auth&.info&.email.blank?
+
+      email = case_sensitive ? auth.info.email : auth.info.email.downcase
+      find_by_provider_uid(auth.provider, auth.uid) || find_by(email:)
+    end
+
+    def self.find_or_initialize_by_omniauth(auth, case_sensitive = false)
+      return if auth&.info&.email.blank?
+
+      email = case_sensitive ? auth.info.email : auth.info.email.downcase
+      user = find_by_omniauth(auth, case_sensitive) || new(email:)
+      user.send(:"#{auth.provider}_uid=", auth.uid)
+
+      user
+    end
+
     def self.from_omniauth(auth)
       return if auth&.info&.email.blank?
 
-      new_user = find_or_initialize_by(email: auth.info.email.downcase) do |user|
-        user.email = auth.info.email.downcase
-        user.password = Devise.friendly_token[0, 20]
+      user = find_or_initialize_by_omniauth(auth)
+
+      if user.new_record?
+        user.password = Devise.friendly_token
+        user.raw_password = user.password
         user.given_name = auth.info.first_name
         user.family_name = auth.info.last_name
         user.role = DataCycleCore::Role.find_by(name: Devise.omniauth_configs[auth.provider.to_sym].options[:default_role]) if Devise.omniauth_configs[auth.provider.to_sym]&.options&.[](:default_role).present?
+        user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserRegistration.enabled? && user.confirmed_at.blank?
+        user.external = true
       end
 
-      if new_user.provider.blank? && new_user.uid.blank?
-        new_user.provider = auth.provider
-        new_user.uid = auth.uid
-      end
-
-      new_user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserRegistration.enabled? && new_user.confirmed_at.blank?
-      new_user.external = true
-      new_user.additional_attributes ||= {}
-      new_user.additional_attributes[auth.provider] = {
-        info: auth.info,
-        raw_info: auth.dig('extra', 'raw_info')
-      }
-
-      new_user.save!
-      new_user
+      user.save!
+      user
     end
 
     def as_user_api_json
@@ -249,19 +271,20 @@ module DataCycleCore
 
     def to_select_option(locale = DataCycleCore.ui_locales.first, disable_locked = true)
       DataCycleCore::Filter::SelectOption.new(
-        id,
-        ActionController::Base.helpers.safe_join([
+        id:,
+        name: ActionController::Base.helpers.safe_join([
           ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon user-icon'),
           email
         ].compact, ' '),
-        model_name.param_key,
-        ActionController::Base.helpers.safe_join(
+        html_class: model_name.param_key,
+        dc_tooltip: ActionController::Base.helpers.safe_join(
           [
             "#{model_name.human(count: 1, locale:)}:",
             full_name_with_status(locale:)
           ], ' '
         ),
-        disable_locked && locked?
+        disabled: disable_locked && locked?,
+        class_key: model_name.param_key
       )
     end
 
@@ -322,14 +345,15 @@ module DataCycleCore
         given_name: '',
         family_name: "anonym_#{id.first(8)}",
         password: SecureRandom.hex(10),
-        default_locale: I18n.available_locales.first,
-        ui_locale: I18n.available_locales.first,
+        default_locale: I18n.default_locale,
+        ui_locale: I18n.default_locale,
         updated_at: Time.zone.now,
         locked_at: Time.zone.now,
         sign_in_count: 0,
         external: false,
         deleted_at: Time.zone.now,
-        subscription_ids: nil
+        subscription_ids: nil,
+        providers: {}
       })
 
       skip_confirmation_notification! if respond_to?(:skip_confirmation_notification!)

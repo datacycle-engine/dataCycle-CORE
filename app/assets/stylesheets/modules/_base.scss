@@ -47,11 +47,23 @@ form {
 
 button,
 .button {
-  font-weight: normal;
+  font-weight: 600;
   cursor: pointer;
   line-height: 1.3;
   padding: 0.75rem 1rem;
   border-radius: $global-radius;
+
+  &:has(.fa) {
+    display: inline-grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+  }
+}
+
+form.button_to {
+  display: inline-block;
 }
 
 input::placeholder {
@@ -316,8 +328,12 @@ footer {
 }
 
 .detail-header-wrapper {
+  margin: 1rem 0.9375rem 0 0.9375rem;
+  padding: 0;
+  border-radius: 5px;
+
   >.detail-header {
-    margin-bottom: 1.5rem;
+    margin: 0 0 1.5rem 0;
     border-top-left-radius: $global-radius;
     border-top-right-radius: $global-radius;
 
@@ -651,7 +667,7 @@ footer {
     &.classification .icon,
     &.validity_period .icon.gultigkeitszeitraum {
       i:before {
-        content: '\f02c';
+        content: '\f02b';
         font-family: FontAwesome;
         font-style: normal;
         font-weight: normal;
@@ -1109,7 +1125,7 @@ footer {
         &.remote-render,
         &.remote-rendering,
         &.remote-render-failed {
-          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+          box-shadow: 0 0 0 1px var(--dark-gray-05) inset;
           padding: 2.5rem 1rem 1.2rem 1rem;
           border-radius: $global-radius;
           min-height: 5rem;
@@ -1540,6 +1556,18 @@ span.single_warning:before {
   }
 }
 
+.tags {
+  .tag {
+    a.open-selection-link {
+      color: var(--white);
+
+      &:hover {
+        color: var(--primary-color)
+      }
+    }
+  }
+}
+
 .tags,
 body .v-select {
 
@@ -1663,18 +1691,29 @@ body .v-select {
   }
 
   .form-crumbs {
-    margin: 0.5rem 0;
-    font-size: 0.9rem;
-    font-style: italic;
-    padding: 0.5rem 0;
-    border-top: 1px lighten($dark-gray, 20%) dashed;
-    border-bottom: 1px lighten($dark-gray, 20%) dashed;
+    display: grid;
+    grid-auto-flow: column;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: start;
+    font-weight: 300;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.1rem;
+    font-weight: 300;
+    padding: 0.7rem 1rem;
+
+    a {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .locale {
       margin-left: 0.2rem;
     }
 
-    .fa {
+    >.fa {
       margin: 0 0.3rem;
       font-size: 0.8rem;
     }
@@ -1684,7 +1723,7 @@ body .v-select {
     font-size: 1rem;
   }
 
-  .multi-step {
+  .new-content-multi-step-form {
     &.disabled {
       button {
         .fa-spin {
@@ -1705,15 +1744,9 @@ body .v-select {
     }
 
     >.buttons {
-      padding-top: 1rem;
-      border-top: 1px lighten($dark-gray, 20%) dashed;
-      display: grid;
-      grid-auto-flow: column;
-      grid-gap: 1rem;
-      justify-content: end;
-
-      .submit {
-        display: none;
+      button.prev {
+        margin-right: auto;
+        font-weight: normal;
       }
     }
 
@@ -1737,6 +1770,12 @@ body .v-select {
     }
 
     fieldset {
+      padding: 1rem;
+
+      *:last-child {
+        margin-bottom: 0;
+      }
+
       >li {
         list-style: none;
       }
@@ -1753,10 +1792,14 @@ body .v-select {
         }
       }
 
-      &.active:not(.iframe):last-of-type~.buttons {
+      &.active:not(:last-of-type)~.buttons {
         .submit {
-          display: inline-block;
+          display: none;
+        }
+      }
 
+      &.active:last-of-type~.buttons {
+        .submit {
           &.set-all-attributes {
             display: none;
           }
@@ -1982,21 +2025,22 @@ body .v-select {
       }
     }
   }
+
+  &.new-user-dialog,
+  &.new-user-group-dialog {
+    .reveal-body {
+      display: grid;
+      gap: 1rem;
+
+      .form-element input {
+        margin-bottom: 0;
+      }
+    }
+  }
 }
 
 .required-field-marker {
   color: $alert-color;
-}
-
-.reveal {
-  border: none;
-  box-shadow: 0 0 3px rgba($black, 0.3);
-  transition: top 0.25s ease-out;
-  border-radius: $global-radius;
-
-  .buttons {
-    text-align: right;
-  }
 }
 
 /* tabs  */
@@ -2057,7 +2101,9 @@ body .v-select {
 }
 
 a {
-  &[data-toggle] {
+
+  &[data-toggle],
+  &:has(img) {
     display: inline-block;
   }
 }
@@ -2437,6 +2483,10 @@ button[disabled] {
   animation: ellipsis-animation steps(1, end) 2s infinite;
 }
 
+img {
+  word-wrap: anywhere;
+}
+
 @keyframes ellipsis-animation {
   0% {
     clip-path: inset(0 100% 0 0);
@@ -2453,4 +2503,14 @@ button[disabled] {
   75% {
     clip-path: inset(0 0 0 0);
   }
+}
+
+.ohnohny {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0;
+  width: 0;
+  z-index: -1;
 }

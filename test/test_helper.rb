@@ -12,13 +12,15 @@ unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
     add_filter 'vendor'
   end
   SimpleCov.at_exit do
-    puts "\n"
+    Rails.logger.debug "\n"
 
     SimpleCov.result.format!
 
-    puts "\nCOVERAGE: " \
-         "#{(100 * SimpleCov.result.covered_lines.to_f / SimpleCov.result.total_lines.to_f).round(2)}% " \
-         "(#{SimpleCov.result.covered_lines} / #{SimpleCov.result.total_lines} LOC)"
+    Rails.logger.debug do
+      "\nCOVERAGE: " \
+        "#{(100 * SimpleCov.result.covered_lines.to_f / SimpleCov.result.total_lines.to_f).round(2)}% " \
+        "(#{SimpleCov.result.covered_lines} / #{SimpleCov.result.total_lines} LOC)"
+    end
   end
 end
 

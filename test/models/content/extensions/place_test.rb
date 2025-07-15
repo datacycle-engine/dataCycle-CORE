@@ -7,12 +7,16 @@ module DataCycleCore
     test 'save proper Place data-set with hash method + test standard properties' do
       data_set = DataCycleCore::Thing.new(template_name: 'Örtlichkeit')
       data_set.save
-      data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13 }, update_search_all: false)
+      point = RGeo::Geographic.spherical_factory(
+        srid: 4326, has_z_coordinate: true, uses_lenient_assertions: true,
+        wkt_parser: { support_wkt12: true },
+        wkt_generator: { convert_case: :upper, tag_format: :wkt12 }
+      ).point(40.56, 13.13)
+      data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13, 'location' => point }, update_search_all: false)
       data_set.save
       expected_hash = {
         'name' => 'Dies ist ein Test!',
-        'longitude' => 40.56,
-        'latitude' => 13.13,
+        'location' => point.as_text,
         'tags' => [],
         'output_channel' => [],
         'image' => [],
@@ -24,7 +28,8 @@ module DataCycleCore
         'feratel_facilities_additional_services' => [],
         'external_content_score' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')).except('opening_hours_specification', 'opening_hours_description', 'opening_hours', 'potential_action'))
+      resulted_hash = data_set.get_data_hash_partial(data_set.property_names - DataCycleCore::TestPreparations.excepted_attributes('place') - data_set.virtual_property_names).compact
+      assert_equal(expected_hash, resulted_hash.except('opening_hours_specification', 'opening_hours_description', 'opening_hours', 'potential_action'))
       assert_nil(data_set.desc)
       assert_equal(['address', 'location'], data_set.object_browser_fields)
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-de")
@@ -38,13 +43,14 @@ module DataCycleCore
     test 'save proper Place data-set with hash method, incl. geo-data' do
       data_set = DataCycleCore::Thing.new(template_name: 'Örtlichkeit')
       data_set.save
-      point = RGeo::Geographic.spherical_factory(srid: 4326).point(40.56, 13.13)
+      point = RGeo::Geographic.spherical_factory(
+        srid: 4326, has_z_coordinate: true, uses_lenient_assertions: true,
+        wkt_parser: { support_wkt12: true },
+        wkt_generator: { convert_case: :upper, tag_format: :wkt12 }
+      ).point(40.56, 13.13)
       data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13, 'location' => point })
-      data_set.save
       expected_hash = {
         'name' => 'Dies ist ein Test!',
-        'longitude' => 40.56,
-        'latitude' => 13.13,
         'location' => point.as_text,
         'tags' => [],
         'output_channel' => [],
@@ -57,9 +63,12 @@ module DataCycleCore
         'feratel_facilities_additional_services' => [],
         'external_content_score' => []
       }
-      resulted_hash = data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place'))
+      resulted_hash = data_set.get_data_hash_partial(data_set.property_names - DataCycleCore::TestPreparations.excepted_attributes('place') - data_set.virtual_property_names).compact
       # location object deserializes with the RGeo::Geos::CAPIFactory != RGeo::Geographic.spherical_factory
-      assert_equal(expected_hash.except('location', 'opening_hours_specification', 'opening_hours_description', 'opening_hours'), resulted_hash.except('location', 'opening_hours_specification', 'opening_hours', 'opening_hours_description', 'potential_action'))
+      assert_equal(
+        expected_hash.except('location', 'opening_hours_specification', 'opening_hours_description', 'opening_hours'),
+        resulted_hash.except('location', 'opening_hours_specification', 'opening_hours', 'opening_hours_description', 'potential_action')
+      )
       assert_equal(expected_hash['location'], resulted_hash['location'])
     end
 

@@ -75,7 +75,7 @@ module DataCycleCore
           items.each do |item|
             utility_object = DataCycleCore::Export::PushObject.new(
               external_system:,
-              action: :update
+              action: :refresh
             )
 
             job_id = item.external_system_data(external_system, 'export', nil, false)&.dig('job_id')

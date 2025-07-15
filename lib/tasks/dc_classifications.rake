@@ -56,7 +56,14 @@ namespace :dc do
         abort('no mappings found!') if to_insert.blank?
 
         puts "\nstart inserting ... (#{to_insert.size})"
-        inserted = DataCycleCore::ClassificationGroup.insert_all(to_insert.uniq, unique_by: :classification_groups_ca_id_c_id_uq_idx).pluck('id')
+
+        inserted = []
+
+        ActiveRecord::Base.transaction do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
+          inserted = DataCycleCore::ClassificationGroup.insert_all(to_insert.uniq, unique_by: :classification_groups_ca_id_c_id_uq_idx).pluck('id')
+        end
 
         DataCycleCore::ClassificationGroup.includes(:classification, :classification_alias).where(id: inserted).find_each do |group|
           group.classification_alias.send(:classifications_added, group.classification)

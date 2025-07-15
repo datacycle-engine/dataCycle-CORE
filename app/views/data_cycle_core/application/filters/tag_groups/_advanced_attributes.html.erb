@@ -19,6 +19,7 @@
       <% else %>
         <% next if k == 'helper' %>
         <span class="tag-group-label"><%= t("terms.#{k}", locale: active_ui_locale) %></span>
+        <% v = l(v.in_time_zone.to_date, locale: active_ui_locale, format: :edit) if v.present? && local_assigns[:filter_advanced_type] == 'date' %>
         <span class="tag"><%= v %></span>
       <% end %>
     <% end %>

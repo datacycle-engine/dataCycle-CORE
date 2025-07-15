@@ -42,9 +42,10 @@ module DataCycleCore
         BASE_JSON_API = Dry::Schema.Params do
           optional(:language).filled(:string)
           optional(:sort).filled(:api_sort_parameter?)
-          optional(:fields).filled(:string)
+          optional(:fields).filled(:fields_wildcard?)
           optional(:include).filled(:string)
-          optional(:classification_trees) { (str? & uuid?) | (array? & each(:uuid?)) }
+          optional(:classification_trees) { uuid_or_list_of_uuid? | (array? & each(:uuid_or_list_of_uuid?)) }
+          optional(:classificationTrees) { uuid_or_list_of_uuid? | (array? & each(:uuid_or_list_of_uuid?)) }
         end
 
         BASE_MVT_API = Dry::Schema.Params do
@@ -57,7 +58,14 @@ module DataCycleCore
           optional(:cache).value(:bool)
           optional(:cluster).value(:bool)
           optional(:clusterLines).value(:bool)
+          optional(:clusterPolygons).value(:bool)
           optional(:clusterItems).value(:bool)
+          optional(:clusterMaxZoom).value(:integer)
+          optional(:clusterMinPoints).value(:integer)
+          optional(:clusterMaxDistance).value { (float? | int?) & gt?(0) }
+          optional(:clusterMaxDistanceDividend).value { (float? | int?) & gt?(0) }
+          optional(:clusterMaxDistanceDivisor).value { (float? | int?) & gt?(0) }
+          optional(:startPointsOnly).value(:bool)
         end
 
         WATCHLIST = Dry::Schema.Params do
@@ -116,13 +124,13 @@ module DataCycleCore
         end
 
         IN_UUID_OR_NULL_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array).each(:uuid_or_null_string?)
-          optional(:notIn).filled(:array).each(:uuid_or_null_string?)
+          optional(:in).filled(:array).each(:uuid_or_null_string_or_list?)
+          optional(:notIn).filled(:array).each(:uuid_or_null_string_or_list?)
         end
 
         IN_UUID_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array).each(:uuid?)
-          optional(:notIn).filled(:array).each(:uuid?)
+          optional(:in).filled(:array).each(:uuid_or_list_of_uuid?)
+          optional(:notIn).filled(:array).each(:uuid_or_list_of_uuid?)
         end
 
         IN_ARRAY_FILTER = Dry::Schema.Params do
@@ -159,7 +167,6 @@ module DataCycleCore
             optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
             (DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES +
               DataCycleCore::ApiService::API_DATE_RANGE_ATTRIBUTES +
-              DataCycleCore::ApiService::API_NUMERIC_ATTRIBUTES +
               DataCycleCore::ApiService.additional_advanced_attribute_keys).each do |a|
               optional(a).hash(ATTRIBUTE_FILTER)
             end

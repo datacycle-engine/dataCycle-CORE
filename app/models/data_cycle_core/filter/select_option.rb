@@ -2,11 +2,10 @@
 
 module DataCycleCore
   module Filter
-    SelectOption = Struct.new(:id, :name, :html_class, :dc_tooltip, :disabled, :data) do
+    SelectOption = Struct.new(:id, :name, :html_class, :dc_tooltip, :disabled, :class_key, keyword_init: true) do
       def initialize(*)
         super
 
-        self.data ||= {}
         self.disabled = false if disabled.nil?
       end
 
@@ -17,9 +16,9 @@ module DataCycleCore
           {
             class: html_class,
             disabled:,
-            data: data.merge({
+            data: {
               dc_tooltip:
-            })
+            }
           }
         ]
       end

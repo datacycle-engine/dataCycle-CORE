@@ -47,14 +47,22 @@ DataCycleCore::Engine.routes.draw do
     get '/*path', action: :show, as: :with
   end
 
+  authenticate do
+    post '/assets/imgproxy_url/:id', to: 'missing_asset#imgproxy_url', as: :imgproxy_url, defaults: { format: :json }, constraints: {
+      id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+    }
+  end
+
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
     file: /.*/
   }
+
   get '/assets/:id(/:file)', to: 'missing_asset#show', as: 'local_blob', constraints: {
     file: /.*/
   }
+
   get '/processed/:klass/:id(/:file)', to: 'missing_asset#processed', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
@@ -67,7 +75,7 @@ DataCycleCore::Engine.routes.draw do
   # get '/export', to: 'nothing' # this route is reserved for jsonld file exports via rake task
 
   authenticate do
-    get :clear_all_caches, controller: :application
+    delete :clear_all_caches, controller: :application
 
     resources :users, only: [:index, :show, :edit, :update, :destroy] do
       delete :lock, on: :member
@@ -93,7 +101,6 @@ DataCycleCore::Engine.routes.draw do
 
     scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
       resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things, except: :show) do
-        post :import, on: :collection
         get 'history/:history_id', action: :history, on: :member, as: :history
         post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
         get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
@@ -213,6 +220,8 @@ DataCycleCore::Engine.routes.draw do
       get :download, on: :collection
       patch :move, on: :collection
       patch :merge, on: :collection
+      post :unlink_contents, on: :collection
+      post :link_contents, on: :collection
     end
   end
 
@@ -236,17 +245,19 @@ DataCycleCore::Engine.routes.draw do
 
     namespace :dash_board, path: '/admin', as: :admin do
       get '/', action: :home, as: ''
-      get '/download/:id', action: :download, as: :download
-      get '/download_full/:id', action: :download_full, as: :download_full
-      get '/download_import/:id', action: :download_import, as: :download_import
-      get '/import/:id', action: :import, as: :import
-      get '/import_full/:id', action: :import_full, as: :import_full
-      get '/delete_queue/:id', action: :delete_queue, as: :delete_queue
+      post '/download/:id', action: :download, as: :download
+      post '/download_full/:id', action: :download_full, as: :download_full
+      post '/download_import/:id', action: :download_import, as: :download_import
+      post '/import/:id', action: :import, as: :import
+      post '/import_full/:id', action: :import_full, as: :import_full
+      delete '/delete_queue/:id', action: :delete_queue, as: :delete_queue
       get :activities
       get '/activity_details/:type', action: :activity_details, as: :activity_details, defaults: { format: :json }
 
+      get :import_module_partial
+
       scope :maintenance do
-        get :rebuild_classification_mappings
+        post :rebuild_classification_mappings
       end
     end
 
@@ -546,7 +557,7 @@ DataCycleCore::Engine.routes.draw do
   authenticate do
     post :add_filter, controller: :application
     post :add_tag_group, controller: :application
-    post :remote_render, controller: :application
+    match :remote_render, controller: :application, via: [:get, :post]
     get :holidays, controller: :application
   end
 

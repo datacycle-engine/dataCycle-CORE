@@ -19,8 +19,8 @@ module DataCycleCore
             I18n.with_locale(locale) do
               error = write(content_item, data_hash, Time.zone.now)
               if error[:error].present?
-                ap "ERROR: for #{table_name}(#{content_item.id}).with_locale(#{locale})"
-                ap error
+                ap "ERROR: for #{table_name}(#{content_item.id}).with_locale(#{locale})" # rubocop:disable Rails/Output
+                ap error # rubocop:disable Rails/Output
               end
             end
           end

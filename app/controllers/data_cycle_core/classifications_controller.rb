@@ -4,6 +4,12 @@ module DataCycleCore
   class ClassificationsController < ApplicationController
     FIXNUM_MAX = ((2**((0.size * 8) - 2)) - 1)
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
+    UNLINK_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
+      required(:concept_scheme_link).hash do
+        required(:id).filled(:uuid?)
+        required(:collection_id).filled(:uuid?)
+      end
+    end
 
     def index
       respond_to do |format|
@@ -34,14 +40,14 @@ module DataCycleCore
             @mapped_classification_aliases = @classification_tree.sub_classification_alias&.additional_classifications&.primary_classification_aliases || DataCycleCore::ClassificationAlias.none.page(1)
             @classification_type = @classification_tree
             @queue_classification_mappings = Delayed::Job.where(
-              delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings',
+              delayed_reference_type: 'ClassificationMappingJob',
               delayed_reference_id: @classification_trees.pluck(:classification_alias_id)
             ).pluck(:delayed_reference_id)
           elsif index_params.include?(:classification_tree_label_id)
             @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
             @classification_type = @classification_tree_label
             @queue_classification_mappings = Delayed::Job.where(
-              delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings',
+              delayed_reference_type: 'ClassificationMappingJob',
               delayed_reference_id: @classification_trees.pluck(:classification_alias_id)
             ).pluck(:delayed_reference_id)
           else
@@ -92,9 +98,11 @@ module DataCycleCore
                 DataCycleCore::ClassificationAlias.all
               end
 
+      matches = nil
       if search_params[:q].present?
         I18n.with_locale(helpers.active_ui_locale) do
           query = query.search(search_params[:q])
+          matches = search_params[:q].squish.split(/\s/)
         end
         query = query.order_by_similarity(search_params[:q])
       end
@@ -115,6 +123,7 @@ module DataCycleCore
           classification_id: a.primary_classification.id,
           classification_alias_id: a.id,
           name: a.internal_name,
+          matched_name: helpers.matched_concept_path(a.full_path, matches),
           full_path: a.full_path,
           dc_tooltip: helpers.classification_tooltip(a),
           disabled: search_params[:disabled_unless_any?].present? ? a.try(search_params[:disabled_unless_any?]).none? : !a.assignable
@@ -123,19 +132,17 @@ module DataCycleCore
     end
 
     def find
-      query = DataCycleCore::Classification.where(id: find_params[:ids]).preload(primary_classification_alias: :classification_alias_path)
+      query = DataCycleCore::Concept.where(classification_id: find_params[:ids]).preload(:classification_alias_path)
       query = query.for_tree(find_params[:tree_label]) if find_params[:tree_label].present?
 
-      render plain: query.filter_map { |c|
-        next if c.primary_classification_alias.nil?
-
+      render plain: query.map { |c|
         {
-          classification_id: c.id,
-          classification_alias_id: c.primary_classification_alias.id,
-          name: c.primary_classification_alias.internal_name,
-          full_path: c.primary_classification_alias.full_path,
-          dc_tooltip: helpers.classification_tooltip(c.primary_classification_alias),
-          disabled: !c.primary_classification_alias.assignable
+          classification_id: c.classification_id,
+          classification_alias_id: c.id,
+          name: c.internal_name,
+          full_path: c.full_path,
+          dc_tooltip: helpers.classification_tooltip(c),
+          disabled: !c.assignable
         }
       }.to_json, content_type: 'application/json'
     end
@@ -194,7 +201,8 @@ module DataCycleCore
         if update_params[:classification_alias]&.key?(:classification_ids)
           classification_ids = Array.wrap(update_params[:classification_alias].delete('classification_ids'))
 
-          if classification_ids.sort != @object.classification_ids&.sort
+          if classification_ids.sort != @object.classification_ids&.sort &&
+             @object.classification_tree_label.mappable
             DataCycleCore::ClassificationMappingJob.perform_later(@object.id, classification_ids - @object.classification_ids, @object.classification_ids - classification_ids)
             flash[:success] = I18n.t('controllers.success.classification_mappings_queued', locale: helpers.active_ui_locale)
           end
@@ -204,7 +212,7 @@ module DataCycleCore
         @object.save!
       end
 
-      queued_job = Delayed::Job.exists?(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: @object.id)
+      queued_job = Delayed::Job.exists?(delayed_reference_type: 'ClassificationMappingJob', delayed_reference_id: @object.id)
 
       render json: {
         html: render_to_string(
@@ -296,6 +304,28 @@ module DataCycleCore
       render json: flash.discard.to_h
     end
 
+    def unlink_contents
+      collection = DataCycleCore::Collection.find(link_params[:collection_id])
+      concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
+
+      authorize! :unlink_contents, concept_scheme
+
+      DataCycleCore::ConceptSchemeUnlinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
+
+      render json: flash.discard.to_h
+    end
+
+    def link_contents
+      collection = DataCycleCore::Collection.find(link_params[:collection_id])
+      concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
+
+      authorize! :link_contents, concept_scheme
+
+      DataCycleCore::ConceptSchemeLinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
+
+      render json: flash.discard.to_h
+    end
+
     private
 
     def download_params
@@ -331,7 +361,7 @@ module DataCycleCore
         normalize_names(params).permit(
           :classification_tree_label_id,
           :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_tree_label: [:id, :name, :internal, :mappable, {visibility: [], change_behaviour: []}],
           classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
@@ -345,7 +375,7 @@ module DataCycleCore
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
         normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, {visibility: [], change_behaviour: []}],
+          classification_tree_label: [:id, :name, :internal, :mappable, {visibility: [], change_behaviour: []}],
           classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
         )
       end
@@ -367,11 +397,16 @@ module DataCycleCore
           normalize_names v
         elsif v.is_a?(Array)
           v.compact_blank!.flatten.each { |x| normalize_names(x) if x.is_a?(Hash) }
-        elsif k.to_s == 'name'
-          v.squish!
+        elsif k.to_s.in?(['name', 'description']) && v.is_a?(String)
+          hash[k] = v.squish.presence
         end
       end
+
       hash
+    end
+
+    def link_params
+      params_for(UNLINK_PARAMS_SCHEMA)&.dig(:concept_scheme_link)
     end
   end
 end

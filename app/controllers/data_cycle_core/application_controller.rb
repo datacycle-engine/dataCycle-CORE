@@ -32,7 +32,14 @@ module DataCycleCore
     def clear_all_caches
       authorize! :clear_all, :cache
       Rails.cache.clear
-      redirect_back(fallback_location: root_path, notice: t('common.all_caches_cleared', locale: helpers.active_ui_locale))
+
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: root_path, notice: t('common.all_caches_cleared', locale: helpers.active_ui_locale)) }
+        format.turbo_stream do
+          flash.now[:success] = t('common.all_caches_cleared', locale: helpers.active_ui_locale)
+          render turbo_stream: turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash')
+        end
+      end
     end
 
     def add_filter
@@ -54,9 +61,17 @@ module DataCycleCore
       @options = resolve_params(remote_render_params[:options])
       @force_recursive_load = remote_render_params[:force_recursive_load]
 
-      render(json: { error: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: helpers.active_ui_locale) }, status: :bad_request) && return if @render_function.blank? && @partial.blank?
-
-      render json: { html: render_to_string(formats: [:html], layout: false).strip }
+      if @render_function.blank? && @partial.blank?
+        respond_to do |format|
+          format.json { render json: { error: I18n.t('controllers.error.missing_parameter', locale: helpers.active_ui_locale) }, status: :bad_request }
+          format.html { render plain: I18n.t('controllers.error.missing_parameter', locale: helpers.active_ui_locale), status: :bad_request }
+        end
+      else
+        respond_to do |format|
+          format.json { render json: { html: render_to_string(formats: [:html], layout: false).strip } }
+          format.html { render(formats: [:html], layout: false) }
+        end
+      end
     end
 
     def reload_required

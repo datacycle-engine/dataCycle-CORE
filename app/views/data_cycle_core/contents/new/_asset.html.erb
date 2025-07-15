@@ -8,8 +8,8 @@
     </fieldset>
   <% end %>
 <% else %>
-  <fieldset class="no-search-warning no-submit">
-    <legend><%= t('actions.new', data: template&.translated_template_name(active_ui_locale), locale: active_ui_locale) %></legend>
+  <fieldset class="no-submit">
+    <legend><%= tag.span(safe_join([tag.i(class: "fa dc-type-icon thing-icon #{template&.icon_type}"), t('actions.new', data: template&.translated_template_name(active_ui_locale), locale: active_ui_locale)], ' ')) %></legend>
 
     <%= render 'data_cycle_core/contents/new/shared/content_uploader', local_assigns.merge(type: template&.schema&.dig('properties', template&.asset_property_names&.first, 'asset_type'), create_content: true) %>
   </fieldset>

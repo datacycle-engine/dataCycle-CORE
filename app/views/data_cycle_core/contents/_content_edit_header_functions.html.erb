@@ -5,7 +5,9 @@
         <% if content_for?(:form_action) %>
           <%= yield_content!(:form_action) %>
         <% else %>
-          <i class="fa fa-pencil" aria-hidden="true"></i> <%= t('actions.edit_data', data: content.translated_template_name(active_ui_locale), locale: active_ui_locale) %>
+          <span class="icon"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+          <span class="template-title"><%= t('actions.edit_data', data: content.translated_template_name(active_ui_locale), locale: active_ui_locale) %></span>
+          <span class="template-locale">(<%= I18n.locale %>)</span>
         <% end %>
 
         <%= render('data_cycle_core/contents/content_score', key: nil, content: content, definition: content.content_score_definition(nil)) if content.try(:content_score_allowed?) %>

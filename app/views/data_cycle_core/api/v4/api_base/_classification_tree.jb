@@ -2,35 +2,33 @@
 
 uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
 
-json = {}
-
-if options[:full]
-  value_data =
-    if @language.size == 1 && options[:languages] == ['de']
-      content.name
-    else
-      [{ '@language' => 'de', '@value' => content.name }]
+value_data =
+  if options[:languages]&.one?
+    content.name
+  else
+    options[:languages].map do |lang|
+      { '@language' => lang, '@value' => content.name }
     end
-  json.merge!({
-    '@id' => content.id,
-    '@type' => 'skos:ConceptScheme',
-    'dc:multilingual' => false,
-    'dc:translation' => ['de'],
-    'dc:entityUrl' => uri,
-    'skos:prefLabel' => value_data,
-    'dc:hasConcept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language)),
-    'dct:created' => content.created_at,
-    'dct:modified' => content.updated_at,
-    'dct:deleted' => content.deleted_at
-  }.compact)
-else
-  json.merge!({
-    '@id' => content.id,
-    '@type' => 'skos:ConceptScheme'
-  }.compact)
+  end
+
+json = {
+  '@id' => content.id,
+  '@type' => 'skos:ConceptScheme'
+}.compact
+
+attributes = {
+  'dc:multilingual' => -> { false },
+  'dc:translation' => -> { I18n.available_locales },
+  'dc:entityUrl' => -> { uri },
+  'skos:prefLabel' => -> { value_data },
+  'dc:hasConcept' => -> { classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language)) },
+  'dct:created' => -> { content.created_at },
+  'dct:modified' => -> { content.updated_at },
+  'dct:deleted' => -> { content.deleted_at }
+}
+
+attributes.each do |attribute, operation|
+  json[attribute] = operation.call if options[:field_filter] == false || attribute_visible?(attribute, options)
 end
-if options[:field_filter] && options[:fields].present?
-  json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) }
-else
-  json
-end
+
+json.compact

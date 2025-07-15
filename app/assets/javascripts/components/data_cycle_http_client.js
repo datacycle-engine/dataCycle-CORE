@@ -103,8 +103,8 @@ const DataCycleHttpClient = {
 					this.httpRequest(mergedUrl, mergedOptions, retries - 1),
 				);
 
-      const error = new Error(res.status)
-      error.responseBody = await res.json().catch(() => undefined);
+			const error = new Error(res.status);
+			error.responseBody = await res.json().catch(() => undefined);
 
 			throw error;
 		});

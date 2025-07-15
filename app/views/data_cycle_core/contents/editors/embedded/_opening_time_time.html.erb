@@ -50,11 +50,11 @@
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{new_prefix}[opens]",
-            l(value.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale),
+            l(opening_time_opens(value), format: :time_only, locale: active_ui_locale),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[opens]")}", readonly: true %>
         <% else %>
-          <%= time_field_tag "#{new_prefix}[opens]", l(value.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[opens]")}", data: { type: 'timepicker' } %>
+          <%= time_field_tag "#{new_prefix}[opens]", l(opening_time_opens(value), format: :time_only, locale: active_ui_locale), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[opens]")}", data: { type: 'timepicker' } %>
         <% end %>
       </div>
 
@@ -66,11 +66,11 @@
 
         <% if readonly %>
           <%= text_field_tag "#{new_prefix}[closes]",
-            l(value.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale),
+            l(opening_time_closes(value), format: :time_only, locale: active_ui_locale),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[closes]")}", readonly: true %>
         <% else %>
-          <%= time_field_tag "#{new_prefix}[closes]", l(value.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[closes]")}", data: { type: 'timepicker' } %>
+          <%= time_field_tag "#{new_prefix}[closes]", l(opening_time_closes(value), format: :time_only, locale: active_ui_locale), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[closes]")}", data: { type: 'timepicker' } %>
         <% end %>
       </div>
     </div>

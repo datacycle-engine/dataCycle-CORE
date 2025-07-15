@@ -5,7 +5,7 @@ module DataCycleCore
     class Base
       attr_reader :content
 
-      delegate :configuration, :enabled?, :feature_key, :feature_path, :dependencies, :dependencies_enabled?, :dependencies_allowed?, :attribute_keys, :available?, :allowed?, :allowed_attribute_keys, :allowed_attribute_key?, :includes_attribute_key, :memoize_key, to: :class
+      delegate :configuration, :enabled?, :feature_key, :feature_path, :dependencies, :dependencies_enabled?, :dependencies_allowed?, :attribute_keys, :available?, :allowed?, :allowed_attribute_keys, :allowed_attribute_key?, :includes_attribute_key, :memoize_key, :primary_attribute_key, to: :class
 
       def initialize(content: nil)
         @content = content
@@ -40,6 +40,10 @@ module DataCycleCore
           configuration(content)['attribute_keys'] || []
         end
 
+        def primary_attribute_key(content = nil)
+          attribute_keys(content).first
+        end
+
         def available?(content = nil)
           attribute_keys(content).present?
         end
@@ -56,7 +60,7 @@ module DataCycleCore
           allowed?(content) && includes_attribute_key(content, key)
         end
 
-        def includes_attribute_key(content, key)
+        def includes_attribute_key(content, key) # rubocop:disable Naming/PredicateMethod
           template_keys = attribute_keys(content)
 
           key.attribute_path_from_key.intersect?(template_keys)
@@ -79,23 +83,23 @@ module DataCycleCore
           @configuration[memoize_key(content, attribute_key)]
         end
 
-        def content_module
+        def content_module # rubocop:disable Naming/PredicateMethod
           false
         end
 
-        def ability_class
+        def ability_class # rubocop:disable Naming/PredicateMethod
           false
         end
 
-        def data_hash_module
+        def data_hash_module # rubocop:disable Naming/PredicateMethod
           false
         end
 
-        def controller_module
+        def controller_module # rubocop:disable Naming/PredicateMethod
           false
         end
 
-        def routes_module
+        def routes_module # rubocop:disable Naming/PredicateMethod
           false
         end
 

@@ -4,6 +4,7 @@ module DataCycleCore
   module Generic
     class ImportObject < GenericObject
       TYPE = :import
+      DEFAULT_CONFIG_KEYS = ['import_external_system_data', 'primary_system_priority'].freeze
 
       attr_reader :logging, :history, :asset_download, :mode, :partial_update, :normalizer
 
@@ -15,6 +16,7 @@ module DataCycleCore
         no_asset_download = @options[:no_asset_download] || false
         @asset_download = !no_asset_download
         @partial_update = @options[:partial_update] || false
+        @source_name = @options.dig(@type, :source_type)
 
         @concepts_cache = {}
       end
@@ -29,6 +31,16 @@ module DataCycleCore
 
       def concept_by_path(path)
         concepts_by_path(path).first
+      end
+
+      def source_steps_successful?
+        # Check if all download steps of the source_type were successful
+        external_source.source_steps_successful?(source_name, :download)
+      end
+
+      def step_config(config)
+        cfg = (config&.deep_dup || {}).with_indifferent_access
+        options.slice(*DEFAULT_CONFIG_KEYS).with_indifferent_access.deep_merge(cfg)
       end
     end
   end

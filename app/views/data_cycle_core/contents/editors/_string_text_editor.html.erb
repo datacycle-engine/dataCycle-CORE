@@ -13,7 +13,10 @@
           locale: I18n.locale,
           key: key,
           template_name: contextual_content(local_assigns).template_name,
-          translate_inline: DataCycleCore::Feature['Translate']&.allowed_attribute?(contextual_content(local_assigns), key, I18n.locale, current_user)
+          translate_inline: DataCycleCore::Feature['Translate']&.allowed_attribute?(contextual_content(local_assigns), key, I18n.locale, current_user),
+          content_id: content.id,
+          template: to_query_params(thing_template: content.thing_template).to_json,
+          content_template_name: content.thing_template.persisted? ? content.template_name : nil,
         }.merge(definition&.slice('validations', 'warnings')),
         class: 'quill-editor',
         id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}-editor"

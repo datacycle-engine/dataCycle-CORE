@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class String < BasicValidator
-        def string_keywords
-          ['min', 'max', 'format', 'pattern', 'required', 'soft_required', 'soft_max', 'soft_min']
-        end
-
         def string_formats
           ['uuid', 'url', 'soft_url', 'email', 'telephone_din5008']
         end
@@ -16,7 +12,7 @@ module DataCycleCore
           if data.blank? || data.is_a?(::String)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                method(key).call(data.to_s, template['validations'][key]) if string_keywords.include?(key)
+                validate_with_method(key, data.to_s, template['validations'][key])
               end
             end
           else
@@ -104,13 +100,25 @@ module DataCycleCore
 
         def pattern(data, expression)
           return if data.blank?
-          regex = /#{expression[1..expression.length - 2]}/
+          regex = /#{expression[1..(expression.length - 2)]}/
           matched = data.match(regex)
 
           return unless matched.nil? || matched.offset(0) != [0, data.size]
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.match',
+            substitutions: {
+              data:,
+              expression:
+            }
+          }
+        end
+
+        def soft_not_contains(data, expression)
+          return unless data&.include?(expression)
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.not_contains',
             substitutions: {
               data:,
               expression:
@@ -152,14 +160,6 @@ module DataCycleCore
               data:
             }
           }
-        end
-
-        def required(data, value)
-          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && data.blank?
-        end
-
-        def soft_required(data, value)
-          (@error[:warning][@template_key] ||= []) << { path: 'validation.warnings.required' } if value && data.blank?
         end
 
         def telephone_din5008(data)

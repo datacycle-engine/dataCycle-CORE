@@ -5,7 +5,7 @@ module DataCycleCore
     class ElevationProfileRenderer
       attr_reader :query
 
-      def initialize(content:, locale: I18n.available_locales.first, data_format: nil)
+      def initialize(content:, locale: I18n.default_locale, data_format: nil)
         @data_format = data_format || 'object'
         @content = content
         @locale = locale
@@ -47,11 +47,12 @@ module DataCycleCore
       def base_query
         <<-SQL.squish
           WITH points AS (
-            SELECT (ST_DumpPoints(things.line)).geom AS geom,
-              things.line
-            FROM things
-            WHERE things.id = '#{@content.id}'
-            ORDER BY (ST_DumpPoints(things.line)).path
+            SELECT (ST_DumpPoints(geometries.geom)).geom AS geom
+            FROM geometries
+            WHERE geometries.thing_id = '#{@content.id}'
+              AND geometries.is_primary = true
+              AND GeometryType(geometries.geom) IN ('LINESTRING', 'MULTILINESTRING')
+            ORDER BY (ST_DumpPoints(geometries.geom)).path
           ),
           distances_points AS (
             SELECT points.geom,

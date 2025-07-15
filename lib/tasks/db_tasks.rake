@@ -6,11 +6,7 @@ namespace :db do
   namespace :migrate do
     desc 'run data migrations'
     task with_data: :environment do
-      data_paths = [
-        Rails.root.join('db', 'data_migrate').to_s,
-        DataCycleCore::Engine.root.join('db', 'data_migrate').to_s
-      ]
-
+      data_paths = Rails.application.config.paths['db/migrate'].paths.map { |p| p.sub('/migrate', '/data_migrate') }
       Rails.application.config.paths['db/migrate'].concat(data_paths)
       ActiveRecord::Migrator.migrations_paths.concat(data_paths)
 
@@ -54,22 +50,19 @@ namespace :db do
           classifications.external_key;
       SQL
 
-      abort('duplicate external_classifications found!') if result.count.positive?
+      abort('duplicate external_classifications found!') if result.any?
     end
   end
 
   namespace :rollback do
     desc 'run data migrations'
     task with_data: :environment do
-      data_paths = [
-        Rails.root.join('db', 'data_migrate').to_s,
-        DataCycleCore::Engine.root.join('db', 'data_migrate').to_s
-      ]
-
+      data_paths = Rails.application.config.paths['db/migrate'].paths.map { |p| p.sub('/migrate', '/data_migrate') }
       Rails.application.config.paths['db/migrate'].concat(data_paths)
       ActiveRecord::Migrator.migrations_paths.concat(data_paths)
 
       Rake::Task['db:rollback'].invoke
+      Rake::Task['db:rollback'].reenable
     end
   end
 
@@ -101,17 +94,42 @@ namespace :db do
   namespace :configure do
     desc 'rebuild all tables concerning transitive classifications'
     task rebuild_transitive_tables: :environment do
-      function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'upsert_ca_paths_transitive' : 'upsert_ca_paths'
+      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          SELECT public.upsert_ca_paths_transitive (ARRAY_AGG(id)) FROM concepts;
+        SQL
+      else
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          SELECT public.upsert_ca_paths (ARRAY_AGG(id)) FROM concepts;
+        SQL
+      end
 
-      ActiveRecord::Base.connection.execute <<-SQL.squish
-        SET LOCAL statement_timeout = 0;
-        SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM concepts;
-      SQL
+      Rake::Task['db:configure:rebuild_ccc'].invoke
+      Rake::Task['db:configure:rebuild_ccc'].reenable
 
       next if Rails.env.test?
 
       Rake::Task['db:maintenance:vacuum'].invoke(true, 'classification_alias_paths|classification_alias_paths_transitive|collected_classification_contents')
       Rake::Task['db:maintenance:vacuum'].reenable
+    end
+
+    desc 'rebuild collected_classification_contents'
+    task rebuild_ccc: :environment do
+      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          SELECT public.generate_collected_cl_content_relations_transitive (array_agg(things.id))
+          FROM things;
+        SQL
+      else
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          SET LOCAL statement_timeout = 0;
+          SELECT public.generate_collected_classification_content_relations (array_agg(things.id), ARRAY[]::UUID[])
+          FROM things;
+        SQL
+      end
     end
 
     desc 'rebuild content_content_links'
@@ -171,7 +189,7 @@ namespace :db do
       sh "rm -rf #{full_path}" if full_path.present?
 
       excludes = DATABASE_DUMP_EXCLUDES[args.mode].map { |e| "--exclude-table-data='#{e}'" }.join(' ') if args.mode.present?
-      cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 4' if dump_fmt == 'd'} -v -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
+      cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if dump_fmt == 'd'} -v -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
     end
 
     sh cmd
@@ -208,7 +226,7 @@ namespace :db do
           when 'p'
             cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
           else
-            cmd = "#{pgclusters}pg_restore -F #{fmt}#{' -j 4' if fmt == 'd'} -O -v --disable-triggers --superuser=#{user} --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
+            cmd = "#{pgclusters}pg_restore -F #{fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if fmt == 'd'} -O -v --disable-triggers --superuser=#{user} --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
           end
         else
           puts "Too many files match the pattern '#{pattern}':"

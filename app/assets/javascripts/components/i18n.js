@@ -1,5 +1,5 @@
-import template from "lodash/template";
 import get from "lodash/get";
+import template from "lodash/template";
 import LocalStorageCache from "./local_storage_cache";
 
 const I18n = {

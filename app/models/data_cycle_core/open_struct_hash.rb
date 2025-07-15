@@ -17,7 +17,7 @@ module DataCycleCore
         # transform nested properties to their respective types
         as_hash.each do |key, value|
           prop = definition&.dig('properties', key)
-          as_hash[key] = DataCycleCore::MasterData::DataConverter.convert_to_type(prop['type'], value, prop) if prop.present? && Content::Content::PLAIN_PROPERTY_TYPES.include?(prop['type'])
+          as_hash[key] = DataCycleCore::MasterData::DataConverter.convert_to_type(prop['type'], value, prop) if prop.present? && (Content::Content::PLAIN_PROPERTY_TYPES.include?(prop['type']) || Content::Content::GEO_PROPERTY_TYPES.include?(prop['type']))
         end
       end
       as_hash.compact
@@ -35,6 +35,10 @@ module DataCycleCore
         parent&.translatable? &&
         property_definition&.dig('storage_location') == 'translated_value' &&
         property_definition&.dig('type') != 'object'
+    end
+
+    def merge(other)
+      self.class.new(to_h.compact_blank.merge(other&.to_h&.compact_blank), parent, definition)
     end
   end
 end

@@ -15,6 +15,7 @@ module DataCycleCore
 
         def file_url(content)
           return content&.asset&.file&.url if web_safe_mime_type?(content&.asset&.content_type)
+
           if DataCycleCore::Feature::ImageProxy.enabled?
             return DataCycleCore::Feature::ImageProxy.process_image(
               content:,
@@ -29,7 +30,8 @@ module DataCycleCore
               }
             )
           end
-          content.asset_web_url
+
+          content.try(:web_url)
         end
 
         def web_safe_mime_type?(type)

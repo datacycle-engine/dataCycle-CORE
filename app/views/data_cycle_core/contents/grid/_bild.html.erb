@@ -1,9 +1,9 @@
 <%= render 'data_cycle_core/contents/grid/default', local_assigns do %>
   <%= yield_content!(:contents_grid_bild) %>
 
-  <% if item.try(:thumbnail_url).present? %>
+  <% if thing_thumbnail_url(item).present? %>
     <div class="image-thumbnail">
-      <img data-src="<%= item.try(:thumbnail_url) %>" alt="<%= item.try(:title) %>" class="lazyload" />
+      <img style="aspect-ratio: <%= aspect_ratio(item) %>;" data-src="<%= thing_thumbnail_url(item) %>" alt="<%= item.try(:title) %>" class="lazyload" />
     </div>
   <% end %>
 <% end %>

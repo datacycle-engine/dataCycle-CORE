@@ -4,10 +4,6 @@ module DataCycleCore
   module MasterData
     module Validators
       class Embedded < BasicValidator
-        def keywords
-          ['min', 'max', 'classifications']
-        end
-
         def validate(data, template, _strict = false)
           if blank?(data) || data.is_a?(::Array) || data.is_a?(::Hash)
             check_data_array(Array.wrap(data), template)
@@ -30,7 +26,7 @@ module DataCycleCore
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              method(key).call(data, template['validations'][key]) if keywords.include?(key)
+              validate_with_method(key, data, template['validations'][key])
             end
           end
 

@@ -7,7 +7,7 @@ module DataCycleCore
 
       DATA_RANGE_FILTERS = ['created_at', 'updated_at'].freeze
       BOOLEAN_FILTERS = ['access_token', 'confirmed_at', 'external'].freeze
-      BLOCKED_COLUMNS = ['encrypted_password', 'reset_password_token', 'current_sign_in_ip', 'last_sign_in_ip', 'provider', 'default_locale', 'type'].freeze
+      BLOCKED_COLUMNS = ['encrypted_password', 'reset_password_token', 'current_sign_in_ip', 'last_sign_in_ip', 'providers', 'default_locale', 'type'].freeze
 
       included do
         scope :fulltext_search, lambda { |search_term|

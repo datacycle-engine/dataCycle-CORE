@@ -99,13 +99,16 @@ module DataCycleCore
             "similarity(thing_translations.content ->> 'name', ?) > 0.8", content.name
           )
 
-          if content.location.present?
-            duplicates = duplicates.where(
-              "ST_DWithin(location, ST_GeographyFromText(?), #{DISTANCE_METERS})",
-              "SRID=4326;#{content.location}"
-            )
+          if content.primary_geometry.present?
+            duplicates = duplicates.joins(:primary_geometry)
+              .where(
+                "ST_DWithin(geometries.geom_simple, ST_GeographyFromText(?), #{DISTANCE_METERS})",
+                "SRID=4326;#{content.primary_geometry.geom_simple}"
+              )
           else
-            duplicates = duplicates.where(location: nil)
+            duplicates = duplicates.where.not(
+              DataCycleCore::Geometry.primary.where('geometries.thing_id = things.id').select(1).arel.exists
+            )
           end
 
           duplicates.where.not(id: content.id)
@@ -122,13 +125,16 @@ module DataCycleCore
             name: content.name
           )
 
-          if content.location.present?
-            duplicates = duplicates.where(
-              "ST_DWithin(location, ST_GeographyFromText(?), #{DISTANCE_METERS_NAME_GEO})",
-              "SRID=4326;#{content.location}"
-            )
+          if content.primary_geometry.present?
+            duplicates = duplicates.joins(:primary_geometry)
+              .where(
+                "ST_DWithin(geometries.geom_simple, ST_GeographyFromText(?), #{DISTANCE_METERS_NAME_GEO})",
+                "SRID=4326;#{content.primary_geometry.geom_simple}"
+              )
           else
-            duplicates = duplicates.where(location: nil)
+            duplicates = duplicates.where.not(
+              DataCycleCore::Geometry.primary.where('geometries.thing_id = things.id').arel.exists
+            )
           end
 
           duplicates.where.not(id: content.id)

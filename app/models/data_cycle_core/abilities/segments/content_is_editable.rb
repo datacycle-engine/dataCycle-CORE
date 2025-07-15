@@ -8,11 +8,29 @@ module DataCycleCore
 
         def initialize(*method_names)
           @subject = DataCycleCore::Thing
-          @method_names = Array.wrap(method_names).flatten.map(&:to_sym)
+          @method_names = Array.wrap(method_names).flatten(1).map { |m| Array.wrap(m) }
         end
 
-        def include?(content, _scope = nil)
-          method_names.any? { |method_name| send(method_name, content) }
+        def include?(content, scope = nil)
+          return true if method_names.blank?
+
+          method_names.any? do |m|
+            method_name = m.first
+            method_params = method(method_name).parameters
+
+            kwargs = method_params.select { |param| param[0] == :keyreq }.map { |param| param[1] }
+
+            if kwargs.include?(:scope)
+              send(method_name, content, *m[1..-1], scope:)
+            else
+              send(method_name, content, *m[1..-1])
+            end
+          end
+        end
+
+        def by_scope_and_template_name?(content, config, scope:)
+          return false if scope.blank?
+          content.template_name.in? Array.wrap(config[scope])
         end
 
         def content_not_external?(content)

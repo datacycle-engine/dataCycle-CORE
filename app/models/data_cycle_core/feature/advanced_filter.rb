@@ -26,7 +26,7 @@ module DataCycleCore
         return @all_filters_with_advanced_type if defined? @all_filters_with_advanced_type
 
         @all_filters_with_advanced_type = Rails.cache.fetch("#{cache_key_base}_all_filters_with_advanced_type") do
-          all_filters_by_locale(I18n.available_locales.first)
+          all_filters_by_locale(I18n.default_locale)
             .select { |(_k, _v, data)| data.dig(:data, :advancedType).present? }
             .pluck(1)
             .uniq

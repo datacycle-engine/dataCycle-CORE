@@ -10,7 +10,7 @@ module DataCycleCore
       def apply_filter_parameters
         parameters&.each do |filter|
           t = filter['t'].dup
-          t.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
+          t.prepend(DataCycleCore::Type::StoredFilter::Parameters::FILTER_PREFIX[filter['m']].to_s)
           t.concat('_with_subtree') if filter['t'].in?(['classification_alias_ids', 'not_classification_alias_ids'])
 
           next apply_union_filter(filter['v']) if t == 'union'

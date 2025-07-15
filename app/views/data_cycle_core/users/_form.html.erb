@@ -86,13 +86,13 @@
           <% end %>
         <% end %>
 
-        <% if can? :generate_access_token, content %>
+        <% if can?(:generate_access_token, content) %>
           <div class="form-element boolean dc-checkbox">
             <%= f.check_box :access_token, label: false, checked: content.access_token.present? %>
             <%= f.label :access_token, nil do %>
               <%= DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale) %>
 
-              <%= content_tag :span, "(#{content.access_token})", class: 'copy-to-clipboard with-shadow', title: DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale), data: { value: content.access_token } if content.access_token.present? %>
+              <%= content_tag :span, tag.i(class: 'fa fa-key', aria_hidden: true) + content.access_token, class: 'copy-to-clipboard with-shadow', title: DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale), data: { value: content.access_token } if content.access_token.present? %>
             <% end %>
           </div>
         <% end %>

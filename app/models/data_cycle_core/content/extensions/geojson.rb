@@ -18,13 +18,16 @@ module DataCycleCore
         end
 
         def geojson_geometry(content = self)
-          if content.line.present? && content.location.present?
+          line = content.try(:line)
+          location = content.try(:location)
+
+          if line.present? && location.present?
             longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
             factory = RGeo::Geographic.spherical_factory(srid: 4326, proj4: longlat_projection, has_z_coordinate: true)
-            return factory.collection([content.line, content.location])
+            return factory.collection([line, location])
           end
-          return content.line unless content.line.nil?
-          content.location unless content.location.nil?
+          return line unless line.nil?
+          location
         end
 
         def geojson_properties

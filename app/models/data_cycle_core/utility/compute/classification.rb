@@ -8,7 +8,11 @@ module DataCycleCore
 
         class << self
           def keywords(computed_parameters:, **_args)
-            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.compact_blank).map(&:name).join(',').presence
+            DataCycleCore::Classification
+              .by_ordered_values(Array.wrap(computed_parameters.values).flatten.compact_blank)
+              .map(&:name)
+              .join(',')
+              .presence
           end
 
           def description(computed_parameters:, **_args)
@@ -36,10 +40,12 @@ module DataCycleCore
             values = []
             computed_definition.dig('compute', 'parameters')&.each do |parameter_key|
               location_value = Array.wrap(get_values_from_hash(data: computed_parameters, key_path: parameter_key.split('.'))).first
+
+              next if location_value.blank?
+
               if (location_value.is_a?(::String) && location_value.uuid?) || (location_value.is_a?(::Array) && location_value.first.to_s.uuid?)
-                polygons = DataCycleCore::Classification
-                  .where(id: Array.wrap(location_value).compact_blank)
-                  .primary_classification_aliases
+                polygons = DataCycleCore::Concept
+                  .where(classification_id: Array.wrap(location_value).compact_blank)
                   .classification_polygons
 
                 polygons.each do |polygon|
@@ -47,8 +53,10 @@ module DataCycleCore
                   next if value.blank?
                   values << value
                 end
+              elsif location_value.is_a?(::String)
+                values << location_value
               else
-                value = DataCycleCore::MasterData::DataConverter.string_to_geographic(location_value)
+                value = DataCycleCore::MasterData::DataConverter.geographic_to_string(location_value)
                 next if value.blank?
                 values << value
               end
@@ -81,23 +89,18 @@ module DataCycleCore
               WITH filtered_classifications AS (
                 SELECT
                   classification_polygons.classification_alias_id,
-                    primary_classification_groups.classification_id
+                    concepts.classification_id
                 FROM
                   classification_polygons
-                  INNER JOIN classification_aliases ON classification_aliases.deleted_at IS NULL
-                    AND classification_aliases.id = classification_polygons.classification_alias_id
-                  INNER JOIN "classification_trees" ON "classification_trees"."deleted_at" IS NULL
-                    AND "classification_trees"."classification_alias_id" = "classification_aliases"."id"
-                  INNER JOIN "classification_tree_labels" ON "classification_tree_labels"."deleted_at" IS NULL
-                    AND "classification_tree_labels"."id" = "classification_trees"."classification_tree_label_id"
-                  INNER JOIN primary_classification_groups ON primary_classification_groups.classification_alias_id = classification_aliases.id
+                  INNER JOIN concepts ON concepts.id = classification_polygons.classification_alias_id
+                  INNER JOIN concept_schemes ON concept_schemes.id = concepts.concept_scheme_id
                 WHERE
-                  "classification_tree_labels"."name" = :tree_label
-                  AND ST_Intersects ("classification_polygons"."geom", ST_GeomFromText (:geo, 4326)))
+                  concept_schemes.name = :tree_label
+                  AND ST_Intersects (classification_polygons.geom_simple, ST_GeomFromText (:geo, 4326)))
               SELECT DISTINCT filtered_classifications.classification_id
               FROM filtered_classifications
               WHERE NOT EXISTS (
-                  SELECT
+                  SELECT 1
                   FROM classification_alias_paths
                   WHERE classification_alias_paths.ancestor_ids @> ARRAY [filtered_classifications.classification_alias_id]::uuid []
                 )

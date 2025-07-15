@@ -46,3 +46,123 @@ curl --request POST \
  "bbox": true
     }'
 ```
+
+### Parameter
+##### ```bbox``` (default: false)
+Es wird nur eine Bounding-Box für die Inhalte des Endpunktes ausgeliefert
+
+Beispiel:
+```json
+{
+  "xmin": -180,
+  "ymin": 12.2373,
+  "xmax": 164,
+  "ymax": 90
+}
+```
+
+##### ```layerName``` (default: 'dataCycle')
+Der Name der Layer für normale Features.
+
+##### ```clusterLayerName``` (default: 'dataCycleCluster')
+Der Name der Layer für Cluster.
+
+##### `include`
+Inkludiert zusätzliche Felder in die Ausgabe.
+
+##### `fields`
+Schränkt die Ausgabe auf die angegebenen Felder ein.
+
+##### `classificationTrees`
+Schränkt die ausgelieferten Klassifizierungen unter `dc:classification` auf einen Klassifizierungsbaum oder mehrere Klassifizierungsbäume ein.
+Gültige Angaben sind eine einzelne UUID, mehrere Komma-getrennte UUIDs, oder ein Array mit UUIDs.
+Hat nur eine Auswirkung wenn `dc:classification` mittels `include` oder `fields` angefordert wird.
+
+##### `startPointsOnly` (default: false)
+Es wird für jede Geometrie nur der Startpunkt ausgeliefert.
+
+#### Clustering
+##### ```cluster``` (default: false)
+Gibt an, ob Ergebnisse geclustered werden sollen.
+
+##### ```clusterLines``` (default: false)
+Gibt an, ob auch Linien geclustered werden sollen (Anhand des Startpunktes).
+
+##### ```clusterPolygons``` (default: false)
+Gibt an, ob auch Polygone geclustered werden sollen (Anhand des Startpunktes).
+
+##### ```clusterItems``` (default: false)
+Gibt an, ob Informationen zu den Inhalten in einem Cluster ausgeliefert werden sollen (z.B. @id, @type)
+Performance-Hinweis: Diese Option sollte nur bei der höchsten Zoomstufe verwendet werden, wenn der Cluster nicht mehr weiter aufgelöst werden kann.
+
+##### ```clusterMaxZoom``` (default: null)
+Gibt die maximale Zoomstufe an, für die geclustered werden soll.
+
+##### ```clusterMinPoints``` (default: 2)
+Gibt die minimale Anzahl an Features an, die notwendig sind, um einen Cluster zu bilden.
+
+##### ```clusterMaxDistanceDividend``` (default: 500.000)
+Wird für die Berechnung der maximalen Distanz zwischen Features innerhalb eines Clusters verwendet.
+Siehe `clusterMaxDistance` für die Berechnung.
+Wird ignoriert, wenn `clusterMaxDistance` übergeben wird.
+
+##### ```clusterMaxDistanceDivisor``` (default: 1.7)
+Wird für die Berechnung der maximalen Distanz zwischen Features innerhalb eines Clusters verwendet.
+Siehe `clusterMaxDistance` für die Berechnung.
+Wird ignoriert, wenn `clusterMaxDistance` übergeben wird.
+
+##### ```clusterMaxDistance``` (default: clusterMaxDistanceDividend / (clusterMaxDistanceDivisor^Zoomstufe))
+Gibt die maximale Distanz zwischen Features innerhalb eines Clusters an.
+Diese Option sollte von der aktuellen Zoomstufe abhängig sein.
+Einheit: Meter (Projektion: EPSG:3857)
+
+Um die Werte in der default-Berechnung zu beeinflussen, können `clusterMaxDistanceDividend` und `clusterMaxDistanceDivisor` verendet werden.
+
+Wenn dieser Parameter übergeben wird, werden `clusterMaxDistanceDividend` und `clusterMaxDistanceDivisor` ignoriert.
+
+##### Beispiel (JSON-Body)
+```url
+POST https://<URL>/mvt/v1/endpoints/<ENDPOINT-ID>/{z}/{x}/{y}.pbf
+```
+```json
+{
+  "cluster": true,
+  "clusterLines": true,
+  "clusterPolygons": true,
+  "clusterItems": true,
+  "clusterMaxZoom": 11,
+  "clusterMinPoints": 2,
+  "clusterMaxDistance": 1000,
+  "clusterMaxDistanceDividend": 500000,
+  "clusterMaxDistanceDivisor": 1.7
+}
+```
+##### Beispiel (URL-Parameter)
+```url
+GET https://<URL>/mvt/v1/endpoints/<ENDPOINT-ID>/{z}/{x}/{y}.pbf?cluster=true&clusterLines=true&clusterPolygons=true&clusterItems=true&clusterMaxZoom=11&clusterMinPoints=2&clusterMaxDistance=1000&clusterMaxDistanceDividend=500000&clusterMaxDistanceDivisor=1.7
+```
+
+#### Verfügbare Attribute
+##### Feature-Layer
+###### Basis (wird immer ausgeliefert)
+* `@id`
+* `@type`
+
+###### Standard (außer bei Einschränkung durch `fields`)
+* `name`
+
+###### Optional (nur bei Anforderung durch `fields` oder `include`)
+* `dc:slug`
+* `dc:classification`
+  * `@id`
+  * `dc:path`
+* `image`
+  * `@id`
+  * `thumbnailUrl`
+* `dc:contentScore`
+
+##### Cluster-Layer
+###### Basis (wird immer ausgeliefert)
+* `@id` (eindeutige Id des Clusters)
+* `count` (Anzahl der Features im Cluster)
+* `bbox` (Bounding-Box der Features im Cluster)

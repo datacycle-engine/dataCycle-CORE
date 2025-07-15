@@ -1,13 +1,19 @@
 # frozen_string_literal: true
 
 def serialize_opening_hours_specification(schedule, filter, fields, include = [])
-  data = schedule&.to_opening_hours_specification_schema_org&.compact
-  data.merge!(schedule&.to_ical_string_api_v4 || {}) if select_attributes(include).include?('dc:ical')
+  data = schedule&.to_opening_hours_specification_schema_org&.map(&:compact)
+  if select_attributes(include).include?('dc:ical')
+    data&.map do |item|
+      item.merge!(schedule&.to_ical_string_api_v4 || {})
+    end
+  end
 
   return data unless filter
 
-  data&.select do |key, _value|
-    api_default_attributes.include?(key) || select_attributes(fields).include?(key) || select_attributes(include).include?(key)
+  data&.map do |item|
+    item&.select do |key, _value|
+      fields_attribute?(key, fields) || included_attribute?(key, include)
+    end
   end
 end
 
@@ -18,12 +24,12 @@ key_name = attribute_key(key, definition)
 new_fields = subtree_for(key_name, options[:fields])
 new_include = subtree_for(key_name, options[:include])
 
-json[key_name] = content.try("#{key}_overlay")&.map do |schedule|
+json[key_name] = content.try("#{key}_overlay")&.map { |schedule|
   if options[:field_filter] && new_fields.present?
     serialize_opening_hours_specification(schedule, options[:field_filter], new_fields, new_include)
   else
     serialize_opening_hours_specification(schedule, false, new_fields, new_include)
   end
-end
+}&.flatten
 
 json

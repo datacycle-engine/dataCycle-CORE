@@ -24,7 +24,7 @@ module DataCycleCore
     test 'add and update data for external system' do # rubocop:disable Minitest/MultipleAssertions
       assert_equal({ 'key_1' => 'value_1' }, @data_set.external_system_data(@external_system))
 
-      assert_equal(DataCycleCore::Thing.count, (@content_count + 1))
+      assert_equal(DataCycleCore::Thing.count, @content_count + 1)
       assert_equal(DataCycleCore::ExternalSystem.count, @external_system_count)
       assert_equal(1, @data_set.external_system_syncs.count)
 
@@ -39,7 +39,7 @@ module DataCycleCore
 
       assert_nil(@data_set.external_system_data(@external_system))
 
-      assert_equal(DataCycleCore::Thing.count, (@content_count + 1))
+      assert_equal(DataCycleCore::Thing.count, @content_count + 1)
       assert_equal(DataCycleCore::ExternalSystem.count, @external_system_count)
       assert_equal(1, @data_set.external_system_syncs.count)
     end
@@ -55,8 +55,8 @@ module DataCycleCore
     test 'delete external system' do
       @external_system.destroy
 
-      assert_equal(DataCycleCore::Thing.count, (@content_count + 1))
-      assert_equal(DataCycleCore::ExternalSystem.count, (@external_system_count - 1))
+      assert_equal(DataCycleCore::Thing.count, @content_count + 1)
+      assert_equal(DataCycleCore::ExternalSystem.count, @external_system_count - 1)
       assert_equal(0, @data_set.external_system_syncs.count)
     end
 

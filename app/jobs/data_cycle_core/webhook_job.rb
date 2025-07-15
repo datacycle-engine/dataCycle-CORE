@@ -50,12 +50,12 @@ module DataCycleCore
     end
 
     def error_external_sync
-      external_sync&.update(status: 'error', data: (external_sync&.data || {}).merge(exception_data))
+      external_sync&.update(status: 'error', exception_data:)
       instrument_status(:warn, "[ERROR] | #{exception_message}")
     end
 
     def failure_external_sync
-      external_sync&.update(status: 'failure', data: (external_sync&.data || {}).merge(exception_data))
+      external_sync&.update(status: 'failure', exception_data:)
       instrument_status(:error, "[FAILURE] | #{exception_message}")
     end
 
@@ -97,16 +97,14 @@ module DataCycleCore
     end
 
     def exception_data
-      return {} if last_error.blank?
+      return if last_error.blank?
 
       text = last_error.try(:response)&.dig(:body)&.to_s&.dup&.encode_utf8! if last_error.try(:response).respond_to?(:dig)
 
       {
-        exception: {
-          timestamp: Time.zone.now,
-          message: last_error.message.dup.encode_utf8!,
-          text:
-        }
+        timestamp: Time.zone.now,
+        message: last_error.message.dup.encode_utf8!,
+        text:
       }
     end
 
@@ -114,7 +112,7 @@ module DataCycleCore
       return if last_error.blank?
 
       message = [last_error.message.dup.encode_utf8!]
-      message << ("#{last_error.backtrace.first(10).join("\n")}\n") if last_error.backtrace.present?
+      message << "#{last_error.backtrace.first(10).join("\n")}\n" if last_error.backtrace.present?
 
       message.join("\n\n")
     end

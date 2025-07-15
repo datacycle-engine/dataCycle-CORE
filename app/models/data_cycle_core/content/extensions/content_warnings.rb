@@ -7,21 +7,26 @@ module DataCycleCore
         def content_warning_messages(context = nil)
           @content_warning_messages ||= {
             hard: [],
-            soft: []
+            soft: [],
+            highlight: []
           }.tap do |w|
             DataCycleCore.content_warnings.slice('Common', template_name).presence&.each do |key, value|
               value.presence&.each do |k, v|
-                warning_class = (v[:class]&.classify || "DataCycleCore::Warning::#{key.classify}").constantize
-                next unless warning_class.try(k, v.except(:active, :hard, :class), self, context)
+                warning_class = DataCycleCore::ModuleService.safe_load_module(v[:module] || key.classify, 'Warning')
 
-                w[v[:hard] ? :hard : :soft].push(warning_class.try("#{k}_message", k, self, context) || warning_class.message(k, self, context))
+                next unless warning_class.try(k, v.except(:active, :hard, :module), self, context)
+
+                identifier = v[:hard] ? :hard : :soft
+                w[:highlight] << identifier if v[:highlight] && w[:highlight].exclude?(key)
+
+                w[identifier].push(warning_class.try("#{k}_message", k, self, context) || warning_class.message(k, self, context))
               end
             end
           end
         end
 
         def content_warnings(context = nil)
-          content_warning_messages(context).values.flatten
+          content_warning_messages(context).slice(:hard, :soft).values.flatten
         end
 
         def content_warnings?(context = nil)
@@ -34,6 +39,14 @@ module DataCycleCore
 
         def soft_content_warnings?(context = nil)
           content_warning_messages(context)[:soft].present?
+        end
+
+        def highlight_soft_content_warnings?(context = nil)
+          content_warning_messages(context)[:highlight].include?(:soft)
+        end
+
+        def highlight_hard_content_warnings?(context = nil)
+          content_warning_messages(context)[:highlight].include?(:hard)
         end
       end
     end

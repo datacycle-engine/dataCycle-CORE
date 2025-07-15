@@ -3,7 +3,7 @@
     "sourceCodeDir": "app/assets",
     "additionalEntrypoints": [
       "app/assets/images/**/*",
-      "../../app/assets/{images,fonts,entrypoints}/**/*"
+      "../../app/assets/{images,fonts}/**/*"
     ],
     "watchAdditionalPaths": [
       "../../app/assets/**/*"
@@ -12,7 +12,6 @@
     "assetsDir": ""
   },
   "development": {
-    "autoBuild": true,
     "host": "127.0.0.1",
     "publicOutputDir": "assets/dev-build",
     "port": 3036

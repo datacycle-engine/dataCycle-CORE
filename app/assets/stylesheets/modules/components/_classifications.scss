@@ -297,13 +297,17 @@ ul.backend-treeview-list,
         width: 1.4rem;
       }
 
-      a:not(.button):not(.ca-translation-link) {
+      a:not(.button):not(.ca-translation-link),
+      button:not(.button):not(.ca-translation-link) {
         display: flex;
         margin: 0;
+        padding: 0;
         color: var(--dark-gray-05);
         cursor: pointer;
         align-items: center;
-        transition: $color-transition;
+        justify-content: center;
+        border-radius: 0;
+        gap: 0.3rem;
 
         &.destroy.disabled {
           color: var(--alert-color);
@@ -311,7 +315,7 @@ ul.backend-treeview-list,
         }
 
         &.name {
-          color: $primary-color;
+          color: var(--primary-color);
           display: flex;
           align-items: center;
           gap: 0.3rem;
@@ -345,25 +349,64 @@ ul.backend-treeview-list,
             content: '\f106';
           }
         }
+
+        &.classification-load-all-children,
+        &.classification-close-all-children {
+          color: var(--primary-color)
+        }
       }
 
       &:hover {
-        a:not(.name):not(.button):not(.ca-translation-link):not(.tree-link) {
-          color: var(--dark-gray);
 
-          &:hover {
-            color: var(--primary-color);
+        a,
+        button {
+          &:not(.button):not(.ca-translation-link) {
+
+            &.name,
+            &.classification-load-all-children,
+            &.classification-close-all-children {
+              color: var(--dark-blue);
+            }
           }
 
-          &.destroy:hover {
-            color: var(--alert-color);
+          &:not(.name):not(.button):not(.ca-translation-link):not(.tree-link):not(.classification-load-all-children):not(.classification-close-all-children) {
+            color: var(--dark-gray);
+
+            &:hover {
+              color: var(--primary-color);
+            }
+
+            &.destroy:hover {
+              color: var(--alert-color);
+            }
           }
         }
       }
     }
 
-    .download-container {
+    .download-container,
+    .overflow-button-container {
       position: relative;
+    }
+
+    .overflow-button-container {
+      .overflow-dropdown-link {
+        min-width: 1.2rem;
+      }
+
+      .overflow-dropdown-container {
+        button {
+          font-weight: normal;
+
+          .icon {
+            width: 1.5rem;
+          }
+
+          .text {
+            white-space: nowrap;
+          }
+        }
+      }
     }
 
     .download-tree-container {
@@ -404,8 +447,7 @@ ul.backend-treeview-list,
 
       >li {
         list-style-type: none;
-        transition: $border-color-transition;
-        border-left: 1px solid lighten($dark-gray, 10%);
+        border-left: 1px solid var(--dark-gray);
         margin-left: 0.5rem;
         padding-left: 0.75rem;
         line-height: 1;
@@ -422,8 +464,7 @@ ul.backend-treeview-list,
           left: -1px;
           height: 0.9rem;
           width: 0.75rem;
-          transition: $border-color-transition;
-          border: 1px solid lighten($dark-gray, 10%);
+          border: 1px solid var(--dark-gray);
           border-top: 0 none transparent;
           border-right: 0 none transparent;
         }
@@ -442,7 +483,7 @@ ul.backend-treeview-list,
             left: 0;
             width: 15rem;
             height: 0;
-            border-top: 2px dotted lighten($dark-gray, 10%);
+            border-top: 2px dotted var(--dark-gray);
           }
 
           &~li.mapped {
@@ -495,7 +536,7 @@ ul.backend-treeview-list,
 
           .create {
             font-weight: 600;
-            padding: 0.15rem 0.4rem;
+            padding: 0.20rem 0.4rem;
             display: inline-flex;
             gap: 0.3rem;
             align-items: center;
@@ -760,13 +801,13 @@ ul.backend-treeview-list,
       padding: 0;
     }
 
-    >a {
+    >button {
       font-weight: 600;
       display: inline-flex;
       gap: 0.3rem;
       align-items: center;
       justify-content: center;
-      padding: 0.3rem 0.5rem;
+      padding: 0.35rem 0.5rem;
       margin: 0.2rem 0;
       font-size: 0.85rem;
 
@@ -914,8 +955,6 @@ ul.backend-treeview-list,
     }
 
     .inner-item {
-      transition: margin 0.25s ease-out;
-
       .folder-icon::after {
         content: '\f07b';
         font-family: FontAwesome;
@@ -984,7 +1023,7 @@ ul.backend-treeview-list,
       >li {
         .inner-item {
           padding: 0 0 0 0.25rem;
-          display: block;
+          display: flex;
           line-height: 1.6;
 
           &:before {
@@ -993,7 +1032,7 @@ ul.backend-treeview-list,
         }
 
         &:nth-last-child(2) {
-          border-left: 1px solid lighten($dark-gray, 10%);
+          border-left: 1px solid var(--dark-gray);
         }
       }
     }
@@ -1054,7 +1093,7 @@ ul.backend-treeview-list,
         }
 
         &:not(:last-child) {
-          border-left: 1px solid lighten($dark-gray, 10%);
+          border-left: 1px solid var(--dark-gray);
         }
 
         &::before {
@@ -1065,7 +1104,7 @@ ul.backend-treeview-list,
           left: -1px;
           height: 0.9rem;
           width: 0.75em;
-          border: 1px solid lighten($dark-gray, 10%);
+          border: 1px solid var(--dark-gray);
           border-top: 0 none transparent;
           border-right: 0 none transparent;
         }
@@ -1102,7 +1141,7 @@ ul.backend-treeview-list,
             max-height: 1.6rem;
 
             &:before {
-              content: '\f02c';
+              content: '\f02b';
               font-family: FontAwesome;
               font-style: normal;
               font-weight: normal;
@@ -1196,8 +1235,8 @@ ul.backend-treeview-list,
 #classification-administration {
   padding-top: 1.5rem;
 
-  li>.inner-item {
-    transition: $global-transition;
+  h4 {
+    font-weight: 500;
   }
 
   li.highlight>.inner-item {
@@ -1338,9 +1377,19 @@ ul.backend-treeview-list,
         color: $white;
       }
 
-      .inner-item>a:not(.name):not(.classification-load-all-children):not(.classification-close-all-children):not(.classification-order-button),
-      .inner-item>div.download-container {
-        display: none;
+      .inner-item>a,
+      .inner-item>button,
+      .inner-item>div.download-container,
+      .inner-item>div.overflow-button-container {
+        &:not(.name):not(.classification-load-all-children):not(.classification-close-all-children):not(.classification-order-button) {
+          display: none;
+        }
+      }
+
+      li.new-button button {
+        opacity: .25;
+        cursor: not-allowed;
+        pointer-events: none;
       }
     }
   }
@@ -1351,5 +1400,54 @@ ul.backend-treeview-list,
     height: 450px;
     max-height: 450px;
     min-width: 800px;
+  }
+}
+
+
+.reveal.concept-scheme-link-reveal,
+.reveal.concept-scheme-unlink-reveal {
+  width: 60vw;
+
+  .progress {
+    opacity: 0;
+    transition: opacity 100ms ease;
+
+    &.visible {
+      opacity: 1;
+    }
+  }
+
+  .concept-link-result-table {
+
+    thead,
+    tbody,
+    tfoot {
+
+      th,
+      td {
+        font-weight: normal;
+      }
+    }
+
+    thead {
+      th {
+        font-weight: 600;
+      }
+    }
+  }
+
+
+  .post-submit.step {
+    &:not(.finished) .post-submit-result {
+      display: none;
+    }
+
+    &.finished {
+
+      .post-submit-text,
+      .progress {
+        display: none;
+      }
+    }
   }
 }

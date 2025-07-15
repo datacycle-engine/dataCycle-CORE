@@ -106,7 +106,7 @@ namespace :dc do
       if dirty_data.size.positive?
         puts "\nSuggested cleanup Tasks:"
         dirty_data.each do |task|
-          puts "#{task[:name].ljust(35)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_data#{ShellHelper.zsh? ? '\\' : ''}[#{task[:id]},\"#{task[:template].tr(' ', '\\ ')}\"#{ShellHelper.zsh? ? '\\' : ''}]"
+          puts "#{task[:name].ljust(35)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_data#{'\\' if ShellHelper.zsh?}[#{task[:id]},\"#{task[:template].tr(' ', '\\ ')}\"#{'\\' if ShellHelper.zsh?}]"
         end
       else
         puts AmazingPrint::Colors.green("\n[✔] ... looks good 🚀")
@@ -160,7 +160,7 @@ namespace :dc do
       if orphaned_data.size.positive?
         puts "\nSuggested cleanup Tasks:"
         orphaned_data.each do |embedded|
-          puts "#{embedded.to_s.ljust(25)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:embedded#{ShellHelper.zsh? ? '\\' : ''}[\"#{embedded.tr(' ', '\\ ')}\"#{ShellHelper.zsh? ? '\\' : ''}]"
+          puts "#{embedded.to_s.ljust(25)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:embedded#{'\\' if ShellHelper.zsh?}[\"#{embedded.tr(' ', '\\ ')}\"#{'\\' if ShellHelper.zsh?}]"
         end
       else
         puts AmazingPrint::Colors.green("\n[✔] ... looks good 🚀")
@@ -207,7 +207,7 @@ namespace :dc do
 
       external_system.collection(collection_name) do |collection|
         things.each do |thing|
-          next unless collection.find({ external_id: thing.external_key }).count.zero?
+          next unless collection.find({ external_id: thing.external_key }).none?
           # puts "item with external key: #{thing.external_key} not found in mongo collection\n"
           things_missing += 1
           things_missing_keys << thing

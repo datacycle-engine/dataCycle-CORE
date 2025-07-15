@@ -146,7 +146,7 @@ module DataCycleCore
 
                 # content data
                 assert_equal(data_hash['overlay'].first.dig('event_schedule', 0, 'start_time', 'time').in_time_zone, json_data['startDate'])
-                assert_equal((data_hash['overlay'].first.dig('event_schedule', 0, 'start_time', 'time').in_time_zone + data_hash['overlay'].first.dig('event_schedule', 0, 'duration').to_i), json_data['endDate'])
+                assert_equal(data_hash['overlay'].first.dig('event_schedule', 0, 'start_time', 'time').in_time_zone + data_hash['overlay'].first.dig('event_schedule', 0, 'duration').to_i, json_data['endDate'])
                 assert_equal(data_hash['overlay'].first['name'], json_data['name'])
                 assert_equal(data_hash['overlay'].first['description'], json_data['description'])
                 assert_equal(data_hash['overlay'].first['url'], json_data['sameAs'])

@@ -68,6 +68,7 @@ describe DataCycleCore::ExternalSystem do
 
   it 'returns nil if no export_config is defined' do
     subject.config = nil
+    subject.reset_memoized_variables!
     assert_nil(subject.export_config)
   end
 
@@ -77,6 +78,7 @@ describe DataCycleCore::ExternalSystem do
 
   it 'returns nil if no refresh_config is defined' do
     subject.config = nil
+    subject.reset_memoized_variables!
     assert_nil(subject.refresh_config)
   end
 
@@ -86,6 +88,7 @@ describe DataCycleCore::ExternalSystem do
 
   it 'returns nil if no import_config is defined' do
     subject.config = nil
+    subject.reset_memoized_variables!
     assert_nil(subject.import_config)
     assert_nil(subject.import_list)
   end
@@ -116,6 +119,7 @@ describe DataCycleCore::ExternalSystem do
 
   it 'returns nil if no download_config is defined' do
     subject.config = nil
+    subject.reset_memoized_variables!
     assert_nil(subject.download_config)
     assert_nil(subject.download_list)
   end

@@ -7,6 +7,13 @@ const showTimeMapping = {
 	default: 5000,
 };
 
+const typeMapping = {
+	error: "alert",
+	warning: "info",
+};
+
+const persistentTypes = ["alert", "info"];
+
 class ToastNotification {
 	constructor(notificationContainer) {
 		this.notificationContainer = notificationContainer;
@@ -14,27 +21,16 @@ class ToastNotification {
 	}
 
 	setUp() {
-		this.addEventListeners();
 		this.addMutationObserver();
 		this.handleInitialNotifications();
 	}
 
-	addEventListeners() {}
-
 	addMutationObserver() {
-		const observer = new MutationObserver((mutations) => {
-			for (const mutation of mutations) {
-				if (mutation.addedNodes.length) {
-					for (const node of mutation.addedNodes) {
-						if (node.classList.contains("new-notification")) {
-							this.handleNotification(node);
-						}
-					}
-				}
-			}
-		});
-
-		observer.observe(this.notificationContainer, { childList: true });
+		DataCycle.registerAddCallback(
+			"div.flash-messages .new-notification",
+			"dcjs-new-toast-notification",
+			this.handleNotification.bind(this),
+		);
 	}
 
 	handleNotification(node) {
@@ -62,16 +58,16 @@ class ToastNotification {
 }
 
 export function showToast(text, type = "", closeable = true) {
-	const showTime = showTimeMapping[type] || showTimeMapping.default;
+	const mappedType = typeMapping[type] || type;
+	const showTime = showTimeMapping[mappedType] || showTimeMapping.default;
 
-	let autoDismiss = type !== "alert" && type !== "info";
-
+	let autoDismiss = !persistentTypes.includes(mappedType);
 	autoDismiss = closeable ? autoDismiss : true; // if not closeable, always auto dismiss. Otherwise, it would be impossible to dismiss the notification.
 
 	const toast = document.createElement("div");
-	toast.classList.add("flash-notification", "toast-notification", type);
+	toast.classList.add("flash-notification", "toast-notification", mappedType);
 	toast.setAttribute("data-text", lodashEscape(text));
-	toast.setAttribute("data-type", type);
+	toast.setAttribute("data-type", mappedType);
 	if (autoDismiss) {
 		toast.setAttribute("data-auto-dismiss", "");
 	}

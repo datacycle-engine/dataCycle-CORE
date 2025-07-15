@@ -8,7 +8,7 @@
         <a href="#" class="report-overlay-link" data-open="report-overlay-<%= key %>"><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></a>
 
         <div class="reveal" id="report-overlay-<%= key %>" data-reveal>
-          <h3><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></h3>
+          <div class="reveal-header"><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></div>
           <div class="remote-render"
               data-remote-path="data_cycle_core/reports/form"
               data-remote-options="<%= to_query_params({ key: key, report: report }).to_json %>">

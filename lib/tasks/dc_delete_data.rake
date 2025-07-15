@@ -62,5 +62,105 @@ namespace :dc do
 
       puts "\nDone (deleted #{deleted_ids.size} contents)."
     end
+
+    desc 'merge contents with same external_system_id and external_key'
+    task merge_contents: :environment do |_, args|
+      priority_list = Array.wrap(args.extras)
+      priority_list.map!(&:to_s)
+      priority_list.uniq!
+      external_systems = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(priority_list).to_a
+      priority_list.map! { |id| external_systems.find { |es| es.name == id || es.identifier == id || es.id == id } }
+      priority_list.compact!
+      removed_duplicates = []
+
+      abort('Please provide at least two external_system identifiers') if priority_list.blank? || priority_list.size < 2
+
+      base_query = <<-SQL.squish
+        SELECT originals.id AS original_id,
+          duplicates.id AS duplicate_id
+        FROM things originals
+          JOIN external_system_syncs ess ON ess.syncable_id = originals.id
+          AND ess.sync_type = 'duplicate'
+          LEFT OUTER JOIN things duplicates ON duplicates.external_key = ess.external_key
+          AND duplicates.external_source_id = ess.external_system_id
+        WHERE originals.external_source_id = :external_system_id
+          AND originals.id != duplicates.id
+          AND duplicates.external_source_id IN (:duplicate_source_ids)
+        UNION
+        SELECT originals.id AS original_id,
+          duplicates.id AS duplicate_id
+        FROM external_system_syncs ess
+          JOIN things originals ON ess.syncable_id = originals.id
+          JOIN external_system_syncs duplicate_ess ON duplicate_ess.external_key = ess.external_key
+          AND duplicate_ess.external_system_id = ess.external_system_id
+          AND duplicate_ess.sync_type = 'duplicate'
+          JOIN things duplicates ON duplicates.id = duplicate_ess.syncable_id
+        WHERE originals.external_source_id = :external_system_id
+          AND originals.id != duplicates.id
+          AND duplicates.external_source_id IN (:duplicate_source_ids)
+          AND ess.sync_type = 'duplicate'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM things
+            WHERE things.external_key = ess.external_key
+              AND things.external_source_id = ess.external_system_id
+          )
+          AND NOT EXISTS (
+            SELECT 1
+            FROM things
+            WHERE things.external_key = duplicate_ess.external_key
+              AND things.external_source_id = duplicate_ess.external_system_id
+          )
+        UNION
+        SELECT originals.id AS original_id,
+          duplicates.id AS duplicate_id
+        FROM things originals
+          JOIN external_system_syncs ess ON ess.external_key = originals.external_key
+          AND ess.external_system_id = originals.external_source_id
+          AND ess.sync_type = 'duplicate'
+          JOIN things duplicates ON duplicates.id = ess.syncable_id
+        WHERE originals.external_source_id = :external_system_id
+          AND originals.id != ess.syncable_id
+          AND duplicates.external_source_id IN (:duplicate_source_ids);
+      SQL
+
+      while priority_list.size > 1
+        primary_es = priority_list.shift
+
+        duplicates = ActiveRecord::Base.connection.select_all(
+          ActiveRecord::Base.send(
+            :sanitize_sql_array,
+            [
+              base_query,
+              {
+                external_system_id: primary_es.id,
+                duplicate_source_ids: priority_list.pluck(:id)
+              }
+            ]
+          )
+        ).rows.to_h
+
+        next(puts("-- No duplicates for #{primary_es.name}...")) if duplicates.blank?
+
+        contents = DataCycleCore::Thing.where(id: duplicates.keys + duplicates.values).index_by(&:id)
+
+        puts "Merging duplicates for #{primary_es.name} (#{duplicates.size})..."
+
+        duplicates.each do |original_id, duplicate_id|
+          next if removed_duplicates.include?(original_id) || removed_duplicates.include?(duplicate_id)
+
+          original = contents[original_id]
+          duplicate = contents[duplicate_id]
+
+          removed_duplicates << duplicate.id
+          original.merge_with_duplicate_and_version(duplicate)
+        end
+      end
+
+      puts '[DONE] finished creating merge jobs.'
+    rescue StandardError => e
+      puts "Error during merging: #{e.message}"
+      raise e
+    end
   end
 end

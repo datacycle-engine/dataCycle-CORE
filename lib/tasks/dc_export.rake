@@ -31,15 +31,22 @@ namespace :dc do
 
       query = filter.apply(watch_list:)
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
-      contents = query.query.page(1).per(query.query.size)
+      thing_ids = ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+        query.query.pluck(:id)
+      end
+      contents = DataCycleCore::Thing.where(id: thing_ids)
+      size = contents.count
+      contents = contents.page(1).per(size)
 
       logger = Logger.new("log/dc_export_#{endpoint.id}_jsonld.log")
+      start_time = Time.zone.now
 
       dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
       File.write(dir.join("#{endpoint.id}.jsonld.tmp"), '')
-      global_retries = 1
+      global_retries = 0
 
       begin
         renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
@@ -78,27 +85,18 @@ namespace :dc do
           '@graph' => []
         }.to_json
 
-        size = ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
-          contents.total_count
-        end
-        worker_pool_size = [ActiveRecord::Base.connection_pool.size - 2, 3].min
+        worker_pool_size = (ActiveRecord::Base.connection_pool.size / 2) - 1
         queue = DataCycleCore::WorkerPool.new(worker_pool_size)
-        progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
 
-        logger.info("[EXPORTING] #{size} things in endpoint: #{endpoint.id}")
-        puts "Exporting #{size} things in endpoint: #{endpoint.id}"
+        logger.info("[EXPORTING] #{size} things in endpoint: #{endpoint.id} (#{worker_pool_size} Threads)")
+        puts "Exporting #{size} things in endpoint: #{endpoint.id} (#{worker_pool_size} Threads)"
 
         file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
         file << result.delete_suffix(']}')
 
-        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
-          ActiveRecord::Base.connection.exec_query('SELECT PG_SLEEP(61);')
-          contents.load
-        end
+        progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
 
-        contents.each do |item|
+        contents.find_each do |item|
           queue.append do
             data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
               retries = 1
@@ -128,8 +126,13 @@ namespace :dc do
                                options: { languages: locales }
                              }
                            ))
-              rescue SystemStackError, ActiveRecord::ConnectionTimeoutError
-                raise unless retries < 5
+              rescue SystemStackError, ActiveRecord::ConnectionTimeoutError => e
+                unless retries < 3
+                  logger.error("[ERROR] for thing: #{item.id}")
+                  logger.error("Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+
+                  raise
+                end
 
                 logger.error("[RETRYING] for thing: #{item.id} (retry: #{retries})")
                 retries += 1
@@ -137,7 +140,7 @@ namespace :dc do
               end
             end
 
-            file << ("#{data.to_json},")
+            file << "#{data.to_json},"
 
             progress.increment
           end
@@ -151,13 +154,20 @@ namespace :dc do
 
         FileUtils.rm_f(dir.join("#{endpoint.id}.jsonld"))
         File.rename(dir.join("#{endpoint.id}.jsonld.tmp"), dir.join("#{endpoint.id}.jsonld"))
-      rescue ActiveRecord::ConnectionTimeoutError
-        raise if global_retries >= 5
+      rescue StandardError => e
+        unless global_retries < 3 # after 3 failed tries
+          logger.error("[FAILED EXPORT] for things in endpoint: #{endpoint.id} after #{Time.zone.now - start_time}s")
+          logger.error("Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+
+          raise
+        end
+
+        logger.error("[RETRYING EXPORT] for things in endpoint: #{endpoint.id} (retry: #{global_retries})")
         global_retries += 1
         retry
       end
 
-      logger.info("[FINISHED EXPORT] for things in endpoint: #{endpoint.id}")
+      logger.info("[FINISHED EXPORT] for things in endpoint: #{endpoint.id} after #{Time.zone.now - start_time}s")
     end
   end
 end

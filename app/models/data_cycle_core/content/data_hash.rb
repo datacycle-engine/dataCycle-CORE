@@ -7,7 +7,6 @@ module DataCycleCore
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: [:before, :after]
       define_model_callbacks :created_data_hash, only: :after
-      define_model_callbacks :destroyed_data_hash, only: :after
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
@@ -18,6 +17,7 @@ module DataCycleCore
       include UpdateSearch
 
       before_save :set_internal_data
+      before_destroy :add_remove_linked_from_text_job, unless: :history?
 
       def before_save_data_hash(options)
         # inherit attributes if source content is present
@@ -42,8 +42,9 @@ module DataCycleCore
         # trigger create webhooks if is newly created content
         execute_create_webhooks if options.new_content
 
-        # trigger update webhooks
-        execute_update_webhooks
+        # trigger update webhooks / except if only timeseries properties changed
+        execute_update_webhooks unless previous_datahash_changes.blank? ||
+                                       previous_datahash_changes.keys.all? { |k| k.in?(timeseries_property_names) }
 
         # trigger Subscriber Mailer
         notify_subscribers(current_user: options.current_user) unless options.current_user.nil?
@@ -64,7 +65,7 @@ module DataCycleCore
 
       def set_data_hash(**) # rubocop:disable Naming/AccessorMethodName
         options = DataCycleCore::Content::DataHashOptions.new(**)
-        options.data_hash.slice!(*property_names) # remove all keys that are not part of the schema
+        options.data_hash.slice!(*writable_property_names) # remove all keys that are not part of the schema
 
         return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
@@ -173,7 +174,7 @@ module DataCycleCore
         DataCycleCore::Webhook::Delete.execute_all(self)
       end
 
-      def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
+      def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true) # rubocop:disable Naming/PredicateMethod
         data_hash = add_default_values(data_hash:, current_user:, partial: !strict).dup if add_defaults && default_value_property_names.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new(self)
@@ -230,13 +231,17 @@ module DataCycleCore
       end
 
       def self.invalidate_all
-        unscoped
-          .where(
-            id: unscoped.where(id: all.except(:distinct).order(id: :asc).select(:id))
-              .lock('FOR UPDATE SKIP LOCKED')
-              .select(:id)
-          )
-          .update_all(cache_valid_since: Time.zone.now)
+        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
+          unscoped
+            .where(
+              id: unscoped.where(id: all.except(:distinct).order(id: :asc).select(:id))
+                .lock('FOR UPDATE SKIP LOCKED')
+                .select(:id)
+            )
+            .update_all(cache_valid_since: Time.zone.now)
+        end
       end
 
       def self.update_search_all
@@ -245,7 +250,7 @@ module DataCycleCore
 
       private
 
-      def no_changes(locale)
+      def no_changes(locale) # rubocop:disable Naming/PredicateMethod
         warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale:))
 
         true
@@ -297,6 +302,8 @@ module DataCycleCore
           set_schedule(value, key)
         when *COLLECTION_PROPERTY_TYPES
           set_collection_links(key, value)
+        when *GEO_PROPERTY_TYPES
+          set_geographic(key, value, properties)
         when *TIMESERIES_PROPERTY_TYPES
           set_timeseries(key, value)
         end
@@ -319,20 +326,20 @@ module DataCycleCore
 
       def save_to_column(key, value, properties)
         save_data = normalize_value(value, properties)
-        save_data = convert_to_type(properties['type'], save_data) if properties['type'].in?(['geographic', 'string'])
+        save_data = convert_to_type(properties['type'], save_data, properties) if properties['type'].in?(['geographic', 'string'])
         send(:"#{key}=", save_data)
       end
 
       def normalize_value(value, properties)
         norm_value = value
-        return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value) if properties['type'] == 'string'
+        return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value, properties) if properties['type'] == 'string'
         norm_value
       end
 
       def save_to_jsonb(key, data, properties, location)
         save_data = data.deep_dup
-        save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object'
-        save_data = convert_to_string(properties['type'], normalize_value(save_data, properties)) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
+        save_data = set_data_tree_hash(save_data, properties['properties'], location, properties) if properties['type'] == 'object'
+        save_data = convert_to_string(properties['type'], normalize_value(save_data, properties), properties) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
 
         if send(location.to_s).blank? # set to json field (could be empty)
           send(:"#{location}=", { key => save_data })
@@ -341,13 +348,13 @@ module DataCycleCore
         end
       end
 
-      def set_data_tree_hash(data, data_definitions, location)
+      def set_data_tree_hash(data, data_definitions, location, properties)
         data_hash = {}
         data_definitions.each_key do |key|
           if data_definitions[key]['type'] == 'object'
-            data_hash[key] = set_data_tree_hash(data&.dig(key), data_definitions[key]['properties'], location)
+            data_hash[key] = set_data_tree_hash(data&.dig(key), data_definitions[key]['properties'], location, properties)
           elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
-            data_hash[key] = convert_to_string(data_definitions[key]['type'], normalize_value(data&.dig(key), data_definitions[key]))
+            data_hash[key] = convert_to_string(data_definitions[key]['type'], normalize_value(data&.dig(key), data_definitions[key]), properties)
           elsif data_definitions[key]['storage_location'] == 'column'
             save_to_column(key, data&.dig(key), data_definitions[key])
           end
@@ -419,6 +426,19 @@ module DataCycleCore
         content_collection_links.where(relation: field_name, collection_id: to_delete).delete_all
       end
 
+      def set_geographic(field_name, input_data, properties)
+        value = string_to_geographic(input_data)
+
+        # use detect for force load all geometries
+        return geometries.detect { |g| g.relation == field_name }&.mark_for_destruction if value.blank?
+
+        if (existing = geometries.detect { |g| g.relation == field_name }).present?
+          existing.geom = value
+        else
+          geometries.build(relation: field_name, geom: value, priority: properties['priority'])
+        end
+      end
+
       def parse_collection_ids(a, key)
         ids = Array.wrap(a).compact
 
@@ -467,7 +487,18 @@ module DataCycleCore
         end
 
         to_delete = available_update_item_keys - updated_item_keys
-        DataCycleCore::Thing.where(id: to_delete).find_each { |item| item.destroy(current_user: options.current_user, save_time: options.save_time) } if to_delete.present?
+        return if to_delete.blank?
+
+        content_content_a.where(relation_a: field_name, content_b_id: to_delete).delete_all
+        DataCycleCore::Thing
+          .where(id: to_delete)
+          .find_each do |item|
+          item.destroy(
+            current_user: options.current_user,
+            save_time: options.save_time,
+            check_ancestors: true
+          )
+        end
       end
 
       def upsert_content(name, item, options)
@@ -480,13 +511,12 @@ module DataCycleCore
           template_name = specific_template_name
         end
 
-        if item_id.present?
-          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item_id) do |c|
-            c.template_name = template_name
-          end
-        else
-          upsert_item = DataCycleCore::Thing.new(template_name:)
-        end
+        upsert_item = if item_id.present?
+                        DataCycleCore::Thing.find_by(id: item_id) ||
+                          DataCycleCore::Thing.new(id: item_id, template_name:)
+                      else
+                        DataCycleCore::Thing.new(template_name:)
+                      end
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?
@@ -500,17 +530,18 @@ module DataCycleCore
           prevent_history: true,
           new_content: created
         )
+
         upsert_item
       end
 
       def set_classification_relation_ids(ids, relation_name, _tree_label, default_value, not_translated, _universal)
-        return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
+        return if not_translated && I18n.default_locale != I18n.locale && default_value.blank?
 
         present_relation_ids = send(relation_name).pluck(:id)
         ids = Array.wrap(ids).uniq
 
         if DataCycleCore::DataHashService.present?(ids)
-          classification_content.upsert_all(
+          classification_contents.upsert_all(
             ids.map do |classification_id|
               {
                 classification_id:,
@@ -526,7 +557,7 @@ module DataCycleCore
 
         return if to_delete.empty?
 
-        classification_content.where(relation: relation_name, classification_id: to_delete).delete_all
+        classification_contents.where(relation: relation_name, classification_id: to_delete).delete_all
       end
 
       def set_asset_id(asset_id, relation_name, asset_type)
@@ -555,11 +586,13 @@ module DataCycleCore
       def set_schedule(input_data, relation_name)
         updated_item_keys = []
         available_items = load_schedule(relation_name).pluck(:id)
-        data = input_data || []
 
-        data.each do |item|
-          schedule = item['id'].presence&.then { |sid| DataCycleCore::Schedule.find_by(id: sid) } || DataCycleCore::Schedule.new
-          schedule.id = item['id'] if item['id'].present?
+        input_data&.each do |item|
+          schedule = if item['id'].present?
+                       DataCycleCore::Schedule.find_or_initialize_by(id: item['id'])
+                     else
+                       DataCycleCore::Schedule.new
+                     end
           schedule.external_source_id = item['external_source_id'] if item['external_source_id'].present?
           schedule.external_key = item['external_key'] if item['external_key'].present?
           schedule.thing_id = id

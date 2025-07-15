@@ -13,14 +13,14 @@ module DataCycleCore
       end
     end
 
-    def render_attribute_viewer(**)
-      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
+    def render_attribute_viewer(opts = nil, **)
+      options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
 
       return unless options.attribute_allowed?
       return render(*options.attribute_group_params) if options.attribute_group?
 
-      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) ||
-         object_has_translatable_attributes?(options.content, options.definition)
+      if (attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) ||
+         object_has_translatable_attributes?(options.content, options.definition)) && !options.no_wrapper?
         render_translatable_attribute_viewer(options)
       else
         render_untranslatable_attribute_viewer(options)
@@ -31,15 +31,15 @@ module DataCycleCore
       render 'data_cycle_core/contents/viewers/translatable_field', **options.to_h
     end
 
-    def render_specific_translatable_attribute_viewer(**)
-      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
+    def render_specific_translatable_attribute_viewer(opts = nil, **)
+      options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer)
 
       I18n.with_locale(options.locale) do
-        options.value ||= if options.parameters[:parent].nil?
-                            options.content.try(options.key.attribute_name_from_key)
-                          else
-                            options.parameters[:parent]&.try(options.key.attribute_name_from_key)
-                          end
+        # options.value ||= if options.parameters[:parent].nil?
+        #                     options.content.try(options.key.attribute_name_from_key)
+        #                   else
+        #                     options.parameters[:parent]&.try(options.key.attribute_name_from_key)
+        #                   end
 
         return unless options.attribute_allowed?
         return render(*options.attribute_group_params) if options.attribute_group?
@@ -69,8 +69,8 @@ module DataCycleCore
       render_first_existing_partial(partials, options.render_params)
     end
 
-    def render_attribute_history_viewer(**)
-      options = DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer, scope: :history)
+    def render_attribute_history_viewer(opts = nil, **)
+      options = opts || DataCycleCore::DataAttributeOptions.new(**, user: current_user, context: :viewer, scope: :history)
 
       return unless options.attribute_allowed?
 
@@ -86,7 +86,7 @@ module DataCycleCore
       begin
         render_first_existing_partial(partials, options.render_params)
       rescue StandardError
-        render_attribute_viewer options.to_h
+        render_attribute_viewer(options)
       end
     end
 
@@ -96,7 +96,7 @@ module DataCycleCore
       else
         tag.span(
           render('data_cycle_core/contents/grid/attributes/warnings', params),
-          class: 'linked-content-warnings'
+          class: 'linked-content-warnings active'
         )
       end
     end
@@ -123,7 +123,7 @@ module DataCycleCore
       html_classes = ['hollow button']
       html_classes = ['active'] if content.life_cycle_stage?(stage[:id])
 
-      html_classes.push('disabled') unless can?(:set_life_cycle, content, stage)
+      html_classes.push('disabled') unless content.life_cycle_editable? && can?(:set_life_cycle, content, stage)
       html_classes.push('before-active') if content.life_cycle_stage_index&.>(content.life_cycle_stage_index(stage[:id]))
       html_classes.push('after-active') if content.life_cycle_stage_index&.<(content.life_cycle_stage_index(stage[:id]))
 

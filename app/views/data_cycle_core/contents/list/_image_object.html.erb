@@ -7,7 +7,7 @@
           <% if DataCycleCore::Feature::ImageProxy.frontend_enabled? %>
             <% mini_thumb_url = DataCycleCore::Feature::ImageProxy.mini_thumb_url(content: item) %>
             <figure class="mini-preview-image">
-              <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
+              <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= thing_thumbnail_url(item) %>' />" />
             </figure>
           <% else %>
             <%= render 'data_cycle_core/shared/icon', icon_type: item.try(:icon_type), icon_class: item.try(:icon_class) %>

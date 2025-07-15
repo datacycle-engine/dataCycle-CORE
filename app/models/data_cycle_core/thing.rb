@@ -2,12 +2,14 @@
 
 module DataCycleCore
   class Thing < Content::DataHash
+    include Content::ContentRelations
     include Content::ContentLoader
     include Content::Extensions::OptimizedContentContents
     include Content::ExternalData
     prepend Content::ContentOverlay
 
     class History < Content::Content
+      include Content::ContentRelations
       include Content::ContentHistoryLoader
       include Content::Restorable
       prepend Content::ContentOverlay
@@ -16,11 +18,12 @@ module DataCycleCore
       translates :slug, :content, backend: :table
       default_scope { i18n.includes(:thing_template) }
 
-      content_relations table_name: 'things', postfix: 'history'
       has_many :scheduled_history_data, class_name: 'DataCycleCore::Schedule::History', foreign_key: 'thing_history_id', dependent: :destroy, inverse_of: :thing_history
 
       belongs_to :thing
       has_many :content_collection_link_histories, dependent: :delete_all, foreign_key: :thing_history_id, inverse_of: :thing_history
+      has_many :thing_history_links, dependent: :nullify, foreign_key: :thing_history_id, inverse_of: :thing_history
+      has_many :geometry_histories, dependent: :delete_all, inverse_of: :thing_history
 
       def available_locales
         I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
@@ -75,18 +78,18 @@ module DataCycleCore
 
     has_many :duplicate_candidates, -> { where(false_positive: false).order(score: :desc) }, class_name: 'DuplicateCandidate', foreign_key: :original_id, inverse_of: :original
     has_many :duplicates, through: :duplicate_candidates, source: :duplicate
-    has_many :thing_duplicates, dependent: :destroy
-    has_many :thing_originals, class_name: 'DataCycleCore::ThingDuplicate', foreign_key: :thing_duplicate_id, dependent: :destroy, inverse_of: :original
+    has_many :thing_duplicates, dependent: :delete_all
+    has_many :thing_originals, class_name: 'DataCycleCore::ThingDuplicate', foreign_key: :thing_duplicate_id, dependent: :delete_all, inverse_of: :original
 
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
+
+    has_many :thing_history_links, dependent: :delete_all, class_name: 'DataCycleCore::ThingHistoryLink', inverse_of: :thing
 
     extend ::Mobility
     translates :slug, :content, backend: :table
     default_scope { i18n.includes(:thing_template) }
 
-    content_relations(table_name:)
-
-    has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
+    has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable, autosave: true
     has_many :external_systems, through: :external_system_syncs
 
     has_many :activities, as: :activitiable, dependent: :destroy
@@ -99,6 +102,8 @@ module DataCycleCore
     has_many :full_classification_aliases, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationAlias', source: :classification_alias
     has_many :full_classification_tree_labels, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationTreeLabel', source: :classification_tree_label
     has_many :content_collection_links, dependent: :delete_all
+    has_many :geometries, dependent: :delete_all, inverse_of: :thing, autosave: true
+    has_one :primary_geometry, -> { primary }, class_name: 'DataCycleCore::Geometry', inverse_of: false, foreign_key: :thing_id
 
     scope :duplicate_candidates, -> { DataCycleCore::Thing::DuplicateCandidate.where(original_id: select(:id).reorder(nil)).where(false_positive: false).order(score: :desc) }
 

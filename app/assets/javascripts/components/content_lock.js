@@ -69,12 +69,12 @@ class ContentLock {
 	}
 	updateLocks(newLocks = {}, texts = {}) {
 		for (const key in this.locks) {
-			if (this.locks.hasOwnProperty(key)) this.unlockButton(key);
+			if (Object.hasOwn(this.locks, key)) this.unlockButton(key);
 		}
 
 		if (Object.keys(newLocks).length !== 0 && newLocks.constructor === Object) {
 			for (const key in newLocks) {
-				if (newLocks.hasOwnProperty(key))
+				if (Object.hasOwn(newLocks, key))
 					this.newLock(key, newLocks[key], texts[key]);
 			}
 		}
@@ -87,31 +87,37 @@ class ContentLock {
 	}
 	calculateLockedUntil(lockedUntil = {}) {
 		for (const key in lockedUntil) {
-			if (lockedUntil.hasOwnProperty(key))
+			if (Object.hasOwn(lockedUntil, key))
 				lockedUntil[key] = new Date(Number.parseInt(lockedUntil[key]) * 1000);
 		}
 
 		Object.assign(this.locks, lockedUntil);
 	}
 	initActionCable() {
-		this.lockContentChannel = window.actionCable.subscriptions.create(
-			{
-				channel: "DataCycleCore::ContentLockChannel",
-				content_id: this.uuid,
-			},
-			{
-				received: (data) => {
-					if (data.create && data.locked_until !== undefined && !this.editable)
-						this.newLock(data.lock_id, data.locked_until, data.button_text);
-					else if (data.locked_until !== undefined)
-						this.renewLock(data.lock_id, data.locked_until, data.token);
-					else if (data.remove_lock && !this.editable)
-						this.unlockButton(data.lock_id);
-					else if (data.remove_lock && this.editable)
-						this.lockEditor(data.lock_id);
+		this.lockContentChannel = window.actionCable.then((cable) => {
+			cable.subscriptions.create(
+				{
+					channel: "DataCycleCore::ContentLockChannel",
+					content_id: this.uuid,
 				},
-			},
-		);
+				{
+					received: (data) => {
+						if (
+							data.create &&
+							data.locked_until !== undefined &&
+							!this.editable
+						)
+							this.newLock(data.lock_id, data.locked_until, data.button_text);
+						else if (data.locked_until !== undefined)
+							this.renewLock(data.lock_id, data.locked_until, data.token);
+						else if (data.remove_lock && !this.editable)
+							this.unlockButton(data.lock_id);
+						else if (data.remove_lock && this.editable)
+							this.lockEditor(data.lock_id);
+					},
+				},
+			);
+		});
 	}
 	newLock(lockId, lockedUntil, buttonText = "") {
 		const isFirst = this._noActiveLocks;
@@ -163,7 +169,7 @@ class ContentLock {
 			.text(DurationHelpers.seconds_to_human_time(diffSeconds));
 
 		for (const key in this.locks) {
-			if (this.locks.hasOwnProperty(key) && this.buttonTooltip) {
+			if (Object.hasOwn(this.locks, key) && this.buttonTooltip) {
 				const $tooltipHtml = $(
 					`<div>${this.buttonTooltip.dataset.dcTooltip}</div>`,
 				);
@@ -226,7 +232,7 @@ class ContentLock {
 	checkActiveLocks() {
 		let max = 0;
 		for (const key in this.locks) {
-			if (!this.locks.hasOwnProperty(key)) continue;
+			if (!Object.hasOwn(this.locks, key)) continue;
 
 			const rest =
 				Math.max(0, Number.parseInt((this.locks[key] - Date.now()) / 1000)) -

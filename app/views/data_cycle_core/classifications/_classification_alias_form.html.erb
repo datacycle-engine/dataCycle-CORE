@@ -28,7 +28,7 @@
 
   <% if classification_alias.persisted? %>
     <div class="ca-input">
-      <%= f.label :internal_name, DataCycleCore::ClassificationAlias.human_attribute_name(:internal_name, locale: active_ui_locale), class: 'ca-label' %>
+      <%= f.label :internal_name, classification_alias.class.human_attribute_name(:internal_name, locale: active_ui_locale), class: 'ca-label' %>
       <%= f.text_field :internal_name, class: 'ca-input-field', readonly: true, placeholder: t('common.generated_value_placeholder', locale: active_ui_locale), data: { dc_tooltip: classification_alias.full_path } %>
     </div>
   <% end %>
@@ -50,16 +50,16 @@
   </div>
 
   <div class="ca-input">
-    <%= f.label :uri, DataCycleCore::ClassificationAlias.human_attribute_name(:uri, locale: active_ui_locale), class: 'ca-label' %>
+    <%= f.label :uri, classification_alias.class.human_attribute_name(:uri, locale: active_ui_locale), class: 'ca-label' %>
     <%= f.text_field :uri, class: 'ca-input-field', readonly: classification_alias&.persisted? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias), placeholder: t('common.generated_value_placeholder', locale: active_ui_locale) %>
   </div>
 
   <div class="ca-input color-picker-container <%= 'no-color' unless classification_alias&.color? %>">
-    <%= label_tag "classification_alias[ui_configs][color]", DataCycleCore::ClassificationAlias.human_attribute_name("ui_configs/color", locale: active_ui_locale), class: 'ca-label' %>
+    <%= label_tag "classification_alias[ui_configs][color]", classification_alias.class.human_attribute_name("ui_configs/color", locale: active_ui_locale), class: 'ca-label' %>
     <%= text_field_tag "classification_alias[ui_configs][color]", classification_alias&.color, class: 'ca-input-field dc-color-picker', disabled: !can?(:set_color, classification_alias) %>
   </div>
 
-  <% if current_user&.is_role?('super_admin') %>
+  <% if can?(:update_internal, classification_alias) %>
     <div class="ca-input checkbox">
       <span class="dc-checkbox">
         <%= f.check_box :internal %>
@@ -71,17 +71,17 @@
   <div class="ca-input checkbox">
     <span class="dc-checkbox">
       <%= f.check_box :assignable, disabled: classification_alias&.persisted? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
-      <%= f.label :assignable %>
+      <%= f.label :assignable, classification_alias.class.human_attribute_name(:assignable, locale: active_ui_locale) %>
     </span>
   </div>
 
   <% if classification_alias.persisted? && can?(:map_classifications, classification_alias) %>
-    <% locked = Delayed::Job.where(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: classification_alias.id).exists? %>
+    <% locked = Delayed::Job.where(delayed_reference_type: 'ClassificationMappingJob', delayed_reference_id: classification_alias.id).exists? %>
     <%= hidden_field_tag 'classification_alias[classification_ids][]', classification_alias&.primary_classification_id,
                          class: 'default_classification_mapping' unless locked %>
     <div class="v-select classification-ids-field">
       <%= f.label :classification_ids do |l| %>
-        <%= l.translation %>
+        <%= I18n.with_locale(active_ui_locale){ l.translation } %>
         <%= tag.i(
           class: 'fa fa-exclamation-triangle warning-color classification-mappings-queued',
           data: {
@@ -95,7 +95,7 @@
         {
           class: 'async-select',
           multiple: true,
-          disabled: locked,
+          disabled: locked || !classification_tree_label.mappable,
           data: {
             placeholder: '',
             search_path: search_classifications_path,
@@ -111,13 +111,13 @@
 
   <% if classification_alias.persisted? && can?(:view_all, classification_alias) %>
     <div class="ca-input">
-      <%= f.label :external_keys, class: 'ca-label'%>
-      <%= f.text_field :external_keys, class: 'ca-input-field', disabled: true %>
+      <%= f.label :external_keys, classification_alias.class.human_attribute_name(:external_keys, locale: active_ui_locale), class: 'ca-label'%>
+      <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true %>
     </div>
 
     <%# to show classifications mapped to this ClassificationAlias %>
     <div class="v-select">
-      <%= f.label :mapped_to %>
+      <%= f.label :mapped_to, classification_alias.class.human_attribute_name(:mapped_to, locale: active_ui_locale) %>
       <%= f.select(:mapped_to,
         async_classification_select_options(classification_alias.mapped_to),
         {},

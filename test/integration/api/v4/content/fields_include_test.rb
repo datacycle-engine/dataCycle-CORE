@@ -52,12 +52,32 @@ module DataCycleCore
             response.parsed_body['@graph'].first
           end
 
+          def load_api_data_fails(fields, includes)
+            get api_v4_thing_path(id: @content_overlay, fields: fields&.join(','), include: includes&.join(','))
+            assert_response(:bad_request)
+            response.parsed_body
+          end
+
           def add_default(array)
             (['@id', '@type'] + array).sort
           end
 
           def add_header(array)
             (['@id', '@type'] + array).sort
+          end
+
+          def add_content_header_fields(array)
+            expanded_fields = array.dup
+            expanded_fields += ['dct:modified', 'dct:created', 'dc:touched', 'dc:entityUrl']
+
+            array.each do |field|
+              expanded_fields += ["#{field}.dct:modified"]
+              expanded_fields += ["#{field}.dct:created"]
+              expanded_fields += ["#{field}.dc:touched"]
+              expanded_fields += ["#{field}.dc:entityUrl"]
+            end
+
+            expanded_fields
           end
 
           test 'testing EventOverlay with fields and include parameter (only fields in main objext --> no incuded data)' do
@@ -87,6 +107,61 @@ module DataCycleCore
             json_data = load_api_data(fields, includes)
 
             assert_equal(add_default(['image', 'location', 'name']), json_data.keys.sort)
+          end
+
+          # only fields in main/default object, no additional included data
+          test 'testing wildcard fields - fields=* (only fields in main object, no incuded data)' do
+            fields = ['*']
+            includes = []
+            json_data_wildcard = load_api_data(fields, nil)
+            json_data_default = load_api_data(nil, add_content_header_fields(includes))
+
+            assert_equal(json_data_default.keys.sort, json_data_wildcard.keys.sort)
+          end
+
+          test 'testing wildcard fields - fields=image.* (only fields in main object + image)' do
+            fields = ['*', 'image.*']
+            includes = ['image']
+            json_data_includes = load_api_data(nil, add_content_header_fields(includes))
+            json_data_wildcard = load_api_data(fields, nil)
+
+            assert_equal(json_data_includes.keys.sort, json_data_wildcard.keys.sort)
+            assert_equal(json_data_includes['image'][0].keys.sort, json_data_wildcard['image'][0].keys.sort)
+          end
+
+          test 'testing wildcard fields - fields=eventSchedule.* (only fields in main object + eventSchedule)' do
+            fields = ['*', 'eventSchedule.*']
+            includes = ['eventSchedule']
+            json_data_includes = load_api_data(nil, add_content_header_fields(includes))
+            json_data_wildcard = load_api_data(fields, nil)
+
+            assert_equal(json_data_includes.keys.sort, json_data_wildcard.keys.sort)
+            assert_equal(json_data_includes['eventSchedule'][0].keys.sort, json_data_wildcard['eventSchedule'][0].keys.sort)
+          end
+
+          test 'testing fields for wildcard - nested fields' do
+            fields = ['*', 'image.*', 'image.dc:classification.*', 'image.dc:classification.skos:broader.*', 'image.dc:classification.skos:broader.skos:topConceptOf.*']
+            includes = ['image', 'image.dc:classification', 'image.dc:classification.skos:broader', 'image.dc:classification.skos:broader.skos:topConceptOf']
+            json_data_includes = load_api_data(nil, add_content_header_fields(includes))
+            json_data_wildcard = load_api_data(fields, nil)
+
+            assert_equal(json_data_includes.keys.sort, json_data_wildcard.keys.sort)
+            assert_equal(json_data_includes['image'][0].keys.sort, json_data_wildcard['image'][0].keys.sort)
+            assert_equal(json_data_includes['image'][0]['dc:classification'][0].keys.sort, json_data_wildcard['image'][0]['dc:classification'][0].keys.sort)
+            assert_equal(json_data_includes['image'][0]['dc:classification'][0]['skos:broader'].keys.sort, json_data_wildcard['image'][0]['dc:classification'][0]['skos:broader'].keys.sort)
+            assert_equal(json_data_includes['image'][0]['dc:classification'][0]['skos:broader']['skos:topConceptOf'].keys.sort, json_data_wildcard['image'][0]['dc:classification'][0]['skos:broader']['skos:topConceptOf'].keys.sort)
+          end
+
+          test 'testing invalid wildcard fields - fields=*.*' do
+            fields = ['*.*']
+            json_data_wildcard = load_api_data_fails(fields, nil)
+            assert_equal [
+              {
+                'source' => { 'parameter' => 'fields' },
+                'title' => 'Invalid Query Parameter',
+                'detail' => 'wildcard must only appear at the end of a field or not at all'
+              }
+            ], json_data_wildcard['errors']
           end
         end
       end

@@ -3,6 +3,20 @@
 module DataCycleCore
   module MasterData
     module DataConverter
+      SANITIZE_TAGS = {
+        none: ['br', 'p'],
+        minimal: ['b', 'strong', 'i', 'em', 'u', 'br', 'p'],
+        basic: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'br', 'p', 'sub', 'sup'],
+        full: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'blockquote', 'ul', 'ol', 'li', 'br', 'a', 'contentlink', 'p', 'sub', 'sup', 'span']
+      }.freeze
+
+      SANITIZED_ATTRIBUTES = {
+        none: [],
+        minimal: [],
+        basic: [],
+        full: ['href', 'target', 'rel', 'class', 'data-href', 'data-dc-tooltip', 'data-dc-tooltip-id']
+      }.freeze
+
       def self.convert_to_type(type, data, definition = nil)
         case type
         when 'key'
@@ -10,7 +24,7 @@ module DataCycleCore
         when 'number'
           string_to_number(data, definition)
         when 'string', 'oembed', 'slug'
-          string_to_string(data)
+          string_to_string(data, definition)
         when 'date'
           string_to_date(data)
         when 'datetime'
@@ -24,12 +38,12 @@ module DataCycleCore
         end
       end
 
-      def self.convert_to_string(type, data)
+      def self.convert_to_string(type, data, definition = nil)
         case type
         when 'key', 'number'
           data&.to_s
         when 'string', 'oembed', 'slug'
-          string_to_string(data)
+          string_to_string(data, definition)
         when 'date'
           date_to_string(data)
         when 'datetime'
@@ -43,7 +57,7 @@ module DataCycleCore
         end
       end
 
-      def self.string_to_string(value)
+      def self.string_to_string(value, definition = nil)
         return if value.try(:strip_tags).blank?
         value = value.encode('UTF-8') if value.encoding.name == 'ASCII-8BIT' # ActiveStorage generates ASCII-8BIT encoded URLs
         old_value = value
@@ -51,11 +65,15 @@ module DataCycleCore
           &.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
           &.squish
 
+        old_value = sanitize_html_string(old_value, definition)
         loop do # to get rid of more than one occurrence of the tags
           new_value = old_value
-            &.gsub(%r{(<p>\s*(<br>)*\s*</p>)*$}, '') # remove empty lines from HTML-Editor at the end of the String
-            &.gsub(%r{^(<p>\s*(<br>)*\s*</p>)*}, '') # remove empty lines from HTML-Editor at the start of the String
+            &.strip
+            &.gsub(%r{^(<p>\s*(<br>|&nbsp;)*\s*</p>)+|(<p>\s*(<br>|&nbsp;)*\s*</p>)+$}, '') # remove empty lines at the start and end of the String
             &.gsub(/(\s*&nbsp;\s*)+/, '&nbsp;') # normalize multiple &nbsp; to a single one
+            &.gsub(/^\s*<br>\s*|\s*<br>\s*$/, '') # remove <br> (with whitespace) at the start and end of the String
+            &.gsub(/^&nbsp;|&nbsp;$/, '') # remove &nbsp; at the start and end of the String
+            &.strip
             &.squish
           break if new_value == old_value
           old_value = new_value
@@ -81,20 +99,20 @@ module DataCycleCore
       end
 
       def self.string_to_geographic(value)
-        return nil if value.blank?
-        return value if value.methods.include?(:geometry_type)
+        return if value.blank?
+        return value if value.try(:is_3d?)
+        value = value.to_s
         raise RGeo::Error::ParseError, 'expected a string containing geographic data of some sorts' unless value.is_a?(::String)
-        begin
-          return RGeo::Geographic.simple_mercator_factory(uses_lenient_assertions: true, srid: 4326, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(value)
-        rescue RGeo::Error::ParseError => e
-          e
-        end
-        begin
-          return RGeo::Geographic.simple_mercator_factory(uses_lenient_assertions: true, srid: 4326, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(value)
-        rescue RGeo::Error::ParseError => e
-          e
-        end
-        raise e
+
+        factory_options = {
+          srid: 4326,
+          has_z_coordinate: true,
+          uses_lenient_assertions: true,
+          wkt_parser: { support_wkt12: true },
+          wkt_generator: { convert_case: :upper, tag_format: :wkt12 }
+        }
+
+        RGeo::Geographic.spherical_factory(**factory_options).parse_wkt(value)
       end
 
       def self.boolean_to_string(value)
@@ -152,6 +170,73 @@ module DataCycleCore
         return value if value.acts_like?(:date)
         raise ArgumentError, 'can not convert to a date' unless value.is_a?(::String)
         value.to_date.presence || raise(ArgumentError, 'can not convert to a date')
+      end
+
+      def self.sanitize_html_string(value, definition = nil)
+        return value unless DataCycleCore::Feature['StringSanitizer']&.enabled?
+
+        data_size = definition&.dig('ui', 'edit', 'options', 'data-size')
+        tags = SANITIZE_TAGS[data_size&.to_sym] || []
+        attributes = SANITIZED_ATTRIBUTES[data_size&.to_sym] || []
+        ActionController::Base.helpers.sanitize(value, tags:, attributes:)
+      end
+
+      def self.truncate_html_preserving_structure(truncate_html, limit, omission: '...', ignore_whitespace: true)
+        doc = Nokogiri::HTML::DocumentFragment.parse(truncate_html)
+        truncated = Nokogiri::HTML::DocumentFragment.parse('')
+
+        char_count = 0
+        doc.children.each do |node|
+          break if char_count >= limit
+          node, char_count = truncate_node(node, char_count, limit, omission:, ignore_whitespace:)
+          truncated.add_child(node)
+        end
+
+        truncated.to_html.strip
+      end
+
+      def self.truncate_node(node, char_count, limit, omission: '...', ignore_whitespace: true)
+        return '', char_count if char_count >= limit
+        if node.text?
+          text = node.text
+          truncated_text, char_count = truncate_string(text, char_count, limit, omission:, ignore_whitespace:)
+          return Nokogiri::XML::Text.new(truncated_text, node.document), char_count
+
+        elsif node.element?
+          new_node = Nokogiri::XML::Node.new(node.name, node.document)
+          node.attributes.each { |name, attr| new_node[name] = attr.value }
+
+          node.children.each do |child|
+            break if char_count >= limit
+            new_child, char_count = truncate_node(child, char_count, limit, omission:, ignore_whitespace:)
+            new_node.add_child(new_child) if new_child
+          end
+
+          return new_node, char_count
+        end
+      end
+
+      def self.truncate_ignoring_blank_spaces(input_string, limit, omission: '...')
+        truncate_string(input_string, 0, limit, omission:, ignore_whitespace: true)
+      end
+
+      def self.truncate_string(truncate_string, count_start, limit, omission: '...', ignore_whitespace: true)
+        count = count_start
+        result = +''
+
+        truncate_string.each_char do |char|
+          if !ignore_whitespace || char =~ /\S/
+            break if count >= limit
+            count += 1
+          end
+          result << char
+        end
+
+        if count >= limit
+          result.strip!
+          result += omission
+        end
+        return result, count
       end
     end
   end

@@ -13,7 +13,7 @@
         :allowed: true
       :duplicate_candidate:
         :allowed: true
-        :method: :bild_duplicate
+        :method: bild_duplicate
       :overlay:
         :allowed: false
       :serialize:
@@ -135,6 +135,16 @@
             :disabled: true
         :api:
           :minimal: true
+      :web_url:
+        :label: Web URL
+        :storage_location: value
+        :type: string
+        :compute:
+          :module: Image
+          :method: web_url
+          :parameters:
+            - asset
+        :visible: false
       :url:
         :label: Inhalt URL
         :type: string

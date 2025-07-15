@@ -7,10 +7,8 @@ module DataCycleCore
         module AdditionalInformation
           def self.add_info(data, external_source_id)
             data.filter_map do |text|
-              if text['type_of_info'].present?
-                text = DataCycleCore::Generic::Common::DataReferenceTransformations
-                  .add_classification_name_references(text, 'type_of_information', 'Informationstypen', 'type_of_info')
-              end
+              text = DataCycleCore::Generic::Common::DataReferenceTransformations
+                .add_classification_name_references(text, 'type_of_information', 'Informationstypen', 'type_of_info')
               text = DataCycleCore::Generic::Common::DataReferenceTransformations
                 .add_classification_name_references(text, 'universal_classifications', 'Externe Informationstypen', 'type')
               text = DataCycleCore::Generic::Common::DataReferenceTransformations

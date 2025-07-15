@@ -114,7 +114,9 @@ Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizieru
 }
 ```
 
-Über das Attribut `dc:color` kann der Farbwert als HEX, mit oder ohne Alpha-Kanal, für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert.
+##### Attribut `dc:color`
+
+Über das Attribut `dc:color` kann der Farbwert als HEX, mit oder ohne Alpha-Kanal, für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert, kann aber über `include` oder `fields` angefordert werden.
 
 ```json
 {
@@ -124,13 +126,31 @@ Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizieru
 }
 ```
 
-Über das Attribut `dc:icon` kann die URL zu einem Icon für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert.
+##### Attribut `dc:icon`
+
+Über das Attribut `dc:icon` kann die URL zu einem Icon für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert, kann aber über `include` oder `fields` angefordert werden.
 
 ```json
 {
   "@id": "6d9fbb75-1365-4edb-b470-56f8626d3a66",
   "@type": "skos:Concept",
   "dc:icon": "https://url.zu.einem.icon"
+}
+```
+
+##### Attribut `geo`
+
+Über das Attribut `geo` kann die Geometrie für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert, kann aber über `include` oder `fields` angefordert werden.
+
+```json
+{
+  "@id": "6d9fbb75-1365-4edb-b470-56f8626d3a66",
+  "@type": "skos:Concept",
+  "geo": {
+    "@id": "3aaf756b-7034-4e09-84c1-18f2133f99ce",
+    "@type": "GeoShape",
+    "polygon": "MULTIPOLYGON (((6.534699…01 47.69134879624543)))"
+  }
 }
 ```
 
