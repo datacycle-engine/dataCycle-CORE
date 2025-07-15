@@ -15,12 +15,35 @@ module DataCycleCore
             return unless properties&.key?('content_score')
 
             parameter_keys = parameter_keys(content, key, properties)
+
+            parameter_keys.each do |param_key|
+              content.overlay_property_names_for(param_key, true).each do |overlay_key|
+                parameter_keys << overlay_key if content.send(overlay_key).present?
+              end
+            end
+
             data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameter_keys)
+
+            if properties.dig('content_score', 'include_overlay')
+              ['add', 'override', 'overlay'].each do |overlay_suffix|
+                overlay_key = "#{key}_#{overlay_suffix}"
+                next unless parameter_keys.include?(overlay_key)
+
+                case overlay_suffix
+                when 'add'
+                  data_hash[key] += data_hash[overlay_key]
+                when 'override', 'overlay'
+                  data_hash[key] = data_hash[overlay_key]
+                end
+                break
+              end
+            end
 
             method_name = DataCycleCore::ModuleService
               .load_module(properties.dig('content_score', 'module').classify, 'Utility::ContentScore')
               .method(properties.dig('content_score', 'method'))
 
+            # binding.pry unless properties.dig('content_score', 'include_overlay')
             data_hash[key] = method_name.call(
               key:,
               parameters: parameter_keys.index_with { |v| data_hash[v] },
@@ -100,9 +123,10 @@ module DataCycleCore
           def calculate_scores_by_method_or_presence(content:, parameters:)
             scores = {}
 
-            parameters.each do |key, value|
+            parameters.each_key do |key|
               if key.in?(content.content_score_property_names)
-                scores[key] = content.calculate_content_score(key, { key => value })
+                filtered = parameters.select { |k, _| k.start_with?(key) }
+                scores[key] = content.calculate_content_score(key, filtered)
               else
                 scores[key] = DataCycleCore::Utility::ContentScore::Base.value_present?(parameters, key) ? 1 : 0
               end
