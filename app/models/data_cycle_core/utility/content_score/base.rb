@@ -125,7 +125,7 @@ module DataCycleCore
 
           def get_parameter_keys(content, key, properties)
             parameter_keys = parameter_keys(content, key, properties)
-            return parameter_keys if key.nil?
+            return parameter_keys unless key.nil?
 
             parameter_keys + parameter_keys.flat_map do |param_key|
               content.overlay_property_names_for(param_key)
