@@ -38,8 +38,9 @@ module DataCycleCore
       end
 
       def group_and_filter_query
-        @query = query.where(timestamp: @from..) if @from.present?
-        @query = query.where(timestamp: ..@to) if @to.present?
+        # ensure the from and to parameters still have timezone information in the query
+        @query = query.where('timestamp >= (?)::timestamptz', @from.iso8601) if @from.present?
+        @query = query.where('timestamp <= (?)::timestamptz', @to.iso8601) if @to.present?
 
         @query = send(@group_by)
       end
