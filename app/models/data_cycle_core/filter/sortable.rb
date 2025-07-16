@@ -420,13 +420,21 @@ module DataCycleCore
 
         q = text_to_websearch_tsquery(value)
         locale = @locale&.first || I18n.default_locale.to_s
+        order_values = Feature::TsQueryFulltextSearch.sort_array.map do |order|
+          sanitized_order_string(
+            sanitize_sql(
+              [Arel.sql(sanitize_sql_for_order("ts_rank_cd(#{order[:sorting]})")), { **order[:parameters], q:}]
+            ),
+            ordering,
+            true
+          )
+        end
 
         reflect(
           query_without_order
             .joins(sanitize_sql(['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
             .order(
-              sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, ?), 5)'), q]), ordering, true),
-              thing[:updated_at].desc,
+              *order_values,
               thing[:id].desc
             )
         )
