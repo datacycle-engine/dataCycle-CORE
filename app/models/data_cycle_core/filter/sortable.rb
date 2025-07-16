@@ -44,7 +44,7 @@ module DataCycleCore
         reflect(
           query_without_order
             .joins(random_join_query)
-            .order(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, 'random()')))
+            .order(Arel.sql(sanitize_sql_for_order('random()')))
         )
       end
 
@@ -420,21 +420,13 @@ module DataCycleCore
 
         q = text_to_websearch_tsquery(value)
         locale = @locale&.first || I18n.default_locale.to_s
-        order_values = Feature::TsQueryFulltextSearch.sort_array.map do |order|
-          sanitized_order_string(
-            sanitize_sql(
-              [Arel.sql(sanitize_sql_for_order("ts_rank_cd(#{order[:sorting]})")), { **order[:parameters], q:}]
-            ),
-            ordering,
-            true
-          )
-        end
+        order_string = Feature::TsQueryFulltextSearch.sorting_string
 
         reflect(
           query_without_order
             .joins(sanitize_sql(['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
             .order(
-              *order_values,
+              sanitized_order_string(sanitize_sql([order_string, { q:}]), ordering, true),
               thing[:id].desc
             )
         )
@@ -456,7 +448,7 @@ module DataCycleCore
         raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for order string: #{order_string}" if order_string.blank?
 
         order_nulls = nulls_last ? ' NULLS LAST' : ''
-        Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, "#{order_string} #{ordering}#{order_nulls}"))
+        Arel.sql(sanitize_sql_for_order("#{order_string} #{ordering}#{order_nulls}"))
       end
 
       private

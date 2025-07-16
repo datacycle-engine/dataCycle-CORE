@@ -11,29 +11,17 @@ module DataCycleCore
           Array.wrap(configuration[:sorting]).compact_blank
         end
 
-        def sort_array
+        def sorting_string
           sorting_array = []
 
           sort_config.each do |config|
             sorting = [SORT_BASE]
-            parameters = {}
-            if config[:weights].is_a?(Array) && config[:weights].present?
-              sorting.unshift(':weights')
-              parameters[:weights] = config[:weights].to_pg_array
-            end
-
-            if config[:normalization].present?
-              sorting << ':normalization'
-              parameters[:normalization] = config[:normalization]
-            end
-
-            sorting_array << {
-              sorting: sorting.join(', '),
-              parameters:
-            }
+            sorting.unshift("'#{config[:weights].to_pg_array}'") if config[:weights].present?
+            sorting << config[:normalization] if config[:normalization].present?
+            sorting_array << "ts_rank_cd(#{sorting.join(', ')})"
           end
 
-          sorting_array
+          sorting_array.join(' + ')
         end
       end
     end
