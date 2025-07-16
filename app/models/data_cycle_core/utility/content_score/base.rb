@@ -17,7 +17,7 @@ module DataCycleCore
 
             data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameter_keys)
 
-            apply_overlays!(data_hash, parameter_keys)
+            apply_overlays!(data_hash, parameter_keys) if key.nil?
 
             method_name = DataCycleCore::ModuleService
               .load_module(properties.dig('content_score', 'module').classify, 'Utility::ContentScore')
@@ -125,6 +125,7 @@ module DataCycleCore
 
           def get_parameter_keys(content, key, properties)
             parameter_keys = parameter_keys(content, key, properties)
+            return parameter_keys if key.nil?
 
             parameter_keys + parameter_keys.flat_map do |param_key|
               content.overlay_property_names_for(param_key)
