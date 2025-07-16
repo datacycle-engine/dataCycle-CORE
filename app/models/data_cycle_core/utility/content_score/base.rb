@@ -104,7 +104,7 @@ module DataCycleCore
 
             parameters.each do |key, value|
               if key.in?(content.content_score_property_names)
-                scores[key] = content.calculate_content_score(key, {key => value})
+                scores[key] = content.calculate_content_score(key, { key => value })
               else
                 scores[key] = DataCycleCore::Utility::ContentScore::Base.value_present?(parameters, key) ? 1 : 0
               end
