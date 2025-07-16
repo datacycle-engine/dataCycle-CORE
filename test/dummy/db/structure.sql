@@ -3775,6 +3775,13 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 
 --
+-- Name: index_thing_duplicates_on_thing_duplicate_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_duplicates_on_thing_duplicate_id ON public.thing_duplicates USING btree (thing_duplicate_id);
+
+
+--
 -- Name: index_thing_duplicates_on_thing_ids; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4086,7 +4093,7 @@ CREATE INDEX searches_search_vector_idx ON public.searches USING gin (search_vec
 -- Name: thing_attribute_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btree (thing_id, property, "timestamp");
+CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btree (thing_id, property, "timestamp") INCLUDE (value);
 
 
 --
@@ -5193,6 +5200,8 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250715122637'),
+('20250715055548'),
 ('20250712070915'),
 ('20250711083506'),
 ('20250709093540'),
