@@ -11,39 +11,18 @@ module DataCycleCore
             return unless DataCycleCore::Feature::ContentScore.enabled?
 
             properties = content.content_score_definition(key)
-
             return unless properties&.key?('content_score')
 
-            parameter_keys = parameter_keys(content, key, properties)
-
-            parameter_keys.each do |param_key|
-              content.overlay_property_names_for(param_key, true).each do |overlay_key|
-                parameter_keys << overlay_key if content.send(overlay_key).present?
-              end
-            end
+            parameter_keys = get_parameter_keys(content, key, properties)
 
             data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameter_keys)
 
-            if properties.dig('content_score', 'include_overlay')
-              ['add', 'override', 'overlay'].each do |overlay_suffix|
-                overlay_key = "#{key}_#{overlay_suffix}"
-                next unless parameter_keys.include?(overlay_key)
-
-                case overlay_suffix
-                when 'add'
-                  data_hash[key] += data_hash[overlay_key]
-                when 'override', 'overlay'
-                  data_hash[key] = data_hash[overlay_key]
-                end
-                break
-              end
-            end
+            apply_overlays!(data_hash, parameter_keys)
 
             method_name = DataCycleCore::ModuleService
               .load_module(properties.dig('content_score', 'module').classify, 'Utility::ContentScore')
               .method(properties.dig('content_score', 'method'))
 
-            # binding.pry unless properties.dig('content_score', 'include_overlay')
             data_hash[key] = method_name.call(
               key:,
               parameters: parameter_keys.index_with { |v| data_hash[v] },
@@ -123,10 +102,9 @@ module DataCycleCore
           def calculate_scores_by_method_or_presence(content:, parameters:)
             scores = {}
 
-            parameters.each_key do |key|
+            parameters.each do |key, value|
               if key.in?(content.content_score_property_names)
-                filtered = parameters.select { |k, _| k.start_with?(key) }
-                scores[key] = content.calculate_content_score(key, filtered)
+                scores[key] = content.calculate_content_score(key, {key => value})
               else
                 scores[key] = DataCycleCore::Utility::ContentScore::Base.value_present?(parameters, key) ? 1 : 0
               end
@@ -137,6 +115,43 @@ module DataCycleCore
 
           def load_linked(parameters, key)
             parameters[key] = DataCycleCore::Thing.by_ordered_values(parameters[key]) if parameters[key].present?
+          end
+
+          def split_last(str, delimiter)
+            index = str.rindex(delimiter)
+            return [str, nil] unless index
+            [str[0...index], str[(index + delimiter.length)..]]
+          end
+
+          def get_parameter_keys(content, key, properties)
+            parameter_keys = parameter_keys(content, key, properties)
+
+            parameter_keys + parameter_keys.flat_map do |param_key|
+              content.overlay_property_names_for(param_key)
+                .reject { |k| k.include?('_overlay') }
+            end
+          end
+
+          def apply_overlays!(data_hash, parameter_keys)
+            parameter_keys.each do |parameter_key|
+              next if ['_add', '_override'].include?(parameter_key) # rubocop:disable Performance/CollectionLiteralInLoop
+
+              overlay_keys = parameter_keys.select do |k|
+                k.include?(parameter_key) && k != parameter_key
+              end
+
+              overlay_keys.each do |k|
+                overlay_key, overlay_suffix = split_last(k, '_')
+                next if data_hash[k].blank?
+
+                case overlay_suffix
+                when 'add'
+                  data_hash[overlay_key] += data_hash[k]
+                when 'override'
+                  data_hash[overlay_key] = data_hash[k]
+                end
+              end
+            end
           end
         end
       end
