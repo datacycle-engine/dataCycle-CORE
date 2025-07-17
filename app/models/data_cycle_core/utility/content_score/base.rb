@@ -17,13 +17,13 @@ module DataCycleCore
 
             data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameter_keys)
 
-            apply_overlays!(data_hash, parameter_keys) if key.nil?
+            apply_overlays!(content, data_hash, parameter_keys) if key.nil?
 
             method_name = DataCycleCore::ModuleService
               .load_module(properties.dig('content_score', 'module').classify, 'Utility::ContentScore')
               .method(properties.dig('content_score', 'method'))
 
-            data_hash[key] = method_name.call(
+            method_name.call(
               key:,
               parameters: parameter_keys.index_with { |v| data_hash[v] },
               data_hash: data_hash || {},
@@ -128,22 +128,18 @@ module DataCycleCore
             return parameter_keys unless key.nil?
 
             parameter_keys + parameter_keys.flat_map do |param_key|
-              content.overlay_property_names_for(param_key)
-                .reject { |k| k.include?('_overlay') }
+              content.overlay_property_names_for(param_key, 'overlay')
             end
           end
 
-          def apply_overlays!(data_hash, parameter_keys)
-            parameter_keys.each do |parameter_key|
-              next if ['_add', '_override'].include?(parameter_key) # rubocop:disable Performance/CollectionLiteralInLoop
-
-              overlay_keys = parameter_keys.select do |k|
-                k.include?(parameter_key) && k != parameter_key
-              end
-
-              overlay_keys.each do |k|
-                overlay_key, overlay_suffix = split_last(k, '_')
+          def apply_overlays!(content, data_hash, parameter_keys)
+            parameter_keys.intersection(content.properties_with_overlay).each do |key|
+              content.overlay_property_names_for(key, 'overlay').each do |k|
                 next if data_hash[k].blank?
+
+                props = content.properties_for(k)
+                overlay_key = props.dig('features', 'overlay', 'overlay_for')
+                overlay_suffix = props.dig('features', 'overlay', 'overlay_type')
 
                 case overlay_suffix
                 when 'add'
