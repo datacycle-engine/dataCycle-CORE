@@ -483,7 +483,7 @@ ul.import-data-timestamps li {
 
   .card.accordion {
     .accordion-item {
-      .accordion-content {
+      .accordion-content.card-section {
         border: none;
         border-bottom: 1px solid var(--light-gray);
       }
