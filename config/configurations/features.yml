@@ -609,12 +609,18 @@
 :ts_query_fulltext_search:
   :enabled: false
   :sorting:
-    # :weights: # PostgreSQL Default Weights
-    #   - 0.1 # D: searches.full_text
-    #   - 0.2 # C: searches.classification_string
-    #   - 0.4 # B: searches.slug
-    #   - 1.0 # A: searches.headline
-    :normalization: 5
+    - :weights:
+        - 0.0 # D: searches.full_text
+        - 0.2 # C: searches.classification_string
+        - 0.4 # B: searches.slug
+        - 1.0 # A: searches.headline
+      :normalization: 0
+    - :weights:
+        - 0.1 # D: searches.full_text
+        - 0.0 # C: searches.classification_string
+        - 0.0 # B: searches.slug
+        - 0.0 # A: searches.headline
+      :normalization: 5
 
 :aggregate:
   :enabled: false
