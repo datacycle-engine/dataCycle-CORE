@@ -7,7 +7,7 @@
       parent: local_assigns[:parent] do %>
 
   <span class="detail-content">
-    <img class="lazyload" data-src="<%= value.try(:html_safe) %>" style="aspect-ratio: <%= aspect_ratio(content) %>;" />
+    <img class="lazyload" data-src="<%= value.try(:html_safe) %>" style="<%= aspect_ratio(content) %>" />
   </span>
 
 <% end %>

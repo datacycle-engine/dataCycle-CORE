@@ -13,16 +13,16 @@ module DataCycleCore
       width = content.try(:width)&.to_f
       height = content.try(:height)&.to_f
 
-      return 16.to_r / 9 unless width&.positive? && height&.positive?
+      return unless width&.positive? && height&.positive?
 
-      (width / height).to_r.round(2)
+      "aspect-ratio: #{(width / height).to_r.round(2)};"
     end
 
     def image_thumb_style(content)
       width = content.try(:width)&.to_f
       height = content.try(:height)&.to_f
 
-      return "aspect-ratio: #{16.to_r / 9}" unless width&.positive? && height&.positive?
+      return unless width&.positive? && height&.positive?
 
       if width > height
         "aspect-ratio: #{(width / height).to_r.round(2)}; width: 100%; max-width: #{width}px;"
