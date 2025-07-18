@@ -3,7 +3,7 @@
 
   <% if thing_thumbnail_url(item).present? %>
     <div class="image-thumbnail">
-      <img style="aspect-ratio: <%= aspect_ratio(item) %>;" data-src="<%= thing_thumbnail_url(item) %>" alt="<%= item.try(:title) %>" class="lazyload" />
+      <img style="<%= image_thumb_style(item) %>" data-src="<%= thing_thumbnail_url(item) %>" alt="<%= item.try(:title) %>" class="lazyload" />
     </div>
   <% end %>
 <% end %>

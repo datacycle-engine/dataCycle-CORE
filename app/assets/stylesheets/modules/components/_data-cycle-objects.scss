@@ -21,14 +21,14 @@
   border-radius: $global-radius;
 
   .inner {
-    .image-thumbnail {
-      text-align: center;
-      display: grid;
-      align-items: center;
 
-      img {
-        width: 100%;
-      }
+    .image-thumbnail,
+    .video-thumbnail {
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      max-height: 300px;
+      max-width: 300px;
     }
 
     .infoRow {
