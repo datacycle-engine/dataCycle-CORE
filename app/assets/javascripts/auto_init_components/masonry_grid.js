@@ -1,21 +1,24 @@
 import { parseDataAttribute } from "../helpers/dom_element_helpers";
-import ObserverHelpers from "../helpers/observer_helpers";
+import {
+	checkForConditionRecursive,
+	newDirectItemsConfig,
+} from "../helpers/observer_helpers";
 
-class MasonryGrid {
+export default class MasonryGrid {
+	static selector = ".grid";
+	static className = "grid";
+
 	constructor(selector) {
-		selector.dcMasonryGrid = true;
 		this.grid = selector;
 		this.rowHeight = Number.parseInt(
 			window.getComputedStyle(this.grid).getPropertyValue("grid-auto-rows"),
 		);
-		this.config = {
-			attributes: true,
-			childList: true,
-			subtree: true,
-		};
-		this.observer = new MutationObserver(this.callbackFunction.bind(this));
+		this.observer = new MutationObserver(this.itemChildrenCallback.bind(this));
+		this.resizeObserver = new ResizeObserver(
+			this.childrenSizeChanged.bind(this),
+		);
 		this.addedItemsObserver = new MutationObserver(
-			this._checkForAddedNodes.bind(this),
+			this.#checkForAddedNodes.bind(this),
 		);
 		this.resizeQueue = [];
 
@@ -30,7 +33,7 @@ class MasonryGrid {
 		else addEventListener("load", this.scrollToThingAndResize.bind(this));
 		addEventListener("resize", this.resizeAllMasonryItems.bind(this));
 
-		this.addedItemsObserver.observe(this.grid, ObserverHelpers.newItemsConfig);
+		this.addedItemsObserver.observe(this.grid, newDirectItemsConfig);
 	}
 	scrollToThingAndResize(_) {
 		this.resizeAllMasonryItems();
@@ -58,14 +61,14 @@ class MasonryGrid {
 			'<div class="html-feature-missing"><h2>Verwenden Sie bitte einen aktuellen Browser um diese Anwendung korrekt darstellen zu können!</h2></div>',
 		);
 	}
-	_checkForAddedNodes(mutations) {
+	#checkForAddedNodes(mutations) {
 		for (const mutation of mutations) {
 			if (mutation.type !== "childList") continue;
 
 			for (const addedNode of mutation.addedNodes) {
 				if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
 
-				ObserverHelpers.checkForConditionRecursive(
+				checkForConditionRecursive(
 					addedNode,
 					".grid-item",
 					this.initializeItem.bind(this),
@@ -76,31 +79,42 @@ class MasonryGrid {
 	initializeItem(item) {
 		item.style.display = "block";
 		this.addToResizeQueue(item);
-		this.observer.observe(item, this.config);
+		this.observeItemSize(item);
 	}
-	callbackFunction(mutationsList, _observer) {
-		for (const mutation of mutationsList) {
-			if (mutation.target.nodeType !== Node.ELEMENT_NODE) continue;
+	observeItemSize(item) {
+		this.observer.observe(item, newDirectItemsConfig);
 
-			const item = mutation.target.closest(".grid-item");
-
+		for (const child of item.children) {
+			this.resizeObserver.observe(child);
+		}
+	}
+	childrenSizeChanged(entries) {
+		for (const entry of entries) {
+			const gridItem = entry.target.closest(".grid-item");
 			if (
-				item &&
-				!mutation.target.closest(".watch-lists") &&
-				!mutation.target.closest(".watch-lists-link") &&
-				this.heightChanged(item)
+				gridItem.scrollHeight !==
+				parseDataAttribute(gridItem.dataset?.originalHeight)
 			) {
-				this.addToResizeQueue(item);
+				this.addToResizeQueue(gridItem);
 			}
 		}
 	}
-	boundingHeight(item) {
-		const container = item.querySelector(".content-link") || item;
-		return container.getBoundingClientRect().height;
+	itemChildrenCallback(mutationsList) {
+		for (const mutation of mutationsList) {
+			if (mutation.target.nodeType !== Node.ELEMENT_NODE) continue;
+
+			for (const addedNode of mutation.addedNodes)
+				this.resizeObserver.observe(addedNode);
+			for (const removedNode of mutation.removedNodes)
+				this.resizeObserver.unobserve(removedNode);
+		}
 	}
 	resizeMasonryItems() {
 		for (const item of this.resizeQueue) {
-			const newHeight = this.boundingHeight(item);
+			const originalHeight = parseDataAttribute(item.dataset.originalHeight);
+			const newHeight = item.scrollHeight;
+			if (newHeight === originalHeight) continue;
+
 			const rowSpan = Math.ceil(newHeight / this.rowHeight) + 1;
 			item.dataset.originalHeight = newHeight;
 			item.style.gridRow = `span ${rowSpan}`;
@@ -117,12 +131,4 @@ class MasonryGrid {
 		for (const item of this.grid.querySelectorAll(":scope > .grid-item"))
 			this.addToResizeQueue(item);
 	}
-	heightChanged(item) {
-		return (
-			parseDataAttribute(item.dataset.originalHeight) !==
-			this.boundingHeight(item)
-		);
-	}
 }
-
-export default MasonryGrid;
