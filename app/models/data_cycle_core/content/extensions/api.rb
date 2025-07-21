@@ -48,7 +48,8 @@ module DataCycleCore
             external_connections_hash << {
               '@type' => 'PropertyValue',
               'propertyID' => external_source.identifier,
-              'value' => external_key
+              'value' => external_key,
+              'valueReference' => 'import'
             }
           end
 
@@ -58,7 +59,8 @@ module DataCycleCore
             external_connections_hash << {
               '@type' => 'PropertyValue',
               'propertyID' => system_data.external_system.identifier,
-              'value' => system_data.external_key
+              'value' => system_data.external_key,
+              'valueReference' => system_data.sync_type
             }
           end
 
