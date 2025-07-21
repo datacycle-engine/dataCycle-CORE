@@ -109,6 +109,12 @@ const DataCycleHttpClient = {
 			throw error;
 		});
 	},
+	remoteRenderUrl(options = {}) {
+		const url = this.joinPath(this.config.EnginePath, "/remote_render");
+		const params = this.objectToUrlSearchParams(options);
+
+		return `${url}?${params}`;
+	},
 };
 
 Object.freeze(DataCycleHttpClient);

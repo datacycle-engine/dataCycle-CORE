@@ -113,6 +113,7 @@ module DataCycleCore
         query = query.includes(:classification_tree)
           .where.not(classification_trees: { classification_tree_label_id: search_params[:exclude_tree_label] })
       end
+      query = query.where(DataCycleCore::ClassificationPolygon.where('classification_polygons.classification_alias_id = classification_aliases.id').select(1).arel.exists) if search_params[:with_geometry].to_s == 'true'
       query = query.preload(*Array.wrap(search_params[:preload])) if search_params[:preload].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
@@ -326,14 +327,35 @@ module DataCycleCore
       render json: flash.discard.to_h
     end
 
+    def geometry
+      geojson = DataCycleCore::ClassificationPolygon
+        .where(classification_alias_id: geometry_params[:concepts])
+        .combined_geojson
+
+      respond_to do |format|
+        format.json { render json: geojson }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "#{geometry_params[:id]}-geometry",
+            html: helpers.turbo_frame_tag("#{geometry_params[:id]}-geometry", data: { geojson: }),
+            method: :morph
+          )
+        end
+      end
+    end
+
     private
+
+    def geometry_params
+      params.permit(:id, concepts: [])
+    end
 
     def download_params
       params.permit(:classification_tree_label_id, :include_contents, :specific_type)
     end
 
     def search_params
-      params.permit(:q, :max, :tree_label, :exclude, :exclude_tree_label, :disabled_unless_any?, :preload, preload: [])
+      params.permit(:q, :max, :tree_label, :exclude, :exclude_tree_label, :disabled_unless_any?, :with_geometry, :preload, preload: [])
     end
 
     def move_params

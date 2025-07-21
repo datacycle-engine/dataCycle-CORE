@@ -6,6 +6,7 @@ import ObjectUtilities from "../helpers/object_utilities";
 import AdditionalValuesFilterControl from "./map_controls/maplibre_additional_values_filter_control";
 import MaplibreDrawControl from "./map_controls/maplibre_draw_control";
 import MaplibreDrawRoutingMode from "./map_controls/maplibre_draw_routing_mode";
+import MaplibreShapeFromConceptControl from "./map_controls/maplibre_shape_from_concept_control";
 import UploadControl from "./map_controls/maplibre_upload_control";
 import MapLibreGlViewer from "./maplibre_gl_viewer";
 
@@ -17,6 +18,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		super(container);
 
 		this.uploadable = this.$container.data("allowUpload");
+		this.allowShapeFromConcept = this.$container.data("allowShapeFromConcept");
 		this.translateInteraction;
 		this.modifyInteraction;
 		this.drawableInteraction;
@@ -168,7 +170,13 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		}
 	}
 	async initAdditionalControls() {
-		await this.initDrawControl();
+		if (this.allowShapeFromConcept) {
+			this.map.addControl(
+				new MaplibreShapeFromConceptControl(this),
+				"top-left",
+			);
+		}
+
 		if (this.uploadable) {
 			this.map.addControl(new UploadControl(this), "top-left");
 		}
@@ -179,6 +187,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			);
 			this.map.addControl(this.additionalValuesFilterControl, "top-left");
 		}
+		await this.initDrawControl();
 	}
 	availableControlsByType() {
 		if (this.isPoint()) return ["trash", "draw_point"];
@@ -663,6 +672,16 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 					"line-color": this.definedColors.default,
 					"line-dasharray": [0.2, 2],
 					"line-width": 5,
+				},
+			},
+			{
+				id: "gl-draw-polygon-fill",
+				type: "fill",
+				filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
+				layout: {},
+				paint: {
+					"fill-color": this.definedColors.default,
+					"fill-opacity": 0.5,
 				},
 			},
 			{

@@ -1,5 +1,6 @@
 import turfBbox from "@turf/bbox";
 import turfCircle from "@turf/circle";
+import debounce from "lodash/debounce";
 import isEmpty from "lodash/isEmpty";
 import pick from "lodash/pick";
 import throttle from "lodash/throttle";
@@ -121,6 +122,13 @@ class MapLibreGlViewer {
 		this.allRenderedLayers = [];
 		this.hoveredStateId = {};
 		this.throttledHighlight = throttle(this._highlightLinked.bind(this), 1000);
+		this.debouncedFilterLayerReload = debounce(
+			this.#reloadFilterLayers.bind(this),
+			100,
+		);
+		this.optionsObserver = new MutationObserver(
+			this.#updateMapOptions.bind(this),
+		);
 	}
 	async setup() {
 		try {
@@ -128,6 +136,10 @@ class MapLibreGlViewer {
 			await this.initMap();
 			this.map.on("load", this.configureMap.bind(this));
 			this.configureScrolling();
+			this.optionsObserver.observe(this.container, {
+				attributes: true,
+				attributeFilter: ["data-filter-layers"],
+			});
 		} catch (error) {
 			console.error(error);
 		}
@@ -142,6 +154,20 @@ class MapLibreGlViewer {
 				transformRequest: this.transformRequest.bind(this),
 			}),
 		);
+	}
+	#updateMapOptions(mutations) {
+		for (const mutation of mutations) {
+			if (mutation.attributeName === "data-filter-layers")
+				this.debouncedFilterLayerReload();
+		}
+	}
+	#reloadFilterLayers() {
+		this.filterLayers = DomElementHelpers.parseDataAttribute(
+			this.container.dataset.filterLayers,
+		);
+
+		this.drawFilterFeatures();
+		this.setBoundsFor(this._conceptIdsVectorUrl()?.base);
 	}
 	transformRequest(url, _resourceType) {
 		if (
@@ -413,35 +439,63 @@ class MapLibreGlViewer {
 
 		this._addPopup();
 	}
-	drawFilterFeatures() {
+	async setBoundsFor(url) {
+		if (!url) return;
+
+		const bounds = await DataCycle.httpRequest(url);
+		const tBounds = [
+			[Number.parseFloat(bounds.xmin), Number.parseFloat(bounds.ymin)],
+			[Number.parseFloat(bounds.xmax), Number.parseFloat(bounds.ymax)],
+		];
+
+		this.map.fitBounds(tBounds, {
+			padding: 50,
+			maxZoom: 15,
+		});
+	}
+	_conceptIdsVectorUrl() {
 		if (this.filterLayers?.concept_ids?.length) {
-			const key = "filter_concept_ids";
-			this.sources[key] = `filter_source_${key}`;
-			this._addVectorSource(
-				this.sources[key],
+			return this._vectorSourceUrl(
 				`concepts/select/${this.filterLayers.concept_ids.join(",")}`,
 			);
+		}
+	}
+	drawFilterFeatures() {
+		if (this.filterLayers?.concept_ids) {
+			const key = "filter_concept_ids";
+			const tileUrl = this._conceptIdsVectorUrl()?.url;
+			const ids = this.filterLayers?.concept_ids.length;
 
-			this._pointLayer({
-				layerId: `filter_point_${key}`,
-				source: this.sources[key],
-				sourceLayer: "dcConcepts",
-				popup: true,
-			});
+			if (this.sources[key] && ids) {
+				const source = this.map.getSource(this.sources[key]);
+				source.setTiles([tileUrl]);
+			} else if (!this.sources[key] && ids) {
+				this.sources[key] = `filter_source_${key}`;
+				this._addVectorSource(this.sources[key], tileUrl);
 
-			this._lineLayer({
-				layerId: `filter_line_${key}`,
-				source: this.sources[key],
-				sourceLayer: "dcConcepts",
-				popup: true,
-			});
+				this._pointLayer({
+					layerId: `filter_point_${key}`,
+					source: this.sources[key],
+					sourceLayer: "dcConcepts",
+					popup: true,
+				});
 
-			this._polygonLayer({
-				layerId: `filter_polygon_${key}`,
-				source: this.sources[key],
-				sourceLayer: "dcConcepts",
-				popup: true,
-			});
+				this._lineLayer({
+					layerId: `filter_line_${key}`,
+					source: this.sources[key],
+					sourceLayer: "dcConcepts",
+					popup: true,
+				});
+
+				this._polygonLayer({
+					layerId: `filter_polygon_${key}`,
+					source: this.sources[key],
+					sourceLayer: "dcConcepts",
+					popup: true,
+				});
+			} else if (this.sources[key] && !ids) {
+				this._removeSourceForKey(key);
+			}
 		}
 
 		if (this.filterFeatures) {
@@ -455,6 +509,18 @@ class MapLibreGlViewer {
 				popup: true,
 			});
 		}
+	}
+	_removeSourceForKey(key) {
+		if (!this.sources[key]) return;
+
+		const layers = this.map.getLayersOrder().filter((v) => v.includes(key));
+		this.allRenderedLayers = this.allRenderedLayers.filter(
+			(v) => !v.includes(key),
+		);
+		for (const layer of layers) this.map.removeLayer(layer);
+
+		this.map.removeSource(this.sources[key]);
+		this.sources[key] = undefined;
 	}
 	_getLastLayerId(idRegex) {
 		return this.map
@@ -480,6 +546,8 @@ class MapLibreGlViewer {
 			lineColor = this.definedColors.lightBlue;
 			iconColor = "lightBlue";
 		}
+
+		if (this.map.getLayer(layerId)) return layerId;
 
 		this.map.addLayer(
 			{
@@ -658,6 +726,8 @@ class MapLibreGlViewer {
 			circleRadius = 7;
 		}
 
+		if (this.map.getLayer(layerId)) return layerId;
+
 		this.map.addLayer({
 			id: `${layerId}_hover`,
 			type: "circle",
@@ -774,6 +844,8 @@ class MapLibreGlViewer {
 		} else if (layerId.includes("filter")) {
 			opacity = 0.3;
 		}
+
+		if (this.map.getLayer(layerId)) return layerId;
 
 		this.map.addLayer(
 			{
@@ -961,12 +1033,26 @@ class MapLibreGlViewer {
 			promoteId: "@id",
 		});
 	}
-	_addVectorSource(name, path) {
+	_vectorSourceBaseUrl(path) {
+		return DataCycle.joinPath(
+			`${location.protocol}//${location.host}`,
+			DataCycle.config.EnginePath,
+			`/mvt/v1/${path}`,
+		);
+	}
+	_vectorSourceUrl(path) {
+		const baseUrl = this._vectorSourceBaseUrl(path);
+		const url = DataCycle.joinPath(baseUrl, "{z}/{x}/{y}.pbf");
+
+		return {
+			base: baseUrl,
+			url: url,
+		};
+	}
+	_addVectorSource(name, tileUrl) {
 		this.map.addSource(name, {
 			type: "vector",
-			tiles: [
-				`${location.protocol}//${location.host}/mvt/v1/${path}/{z}/{x}/{y}.pbf`,
-			],
+			tiles: [tileUrl],
 			promoteId: "@id",
 			minzoom: 0,
 			maxzoom: 22,

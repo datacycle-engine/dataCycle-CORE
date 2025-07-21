@@ -11,7 +11,7 @@ module DataCycleCore
 
           if uuids.present? && uuids.is_a?(::Array) && uuids.size.positive?
             query = DataCycleCore::ClassificationPolygon
-              .includes(:classification_alias)
+              .joins(:classification_alias)
               .where(classification_alias: { id: uuids })
 
             render(json: query.to_bbox) && return if permitted_params[:bbox]

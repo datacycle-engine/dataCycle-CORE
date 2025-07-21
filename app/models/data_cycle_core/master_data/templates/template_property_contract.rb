@@ -32,7 +32,15 @@ module DataCycleCore
           end
           optional(:template_name) { str? | (array? & each { str? }) }
           optional(:validations) { hash? }
-          optional(:ui) { hash? }
+          optional(:ui).value(:hash) do
+            optional(:edit).value(:hash) do
+              optional(:type).value(:string)
+              optional(:options).value(:hash) do
+                optional(:data_upload).filled(:bool)
+                optional(:shape_from_concept).filled(:bool)
+              end
+            end
+          end
           optional(:api) { hash? }
           optional(:xml) { hash? }
           optional(:search) { bool? }
@@ -154,6 +162,10 @@ module DataCycleCore
 
         rule(:overlay, :type) do
           key.failure(:invalid_overlay_type) if key? && (ALLOWED_OVERLAY_TYPES.exclude?(values[:type]) || OVERLAY_KEY_EXCEPTIONS.include?(property_name.to_s))
+        end
+
+        rule('ui.edit.options.shape_from_concept') do
+          key.failure('shape_from_concept only works with type: Polygon') if key? && values.dig(:ui, :edit, :type) != 'Polygon'
         end
 
         rule do

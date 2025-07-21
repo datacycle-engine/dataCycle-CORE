@@ -546,6 +546,15 @@ CREATE FUNCTION public.insert_concepts_trigger_function() RETURNS trigger
 
 
 --
+-- Name: make_valid_geometries(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.make_valid_geometries() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.geom = ST_MakeValid(NEW.geom); RETURN NEW; END; $$;
+
+
+--
 -- Name: thing_history_links_deletion_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4483,6 +4492,20 @@ CREATE TRIGGER insert_geometries_priority_trigger AFTER INSERT ON public.geometr
 
 
 --
+-- Name: classification_polygons make_valid_classification_polygons_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER make_valid_classification_polygons_trigger BEFORE INSERT OR UPDATE OF geom ON public.classification_polygons FOR EACH ROW EXECUTE FUNCTION public.make_valid_geometries();
+
+
+--
+-- Name: geometries make_valid_geometries_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER make_valid_geometries_trigger BEFORE INSERT OR UPDATE OF geom ON public.geometries FOR EACH ROW EXECUTE FUNCTION public.make_valid_geometries();
+
+
+--
 -- Name: thing_history_links trigger_delete_thing_history_links; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -5200,6 +5223,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250718100930'),
 ('20250715122637'),
 ('20250715055548'),
 ('20250712070915'),

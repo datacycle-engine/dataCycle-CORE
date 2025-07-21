@@ -222,6 +222,7 @@ DataCycleCore::Engine.routes.draw do
       patch :merge, on: :collection
       post :unlink_contents, on: :collection
       post :link_contents, on: :collection
+      post :geometry, on: :collection
     end
   end
 
@@ -492,6 +493,7 @@ DataCycleCore::Engine.routes.draw do
               match 'things/select(/:uuids)', to: 'contents#select', defaults: { bbox: true }, as: 'contents_select_bbox', via: [:get, :post]
               match 'things/:id/:z/:x/:y', to: 'contents#show', via: [:get, :post]
               match 'concepts/select/:uuids/:z/:x/:y', to: 'classification_trees#select', as: 'concepts_select', via: [:get, :post]
+              match 'concepts/select/:uuids', to: 'classification_trees#select', defaults: { bbox: true }, as: 'concepts_select_bbox', via: [:get, :post]
             end
           end
         end
