@@ -12,9 +12,33 @@ module DataCycleCore
 
       def main_sql
         <<-SQL.squish
-              SELECT #{@single_item ? geojson_detail_select_sql : geojson_select_sql}
-              FROM (#{contents_with_default_scope.to_sql}) AS t
+            SELECT #{@single_item ? geojson_detail_select_sql : geojson_select_sql}
+            FROM (#{contents_with_default_scope.to_sql}) AS t
         SQL
+      end
+
+      def contents_with_default_scope(query = @contents)
+        query = query.except(:joins, :limit, :offset)
+          .reorder(nil)
+          .reselect(content_select_sql)
+          .joins('INNER JOIN geometries ON geometries.thing_id = things.id AND geometries.is_primary = TRUE')
+          .group('things.id, geometries.geom_simple')
+
+        joins = include_config.pluck(:joins)
+        joins.uniq!
+        joins.compact!
+        joins.each { |join| query = query.joins(join.squish) }
+
+        query
+      end
+
+      def content_select_sql
+        [
+          'things.id AS id',
+          'geometries.geom_simple AS geometry'
+        ]
+          .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
+          .join(', ').squish
       end
 
       def geojson_detail_select_sql
