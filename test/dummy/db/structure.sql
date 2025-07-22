@@ -546,6 +546,15 @@ CREATE FUNCTION public.insert_concepts_trigger_function() RETURNS trigger
 
 
 --
+-- Name: invalidate_things_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.invalidate_things_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN UPDATE things SET cache_valid_since = NOW() WHERE things.id IN ( SELECT id FROM things WHERE things.id IN ( SELECT updated_ccc.thing_id FROM updated_ccc WHERE updated_ccc.link_type != 'broader' ) FOR UPDATE SKIP LOCKED ); RETURN NULL; END; $$;
+
+
+--
 -- Name: make_valid_geometries(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4369,6 +4378,13 @@ CREATE TRIGGER delete_geometries_priority_trigger AFTER DELETE ON public.geometr
 
 
 --
+-- Name: collected_classification_contents delete_invalidate_things_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_invalidate_things_trigger AFTER DELETE ON public.collected_classification_contents REFERENCING OLD TABLE AS updated_ccc FOR EACH STATEMENT EXECUTE FUNCTION public.invalidate_things_trigger();
+
+
+--
 -- Name: things delete_things_external_source_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4489,6 +4505,13 @@ CREATE TRIGGER insert_concepts_trigger AFTER INSERT ON public.classification_ali
 --
 
 CREATE TRIGGER insert_geometries_priority_trigger AFTER INSERT ON public.geometries REFERENCING NEW TABLE AS changed_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger2();
+
+
+--
+-- Name: collected_classification_contents insert_invalidate_things_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER insert_invalidate_things_trigger AFTER INSERT ON public.collected_classification_contents REFERENCING NEW TABLE AS updated_ccc FOR EACH STATEMENT EXECUTE FUNCTION public.invalidate_things_trigger();
 
 
 --
@@ -4652,6 +4675,13 @@ CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE ON public.conte
 --
 
 CREATE TRIGGER update_geometries_priority_trigger AFTER UPDATE ON public.geometries REFERENCING OLD TABLE AS old_geometries NEW TABLE AS new_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger();
+
+
+--
+-- Name: collected_classification_contents update_invalidate_things_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_invalidate_things_trigger AFTER UPDATE ON public.collected_classification_contents REFERENCING NEW TABLE AS updated_ccc FOR EACH STATEMENT EXECUTE FUNCTION public.invalidate_things_trigger();
 
 
 --
@@ -5223,6 +5253,7 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250722060746'),
 ('20250718100930'),
 ('20250715122637'),
 ('20250715055548'),

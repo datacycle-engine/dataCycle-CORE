@@ -428,14 +428,21 @@ module DataCycleCore
                                     saved_changes['description_i18n']&.map(&:compact_blank)&.reject(&:blank?).present?
     end
 
-    def classifications_added(_classification = nil)
+    def classifications_added(classification = nil)
+      unless classification.nil?
+        thing_ids = classification.things.pluck(:id)
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'update_things_search', thing_ids)
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', thing_ids) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
+      end
+
       @classifications_changed = true
     end
 
     def classifications_removed(classification = nil)
       unless classification.nil?
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.pluck(:id))
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.pluck(:id)) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
+        thing_ids = classification.things.pluck(:id)
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'update_things_search', thing_ids)
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', thing_ids) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
       end
 
       @classifications_changed = true
@@ -474,7 +481,7 @@ module DataCycleCore
       DataCycleCore::CacheInvalidationDestroyJob.perform_later(
         self.class.name,
         id,
-        'invalidate_things_cache',
+        'update_things_search',
         classifications.things.pluck(:id)
       )
     end
