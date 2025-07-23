@@ -255,7 +255,7 @@ module DataCycleCore
               ) AS "bbox"
             FROM #{mvt_cluster_items_from}
             WHERE mvtgeom.cluster_id IS NOT NULL
-            GROUP BY mvtgeom.cluster_id, mvtgeom.id
+            GROUP BY mvtgeom.cluster_id
           ),
           items AS (
             SELECT ST_AsMVTGeom(
