@@ -47,26 +47,6 @@ module DataCycleCore
       DataCycleCore::Thing.new(template_name: name)
     end
 
-    def self.create_duplicate(content: nil, current_user: nil)
-      return if content.blank? || !content.content_type?('entity')
-      new_content = DataCycleCore::Thing.new(template_name: content.template_name)
-
-      content.available_locales.each do |locale|
-        I18n.with_locale(locale) do
-          ActiveRecord::Base.transaction do
-            created = new_content.new_record?
-            new_content.save!
-            new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ name: "DUPLICATE: #{content.title}" })
-            valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user:, new_content: created)
-
-            raise ActiveRecord::Rollback, 'dataHash errors found' unless valid
-          end
-        end
-      end
-      return false if new_content.id.nil?
-      new_content.reload
-    end
-
     def self.get_object_params(template_name, params_hash)
       template = get_internal_template(template_name)
       schema_hash = template.schema.deep_dup

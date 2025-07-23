@@ -119,5 +119,25 @@ module DataCycleCore
     def cache_key
       "#{[super, translations.in_locale(I18n.locale).cache_key].join('/')}-#{I18n.locale}"
     end
+
+    def create_duplicate(current_user: nil)
+      new_content = DataCycleCore::Thing.new(template_name: template_name)
+      return if blank? || !content_type?('entity')
+
+      available_locales.each do |locale|
+        I18n.with_locale(locale) do
+          ActiveRecord::Base.transaction do
+            created = new_content.new_record?
+            new_content.save!
+            new_content_datahash = duplicate_data_hash(get_data_hash).merge({ name: "DUPLICATE: #{title}" })
+            valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user:, new_content: created)
+
+            raise ActiveRecord::Rollback, 'dataHash errors found' unless valid
+          end
+        end
+      end
+      return false if new_content.id.nil?
+      new_content.reload
+    end
   end
 end
