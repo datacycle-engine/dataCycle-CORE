@@ -476,8 +476,12 @@ class ObjectBrowser {
 	renderDetailHtml(data) {
 		if (data?.detail_html) this.itemInfoScrollable.innerHTML = data.detail_html;
 	}
+	enableOverlayForm() {
+		$(`#new_${this.id}.in-object-browser form`).trigger("dc:form:enable");
+	}
 	renderNewItems(data) {
 		if (data?.error) {
+			this.enableOverlayForm();
 			CalloutHelpers.show(data.error, "alert");
 			return;
 		}

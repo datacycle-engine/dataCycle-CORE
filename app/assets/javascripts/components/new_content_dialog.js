@@ -1,7 +1,7 @@
+import ConfirmationModal from "./../components/confirmation_modal";
 import CalloutHelpers from "../helpers/callout_helpers";
 import ObjectUtilities from "../helpers/object_utilities";
 import ObserverHelpers from "../helpers/observer_helpers";
-import ConfirmationModal from "./../components/confirmation_modal";
 import QuillHelpers from "./../helpers/quill_helpers";
 import UuidHelper from "./../helpers/uuid_helper";
 
