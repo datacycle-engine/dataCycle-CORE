@@ -4,7 +4,15 @@ module DataCycleCore
   module Generic
     class ImportObject < GenericObject
       TYPE = :import
-      DEFAULT_CONFIG_KEYS = ['import_external_system_data', 'primary_system_priority'].freeze
+      DEFAULT_CONFIG_KEYS = [
+        'import_external_system_data',
+        'reject_unknown_external_systems',
+        'primary_system_priority',
+        'current_instance_identifiers',
+        'external_system_identifier_mapping',
+        'external_system_identifier_transformation',
+        'invalidate_related_cache'
+      ].freeze
 
       attr_reader :logging, :history, :asset_download, :mode, :partial_update, :normalizer
 
