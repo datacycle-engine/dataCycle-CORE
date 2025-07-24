@@ -6,6 +6,7 @@ module DataCycleCore
   module Assets
     class AudioTest < ActiveSupport::TestCase
       include DataCycleCore::ActiveStorageHelper
+
       def setup
         @audio_temp = DataCycleCore::Audio.count
       end

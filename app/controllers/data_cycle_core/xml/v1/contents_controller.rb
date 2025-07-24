@@ -6,6 +6,7 @@ module DataCycleCore
       class ContentsController < ::DataCycleCore::Xml::V1::XmlBaseController
         PUMA_MAX_TIMEOUT = 600
         include DataCycleCore::FilterConcern
+
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze

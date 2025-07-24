@@ -3,6 +3,7 @@
 module DataCycleCore
   class DownloadsController < ApplicationController
     include DataCycleCore::FilterConcern
+
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
     around_action :wrap_errors

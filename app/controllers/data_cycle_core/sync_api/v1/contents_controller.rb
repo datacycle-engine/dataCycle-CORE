@@ -12,6 +12,7 @@ module DataCycleCore
         end
 
         include DataCycleCore::FilterConcern
+
         before_action :prepare_url_parameters
 
         def index

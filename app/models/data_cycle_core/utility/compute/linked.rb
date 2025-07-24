@@ -5,6 +5,7 @@ module DataCycleCore
     module Compute
       module Linked
         extend Extensions::ValueByPathExtension
+
         TEXT_DATA_HREF_REGEX = /data-href="([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})"/
 
         class << self

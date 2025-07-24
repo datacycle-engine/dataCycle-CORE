@@ -7,6 +7,7 @@ module DataCycleCore
     include ErrorHandler
     include ActiveStorage::SetCurrent
     include RendererWithUser
+
     include UserRegistrationCheck if DataCycleCore::Feature::UserRegistration.enabled?
 
     protect_from_forgery with: :exception

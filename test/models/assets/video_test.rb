@@ -6,6 +6,7 @@ module DataCycleCore
   module Assets
     class VideoTest < ActiveSupport::TestCase
       include DataCycleCore::ActiveStorageHelper
+
       def setup
         @video_temp = DataCycleCore::Video.count
       end

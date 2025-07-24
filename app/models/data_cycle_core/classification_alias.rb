@@ -15,6 +15,7 @@ module DataCycleCore
     end
 
     extend ::Mobility
+
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n }
     default_scope { order(order_a: :asc, id: :asc) }
