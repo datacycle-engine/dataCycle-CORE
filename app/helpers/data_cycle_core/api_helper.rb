@@ -216,13 +216,13 @@ module DataCycleCore
       include_params = is_linked ? include_parameters.dup << 'is_linked' : include_parameters
       case item
       when DataCycleCore::Thing
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{item.cache_valid_since&.iso8601(3)}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
       when DataCycleCore::Thing::History
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{item.cache_valid_since&.iso8601(3)}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       when DataCycleCore::ClassificationAlias
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       when DataCycleCore::ClassificationTreeLabel, DataCycleCore::Schedule
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError
       end
@@ -236,10 +236,10 @@ module DataCycleCore
 
       if item.is_a?(DataCycleCore::Thing) || item.is_a?(DataCycleCore::Thing::History)
         add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}_expand_language/#{@expand_language}")
-        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{add_params}"
+        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{item.cache_valid_since&.iso8601(3)}_#{add_params}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
         add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_expand_language/#{@expand_language}")
-        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{add_params}"
+        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{add_params}"
       else
         raise NotImplementedError
       end
