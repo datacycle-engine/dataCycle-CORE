@@ -71,6 +71,12 @@ module DataCycleCore
           render plain: response.to_json, content_type: 'application/json', status: response[:error].present? ? :bad_request : :accepted
         end
 
+        def demote
+          response, status = content_request(type: :demote)
+
+          render plain: response.to_json, content_type: 'application/json', status:
+        end
+
         private
 
         def csv_request?
