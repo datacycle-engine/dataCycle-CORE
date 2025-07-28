@@ -100,10 +100,6 @@
 
           <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %></span>
 
-          <% if can?(:edit, @watch_list) && !can?(:remove_item, @watch_list) %>
-            <i class="fa fa-exclamation-circle" data-dc-tooltip="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: active_ui_locale) %>" aria-hidden="true"></i>
-          <% end %>
-
           <%= can?(:copy_api_link, @watch_list) ? tag.span(
             'API',
             class: 'content-title-api copy-to-clipboard',
