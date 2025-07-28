@@ -15,6 +15,34 @@ module DataCycleCore
       where('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
     }
 
+    scope :without_default_data_type, lambda { |classification_alias_names|
+      template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
+      where.not("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
+    }
+    scope :without_schema_type, lambda { |schema_type|
+      where.not('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
+    }
+
+    scope :with_schema_classification_paths, lambda { |paths|
+      schema_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      where('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_classifications)
+    }
+
+    scope :without_schema_classification_paths, lambda { |paths|
+      schema_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      where.not('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_classifications)
+    }
+
+    scope :with_content_classification_paths, lambda { |paths|
+      template_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_classifications)
+    }
+
+    scope :without_content_classification_paths, lambda { |paths|
+      template_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      where.not("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_classifications)
+    }
+
     delegate :properties_for, to: :template_thing
 
     def readonly?
