@@ -24,79 +24,32 @@ module DataCycleCore
 
     def object_browser_new_form_parameters(form_parameters, definition)
       if definition&.dig('stored_filter').present?
-        creatable_ids = extract_aliases(definition, 'Inhaltstypen')
-        creatable_schema_type_ids = extract_aliases(definition, 'SchemaTypes')
+        filters = filter_definition(definition).filter_map do |conf|
+          value = conf[:extractor]
+          next if value.blank?
 
-        creatable_paths = extract_classification_paths(definition, with_not: false)
-        creatable_schema_paths = creatable_paths.filter { |path| path.include?('SchemaTypes') }
-        creatable_content_paths = creatable_paths.filter { |path| path.include?('Inhaltstypen') }
-
-        exclude_creatable_ids = extract_aliases(definition, 'Inhaltstypen', with_not: true)
-        exclude_creatable_schema_type_ids = extract_aliases(definition, 'SchemaTypes', with_not: true)
-        exclude_creatable_schema_paths = extract_classification_paths(definition, with_not: true).filter { |path| path.include?('SchemaTypes') }
-        exclude_creatable_content_paths = extract_classification_paths(definition, with_not: true)
-
-        return if creatable_ids.blank? && creatable_schema_type_ids.blank? && creatable_paths.blank? && exclude_creatable_ids.blank? &&
-                  exclude_creatable_schema_type_ids.blank? && exclude_creatable_schema_paths.blank? && exclude_creatable_content_paths.blank? # raise error to not fail silently
-
-        query_filter = {query_methods: []}
-        if creatable_ids.present?
-          query_filter[:query_methods] <<
-            {
-              method_name: 'with_default_data_type',
-              value: creatable_ids
-            }
-        elsif creatable_schema_type_ids.present?
-          query_filter[:query_methods] <<
-            {
-              method_name: 'with_schema_type',
-              value: creatable_schema_type_ids
-            }
-        elsif creatable_schema_paths.present?
-          query_filter[:query_methods] <<
-            {
-              method_name: 'with_schema_classification_paths',
-              value: creatable_schema_paths
-            }
-        elsif creatable_content_paths.present?
-          query_filter[:query_methods] <<
-            {
-              method_name: 'with_content_classification_paths',
-              value: creatable_content_paths
-            }
+          {
+            value: value,
+            method_name: conf[:method]
+          }
         end
 
-        if exclude_creatable_ids.present?
-          query_filter[:query_methods] <<
-            {
-              method_name: 'without_default_data_type',
-              value: exclude_creatable_ids
-            }
+        # raise error to not fail silently
 
-        elsif exclude_creatable_schema_type_ids.present?
-          query_filter[:query_methods] <<
-            {
-              method_name: 'without_schema_type',
-              value: exclude_creatable_schema_type_ids
-            }
-        elsif exclude_creatable_schema_paths.present?
-          query_filter[:query_methods] <<
-            {
-              method_name: 'without_schema_classification_paths',
-              value: exclude_creatable_schema_paths
-            }
-        elsif exclude_creatable_content_paths.present?
-          query_filter[:query_methods] <<
-            {
-              method_name: 'without_content_classification_paths',
-              value: exclude_creatable_content_paths
-            }
+        query_filter = { query_methods: [] }
+
+        filters.each do |filter|
+          query_filter[:query_methods] << {
+            method_name: filter[:method_name],
+            value: filter[:value]
+          }
         end
 
         creatable_templates = new_content_select_options(**query_filter, scope: 'object_browser')
         return if creatable_templates.blank?
         return form_parameters.merge(template: creatable_templates.first) if creatable_templates.length == 1
         return form_parameters.merge(query_filter)
+
       elsif definition&.dig('template_name').present?
         new_template = DataCycleCore::ThingTemplate.find_by(template_name: definition&.dig('template_name'))
 
@@ -118,6 +71,22 @@ module DataCycleCore
       elsif I18n.exists?("object_browser.limited_by.#{translation_key}", locale: active_ui_locale)
         I18n.t("object_browser.limited_by.#{translation_key}", locale: active_ui_locale)
       end
+    end
+
+    private
+
+    def filter_definition(definition)
+      [
+        { extractor: extract_aliases(definition, 'Inhaltstypen'), method: 'with_default_data_type' },
+        { extractor: extract_aliases(definition, 'SchemaTypes'), method: 'with_schema_type' },
+        { extractor: extract_classification_paths(definition, with_not: false).filter { _1.include?('SchemaTypes') }, method: 'with_schema_classification_paths' },
+        { extractor: extract_classification_paths(definition, with_not: false).filter { _1.include?('Inhaltstypen') }, method: 'with_content_classification_paths' },
+
+        { extractor: extract_aliases(definition, 'Inhaltstypen', with_not: true), method: 'without_default_data_type' },
+        { extractor: extract_aliases(definition, 'SchemaTypes', with_not: true), method: 'without_schema_type' },
+        { extractor: extract_classification_paths(definition, with_not: true).filter { _1.include?('SchemaTypes') }, method: 'without_schema_classification_paths' },
+        { extractor: extract_classification_paths(definition, with_not: true).filter { _1.include?('Inhaltstypen') }, method: 'without_content_classification_paths' }
+      ]
     end
   end
 end
