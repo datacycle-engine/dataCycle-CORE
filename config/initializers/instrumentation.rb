@@ -106,3 +106,9 @@ ActiveSupport::Notifications.subscribe(/(download|import|export)_faulty_items_pr
     end
   end
 end
+
+ActiveSupport::Notifications.subscribe('object_browser.stored_filter.unknown') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'datacycle') do |logger|
+    logger.dc_log(:error, data)
+  end
+end

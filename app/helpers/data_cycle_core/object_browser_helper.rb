@@ -2,6 +2,13 @@
 
 module DataCycleCore
   module ObjectBrowserHelper
+    FILTER_ORDER = [
+      :default_data_type,
+      :schema_type,
+      :schema_classification_paths,
+      :content_classification_paths
+    ].freeze
+
     def extract_aliases(definition, type, with_not: false)
       definition&.dig('stored_filter')&.flat_map { |filter|
         filter&.values&.filter_map do |val|
@@ -23,41 +30,51 @@ module DataCycleCore
     end
 
     def object_browser_new_form_parameters(form_parameters, definition)
-      if definition&.dig('stored_filter').present?
-        filters = filter_definition(definition).filter_map do |conf|
-          value = conf[:extractor]
-          next if value.blank?
+      if definition&.dig('template_name').present?
+        new_template = DataCycleCore::ThingTemplate.find_by(template_name: definition&.dig('template_name'))
 
-          {
-            value: value,
-            method_name: conf[:method]
-          }
+        return if new_template.nil? || cannot?(:create, new_template.template_thing, 'object_browser')
+        return form_parameters.merge(template: new_template)
+      end
+
+      if definition&.dig('stored_filter').present?
+        filters = ordered_filter(definition)&.select { |f| f[:value].present? }
+
+        if filters.blank?
+          ActiveSupport::Notifications.instrument(
+            'object_browser.stored_filter.unknown',
+            stored_filter: definition['stored_filter']
+          )
+
+          return
         end
 
-        # raise error to not fail silently
+        # If every filter shoud be used
+        # query_filter = {
+        #   query_methods: filters.map { |f| { method_name: f[:method], value: f[:value] } }
+        # }
 
         query_filter = { query_methods: [] }
+        selected_with = filters.find { |f| f[:type] == :with }
+        if selected_with
+          query_filter[:query_methods] << selected_with
 
-        filters.each do |filter|
-          query_filter[:query_methods] << {
-            method_name: filter[:method_name],
-            value: filter[:value]
-          }
+          matching_without = filters.find do |f|
+            f[:type] == :without && f[:base] == selected_with[:base]
+          end
+
+          query_filter[:query_methods] << matching_without if matching_without
+        else
+          first_without = filters.find { |f| f[:type] == :without }
+          query_filter[:query_methods] << first_without if first_without
         end
 
         creatable_templates = new_content_select_options(**query_filter, scope: 'object_browser')
         return if creatable_templates.blank?
         return form_parameters.merge(template: creatable_templates.first) if creatable_templates.length == 1
         return form_parameters.merge(query_filter)
-
-      elsif definition&.dig('template_name').present?
-        new_template = DataCycleCore::ThingTemplate.find_by(template_name: definition&.dig('template_name'))
-
-        return if new_template.nil? || cannot?(:create, new_template.template_thing, 'object_browser')
-
-        return form_parameters.merge(template: new_template)
       end
-      # raise error to not fail silently
+
       nil
     end
 
@@ -75,18 +92,49 @@ module DataCycleCore
 
     private
 
-    def filter_definition(definition)
-      [
-        { extractor: extract_aliases(definition, 'Inhaltstypen'), method: 'with_default_data_type' },
-        { extractor: extract_aliases(definition, 'SchemaTypes'), method: 'with_schema_type' },
-        { extractor: extract_classification_paths(definition, with_not: false).filter { _1.include?('SchemaTypes') }, method: 'with_schema_classification_paths' },
-        { extractor: extract_classification_paths(definition, with_not: false).filter { _1.include?('Inhaltstypen') }, method: 'with_content_classification_paths' },
-
-        { extractor: extract_aliases(definition, 'Inhaltstypen', with_not: true), method: 'without_default_data_type' },
-        { extractor: extract_aliases(definition, 'SchemaTypes', with_not: true), method: 'without_schema_type' },
-        { extractor: extract_classification_paths(definition, with_not: true).filter { _1.include?('SchemaTypes') }, method: 'without_schema_classification_paths' },
-        { extractor: extract_classification_paths(definition, with_not: true).filter { _1.include?('Inhaltstypen') }, method: 'without_content_classification_paths' }
-      ]
+    def ordered_filter(definition)
+      FILTER_ORDER.flat_map do |base|
+        [
+          {
+            type: :with,
+            base: base,
+            method_name: "with_#{base}",
+            value: extract_filter_value(definition, base, with_not: false)
+          },
+          {
+            type: :without,
+            base: base,
+            method_name: "without_#{base}",
+            value: extract_filter_value(definition, base, with_not: true)
+          }
+        ]
+      end
     end
+
+    def extract_filter_value(definition, base, with_not:)
+      case base
+      when :default_data_type
+        extract_aliases(definition, 'Inhaltstypen', with_not: with_not)
+      when :schema_type
+        extract_aliases(definition, 'SchemaTypes', with_not: with_not)
+      when :schema_classification_paths
+        extract_classification_paths(definition, with_not: with_not).filter { _1.include?('SchemaTypes') }
+      when :content_classification_paths
+        extract_classification_paths(definition, with_not: with_not).filter { _1.include?('Inhaltstypen') }
+      end
+    end
+
+    # def filter_definition(definition)
+    #   {
+    #     { type: :with, extractor: extract_aliases(definition, 'Inhaltstypen'), method: 'with_default_data_type' },
+    #     { type: :with, extractor: extract_aliases(definition, 'SchemaTypes'), method: 'with_schema_type' },
+    #     { type: :with, extractor: extract_classification_paths(definition, with_not: false).filter { _1.include?('SchemaTypes') }, method: 'with_schema_classification_paths' },
+    #     { type: :with, extractor: extract_classification_paths(definition, with_not: false).filter { _1.include?('Inhaltstypen') }, method: 'with_content_classification_paths' },
+    #     { type: :without, extractor: extract_aliases(definition, 'Inhaltstypen', with_not: true), method: 'without_default_data_type' },
+    #     { type: :without, extractor: extract_aliases(definition, 'SchemaTypes', with_not: true), method: 'without_schema_type' },
+    #     { type: :without, extractor: extract_classification_paths(definition, with_not: true).filter { _1.include?('SchemaTypes') }, method: 'without_schema_classification_paths' },
+    #     { type: :without, extractor: extract_classification_paths(definition, with_not: true).filter { _1.include?('Inhaltstypen') }, method: 'without_content_classification_paths' }
+    #   }
+    # end
   end
 end
