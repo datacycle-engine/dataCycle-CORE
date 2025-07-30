@@ -78,7 +78,6 @@ namespace :dc do
           thing.allowed_webhooks = [external_system.name]
           thing.execute_update_webhooks
         end
-        binding.pry if thing.blank?
       end
     end
 
