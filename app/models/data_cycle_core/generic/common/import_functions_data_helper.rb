@@ -56,6 +56,9 @@ module DataCycleCore
 
         def create_or_update_content(utility_object:, template:, data:, local: false, config: {}, **)
           return nil if data.except('external_key', 'locale').blank?
+
+          step_config = utility_object.step_config(config)
+
           if local
             content = DataCycleCore::Thing.new(
               local_import: true,
@@ -82,11 +85,11 @@ module DataCycleCore
                 'last_successful_sync_at' => data['updated_at']
               }]
               all_imported_external_system_data.each do |es|
-                next if Array(utility_object.external_source.default_options&.dig('current_instance_identifiers')).include?(es['identifier'] || es['name'])
+                next if Array(step_config['current_instance_identifiers']).include?(es['identifier'] || es['name'])
 
                 next if present_external_systems.detect { |i| i['external_identifier'] == (es['identifier'] || es['name']) && i['external_key'] == es['external_key'] }.present?
                 external_system = DataCycleCore::ExternalSystem.find_from_hash(es)
-                external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank? && !utility_object.external_source.default_options&.[]('reject_unknown_external_systems')
+                external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank? && !step_config['reject_unknown_external_systems']
 
                 next if external_system.nil?
 
@@ -116,28 +119,35 @@ module DataCycleCore
 
           created = false
           content.webhook_source = utility_object&.external_source&.name
-          if content.new_record?
-            content.metadata ||= {}
-            content.created_by = data['created_by']
-            created = true
-            content.save!
-          end
-
           global_data = data.except(*content.local_property_names, 'overlay')
           add_properties_with_imported_flag!(global_data)
-          global_data.except!('external_key') unless created
-
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
-          invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
+          invalidate_related_cache = step_config['invalidate_related_cache'] != false
 
-          valid = content.set_data_hash(
-            data_hash: global_data,
-            prevent_history: !utility_object.history,
-            update_search_all: true,
-            current_user:,
-            new_content: created,
-            invalidate_related_cache:
-          )
+          valid = false
+
+          # wrap in transaction to ensure atomicity when creating new content
+          # and setting data hash, so that we don't end up with a content that has no
+          # data hash set, but is already persisted in the database.
+          ActiveRecord::Base.transaction do
+            if content.new_record?
+              content.metadata ||= {}
+              content.created_by = data['created_by']
+              created = true
+              content.save!
+            end
+
+            global_data.except!('external_key') unless created
+
+            valid = content.set_data_hash(
+              data_hash: global_data,
+              prevent_history: !utility_object.history,
+              update_search_all: true,
+              current_user:,
+              new_content: created,
+              invalidate_related_cache:
+            )
+          end
 
           if valid
             ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle.counter', {
@@ -162,10 +172,10 @@ module DataCycleCore
           end
 
           data['external_system_data']&.each do |es|
-            next if Array(utility_object.external_source.default_options['current_instance_identifiers']).include?(es['identifier'] || es['name'])
+            next if Array(step_config['current_instance_identifiers']).include?(es['identifier'] || es['name'])
 
             external_system = DataCycleCore::ExternalSystem.find_from_hash(es)
-            external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank? && !utility_object.external_source.default_options&.[]('reject_unknown_external_systems')
+            external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank? && !step_config['reject_unknown_external_systems']
 
             next if external_system.nil?
 
@@ -228,25 +238,18 @@ module DataCycleCore
         end
 
         def transform_external_system_data!(config, data_hash, utility_object)
-          merged_config = utility_object
-            .external_source
-            .default_options
-            .to_h
-            .slice('import_external_system_data')
-            .merge(config&.slice(:import_external_system_data).to_h.stringify_keys)
+          merged_config = utility_object.step_config(config)
           data_hash.delete('external_system_data') && return if merged_config['import_external_system_data'].blank?
 
           return if data_hash['external_system_data'].blank?
 
-          options = utility_object.external_source.default_options || {}
-
-          if (mapping = options['external_system_identifier_mapping']).present?
+          if (mapping = merged_config['external_system_identifier_mapping']).present?
             data_hash['external_system_data'].each do |d|
               d['identifier'] = mapping[d['identifier']] || d['identifier']
             end
           end
 
-          transformation_config = options['external_system_identifier_transformation']
+          transformation_config = merged_config['external_system_identifier_transformation']
 
           return unless transformation_config&.key?('module') && transformation_config.key?('method')
 

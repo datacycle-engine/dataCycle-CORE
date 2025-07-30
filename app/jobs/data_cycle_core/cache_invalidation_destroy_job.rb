@@ -32,13 +32,10 @@ module DataCycleCore
       end
     end
 
-    def invalidate_things_cache(things_ids)
+    def update_things_search(things_ids)
       return if things_ids.blank?
 
-      things = DataCycleCore::Thing.where(id: things_ids)
-
-      things.invalidate_all
-      things.update_search_all
+      DataCycleCore::Thing.where(id: things_ids).update_search_all
     end
   end
 end

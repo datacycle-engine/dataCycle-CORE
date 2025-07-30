@@ -5,6 +5,7 @@ module DataCycleCore
     module V4
       class DownloadsController < ::DataCycleCore::Api::V4::ApiBaseController
         include DataCycleCore::FilterConcern
+
         include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
         before_action :prepare_url_parameters
 

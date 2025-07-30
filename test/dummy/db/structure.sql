@@ -546,6 +546,24 @@ CREATE FUNCTION public.insert_concepts_trigger_function() RETURNS trigger
 
 
 --
+-- Name: invalidate_things_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.invalidate_things_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN UPDATE things SET cache_valid_since = NOW() WHERE things.id IN ( SELECT id FROM things WHERE things.id IN ( SELECT updated_ccc.thing_id FROM updated_ccc WHERE updated_ccc.link_type != 'broader' ) FOR UPDATE SKIP LOCKED ); RETURN NULL; END; $$;
+
+
+--
+-- Name: make_valid_geometries(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.make_valid_geometries() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.geom = ST_MakeValid(NEW.geom); RETURN NEW; END; $$;
+
+
+--
 -- Name: thing_history_links_deletion_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -652,7 +670,7 @@ CREATE FUNCTION public.to_schedule_history(content_id uuid, new_history_id uuid)
 
 CREATE FUNCTION public.to_thing_history(content_id uuid, current_locale character varying, all_translations boolean DEFAULT false, deleted boolean DEFAULT false) RETURNS uuid
     LANGUAGE plpgsql
-    AS $$ DECLARE insert_query TEXT; new_history_id UUID; BEGIN SELECT 'INSERT INTO thing_histories (thing_id, deleted_at, ' || string_agg(column_name, ', ') || ') SELECT t.id, CASE WHEN t.deleted_at IS NOT NULL THEN t.deleted_at WHEN ' || deleted || '::BOOLEAN THEN transaction_timestamp() ELSE NULL END, ' || string_agg('t.' || column_name, ', ') || ' FROM things t WHERE t.id = ''' || content_id || '''::UUID LIMIT 1 RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'thing_histories' AND column_name NOT IN ('id', 'thing_id', 'deleted_at'); EXECUTE insert_query INTO new_history_id; PERFORM to_thing_history_translation ( content_id, new_history_id, current_locale, all_translations ); PERFORM to_classification_content_history (content_id, new_history_id); PERFORM to_content_content_history ( content_id, new_history_id, current_locale, all_translations, deleted ); PERFORM to_schedule_history (content_id, new_history_id); PERFORM to_content_collection_link_history (content_id, new_history_id); PERFORM to_geometry_history (content_id, new_history_id); RETURN new_history_id; END; $$;
+    AS $$ DECLARE insert_query TEXT; new_history_id UUID; BEGIN SELECT 'INSERT INTO thing_histories (thing_id, deleted_at, ' || string_agg(column_name, ', ') || ') SELECT t.id, CASE WHEN t.deleted_at IS NOT NULL THEN t.deleted_at WHEN ' || deleted || '::BOOLEAN THEN transaction_timestamp() ELSE NULL END, ' || string_agg('t.' || column_name, ', ') || ' FROM things t WHERE t.id = ''' || content_id || '''::UUID LIMIT 1 RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'thing_histories' AND column_name NOT IN ('id', 'thing_id', 'deleted_at'); EXECUTE insert_query INTO new_history_id; IF new_history_id IS NULL THEN RAISE EXCEPTION 'No history created for content_id: %', content_id; END IF; PERFORM to_thing_history_translation ( content_id, new_history_id, current_locale, all_translations ); PERFORM to_classification_content_history (content_id, new_history_id); PERFORM to_content_content_history ( content_id, new_history_id, current_locale, all_translations, deleted ); PERFORM to_schedule_history (content_id, new_history_id); PERFORM to_content_collection_link_history (content_id, new_history_id); PERFORM to_geometry_history (content_id, new_history_id); RETURN new_history_id; END; $$;
 
 
 --
@@ -3775,6 +3793,13 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 
 --
+-- Name: index_thing_duplicates_on_thing_duplicate_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_duplicates_on_thing_duplicate_id ON public.thing_duplicates USING btree (thing_duplicate_id);
+
+
+--
 -- Name: index_thing_duplicates_on_thing_ids; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4086,7 +4111,7 @@ CREATE INDEX searches_search_vector_idx ON public.searches USING gin (search_vec
 -- Name: thing_attribute_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btree (thing_id, property, "timestamp");
+CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btree (thing_id, property, "timestamp") INCLUDE (value);
 
 
 --
@@ -4353,6 +4378,13 @@ CREATE TRIGGER delete_geometries_priority_trigger AFTER DELETE ON public.geometr
 
 
 --
+-- Name: collected_classification_contents delete_invalidate_things_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_invalidate_things_trigger AFTER DELETE ON public.collected_classification_contents REFERENCING OLD TABLE AS updated_ccc FOR EACH STATEMENT EXECUTE FUNCTION public.invalidate_things_trigger();
+
+
+--
 -- Name: things delete_things_external_source_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4473,6 +4505,27 @@ CREATE TRIGGER insert_concepts_trigger AFTER INSERT ON public.classification_ali
 --
 
 CREATE TRIGGER insert_geometries_priority_trigger AFTER INSERT ON public.geometries REFERENCING NEW TABLE AS changed_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger2();
+
+
+--
+-- Name: collected_classification_contents insert_invalidate_things_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER insert_invalidate_things_trigger AFTER INSERT ON public.collected_classification_contents REFERENCING NEW TABLE AS updated_ccc FOR EACH STATEMENT EXECUTE FUNCTION public.invalidate_things_trigger();
+
+
+--
+-- Name: classification_polygons make_valid_classification_polygons_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER make_valid_classification_polygons_trigger BEFORE INSERT OR UPDATE OF geom ON public.classification_polygons FOR EACH ROW EXECUTE FUNCTION public.make_valid_geometries();
+
+
+--
+-- Name: geometries make_valid_geometries_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER make_valid_geometries_trigger BEFORE INSERT OR UPDATE OF geom ON public.geometries FOR EACH ROW EXECUTE FUNCTION public.make_valid_geometries();
 
 
 --
@@ -4622,6 +4675,13 @@ CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE ON public.conte
 --
 
 CREATE TRIGGER update_geometries_priority_trigger AFTER UPDATE ON public.geometries REFERENCING OLD TABLE AS old_geometries NEW TABLE AS new_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger();
+
+
+--
+-- Name: collected_classification_contents update_invalidate_things_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_invalidate_things_trigger AFTER UPDATE ON public.collected_classification_contents REFERENCING NEW TABLE AS updated_ccc FOR EACH STATEMENT EXECUTE FUNCTION public.invalidate_things_trigger();
 
 
 --
@@ -5193,6 +5253,11 @@ ALTER TABLE ONLY public.collected_classification_contents
 SET search_path TO public, postgis;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20250728063030'),
+('20250722060746'),
+('20250718100930'),
+('20250715122637'),
+('20250715055548'),
 ('20250712070915'),
 ('20250711083506'),
 ('20250709093540'),

@@ -4,7 +4,7 @@ module DataCycleCore
   module Content
     module CreateHistory
       def to_history(delete: false, all_translations: false)
-        return if embedded?
+        return if embedded? || history? || new_record? || destroyed?
 
         ActiveRecord::Base.connection.exec_query(
           ActiveRecord::Base.send(

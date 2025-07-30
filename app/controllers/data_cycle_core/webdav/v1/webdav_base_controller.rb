@@ -12,6 +12,7 @@ module DataCycleCore
         include DataCycleCore::ErrorHandler
         include DataCycleCore::WebdavHelper
         include DataCycleCore::ApiBeforeActions
+
         helper DataCycleCore::WebdavHelper
 
         before_action :set_default_response_format

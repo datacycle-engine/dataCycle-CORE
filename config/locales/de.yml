@@ -272,6 +272,12 @@ de:
           empty: Die Datei beinhaltet keine gültigen Geodaten!
           file_type_not_supported: Dateityp wird nicht unterstützt!
           invalid_json: Ungültiges JSON-Format!
+      shape_from_concept:
+        button_title: Geometrie von Klassifizierungen übernehmen
+        overlay_title: Klassifizierungen auswählen
+        overlay_description: Wählen Sie eine oder mehrere Klassifizierungen aus, von denen die Geometrie übernommen werden soll.
+        overlay_description_info: Wenn mehrere Klassifizierungen ausgewählt sind, werden die Geometrien kombiniert.
+        overlay_label: "Klassifizierungen"
       elevation_profile:
         button_title: "Höhenprofil anzeigen"
         y_label: Seehöhe
@@ -1321,6 +1327,7 @@ de:
     cancel: abbrechen
     delete_translation_confirmation_html: "Übersetzung <b>(%{data})</b> von %{template} <b>%{title}</b> wirklich löschen?"
     delete_confirmation_html: "%{type} <b>%{name}</b> wirklich löschen?"
+    set: übernehmen
 
   concept_scheme_unlink:
     link_title: Direkte Zuweisung zu Inhalten entfernen

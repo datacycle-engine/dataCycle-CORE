@@ -80,7 +80,7 @@ class ContentLock {
 		}
 	}
 	leavePage(_event) {
-		this.lockContentChannel.unsubscribe();
+		if (this.lockContentChannel) this.lockContentChannel.unsubscribe();
 		const data = new FormData();
 		data.append("token", this.token);
 		navigator.sendBeacon(this.lockPath, data);
@@ -94,8 +94,8 @@ class ContentLock {
 		Object.assign(this.locks, lockedUntil);
 	}
 	initActionCable() {
-		this.lockContentChannel = window.actionCable.then((cable) => {
-			cable.subscriptions.create(
+		window.actionCable.then((cable) => {
+			this.lockContentChannel = cable.subscriptions.create(
 				{
 					channel: "DataCycleCore::ContentLockChannel",
 					content_id: this.uuid,

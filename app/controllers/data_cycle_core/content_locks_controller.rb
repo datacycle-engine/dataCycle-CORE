@@ -6,11 +6,11 @@ module DataCycleCore
     before_action :decode_token # from devise (authenticate)
 
     def update
-      return(head :no_content) if @decoded[:lock_ids].blank?
+      return (head :no_content) if @decoded[:lock_ids].blank?
 
       @content_locks = DataCycleCore::ContentLock.where(id: @decoded[:lock_ids])
 
-      return(head :no_content) unless @content_locks.includes(:user).all? { |l| l.user == current_user }
+      return (head :no_content) unless @content_locks.includes(:user).all? { |l| l.user == current_user }
 
       @content_locks.find_each(&:touch)
 
@@ -18,11 +18,11 @@ module DataCycleCore
     end
 
     def destroy
-      return(head :no_content) if @decoded[:lock_ids].blank?
+      return (head :no_content) if @decoded[:lock_ids].blank?
 
       @content_locks = DataCycleCore::ContentLock.where(id: @decoded[:lock_ids])
 
-      return(head :no_content) unless @content_locks.includes(:user).all? { |l| l.user == current_user }
+      return (head :no_content) unless @content_locks.includes(:user).all? { |l| l.user == current_user }
 
       @content_locks.find_each(&:destroy)
 

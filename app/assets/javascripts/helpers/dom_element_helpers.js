@@ -1,6 +1,6 @@
+import { nanoid } from "nanoid";
 import ConfirmationModal from "../components/confirmation_modal";
 import { get, set } from "./object_utilities";
-import { nanoid } from "nanoid";
 
 export const inputFieldSelectors = ["input", "select", "textarea", "button"];
 export const listPropertyClasses = ["classification", "linked", "embedded"];

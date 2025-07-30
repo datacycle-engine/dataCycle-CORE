@@ -44,6 +44,10 @@ module DataCycleCore
         ActiveRecord::Base.send(:sanitize_sql_array, sql_array)
       end
 
+      def sanitize_sql_for_order(sql_array)
+        ActiveRecord::Base.send(:sanitize_sql_for_order, sql_array)
+      end
+
       def none
         reflect(@query.none)
       end

@@ -2,7 +2,7 @@
 <% object_ids = objects.except(:limit, :offset).pluck(:id) if objects.present? %>
 <% objects = objects.to_a.concat(new_relations(options.dig('item_diff'), 'things').includes(:translations).to_a) if changes_by_mode(options.dig('item_diff'), '+').present? %>
 
-<% if objects.present? %>
+<% if objects.present? || options.dig(:force_render) %>
   <%= conditional_tag :div, !local_assigns[:no_wrapper], class: embedded_viewer_html_classes(**local_assigns), data: { accordion: true, allow_all_closed: true, multi_expand: true, id: object_ids, editor: 'embedded_object', key: key, translatable: !definition['translated'] || @content&.id != @split_source&.id } do %>
     <%= attribute_viewer_label_tag(**local_assigns.merge(accordion_controls: true, i18n_count: 2)) if !local_assigns[:no_wrapper] %>
 

@@ -7,6 +7,7 @@ module DataCycleCore
     module Attributes
       class LinkedBiTest < ActiveSupport::TestCase
         include DataCycleCore::DataHelper
+
         def setup
           # create entity and add 5 linked entities from the same table
           @things_before = DataCycleCore::Thing.count

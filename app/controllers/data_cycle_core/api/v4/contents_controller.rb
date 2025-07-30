@@ -7,6 +7,7 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::FilterConcern
         include DataCycleCore::ApiHelper
+
         before_action :prepare_url_parameters
 
         def index

@@ -12,6 +12,7 @@ module DataCycleCore
   module V4
     class Base < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include DataCycleCore::V4::ApiHelper
+
       # include DataCycleCore::V4::DummyDataHelper
 
       before(:all) do

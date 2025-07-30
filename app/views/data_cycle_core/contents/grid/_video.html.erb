@@ -2,7 +2,7 @@
   <% if thing_thumbnail_url(item, 'thumbnail_image').present? %>
     <% thumbnail_url = thing_thumbnail_url(item, 'thumbnail_image') %>
     <div class="video-thumbnail">
-      <img data-src="<%= thumbnail_url %>" alt="<%= item.try(:title) %>" class="lazyload" />
+      <img style="<%= image_thumb_style(item) %>" data-src="<%= thumbnail_url %>" alt="<%= item.try(:title) %>" class="lazyload" />
     </div>
   <% end %>
 <% end %>

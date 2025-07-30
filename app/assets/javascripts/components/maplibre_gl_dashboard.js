@@ -1,5 +1,5 @@
-import MapLibreGlViewer from "./maplibre_gl_viewer";
 import urlJoin from "url-join";
+import MapLibreGlViewer from "./maplibre_gl_viewer";
 
 class MapLibreGlDashboard extends MapLibreGlViewer {
 	constructor(container) {
@@ -33,7 +33,10 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 		});
 	}
 	_addSourceType(name, _data) {
-		this._addVectorSource(name, `endpoints/${this.currentEndpointId}`);
+		this._addVectorSource(
+			name,
+			this._vectorSourceUrl(`endpoints/${this.currentEndpointId}`).url,
+		);
 	}
 	_addClickHandler() {
 		this.map.on("click", (e) => {

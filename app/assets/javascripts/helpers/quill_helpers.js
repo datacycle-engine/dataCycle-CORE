@@ -17,6 +17,7 @@ const QuillHelpers = {
 
 			if (text !== hiddenField.value) {
 				hiddenField.value = text;
+				$(hiddenField).trigger("change");
 				if (triggerChangeEvent) $(hiddenField).trigger("change");
 			}
 		}

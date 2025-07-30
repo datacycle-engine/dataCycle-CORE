@@ -2020,7 +2020,7 @@ body .v-select {
         margin-right: 4rem;
       }
 
-      fieldset.active:not(.iframe):last-of-type~.buttons .submit.set-all-attributes {
+      fieldset.active:last-of-type~.buttons .submit.set-all-attributes {
         display: inline-block;
       }
     }

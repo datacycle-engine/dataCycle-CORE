@@ -903,6 +903,7 @@ module DataCycleCore
     end
 
     include ScheduleHandler
+
     belongs_to :thing
     belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
     before_save :serialize_schedule_object

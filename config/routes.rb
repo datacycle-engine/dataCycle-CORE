@@ -222,6 +222,7 @@ DataCycleCore::Engine.routes.draw do
       patch :merge, on: :collection
       post :unlink_contents, on: :collection
       post :link_contents, on: :collection
+      post :geometry, on: :collection
     end
   end
 
@@ -419,6 +420,7 @@ DataCycleCore::Engine.routes.draw do
 
                 scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
                   match '/:external_key/timeseries(/:attribute)', via: [:put, :patch], to: 'external_systems#timeseries'
+                  patch '/demote', to: 'external_systems#demote'
                   match '/:external_key/:attribute(/:format)', via: [:put, :patch], to: 'external_systems#timeseries', as: 'external_source_timeseries'
                   match '/concepts(/:external_key)', via: [:get, :post], to: 'classification_trees#by_external_key', as: 'classification_trees_by_external_key'
                   match '/things/select(/:external_keys)', to: 'contents#select_by_external_keys', as: 'things_select_by_external_key', via: [:get, :post]
@@ -492,6 +494,7 @@ DataCycleCore::Engine.routes.draw do
               match 'things/select(/:uuids)', to: 'contents#select', defaults: { bbox: true }, as: 'contents_select_bbox', via: [:get, :post]
               match 'things/:id/:z/:x/:y', to: 'contents#show', via: [:get, :post]
               match 'concepts/select/:uuids/:z/:x/:y', to: 'classification_trees#select', as: 'concepts_select', via: [:get, :post]
+              match 'concepts/select/:uuids', to: 'classification_trees#select', defaults: { bbox: true }, as: 'concepts_select_bbox', via: [:get, :post]
             end
           end
         end

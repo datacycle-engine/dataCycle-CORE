@@ -109,10 +109,14 @@ module DataCycleCore
           !template_whitelisted?(attribute, template_names)
         end
 
+        # every part of a path has to be whitelisted separately
+        # e.g.['validity_period', ['validity_period', 'valid_from'], ['validity_period', 'valid_until']
         def attribute_whitelisted?(attribute, attribute_names = [])
           Array.wrap(attribute_names).any? { |a| Array.wrap(a) == attribute.key.attribute_path_from_key }
         end
 
+        # every part of a path has to be blacklisted separately
+        # e.g.['validity_period', ['validity_period', 'valid_from'], ['validity_period', 'valid_until']
         def attribute_not_blacklisted?(attribute, attribute_names = [])
           !attribute_whitelisted?(attribute, attribute_names)
         end

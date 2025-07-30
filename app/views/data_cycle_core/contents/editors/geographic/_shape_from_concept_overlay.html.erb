@@ -1,0 +1,45 @@
+<%= turbo_frame_tag overlay_id do %>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <div class="reveal-header">
+    <%= t('frontend.map.shape_from_concept.overlay_title', locale: active_ui_locale) %>
+  </div>
+  <%= form_for(:concepts, url: geometry_classifications_path, class: 'shape-from-concept-form', data: { turbo_frame: "#{overlay_id}-geometry" }) do |f| %>
+    <div class="reveal-body">
+      <p><%= t('frontend.map.shape_from_concept.overlay_description', locale: active_ui_locale) %></p>
+      <div class="callout secondary"><%= t('frontend.map.shape_from_concept.overlay_description_info', locale: active_ui_locale) %></div>
+      <%= hidden_field_tag 'id', overlay_id %>
+      <div class="form-element">
+        <%= label_tag 'concepts', t('frontend.map.shape_from_concept.overlay_label', locale: active_ui_locale) %>
+        <div class="v-select white">
+          <%= select_tag 'concepts[]',
+          nil,
+          multiple: true,
+          class: 'async-select shape-from-concept-select',
+          data: {
+            max: 20,
+            placeholder: '',
+            search_path: search_classifications_path,
+            show_tree_label: true,
+            alias_ids: true,
+            query_params: {
+              with_geometry: true
+            }
+          } %>
+        </div>
+      </div>
+      <div class="form-element">
+        <label><%= t('common.preview', locale: active_ui_locale) %></label>
+        <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map polygon"
+            data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>">
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-footer buttons">
+      <%= button_tag t('actions.cancel', locale: active_ui_locale), class: 'button secondary hollow', data: { close: '' }, type: :button %>
+      <%= button_tag t('actions.set', locale: active_ui_locale), class: 'button success', data: { disable: true }, type: :submit %>
+    </div>
+  <% end %>
+<% end %>

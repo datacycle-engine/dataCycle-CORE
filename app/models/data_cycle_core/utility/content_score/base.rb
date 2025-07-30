@@ -11,17 +11,19 @@ module DataCycleCore
             return unless DataCycleCore::Feature::ContentScore.enabled?
 
             properties = content.content_score_definition(key)
-
             return unless properties&.key?('content_score')
 
-            parameter_keys = parameter_keys(content, key, properties)
+            parameter_keys = get_parameter_keys(content, key, properties)
+
             data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameter_keys)
+
+            apply_overlays!(content, data_hash, parameter_keys) if key.nil?
 
             method_name = DataCycleCore::ModuleService
               .load_module(properties.dig('content_score', 'module').classify, 'Utility::ContentScore')
               .method(properties.dig('content_score', 'method'))
 
-            data_hash[key] = method_name.call(
+            method_name.call(
               key:,
               parameters: parameter_keys.index_with { |v| data_hash[v] },
               data_hash: data_hash || {},
@@ -113,6 +115,40 @@ module DataCycleCore
 
           def load_linked(parameters, key)
             parameters[key] = DataCycleCore::Thing.by_ordered_values(parameters[key]) if parameters[key].present?
+          end
+
+          def split_last(str, delimiter)
+            index = str.rindex(delimiter)
+            return [str, nil] unless index
+            [str[0...index], str[(index + delimiter.length)..]]
+          end
+
+          def get_parameter_keys(content, key, properties)
+            parameter_keys = parameter_keys(content, key, properties)
+            return parameter_keys unless key.nil?
+
+            parameter_keys + parameter_keys.flat_map do |param_key|
+              content.overlay_property_names_for(param_key, 'overlay')
+            end
+          end
+
+          def apply_overlays!(content, data_hash, parameter_keys)
+            parameter_keys.intersection(content.properties_with_overlay).each do |key|
+              content.overlay_property_names_for(key, 'overlay').each do |k|
+                next if data_hash[k].blank?
+
+                props = content.properties_for(k)
+                overlay_key = props.dig('features', 'overlay', 'overlay_for')
+                overlay_suffix = props.dig('features', 'overlay', 'overlay_type')
+
+                case overlay_suffix
+                when 'add'
+                  data_hash[overlay_key] += data_hash[k]
+                when 'override'
+                  data_hash[overlay_key] = data_hash[k]
+                end
+              end
+            end
           end
         end
       end

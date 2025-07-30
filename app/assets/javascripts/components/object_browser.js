@@ -1,14 +1,14 @@
-import ConfirmationModal from "./../components/confirmation_modal";
-import { Sortable } from "sortablejs";
-import difference from "lodash/difference";
-import union from "lodash/union";
 import castArray from "lodash/castArray";
-import loadingIcon from "../templates/loadingIcon";
+import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
 import sortBy from "lodash/sortBy";
-import ObserverHelpers from "../helpers/observer_helpers";
+import union from "lodash/union";
+import { Sortable } from "sortablejs";
 import CalloutHelpers from "../helpers/callout_helpers";
 import DomElementHelpers from "../helpers/dom_element_helpers";
+import ObserverHelpers from "../helpers/observer_helpers";
+import loadingIcon from "../templates/loadingIcon";
+import ConfirmationModal from "./../components/confirmation_modal";
 
 class ObjectBrowser {
 	constructor(selector) {
@@ -476,8 +476,12 @@ class ObjectBrowser {
 	renderDetailHtml(data) {
 		if (data?.detail_html) this.itemInfoScrollable.innerHTML = data.detail_html;
 	}
+	enableOverlayForm() {
+		$(`#new_${this.id}.in-object-browser form`).trigger("dc:form:enable");
+	}
 	renderNewItems(data) {
 		if (data?.error) {
+			this.enableOverlayForm();
 			CalloutHelpers.show(data.error, "alert");
 			return;
 		}

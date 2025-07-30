@@ -258,9 +258,16 @@ module DataCycleCore
         property_names - virtual_property_names
       end
 
-      def overlay_property_names_for(property_name, include_overlay = false)
+      def overlay_property_names_for(property_name, exclude_types = nil, include_overlay = false)
         name_property_selector(include_overlay) do |definition|
-          definition.dig('features', 'overlay', 'overlay_for') == property_name
+          definition.dig('features', 'overlay', 'overlay_for') == property_name &&
+            Array.wrap(exclude_types).exclude?(definition.dig('features', 'overlay', 'overlay_type'))
+        end
+      end
+
+      def properties_with_overlay(include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.dig('features', 'overlay', 'allowed')
         end
       end
 

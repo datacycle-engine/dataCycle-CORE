@@ -13,9 +13,22 @@ module DataCycleCore
       width = content.try(:width)&.to_f
       height = content.try(:height)&.to_f
 
-      return 16.to_r / 9 unless width&.positive? && height&.positive?
+      return unless width&.positive? && height&.positive?
 
-      (width / height).to_r.round(1)
+      "aspect-ratio: #{(width / height).to_r.round(2)};"
+    end
+
+    def image_thumb_style(content)
+      width = content.try(:width)&.to_f
+      height = content.try(:height)&.to_f
+
+      return unless width&.positive? && height&.positive?
+
+      if width > height
+        "aspect-ratio: #{(width / height).to_r.round(2)}; width: 100%; max-width: #{width}px;"
+      else
+        "aspect-ratio: #{(width / height).to_r.round(2)}; height: 100%; max-height: #{height}px;"
+      end
     end
 
     def thing_thumbnail_url(content, linked_attribute = nil, keys = ['thumbnail_url'])

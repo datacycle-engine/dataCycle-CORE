@@ -9,6 +9,7 @@ module DataCycleCore
         @transformation = transformation
 
         extend(strategy)
+
         update
       end
     end

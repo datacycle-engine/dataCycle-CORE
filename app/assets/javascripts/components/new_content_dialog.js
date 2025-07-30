@@ -1,9 +1,9 @@
-import QuillHelpers from "./../helpers/quill_helpers";
 import ConfirmationModal from "./../components/confirmation_modal";
-import UuidHelper from "./../helpers/uuid_helper";
-import ObserverHelpers from "../helpers/observer_helpers";
 import CalloutHelpers from "../helpers/callout_helpers";
 import ObjectUtilities from "../helpers/object_utilities";
+import ObserverHelpers from "../helpers/observer_helpers";
+import QuillHelpers from "./../helpers/quill_helpers";
+import UuidHelper from "./../helpers/uuid_helper";
 
 class NewContentDialog {
 	constructor(form) {
@@ -526,7 +526,7 @@ class NewContentDialog {
 		$fromSet.removeClass("active");
 		$toSet.addClass("active").trigger("dc:remote:render");
 
-		if ($toSet.hasClass("template") || $toSet.hasClass("iframe"))
+		if ($toSet.hasClass("template"))
 			this.$form.closest(".reveal:not(.full)").foundation("_updatePosition");
 
 		this.updateForm();

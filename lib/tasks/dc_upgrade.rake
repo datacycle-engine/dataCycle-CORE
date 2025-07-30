@@ -14,7 +14,7 @@ namespace :dc do
 
         file_name = File.basename(f, '.template')
         file_path = File.dirname(f)
-        dest_path = project_path.join(file_path.gsub(template_path.to_s, ''))
+        dest_path = project_path.join(file_path.gsub(template_path.to_s, '').delete_prefix(File::SEPARATOR))
 
         FileUtils.mkdir_p(dest_path)
         FileUtils.cp(f, dest_path.join(file_name))

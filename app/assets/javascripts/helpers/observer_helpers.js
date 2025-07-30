@@ -1,3 +1,6 @@
+export const newDirectItemsConfig = {
+	childList: true,
+};
 export const newItemsConfig = {
 	subtree: true,
 	childList: true,
@@ -30,6 +33,7 @@ export function checkForConditionRecursive(node, selector, callback) {
 
 const ObserverHelpers = {
 	newItemsConfig,
+	newDirectItemsConfig,
 	changedClassConfig,
 	changedClassWithSubtreeConfig,
 	intersectionObserverConfig,

@@ -51,6 +51,14 @@ module DataCycleCore
       )
     end
 
+    def self.combined_geojson
+      select_sql = <<-SQL.squish
+        ST_AsGeoJSON(ST_Force3D(ST_MakeValid(ST_Union(classification_polygons.geom))), 6) AS geom
+      SQL
+
+      connection.select_all(except(:order).select(select_sql)).first&.values&.first
+    end
+
     def self.upsert_all_geoms(data)
       count = 0
       return count if data.blank?

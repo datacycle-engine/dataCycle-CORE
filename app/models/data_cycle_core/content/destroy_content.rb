@@ -34,7 +34,7 @@ module DataCycleCore
             destroy_thing_translation(new_opts)
           else
             return self unless destroy_thing?(new_opts)
-            destroy_thing(new_opts)
+            destroy_thing(new_opts.merge(destroy_locale: false))
             super()
           end
         end
@@ -85,7 +85,7 @@ module DataCycleCore
         return if collection_ids.blank? && template_names.blank?
 
         content_b.includes(:content_content_b).find_each do |item|
-          next if item.content_content_b.any? { |cc| cc.content_a_id != id }
+          next if item.content_content_b.any? { |cc| opts[:destroyed_ids].exclude?(cc.content_a_id) }
 
           if collection_ids.present?
             filter = DataCycleCore::StoredFilter.new(parameters: [union_filter_ids: collection_ids])

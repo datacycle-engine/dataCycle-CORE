@@ -250,7 +250,6 @@ module DataCycleCore
         }
       end
 
-      # parameters[:options][:class] = css_class.uniq.join(' ')
       parameters[:options][:additional_attribute_partials] = additional_attribute_partials
     end
 

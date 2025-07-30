@@ -60,11 +60,11 @@ module DataCycleCore
           optional(:clusterLines).value(:bool)
           optional(:clusterPolygons).value(:bool)
           optional(:clusterItems).value(:bool)
-          optional(:clusterMaxZoom).value(:integer)
-          optional(:clusterMinPoints).value(:integer)
-          optional(:clusterMaxDistance).value { (float? | int?) & gt?(0) }
-          optional(:clusterMaxDistanceDividend).value { (float? | int?) & gt?(0) }
-          optional(:clusterMaxDistanceDivisor).value { (float? | int?) & gt?(0) }
+          optional(:clusterMaxZoom).value(:integer) { gteq?(0) }
+          optional(:clusterMinPoints).value(:integer) { gt?(0) }
+          optional(:clusterMaxDistance).value(:decimal) { gt?(0) }
+          optional(:clusterMaxDistanceDividend).value(:decimal) { gt?(0) }
+          optional(:clusterMaxDistanceDivisor).value(:decimal) { gt?(0) }
           optional(:startPointsOnly).value(:bool)
         end
 

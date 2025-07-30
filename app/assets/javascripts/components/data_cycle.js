@@ -5,7 +5,7 @@ import DataCycleHttpClient from "./data_cycle_http_client";
 
 class DataCycle {
 	constructor(config = {}) {
-		// biome-ignore lint/correctness/noConstructorReturn: <explanation>
+		// biome-ignore lint/correctness/noConstructorReturn: not needed for singleton
 		if (DataCycle._instance) return DataCycle._instance;
 
 		DataCycle._instance = this;

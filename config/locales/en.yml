@@ -459,6 +459,12 @@ en:
           empty: The file does not contain valid geo data!
           file_type_not_supported: file type not supported!
           invalid_json: invalid JSON!
+      shape_from_concept:
+        button_title: Copy geometry from concepts
+        overlay_title: select concepts
+        overlay_description: Choose one or more concepts from which the geometry should be adopted.
+        overlay_description_info: If multiple concepts are selected, the geometries are combined.
+        overlay_label: concepts
       elevation_profile:
         button_title: "show elevation profile"
         y_label: sea level

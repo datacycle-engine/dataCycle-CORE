@@ -32,6 +32,7 @@ module DataCycleCore
 
                 begin
                   logging.phase_started(step_label)
+                  times = [Time.current]
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
@@ -79,7 +80,6 @@ module DataCycleCore
                       end
                     }
 
-                    times = [Time.current]
                     (page_from..page_to).each do |page|
                       item_count = page * per
                       if Rails.env.test?
@@ -138,7 +138,7 @@ module DataCycleCore
                     end
                   end
 
-                  logging.phase_finished(step_label, item_count.to_s)
+                  logging.phase_finished(step_label, item_count.to_s, times.last - times.first)
                 rescue StandardError => e
                   logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
                   raise
@@ -154,37 +154,35 @@ module DataCycleCore
               step_label = utility_object.step_label(options.merge({ locales: ['all'] }))
               item_count = 0
 
-              begin
-                logging.phase_started(step_label)
-                times = [Time.current]
+              logging.phase_started(step_label)
+              times = [Time.current]
 
-                utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                  filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), nil, mongo_item, binding)
-                    .without_deleted
-                  filter_object = filter_object.with_updated_since(utility_object.last_successful_try) if utility_object.mode == :incremental && utility_object.last_successful_try.present?
+              utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), nil, mongo_item, binding)
+                  .without_deleted
+                filter_object = filter_object.with_updated_since(utility_object.last_successful_try) if utility_object.mode == :incremental && utility_object.last_successful_try.present?
 
-                  filtered_items(iterator, nil, filter_object).all.no_timeout.max_time_ms(fixnum_max).batch_size(2).each do |content|
-                    item_count += 1
-                    break if options[:max_count].present? && item_count > options[:max_count]
-                    next if options[:min_count].present? && item_count < options[:min_count]
+                filtered_items(iterator, nil, filter_object).all.no_timeout.max_time_ms(fixnum_max).batch_size(2).each do |content|
+                  item_count += 1
+                  break if options[:max_count].present? && item_count > options[:max_count]
+                  next if options[:min_count].present? && item_count < options[:min_count]
 
-                    data_processor.call(
-                      utility_object:,
-                      raw_data: content[:dump],
-                      locale: nil,
-                      options:
-                    )
+                  data_processor.call(
+                    utility_object:,
+                    raw_data: content[:dump],
+                    locale: nil,
+                    options:
+                  )
 
-                    next unless (item_count % logging_delta).zero?
+                  next unless (item_count % logging_delta).zero?
 
-                    GC.start
+                  GC.start
 
-                    times << Time.current
-                    logging.phase_partial(step_label, item_count, times)
-                  end
-                ensure
-                  logging.phase_finished(step_label, item_count)
+                  times << Time.current
+                  logging.phase_partial(step_label, item_count, times)
                 end
+              ensure
+                logging.phase_finished(step_label, item_count, times.last - times.first)
               end
             end
           end
@@ -240,10 +238,10 @@ module DataCycleCore
               each_locale(utility_object.locales) do |locale|
                 step_label = utility_object.step_label(options.merge({ locales: [locale] }))
                 item_count = 0
+                times = [Time.current]
 
                 begin
                   logging.phase_started(step_label)
-                  times = [Time.current]
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
@@ -282,7 +280,7 @@ module DataCycleCore
                     end
                   end
                 ensure
-                  logging.phase_finished(step_label, item_count)
+                  logging.phase_finished(step_label, item_count, times.last - times.first)
                 end
               end
             end

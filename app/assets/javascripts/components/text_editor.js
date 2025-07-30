@@ -1,25 +1,27 @@
 // Stay with 1.3.7 for now, SmartBreak and UL/OL are not working in 2.0.0
 // switch to another editor if needed
 import Quill from "quill";
-import Counter from "./../components/quill_counter";
 import {
-	QuillContentlinkModule,
 	ContentlinkBlot,
+	QuillContentlinkModule,
 } from "./../components/quill_content_link";
+import Counter from "./../components/quill_counter";
+import quillCustomHandlers from "../components/quill_custom_handlers";
 import {
 	QuillLinkFormat,
 	QuillLinkModule,
 } from "../components/quill_custom_link";
-import {
-	SmartBreak,
-	lineBreakMatcher,
-	lineBreakHandler,
-} from "../components/quill_smart_break";
 import handleEnter from "../components/quill_enter_handler";
+import {
+	lineBreakHandler,
+	lineBreakMatcher,
+	SmartBreak,
+} from "../components/quill_smart_break";
 import domElementHelpers from "../helpers/dom_element_helpers";
 import quillHelpers from "./../helpers/quill_helpers";
-import quillCustomHandlers from "../components/quill_custom_handlers";
+
 const icons = Quill.import("ui/icons");
+
 import castArray from "lodash/castArray";
 import debounce from "lodash/debounce";
 
@@ -232,7 +234,7 @@ class TextEditor {
 		quillHelpers.updateEditors(this.editor.container, true);
 	}
 	updateSilentHandler(..._args) {
-		quillHelpers.updateEditors(this.editor.container, false);
+		quillHelpers.updateEditors(this.editor.container, true);
 	}
 	updateEditorHandler(range, ..._args) {
 		if (range == null) {

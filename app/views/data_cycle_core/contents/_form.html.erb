@@ -11,8 +11,49 @@
   <%= hidden_field_tag :locale, @locale %>
   <%= content_for :additional_form_fields %>
   <% merge_view = local_assigns[:link_action] == :merge_with_duplicate %>
+  <% rendered_keys = [] %>
 
   <div class="edit-form-content <%= 'flex-box' if split_source %>">
+    <% content_for(:content_form, flush:true) do %>
+      <div class="row <%= 'split-content edit-content' if split_source %>" data-id="<%= content&.id %>">
+        <div class="column">
+          <div class="detail-header editor <%= content&.template_name&.underscore_blanks %>">
+            <div class="detail-header-info">
+              <%= tag.b(
+              t('duplicate.original', locale: active_ui_locale) + ':',
+              class: 'meta-data-prefix success-color',
+              data: { dc_tooltip: t('duplicate.original_tooltip', locale: active_ui_locale) }
+            ) if merge_view %>
+              <%= render 'data_cycle_core/contents/meta_data', content: content, html_class: merge_view ? 'success-color' : '' %>
+              <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
+            </div>
+
+            <%= render 'data_cycle_core/contents/version_and_status', local_assigns.slice(:content, :key_prefix) if content.property_definitions.slice(*DataCycleCore::Feature::Releasable.allowed_attribute_keys(content)).present? || DataCycleCore::Feature::NamedVersion.enabled? %>
+
+            <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
+
+            <%
+              ordered_validation_properties(validation: content.schema, scope: :edit).except(*DataCycleCore::Feature::Releasable.allowed_attribute_keys(content)).presence&.each do |key, prop|
+                rendered = render_attribute_editor(
+                  content: content,
+                  key: key,
+                  prefix: key_prefix,
+                  value: content.try(key.to_sym),
+                  definition: prop,
+                  parameters: { options: {}, hide_embedded: @hide_embedded }
+                )
+
+                if rendered.present?
+                  rendered_keys.concat(keys_for_definition(content, key, prop))
+                  concat rendered
+                end
+              end
+            %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <% if split_source %>
       <% I18n.with_locale(split_source.first_available_locale(@source_locale)) do %>
         <div class="row split-content detail-content"
@@ -46,43 +87,17 @@
               <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: active_ui_locale), class: 'close-source-link' %>
             </div>
 
-            <%= render_content_partial 'details', content: split_source, options: { force_render: true }, default: true %>
+            <%= render_content_partial(
+              'details',
+              content: split_source,
+              options: { force_render: true, whitelist_keys: rendered_keys, scope: :edit },
+              default: true
+            ) %>
           </div>
         </div>
       <% end %>
     <% end %>
 
-    <div class="row <%= 'split-content edit-content' if split_source %>" data-id="<%= content&.id %>">
-      <div class="column">
-        <div class="detail-header editor <%= content&.template_name&.underscore_blanks %>">
-          <div class="detail-header-info">
-            <%= tag.b(
-              t('duplicate.original', locale: active_ui_locale) + ':',
-              class: 'meta-data-prefix success-color',
-              data: { dc_tooltip: t('duplicate.original_tooltip', locale: active_ui_locale) }
-            ) if merge_view %>
-            <%= render 'data_cycle_core/contents/meta_data', content: content, html_class: merge_view ? 'success-color' : '' %>
-            <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
-          </div>
-
-          <%= render 'data_cycle_core/contents/version_and_status', local_assigns.slice(:content, :key_prefix) if content.property_definitions.slice(*DataCycleCore::Feature::Releasable.allowed_attribute_keys(content)).present? || DataCycleCore::Feature::NamedVersion.enabled? %>
-
-          <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
-
-          <%
-            ordered_validation_properties(validation: content.schema, scope: :edit).except(*DataCycleCore::Feature::Releasable.allowed_attribute_keys(content)).presence&.each do |key, prop|
-              concat render_attribute_editor(
-                content: content,
-                key: key,
-                prefix: key_prefix,
-                value: content.try(key.to_sym),
-                definition: prop,
-                parameters: { options: {}, hide_embedded: @hide_embedded }
-              )
-            end
-          %>
-        </div>
-      </div>
-    </div>
+    <%= yield_content!(:content_form) %>
   </div>
 <% end %>

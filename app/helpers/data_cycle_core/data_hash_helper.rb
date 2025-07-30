@@ -36,12 +36,13 @@ module DataCycleCore
       label_html
     end
 
-    def ordered_validation_properties(validation:, type: nil, content_area: nil, scope: :edit, exclude_types: [], exclude_keys: [])
+    def ordered_validation_properties(validation:, type: nil, content_area: nil, scope: :edit, exclude_types: [], exclude_keys: [], whitelist_keys: [])
       return if validation.nil? || validation['properties'].blank?
 
       ordered_props = {}
 
       validation['properties'].sort_by { |_, prop| prop['sorting'] }.each do |key, prop|
+        next if whitelist_keys.present? && Array.wrap(whitelist_keys).exclude?(key)
         next if Array.wrap(exclude_keys).include?(key)
         next if Array.wrap(exclude_types).include?(prop['type'])
         next if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
@@ -53,6 +54,19 @@ module DataCycleCore
       end
 
       ordered_props
+    end
+
+    def keys_for_definition(content, key, definition)
+      return [] unless attribute_editable?(key, definition, {}, content, :edit)
+      return [key] if definition.blank? || definition['type'] != 'attribute_group'
+
+      keys = []
+
+      definition['properties']&.each do |k, v|
+        keys.concat(keys_for_definition(content, k, v))
+      end
+
+      keys
     end
 
     def content_header_classification_aliases(content:, scope: :show, context: :show)
