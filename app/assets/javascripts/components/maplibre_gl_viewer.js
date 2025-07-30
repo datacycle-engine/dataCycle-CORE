@@ -461,7 +461,7 @@ class MapLibreGlViewer {
 		}
 	}
 	drawFilterFeatures() {
-		if (this.filterLayers?.concept_ids?.length) {
+		if (this.filterLayers?.concept_ids) {
 			const key = "filter_concept_ids";
 			const tileUrl = this._conceptIdsVectorUrl()?.url;
 			const ids = this.filterLayers?.concept_ids.length;

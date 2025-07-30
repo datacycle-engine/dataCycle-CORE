@@ -76,10 +76,6 @@ module DataCycleCore
         @cluster && (@cluster_max_zoom.blank? || @cluster_max_zoom >= @z.to_i)
       end
 
-      def cluster?
-        @cluster && (@cluster_max_zoom.blank? || @cluster_max_zoom >= @z.to_i)
-      end
-
       def content_select_sql
         [
           'things.id AS id',

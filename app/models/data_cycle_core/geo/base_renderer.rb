@@ -131,17 +131,6 @@ module DataCycleCore
         }
       end
 
-      def include_internal_content_score
-        {
-          identifier: '"dc:contentScore"',
-          select: "MAX((thing_translations.content ->> 'internal_content_score')::integer) FILTER (
-            WHERE thing_translations.content ->> 'internal_content_score' IS NOT NULL
-          )",
-          joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
-                      AND thing_translations.locale = '#{I18n.locale}'"
-        }
-      end
-
       def cache_key
         @cache_key ||= Digest::SHA1.hexdigest(main_sql)
       end
