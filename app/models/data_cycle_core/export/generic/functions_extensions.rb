@@ -12,8 +12,10 @@ module DataCycleCore
           webhook = utility_object.webhook_job_class
           queue_method = synchronous_webhooks?(data, utility_object) ? :perform_now : :perform_later
           apply_webhook_params!(webhook, data)
+          webhook = webhook.set(wait: utility_object.wait_time) if utility_object.wait_time.present?
 
-          job_args = {
+          webhook.send(
+            queue_method,
             data_object:,
             action: utility_object.action,
             external_system_id: external_system.id,
@@ -23,13 +25,7 @@ module DataCycleCore
             path: utility_object.path,
             endpoint_method: utility_object.endpoint_method,
             transformation: utility_object.transformation
-          }
-
-          if queue_method == :perform_later && utility_object.wait_time.present?
-            webhook.set(wait: utility_object.wait_time).perform_later(**job_args)
-          else
-            webhook.send(queue_method, **job_args)
-          end
+          )
         end
 
         def synchronous_webhooks?(data, utility_object)
