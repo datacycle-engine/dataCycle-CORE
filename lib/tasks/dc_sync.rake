@@ -64,5 +64,40 @@ namespace :dc do
         thing.execute_update_webhooks
       end
     end
+
+    desc 'trigger all webhhooks, previously failed'
+    task :update_failed, [:external_system_id] => :environment do |_, args|
+      abort('external_system_id missing!') if args.external_system_id.blank?
+      external_system = DataCycleCore::ExternalSystem.find_by(id: args.external_system_id)
+      abort('external_system not found!') if external_system.nil?
+
+      external_system_syncs = DataCycleCore::ExternalSystemSync.where(external_system_id: args.external_system_id, status: 'failure', sync_type: 'export')
+      external_system_syncs.find_each do |item|
+        thing = DataCycleCore::Thing.find(item.syncable_id)
+        if thing.present?
+          thing.allowed_webhooks = [external_system.name]
+          thing.execute_update_webhooks
+        end
+        binding.pry if thing.blank?
+      end
+    end
+
+    desc 'set all pending/waiting syncs to failed'
+    task :reset_pending, [:external_system_id] => :environment do |_, args|
+      abort('external_system_id missing!') if args.external_system_id.blank?
+      external_system = DataCycleCore::ExternalSystem.find_by(id: args.external_system_id)
+      abort('external_system not found!') if external_system.nil?
+
+      DataCycleCore::ExternalSystemSync
+        .where(external_system_id: args.external_system_id, status: 'pending')
+        .find_each do |item|
+          item.status = 'failure'
+          data_hash = item.data
+          data_hash.delete('job_id')
+          data_hash['job_status'] = 'error'
+          item.data = data_hash
+          item.save
+        end
+    end
   end
 end
