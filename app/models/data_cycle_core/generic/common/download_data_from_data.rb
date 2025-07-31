@@ -175,7 +175,7 @@ module DataCycleCore
           end
 
           pipelines <<  {
-            '$match' => { 'id' => { '$ne' => nil } }
+            '$match' => { 'id' => { '$nin' => [nil, ''] } }
           }
 
           pipelines
