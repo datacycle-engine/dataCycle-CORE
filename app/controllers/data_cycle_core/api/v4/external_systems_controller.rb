@@ -85,7 +85,10 @@ module DataCycleCore
 
         def data_from_request(content)
           to_timeseries = ->(s) { { thing_id: content.id, property: s[0], timestamp: s[1], value: s[2] } }
-          mapper = ->(s, a) { s&.map { |v| to_timeseries.call(v.unshift(a)) } }
+          mapper = lambda { |s, a|
+            s = [s] unless s&.first.is_a?(Array)
+            s&.map { |v| to_timeseries.call(v.unshift(a)) }
+          }
 
           if csv_request?
             csv = CSV.parse(request.body)
