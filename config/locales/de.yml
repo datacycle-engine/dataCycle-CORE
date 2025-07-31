@@ -319,7 +319,10 @@ de:
       agbs: AGBs müssen akzeptiert werden!
       error: "Fehler:"
       warning: "Warnung:"
-      ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
+      warnings_header: "Warnungen"
+      warnings_intro: "Es sind Warnungen vorhanden:"
+      ignore_warnings: Soll der Inhalt trotzdem gespeichert werden?
+      save_with_warnings: Trotzdem speichern
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
       final_save_warning: 'Um den Inhalt final abzuschicken, muss die ensprechende Checkbox<br><i class="callout inline warning">%{text}</i> angeklickt werden.'
       errors:
