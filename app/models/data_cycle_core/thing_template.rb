@@ -8,17 +8,18 @@ module DataCycleCore
     scope :without_template_names, ->(template_names) { where.not(template_name: template_names) }
     scope :with_default_data_type, lambda { |classification_alias_names|
       template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
-
       where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
-    }
-    scope :with_schema_type, lambda { |schema_type|
-      where('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
     }
 
     scope :without_default_data_type, lambda { |classification_alias_names|
       template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
       where.not("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
     }
+
+    scope :with_schema_type, lambda { |schema_type|
+      where('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
+    }
+
     scope :without_schema_type, lambda { |schema_type|
       where.not('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
     }

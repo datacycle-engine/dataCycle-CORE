@@ -72,12 +72,12 @@ module DataCycleCore
       [
         { method: 'with_default_data_type', value: extract_aliases(definition, 'Inhaltstypen')},
         { method: 'with_schema_type', value: extract_aliases(definition, 'SchemaTypes')},
-        { method: 'with_schema_classification_paths', value: extract_classification_paths(definition, with_not: false).filter { _1.include?('SchemaTypes') } },
-        { method: 'with_content_classification_paths', value: extract_classification_paths(definition, with_not: false).filter { _1.include?('Inhaltstypen') } },
+        { method: 'with_schema_classification_paths', value: extract_classification_paths(definition, with_not: false).filter { |item| item.include?('SchemaTypes') } },
+        { method: 'with_content_classification_paths', value: extract_classification_paths(definition, with_not: false).filter { |item| item.include?('Inhaltstypen') } },
         { method: 'without_default_data_type', value: extract_aliases(definition, 'Inhaltstypen', with_not: true) },
         { method: 'without_schema_type', value: extract_aliases(definition, 'SchemaTypes', with_not: true) },
-        { method: 'without_schema_classification_paths', value: extract_classification_paths(definition, with_not: true).filter { _1.include?('SchemaTypes') } },
-        { method: 'without_content_classification_paths', value: extract_classification_paths(definition, with_not: true).filter { _1.include?('Inhaltstypen') } }
+        { method: 'without_schema_classification_paths', value: extract_classification_paths(definition, with_not: true).filter { |item| item.include?('SchemaTypes') } },
+        { method: 'without_content_classification_paths', value: extract_classification_paths(definition, with_not: true).filter { |item| item.include?('Inhaltstypen') } }
       ]
     end
   end
