@@ -171,6 +171,10 @@ module DataCycleCore
         rule do
           base.failure(:reserved_property_name) if !_contract.is_a?(ObjectPropertyContract) && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
         end
+
+        rule do
+          base.failure(:data_type_not_string) if property_name.to_s == 'data_type' && values.key?(:default_value) && !values[:default_value].is_a?(String)
+        end
       end
     end
   end

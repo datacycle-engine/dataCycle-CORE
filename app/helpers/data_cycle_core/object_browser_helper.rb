@@ -23,13 +23,9 @@ module DataCycleCore
     end
 
     def object_browser_new_form_parameters(form_parameters, definition)
-      if definition&.dig('template_name').present?
-        new_template = DataCycleCore::ThingTemplate.find_by(template_name: definition&.dig('template_name'))
-
-        return if new_template.nil? || cannot?(:create, new_template.template_thing, 'object_browser')
-        return form_parameters.merge(template: new_template)
-      end
-
+      # stored_filter should primarily be used for creating new content
+      # if it is not present, we try to find a template by name
+      # some definitions might have both, a stored_filter and template_name
       if definition&.dig('stored_filter').present?
         filters = filter_definition(definition)&.select { |f| f[:value].present? }
 
@@ -49,6 +45,13 @@ module DataCycleCore
         return if creatable_templates.blank?
         return form_parameters.merge(template: creatable_templates.first) if creatable_templates.length == 1
         return form_parameters.merge(query_filter)
+      end
+
+      if definition&.dig('template_name').present?
+        new_template = DataCycleCore::ThingTemplate.find_by(template_name: definition&.dig('template_name'))
+
+        return if new_template.nil? || cannot?(:create, new_template.template_thing, 'object_browser')
+        return form_parameters.merge(template: new_template)
       end
 
       nil

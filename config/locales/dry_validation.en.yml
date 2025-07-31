@@ -18,6 +18,7 @@ en:
           missing_schema_type_or_ancestors: "schema_type or schema_ancestors have to be defined."
         reserved_property_name: "property name is reserved as database column"
         strategy_required: ":import_strategy or :download_strategy must be defined"
+        data_type_not_string: data_type default_value must be a string
       uuid_or_list_of_uuid?: "must be a valid UUID or a list of UUIDs separated by commas"
       fields_wildcard?: "wildcard must only appear at the end of a field or not at all"
       api_sort_parameter?: "must be a valid sort parameter"
