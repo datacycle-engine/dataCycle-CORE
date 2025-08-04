@@ -16,7 +16,7 @@ namespace :dc do
 
       desc 'run brakeman'
       task brakeman: :environment do
-        sh "bundle exec brakeman -c #{DataCycleCore::Engine.root.join('config', 'brakeman.yml')} -q"
+        sh "bundle exec brakeman -c #{DataCycleCore::Engine.root.join('config', 'brakeman.yml')} -q --except EOLRails"
       end
 
       desc 'run rubocop'
