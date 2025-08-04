@@ -112,3 +112,9 @@ ActiveSupport::Notifications.subscribe('object_browser.stored_filter.unknown') d
     logger.dc_log(:error, data)
   end
 end
+
+ActiveSupport::Notifications.subscribe('feratel_deskline_organisation_access_denied.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'datacycle') do |logger|
+    logger.dc_log(:warn, data)
+  end
+end
