@@ -451,9 +451,9 @@ GEM
       ruby-rc4
       ttfunk
     pdfkit (0.8.7.3)
-    pg (1.6.0)
-    pg (1.6.0-x86_64-darwin)
-    pg (1.6.0-x86_64-linux)
+    pg (1.6.1)
+    pg (1.6.1-x86_64-darwin)
+    pg (1.6.1-x86_64-linux)
     pp (0.6.2)
       prettyprint
     premailer (1.27.0)
@@ -474,7 +474,7 @@ GEM
       date
       stringio
     public_suffix (6.0.2)
-    puma (6.6.0)
+    puma (6.6.1)
       nio4r (~> 2.0)
     puma-status (1.7)
       net_http_unix (~> 0.2)
@@ -539,7 +539,7 @@ GEM
       psych (>= 4.0.0)
     redcarpet (3.6.1)
     redis (4.8.1)
-    regexp_parser (2.10.0)
+    regexp_parser (2.11.0)
     reline (0.6.2)
       io-console (~> 0.5)
     request_store (1.7.0)
