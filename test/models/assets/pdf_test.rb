@@ -6,6 +6,7 @@ module DataCycleCore
   module Assets
     class PdfTest < ActiveSupport::TestCase
       include DataCycleCore::ActiveStorageHelper
+
       def setup
         @pdf_temp = DataCycleCore::Pdf.count
       end

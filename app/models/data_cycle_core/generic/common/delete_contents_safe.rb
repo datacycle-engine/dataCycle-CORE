@@ -43,7 +43,7 @@ module DataCycleCore
             contents = contents.where(template_name: template_names) if template_names.present?
             linked_template_names = Array.wrap(options.dig(:import, :linked_template_name))
 
-            contents.each do |content|
+            contents.find_each do |content|
               if content.available_locales.one? && content.available_locales.include?(I18n.locale)
                 duplicates = content.external_system_syncs.where(sync_type: 'duplicate')
                 if options.dig(:import, :delete_all_duplicates)
@@ -56,7 +56,7 @@ module DataCycleCore
               end
 
               if oldest_import_duplicate.nil?
-                content.try(:destroy_content, save_history: true, destroy_linked: { template_names: linked_template_names }, destroy_locale: true) # delete only a particular translation!
+                content.try(:destroy, save_history: true, destroy_linked: { template_names: linked_template_names }, destroy_locale: true) # delete only a particular translation!
               else
                 content.update_columns(external_source_id: oldest_import_duplicate.external_system_id, external_key: oldest_import_duplicate.external_key) unless DataCycleCore::Thing.exists?(
                   external_source_id: oldest_import_duplicate.external_system_id,

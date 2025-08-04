@@ -1,6 +1,10 @@
 <% if !object.nil? # catch errors when remote-rendering embedded for deleted content %>
   <% I18n.with_locale(local_assigns[:locale]) do %>
-    <% validation_properties = ordered_validation_properties(validation: object.schema, scope: :show, exclude_keys: object.history? ? object.virtual_property_names : []) %>
+    <% validation_properties = ordered_validation_properties(
+      validation: object.schema,
+      scope: local_assigns.dig(:options, :scope)&.to_sym || :show,
+      exclude_keys: object.history? ? object.virtual_property_names : []
+    ) %>
     <% item_diff = object.diff(local_assigns[:diff_target]&.get_data_hash) if changes_by_mode(options.dig('item_diff'), '~').present? %>
     <% validation_properties&.each do |embedded_key, prop| %>
       <% next if prop&.dig('inverse_of') == key.attribute_name_from_key %>
@@ -10,6 +14,7 @@
       <%= render_attribute_viewer key: "#{key}[#{index}][#{embedded_key}]",
                                 definition: prop,
                                 value: object_value,
+                                scope: local_assigns.dig(:options, :scope)&.to_sym || :show,
                                 parameters: {
                                   options: object_viewer_history_options(**local_assigns.merge({ key: embedded_key, item_diff: item_diff })),
                                   parent: object,

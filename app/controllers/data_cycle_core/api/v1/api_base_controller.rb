@@ -11,6 +11,7 @@ module DataCycleCore
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
         include DataCycleCore::ApiBeforeActions
+
         helper DataCycleCore::ApiHelper
 
         DEFAULT_PAGE_SIZE = 25

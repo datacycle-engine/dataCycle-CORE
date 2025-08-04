@@ -37,7 +37,7 @@ module DataCycleCore
 
             count += 1
             if count < 10
-              slug = "#{slugified_value}-#{count}"
+              "#{slugified_value}-#{count}"
             else
               slug = "#{slugified_value}-#{rand(36**8).to_s(36)}"
             end

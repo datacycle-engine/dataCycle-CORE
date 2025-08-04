@@ -322,7 +322,7 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = { '$match' => { 'id' => { '$ne' => nil } } }
+      exp = { '$match' => { 'id' => { '$nin' => [nil, ''] } } }
       assert_equal exp, pipelines.last
     end
 
@@ -406,7 +406,7 @@ module DataCycleCore
           {'$group' => {'_id' => '$data.id', 'data' => {'$first' => '$data'}}},
           {'$replaceRoot' => {'newRoot' => '$data'}},
           {'$addFields' => {'name' => {'$trim' => {'input' => {'$toString' => '$name'}}}}},
-          {'$match' => {'id' => {'$ne' => nil}}}
+          {'$match' => {'id' => {'$nin' => [nil, '']}}}
         ]
         assert_equal exp, pipelines
       end
@@ -434,7 +434,7 @@ module DataCycleCore
           {'$group' => {'_id' => '$data.id', 'data' => {'$first' => '$data'}}},
           {'$replaceRoot' => {'newRoot' => '$data'}},
           {'$addFields' => {'name' => {'$trim' => {'input' => {'$toString' => '$name'}}}}},
-          {'$match' => {'id' => {'$ne' => nil}}}
+          {'$match' => {'id' => {'$nin' => [nil, '']}}}
         ]
         assert_equal exp, pipelines
       end
@@ -471,7 +471,7 @@ module DataCycleCore
           {'$replaceRoot' => {'newRoot' => '$data'}},
           {'$addFields' => {'name' => {'$trim' => {'input' => {'$toString' => '$name'}}}}},
           {'$project' => {'attr1' => 1, 'attr2' => 1, 'id' => 1, 'name' => 1, 'external_system' => 1}},
-          {'$match' => {'id' => {'$ne' => nil}}}
+          {'$match' => {'id' => {'$nin' => [nil, '']}}}
         ]
         assert_equal exp, pipelines
       end

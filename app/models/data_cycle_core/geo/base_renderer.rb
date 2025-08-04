@@ -27,7 +27,7 @@ module DataCycleCore
           config << include_name(key) if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
           config << include_slug(key) if field_required?('dc:slug')
           config << include_dc_classification(key) if field_required?('dc:classification')
-          config << include_image(key) if !is_a?(MvtRenderer) && field_required?('image') # image only works for GeoJSON
+          config << include_image(key) if field_required?('image') # image only works for GeoJSON
           config << include_internal_content_score(key) if field_required?('dc:contentScore')
 
           h[key] = config
@@ -98,7 +98,7 @@ module DataCycleCore
         }
       end
 
-      def include_image(_base_table = 'things')
+      def include_image(base_table = 'things')
         fields_parameters = @fields_parameters.select { |p| p.first == 'image' }.map { |p| p.except('image') }.compact_blank.flatten
         include_parameters = @include_parameters.select { |p| p.first == 'image' }.map { |p| p.except('image') }.compact_blank.flatten
         json_object = []
@@ -116,7 +116,7 @@ module DataCycleCore
                 FROM content_content_links
                   INNER JOIN things ON things.id = content_content_links.content_b_id
                 WHERE content_content_links.relation = 'image'
-              ) AS tmp2 ON tmp2.thing_id = things.id"
+              ) AS tmp2 ON tmp2.thing_id = #{base_table}.id"
         }
       end
 

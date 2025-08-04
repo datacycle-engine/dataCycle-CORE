@@ -28,13 +28,11 @@ class AdditionalAttributePartialCheckbox {
 	}
 	checkForValuePresence(_event) {
 		const formData = DomElementHelpers.getFormData(this.formElement);
+		const hasValue = Array.from(formData).some(
+			(data) => !data[0]?.startsWith(this.context) && data[1]?.length,
+		);
 
-		if (
-			Array.from(formData).some(
-				(data) => !data[0]?.startsWith(this.context) && data[1]?.length,
-			)
-		)
-			this.enableDefaultInput();
+		if (hasValue) this.enableDefaultInput();
 		else this.disableAllInputs();
 	}
 	initInput(input) {

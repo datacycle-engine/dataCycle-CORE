@@ -3,6 +3,7 @@
 module DataCycleCore
   class Concept < ApplicationRecord
     extend ::Mobility
+
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n.order(order_a: :asc, id: :asc) }
     before_validation :set_internal_name

@@ -15,6 +15,7 @@ module DataCycleCore
       prepend Content::ContentOverlay
 
       extend ::Mobility
+
       translates :slug, :content, backend: :table
       default_scope { i18n.includes(:thing_template) }
 
@@ -86,6 +87,7 @@ module DataCycleCore
     has_many :thing_history_links, dependent: :delete_all, class_name: 'DataCycleCore::ThingHistoryLink', inverse_of: :thing
 
     extend ::Mobility
+
     translates :slug, :content, backend: :table
     default_scope { i18n.includes(:thing_template) }
 

@@ -3,6 +3,7 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
     include DataCycleCore::FilterConcern
+
     include DataCycleCore::Feature::ControllerFunctions::ContentLock if DataCycleCore::Feature::ContentLock.enabled?
     include DataCycleCore::BulkUpdateTypes
 

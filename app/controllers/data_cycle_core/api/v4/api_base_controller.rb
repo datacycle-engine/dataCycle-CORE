@@ -13,6 +13,7 @@ module DataCycleCore
         include DataCycleCore::ErrorHandler
         include DataCycleCore::ApiService
         include DataCycleCore::ApiBeforeActions
+
         helper DataCycleCore::ApiHelper
 
         wrap_parameters format: []

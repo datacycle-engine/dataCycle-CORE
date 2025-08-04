@@ -133,7 +133,7 @@ module DataCycleCore
               t.id as "@id"
               #{includes.map { |c| "#{c[:select]} AS #{c[:identifier]}" }.join(', ').presence&.prepend(', ')}
             FROM contents as t
-            #{includes.pluck(:joins).join(' ')}
+            #{includes.pluck(:joins).uniq.join(' ')}
             GROUP BY t.id
           )
           #{as_mvt_select};
@@ -179,7 +179,7 @@ module DataCycleCore
             contents.id AS "@id"
             #{includes.map { |c| "#{c[:select]} AS #{c[:identifier]}" }.join(', ').presence&.prepend(', ')}
           FROM contents
-          #{includes.pluck(:joins).join(' ')}
+          #{includes.pluck(:joins).uniq.join(' ')}
           WHERE contents.geometry_type NOT IN (#{allowed_geometry_types})
           GROUP BY contents.id
         SQL
@@ -208,7 +208,7 @@ module DataCycleCore
               ) AS "item",
             mvtgeom.id AS id
             FROM mvtgeom
-            #{includes.pluck(:joins).join(' ')}
+            #{includes.pluck(:joins).uniq.join(' ')}
             WHERE mvtgeom.cluster_id IS NOT NULL
             GROUP BY mvtgeom.id
           ) clustered_contents ON clustered_contents.id = mvtgeom.id
@@ -265,7 +265,7 @@ module DataCycleCore
               mvtgeom.id as "@id"
               #{includes.map { |c| "#{c[:select]} AS #{c[:identifier]}" }.join(', ').presence&.prepend(', ')}
             FROM mvtgeom
-            #{includes.pluck(:joins).join(' ')}
+            #{includes.pluck(:joins).uniq.join(' ')}
             WHERE mvtgeom.cluster_id IS NULL
             GROUP BY mvtgeom.id
             #{mvt_cluster_unclustered_sql unless @cluster_lines && @cluster_polygons}

@@ -1,5 +1,5 @@
-import NewContentDialog from "./../components/new_content_dialog";
 import DragAndDropField from "../components/drag_and_drop_field";
+import NewContentDialog from "./../components/new_content_dialog";
 import loadingIcon from "../templates/loadingIcon";
 
 export default function () {

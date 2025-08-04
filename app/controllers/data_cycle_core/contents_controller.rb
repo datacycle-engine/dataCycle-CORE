@@ -201,8 +201,8 @@ module DataCycleCore
 
           format.json do
             render json: {
-              html: @content.present? ? render_to_string(formats: [:html], layout: false, assigns: { objects: Array.wrap(@content) }).strip : nil,
-              detail_html: @content.present? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, assigns: { object: @content }).strip : nil,
+              html: @content&.persisted? ? render_to_string(formats: [:html], layout: false, assigns: { objects: Array.wrap(@content) }).strip : nil,
+              detail_html: @content&.persisted? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, assigns: { object: @content }).strip : nil,
               ids: Array.wrap(@content&.id),
               **flash.discard.to_h
             }

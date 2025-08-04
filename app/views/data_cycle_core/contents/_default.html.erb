@@ -5,8 +5,9 @@
     <% ordered_validation_properties(
         validation: content.schema,
         content_area: local_assigns.dig(:options, :force_render).to_s == 'true' ? '' : 'content',
-        scope: :show,
-        exclude_types: local_assigns.dig(:options, :exclude_types)
+        scope: local_assigns.dig(:options, :scope)&.to_sym || :show,
+        exclude_types: local_assigns.dig(:options, :exclude_types),
+        whitelist_keys: local_assigns.dig(:options, :whitelist_keys) || []
       ).except(DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.first).each do |key, prop| %>
 
       <%= render_attribute_viewer key: "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[#{key}]",

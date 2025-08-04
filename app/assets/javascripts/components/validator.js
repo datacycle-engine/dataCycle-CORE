@@ -565,13 +565,17 @@ class Validator {
 		for (const warning of confirmations.warnings) {
 			const label = warning.label || warning.element.dataset.label;
 			const tooltip = Object.values(warning.warnings).join(", ");
-			messages.push(`<b data-dc-tooltip='${tooltip}'>${label}</b>`);
+			messages.push(
+				`<div class="callout warning"><b>${label}:</b> ${tooltip}</div>`,
+			);
 		}
 
 		return new ConfirmationModal({
-			text: await I18n.translate("frontend.validate.ignore_warnings", {
-				data: messages,
-			}),
+			confirmationHeaderText: await I18n.translate(
+				"frontend.validate.warnings_header",
+			),
+			text: `<p>${await I18n.translate("frontend.validate.warnings_intro")}</p>${messages.join("")}<p>${await I18n.translate("frontend.validate.ignore_warnings")}</p>`,
+			confirmationText: `${await I18n.translate("frontend.validate.save_with_warnings")} <i class="fa fa-exclamation-triangle"></i>`,
 			confirmationClass: "warning",
 			cancelable: true,
 			confirmationCallback: () => {
@@ -644,7 +648,8 @@ class Validator {
 			this.$form.closest(".reveal").hasClass("in-object-browser") ||
 			this.$contentUploader
 		) {
-			return this.$form.trigger("dc:form:submitWithoutRedirect", confirmations);
+			this.$form.trigger("dc:form:submitWithoutRedirect", confirmations);
+			return;
 		}
 
 		$(window).off("beforeunload", this.eventHandlers.beforeunload);
@@ -660,9 +665,9 @@ class Validator {
 				)}">`,
 			);
 
-		if (this.$form.data("remote"))
+		if (this.$form.data("remote")) {
 			Rails.fire(this.$form[0], "submit", { dcFormSubmitted: true });
-		else this.$form[0].submit();
+		} else this.$form[0].submit();
 	}
 	resolveRequests(submit = false, eventData = {}) {
 		let submitForm = submit;

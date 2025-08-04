@@ -1,0 +1,35 @@
+# must remain in core, as multiple connectors use these translations
+en:
+  import:
+    outdoor_active:
+      place:
+        directions: Approach
+        parking: Parking
+        hours_available: Opening hours
+        text: Description
+        price: Price
+        description: Brief description
+        directions_public_transport: Public transport
+      tour:
+        directions: Approach
+        parking: Parking
+        hours_available: Opening hours
+        text: Description
+        price: Price
+        description: Brief description
+        directions_public_transport: Public transport
+        instructions: Directions
+        safety_instructions: Safety instructions
+        equipment: Equipment
+        suggestion: Tips
+        additional_information: Additional information
+        maps: Literature
+        starting_point_descr: Starting Point
+        destination: Destination
+      ratings:
+        technique_rating: Technique
+        condition_rating: Stamina
+        experience_rating: Experience
+        landscape_rating: Landscape
+        difficulty_rating: Difficulty
+        panoramic_view_rating: Panoramic view

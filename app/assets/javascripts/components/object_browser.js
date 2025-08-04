@@ -4,11 +4,11 @@ import isEqual from "lodash/isEqual";
 import sortBy from "lodash/sortBy";
 import union from "lodash/union";
 import { Sortable } from "sortablejs";
+import ConfirmationModal from "./../components/confirmation_modal";
 import CalloutHelpers from "../helpers/callout_helpers";
 import DomElementHelpers from "../helpers/dom_element_helpers";
 import ObserverHelpers from "../helpers/observer_helpers";
 import loadingIcon from "../templates/loadingIcon";
-import ConfirmationModal from "./../components/confirmation_modal";
 
 class ObjectBrowser {
 	constructor(selector) {
@@ -476,6 +476,9 @@ class ObjectBrowser {
 	renderDetailHtml(data) {
 		if (data?.detail_html) this.itemInfoScrollable.innerHTML = data.detail_html;
 	}
+	enableOverlayForm() {
+		$(`#new_${this.id}.in-object-browser form`).trigger("dc:form:enable");
+	}
 	renderNewItems(data) {
 		if (data?.error) {
 			CalloutHelpers.show(data.error, "alert");
@@ -484,6 +487,7 @@ class ObjectBrowser {
 		if (data?.success) CalloutHelpers.show(data.success, "success");
 		if (data?.info) CalloutHelpers.show(data.info, "info");
 
+		this.enableOverlayForm();
 		$(`#new_${this.id}`).foundation("close");
 
 		if (data?.html) {

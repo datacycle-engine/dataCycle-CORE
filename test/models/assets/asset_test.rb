@@ -6,6 +6,7 @@ module DataCycleCore
   module Assets
     class AssetTest < ActiveSupport::TestCase
       include DataCycleCore::ActiveStorageHelper
+
       def setup
         @asset_temp = DataCycleCore::Image.count
       end

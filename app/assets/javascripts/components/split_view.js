@@ -1,8 +1,8 @@
+import isEqual from "lodash/isEqual";
+import uniqWith from "lodash/uniqWith";
 import CalloutHelpers from "./../helpers/callout_helpers";
 import DomElementHelpers from "../helpers/dom_element_helpers";
 import ConfirmationModal from "./confirmation_modal";
-import isEqual from "lodash/isEqual";
-import uniqWith from "lodash/uniqWith";
 
 class SplitView {
 	constructor(container = document) {
@@ -293,6 +293,8 @@ class SplitView {
 		);
 	}
 	async addElementClasses(element) {
+		element.classList.add("dcjs-split-view-buttons");
+
 		if (this.isTranslatable(element)) {
 			await this.addAllButton(element, "translate");
 			element.classList.add(this.buttonMappings.translate.class);

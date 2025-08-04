@@ -131,6 +131,7 @@ en:
     ExternalVideo:
       text: Text
     key_figures_container: Key figures
+    seo_container: SEO
     universal_classifications: Classifications
     copyright_attributes_group: Copyright
     content_classifications_group: Classifications
@@ -506,9 +507,10 @@ en:
       agbs: AGBs must be accepted!
       error: "Error:"
       warning: "Warning:"
-      ignore_warnings:
-        Warnings are present (%{data}).<br>Should the content be saved
-        anyway?</br>
+      warnings_header: "Warnings"
+      warnings_intro: "There are warnings:"
+      ignore_warnings: "Should the content still be saved?"
+      save_with_warnings: "Save anyway"
       final_save: The content is finally sent and <br>cannot be edited afterwards</br>.
       errors:
         no_data: No data specified for %{data}

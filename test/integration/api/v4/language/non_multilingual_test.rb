@@ -8,6 +8,7 @@ module DataCycleCore
       module Language
         class NonMultilingualTest < DataCycleCore::V4::Base
           include DataCycleCore::ApiHelper
+
           # Testing not mulitlingual thing (Article)
           # only available in language de
           before(:all) do

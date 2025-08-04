@@ -1,0 +1,35 @@
+# must remain in core, as multiple connectors use these translations
+it:
+  import:
+    outdoor_active:
+      place:
+        directions: Approccio
+        parking: Parcheggio
+        hours_available: Orari di apertura
+        text: Descrizione del
+        price: Prezzo
+        description: Breve descrizione
+        directions_public_transport: Trasporto pubblico
+      tour:
+        directions: Approccio
+        parking: Parcheggio
+        hours_available: Orari di apertura
+        text: Descrizione del
+        price: Prezzo
+        description: Breve descrizione
+        directions_public_transport: Trasporto pubblico
+        instructions: Descrizione del percorso
+        safety_instructions: Istruzioni di sicurezza
+        equipment: Attrezzatura
+        suggestion: Suggerimenti
+        additional_information: Informazioni aggiuntive
+        maps: Letteratura
+        starting_point_descr: Inizio
+        destination: Obiettivo
+      ratings:
+        technique_rating: Tecnologia
+        condition_rating: Condizione
+        experience_rating: Esperienza
+        landscape_rating: Paesaggio
+        difficulty_rating: Difficoltà
+        panoramic_view_rating: Vista panoramica
