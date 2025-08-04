@@ -45,20 +45,20 @@
       </span>
 
       <% if geometry_type == 'Point' %>
-        <div class="form-element longitude number">
-          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}" do %>
-            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
-            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>
-          <% end %>
-          <%= number_field_tag key.gsub(key.attribute_name_from_key, 'longitude'), value.presence&.x, class: 'form-control', step: :any, readonly: !attribute_editable?(key, definition, options, content), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}", placeholder: 'z.B. 14,550683' %>
-        </div>
-
         <div class="form-element latitude number">
           <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'latitude'))}" do %>
             <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
             <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>
           <% end %>
           <%= number_field_tag key.gsub(key.attribute_name_from_key, 'latitude'), value.presence&.y, class: 'form-control', step: :any, readonly: !attribute_editable?(key, definition, options, content), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'latitude'))}", placeholder: 'z.B. 47,515785' %>
+        </div>
+
+        <div class="form-element longitude number">
+          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}" do %>
+            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>
+          <% end %>
+          <%= number_field_tag key.gsub(key.attribute_name_from_key, 'longitude'), value.presence&.x, class: 'form-control', step: :any, readonly: !attribute_editable?(key, definition, options, content), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}", placeholder: 'z.B. 14,550683' %>
         </div>
 
         <%= render_attribute_editor key: 'elevation',
