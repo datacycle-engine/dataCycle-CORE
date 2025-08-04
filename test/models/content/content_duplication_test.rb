@@ -27,7 +27,7 @@ module DataCycleCore
 
         content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
 
-        new_content = DataCycleCore::DataHashService.create_duplicate(content:, current_user: @test_user)
+        new_content = content.create_duplicate(current_user: @test_user)
 
         excepted_properties = ['id', 'slug']
         content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
@@ -47,7 +47,7 @@ module DataCycleCore
 
         content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
 
-        new_content = DataCycleCore::DataHashService.create_duplicate(content:, current_user: @test_user)
+        new_content = content.create_duplicate(current_user: @test_user)
 
         excepted_properties = ['id', 'slug']
         content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
@@ -61,7 +61,7 @@ module DataCycleCore
         creative_work_data_hash['author'] = @person.id
         content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
 
-        new_content = DataCycleCore::DataHashService.create_duplicate(content:, current_user: @test_user)
+        new_content = content.create_duplicate(current_user: @test_user)
 
         excepted_properties = ['id', 'author', 'image', 'slug']
 
@@ -75,7 +75,7 @@ module DataCycleCore
         creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_quiz')
         content = DataCycleCore::TestPreparations.create_content(template_name: 'Quiz', data_hash: creative_work_data_hash)
 
-        new_content = DataCycleCore::DataHashService.create_duplicate(content:, current_user: @test_user)
+        new_content = content.create_duplicate(current_user: @test_user)
 
         excepted_properties = ['id', 'slug']
         content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
@@ -95,7 +95,7 @@ module DataCycleCore
 
         content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: content_data_hash)
 
-        new_content = DataCycleCore::DataHashService.create_duplicate(content:, current_user: @test_user)
+        new_content = content.create_duplicate(current_user: @test_user)
 
         excepted_properties = ['id', 'slug'] + content.asset_property_names + content.computed_property_names
 
@@ -136,7 +136,7 @@ module DataCycleCore
 
         assert_equal(2, content.translations.count)
 
-        new_content = DataCycleCore::DataHashService.create_duplicate(content:, current_user: @test_user)
+        new_content = content.create_duplicate(current_user: @test_user)
 
         excepted_properties = ['id', 'author', 'image', 'slug']
 
@@ -172,7 +172,7 @@ module DataCycleCore
 
         assert_equal(2, content.translations.count)
 
-        new_content = DataCycleCore::DataHashService.create_duplicate(content:, current_user: @test_user)
+        new_content = content.create_duplicate(current_user: @test_user)
 
         excepted_properties = ['id', 'slug']
 
