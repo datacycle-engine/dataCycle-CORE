@@ -6,7 +6,7 @@ export function turboConfirmMethod(message, element) {
 			text: message,
 			confirmationText: element.dataset.confirmationText,
 			confirmationHeaderText: element.dataset.confirmationHeaderText,
-			confirmationClass: "alert",
+			confirmationClass: element.dataset.confirmationClass || "alert",
 			cancelable: true,
 			confirmationCallback: resolve.bind(resolve, true),
 			cancelCallback: resolve.bind(resolve, false),
@@ -22,7 +22,7 @@ export default function () {
 			text: message,
 			confirmationText: element.dataset.confirmationText,
 			confirmationHeaderText: element.dataset.confirmationHeaderText,
-			confirmationClass: "alert",
+			confirmationClass: element.dataset.confirmationClass || "alert",
 			cancelable: true,
 			confirmationCallback: () => {
 				element.dataset.confirmed = true;

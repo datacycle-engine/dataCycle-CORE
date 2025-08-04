@@ -232,7 +232,7 @@
                     data: {
                       confirm: safe_join([
                         tag.p(t('actions.delete_items_in_watch_list', locale: active_ui_locale)),
-                        tag.div(t('common.delete_collection_things_html', locale: active_ui_locale), class: 'callout warning'),
+                        tag.div(t('common.delete_collection_things_html', locale: active_ui_locale), class: 'callout alert'),
                       ]),
                       confirmation_text: t('actions.delete_items_in_watch_list_confirmation_text', locale: active_ui_locale) + tag.i(class: 'fa fa-trash'),
                       id: @watch_list.id,
@@ -241,7 +241,7 @@
                         tag.span(class: 'progress-value') +
                         tag.i(class: 'fa fa-spinner fa-spin fa-fw', aria_hidden: true)
                     } do %>
-              <i class="fa fa-trash" aria_hidden="true"></i>
+              <i class="fa fa-bomb" aria_hidden="true"></i>
             <% end %>
           </span>
         <% end %>

@@ -1,10 +1,11 @@
 <%= link_to clear_watch_list_path(watch_list),
             method: :delete,
-            class:'button-prime small alert clear-collection-link',
+            class:'button-prime small warning clear-collection-link',
             data: {
               confirm: "#{t('data_cycle_core.watch_list.clear_warning', data: watch_list.name, locale: active_ui_locale)}",
               confirmation_text: t('actions.clear', locale: active_ui_locale) + tag.span(tag.i(class: 'fa fa-stack-2x fa-list-ul') + tag.i(class: 'fa fa-stack-1x fa-times'), class: 'fa-stack clear-collection-icon'),
               confirmation_header_text: t('actions.clear_tooltip', data: watch_list.name, locale: active_ui_locale),
+              confirmation_class: 'warning',
               dc_tooltip: t('actions.clear_tooltip', data: watch_list.name, locale: active_ui_locale)
             } do %>
   <%= tag.span(tag.i(class: 'fa fa-stack-2x fa-list-ul') + tag.i(class: 'fa fa-stack-1x fa-times'), class: 'fa-stack clear-collection-icon') %>

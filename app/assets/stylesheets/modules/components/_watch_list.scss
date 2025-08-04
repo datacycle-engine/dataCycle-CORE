@@ -481,7 +481,7 @@
       left: 16%;
       top: -17%;
       font-size: 0.8rem;
-      text-shadow: -1px 1px 1px var(--alert-color);
+      text-shadow: -1px 1px 1px var(--warning-color);
     }
   }
 }
@@ -496,7 +496,7 @@
       }
 
       .fa-times {
-        text-shadow: -2px 2px 1px var(--alert-color);
+        text-shadow: -2px 2px 1px var(--warning-color);
         font-size: 1.1rem;
         top: -12%;
         left: 13%;
@@ -517,10 +517,12 @@
         padding: 0.1rem 0.3rem 0.1rem 0.1rem;
 
         .fa-list-ul {
+          color: var(--warning-color);
           font-size: 0.9rem;
         }
 
         .fa-times {
+          color: var(--warning-color);
           text-shadow: -1px 1px 1px var(--white);
           left: 16%;
           top: -17%;
