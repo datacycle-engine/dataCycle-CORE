@@ -5,7 +5,7 @@ module DataCycleCore
     module Compute
       module Copyright
         class << self
-          def copyright_notice(computed_parameters:, content:, **_args)
+          def copyright_notice(computed_parameters:, content:, **args)
             copyright_notice = []
             classification_copyright_notice = []
             cc_license = false
@@ -42,7 +42,8 @@ module DataCycleCore
 
             copyright_notice = copyright_notice.compact.presence&.join(' / ')
             copyright_notice = "#{classification_copyright_notice.compact.presence&.join(' ')}  #{copyright_notice}" if classification_copyright_notice.present?
-            copyright_notice = "(c) #{copyright_notice}" if cc_license.blank? && copyright_notice.present?
+            copyright_prefix = '(c)' unless args.dig(:computed_definition, 'compute', 'prefix_c') == false
+            copyright_notice = "#{copyright_prefix} #{copyright_notice}" if cc_license.blank? && copyright_notice.present?
             copyright_notice
           end
         end
