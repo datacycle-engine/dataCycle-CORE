@@ -272,7 +272,7 @@ module DataCycleCore
         ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
 
         if new_ca.nil?
-          new_parent = ctl.create_classification_alias(*(new_path[1...-1].map { |c| { name: c } }))
+          new_parent = ctl.create_classification_alias(*new_path[1...-1].map { |c| { name: c } })
 
           merge_children_into_self if destroy_children
           move_to_tree(new_parent&.id, ctl.id)
