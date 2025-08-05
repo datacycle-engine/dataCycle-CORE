@@ -33,6 +33,7 @@ module DataCycleCore
       ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
       INTERNAL_PROPERTY_NAMES = ['id', 'external_source_id', 'external_key', 'schema_types', 'data_type'].freeze
+      DUMMY_PROPERTY_NAMES = ['dummy'].freeze
 
       after_update :update_template_defaults, if: :template_name_previously_changed?
 
@@ -285,6 +286,10 @@ module DataCycleCore
         }.keys
       end
 
+      def dummy_property_names
+        DUMMY_PROPERTY_NAMES
+      end
+
       def required_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition.dig('validations', 'required') }
       end
@@ -456,6 +461,10 @@ module DataCycleCore
           schedule_property_names(include_overlay)
       end
 
+      def translatable_embedded_property_names
+        name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && !definition['translated'] }
+      end
+
       def untranslatable_embedded_property_names
         name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition['translated'] }
       end
@@ -512,8 +521,12 @@ module DataCycleCore
         name_property_selector { |definition| definition['exif'].present? }
       end
 
+      def internal_property_names
+        INTERNAL_PROPERTY_NAMES
+      end
+
       def resettable_import_property_names
-        writable_property_names - local_property_names - global_property_names - INTERNAL_PROPERTY_NAMES - computed_without_fallback_property_names
+        writable_property_names - local_property_names - global_property_names - internal_property_names - computed_without_fallback_property_names
       end
 
       # returns data the same way, as .as_json

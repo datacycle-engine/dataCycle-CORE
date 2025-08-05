@@ -318,6 +318,13 @@
   :enabled: false
   :source_lang: de
 
+# inspired by auto_translation, but does not use "Übersetzung" as template
+# translations are generated for the same content, only if "generated_translation" is set to true
+:generated_translation:
+  :enabled: false
+  :dependencies:
+    - translate
+
 :translate:
   :enabled: false
 

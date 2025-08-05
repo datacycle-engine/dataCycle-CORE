@@ -114,6 +114,10 @@ module DataCycleCore
     end
     alias translated_locales available_locales
 
+    def translation_updated_at(locale = I18n.locale)
+      translations.in_locale(locale)&.updated_at
+    end
+
     def self.translated_locales
       DataCycleCore::Thing::Translation.where(thing_id: pluck(:id)).distinct.pluck(:locale)
     end
