@@ -42,12 +42,11 @@
       <h4>
         <i class='fa fa-database' aria-hidden='true'></i> core database
       </h4>
+
+      <% if can? :show_admin_activities, :dash_board %>
+        <%= link_to 'activities', admin_activities_path, class: 'button small hollow' %>
+      <% end %>
     </div>
-    <% if can? :show_admin_activities, :dash_board %>
-      <div class="small-12 columns">
-        <%= link_to 'activities', admin_activities_path, class: 'button small' %>
-      </div>
-    <% end %>
   </div>
 
   <div class="grid-external-modules">
@@ -64,7 +63,7 @@
           <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i> import modules
           <% if can?(:create, DataCycleCore::ExternalSystem) && DataCycleCore.external_system_template_paths.present? %>
             <% random_id = SecureRandom.hex(10) %>
-            <a href="#" class="add-external_system-button" data-open="<%= random_id %>"><i class="fa fa-plus"></i></a>
+            <a href="#" class="add-external_system-button button small hollow" data-open="<%= random_id %>"><i class="fa fa-plus"></i></a>
             <div class="reveal new-item remote-render" id="<%= random_id %>" data-reveal data-remote-path="data_cycle_core/external_systems/new"></div>
           <% end %>
         </h4>

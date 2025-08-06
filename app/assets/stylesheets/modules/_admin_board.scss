@@ -381,9 +381,11 @@ ul.import-data-timestamps li {
 }
 
 .dash_board {
+
   h4 {
     margin-top: 1rem;
-    display: flex;
+    margin-right: 0.5rem;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
 

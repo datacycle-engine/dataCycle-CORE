@@ -535,17 +535,10 @@ ul.backend-treeview-list,
           position: relative;
 
           .create {
-            font-weight: 600;
-            padding: 0.20rem 0.4rem;
             display: inline-flex;
             gap: 0.3rem;
             align-items: center;
             justify-content: center;
-            margin: 0;
-
-            .fa {
-              font-size: 0.9rem;
-            }
           }
         }
 
