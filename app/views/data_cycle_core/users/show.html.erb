@@ -90,7 +90,7 @@
           <%= link_to tag.i(class: 'fa fa-check confirm-link-button', aria_hidden: true, data: { dc_tooltip: t("user.confirm", locale: active_ui_locale) }), confirm_user_path(@user), { method: :post, class: 'button-prime small confirm-link' } %>
         <% end %>
 
-        <% if can?(:become, @user) %>
+        <% if can?(:become, @user) && @user != current_user %>
           <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(@user), class: 'button-prime small become-link', data: { dc_tooltip: t('actions.become', data: @user.email, locale: active_ui_locale) } %>
         <% end %>
 

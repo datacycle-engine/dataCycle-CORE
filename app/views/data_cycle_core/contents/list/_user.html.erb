@@ -85,7 +85,7 @@
       <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(item), method: :post, class:'success unlock-link', data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } %>
     <% end %>
 
-    <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true), user_path(item), method: :delete, class:'alert delete-user-link', data: { confirm: t('user.delete_user_html', locale: active_ui_locale), dc_tooltip: t('actions.delete', locale: active_ui_locale) } if can?(:destroy, item) && !item.deleted? %>
+    <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true), user_path(item), method: :delete, class:'alert delete-user-link', data: { confirm: t('user.delete_user_html', email: CGI::escapeHTML(item.full_name_with_email), locale: active_ui_locale), dc_tooltip: t('actions.delete', locale: active_ui_locale) } if can?(:destroy, item) && !item.deleted? %>
   </div>
 </div>
 
