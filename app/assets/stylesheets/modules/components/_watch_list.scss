@@ -8,13 +8,16 @@
   }
 }
 
-.remove-from-watchlist-link,
+.remove-from-watchlist-link.watch-lists-link {
+  padding: 0.25rem 0.4rem
+}
+
 .dropdown-pane .remove-from-watchlist-link {
-  color: $alert-color !important;
+  color: var(--warning-color) !important;
 
   &:hover,
   &:focus {
-    color: lighten($alert-color, 10%) !important;
+    color: var(--warning-color-05) !important;
   }
 }
 
@@ -38,8 +41,7 @@
 
 .detail-header-functions .change-link .add-to-watchlist-link,
 .detail-header-functions .remove-from-watchlist-link,
-.change-link .add-to-watchlist-link,
-.remove-from-watchlist-link {
+.change-link .add-to-watchlist-link {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -234,6 +236,12 @@
           display: flex;
           align-items: center;
           gap: 0.3rem;
+
+          .content-title {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
 
           >a {
             flex: auto;

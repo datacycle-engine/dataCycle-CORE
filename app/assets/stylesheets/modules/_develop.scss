@@ -2883,15 +2883,6 @@ input.normalized {
         display: block;
       }
 
-      button {
-        background-color: none;
-        border: 1px solid $primary-color;
-        color: $primary-color;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
       span.admin-clipboard-notice {
         position: absolute;
         right: 6rem;

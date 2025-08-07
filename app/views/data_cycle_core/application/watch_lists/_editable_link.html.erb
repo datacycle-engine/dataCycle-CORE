@@ -6,8 +6,7 @@
       <%= link_to_if !linked_watch_lists && can?(:add_item, watch_list), watch_list_list_title(watch_list),
         add_item_watch_list_path(watch_list, thing_id: content),
         class: 'add-to-watchlist-link',
-        remote: true,
-        title: watch_list.name %>
+        remote: true %>
     </span>
     <span class="change-link">
       <% if linked_watch_lists && can?(:remove_item, watch_list) %>
@@ -18,6 +17,7 @@
           data: {
             disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
           }.merge(watch_list.my_selection ? {} : {
+            confirmation_class: 'warning',
             confirm: t('actions.remove_content_from', name: I18n.with_locale(content&.first_available_locale){ content&.title }, collection: watch_list.name, locale: active_ui_locale)
           }) do %>
           <i aria-hidden="true" class="fa fa-times-circle"></i>

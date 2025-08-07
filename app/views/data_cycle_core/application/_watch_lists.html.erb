@@ -2,7 +2,7 @@
 <% if content && !@watch_list&.id.nil? && @watch_list.persisted? && controller_name == 'watch_lists' %>
 
   <%= link_to remove_item_watch_list_path(@watch_list, thing_id: content&.id, load_more: true),
-    class: 'remove-from-watchlist-link watch-lists-link',
+    class: 'remove-from-watchlist-link watch-lists-link button hollow warning small',
     method: :delete,
     data: {
       dc_tooltip: t('actions.remove_from', collection: @watch_list.name, locale: active_ui_locale),

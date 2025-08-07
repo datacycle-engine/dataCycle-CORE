@@ -91,7 +91,7 @@ module DataCycleCore
     def watch_list_list_title(watch_list)
       safe_join([
         watch_list.collection_shares.any? ? tag.i(class: 'fa fa-users') : nil,
-        watch_list.name,
+        tag.span(watch_list.name, class: 'content-title', title: watch_list.name),
         watch_list.api ? tag.span('API', class: 'content-title-api') : nil
       ].compact)
     end
