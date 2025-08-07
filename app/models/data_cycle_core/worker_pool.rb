@@ -2,11 +2,12 @@
 
 module DataCycleCore
   class WorkerPool
-    attr_reader :queue
+    attr_reader :queue, :num_workers
 
-    def initialize(num_workers)
+    def initialize(num_workers = nil)
       @queue = []
-      @pool = Concurrent::FixedThreadPool.new(num_workers) if num_workers&.>(1)
+      @num_workers = num_workers || (ActiveRecord::Base.connection_pool.size / 2).floor
+      @pool = Concurrent::FixedThreadPool.new(@num_workers) if @num_workers&.>(1)
     end
 
     def append_without_db_connection(&)
