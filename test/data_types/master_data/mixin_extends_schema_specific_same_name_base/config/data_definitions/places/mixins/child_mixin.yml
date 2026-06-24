@@ -1,0 +1,9 @@
+---
+- :data:
+    :name: child_mixin
+    :extends: child_mixin
+    :properties:
+      :place_property:
+        :type: string
+        :label: From places child_mixin (extends base)
+        :storage_location: translated_value

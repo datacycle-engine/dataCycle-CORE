@@ -2,7 +2,7 @@
 
 class AddFieldsForWatchListSorting < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE watch_lists ADD COLUMN manual_order BOOLEAN NOT NULL DEFAULT FALSE;
       ALTER TABLE watch_list_data_hashes ADD COLUMN order_a INTEGER NOT NULL DEFAULT 1;
       ALTER TABLE watch_list_data_hashes ALTER COLUMN created_at SET DEFAULT transaction_timestamp();
@@ -27,7 +27,7 @@ class AddFieldsForWatchListSorting < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP INDEX wldh_order_a_idx;
       ALTER TABLE watch_lists DROP COLUMN manual_order;
       ALTER TABLE watch_list_data_hashes DROP COLUMN order_a;

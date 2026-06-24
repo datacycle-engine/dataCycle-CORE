@@ -28,11 +28,12 @@ namespace :dc do
       logger.info("Checking #{to_check.size} contents for unreachable 'content_url' ...")
       puts "Checking #{to_check.size} contents for reachable 'content_url' ..."
 
-      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
+      queue = DataCycleCore::WorkerPool.new
       faraday = Faraday.default_connection
       deleted_ids = []
       delete_proc = lambda do |thing|
         return print(AmazingPrint::Colors.yellow('x')) if !delete_in_use && thing.content_a.exists?
+
         deleted_ids << thing.id
 
         logger.info("Deleting content with id: #{thing.id} and content_url: #{thing.content_url}")
@@ -43,6 +44,7 @@ namespace :dc do
       to_check.find_each do |thing|
         queue.append do
           next print('.') if thing.try(:content_url).blank?
+
           response = faraday.head(thing.content_url)
 
           if response.status == 404
@@ -75,7 +77,7 @@ namespace :dc do
 
       abort('Please provide at least two external_system identifiers') if priority_list.blank? || priority_list.size < 2
 
-      base_query = <<-SQL.squish
+      base_query = <<~SQL.squish
         SELECT originals.id AS original_id,
           duplicates.id AS duplicate_id
         FROM things originals
@@ -161,6 +163,21 @@ namespace :dc do
     rescue StandardError => e
       puts "Error during merging: #{e.message}"
       raise e
+    end
+
+    desc 'delete all data in a collection'
+    task :by_watchlist, [:watchlist_id] => [:environment] do |_, args|
+      identifier = args.watchlist_id
+      abort('Please provide a watchlist id') if identifier.blank?
+
+      collection = DataCycleCore::Collection.find_by(id: identifier)
+      abort("Watchlist with id '#{identifier}' not found") if collection.nil?
+
+      queue = DataCycleCore::WorkerPool.new
+      collection.things.find_each do |thing|
+        queue.append { thing.destroy }
+      end
+      queue.wait!
     end
   end
 end

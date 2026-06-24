@@ -1,0 +1,37 @@
+<%= turbo_frame_tag overlay_id do %>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+
+  <div class="reveal-header">
+    <%= t('feature.ai_lector.diff.feedback_title', locale: active_ui_locale) %>
+  </div>
+
+  <form class="ai-lector-finetune-form">
+    <div class="reveal-body">
+      <%= hidden_field_tag 'id', overlay_id %>
+      <div class="form-element">
+        <%= label_tag 'context_prompt', safe_join([
+          t('feature.ai_lector.diff.feedback_placeholder', locale: active_ui_locale),
+          tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) })
+        ]) %>
+        <%= text_area_tag 'context_prompt', nil,
+                          class: 'input-text ai-lector-feedback-textarea',
+                          rows: 4,
+                          required: true,
+                          autofocus: true %>
+      </div>
+    </div>
+
+    <div class="reveal-footer buttons">
+      <%= button_tag safe_join([tag.i(class: 'fa fa-times'), t('actions.cancel', locale: active_ui_locale)]),
+                     class: 'button secondary hollow',
+                     data: { close: '' },
+                     type: :button %>
+      <%= button_tag safe_join([t('feature.ai_lector.diff.feedback_submit', locale: active_ui_locale), tag.i(class: 'fa fa-check')]),
+                     class: 'button success',
+                     data: { disable: true },
+                     type: :submit %>
+    </div>
+  </form>
+<% end %>

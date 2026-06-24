@@ -1,7 +1,10 @@
 import Quill from "quill";
+
 const QuillModule = Quill.import("core/module");
 const InlineBlot = Quill.import("blots/inline");
+
 import { QuillTooltip, Range } from "./quill_tooltip";
+
 const icons = Quill.import("ui/icons");
 icons.customlink = icons.link;
 
@@ -157,7 +160,7 @@ LinkTooltip.TEMPLATE = [
 
 class QuillLinkFormat extends InlineBlot {
 	static create(value) {
-		// biome-ignore lint/complexity/noThisInStatic: <explanation>
+		// biome-ignore lint/complexity/noThisInStatic: Parchment's create() reads this.className/tagName from the subclass
 		const node = super.create(value);
 		node.setAttribute("href", QuillLinkFormat.sanitize(value?.text));
 		node.setAttribute("rel", "noopener noreferrer");

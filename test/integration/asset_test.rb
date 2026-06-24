@@ -29,6 +29,7 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
+
       assert(json_data['assets'].any? { |v| v['id'] == image.id })
     end
 
@@ -45,6 +46,7 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
+
       assert_equal 'test_rgb.jpeg', json_data['name']
     end
 
@@ -61,7 +63,8 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert json_data['error'].present?
+
+      assert_predicate json_data['error'], :present?
     end
 
     test 'update existing asset' do
@@ -94,7 +97,8 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert json_data['error'].present?
+
+      assert_predicate json_data['error'], :present?
     end
 
     test 'find existing pdf by name' do
@@ -109,6 +113,7 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
+
       assert_equal pdf.id, json_data['id']
     end
 
@@ -116,16 +121,6 @@ module DataCycleCore
       image = upload_image('test_rgb.jpeg')
 
       delete asset_path(image), xhr: true, params: {}, headers: {
-        referer: root_path
-      }
-
-      assert_response :success
-    end
-
-    test 'duplicate existing asset' do
-      image = upload_image('test_rgb.jpeg')
-
-      post duplicate_asset_path(image), xhr: true, params: {}, headers: {
         referer: root_path
       }
 

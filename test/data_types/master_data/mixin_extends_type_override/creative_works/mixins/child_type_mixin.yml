@@ -1,0 +1,11 @@
+---
+- :data:
+    :name: child_type_mixin
+    :type: mixin
+    :extends: base_type_mixin
+    :properties:
+      :text_property:
+        :type: number
+        :ui:
+          :edit:
+            :type: number_input

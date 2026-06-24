@@ -3,7 +3,7 @@
 class FixMoreIssuesWithCcc < ActiveRecord::Migration[7.1]
   def up
     # add order by to ensure that the direct link is always kept before broader links
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_collected_classification_content_relations(
           content_ids uuid [],
           excluded_classification_ids uuid []

@@ -25,6 +25,10 @@ module DataCycleCore
       #   additional_data_paths:
       #     name_add1: 'attribute1'
       #     name_add2: 'attribute3'
+      #  # group_to_array_paths can be used to group certain attributes into arrays to keep all references. The attributes must be relative to data_path.
+      # group_to_array_paths:
+      #   - attribute_name1
+      #   - attribute_name2
       #   # attribute_whitelist can be used to only save certain attributes to the database. The values of 'data_id' and 'data_name' as well as 'additional_paths' will be added automatically. Cannot be used with attribute_blacklist.
       #   attribute_whitelist: ['extra1', 'extra2']
       #   # attribute_blacklist can be used to remove certain attributes from the data before saving to the database. Cannot be used with attribute_whitelist.
@@ -49,6 +53,44 @@ module DataCycleCore
             iterate_credentials: false,
             cleanup_data: method(:cleanup_data).to_proc.curry[options.dig(:download, :cleanup_data)]
           )
+
+          if options.dig(:download, :bulk_touch)
+            Generic::Common::DownloadBulkTouchFromData.download_content(
+              utility_object:,
+              options: options.deep_merge(download: { name: "touch_#{options.dig(:download, :name)}" })
+            )
+          end
+
+          return unless options.dig(:download, :bulk_mark_deleted)
+
+          Generic::Common::DownloadBulkMarkDeleted.download_content(
+            utility_object:,
+            options: bulk_mark_deleted_options(options:, last_download: utility_object.external_source.last_download)
+          )
+        end
+
+        # bulk_mark_deleted runs only once, independent of read_type: it loads the ids directly
+        # from the target collection (source_type), where seen_at was updated by the download above.
+        # All options describing the structure of the read collection(s) have to be reset to the
+        # structure of the target collection (data at dump.<locale> with the final, prefixed id).
+        def self.bulk_mark_deleted_options(options:, last_download:)
+          options.merge(
+            download: options[:download].merge(
+              name: "delete_#{options.dig(:download, :name)}",
+              read_type: nil,
+              data_path: nil,
+              data_id_path: 'id',
+              data_name_path: 'name',
+              data_name_path_fallback: nil,
+              trim_name: false,
+              data_id_prefix: nil,
+              additional_data_paths: nil,
+              group_to_array_paths: nil,
+              attribute_whitelist: nil,
+              attribute_blacklist: nil,
+              source_filter: { 'seen_at' => { '$lt' => last_download } }
+            )
+          )
         end
 
         def self.create_aggregate_pipeline(options:, locale:, source_filter:)
@@ -62,6 +104,7 @@ module DataCycleCore
           # full_data_path = paths[:full_data_path]
           full_id_path = paths[:full_id_path]
           additional_paths = paths[:additional_paths]
+          group_to_array_paths = paths[:group_to_array_paths]
 
           source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
@@ -72,18 +115,21 @@ module DataCycleCore
             project_stage = if index.zero?
                               {
                                 'data' => ["$#{current_full_name_path}"].compact_blank.join('.'),
-                                'add_data' => additional_paths
+                                'add_data' => additional_paths.presence,
+                                'external_system' => 1
                               }
                             else
                               {
                                 'data' => ["$data.#{data_path.split('.')[index]}"].compact_blank.join('.'),
-                                'add_data' => '$add_data'
+                                'add_data' => '$add_data',
+                                'external_system' => 1
                               }
                             end
 
             proj_match_unwind_phases << { '$project' => project_stage }
 
             next unless position == 1
+
             proj_match_unwind_phases << { '$unwind' => '$data' }
             proj_match_unwind_phases << { '$match' => create_post_unwind_match_stage(path: current_full_name_path, source_filter_stage:) }
           end
@@ -102,30 +148,52 @@ module DataCycleCore
 
           add_fields_stage = {}
 
-          if id_fallback_fields.many?
-            add_fields_stage['data.id'] = { '$ifNull' => id_fallback_fields }
-          else
-            add_fields_stage['data.id'] = id_fallback_fields.first
-          end
+          add_fields_stage['data.id'] = if id_fallback_fields.many?
+                                          { '$ifNull' => id_fallback_fields }
+                                        else
+                                          id_fallback_fields.first
+                                        end
 
-          if name_fallback_fields.many?
-            add_fields_stage['data.name'] = { '$ifNull' => name_fallback_fields }
-          else
-            add_fields_stage['data.name'] = name_fallback_fields.first
-          end
+          add_fields_stage['data.name'] = if name_fallback_fields.many?
+                                            { '$ifNull' => name_fallback_fields }
+                                          else
+                                            name_fallback_fields.first
+                                          end
 
           additional_paths.each_key do |name|
-            if name == 'external_system'
-              add_fields_stage["data.#{name}"] = "$#{name}"
-            else
-              # prevent overwriting of existing data fields
-              add_fields_stage["data.#{name}"] = { '$ifNull' => ["$data.#{name}", "$add_data.#{name}"] }
-            end
+            add_fields_stage["data.#{name}"] = if name == 'external_system'
+                                                 "$#{name}"
+                                               else
+                                                 # prevent overwriting of existing data fields
+                                                 { '$ifNull' => ["$data.#{name}", "$add_data.#{name}"] }
+                                               end
           end
 
           group_stage = {
-            '_id' => '$data.id', 'data' => { '$first' => '$data'}
+            '_id' => '$data.id',
+            'data' => { '$first' => '$data' },
+            'external_system' => { '$mergeObjects' => '$external_system' }
           }
+
+          if group_to_array_paths.present?
+            gta_add_fields = {}
+            gta_sort_fields = {}
+
+            group_to_array_paths.each do |attr|
+              group_stage[attr] = { '$push' => "$data.#{attr}" }
+              gta_sort_fields["data.#{attr}"] = 1
+              gta_add_fields["data.#{attr}"] = {
+                '$filter' => {
+                  'input' => "$#{attr}",
+                  'as' => 'item',
+                  'cond' => { '$ne' => ['$$item', nil] }
+                }
+              }
+            end
+
+            gta_sort_fields_stage = { '$sort' => gta_sort_fields } if gta_sort_fields.present?
+            gta_add_fields_stage = [{ '$addFields' => gta_add_fields }] if gta_add_fields.present?
+          end
 
           pipelines = [
             {
@@ -134,9 +202,14 @@ module DataCycleCore
           ] + proj_match_unwind_phases + [
             {
               '$addFields' => add_fields_stage
-            },
+            }
+          ] + Array.wrap(gta_sort_fields_stage) + [
             {
               '$group' => group_stage
+            }
+          ] + Array.wrap(gta_add_fields_stage) + [
+            {
+              '$addFields' => { 'data.external_system' => '$external_system' }
             },
             {
               '$replaceRoot' => { 'newRoot' => '$data' }
@@ -156,6 +229,7 @@ module DataCycleCore
           attribute_blacklist = Array.wrap(options.dig(:download, :attribute_blacklist)) if options.dig(:download, :attribute_blacklist).present?
 
           raise ArgumentError, 'attribute_whitelist and attribute_blacklist cannot be present together' if attribute_whitelist.present? && attribute_blacklist.present?
+
           if attribute_whitelist.present?
             attribute_whitelist += ['id', 'name'] + additional_paths.keys
             attribute_whitelist.uniq!
@@ -166,6 +240,7 @@ module DataCycleCore
 
           data_id_prefix = options.dig(:download, :data_id_prefix)
           raise ArgumentError, 'data_id_prefix and external_id_prefix cannot be present together' if data_id_prefix.present? && options.dig(:download, :external_id_prefix).present?
+
           if data_id_prefix.present?
             pipelines << {
               '$addFields' => {
@@ -175,7 +250,7 @@ module DataCycleCore
           end
 
           pipelines <<  {
-            '$match' => { 'id' => { '$ne' => nil } }
+            '$match' => { 'id' => { '$nin' => [nil, ''] } }
           }
 
           pipelines
@@ -215,7 +290,7 @@ module DataCycleCore
             end
           end
 
-          additional_paths['external_system'] = '$external_system'
+          group_to_array_paths = Array.wrap(options.dig(:download, :group_to_array_paths))
 
           paths[:data_path] = data_path
           paths[:path_array_positions] = path_array_positions
@@ -225,6 +300,7 @@ module DataCycleCore
           paths[:full_data_path] = full_data_path
           paths[:full_id_path] = full_id_path
           paths[:additional_paths] = additional_paths
+          paths[:group_to_array_paths] = group_to_array_paths
           paths.with_indifferent_access
         end
       end

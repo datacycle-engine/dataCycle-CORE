@@ -4,7 +4,7 @@ module DataCycleCore
   class DataLink < ApplicationRecord
     after_commit :set_release_status, on: [:create, :update], if: -> { permissions == 'write' }
 
-    belongs_to :item, polymorphic: true
+    belongs_to :item, polymorphic: true, optional: false
     belongs_to :data_link_content_item, foreign_key: 'data_link_id'
     belongs_to :collection, -> { where(data_links: { item_type: 'DataCycleCore::Collection' }) }, foreign_key: :item_id
     belongs_to :watch_list, -> { where(type: 'DataCycleCore::WatchList', data_links: { item_type: 'DataCycleCore::Collection' }) }, foreign_key: :item_id
@@ -22,6 +22,9 @@ module DataCycleCore
     scope :readable, -> { where(permissions: ['read', 'write']) }
     scope :writable, -> { where(permissions: 'write') }
     scope :thing_links, -> { where(item_type: 'DataCycleCore::Thing') }
+
+    PERMISSIONS = { read: 'read', write: 'write', download: 'download' }.freeze
+    validates :permissions, inclusion: { in: PERMISSIONS.values }
 
     def writable?
       permissions == 'write'
@@ -53,6 +56,29 @@ module DataCycleCore
       else
         Array.wrap(users)
       end
+    end
+
+    def self.allowed_permissions(item, user)
+      permissions = ['read']
+
+      permissions << 'write' if user.can?(:create_editable_links, DataCycleCore::DataLink) &&
+                                !item.is_a?(DataCycleCore::StoredFilter) &&
+                                (
+                                  (
+                                    item.is_a?(DataCycleCore::WatchList) &&
+                                    item.try(:things)&.all? { |thing| user.can?(:edit, thing) } &&
+                                    user.can?(:add_item, item)
+                                  ) ||
+                                  user.can?(:edit, item)
+                                )
+
+      permissions.unshift('download') if (
+        item.is_a?(DataCycleCore::WatchList) && user.can?(:download_zip, item)
+      ) || (
+        item.is_a?(DataCycleCore::Thing) && user.can?(:download, item)
+      )
+
+      permissions
     end
 
     private

@@ -42,9 +42,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@content.name)
+                assert_includes response.body, @content.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal @content.name, xml.xpath('//thing/name').text
               end
 
@@ -57,9 +58,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@content.name)
+                assert_includes response.body, @content.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal @content.name, xml.xpath('//thing/name').text
               end
 

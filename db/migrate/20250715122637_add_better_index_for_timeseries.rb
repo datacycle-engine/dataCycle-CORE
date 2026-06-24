@@ -2,7 +2,7 @@
 
 class AddBetterIndexForTimeseries < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       SET LOCAL statement_timeout = 0;
     SQL
 

@@ -36,8 +36,8 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('websearch_to_tsquery', [dict || quoted('simple'), quoted(string)])
       end
 
-      def websearch_to_prefix_tsquery(string, dict = nil)
-        Arel::Nodes::NamedFunction.new('websearch_to_prefix_tsquery', [dict || quoted('simple'), quoted(string)])
+      def websearch_to_prefix_tsquery(string, dict = nil, weights = nil)
+        Arel::Nodes::NamedFunction.new('websearch_to_prefix_tsquery', [dict || quoted('simple'), quoted(string), quoted(weights.to_s)])
       end
     end
   end

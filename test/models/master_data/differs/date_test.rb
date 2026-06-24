@@ -23,6 +23,7 @@ describe DataCycleCore::MasterData::Differs::Date do
 
     it 'properly diffs equal dates' do
       a = '2018-01-01'.to_date
+
       [
         [a, a],
         [a.to_s, a],
@@ -36,6 +37,7 @@ describe DataCycleCore::MasterData::Differs::Date do
 
     it 'recognizes a deleted value' do
       a = '2018-01-01'.to_date
+
       [a, a.to_s, a.inspect, a.send(:to_date), a.to_date].each do |item|
         assert_equal(['-', a], subject.new(item, nil).diff_hash)
       end

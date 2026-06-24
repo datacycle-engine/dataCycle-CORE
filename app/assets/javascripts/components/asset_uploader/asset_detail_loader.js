@@ -23,7 +23,7 @@ class AssetDetailLoader {
 		await this.loader();
 	}
 	_fileThumbHtml(thumbHtml) {
-		return `<div class="file-thumb">${thumbHtml}<span class="upload-number-container"><span class="upload-number"></span></span></div>`;
+		return `<div class="file-thumb" data-dc-tooltip='${thumbHtml}'>${thumbHtml}<span class="upload-number-container"><span class="upload-number"></span></span></div>`;
 	}
 	_addImage(src) {
 		return new Promise((resolve, reject) => {
@@ -34,9 +34,9 @@ class AssetDetailLoader {
 		});
 	}
 	async imageLoader() {
-		this.assetFile.prependHtml = this._fileThumbHtml(
-			`<object class="" data="${this.assetFile.fileUrl}" type="${this.assetFile.file.type}"><i class="fa fa-picture-o" aria-hidden="true"></i></object>`,
-		);
+		const objectHtml = `<object class="uploader-preview-image" data="${this.assetFile.fileUrl}" type="${this.assetFile.file.type}"><i class="fa fa-picture-o" aria-hidden="true"></i></object>`;
+
+		this.assetFile.prependHtml = this._fileThumbHtml(objectHtml);
 
 		try {
 			const image = await this._addImage(this.assetFile.fileUrl);

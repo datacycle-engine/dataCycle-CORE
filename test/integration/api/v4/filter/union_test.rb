@@ -155,6 +155,7 @@ module DataCycleCore
             params = {}
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(5)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -169,8 +170,9 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
-            assert(@event.id, json_data['@graph'].first['@id'])
+            assert_equal(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -187,8 +189,9 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
-            assert(@event.id, json_data['@graph'].first['@id'])
+            assert_equal(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -201,8 +204,9 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
-            assert(@event.id, json_data['@graph'].first['@id'])
+            assert_equal(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -219,8 +223,9 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
-            assert(@event.id, json_data['@graph'].first['@id'])
+            assert_equal(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -233,6 +238,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event.id, @poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -251,6 +257,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
             assert_equal([@event.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -265,6 +272,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event.id, @poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -283,6 +291,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
             assert_equal([@event.id].sort, json_data['@graph'].pluck('@id').sort)
           end
@@ -291,6 +300,7 @@ module DataCycleCore
             params = {}
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(5)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -309,8 +319,9 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
-            assert(@event.id, json_data['@graph'].first['@id'])
+            assert_equal(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -327,6 +338,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event.id, @poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -345,6 +357,7 @@ module DataCycleCore
               }
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+
             assert_api_count_result(0)
 
             # You must not find items by using AND
@@ -363,6 +376,7 @@ module DataCycleCore
               }
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+
             assert_api_count_result(0)
 
             params = {
@@ -380,6 +394,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(4)
             assert_equal([@event_poi.id, @poi.id, @poi2.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -398,6 +413,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(3)
             assert_equal([@event_poi.id, @poi2.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -416,6 +432,7 @@ module DataCycleCore
               }
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+
             assert_api_count_result(3)
             assert_equal([@event_poi.id, @poi2.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -443,6 +460,7 @@ module DataCycleCore
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             # post api_v4_stored_filter_path(params), as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event.id, @poi.id].sort, json_data['@graph'].pluck('@id').sort)
           end
@@ -451,6 +469,7 @@ module DataCycleCore
             params = {}
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
             assert_api_count_result(5)
 
@@ -469,8 +488,9 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
-            assert(@event.id, json_data['@graph'].first['@id'])
+            assert_equal(@event.id, json_data['@graph'].first['@id'])
 
             params = {
               filter: {
@@ -487,6 +507,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(3)
             assert_equal([@poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -505,6 +526,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(4)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -523,6 +545,7 @@ module DataCycleCore
               }
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+
             assert_api_count_result(0)
 
             params = {
@@ -541,6 +564,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
             assert_equal([@event.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -559,6 +583,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -577,6 +602,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(3)
             assert_equal([@poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -596,6 +622,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(3)
             assert_equal([@poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -621,6 +648,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(4)
             assert_equal([@poi.id, @poi2.id, @event_poi.id, @event.id].sort, json_data['@graph'].pluck('@id').sort)
           end
@@ -629,6 +657,7 @@ module DataCycleCore
             params = {}
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
             assert_api_count_result(5)
 
@@ -647,6 +676,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event.id, @poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -665,6 +695,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(3)
             assert_equal([@person.id, @poi.id, @poi2.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -683,6 +714,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(4)
             assert_equal([@event.id, @person.id, @poi.id, @poi2.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -702,6 +734,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
             assert_equal([@poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -720,6 +753,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event.id, @event_poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -738,6 +772,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -757,6 +792,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -782,8 +818,56 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(3)
             assert_equal([@event.id, @poi.id, @poi2.id].sort, json_data['@graph'].pluck('@id').sort)
+          end
+
+          test 'api/v4/endpoints parameter union edge cases' do
+            params = {
+              filter: {
+                union: [
+                  {
+                    filterId: {
+                      in: []
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+
+            assert_response :bad_request
+
+            params = {
+              filter: {
+                union: [
+                  {
+                    watchListId: {
+                      in: []
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+
+            assert_response :bad_request
+
+            params = {
+              filter: {
+                union: [
+                  {
+                    watchListId: {
+                      in: [SecureRandom.uuid]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+
+            assert_api_count_result(0)
           end
 
           test 'api/v4/endpoints parameter combine id filters' do
@@ -809,6 +893,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(4)
             assert_equal([@poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -834,6 +919,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(3)
             assert_equal([@event.id, @poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -859,6 +945,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(4)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -891,6 +978,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(5)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -909,6 +997,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(4)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -934,6 +1023,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(5)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
           end
@@ -970,6 +1060,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(5)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].pluck('@id').sort)
             @event.update_column(:updated_at, orig_ts)
@@ -1005,6 +1096,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
             assert_equal([@person.id].sort, json_data['@graph'].pluck('@id').sort)
             @event.update_column(:updated_at, orig_ts)
@@ -1040,6 +1132,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(1)
             assert_equal([@poi.id].sort, json_data['@graph'].pluck('@id').sort)
             @poi.update_column(:updated_at, orig_ts)
@@ -1071,6 +1164,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event_poi.id, @poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -1103,6 +1197,7 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(2)
             assert_equal([@event_poi.id, @poi.id].sort, json_data['@graph'].pluck('@id').sort)
 
@@ -1134,8 +1229,43 @@ module DataCycleCore
             }
             post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
             json_data = response.parsed_body
+
             assert_api_count_result(3)
             assert_equal([@event.id, @event_poi.id, @poi.id].sort, json_data['@graph'].pluck('@id').sort)
+          end
+
+          test 'api/v4/endpoints parameter union with watchListId and filterIds' do
+            union_filter = DataCycleCore::StoredFilter.create(
+              name: 'union_params',
+              user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+              language: ['de'],
+              parameters: [{
+                'c' => 'a',
+                'm' => 'i',
+                't' => 'union',
+                'v' => [
+                  {
+                    'c' => 'a',
+                    'm' => 'i',
+                    't' => 'watch_list_id',
+                    'v' => @watch_list_event_poi1.id
+                  },
+                  {
+                    'c' => 'a',
+                    'm' => 'i',
+                    't' => 'filter_ids',
+                    'v' => [@stored_filter_poi.id]
+                  }
+                ]
+              }],
+              api: true
+            )
+
+            post api_v4_stored_filter_path(id: union_filter.id), params: {}, as: :json
+            json_data = response.parsed_body
+
+            assert_api_count_result(4)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].pluck('@id').sort)
           end
         end
       end

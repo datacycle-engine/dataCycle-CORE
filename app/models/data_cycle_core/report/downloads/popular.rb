@@ -8,7 +8,7 @@ module DataCycleCore
           limit = params&.dig(:limit) || 50
           by_month = params&.dig(:by_month) || Time.zone.now.month
           by_year = params&.dig(:by_year) || Time.zone.now.year
-          raw_query = <<-SQL.squish
+          raw_query = <<~SQL.squish
             SELECT "things"."id",
               "thing_translations"."content"->>'name' AS "name",
               COUNT("things"."id") AS downloads_all,
@@ -39,7 +39,7 @@ module DataCycleCore
             LIMIT :limit
           SQL
 
-          @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, {by_month:, by_year:, locale: @locale, limit:}]))
+          @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, { by_month:, by_year:, locale: @locale, limit: }]))
         end
 
         private

@@ -2,8 +2,8 @@
 
 module DataCycleCore
   module Filter
-    SelectOption = Struct.new(:id, :name, :html_class, :dc_tooltip, :disabled, :class_key, keyword_init: true) do
-      def initialize(*)
+    SelectOption = Struct.new(:id, :name, :html_class, :dc_tooltip, :disabled, :class_key) do
+      def initialize(*, **)
         super
 
         self.disabled = false if disabled.nil?

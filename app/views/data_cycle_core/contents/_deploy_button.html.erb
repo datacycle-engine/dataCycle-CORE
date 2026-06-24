@@ -1,0 +1,18 @@
+<% translated_action = t('webhooks.actions.deploy', locale: active_ui_locale) %>
+<%= button_to(
+      tag.i(class: 'fa fa-rocket', aria: { hidden: true }),
+      trigger_webhooks_thing_path(content, webhook_action: 'deploy'),
+      class: "button-prime small",
+      method: :post,
+      form: {
+        id: "trigger_webhooks_button_#{content.id}",
+        data: {
+          turbo: true,
+          turbo_stream: true,
+          turbo_confirm: t('webhooks.trigger_confirmation.text', data: translated_action, locale: active_ui_locale),
+          confirmation_header_text: t('webhooks.trigger_confirmation.title', data: translated_action, locale: active_ui_locale),
+          confirmation_class: 'success',
+          dc_tooltip: t('actions.trigger_webhook_action', data: translated_action, locale: active_ui_locale),
+        }
+      }
+    ) %>

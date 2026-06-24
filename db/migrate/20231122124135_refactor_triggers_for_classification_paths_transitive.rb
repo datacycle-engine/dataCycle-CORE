@@ -2,7 +2,7 @@
 
 class RefactorTriggersForClassificationPathsTransitive < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE FUNCTION generate_ca_paths_transitive_statement_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_ca_paths_transitive (
         ARRAY_AGG(DISTINCT inserted_classification_aliases.id)
       )
@@ -74,7 +74,7 @@ class RefactorTriggersForClassificationPathsTransitive < ActiveRecord::Migration
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS generate_ca_paths_transitive_trigger ON classification_aliases;
 
       DROP FUNCTION generate_ca_paths_transitive_statement_trigger_1;

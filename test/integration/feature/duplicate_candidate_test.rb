@@ -6,14 +6,21 @@ module DataCycleCore
   module Feature
     class DuplicateCandidateTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       before(:all) do
+        updates = []
+        bild_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Bild')
+        updates << { template_name: bild_template.template_name, schema: bild_template.schema.deep_merge('features' => { 'duplicate_candidate' => { 'allowed' => true, 'module' => 'BildPhash' } }) }
+        DataCycleCore::ThingTemplate.upsert_all(updates, unique_by: :template_name)
+
         @routes = Engine.routes
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
         image1 = upload_image('test_rgb.jpeg')
-        assert image1.thumb_preview.present?
+
+        assert_predicate image1.thumb_preview, :present?
         @content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
         image2 = upload_image('test_rgb.png')
-        assert image2.thumb_preview.present?
+
+        assert_predicate image2.thumb_preview, :present?
 
         @content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
       end
@@ -34,18 +41,10 @@ module DataCycleCore
         }
 
         assert_response :found
-        assert_equal I18n.t(:type_mismatch, scope: [:controllers, :error, :duplicate], locale: DataCycleCore.ui_locales.first), flash[:alert]
+        assert_equal I18n.t('controllers.error.duplicate.type_mismatch', locale: DataCycleCore.ui_locales.first), flash[:alert]
       end
 
       test 'mark duplicate as false positive' do
-        assert_empty @content1.duplicate_candidates
-        assert_empty @content2.duplicate_candidates
-
-        DataCycleCore::Thing
-          .where(external_source_id: nil, external_key: nil, template_name: 'Bild')
-          .where.not(content_type: 'embedded')
-          .find_each(&:create_duplicate_candidates)
-
         assert_equal 1, @content1.duplicate_candidates.reload.size
         assert_equal 1, @content2.duplicate_candidates.reload.size
 
@@ -54,7 +53,7 @@ module DataCycleCore
         }
 
         assert_response :found
-        assert_equal I18n.t(:duplicate_false_positive, scope: [:controllers, :success], locale: DataCycleCore.ui_locales.first, data: @content2.try(:title)), flash[:notice]
+        assert_equal I18n.t('controllers.success.duplicate_false_positive', locale: DataCycleCore.ui_locales.first, data: @content2.try(:title)), flash[:notice]
       end
 
       test 'merge duplicate with original' do
@@ -75,7 +74,7 @@ module DataCycleCore
         }
 
         assert_response :found
-        assert_equal I18n.t(:merged_with_duplicate, scope: [:controllers, :success], locale: DataCycleCore.ui_locales.first), flash[:success]
+        assert_equal I18n.t('controllers.success.merged_with_duplicate', locale: DataCycleCore.ui_locales.first), flash[:success]
       end
     end
   end

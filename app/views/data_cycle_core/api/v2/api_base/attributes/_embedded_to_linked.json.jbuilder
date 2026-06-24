@@ -5,6 +5,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
   next if data.empty?
 
   key_new = definition.dig('api', 'name') || key.camelize(:lower)
+  json.set! key_new, []
   json.set! key_new do
     json.array!(data) do |item|
       json.content_partial! 'details', content: item, options: { content_type: 'linked' }

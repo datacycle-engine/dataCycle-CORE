@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require 'pdf-reader'
+
 module DataCycleCore
   class ExtractPdfTextContentJob < UniqueApplicationJob
     PRIORITY = 12
+
+    discard_on PDF::Reader::MalformedPDFError
 
     def priority
       PRIORITY

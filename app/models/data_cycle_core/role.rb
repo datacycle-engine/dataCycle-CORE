@@ -24,5 +24,13 @@ module DataCycleCore
     def self.to_select_options(locale = DataCycleCore.ui_locales.first)
       all.map { |v| v.to_select_option(locale) }
     end
+
+    def self.default
+      find_by(rank: 0)
+    end
+
+    def self.super_admin
+      find_by(rank: 99)
+    end
   end
 end

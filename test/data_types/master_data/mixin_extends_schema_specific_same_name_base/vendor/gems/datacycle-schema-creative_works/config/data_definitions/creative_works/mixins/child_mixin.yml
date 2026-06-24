@@ -1,0 +1,8 @@
+---
+- :data:
+    :name: child_mixin
+    :properties:
+      :base_property:
+        :type: string
+        :label: From base child_mixin (creative_works gem, under creative_works)
+        :storage_location: translated_value

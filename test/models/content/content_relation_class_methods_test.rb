@@ -43,7 +43,7 @@ module DataCycleCore
         ccs = contents.content_content_a
 
         assert(ccs.is_a?(ActiveRecord::Relation))
-        assert(ccs.loaded?)
+        assert_predicate(ccs, :loaded?)
         assert_equal(17, ccs.size)
       end
 
@@ -69,7 +69,7 @@ module DataCycleCore
         templates = contents.thing_templates
 
         assert(templates.is_a?(ActiveRecord::Relation))
-        assert(templates.loaded?) # thing_template is included via default_scope
+        assert_predicate(templates, :loaded?) # thing_template is included via default_scope
         assert_equal(1, templates.size)
       end
 
@@ -78,7 +78,7 @@ module DataCycleCore
         templates = contents.thing_templates
 
         assert(templates.is_a?(ActiveRecord::Relation))
-        assert(templates.loaded?)
+        assert_predicate(templates, :loaded?)
         assert_equal(1, templates.size)
       end
 

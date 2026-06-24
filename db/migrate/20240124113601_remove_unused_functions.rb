@@ -2,7 +2,7 @@
 
 class RemoveUnusedFunctions < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP FUNCTION IF EXISTS generate_collected_cl_content_relations_transitive(classification_contents);
 
       DROP FUNCTION IF EXISTS generate_collected_cl_content_relations_transitive(

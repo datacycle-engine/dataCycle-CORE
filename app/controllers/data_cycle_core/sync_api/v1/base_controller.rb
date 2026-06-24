@@ -30,7 +30,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, {page: {}}]
+          [:api_subversion, :token, { page: {} }]
         end
 
         def page_parameters
@@ -39,12 +39,14 @@ module DataCycleCore
 
         def parse_language(language_string)
           return nil if language_string&.strip.blank?
+
           language_string.split(',')&.map(&:strip)&.select { |t| I18n.available_locales.include?(t.to_sym) }
         end
 
         def apply_paging(query)
           page_params = DEFAULT_PAGE_SETTINGS.merge(page_parameters)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
+
           query.page(page_params[:number].to_i).per(page_params[:size].to_i)
         end
 

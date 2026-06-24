@@ -8,6 +8,7 @@ import QuillHelpers from "./../helpers/quill_helpers";
 import ConfirmationModal from "./confirmation_modal";
 
 class Validator {
+	static ignoredEventTypes = ["reset", "disable-unless-value"];
 	constructor(formElement) {
 		this.form = formElement;
 		this.$form = $(this.form);
@@ -19,7 +20,9 @@ class Validator {
 			.siblings(".edit-header")
 			.add(this.$form.find(".edit-header"))
 			.first();
-		this.duplicateId = this.form.dataset.duplicateId;
+		this.duplicateId = this.form.querySelector(
+			'input[name="duplicate_id"]',
+		)?.value;
 		this.thingId = this.form.querySelector('input[name="uuid"]')?.value;
 		this.$submitButton = this.$editHeader.find(".submit-edit-form").first();
 		this.$saveButton = this.$editHeader.find(".save-content-button").first();
@@ -56,7 +59,7 @@ class Validator {
 	}
 	addEventHandlers() {
 		this.$form.on(
-			"change dc:form:validatefield",
+			"change",
 			".validation-container",
 			this.validateSingle.bind(this),
 		);
@@ -107,7 +110,7 @@ class Validator {
 		$(event.target).closest(".single_warning").remove();
 	}
 	validateSingle(event, data) {
-		if (data && data.type === "reset") return;
+		if (data && Validator.ignoredEventTypes.includes(data.type)) return;
 
 		this.requests = [this.validateItem(event.currentTarget)];
 		this.resolveRequests(false, data);
@@ -222,6 +225,24 @@ class Validator {
 		}
 		return Promise.resolve(error);
 	}
+	// Currently only validates if the field is not blank
+	// The actual validation should be implemented in the backend in the future.
+	async validateConditionalRequired(element, formDataArray, locale) {
+		const key = $(element).data("key").attributeNameFromKey();
+		const validation = {
+			valid: true,
+			errors: {},
+			warnings: {},
+		};
+
+		if (formDataArray.every(([_k, v]) => isEmpty(v))) {
+			const errorMessage = await I18n.translate("validation.errors.required");
+			validation.valid = false;
+			validation.errors[key] = [errorMessage];
+		}
+
+		return this.transformValidationResult(validation, element, locale, false);
+	}
 	async validateDuplicateItem() {
 		const url = `/things/${this.thingId}/validate_duplicate/${this.duplicateId}`;
 		const validation = (await DataCycle.httpRequest(url)) || { valid: true };
@@ -244,7 +265,6 @@ class Validator {
 			DataCycle.enableElement(this.$submitButton);
 			DataCycle.enableElement(this.$saveButton);
 			DataCycle.enableElement(this.$form);
-			this.$form.find("input#duplicate_id").remove();
 		}
 	}
 	tooltipError(key, type = "error") {
@@ -401,25 +421,23 @@ class Validator {
 		if ($(element).hasClass("agbs")) return this.validateAgbs(element);
 
 		const formData = DomElementHelpers.getFormData(element);
+		const formDataArray = Array.from(formData);
 
-		if (!Array.from(formData).length)
+		if (!formDataArray.length)
 			return Promise.resolve({ valid: true, element: element });
 
 		const tLocale = this.attributeLocale(element);
 
-		if (
-			!this.formFieldChanged(
-				Array.from(formData),
-				tLocale,
-				submitFormDataUpToDate,
-			)
-		)
+		if (!this.formFieldChanged(formDataArray, tLocale, submitFormDataUpToDate))
 			return Promise.resolve({ valid: true, element: element });
 
 		const locale = tLocale || this.locale();
 		const table = this.$form.find(':input[name="table"]').val() || "things";
 		const url = `/${table}${this.thingId ? `/${this.thingId}` : ""}/validate`;
 		const template = this.$form.find(':input[name="template"]').val();
+
+		if ($(element).hasClass("validate-conditional_required"))
+			return this.validateConditionalRequired(element, formDataArray, locale);
 
 		if (template) formData.set("template", template);
 		if (locale) formData.set("locale", locale);
@@ -565,13 +583,17 @@ class Validator {
 		for (const warning of confirmations.warnings) {
 			const label = warning.label || warning.element.dataset.label;
 			const tooltip = Object.values(warning.warnings).join(", ");
-			messages.push(`<b data-dc-tooltip='${tooltip}'>${label}</b>`);
+			messages.push(
+				`<div class="callout warning"><b>${label}:</b> ${tooltip}</div>`,
+			);
 		}
 
 		return new ConfirmationModal({
-			text: await I18n.translate("frontend.validate.ignore_warnings", {
-				data: messages,
-			}),
+			confirmationHeaderText: await I18n.translate(
+				"frontend.validate.warnings_header",
+			),
+			text: `<p>${await I18n.translate("frontend.validate.warnings_intro")}</p>${messages.join("")}<p>${await I18n.translate("frontend.validate.ignore_warnings")}</p>`,
+			confirmationText: `${await I18n.translate("frontend.validate.save_with_warnings")} <i class="fa fa-exclamation-triangle"></i>`,
 			confirmationClass: "warning",
 			cancelable: true,
 			confirmationCallback: () => {
@@ -644,7 +666,8 @@ class Validator {
 			this.$form.closest(".reveal").hasClass("in-object-browser") ||
 			this.$contentUploader
 		) {
-			return this.$form.trigger("dc:form:submitWithoutRedirect", confirmations);
+			this.$form.trigger("dc:form:submitWithoutRedirect", confirmations);
+			return;
 		}
 
 		$(window).off("beforeunload", this.eventHandlers.beforeunload);
@@ -653,16 +676,9 @@ class Validator {
 				'<input type="hidden" name="save_and_close" value="1">',
 			);
 
-		if (confirmations?.mergeConfirm)
-			this.$form.append(
-				`<input id="duplicate_id" type="hidden" name="duplicate_id" value="${this.$form.data(
-					"duplicate-id",
-				)}">`,
-			);
-
-		if (this.$form.data("remote"))
+		if (this.$form.data("remote")) {
 			Rails.fire(this.$form[0], "submit", { dcFormSubmitted: true });
-		else this.$form[0].submit();
+		} else this.$form[0].submit();
 	}
 	resolveRequests(submit = false, eventData = {}) {
 		let submitForm = submit;

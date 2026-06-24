@@ -1,0 +1,10 @@
+---
+- :data:
+    :name: child_mixin
+    :type: mixin
+    :extends: child_mixin
+    :properties:
+      :topic:
+        :type: string
+        :label: Topics
+        :storage_location: translated_value

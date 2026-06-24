@@ -22,19 +22,19 @@
     }
 
     .save-content-button {
-      opacity: 0.3;
-      transition: $global-transition;
+      transition: filter 100ms linear;
       outline: none;
-      padding: 0.75rem;
+      color: var(--primary-color);
+      padding: 0.5rem;
 
       .fa {
-        font-size: 1.4rem;
-        line-height: 1.4rem;
+        font-size: 1.5rem;
+        line-height: 1.5rem;
       }
 
       &:hover,
       &:focus {
-        opacity: 1;
+        filter: brightness(0.8);
       }
     }
 
@@ -72,6 +72,10 @@
         content: '\f0e7';
       }
     }
+  }
+
+  .change-link .button {
+    margin: 0;
   }
 
   .fa {
@@ -313,22 +317,8 @@ label.agb-link {
 
       &.buttons {
         a {
-          height: 100%;
           text-align: center;
-          padding: 0.75rem;
-
-          &.normalize-content-button {
-            height: 100%;
-            width: 3rem;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-
-            .fa {
-              font-size: 1.5rem;
-              line-height: 3.5rem;
-            }
-          }
+          padding: 0.5rem;
         }
       }
     }

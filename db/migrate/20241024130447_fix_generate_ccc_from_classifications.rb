@@ -2,7 +2,7 @@
 
 class FixGenerateCccFromClassifications < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_ccc_from_ca_ids_transitive(ca_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(ca_ids, 1) > 0 THEN WITH direct_classification_content_relations AS (
           SELECT DISTINCT ON (
               classification_contents.content_data_id,

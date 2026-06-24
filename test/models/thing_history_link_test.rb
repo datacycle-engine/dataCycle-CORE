@@ -17,12 +17,14 @@ module DataCycleCore
 
     test 'thing_history_links - history of merged thing' do
       @thing1.merge_with_duplicate(@thing2)
+
       assert_equal 1, @thing1.thing_history_links.size
     end
 
     test 'thing_history_links - history of multiple merged things 1' do
       @thing1.merge_with_duplicate(@thing2)
       @thing1.merge_with_duplicate(@thing3)
+
       assert_equal 2, @thing1.thing_history_links.size
     end
 
@@ -30,6 +32,7 @@ module DataCycleCore
       @thing1.merge_with_duplicate(@thing2)
       @thing1.merge_with_duplicate(@thing3)
       @thing4.merge_with_duplicate(@thing1)
+
       assert_equal 3, @thing4.thing_history_links.size
     end
   end

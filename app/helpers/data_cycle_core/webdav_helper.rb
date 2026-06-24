@@ -14,8 +14,10 @@ module DataCycleCore
       data.remove_namespaces!
       props = data.xpath('//propfind/allprop')
       return ALLOWED_PROPS if props.present? || body.blank?
+
       props = data.xpath('//propfind/prop')&.first
       return [] if props.blank?
+
       props&.children&.filter_map { |i| ALLOWED_PROPS.include?(i.name.downcase) ? i.name.downcase : nil } || []
     end
 
@@ -23,12 +25,13 @@ module DataCycleCore
       request
         .env
         .select { |k, _| k.start_with?('HTTP_') }
-        .map { |k, v| { k[5..-1] => v } }
+        .map { |k, v| { k[5..] => v } }
         .inject(&:merge)
     end
 
     def propstat(thing)
       return create_resource(thing) if thing.assets.blank?
+
       asset = thing.assets.first
       {
         file_name: thing.slug + get_ext(asset.file.filename.to_s),
@@ -42,8 +45,10 @@ module DataCycleCore
 
     def get_ext(file_name)
       return nil if file_name.blank?
+
       ext = file_name.split('.')&.last
       return nil if ext.blank?
+
       ".#{ext}"
     end
 

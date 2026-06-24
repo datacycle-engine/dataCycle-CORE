@@ -1,4 +1,5 @@
 <% stored_search = DataCycleCore::StoredFilter.new if stored_search.nil? || cannot?(:update, stored_search) %>
+<% disabled = local_assigns[:update_params].to_s == 'true' && stored_search.name.blank? %>
 
 <%= form_with(model: stored_search, namespace: SecureRandom.hex(10), local: true, url: stored_filters_path, method: :post, class: 'update-stored-search-form', data: {
   update_params: local_assigns[:update_params]
@@ -45,32 +46,28 @@
           <div class="editor-block">
             <%= f.label :description %>
             <% description_id = [f.options[:namespace], f.object_name, 'description'].compact.join('_') %>
-            <%= f.hidden_field :description %>
+            <%= f.hidden_field :description, disabled: disabled %>
 
-            <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="none" data-default-value="<%= stored_search&.description %>">
-              <%= stored_search&.description&.html_safe %>
-            </div>
+            <%= tag.div(sanitize(stored_search&.description), class: 'quill-editor', readonly: disabled, data: { hidden_field_id: description_id, size: 'none', default_value: stored_search&.description }) %>
           </div>
         </div>
       <% end %>
 
       <div class="form-element slug" data-key="stored_filter[slug]">
-        <%= f.label :slug do %>
-          <%= DataCycleCore::StoredFilter.human_attribute_name(:slug, locale: active_ui_locale) %>
-        <% end %>
-
-        <%= f.text_field :slug %>
+        <%= I18n.with_locale(active_ui_locale){ f.label :slug } %>
+        <%= f.text_field :slug, disabled: disabled %>
       </div>
 
-      <% if can? :change_owner, stored_search %>
+      <% if can?(:change_owner, stored_search) %>
         <div class="form-element owner">
-          <%= f.label :user_id, DataCycleCore::StoredFilter.human_attribute_name(:user_id, locale: active_ui_locale) %>
+          <%= I18n.with_locale(active_ui_locale){ f.label :user_id } %>
           <div class="v-select white">
             <%= f.select(
                   :user_id,
                   Array.wrap(stored_search.user).map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
                   {},
                   {
+                    disabled: disabled,
                     class: 'async-select',
                     data: {
                       allow_clear: false,
@@ -99,6 +96,7 @@
                     include_blank: true
                   },
                   {
+                    disabled: disabled,
                     multiple: true,
                     class: 'async-select',
                     data: {
@@ -121,6 +119,7 @@
                       include_blank: true
                     },
                     {
+                      disabled: disabled,
                       multiple: true,
                       class: 'multi-select',
                       data: {
@@ -141,6 +140,7 @@
                       include_blank: true
                     },
                     {
+                      disabled: disabled,
                       multiple: true,
                       class: 'multi-select',
                       data: {
@@ -160,9 +160,37 @@
             <div class="accordion-content" data-tab-content>
 
               <div class="form-element dc-checkbox">
-                <%= f.check_box :api %>
-                <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
+                <%= f.check_box :api, disabled: disabled %>
+                <%= I18n.with_locale(active_ui_locale){ f.label :api } %>
               </div>
+
+              <% if can?(:update_cache_ttl, stored_search) %>
+                <div class="form-element stored-filter-cache-ttl">
+                  <%= f.label :cache_ttl, safe_join([
+                      DataCycleCore::StoredFilter.human_attribute_name(:cache_ttl, locale: active_ui_locale),
+                      tag.i(class: 'fa fa-info-circle', aria: { hidden: true }, data: { dc_tooltip: t('data_cycle_core.stored_searches.form.cache_ttl.tooltip', locale: active_ui_locale) })
+                    ], ' ') %>
+                  <% cache_ttl_value = stored_search.try(:cache_ttl)&.to_i || 0 %>
+
+                  <div class="duration-slider">
+                    <div class="duration-slider-slider">
+
+                      <div class="slider <%= 'disabled' if disabled %>" data-slider data-initial-start="<%= cache_ttl_value %>" data-step="10" data-position-value-function="pow" data-non-linear-base="20" data-start="0" data-end="1440" data-decimal="0">
+                        <span class="slider-handle" role="slider" tabindex="1" aria-controls="<%= sanitize_to_id(f.field_id(:cache_ttl)) %>" data-slider-handle></span>
+                        <div class="slider-labels">
+                          <span class="slider-label-min">0 (<%= t("data_cycle_core.stored_searches.cache_ttl.disabled", locale: active_ui_locale) %>)</span>
+                          <span class="slider-label-max">1440 (<%= t("data_cycle_core.stored_searches.cache_ttl.one_day", locale: active_ui_locale) %>)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="duration-slider-input">
+                      <%= f.number_field :cache_ttl, min: 0, max: 1440, step: 10, value: cache_ttl_value, disabled: disabled %>
+                      <%= tag.span(class: 'stored-filter-cache-ttl-h') %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
 
               <% if can?(:share, stored_search) %>
                 <div class="form-element">
@@ -175,6 +203,7 @@
                       include_blank: true
                     },
                     {
+                      disabled: disabled,
                       class: 'async-select',
                       data: {
                         max: 20,
@@ -196,6 +225,7 @@
                       include_blank: true
                     },
                     {
+                      disabled: disabled,
                       multiple: true,
                       class: 'multi-select',
                       data: {

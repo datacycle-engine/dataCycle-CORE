@@ -58,6 +58,7 @@ module DataCycleCore
               fields: 'dct:modified,geo.latitude,geo.longitude'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # default sorting: proximity.geographic ASC
@@ -72,9 +73,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             json_data = response.parsed_body
+
             assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data['@graph'].pluck('@id'))
 
             # sorting: proximity.geographic ASC
@@ -90,9 +93,11 @@ module DataCycleCore
               sort: 'proximity.geographic'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             json_data = response.parsed_body
+
             assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data['@graph'].pluck('@id'))
 
             # proximity.geographic DESC
@@ -108,10 +113,12 @@ module DataCycleCore
               sort: '-proximity.geographic'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             json_data = response.parsed_body
-            assert_equal([@poi_a.id, @poi_c.id, @poi_b.id, @poi_d.id], json_data['@graph'].pluck('@id'))
+
+            assert_equal([@poi_c.id, @poi_a.id, @poi_b.id, @poi_d.id], json_data['@graph'].pluck('@id'))
           end
         end
       end

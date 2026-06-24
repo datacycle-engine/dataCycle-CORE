@@ -1,11 +1,8 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge({ 'class' => Array.wrap(options['class']).push('detail_object').compact_blank.join(' ') }), content: content, parent: local_assigns[:parent] do %>
-
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: merge_class_in_options(options, 'detail_object'), content: content, parent: local_assigns[:parent] do %>
   <div class="content-object-item">
-    <span class="embedded-header">
-      <%= attribute_edit_label_tag(**local_assigns) %>
-    </span>
+    <span class="embedded-header"><%= attribute_edit_label_tag(**local_assigns) %></span>
 
-    <%= render 'data_cycle_core/contents/editors/features/geo_key_figure_all' if DataCycleCore::Feature::GeoKeyFigure.allowed_child_attribute_key?(content, definition) %>
+    <%= render 'data_cycle_core/contents/editors/features/geo_key_figure_all' if DataCycleCore::Feature['GeoKeyFigure']&.allowed_child_attribute_key?(content, definition) %>
     <%= render 'data_cycle_core/contents/editors/features/reverse_geocode_button', content: content if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature['Geocode']&.allowed?(content) && DataCycleCore::Feature['Geocode']&.reverse_geocode_target_key?(key, content) %>
 
     <% ordered_validation_properties(validation: definition, scope: :edit).each do |o_key, o_definition| %>
@@ -19,7 +16,5 @@
                                   content: content,
                                   prefix: key %>
     <% end %>
-
   </div>
-
 <% end %>

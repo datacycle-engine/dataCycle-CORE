@@ -2,8 +2,6 @@
 
 require 'hashdiff'
 
-# rubocop:disable Rails/DeprecatedActiveModelErrorsMethods
-
 module DataCycleCore
   module MasterData
     class DiffData

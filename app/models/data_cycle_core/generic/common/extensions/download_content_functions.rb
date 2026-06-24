@@ -9,23 +9,30 @@ module DataCycleCore
           FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
           CONFIG_PROPS = [:tree_label, :external_id_prefix, :concept_scheme_name, :priority].freeze
 
-          def download_content(download_object:, iterator: nil, credential: nil, **keyword_args)
+          def download_content_all(**keyword_args)
+            download_content(iterate_locales: false, **keyword_args)
+          end
+
+          def download_content(download_object:, iterator: nil, credential: nil, iterate_locales: true, **keyword_args)
+            raise DataCycleCore::Generic::Common::Error::ImporterError, 'DEPRECATED: delete function is not supported anymore, extract logic to seperate delete step' if keyword_args[:delete].present?
+
             credential ||= default_credential
-            with_logging(**keyword_args, download_object:, iterator:, credential:) do |options, step_label|
+            with_logging(**keyword_args, download_object:, iterator:, credential:, iterate_locales:) do |options, step_label|
               items = items(iterator:, download_object:, options:, locale: options[:locales].first)
               credential_key = credential.call(options[:credentials]) if credential.present?
-
-              download_in_parallel(**keyword_args, download_object:, items:, options:, step_label:, credential_key:)
+              download_in_parallel(**keyword_args, download_object:, items:, options: options.merge(iterate_locales:), step_label:, credential_key:)
             end
           end
 
-          def bulk_touch_items(download_object:, options:, iterator: nil, **keyword_args)
+          def bulk_touch_items(download_object:, options:, iterator: nil, data_id: nil, **keyword_args)
+            download_object.mode = :full
             options[:mode] = 'full' # always full mode for touch
 
             with_logging(download_object:, iterator:, options:, **keyword_args) do |opts|
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
-                external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
+                external_keys = items(iterator:, download_object:, options: opts, locale:).to_a
+                external_keys = external_keys.filter_map { |k| data_id&.call(k)&.to_s || k&.to_s }
                 dump_path = :"dump.#{locale}"
 
                 result = mongo_item.where({
@@ -45,64 +52,88 @@ module DataCycleCore
             end
           end
 
-          def bulk_mark_deleted(download_object:, options:, iterator: nil, **keyword_args)
-            options[:mode] = 'full' # always full mode for delete
-
-            with_logging(download_object:, iterator:, options:, **keyword_args) do |opts|
+          def bulk_mark_deleted(download_object:, options:, iterator: nil, data_id: nil, **keyword_args)
+            with_logging(download_object:, iterator:, options:, **keyword_args) do |opts, step_label|
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
-                external_keys = items(iterator:, download_object:, options: opts, locale:).to_a.map(&:to_s)
+                times = [Time.current]
+                external_keys = items(iterator:, download_object:, options: opts, locale:).to_a
+                next 0 if external_keys.blank?
 
+                external_keys = external_keys.filter_map { |k| data_id&.call(k)&.to_s || k&.to_s }
                 delete_props = {
                   "dump.#{locale}.deleted_at" => Time.zone.now,
                   "dump.#{locale}.last_seen_before_delete" => '$seen_at'
                 }
                 delete_reason = opts.dig(:download, :delete_reason)
                 delete_props["dump.#{locale}.delete_reason"] = delete_reason if delete_reason.present?
-                dump_path = :"dump.#{locale}"
+                count = 0
+                condition = {
+                  "dump.#{locale}": { '$ne' => nil },
+                  "dump.#{locale}.deleted_at": { '$exists' => false }
+                }
 
-                result = mongo_item
-                  .where({ dump_path => { '$ne' => nil }, external_id: { '$in' => external_keys }})
-                  .update_all(delete_props)
+                external_keys.each_slice(100_000) do |keys_slice|
+                  next if keys_slice.blank?
 
-                result.modified_count
+                  condition[:external_id] = { '$in' => keys_slice }
+                  result = mongo_item.where(condition).update_all(delete_props)
+                  count += result.modified_count
+                  times << Time.current
+                  download_object.logger.phase_partial(step_label, count, times)
+                end
+
+                count
               end
             end
           end
 
-          def download_item_slice(download_object:, item_data_slice:, options:, cleanup_data: nil, credential_key: nil, data_id: nil, **_keyword_args)
+          def download_item_slice(download_object:, item_data_slice:, options:, data_id: nil, data_name: nil, cleanup_data: nil, credential_key: nil, **_keyword_args)
             return if item_data_slice.blank?
 
-            locale = options[:locales].first
+            iterate_locales = options[:iterate_locales]
+            locales = Array.wrap(iterate_locales ? options[:locales].first : options[:locales]).map(&:to_s)
 
-            init_mongo_db(download_object.database_name) do
+            download_object.with_mongodb do
               download_object.source_object.with(download_object.source_type) do |mongo_item|
-                mongo_ids = item_data_slice.map { |item_data| data_id.call(item_data)&.to_s }.compact_blank
+                mongo_ids = if iterate_locales
+                              item_data_slice.map { |item_data| data_id.call(item_data)&.to_s }.compact_blank
+                            else
+                              item_data_slice.map { |item_data| data_id.call(item_data.values&.first)&.to_s }.compact_blank
+                            end
+
                 mongo_items = mongo_item.where(external_id: { '$in' => mongo_ids }).index_by(&:external_id)
                 touch_ids = []
-
                 item_data_slice.each do |item_data|
-                  item_id = data_id.call(item_data)&.to_s
-                  item_data['dc_external_id'] = item_id if item_id.present? # make external_id available under dump.de.dc_external_id
+                  loaded_data = item_data
+                  item_id = data_id.call(item_data)&.to_s || data_id.call(item_data.values&.first)&.to_s
                   item = mongo_items[item_id] || mongo_item.new(external_id: item_id)
                   item.dump ||= {}
-                  local_item = item.dump[locale]
 
-                  next unless item_allowed?(local_item:, options:)
+                  locales.each do |locale|
+                    local_item = item.dump[locale]
+                    item_data = get_item_data(loaded_data, locale, iterate_locales:)
+                    item_data['id'] = item_id if item_data['id'].blank? && item_id.present?
+                    item_data['name'] = data_name&.call(item_data)&.to_s if item_data['name'].blank?
+                    item_data['dc_external_id'] = item_id if item_id.present? # make external_id available under dump.de.dc_external_id
 
-                  if item_data.key?(:external_system)
-                    data_credential_keys = Array.wrap(item_data.dig(:external_system, :credential_keys))
-                    data_credential_keys.each { |key| add_credentials!(item:, credential_key: key) }
-                    item_data.delete(:external_system)
-                  end
+                    next unless item_allowed?(local_item:, options:)
 
-                  add_credentials!(item:, credential_key:) if credential_key.present?
+                    if item_data.key?(:external_system)
+                      data_credential_keys = Array.wrap(item_data.dig(:external_system, :credential_keys))
+                      data_credential_keys.each { |key| add_credentials!(item:, credential_key: key) }
+                      item_data.delete(:external_system)
+                    end
 
-                  item_data = cleanup_data.call(item_data) if cleanup_data.present?
+                    add_credentials!(item:, credential_key:) if credential_key.present?
 
-                  unless local_item.as_json.eql?(item_data.as_json)
-                    item.dump[locale] = item_data
-                    item.data_has_changed = true
+                    item_data.merge!(props_from_config(options:)) if item_data.is_a?(Hash)
+                    item_data = cleanup_data.call(item_data) if cleanup_data.present?
+
+                    unless local_item.as_json.eql?(item_data.as_json)
+                      item.dump[locale] = item_data
+                      item.data_has_changed = true
+                    end
                   end
 
                   if item.data_has_changed || item.external_system_has_changed
@@ -149,9 +180,14 @@ module DataCycleCore
 
           protected
 
+          def get_item_data(item_data, locale, iterate_locales: true)
+            iterate_locales ? item_data : item_data.stringify_keys[locale.to_s]
+          end
+
           def default_credential
             lambda { |credentials|
               return if credentials.blank? || credentials.is_a?(Array) || credentials['credential_key'].blank?
+
               credentials['credential_key']
             }
           end
@@ -173,6 +209,8 @@ module DataCycleCore
             I18n.with_locale(locale) do
               source_filter = (options&.dig(:download, :source_filter) || {}).with_indifferent_access
               source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values(binding) }
+
+              source_filter = source_filter.merge({ 'external_system.credential_keys' => options[:credential_key] }) if options[:credential_key].present?
 
               source_filter.deep_merge({
                 "dump.#{locale}": { '$exists': true },
@@ -215,7 +253,6 @@ module DataCycleCore
             else
               Enumerator.new do |yielder|
                 iterator_items(iterator:, download_object:, options:, locale:).each do |item|
-                  item.merge!(props_from_config(options:)) if item.is_a?(Hash)
                   yielder << item
                 end
               end
@@ -269,7 +306,7 @@ module DataCycleCore
               success &&= with_logging(**keyword_args, options: opts, &block)
             end
 
-            keyword_args[:download_object]&.emtpy_item_cache
+            keyword_args[:download_object]&.emtpy_item_cache!
 
             success
           end
@@ -287,7 +324,7 @@ module DataCycleCore
               step_label = download_object.step_label(options)
               tstart = Time.current
 
-              init_mongo_db(download_object.database_name) do
+              download_object.with_mongodb do
                 download_object.logger.phase_started(step_label, options[:max_count])
 
                 item_count = yield options, step_label if block
@@ -296,7 +333,7 @@ module DataCycleCore
 
                 return true
               rescue StandardError => e
-                download_object.logger.phase_failed(e, download_object.external_source, step_label)
+                download_object.logger.phase_failed(e, download_object.external_source, step_label, download_object.step_name)
 
                 raise
               ensure

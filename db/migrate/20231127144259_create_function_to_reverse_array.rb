@@ -2,7 +2,7 @@
 
 class CreateFunctionToReverseArray < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION array_reverse(anyarray) RETURNS anyarray AS $$
       SELECT ARRAY(
           SELECT $1 [i]
@@ -15,7 +15,7 @@ class CreateFunctionToReverseArray < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP FUNCTION IF EXISTS array_reverse;
     SQL
   end

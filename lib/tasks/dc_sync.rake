@@ -2,6 +2,7 @@
 
 namespace :dc do
   namespace :sync do
+    desc 'switch primary source for things from one external system to another, based on existing syncs'
     task :switch_primary_source, [:current_primary_source, :new_primary_source, :stored_filter] => :environment do |_, args|
       current_primary_source = DataCycleCore::ExternalSystem.where(id: args[:current_primary_source])
         .or(DataCycleCore::ExternalSystem.where(identifier: args[:current_primary_source]))
@@ -19,9 +20,14 @@ namespace :dc do
 
       contents = contents.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id)) if args[:stored_filter]
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
+      progressbar = ProgressBar.create(total: contents.size, title: 'MIGRATING')
 
       contents.map do |thing|
+        unless thing.external_system_syncs.where(external_system_id: new_primary_source.id).one?
+          progressbar.increment
+          next
+        end
+
         ActiveRecord::Base.transaction do
           DataCycleCore::ExternalSystemSync.create_or_find_by!(
             syncable_type: DataCycleCore::Thing,
@@ -44,24 +50,87 @@ namespace :dc do
     end
 
     desc 'trigger webhooks for all things in collection not previously exported'
-    task :trigger_webhooks, [:endpoint_id_or_slug, :external_system_id, :force] => :environment do |_, args|
+    task :trigger_webhooks, [:endpoint_id_or_slug, :external_system_id_or_slug, :force] => :environment do |_, args|
       abort('endpoint missing!') if args.endpoint_id_or_slug.blank?
-      abort('external_system_id missing!') if args.external_system_id.blank?
+      abort('external_system_id missing!') if args.external_system_id_or_slug.blank?
 
       force = args.force.to_s == 'true'
 
       collection = DataCycleCore::Collection.by_id_or_slug(args.endpoint_id_or_slug).first
       abort('endpoint not found!') if collection.nil?
 
-      external_system = DataCycleCore::ExternalSystem.find_by(id: args.external_system_id)
+      external_system = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(args.external_system_id_or_slug).first
       abort('external_system not found!') if external_system.nil?
 
       things = collection.things
       things = things.where.not(DataCycleCore::ExternalSystemSync.where(syncable_type: 'DataCycleCore::Thing', sync_type: 'export', external_system_id: external_system.id).where('external_system_syncs.syncable_id = things.id').select(1).arel.exists) unless force
 
       things.find_each do |thing|
+        puts "Updating #{thing.try(:name)} (#{thing.id}) ..."
+
         thing.allowed_webhooks = [external_system.name]
+        thing.synchronous_webhooks = true
         thing.execute_update_webhooks
+
+        puts "Updating #{thing.try(:name)} (#{thing.id}) ... DONE"
+      rescue StandardError => e
+        puts "Failed to update #{thing.try(:name)} (#{thing.id}): #{e.message}"
+      end
+    end
+
+    desc 'trigger all webhhooks, previously failed'
+    task :update_failed, [:external_system_id] => :environment do |_, args|
+      abort('external_system_id missing!') if args.external_system_id.blank?
+      external_system = DataCycleCore::ExternalSystem.find_by(id: args.external_system_id)
+      abort('external_system not found!') if external_system.nil?
+
+      external_system_syncs = DataCycleCore::ExternalSystemSync.where(external_system_id: args.external_system_id, status: 'failure', sync_type: 'export')
+      external_system_syncs.find_each do |item|
+        thing = DataCycleCore::Thing.find(item.syncable_id)
+        if thing.present?
+          thing.allowed_webhooks = [external_system.name]
+          thing.execute_update_webhooks
+        end
+      end
+    end
+
+    desc 'set all pending/waiting syncs to failed'
+    task :reset_pending, [:external_system_id] => :environment do |_, args|
+      abort('external_system_id missing!') if args.external_system_id.blank?
+      external_system = DataCycleCore::ExternalSystem.find_by(id: args.external_system_id)
+      abort('external_system not found!') if external_system.nil?
+
+      DataCycleCore::ExternalSystemSync
+        .where(external_system_id: args.external_system_id, status: 'pending')
+        .find_each do |item|
+          item.status = 'failure'
+          data_hash = item.data
+          data_hash.delete('job_id')
+          data_hash['job_status'] = 'error'
+          item.data = data_hash
+          item.save
+        end
+    end
+
+    desc 'delete all syncs at the external system from a given filter'
+    task :delete, [:external_system_id] => :environment do |_, args|
+      abort('external_system_id missing!') if args.external_system_id.blank?
+      external_system = DataCycleCore::ExternalSystem.find_by(id: args.external_system_id)
+      abort('external_system not found!') if external_system.nil?
+
+      delete_method = external_system.export_config.dig('delete', 'strategy')&.demodulize&.underscore
+      abort('delete strategy missing!') if delete_method.nil?
+
+      delete_filter_ids = Array.wrap(external_system.export_config_by_method_name_and_filter_key(delete_method, 'endpoints'))
+      abort('delete filter missing!') if delete_filter_ids.nil?
+
+      things_to_delete = delete_filter_ids.flat_map { |id| DataCycleCore::StoredFilter.find(id).things }
+      progressbar = ProgressBar.create(total: things_to_delete.count, title: 'Cleaning Export')
+
+      things_to_delete.each do |thing|
+        thing.allowed_webhooks = [external_system.name]
+        thing.execute_delete_webhooks
+        progressbar.increment
       end
     end
   end

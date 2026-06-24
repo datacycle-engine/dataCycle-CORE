@@ -24,14 +24,14 @@ module DataCycleCore
     scope: :edit
   }).freeze
 
-  DataAttributeOptions = Struct.new(*RENDER_VIEWER_ARGUMENTS.keys, keyword_init: true) do
-    def initialize(**args)
+  DataAttributeOptions = Struct.new(*RENDER_VIEWER_ARGUMENTS.keys) do
+    def initialize(*, **args)
       args[:value_loaded] = args.key?(:value) unless args.key?(:value_loaded)
       args[:defaults] = (args[:context] == :editor ? RENDER_EDITOR_ARGUMENTS : RENDER_VIEWER_ARGUMENTS).except(:value)
       args.reverse_merge!(args[:defaults])
 
       if args[:definition].is_a?(ActionController::Parameters)
-        args[:definition] = args[:definition].permit!.to_h
+        args[:definition] = args[:definition].to_unsafe_h
       elsif args[:definition].is_a?(::Hash)
         args[:definition] = args[:definition].dc_deep_dup.with_indifferent_access
       elsif args[:content].present? && args[:key].present?
@@ -42,7 +42,7 @@ module DataCycleCore
 
       args[:parameters].deep_merge!(args[:defaults][:parameters]) { |_k, v1, _v2| v1 }
       if args[:parameters][:options].is_a?(ActionController::Parameters)
-        args[:parameters][:options] = args[:parameters][:options].permit!.to_h
+        args[:parameters][:options] = args[:parameters][:options].to_unsafe_h
       elsif args[:parameters][:options].is_a?(::Hash)
         args[:parameters][:options] = args[:parameters][:options].dc_deep_dup.with_indifferent_access
       end

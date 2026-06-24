@@ -57,7 +57,7 @@
               <%= f.hidden_field :description %>
 
               <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="none" data-default-value="<%= content&.description %>">
-                <%= content&.description&.html_safe %>
+                <%= sanitize(content&.description) %>
               </div>
             </div>
           </div>

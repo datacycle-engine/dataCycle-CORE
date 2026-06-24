@@ -2,7 +2,7 @@
 
 class MigrateTriggerFunctionToConceptsOnly < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_collected_classification_content_relations(
           content_ids uuid [],
           excluded_classification_ids uuid []
@@ -111,7 +111,7 @@ class MigrateTriggerFunctionToConceptsOnly < ActiveRecord::Migration[7.1]
       $$;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_concept_links_ccc_relations_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations (
           ARRAY_AGG(to_update.content_data_id),
           ARRAY []::uuid []

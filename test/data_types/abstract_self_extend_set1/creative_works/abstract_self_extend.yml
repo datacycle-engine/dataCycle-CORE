@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: AbstractSelfExtend
+    :abstract: true
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :base_prop:
+        :label: BaseProp
+        :type: string
+        :storage_location: value

@@ -4,6 +4,7 @@ class CleanupHelper
   class << self
     def identify_external_source(item)
       return nil if item.config.blank?
+
       item.config['download_config'].first[1]['endpoint'].split('::')[-2]
     end
 
@@ -18,6 +19,7 @@ class CleanupHelper
         'Xamoom' => ['Örtlichkeit']
       }[external_source]
       return if core_data_templates.blank?
+
       core_data_templates&.map { |template|
         thing_template = DataCycleCore::Thing.new(template_name: template)
         thing_template.linked_property_names.map do |linked_item|
@@ -50,8 +52,8 @@ class CleanupHelper
     end
 
     def orphaned_embedded(template_array, embedded_name)
-      template_string = "'#{template_array.map(&:to_s).join("', '")}'"
-      where_string = <<-SQL.squish
+      template_string = "'#{template_array.join("', '")}'"
+      where_string = <<~SQL.squish
         things.id NOT IN (
           SELECT things.id FROM things
           INNER JOIN content_contents ON content_contents.content_b_id = things.id

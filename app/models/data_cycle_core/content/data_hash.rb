@@ -18,6 +18,7 @@ module DataCycleCore
 
       before_save :set_internal_data
       before_destroy :add_remove_linked_from_text_job, unless: :history?
+      after_destroy_commit :add_destroy_dependent_computed_properties_job, if: :prepared_destroy_id_attribute_hash?
 
       def before_save_data_hash(options)
         # inherit attributes if source content is present
@@ -32,11 +33,15 @@ module DataCycleCore
         # adjust slug if it already exists in database
         transform_slugs(**options.to_h.slice(:data_hash)) if !embedded? && slug_property_names.intersect?(options.data_hash.keys)
 
-        # add computed values
-        add_computed_values(**options.to_h.slice(:data_hash, :current_user)) if computed_property_names.present? && options.update_computed
+        return unless computed_property_names.present? && options.update_computed
+
+        check_update_computed(options)
       end
 
       def after_save_data_hash(options)
+        # trigger update of dependent computed properties for embedded and entities
+        add_update_dependent_computed_properties_job if cached_related_contents?
+
         return if embedded?
 
         # trigger create webhooks if is newly created content
@@ -49,23 +54,34 @@ module DataCycleCore
         # trigger Subscriber Mailer
         notify_subscribers(current_user: options.current_user) unless options.current_user.nil?
 
-        # trigger cache_invalidation for related contents
-        add_related_cache_invalidation_job if options.invalidate_related_cache && has_cached_related_contents?
-
-        # trigger update of dependent computed properties
-        add_update_dependent_computed_properties_job
+        if cached_related_contents? && options.invalidate_related_cache
+          # trigger cache_invalidation for related contents
+          add_related_cache_invalidation_job
+        end
 
         add_update_exif_values_job if ['Bild', 'ImageObject'].include?(template_name) && exif_property_names.present?
       end
 
       def before_destroy_data_hash(_options)
+        return if embedded?
+
         # trigger delete webhooks
-        execute_delete_webhooks unless embedded?
+        execute_delete_webhooks
+
+        return unless cached_related_contents?
+
+        # invalidate related cache
+        invalidate_related_cache
+
+        # trigger update of dependent computed properties
+        prepare_destroy_dependent_computed_properties_job
       end
 
-      def set_data_hash(**) # rubocop:disable Naming/AccessorMethodName
+      def set_data_hash(**)
         options = DataCycleCore::Content::DataHashOptions.new(**)
-        options.data_hash.slice!(*writable_property_names) # remove all keys that are not part of the schema
+
+        # remove all keys that are not part of the schema
+        options.data_hash.slice!(*writable_property_names)
 
         return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
@@ -74,11 +90,8 @@ module DataCycleCore
 
         before_save_data_hash(options)
 
-        partial_schema = schema.deep_dup
-        partial_keys = options.data_hash.keys
-        partial_keys = partial_keys.concat(required_property_names).uniq if options.new_content # validate required fields for new contents
-        partial_schema['properties'].slice!(*partial_keys)
-        options.data_hash.deep_freeze # ensure data_hash doesn't get changed
+        partial_schema = update_schema(options)
+        options.data_hash.deep_freeze
 
         return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema, current_user: options.current_user, strict: options.new_content)
 
@@ -116,13 +129,19 @@ module DataCycleCore
         true
       end
 
-      def set_data_hash_with_translations(**) # rubocop:disable Naming/AccessorMethodName
+      def set_data_hash_with_translations(**)
         options = DataCycleCore::Content::DataHashOptions.new(**)
         return {} if options.data_hash.blank? && !options.force_update
 
         translations = DataCycleCore::DataHashService.parse_translated_hash(options.data_hash, available_locales)
         version_name = (options.data_hash.key?(:version_name) ? options.data_hash[:version_name] : options.version_name).presence
-        locale, datahash = translations.shift
+
+        # prefer current locale for update if available, otherwise take first available translation
+        cl = I18n.locale.to_s
+        locale, datahash = translations.key?(cl) ? [cl, translations.delete(cl)] : translations.shift
+
+        # remove all additional translations, if the current embedded content only exists for a single locale
+        translations = {} if single_embedded_locale?
 
         transaction(joinable: false, requires_new: true) do
           I18n.with_locale(locale) do
@@ -140,11 +159,18 @@ module DataCycleCore
             i18n_warnings.each_value { |w| w.delete(no_changes_key) } unless translations.keys.push(locale).all? { |l| i18n_warnings[l]&.include?(no_changes_key) }
           end
 
-          if computed_property_names.intersect?(translatable_property_names)
-            add_update_translated_computed_properties_job(
-              available_locales.map(&:to_s) - translations.keys - [locale]
-            )
-          end
+          next if previous_datahash_changes.blank?
+
+          # trigger update of translated computed properties if any translated computed with non-translated dependencies changed
+          changed_untranslatable_keys = previous_datahash_changes.keys.intersection(untranslatable_property_names)
+          c_keys_to_update = dependent_computed_property_names(changed_untranslatable_keys)
+            .intersection(translatable_computed_property_names)
+          next if c_keys_to_update.blank?
+
+          add_update_translated_computed_properties_job(
+            available_locales.map(&:to_s) - translations.keys - [locale],
+            c_keys_to_update
+          )
         end
 
         i18n_valid?
@@ -157,21 +183,25 @@ module DataCycleCore
       end
 
       def execute_create_webhooks
-        return if prevent_webhooks.is_a?(TrueClass)
-
-        DataCycleCore::Webhook::Create.execute_all(self)
+        execute_webhooks(:create)
       end
 
       def execute_update_webhooks
-        return if prevent_webhooks.is_a?(TrueClass)
-
-        DataCycleCore::Webhook::Update.execute_all(self)
+        execute_webhooks(:update)
       end
 
       def execute_delete_webhooks
-        return if prevent_webhooks.is_a?(TrueClass)
+        execute_webhooks(:delete)
+      end
 
-        DataCycleCore::Webhook::Delete.execute_all(self)
+      # Executes all webhooks for the specified action (:create, :update, or :delete).
+      # Returns early if webhooks are prevented for this content, or if the content is embedded.
+      def execute_webhooks(webhook_action)
+        return if prevent_webhooks.is_a?(TrueClass) || embedded?
+
+        "DataCycleCore::Webhook::#{webhook_action.to_s.classify}"
+          .constantize
+          .execute_all(self)
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true) # rubocop:disable Naming/PredicateMethod
@@ -207,13 +237,28 @@ module DataCycleCore
       end
 
       def add_update_dependent_computed_properties_job
-        DataCycleCore::UpdateComputedPropertiesJob.perform_later(id, Array.wrap(datahash_changes&.keys))
+        changed_keys = Array.wrap(previous_datahash_changes&.keys)
+        DataCycleCore::UpdateComputedPropertiesJob.perform_later(id, changed_keys)
       end
 
-      def add_update_translated_computed_properties_job(locales)
+      def prepare_destroy_dependent_computed_properties_job
+        @destroy_id_attribute_hash = DataCycleCore::Thing::PropertyDependency.id_attribute_hash(id)
+      end
+
+      def prepared_destroy_id_attribute_hash?
+        @destroy_id_attribute_hash.present?
+      end
+
+      def add_destroy_dependent_computed_properties_job
+        return if @destroy_id_attribute_hash.blank?
+
+        DataCycleCore::DestroyComputedPropertiesJob.perform_later(id, @destroy_id_attribute_hash)
+      end
+
+      def add_update_translated_computed_properties_job(locales, keys)
         return if locales.blank?
 
-        DataCycleCore::UpdateTranslatedComputedPropertiesJob.perform_later(id, Array.wrap(locales))
+        DataCycleCore::UpdateTranslatedComputedPropertiesJob.perform_later(id, Array.wrap(locales), keys)
       end
 
       def invalidate_self_and_update_search
@@ -221,13 +266,17 @@ module DataCycleCore
         invalidate_self
       end
 
+      def invalidate_self_and_embedded
+        invalidate_self
+        embedded_contents.invalidate_all
+      end
+
       def invalidate_self
-        update_columns(cache_valid_since: Time.zone.now)
-        invalidate_related_cache
+        with_cached_related_contents.invalidate_all
       end
 
       def invalidate_related_cache
-        cached_related_contents.invalidate_all
+        with_cached_related_contents.where.not(id: id).invalidate_all
       end
 
       def self.invalidate_all
@@ -236,9 +285,10 @@ module DataCycleCore
 
           unscoped
             .where(
-              id: unscoped.where(id: all.except(:distinct).order(id: :asc).select(:id))
-                .lock('FOR UPDATE SKIP LOCKED')
+              id: all.except(:distinct)
+                .order(id: :asc)
                 .select(:id)
+                .lock('FOR UPDATE SKIP LOCKED')
             )
             .update_all(cache_valid_since: Time.zone.now)
         end
@@ -250,8 +300,30 @@ module DataCycleCore
 
       private
 
+      def check_update_computed(options)
+        # diff datahash changes before computed values are added
+        partial_schema = update_schema(options)
+        differ = diff_obj(options.data_hash, partial_schema)
+        keys = flat_dependent_computed_property_names(differ.diff_hash.keys)
+        keys += flat_dependent_computed_property_names(untranslatable_property_names) if available_locales.present? && available_locales.exclude?(I18n.locale)
+        keys.uniq!
+
+        # add computed values for changed dependencies + computed for untranslatable properties, if locale does not exist yet
+        add_computed_values(**options.to_h.slice(:data_hash, :current_user), keys:)
+      end
+
+      def update_schema(options)
+        partial_schema = schema.deep_dup
+        partial_keys = options.data_hash.keys
+        # validate required fields for new contents
+        partial_keys = partial_keys.concat(required_property_names).uniq if options.new_content
+        partial_schema['properties'].slice!(*partial_keys)
+        partial_schema
+      end
+
       def no_changes(locale) # rubocop:disable Naming/PredicateMethod
         warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale:))
+        restore_cache_valid_since! # reset cache_valid_since if no changes were made
 
         true
       end
@@ -332,7 +404,8 @@ module DataCycleCore
 
       def normalize_value(value, properties)
         norm_value = value
-        return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value, properties) if properties['type'] == 'string'
+        return DataCycleCore::MasterData::DataConverter.convert_to_string('string', norm_value, properties) if properties['type'] == 'string'
+
         norm_value
       end
 
@@ -380,6 +453,7 @@ module DataCycleCore
 
       def set_linked(field_name, input_data, properties)
         return if properties['link_direction'] == 'inverse' # inverse direction is read_only
+
         relation_b = properties['inverse_of']
 
         item_ids_before_update = send(field_name).pluck(:id)
@@ -407,9 +481,11 @@ module DataCycleCore
 
       def parse_linked_ids(a)
         return [] if is_blank?(a)
+
         data = a.is_a?(::String) ? [a] : a
         data = a&.pluck(:id) if data.is_a?(ActiveRecord::Relation)
         raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
+
         data
       end
 
@@ -460,7 +536,7 @@ module DataCycleCore
             if item['datahash']&.keys&.except('id')&.any? ||
                item['translations']&.values&.any? { |v| v.keys.except('id').any? } ||
                item.keys.except('id').any?
-              upsert_content(name, item, options)
+              upsert_content(name, item, options, translatable_property?(field_name))
             end
 
             if available_update_item_keys[index] != item_id
@@ -475,7 +551,7 @@ module DataCycleCore
 
             updated_item_keys << item_id
           else
-            insert_item = upsert_content(name, item, options)
+            insert_item = upsert_content(name, item, options, translatable_property?(field_name))
             DataCycleCore::ContentContent.create!({
               content_a_id: id,
               relation_a: field_name,
@@ -501,7 +577,7 @@ module DataCycleCore
         end
       end
 
-      def upsert_content(name, item, options)
+      def upsert_content(name, item, options, single_locale = false)
         item_id = item&.dig('datahash', 'id') || item&.dig('id')
         template_name = name
         if template_name.is_a?(Array)
@@ -523,6 +599,7 @@ module DataCycleCore
         upsert_item.created_at = options.save_time if created
         upsert_item.save
 
+        upsert_item.single_embedded_locale = single_embedded_locale? || single_locale
         upsert_item.set_data_hash_with_translations(
           data_hash: item,
           current_user: options.current_user,
@@ -595,10 +672,10 @@ module DataCycleCore
                      end
           schedule.external_source_id = item['external_source_id'] if item['external_source_id'].present?
           schedule.external_key = item['external_key'] if item['external_key'].present?
-          schedule.thing_id = id
-          schedule.relation = relation_name
           schedule.holidays = item['holidays']
           schedule.from_hash(item.with_indifferent_access)
+          schedule.thing_id = id
+          schedule.relation = relation_name
           schedule.save!
           updated_item_keys << schedule.id
         end

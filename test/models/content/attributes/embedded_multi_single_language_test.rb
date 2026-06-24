@@ -7,18 +7,20 @@ module DataCycleCore
     module Attributes
       class EmbeddedMulitSingleLanguageTest < ActiveSupport::TestCase
         def setup
-          embedded_de = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Creative-Work-2', data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
-          embedded_en = nil
+          @embedded_de = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Creative-Work-2', data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
+          @embedded_en = nil
           I18n.with_locale(:en) do
-            embedded_en = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Creative-Work-2', data_hash: { 'name' => 'English' }, prevent_history: true)
+            @embedded_en = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Creative-Work-2', data_hash: { 'name' => 'English' }, prevent_history: true)
           end
 
-          @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Creative-Work-1', data_hash: { 'name' => 'Deutsch', 'embedded_creative_work' => [{ 'id' => embedded_de.id }] }, prevent_history: true)
-          I18n.with_locale(:en) { @data_set.set_data_hash(data_hash: { 'name' => 'English', 'embedded_creative_work' => [{ 'id' => embedded_en.id }] }, prevent_history: true) }
+          @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Creative-Work-1', data_hash: { 'name' => 'Deutsch', 'embedded_creative_work' => [{ 'id' => @embedded_de.id }] }, prevent_history: true)
+          I18n.with_locale(:en) { @data_set.set_data_hash(data_hash: { 'name' => 'English', 'embedded_creative_work' => [{ 'id' => @embedded_en.id }] }, prevent_history: true) }
+        end
 
+        test 'setup' do
           assert_equal([:de, :en], @data_set.available_locales.sort)
-          assert_equal([:de], embedded_de.available_locales)
-          assert_equal([:en], embedded_en.available_locales)
+          assert_equal([:de], @embedded_de.available_locales)
+          assert_equal([:en], @embedded_en.available_locales)
 
           # check consistency of data in DB
           assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
@@ -68,6 +70,7 @@ module DataCycleCore
 
           I18n.available_locales << :fr
           I18n.with_locale(:fr) { data_set.set_data_hash(data_hash: { 'name' => 'French', 'embedded_creative_work' => [{ 'name' => 'French' }] }, prevent_history: true) }
+
           assert_equal([:de, :en, :fr], data_set.available_locales.sort)
           assert_equal(3, data_set.load_relation('embedded_creative_work', nil, false, [I18n.locale]).size)
 

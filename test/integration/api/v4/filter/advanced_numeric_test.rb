@@ -18,6 +18,7 @@ module DataCycleCore
           test 'api/v4/things with filter[attribute][{attributeName}][in][min]' do
             post_params = {}
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             post_params = {
@@ -32,6 +33,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             post_params = {
@@ -46,6 +48,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -60,6 +63,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             post_params = {
@@ -74,6 +78,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             post_params = {
@@ -88,6 +93,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -102,6 +108,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             post_params = {
@@ -121,6 +128,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -140,6 +148,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             post_params = {
@@ -159,6 +168,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             post_params = {
@@ -174,6 +184,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -195,6 +206,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -216,12 +228,14 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
           end
 
           test 'api/v4/things with filter[classifications][notIn]' do
             post_params = {}
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             post_params = {
@@ -236,6 +250,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             post_params = {
@@ -250,6 +265,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -264,6 +280,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             post_params = {
@@ -278,6 +295,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             post_params = {
@@ -292,6 +310,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -306,6 +325,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             post_params = {
@@ -325,6 +345,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -344,6 +365,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             post_params = {
@@ -363,6 +385,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             post_params = {
@@ -378,6 +401,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -399,6 +423,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             post_params = {
@@ -420,6 +445,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
           end
         end

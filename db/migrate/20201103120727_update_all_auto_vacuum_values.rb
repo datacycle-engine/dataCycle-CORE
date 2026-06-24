@@ -7,7 +7,7 @@ class UpdateAllAutoVacuumValues < ActiveRecord::Migration[5.2]
     execute('ANALYZE;')
     execute('VACUUM;')
 
-    query = <<-SQL.squish
+    query = <<~SQL.squish
       UPDATE pg_class
       SET reloptions = NULL
       WHERE relname IN (?)
@@ -15,19 +15,19 @@ class UpdateAllAutoVacuumValues < ActiveRecord::Migration[5.2]
 
     execute(ActiveRecord::Base.sanitize_sql_for_conditions([query, tables]))
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER SYSTEM SET autovacuum_vacuum_scale_factor = 0;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER SYSTEM SET autovacuum_vacuum_threshold = 100;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER SYSTEM SET autovacuum_analyze_scale_factor = 0;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER SYSTEM SET autovacuum_analyze_threshold = 100;
     SQL
 
@@ -35,19 +35,19 @@ class UpdateAllAutoVacuumValues < ActiveRecord::Migration[5.2]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER SYSTEM RESET autovacuum_vacuum_scale_factor;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER SYSTEM RESET autovacuum_vacuum_threshold;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER SYSTEM RESET autovacuum_analyze_scale_factor;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER SYSTEM RESET autovacuum_analyze_threshold;
     SQL
 

@@ -12,6 +12,7 @@ module DataCycleCore
 
     test 'user has my_selection' do
       user = DataCycleCore::User.find_by(email: 'admin@datacycle.at')
+
       assert user.my_selection
     end
 

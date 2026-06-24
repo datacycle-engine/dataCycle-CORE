@@ -48,9 +48,11 @@ module DataCycleCore
                 get download_thing_path(@content), params: { serialize_format: 'asset' }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/jpeg', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
 
@@ -58,9 +60,11 @@ module DataCycleCore
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'thumb_preview' }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/jpeg', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.second)
 
@@ -68,9 +72,11 @@ module DataCycleCore
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'web' }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/jpeg', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
 
@@ -78,9 +84,11 @@ module DataCycleCore
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'web', transformation: { web: { format: 'png' } } }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/png', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-web.png"', content_disposition.second)
 
@@ -88,9 +96,11 @@ module DataCycleCore
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'web', transformation: { asdf: { format: 'png' } } }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/jpeg', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
 
@@ -98,9 +108,11 @@ module DataCycleCore
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'test' }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/jpeg', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
               end
@@ -114,9 +126,11 @@ module DataCycleCore
                 get "/downloads/things/#{@content.id}", params: { serialize_format: 'asset' }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/jpeg', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
 
@@ -124,9 +138,11 @@ module DataCycleCore
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'thumb_preview' }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/jpeg', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.second)
 
@@ -134,9 +150,11 @@ module DataCycleCore
                 get "/downloads/things/#{@content.id}", params: { serialize_format: 'asset', version: 'web' }, headers: {
                   referer: thing_path(@content)
                 }
+
                 assert_response :success
                 assert_equal('image/jpeg', response.headers['Content-Type'])
                 content_disposition = response.headers['Content-Disposition'].split(';')
+
                 assert_equal('attachment', content_disposition.first)
                 assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
               end

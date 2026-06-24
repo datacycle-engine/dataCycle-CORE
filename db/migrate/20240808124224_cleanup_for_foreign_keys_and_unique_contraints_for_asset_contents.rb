@@ -2,17 +2,17 @@
 
 class CleanupForForeignKeysAndUniqueContraintsForAssetContents < ActiveRecord::Migration[6.1]
   def up
-    content_data_id_nil = execute <<-SQL.squish
+    content_data_id_nil = execute <<~SQL.squish
       DELETE FROM asset_contents
       WHERE asset_contents.content_data_id IS NULL;
     SQL
 
-    asset_id_nil = execute <<-SQL.squish
+    asset_id_nil = execute <<~SQL.squish
       DELETE FROM asset_contents
       WHERE asset_contents.asset_id IS NULL;
     SQL
 
-    asset_missing = execute <<-SQL.squish
+    asset_missing = execute <<~SQL.squish
       DELETE FROM asset_contents
       WHERE NOT EXISTS (
           SELECT 1
@@ -21,7 +21,7 @@ class CleanupForForeignKeysAndUniqueContraintsForAssetContents < ActiveRecord::M
         );
     SQL
 
-    content_missing = execute <<-SQL.squish
+    content_missing = execute <<~SQL.squish
       DELETE FROM asset_contents
       WHERE asset_contents.content_data_type = 'DataCycleCore::Thing'
       AND NOT EXISTS (
@@ -31,7 +31,7 @@ class CleanupForForeignKeysAndUniqueContraintsForAssetContents < ActiveRecord::M
         );
     SQL
 
-    duplicate_assets_for_content = execute <<-SQL.squish
+    duplicate_assets_for_content = execute <<~SQL.squish
       WITH to_delete AS (
         SELECT ac.id,
           row_number() over w AS row_num
@@ -48,7 +48,7 @@ class CleanupForForeignKeysAndUniqueContraintsForAssetContents < ActiveRecord::M
         AND to_delete.row_num > 1;
     SQL
 
-    subquery = <<-SQL.squish
+    subquery = <<~SQL.squish
       WITH to_delete AS (
         SELECT ac.id,
           row_number() over w AS row_num

@@ -40,14 +40,16 @@ module DataCycleCore
 
           test 'concepts at /api/v4/things/:id serializes with only minimal header' do
             get api_v4_thing_path(id: @content.id)
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
             json_data = json_data['@graph'].first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
+
             assert_equal(header, data)
 
             assert_compact_classification_header(json_data['dc:classification'])
@@ -55,14 +57,16 @@ module DataCycleCore
 
           test 'concepts at /api/v4/things/:id with include concepts --> full data' do
             get api_v4_thing_path(id: @content.id, include: 'dc:classification')
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
             json_data = json_data['@graph'].first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
+
             assert_equal(header, data)
 
             assert_concept_attributes(json_data.dig('dc:classification', 0))
@@ -73,14 +77,16 @@ module DataCycleCore
 
           test 'concepts at /api/v4/things/:id with include dc:classification,dc:classification.skos:inScheme' do
             get api_v4_thing_path(id: @content.id, include: 'dc:classification,dc:classification.skos:inScheme')
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
             json_data = json_data['@graph'].first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
+
             assert_equal(header, data)
 
             assert_concept_attributes(json_data.dig('dc:classification', 0))
@@ -93,23 +99,27 @@ module DataCycleCore
 
           test 'include dc:classification,dc:classification.skos:inScheme is equal to include dc:classification.skos:inScheme' do
             get api_v4_thing_path(id: @content.id, include: 'dc:classification,dc:classification.skos:inScheme')
+
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
             json_data = json_data['@graph'].first
 
             get api_v4_thing_path(id: @content.id, include: 'dc:classification.skos:inScheme')
+
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data2 = response.parsed_body
             json_data2 = json_data2['@graph'].first
+
             assert_equal(json_data, json_data2)
           end
 
           test 'concepts at /api/v4/things/:id with fields dc:classification.skos:inScheme.skos:prefLabel' do
             get api_v4_thing_path(id: @content.id, fields: 'dc:classification.skos:inScheme.skos:prefLabel')
+
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
             json_data = json_data['@graph'].first
 
@@ -120,8 +130,9 @@ module DataCycleCore
 
           test 'combo of fields, include' do
             get api_v4_thing_path(id: @content.id, fields: 'dc:classification.skos:inScheme.skos:prefLabel', include: 'dc:classification')
+
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
             json_data = json_data['@graph'].first
 
@@ -135,14 +146,16 @@ module DataCycleCore
 
           test 'testing fields for wildcard - nested classification fields' do
             fields = ['*', 'dc:classification.*', 'dc:classification.skos:inScheme.*', 'dc:classification.skos:topConceptOf.*']
-            includes = ['dc:classification', 'dc:classification.skos:inScheme', 'dc:classification.skos:topConceptOf']
+            includes = ['dc:classification', 'dc:classification.skos:inScheme', 'dc:classification.skos:topConceptOf', 'dc:slugifiedName', 'dc:classification.dc:slugifiedName', 'dc:classification.skos:inScheme.dc:slugifiedName', 'dc:classification.skos:topConceptOf.dc:slugifiedName']
 
             get api_v4_thing_path(id: @content.id, fields: nil, include: add_content_header_fields(includes)&.join(','))
+
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
             json_data_includes = response.parsed_body['@graph'].first
 
             get api_v4_thing_path(id: @content.id, fields: fields&.join(','), include: nil)
+
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
             json_data_wildcard = response.parsed_body['@graph'].first
@@ -155,14 +168,16 @@ module DataCycleCore
 
           test 'testing fields for wildcard - dc:classification' do
             fields = ['dc:classification.*']
-            includes = ['dc:classification']
+            includes = ['dc:classification', 'dc:classification.dc:slugifiedName']
 
             get api_v4_thing_path(id: @content.id, fields: nil, include: add_content_header_fields(includes)&.join(','))
+
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
             json_data_includes = response.parsed_body['@graph'].first
 
             get api_v4_thing_path(id: @content.id, fields: fields&.join(','), include: nil)
+
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
             json_data_wildcard = response.parsed_body['@graph'].first

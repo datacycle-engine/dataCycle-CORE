@@ -15,16 +15,28 @@ module DataCycleCore
 
           def load_data_from_mongo(options:, locale:, source_filter:, **_keyword_args)
             raise ArgumentError, "missing read_type for #{options.dig(:download, :name)}" if options.dig(:download, :read_type).nil?
+
             read_type = Mongoid::PersistenceContext.new(
               DataCycleCore::Generic::Collection2, collection: options[:download][:read_type]
             )
 
             pipelines = create_aggregate_pipeline(options:, locale:, source_filter:)
+            pipelines = yield(pipelines) if block_given? # allow further pipeline modification
 
             DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
               mongo.collection.aggregate(
                 pipelines, allow_disk_use: true
               ).to_a
+            end
+          end
+
+          def load_ids_from_mongo(options:, **)
+            if options.dig(:download, :data_id_transformation)
+              load_data_from_mongo(options:, **)
+                .map { |s| data_id(options.dig(:download, :data_id_transformation), s) }
+            else
+              load_data_from_mongo(options:, **) { |pl| pl << { '$project' => { 'id' => 1 } } }
+                .pluck('id')
             end
           end
 

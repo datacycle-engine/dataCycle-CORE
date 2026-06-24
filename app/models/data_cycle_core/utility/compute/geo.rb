@@ -23,7 +23,7 @@ module DataCycleCore
             ids = computed_parameters.values.flatten
             return if ids.blank?
 
-            sql = <<-SQL.squish
+            sql = <<~SQL.squish
               SELECT ST_AsText(ST_Force3D(ST_Union(classification_polygons.geom))) AS geom
               FROM concepts
                 INNER JOIN classification_polygons ON classification_polygons.classification_alias_id = concepts.id

@@ -6,6 +6,8 @@ require 'minitest/autorun'
 require 'helpers/minitest_spec_helper'
 
 describe 'DataCycleCore::Generic::Common::Functions#ensure_keys' do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::Generic::Common::Transformations::BasicFunctions
   end
@@ -23,6 +25,6 @@ describe 'DataCycleCore::Generic::Common::Functions#ensure_keys' do
     assert_equal('VALUE 1', transformed_data['key_1'])
     assert_equal('VALUE 2', transformed_data['key_2'])
     assert_nil(transformed_data['key_3'])
-    assert_equal(false, transformed_data.key?('other_key'))
+    assert_not(transformed_data.key?('other_key'))
   end
 end

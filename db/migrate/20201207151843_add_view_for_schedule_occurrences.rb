@@ -2,7 +2,7 @@
 
 class AddViewForScheduleOccurrences < ActiveRecord::Migration[5.2]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE VIEW schedule_occurrences AS (
         WITH occurrences AS (
             SELECT
@@ -35,7 +35,7 @@ class AddViewForScheduleOccurrences < ActiveRecord::Migration[5.2]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW IF EXISTS schedule_occurrences;
     SQL
   end

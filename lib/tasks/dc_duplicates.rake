@@ -11,8 +11,8 @@ namespace :dc do
 
       puts "RECREATE Duplicate Candidates (#{total_items})"
 
-      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
-      progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: 'Items')
+      queue = DataCycleCore::WorkerPool.new
+      progress = ProgressBar.create(total: total_items, title: 'Items')
 
       duplicate_count = 0
       data_object.find_each do |content|
@@ -28,26 +28,29 @@ namespace :dc do
     end
 
     desc 'Create Duplicate-Candidates from a StoredFilter'
-    task :create_duplicates, [:stored_filter] => [:environment] do |_, args|
+    task :create_duplicates, [:collection_id_slug_name] => [:environment] do |_, args|
       abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
-      abort('A stored filter ID, or a stored filter Name has to be specified') if args.stored_filter.blank?
+      abort('A stored filter ID, or a stored filter Name has to be specified') if args.collection_id_slug_name.blank?
 
-      stored_filter = DataCycleCore::StoredFilter.by_id_or_name(args.stored_filter).first
+      collection = DataCycleCore::Collection.by_id_name_slug(args.collection_id_slug_name).first
+      abort("collection #{args.collection_id_slug_name} does not exist!") if collection.nil?
 
-      abort("stored filter #{args.stored_filter} does not exist!") if stored_filter.nil?
+      start_time = Time.zone.now
 
-      stored_filter.language = Array(I18n.available_locales).map(&:to_s)
-      query = stored_filter.apply
-
+      collection.language = Array.wrap(I18n.available_locales).map(&:to_s)
+      query = collection.things
       total_items = query.count
-      puts "(RE)CREATE Duplicate Candidates (#{total_items})"
-
-      progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: stored_filter.name.presence || 'Items')
+      logger = Logger.new('log/create_duplicates.log')
+      logger.info "(RE)CREATE Duplicate Candidates for ##{collection.id} (#{total_items})"
 
       duplicate_counts = []
-      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
+      queue = DataCycleCore::WorkerPool.new
+      progress = ProgressBar.create(
+        total: total_items,
+        title: "#{collection.name.presence || 'Items'} (#{queue.num_workers} workers)"
+      )
 
-      query.query.find_each do |content|
+      query.find_each do |content|
         queue.append do
           duplicate_counts.push(content.create_duplicate_candidates.to_i)
           progress.increment
@@ -56,32 +59,7 @@ namespace :dc do
 
       queue.wait!
 
-      puts "(RE)CREATED Duplicate Candidates - #{duplicate_counts.sum} duplicates found"
-    end
-
-    desc '(Re)Create Duplicate-Candidates from Endpoint (faster than create_duplicates)'
-    task :recreate_duplicates, [:endpoint_id_or_slug] => [:environment] do |_, args|
-      abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
-      abort('A stored filter ID, or a stored filter Name has to be specified') if args.endpoint_id_or_slug.blank?
-
-      start_time = Time.zone.now
-      stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(args.endpoint_id_or_slug).first
-      watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(args.endpoint_id_or_slug).first if stored_filter.nil?
-
-      abort("endpoint #{args.endpoint_id_or_slug} not found!") if stored_filter.nil? && watch_list.nil?
-
-      if stored_filter.present?
-        stored_filter.language = Array(I18n.available_locales).map(&:to_s)
-        query = stored_filter.apply.query
-      else
-        query = watch_list.things
-      end
-
-      total_items = query.count
-      puts "(RE)CREATE Duplicate Candidates (#{total_items})"
-
-      duplicate_count = query.create_duplicate_candidates
-      puts "(RE)CREATED Duplicate Candidates - #{duplicate_count} duplicates found (#{(Time.zone.now - start_time).round} sec)"
+      logger.info "(RE)CREATED Duplicate Candidates for ##{collection.id} - #{duplicate_counts.sum} duplicates found (#{(Time.zone.now - start_time).round} sec)"
     end
 
     desc 'delete duplicates with <score> and above'
@@ -95,9 +73,9 @@ namespace :dc do
       stored_filter = stored_filter_id.present? ? DataCycleCore::StoredFilter.find(stored_filter_id) : DataCycleCore::StoredFilter.new
       stored_filter.language = Array(I18n.available_locales).map(&:to_s)
       query = stored_filter.apply
-      query = query.duplicate_candidates(true, score)
+      query = query.duplicate_candidate_filter({ 'min' => score })
+      items = query.query
 
-      items = query.all
       puts "Started merging #{items.size} duplicates\n"
 
       items.find_each do |item|
@@ -121,29 +99,32 @@ namespace :dc do
     end
 
     desc 'consolidate duplicates with <score> and above for external_source_id'
-    task :merge_duplicates, [:min_score, :stored_filter_id, :filter_duplicates, :dry_run] => [:environment] do |_, args|
+    task :merge_duplicates, [:min_score, :stored_filter_id_or_slug, :filter_duplicates, :duplicate_method] => [:environment] do |_, args|
       abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
 
-      filter_duplicates = args.fetch(:filter_duplicates, false)
-      dry_run = args.fetch(:dry_run, false)
-      stored_filter_id = args.fetch(:stored_filter_id, nil)
-      score = args.fetch(:min_score, nil)&.to_i
+      filter_duplicates = args.filter_duplicates.to_s == 'true'
+      stored_filter_id_or_slug = args.stored_filter_id_or_slug
+      duplicate_method = args.duplicate_method
+      score = args.min_score&.to_i
 
-      stored_filter = stored_filter_id.present? ? DataCycleCore::StoredFilter.find(stored_filter_id) : DataCycleCore::StoredFilter.new
+      stored_filter = stored_filter_id_or_slug.present? ? DataCycleCore::StoredFilter.by_id_or_slug(stored_filter_id_or_slug).first : DataCycleCore::StoredFilter.new
       stored_filter.language = Array(I18n.available_locales).map(&:to_s)
       query_sf = stored_filter.apply
-      query = query_sf.duplicate_candidates(true, score)
-
-      items = query.all
-      puts "Started merging #{items.size} duplicates\n"
-
+      value = {
+        'min' => score,
+        'method' => duplicate_method
+      }
+      items = query_sf.duplicate_candidate_filter(value).query
+      logger = Logger.new('log/create_duplicates.log')
+      logger.info "Started merging #{items.size} duplicates\n"
       items.find_each do |item|
-        next if dry_run
-
-        duplicates_query = item.duplicate_candidates.where(score: score..).duplicates
+        duplicates_base = item.duplicate_candidates
+        duplicates_base = duplicates_base.where(score: score..) if score.present?
+        duplicates_base = duplicates_base.where(duplicate_method: duplicate_method) if duplicate_method.present?
+        duplicates_query = duplicates_base.duplicates
         duplicates_query = duplicates_query.where(id: query_sf.select(:id)) if filter_duplicates
 
-        duplicates = (duplicates_query + [item]).sort_by { |v| v.try(:updated_at) }
+        duplicates = (duplicates_query + [item]).sort_by { |v| [v.try(:internal_content_score).to_i, v.try(:updated_at)] }
         original = duplicates.pop
 
         duplicates.each do |duplicate|
@@ -152,12 +133,9 @@ namespace :dc do
         end
       end
 
-      puts "\nFinished merging duplicates"
+      puts "\n"
 
-      if dry_run
-        puts 'Dry run: no database changes made'
-        exit(-1)
-      end
+      logger.info 'Finished merging duplicates'
     end
 
     desc 'merges duplicate into original'

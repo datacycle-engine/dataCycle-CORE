@@ -41,16 +41,20 @@ module DataCycleCore
       assert_equal @version_name2, @content.previous_named_history.version_name
 
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 10' }, prevent_history: true)
+
       assert_nil content2.previous_named_history
 
       content2.set_data_hash(data_hash: { name: 'Test Artikel 11' }, partial_update: true)
       content2.set_data_hash(data_hash: { name: 'Test Artikel 12' }, partial_update: true)
+
       assert_equal content2.histories.last.id, content2.previous_named_history.id
 
       content2.set_data_hash(data_hash: { name: 'Test Artikel 13' }, partial_update: true, version_name: 'Version 1')
+
       assert_equal content2.histories.last.id, content2.previous_named_history.id
 
       content2.set_data_hash(data_hash: { name: 'Test Artikel 14' }, partial_update: true)
+
       assert_equal content2.histories.first.id, content2.previous_named_history.id
     end
   end

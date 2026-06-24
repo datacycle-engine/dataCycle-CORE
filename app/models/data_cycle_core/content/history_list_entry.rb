@@ -26,8 +26,8 @@ module DataCycleCore
       diff_view: false
     }.freeze
 
-    HistoryListEntry = Struct.new(*HISTORY_LIST_ARGUMENTS.keys, keyword_init: true) do
-      def initialize(**args)
+    HistoryListEntry = Struct.new(*HISTORY_LIST_ARGUMENTS.keys) do
+      def initialize(*, **args)
         args.reverse_merge!(HISTORY_LIST_ARGUMENTS)
 
         unless args[:item].nil?
@@ -64,6 +64,7 @@ module DataCycleCore
 
       def active_class
         return 'active' if active_id == id
+
         'diff-active' if diff_id == id
       end
 

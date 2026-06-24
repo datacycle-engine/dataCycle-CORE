@@ -2,7 +2,7 @@
 
 class MaybeFixCccTriggersAgain < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_ccc_from_ca_ids_transitive(ca_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(ca_ids, 1) > 0 THEN WITH full_classification_content_relations AS (
           SELECT DISTINCT ON (
               classification_contents.content_data_id,
@@ -86,7 +86,7 @@ class MaybeFixCccTriggersAgain < ActiveRecord::Migration[7.1]
       $$;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_collected_cl_content_relations_transitive(thing_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(thing_ids, 1) > 0 THEN WITH full_classification_content_relations AS (
           SELECT DISTINCT ON (
               classification_contents.content_data_id,
@@ -169,7 +169,7 @@ class MaybeFixCccTriggersAgain < ActiveRecord::Migration[7.1]
       $$;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_collected_classification_content_relations(
           content_ids uuid [],
           excluded_classification_ids uuid []

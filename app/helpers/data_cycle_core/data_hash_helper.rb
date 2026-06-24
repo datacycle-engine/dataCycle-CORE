@@ -121,7 +121,7 @@ module DataCycleCore
       return if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, content.try(:life_cycle_data_attribute)) && type == :value && key == DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first
 
       ui_config = content&.properties_for(key)&.[]('ui').to_h
-      ui_config.merge!(ui_config[scope.to_s].to_h) if ui_config.present?
+      ui_config.presence&.merge!(ui_config[scope.to_s].to_h)
 
       if context == :show && ui_config.key?('disabled')
         return if ui_config['disabled'].to_s == 'true'
@@ -145,6 +145,7 @@ module DataCycleCore
           next false unless v.key?('sorting')
           next false if v.dig('ui', scope.to_s, 'disabled').to_s == 'true'
           next false if !v.dig('ui', scope.to_s)&.key?('disabled') && v.dig('ui', 'disabled').to_s == 'true'
+
           true
         end
     end

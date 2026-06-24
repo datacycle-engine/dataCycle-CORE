@@ -2,7 +2,7 @@
 
 class RefactorTriggerForWatchListDataHashDefaultOrderValue < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE watch_list_data_hashes ALTER COLUMN order_a DROP NOT NULL;
       ALTER TABLE watch_list_data_hashes ALTER COLUMN order_a DROP DEFAULT;
       DROP TRIGGER IF EXISTS wldh_order_a_default_value_trigger ON watch_list_data_hashes;
@@ -13,7 +13,7 @@ class RefactorTriggerForWatchListDataHashDefaultOrderValue < ActiveRecord::Migra
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS wldh_order_a_default_value_trigger ON watch_list_data_hashes;
       DROP FUNCTION IF EXISTS update_wldh_order_a_value;
       DROP INDEX IF EXISTS wldh_order_a_brin_idx;

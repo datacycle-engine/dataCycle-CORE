@@ -8,6 +8,59 @@ namespace :dc do
       require 'csv'
       require 'roo'
 
+      # Format: id | parent_id | name
+      desc 'import classifications from xlsx. Format: id | parent_id | name'
+      task :from_xlsx, [:file_path] => :environment do |_, args|
+        abort('file_path missing!') if args.file_path.blank?
+
+        file_paths = Dir[args.file_path]
+        abort('no files found at this path!') if file_paths.blank?
+
+        concepts = []
+        concept_scheme = nil
+        classification_count = 0
+
+        file_paths.each do |file_path|
+          Roo::Spreadsheet.open(file_path).each_with_pagename do |_name, sheet|
+            sheet.each do |row|
+              next if row.blank?
+
+              attrs = {
+                external_key: row[0].to_s.strip,
+                name: row[2].to_s.strip,
+                parent_external_key: row[1].to_s.strip
+              }.compact_blank
+
+              if attrs[:parent_external_key].blank?
+                abort('Multiple ConceptSchemes found') if concept_scheme.present?
+
+                concept_scheme = DataCycleCore::ConceptScheme.find_by(attrs)
+                next if concept_scheme
+
+                cs = DataCycleCore::ClassificationTreeLabel.upsert_all([attrs], returning: :id)
+                concept_scheme = DataCycleCore::ConceptScheme.find_by(id: cs.first['id']) if cs.any?
+                next
+              end
+
+              abort('ConceptScheme missing before child rows') if concept_scheme.nil?
+
+              attrs[:concept_scheme_external_key] = concept_scheme.external_key
+              attrs[:concept_scheme_name] = concept_scheme.name
+
+              concepts << attrs.merge({
+                concept_scheme_external_key: concept_scheme.external_key,
+                concept_scheme_name: concept_scheme.name
+              })
+
+              classification_count += 1
+            end
+          end
+        end
+        upserted = concept_scheme.upsert_all_external_classifications(concepts)
+
+        print "imported #{upserted.count} classifications from #{classification_count} rows \n"
+      end
+
       desc 'import mappings CSV file'
       task :mappings_from_csv, [:file_path, :separator] => :environment do |_, args|
         abort('file_path missing!') if args.file_path.blank?
@@ -77,7 +130,7 @@ namespace :dc do
       end
 
       desc 'import translations from XLSX or CSV file'
-      task :translations_from_spreadsheet, [:locale, :file_path] => :environment do |_, args|
+      task :translations_from_spreadsheet, [:locale, :file_path, :use_external_key] => :environment do |_, args|
         abort('locale missing!') if args.locale.blank?
         abort('locale not enabled in this system!') if I18n.available_locales.exclude?(args.locale.to_sym)
         abort('file_path missing!') if args.file_path.blank?
@@ -86,6 +139,7 @@ namespace :dc do
         pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
         futures = []
         file_paths = Dir[args.file_path]
+        use_external_key = args.use_external_key || false
 
         abort('no files found at this path!') if file_paths.blank?
 
@@ -94,16 +148,20 @@ namespace :dc do
             sheet.each do |row|
               next if row.blank?
 
-              ca_path = row[0].to_s.strip
+              ca_identifier = row[0].to_s.strip # ca_identifier can either be the full_classifiation_path or the external_key
               ca_translation = row[1].to_s.strip
 
-              next unless ca_path.include?('>') && ca_translation.present?
+              next unless ca_translation.present? && (ca_identifier.include?('>') || use_external_key)
 
               ParallelHelper.run_in_parallel(futures, pool) do
-                ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(ca_path)
+                ca = if use_external_key
+                       DataCycleCore::ClassificationAlias.find_by(external_key: ca_identifier)
+                     else
+                       DataCycleCore::ClassificationAlias.custom_find_by_full_path(ca_identifier)
+                     end
 
                 if ca.nil?
-                  errors << "classification_alias not found (#{ca_path})"
+                  errors << "classification_alias not found (#{ca_identifier})"
                   print 'x'
                   next
                 end
@@ -114,7 +172,7 @@ namespace :dc do
                   print ca.name_i18n_previously_changed? ? '+' : '.'
                 end
               rescue StandardError
-                errors << "unkown error occurred (#{ca_path})"
+                errors << "unkown error occurred (#{ca_identifier})"
                 print 'x'
               end
             end
@@ -168,8 +226,9 @@ namespace :dc do
 
     namespace :merge do
       desc 'create distinct classification tree with mappings'
-      task :create_distinct_tree, [:from_tree_label, :to_tree_label] => [:environment] do |_, args|
+      task :create_distinct_tree, [:from_tree_label, :to_tree_label, :map_only_leafs] => [:environment] do |_, args|
         from_tree_label_name = args.from_tree_label.strip
+        map_only_leafs = args.map_only_leafs&.to_s == 'true'
         to_tree_label_name = args.to_tree_label&.strip.presence || "#{from_tree_label_name} (Distinct)"
 
         abort('missing from_tree_label!') if from_tree_label_name.blank?
@@ -183,12 +242,13 @@ namespace :dc do
 
         mappings = []
         classifications = from_tree_label
-          .classification_aliases
-          .preload(:classification_alias_path, :primary_classification)
+          .concepts
+          .preload(:classification_alias_path)
           .group_by { |ca| ca.classification_alias_path&.full_path_names&.reverse&.drop(1) }
           .map { |k, v|
             next if k.include?(nil)
-            mappings.concat(v.map { |ca| { path: ([to_tree_label.name] + k).join(' > '), classification_id: ca.primary_classification&.id } }.uniq)
+
+            mappings.concat(v.map { |ca| { path: ([to_tree_label.name] + k).join(' > '), classification_id: ca.classification_id } }.uniq)
 
             {
               name: k.last,
@@ -202,12 +262,19 @@ namespace :dc do
         tmp = Time.zone.now
         to_tree_label.insert_all_classifications_by_path(classifications)
 
-        aliases = DataCycleCore::ClassificationAlias.by_full_paths(mappings.pluck(:path).uniq).to_h { |ca| [ca.full_path, ca.id] }
+        if map_only_leafs
+          puts 'mapping only leaf classifications...'
+          mappings.select! do |m|
+            mappings.none? { |other| other[:path].include?("#{m[:path]} >") }
+          end
+        end
+
+        aliases = DataCycleCore::Concept.by_full_paths(mappings.pluck(:path).uniq).to_h { |ca| [ca.full_path, ca.id] }
         new_ca_groups = mappings.map { |m| { classification_alias_id: aliases[m[:path]], classification_id: m[:classification_id] } }
 
         DataCycleCore::ClassificationGroup.insert_all(new_ca_groups, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
 
-        puts AmazingPrint::Colors.green("[DONE] finished upserting in #{Time.zone.now - tmp}s.")
+        puts AmazingPrint::Colors.green("[DONE] finished upserting #{mappings.size} mappings in #{Time.zone.now - tmp}s.")
       end
     end
 
@@ -249,6 +316,7 @@ namespace :dc do
         stored_filters = DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{ca_id}%").named.order(updated_at: :desc).select(:id, :name, :updated_at, :api)
         classification_alias = DataCycleCore::ClassificationAlias.find_by(id:)
         next if classification_alias.nil? || stored_filters.empty?
+
         found_stored_filters << stored_filters.pluck(:id)
         puts "Found #{stored_filters.size} stored_filters for classification_alias_id: #{ca_id} (#{classification_alias.full_path})"
         pp stored_filters.as_json(only: [:id, :name, :updated_at, :api]) if stored_filters.size.positive?

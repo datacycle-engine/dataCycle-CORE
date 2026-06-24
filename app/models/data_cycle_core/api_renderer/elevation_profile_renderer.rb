@@ -45,7 +45,7 @@ module DataCycleCore
       end
 
       def base_query
-        <<-SQL.squish
+        <<~SQL.squish
           WITH points AS (
             SELECT (ST_DumpPoints(geometries.geom)).geom AS geom
             FROM geometries
@@ -82,7 +82,7 @@ module DataCycleCore
       end
 
       def json_array
-        <<-SQL.squish
+        <<~SQL.squish
           #{base_query}
           SELECT json_build_object(
             'data',
@@ -104,7 +104,7 @@ module DataCycleCore
       end
 
       def json_object
-        <<-SQL.squish
+        <<~SQL.squish
           #{base_query}
           SELECT json_build_object(
             'data',

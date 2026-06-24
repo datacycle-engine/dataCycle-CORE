@@ -122,12 +122,14 @@ module DataCycleCore
         def self.build_thing_validation(fields, include)
           return fields if fields.present?
           return DEFAULT_THING_ATTRIBUTES.merge(include) if include.present?
+
           DEFAULT_THING_ATTRIBUTES
         end
 
         def self.build_event_validation(fields, include)
           return fields if fields.present?
           return DEFAULT_EVENT_ATTRIBUTES.merge(include) if include.present?
+
           DEFAULT_EVENT_ATTRIBUTES
         end
 

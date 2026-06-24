@@ -45,7 +45,7 @@ module DataCycleCore
       assert concept1.is_a?(Concept)
       assert_equal 'test', concept1.name
       assert_equal @es_id, concept1.external_system_id
-      assert_equal true, concept1.internal
+      assert concept1.internal
       assert_equal concept_scheme1.id, concept1.concept_scheme.id
     end
 
@@ -56,7 +56,7 @@ module DataCycleCore
       assert concept1.is_a?(Concept)
       assert_equal 'test', concept1.name
       assert_equal @es_id, concept1.external_system_id
-      assert_equal true, concept1.internal
+      assert concept1.internal
       assert_equal concept_scheme1.id, concept1.concept_scheme.id
       assert_equal @ca.concept.id, concept1.parent.id
     end

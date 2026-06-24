@@ -6,13 +6,15 @@ module DataCycleCore
     queue_with_priority 5
 
     ATTEMPTS = 10
-    WAIT = :exponentially_longer
+    WAIT = :polynomially_longer
+    ABORT_ON_NIL_ACTIONS = [:create, :update].freeze
 
     attr_accessor :data, :utility_object, :external_sync, :response, :start_time
 
     before_perform :initialize_context
     before_perform :check_filter
     before_perform :init_external_sync
+    after_success :success_delete
     after_success :success_external_sync
     after_error :error_external_sync
     after_failure :failure_external_sync
@@ -47,6 +49,12 @@ module DataCycleCore
     def success_external_sync
       external_sync&.update(status: 'success', last_successful_sync_at: start_time, data: external_sync&.data&.except('exception'))
       instrument_status(:info, "[FINISHED] in #{(Time.zone.now - start_time).round(3)}s")
+    end
+
+    def success_delete
+      return unless utility_object.action.to_s == 'delete'
+
+      external_sync&.update(sync_type: 'duplicate')
     end
 
     def error_external_sync
@@ -118,8 +126,12 @@ module DataCycleCore
     end
 
     def parse_data_item(data)
-      item = data[:klass]&.safe_constantize&.find_by(id: data[:id]) ||
-             OpenStruct.new(data) # rubocop:disable Style/OpenStructUse
+      item = data[:klass]&.safe_constantize&.find_by(id: data[:id])
+
+      if item.nil?
+        throw :abort if ABORT_ON_NIL_ACTIONS.include?(arguments.dig(0, :action))
+        item = OpenStruct.new(data) # rubocop:disable Style/OpenStructUse
+      end
 
       if data[:webhook_data].present? && item.respond_to?(:webhook_data)
         item.webhook_data = OpenStruct.new(data[:webhook_data]) # rubocop:disable Style/OpenStructUse

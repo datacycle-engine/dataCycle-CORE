@@ -26,12 +26,12 @@ module DataCycleCore
           return false if data.try(:embedded?)
 
           endpoint_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'endpoints'))
-          endpoints = DataCycleCore::StoredFilter.where(id: endpoint_ids) if endpoint_ids.present?
+          endpoints = DataCycleCore::StoredFilter.by_id_or_slug(endpoint_ids) if endpoint_ids.present?
 
           return false if endpoints.blank?
 
           endpoints.any? do |endpoint|
-            query = endpoint.apply.query.except(:order)
+            query = endpoint.things(skip_ordering: true).reorder(nil)
 
             next true if query.exists?(id: data.id)
 
@@ -39,6 +39,7 @@ module DataCycleCore
               tmp = query.exists?(id: data.depending_contents.pluck(:id))
 
               next tmp if endpoint.linked_stored_filter.nil?
+
               next tmp && endpoint.linked_stored_filter.apply.except(:order).exists?(id: data.id)
             end
 

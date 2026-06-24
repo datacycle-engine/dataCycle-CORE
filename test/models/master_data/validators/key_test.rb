@@ -26,6 +26,7 @@ describe DataCycleCore::MasterData::Validators::Key do
 
     it 'properly validates a key' do
       key_object = '00000000-0000-0000-0000-000000000000'
+
       assert_equal(no_error_hash, subject.new(key_object, template_hash).error)
     end
 
@@ -33,6 +34,7 @@ describe DataCycleCore::MasterData::Validators::Key do
       test_cases = [10, :wednesday, 'servus']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -48,6 +50,7 @@ describe DataCycleCore::MasterData::Validators::Key do
       test_cases = ['00000000-0000-0000-0000-000000000000', ' 00000000-0000-0000-0000-000000000000  ']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end

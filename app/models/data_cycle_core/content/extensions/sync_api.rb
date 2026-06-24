@@ -18,19 +18,22 @@ module DataCycleCore
 
         extend ActiveSupport::Concern
 
-        def to_sync_data(locales: nil, translated: false, preloaded: {}, ancestor_ids: [], included: [], classifications: [], attribute_name: nil, linked_stored_filter: nil)
+        def to_sync_data(locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [], attribute_name: nil, linked_stored_filter: nil)
           ancestor_proc = ->(a) { a[:id] == id }
 
           return if ancestor_ids.count(&ancestor_proc) >= 2
 
           languages = available_locales.presence || [I18n.locale]
-          languages = locales if locales.present? && translated
+          languages = locales if locales.present?
           new_ancestor_ids = ancestor_ids + [{ id:, attribute_name: }]
           preloaded = preload_sync_data(linked_stored_filter:) if preloaded.blank?
 
           data = languages.index_with do |lang|
-            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{lang}_#{updated_at.to_i}_#{cache_valid_since.to_i}", expires_in: 1.year + Random.rand(7.days)) do
-              I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, linked_stored_filter:) }
+            cache_key = "sync_api_v1_show/#{model_name.param_key}/#{id}/#{lang}/#{linked_stored_filter&.id}/#{cache_valid_since.to_i}"
+            Rails.cache.fetch(cache_key, expires_in: 1.year + Random.rand(7.days)) do
+              I18n.with_locale(lang) do
+                to_sync_h(preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, linked_stored_filter:)
+              end
             end
           end
 
@@ -41,6 +44,7 @@ module DataCycleCore
               data[:attribute_name] = [attribute_name]
               included.unshift(data)
             end
+
             add_sync_included_data(data:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages, linked_stored_filter:)
           end
 
@@ -57,52 +61,54 @@ module DataCycleCore
           data
         end
 
-        def to_sync_h(locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [], linked_stored_filter: nil)
-          (property_names - timeseries_property_names)
-            .index_with { |key| attribute_to_sync_h(key, locales:, preloaded:, ancestor_ids:, included:, classifications:, linked_stored_filter:) }
+        def to_sync_h(**kwargs)
+          keys = property_names -
+                 timeseries_property_names -
+                 overlay_for_property_names - # exclude all overlay_for properties,
+                 Array.wrap(overlay_name)     # as they are included in their original property
+          keys
+            .index_with { |key| attribute_to_sync_h(key, **kwargs) }
             .merge(sync_metadata)
-            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', locales:, preloaded:, ancestor_ids:, included:, classifications:, linked_stored_filter:) }
+            .tap { |sync_data|
+              sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', **kwargs)
+            }
             .deep_stringify_keys
         end
 
-        def attribute_to_sync_h(property_name, locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [], linked_stored_filter: nil)
-          present_overlay = overlay_property_names.include?(property_name)
+        def attribute_to_sync_h(property_name, preloaded: {}, ancestor_ids: [], included: [], classifications: [], linked_stored_filter: nil)
+          overlay_keys = (overlay_property_names + properties_with_overlay).uniq
           property_name_with_overlay = property_name
-          property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
+          property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_keys.include?(property_name) && property_name != 'id'
+          prop = properties_for(property_name) || {}
 
-          if plain_property_names.include?(property_name) ||
-             geo_property_names.include?(property_name)
+          if plain_property?(property_name, prop) || geo_property?(property_name, prop)
             send(property_name_with_overlay)&.as_json
-          elsif classification_property_names.include?(property_name)
+          elsif classification_property?(property_name, prop)
             send(property_name_with_overlay).try(:pluck, :id)
-          elsif linked_property_names.include?(property_name)
-            return [] if properties_for(property_name)['link_direction'] == 'inverse'
+          elsif linked_property?(property_name, prop)
+            return [] if prop['link_direction'] == 'inverse'
 
-            get_property_value(property_name, property_definitions[property_name], linked_stored_filter, present_overlay).pluck(:id) || []
-          elsif included_property_names.include?(property_name)
-            embedded_hash = send(property_name_with_overlay).to_h
-            embedded_hash.presence
-          elsif embedded_property_names.include?(property_name)
+            send(property_name_with_overlay, linked_stored_filter).try(:pluck, :id)
+          elsif object_property?(property_name, prop)
+            send(property_name_with_overlay).to_h.presence
+          elsif embedded_property?(property_name, prop)
             return if property_name == overlay_name
-            properties_for(property_name)['translated']
-            embedded_array = send(property_name_with_overlay)
 
-            translated = property_definitions[property_name]['translated']
-            embedded_array&.filter_map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:) } || []
-          elsif schedule_property_names.include?(property_name)
-            schedule_array = send(property_name_with_overlay)
-
-            schedule_array&.filter_map { |schedule| schedule.to_h.except(:thing_id) } || []
+            send(property_name_with_overlay)&.filter_map do |i|
+              i.to_sync_data(locales: [I18n.locale], preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:)
+            end || []
+          elsif schedule_property?(property_name, prop)
+            send(property_name_with_overlay)&.filter_map { |s| s.to_h.except(:thing_id, :relation) } || []
           elsif property_name == 'mapped_classifications'
             mapped_ids = related_classification_contents.map(&:classification_alias_id)
 
             preloaded['classifications']
               &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
               &.keys
-          elsif asset_property_names.include?(property_name) ||
-                collection_property_names.include?(property_name) ||
-                oembed_property_names.include?(property_name) ||
-                table_property_names.include?(property_name)
+          elsif asset_property?(property_name, prop) ||
+                collection_property?(property_name, prop) ||
+                oembed_property?(property_name, prop) ||
+                table_property?(property_name, prop)
             # TODO: check if we need to serialize these properties
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
@@ -118,6 +124,7 @@ module DataCycleCore
                 value.each do |v|
                   embedded_id = v&.values&.first&.dig('id')
                   next if embedded_id.nil?
+
                   new_ancestor_ids = ancestor_ids + [{ id: embedded_id, attribute_name: key }]
 
                   preloaded.dig('contents', embedded_id)&.add_sync_included_data(data: v, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales:, linked_stored_filter:)
@@ -190,11 +197,9 @@ module DataCycleCore
             external_source_id:,
             external_source: external_source&.identifier
           }
+
           unless embedded?
             sm = sm.merge({
-              last_sync_at: updated_at,
-              last_successful_sync_at: updated_at,
-              status: 'success',
               external_system_syncs: external_system_syncs.filter_map do |i|
                 {
                   'external_key' => i.external_key || id,
@@ -207,6 +212,7 @@ module DataCycleCore
               end
             })
           end
+
           sm
         end
 
@@ -233,8 +239,9 @@ module DataCycleCore
 
             if linked_stored_filter.present?
               preloaded_content_contents = preloaded_content_contents.joins(:content_b)
-              preloaded_content_contents = preloaded_content_contents.where(content_b: { content_type: 'embedded' }).or(preloaded_content_contents.where(content_b: { id: linked_stored_filter.things(skip_ordering: true).reorder(nil).select(:id).where('things.id = content_contents.content_b_id') }))
+              preloaded_content_contents = preloaded_content_contents.where(content_b: { content_type: 'embedded' }).or(preloaded_content_contents.where(content_b: { id: linked_stored_filter.things_nested.select(:id).where('things.id = content_contents.content_b_id') }))
             end
+
             preloaded_content_contents = preloaded_content_contents.to_a
 
             preloaded = {}
@@ -245,12 +252,13 @@ module DataCycleCore
               .preload(
                 :translations,
                 :external_source,
-                :classification_contents,
                 :schedules,
+                :geometries,
                 :related_classification_contents,
                 external_system_syncs: [:external_system],
                 asset_contents: [:asset],
-                full_classification_contents: [classification_alias: [:external_source, :classification_alias_path, {classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]}]]
+                classification_contents: [:classification],
+                full_classification_contents: [{ classification_alias: [:external_source, :classification_alias_path, { classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases] }] }]
               )
               .index_by(&:id)
 
@@ -310,29 +318,9 @@ module DataCycleCore
                   )
                 end
 
-                # used only for virtual thumbnail url
-                content.asset_property_names.each do |k|
-                  content.set_memoized_attribute(k, content.asset_contents.detect { |ac| ac.relation == k }&.asset)
-                end
-                content.schedule_property_names.each do |k|
-                  content.set_memoized_attribute(
-                    k,
-                    content.overlay_property_names.include?(k) ? content.overlay_content&.schedules&.filter { |schedule| schedule.relation == k }.presence || content.schedules.filter { |schedule| schedule.relation == k } : content.schedules.filter { |schedule| schedule.relation == k },
-                    nil,
-                    content.overlay_property_names.include?(k)
-                  )
-                end
-
-                content.classification_property_names.each do |k|
-                  content.set_memoized_attribute(
-                    k,
-                    content.overlay_property_names.include?(k) ? preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.overlay_content&.id, k)).pluck(:classification).presence || preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.id, k)).pluck(:classification) : preloaded['classifications'].values_at(*preloaded.dig('classification_contents', content.id, k)).compact.pluck(:classification),
-                    nil,
-                    content.overlay_property_names.include?(k)
-                  )
-                end
-
                 content.linked_property_names.each do |k|
+                  next if content.virtual_property?(k)
+
                   content.set_memoized_attribute(
                     k,
                     content.overlay_property_names.include?(k) ? preloaded['contents'].values_at(*preloaded.dig('content_contents', content.overlay_content&.id, k)).presence || preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)) : preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)),
@@ -342,6 +330,8 @@ module DataCycleCore
                 end
 
                 content.embedded_property_names.each do |k|
+                  next if content.virtual_property?(k)
+
                   if content.translatable_property?(k)
                     content.available_locales.each do |locale|
                       I18n.with_locale(locale) do

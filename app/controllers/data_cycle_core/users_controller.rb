@@ -33,12 +33,12 @@ module DataCycleCore
       authorize! :generate_access_token, @user if permitted_params[:access_token].present?
 
       if @user.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
+        flash[:success] = I18n.t 'controllers.success.created', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       else
         flash[:error] = I18n.with_locale(helpers.active_ui_locale) { @user.errors.messages.transform_keys { |k| @user.class.human_attribute_name(k, locale: helpers.active_ui_locale) } }
       end
 
-      redirect_back(fallback_location: root_path)
+      redirect_to(user_path(@user))
     end
 
     def edit
@@ -56,12 +56,12 @@ module DataCycleCore
       (@user.additional_attributes ||= {}).merge!(permitted_params[:additional_attributes]) if @permitted_params[:additional_attributes].present?
 
       if @user.send(method, @permitted_params.except(:additional_attributes))
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
+        flash[:success] = I18n.t 'controllers.success.updated', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
 
         bypass_sign_in(@user) if current_user == @user && !@permitted_params[:password].nil?
 
         if params[:user_settings]
-          flash.clear[:success] = I18n.t(:updated_user_settings, scope: [:controllers, :success], locale: helpers.active_ui_locale)
+          flash.clear[:success] = I18n.t('controllers.success.updated_user_settings', locale: helpers.active_ui_locale)
           redirect_to(settings_path)
         elsif Rails.env.development?
           redirect_to edit_user_path(@user)
@@ -81,41 +81,44 @@ module DataCycleCore
       @user.destroy!
       sign_out(@user) if current_user == @user
 
-      redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.destroyed', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+      redirect_back_or_to(root_path, notice: I18n.t('controllers.success.destroyed', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def lock
       @user.lock_access!
 
-      redirect_back(fallback_location: root_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+      redirect_back_or_to(root_path, notice: I18n.t('controllers.success.locked', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def unlock
       @user.unlock_access!
 
-      redirect_back(fallback_location: root_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+      redirect_back_or_to(root_path, notice: I18n.t('controllers.success.unlocked', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def confirm
       @user.confirm
 
-      redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.confirmed', data: @user.email, locale: helpers.active_ui_locale))
+      redirect_back_or_to(root_path, notice: I18n.t('controllers.success.confirmed', data: @user.email, locale: helpers.active_ui_locale))
     end
 
     def search
-      authorize! :show, DataCycleCore::User
+      authorize! :search, :users
 
       users = DataCycleCore::User.limit(20)
       users = users.fulltext_search(search_params[:q]) if search_params[:q].present?
+      users = users.to_a
 
-      render plain: users.map { |u| u.to_select_option(helpers.active_ui_locale, search_params[:disable_locked].to_s != 'false') }.to_json, content_type: 'application/json'
+      visible_ids = DataCycleCore::User.where(id: users.map(&:id)).accessible_by(current_ability, :show).pluck(:id).to_set
+
+      render plain: users.map { |u| u.to_select_option(helpers.active_ui_locale, search_params[:disable_locked].to_s != 'false', mask_email: visible_ids.exclude?(u.id)) }.to_json, content_type: 'application/json'
     end
 
     def become
       @user = User.find(params[:user_id])
       bypass_sign_in(@user)
 
-      flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: helpers.active_ui_locale
+      flash[:success] = I18n.t 'controllers.success.become_user', data: @user.email, locale: helpers.active_ui_locale
 
       redirect_to authorized_root_path(@user)
     end
@@ -180,9 +183,9 @@ module DataCycleCore
     end
 
     def permitted_params
-      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, :access_token, {user_group_ids: [], additional_attributes: {}}]
-      allowed_params.push(:password, :current_password) if params.dig(:user, :password).present?
-      permitted = params.require(:user).permit(allowed_params)
+      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, :access_token, :password, :current_password, { user_group_ids: [], additional_attributes: {} }]
+      permitted = params.expect(user: allowed_params)
+      permitted = permitted.except(:password, :current_password) if permitted[:password].blank?
 
       if permitted[:access_token] == '1'
         permitted[:access_token] = SecureRandom.hex
@@ -232,11 +235,11 @@ module DataCycleCore
       end
 
       @sort_params = sort_params
-      if @sort_params.present?
-        query = query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
-      else
-        query = query.order(:email)
-      end
+      query = if @sort_params.present?
+                query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
+              else
+                query.order(:email)
+              end
     end
   end
 end

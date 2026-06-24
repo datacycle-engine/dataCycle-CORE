@@ -6,12 +6,17 @@
     <div class="row expanded">
       <div class="column edit-header-functions">
         <div class="edit-name">
-          <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.model_name.human(locale: active_ui_locale)} #{t('actions.edit', locale: active_ui_locale)}" %>
+          <i class="fa fa-pencil" aria-hidden="true"></i> <%= content.model_name.human(locale: active_ui_locale) %> <%= t('actions.edit', locale: active_ui_locale) %>
         </div>
+
         <ul>
           <li class="buttons">
             <%= link_to previous_authorized_crumb.url do %>
-              <button type="button" class="button discard top" title="<%= t('actions.discard_changes', locale: active_ui_locale) %>">
+              <button
+                type="button"
+                class="button discard top"
+                title="<%= t('actions.discard_changes', locale: active_ui_locale) %>"
+              >
                 <i class="fa fa-times" aria-hidden="true"></i>
               </button>
             <% end if previous_authorized_crumb.present? %>
@@ -38,6 +43,7 @@
             <span class="icon">
               <i class="fa fa-user" aria-hidden="true"></i>
             </span>
+
             <span class="title"><%= content.model_name.human(locale: active_ui_locale) %></span>
           </div>
         </div>
@@ -48,13 +54,25 @@
             <%= DataCycleCore::User.human_attribute_name(:email, locale: active_ui_locale) %>
             <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
           <% end %>
+
           <%= f.email_field :email, required: true, readonly: content.external %>
         </div>
+
+        <% if content.confirmable? && content.unconfirmed_email? %>
+          <div class="form-element input">
+            <%= f.label :unconfirmed_email do %>
+              <%= DataCycleCore::User.human_attribute_name(:unconfirmed_email, locale: active_ui_locale) %>
+            <% end %>
+
+            <%= f.email_field :unconfirmed_email, disabled: true %>
+          </div>
+        <% end %>
 
         <div class="form-element input">
           <%= f.label :given_name do %>
             <%= DataCycleCore::User.human_attribute_name(:given_name, locale: active_ui_locale) %>
           <% end %>
+
           <%= f.text_field :given_name %>
         </div>
 
@@ -62,6 +80,7 @@
           <%= f.label :family_name do %>
             <%= DataCycleCore::User.human_attribute_name(:family_name, locale: active_ui_locale) %>
           <% end %>
+
           <%= f.text_field :family_name %>
         </div>
 
@@ -69,6 +88,7 @@
           <%= f.label :name do %>
             <%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %>
           <% end %>
+
           <%= f.text_field :name %>
         </div>
 
@@ -77,7 +97,6 @@
             <%= f.label :password, DataCycleCore::User.human_attribute_name(:new_password, locale: active_ui_locale) %>
             <%= f.password_field :password, autocomplete: 'off' %>
           </div>
-
           <% if current_user == content %>
             <div class="form-element input password-field">
               <%= f.label :current_password, DataCycleCore::User.human_attribute_name(:current_password, locale: active_ui_locale) %>
@@ -89,6 +108,7 @@
         <% if can?(:generate_access_token, content) %>
           <div class="form-element boolean dc-checkbox">
             <%= f.check_box :access_token, label: false, checked: content.access_token.present? %>
+
             <%= f.label :access_token, nil do %>
               <%= DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale) %>
 
@@ -103,7 +123,7 @@
 
             <div class="v-select">
               <%= f.select :role_id,
-                DataCycleCore::Role.accessible_by(current_ability).order(:rank).collect{|r| [t("roles.#{r.name}", locale: active_ui_locale), r.id]},
+                user_edit_roles(content),
                 {},
                 class: 'single-select',
                 data: {
@@ -115,17 +135,13 @@
 
         <% if can? :set_user_groups, content %>
           <div class="form-element">
-
             <div class="v-select">
               <%= f.label :user_group_ids, DataCycleCore::User.human_attribute_name(:user_group_ids, locale: active_ui_locale) %>
               <%= f.collection_select :user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, { multiple: true, class: 'multi-select' } %>
             </div>
-
           </div>
         <% end %>
-
       </div>
     </div>
   </div>
-
 <% end %>

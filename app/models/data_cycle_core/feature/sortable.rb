@@ -7,9 +7,36 @@ module DataCycleCore
         def available_options(user, view)
           return [] unless enabled?
 
+          config = configuration["#{view}_context"].presence ||
+                   configuration&.reject { |k, _v| k == 'enabled' || k.end_with?('_context') }
+          sortable = to_sort_options(config, user, view)
+          sortable.select { |k, v| user.can?(:sortable, view.to_sym, k, v) }
+        end
+
+        def available_advanced_attribute_options
+          return {} unless enabled?
+
+          configuration['advanced_attributes'] || {}
+        end
+
+        # Example configuration:
+        # :start_location:
+        #   :ui:
+        #     :edit:
+        #       :options:
+        #         :sortable:
+        #           :proximity_geographic:
+        #             :attribute: line
+        def available_object_browser_options(config, user)
+          return [] unless enabled?
+
+          to_sort_options(config, user, 'object_browser')
+        end
+
+        def to_sort_options(config, user, view)
           sortable = []
 
-          (configuration["#{view}_context"].presence || configuration&.reject { |k, _v| k == 'enabled' || k.end_with?('_context') })&.each do |key, value|
+          config.presence&.each do |key, value|
             if respond_to?(key) && method(key).parameters.size == 2
               sortable.concat(send(key.to_sym, value, user))
             else
@@ -17,12 +44,7 @@ module DataCycleCore
             end
           end
 
-          sortable.select { |k, v| user.can?(:sortable, view.to_sym, k, v) }
-        end
-
-        def available_advanced_attribute_options
-          return {} unless enabled?
-          configuration['advanced_attributes'] || {}
+          sortable
         end
 
         def default(key, value, user, view = 'backend')

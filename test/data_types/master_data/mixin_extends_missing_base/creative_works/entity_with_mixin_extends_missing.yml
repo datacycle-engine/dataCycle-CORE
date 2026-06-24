@@ -1,0 +1,19 @@
+---
+- :data:
+    :name: Entity-Mixin-Extends-Missing
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Title
+        :type: string
+        :storage_location: translated_value
+      :extended_mixin:
+        :type: mixin
+        :name: child_mixin

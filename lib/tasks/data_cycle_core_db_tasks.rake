@@ -9,13 +9,25 @@ DATABASE_DUMP_EXCLUDES = {
     'subscriptions',
     '*histories',
     '*history_translations',
+    'thing_history_links',
+    'activities',
+    '*caches'
+  ],
+  'caches' => [
+    'delayed_jobs',
+    'subscriptions',
+    '*histories',
+    '*history_translations',
+    'thing_history_links',
     'activities'
   ],
   'activities' => [
     'delayed_jobs',
     'subscriptions',
     '*histories',
-    '*history_translations'
+    '*history_translations',
+    'thing_history_links',
+    '*caches'
   ],
   'full' => [
     'delayed_jobs',
@@ -46,11 +58,11 @@ namespace :data_cycle_core do
           cmd        = nil
 
           DbHelper.with_config do |host, port, db, user, password|
-            if args[:backup_name].nil?
-              full_path = "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{table_name.parameterize.underscore}.#{dump_sfx}"
-            else
-              full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
-            end
+            full_path = if args[:backup_name].nil?
+                          "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{table_name.parameterize.underscore}.#{dump_sfx}"
+                        else
+                          "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
+                        end
             cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -t '#{table_name}' -f '#{full_path}'"
           end
 

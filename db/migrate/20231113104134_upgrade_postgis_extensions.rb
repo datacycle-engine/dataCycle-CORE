@@ -2,7 +2,7 @@
 
 class UpgradePostgisExtensions < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       SELECT postgis_extensions_upgrade();
     SQL
   end

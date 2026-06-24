@@ -29,9 +29,9 @@ module DataCycleCore
       asset.creator_id = @current_user.try(:id)
       asset.save
 
-      assert(asset.persisted?)
-      assert(asset.valid?)
-      assert(asset.file.attached?)
+      assert_predicate(asset, :persisted?)
+      assert_predicate(asset, :valid?)
+      assert_predicate(asset.file, :attached?)
 
       asset.reload
     end

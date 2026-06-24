@@ -2,7 +2,7 @@
 
 class AddViewForDelayedJobStatistics < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE VIEW delayed_jobs_statistics AS
       SELECT delayed_jobs.queue AS "queue_name",
         SUM(1) filter (
@@ -37,7 +37,7 @@ class AddViewForDelayedJobStatistics < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW IF EXISTS delayed_jobs_statistics;
     SQL
   end

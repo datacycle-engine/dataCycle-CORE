@@ -19,9 +19,13 @@ module DataCycleCore
       end
       params[:key] = permitted_params[:identifier]
       params.merge!(permitted_params[:additional_params].to_h.symbolize_keys) if permitted_params[:additional_params].present?
-      report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(permitted_params[:identifier], thing)
+
+      report_class, report_params = DataCycleCore::Feature::ReportGenerator.by_identifier(permitted_params[:identifier], thing)
+      params.reverse_merge!(report_params.symbolize_keys) if report_params.present?
+
       begin
-        data, options = report_class.constantize.new(params:, locale: helpers.active_ui_locale).send(:"to_#{permitted_params[:type]}")
+        data, options = report_class.constantize.new(params:, locale: helpers.active_ui_locale, current_user:)
+          .send(:"to_#{permitted_params[:type]}")
         send_data data, options
       rescue StandardError => e
         raise DataCycleCore::Error::Report::ProcessingError, e
@@ -35,7 +39,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:type, :identifier, :thing_id, {additional_params: {}}]
+      [:type, :identifier, :thing_id, { additional_params: {} }]
     end
   end
 end

@@ -1,15 +1,17 @@
 ---
 it:
+  environment_name:
+    development: Sviluppo
+    staging: Pre-produzione
+    production: Produzione
   activerecord:
     errors:
       messages:
         record_invalid: "Validazione fallita: %{errors}"
         restrict_dependent_destroy:
-          has_one:
-            Il record non può essere cancellato perchè esiste un %{record}
+          has_one: Il record non può essere cancellato perchè esiste un %{record}
             dipendente
-          has_many:
-            Il record non può essere cancellato perchè esistono %{record}
+          has_many: Il record non può essere cancellato perchè esistono %{record}
             dipendenti
   import:
     generic:
@@ -235,3 +237,45 @@ it:
     except: eccetto
     closed_from_to: chiuso da %{from} a %{to}
     closed_on: chiuso il %{date}
+
+  classification_visibilities:
+    groups:
+      contents: Contenuti
+      dashboard_views: Viste della dashboard
+      dashboard_filters: Filtri della dashboard
+      interfaces: Interfacce
+      classification_administration: Amministrazione delle classificazioni
+    group_tooltips:
+      contents: Visibilità in determinati punti all'interno di un contenuto
+      dashboard_views: Visibilità all'interno delle viste della dashboard
+      dashboard_filters: Visibilità come opzioni di filtro nella dashboard
+      interfaces: Visibilità tramite interfacce
+      classification_administration: "Visibilità all'interno dell'amministrazione delle classificazioni<br>A seconda dei permessi dell'utente, vengono visualizzati solo gli alberi di classificazione abilitati<br>per la panoramica delle classificazioni nell'amministrazione delle classificazioni"
+    entries:
+      backend: Dashboard
+      show: Vista dettagliata (sempre visibile)
+      show_more: Vista dettagliata (compressa per impostazione predefinita)
+      edit: Vista di modifica
+      api: API
+      tile: Tessera
+      compact: Tessere compatte
+      filter: Filtri avanzati della dashboard
+      list: Vista elenco
+      tree_view: Radice nella vista ad albero
+      xml: XML (Legacy)
+      classification_overview: Panoramica delle classificazioni
+      classification_administration: Amministrazione delle classificazioni
+    entry_tooltips:
+      backend: Le classificazioni vengono visualizzate nella dashboard
+      show: Le classificazioni vengono sempre visualizzate espanse nella vista dettagliata
+      show_more: Le classificazioni vengono visualizzate nella vista dettagliata ma sono compresse per impostazione predefinita
+      edit: Le classificazioni possono essere selezionate e modificate nella vista di modifica (questo dipende anche dai permessi dell'utente per il rispettivo attributo)
+      api: Le classificazioni vengono fornite tramite l'interfaccia API
+      tile: Le classificazioni vengono visualizzate nelle tessere
+      compact: Le classificazioni vengono visualizzate nelle tessere compatte (ad es. nel browser oggetti)
+      filter: Le classificazioni sono disponibili come opzioni di filtro avanzate nella dashboard
+      list: Le classificazioni vengono visualizzate nella vista elenco
+      tree_view: L'albero delle classificazioni è disponibile come elemento radice per la vista ad albero
+      xml: Le classificazioni vengono fornite tramite l'interfaccia XML (Legacy)
+      classification_overview: Le classificazioni sono visibili nell'amministrazione delle classificazioni se il ruolo corrente dell'utente ha i permessi corrispondenti
+      classification_administration: Le classificazioni sono visibili e gestibili nell'amministrazione delle classificazioni se il ruolo corrente dell'utente ha i permessi corrispondenti

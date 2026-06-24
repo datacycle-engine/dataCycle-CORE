@@ -83,8 +83,12 @@
         color: #000;
       }
 
-      &.delete-user-link:hover {
+      &.delete-user-link {
         color: var(--alert-color);
+
+        &:hover {
+          color: var(--alert-color-hover);
+        }
       }
     }
 

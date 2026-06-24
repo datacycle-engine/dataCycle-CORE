@@ -16,7 +16,7 @@
   <div class="advanced-filter-mode">
     <%= select_tag "f[#{identifier}][q]",
       options_for_select([
-        [t("common.all", locale: active_ui_locale), 'all'],
+        [t("common.all", locale: active_ui_locale), 'all', title: t('external_connections.filter.all_warning', locale: active_ui_locale)],
         [t("common.import", locale: active_ui_locale), 'import'],
         [t("common.export", locale: active_ui_locale), 'export'],
         [t("common.duplicate", locale: active_ui_locale), 'duplicate'],

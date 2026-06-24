@@ -85,7 +85,8 @@ module DataCycleCore
             end
 
             next if job_id.blank?
-            Datacycle::Connector::OutdooractiveV2::Export::JobStatus.process(utility_object:, options: { job_id: })
+
+            Datacycle::Connector::OutdooractiveV2::Export::JobStatus.process(utility_object:, data: item)
           end
         end
 

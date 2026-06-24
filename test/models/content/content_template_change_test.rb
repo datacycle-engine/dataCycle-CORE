@@ -14,7 +14,7 @@ module DataCycleCore
 
         assert_equal @organization_dt, @content.data_type.pluck(:id)
         assert_equal @organization_st, @content.schema_types.pluck(:id)
-        assert_equal 1.0, @content.boost
+        assert_in_delta(1.0, @content.boost)
         assert_equal 'entity', @content.content_type
       end
 
@@ -24,7 +24,7 @@ module DataCycleCore
         dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
         st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
 
-        assert_equal 100.0, @content.boost
+        assert_in_delta(100.0, @content.boost)
         assert_equal 'entity', @content.content_type
         assert_equal tt.translatable_property_names, @content.translatable_property_names
         assert_equal tt.untranslatable_property_names, @content.untranslatable_property_names
@@ -43,7 +43,7 @@ module DataCycleCore
         @content.update(template_name: 'Artikel')
         @content.reload
 
-        assert_equal 100.0, @content.boost
+        assert_in_delta(100.0, @content.boost)
         assert_equal 'entity', @content.content_type
         assert_equal tt.translatable_property_names, @content.translatable_property_names
         assert_equal tt.untranslatable_property_names, @content.untranslatable_property_names
@@ -55,7 +55,7 @@ module DataCycleCore
         tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Action').template_thing
         @content.template_name = 'Action'
 
-        assert_equal 1.0, @content.boost
+        assert_in_delta(1.0, @content.boost)
         assert_equal 'embedded', @content.content_type
         assert_equal tt.translatable_property_names, @content.translatable_property_names
         assert_equal tt.untranslatable_property_names, @content.untranslatable_property_names
@@ -67,7 +67,7 @@ module DataCycleCore
         dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
         st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
 
-        assert_equal 100.0, @content.boost
+        assert_in_delta(100.0, @content.boost)
         assert_equal 'entity', @content.content_type
         assert_equal tt.template_thing.translatable_property_names, @content.translatable_property_names
         assert_equal tt.template_thing.untranslatable_property_names, @content.untranslatable_property_names
@@ -86,7 +86,7 @@ module DataCycleCore
         @content.update(thing_template: tt)
         @content.reload
 
-        assert_equal 100.0, @content.boost
+        assert_in_delta(100.0, @content.boost)
         assert_equal 'entity', @content.content_type
         assert_equal tt.template_thing.translatable_property_names, @content.translatable_property_names
         assert_equal tt.template_thing.untranslatable_property_names, @content.untranslatable_property_names

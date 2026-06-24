@@ -10,11 +10,15 @@ module DataCycleCore
           @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Creative-Work-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({
             'embedded_creative_work' => [DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded')]
           }))
+        end
+
+        test 'setup' do
           returned_data_hash = @data_set.get_data_hash
 
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({
             'embedded_creative_work' => [DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded')]
           })
+
           assert_equal(0, @data_set.errors.messages.size)
           assert_equal(expected_hash.except('embedded_creative_work'), returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes))
           assert_equal(expected_hash['embedded_creative_work'].first, returned_data_hash['embedded_creative_work'].first.except('linked_place', *DataCycleCore::TestPreparations.excepted_attributes))

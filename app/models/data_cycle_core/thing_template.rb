@@ -3,17 +3,49 @@
 module DataCycleCore
   class ThingTemplate < ApplicationRecord
     has_many :things, inverse_of: :thing_template, foreign_key: :template_name, primary_key: :template_name
+    has_many :content_properties, inverse_of: :thing_template, foreign_key: :template_name, primary_key: :template_name, class_name: 'DataCycleCore::ContentProperties'
 
     scope :with_template_names, ->(template_names) { where(template_name: template_names) }
     scope :without_template_names, ->(template_names) { where.not(template_name: template_names) }
     scope :with_default_data_type, lambda { |classification_alias_names|
       template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
-
       where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
     }
+
+    scope :without_default_data_type, lambda { |classification_alias_names|
+      template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
+      where.not("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
+    }
+
     scope :with_schema_type, lambda { |schema_type|
       where('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
     }
+
+    scope :without_schema_type, lambda { |schema_type|
+      where.not('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_type)
+    }
+
+    scope :with_schema_classification_paths, lambda { |paths|
+      schema_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      where('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_classifications)
+    }
+
+    scope :without_schema_classification_paths, lambda { |paths|
+      schema_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      where.not('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_classifications)
+    }
+
+    scope :with_content_classification_paths, lambda { |paths|
+      template_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_classifications)
+    }
+
+    scope :without_content_classification_paths, lambda { |paths|
+      template_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      where.not("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_classifications)
+    }
+
+    scope :without_embedded, -> { where.not(content_type: 'embedded') }
 
     delegate :properties_for, to: :template_thing
 
@@ -70,16 +102,25 @@ module DataCycleCore
       @all_templates
     end
 
-    def schema_as_json
+    def schema_as_json(visited = Set.new)
+      visited += [template_name]
       content = schema_sorted
-      embedded = template_thing.embedded_property_names
 
-      embedded.each do |property_name|
+      template_thing.property_names.each do |property_name|
+        content['properties'][property_name]['api_name'] = template_thing.api_name_for(property_name)
+      end
+
+      template_thing.embedded_property_names.each do |property_name|
         content['properties'][property_name]['embedded_schema'] = Array.wrap(content.dig('properties', property_name, 'template_name')).map do |et|
-          all_templates[et].schema_as_json
+          if visited.include?(et)
+            { 'name' => et, 'recursive' => true }
+          else
+            all_templates[et].schema_as_json(visited)
+          end
         end
       end
 
+      content['api_schema_types'] = api_schema_types
       content['template_paths'] = template_paths
       content['thing_count'] = thing_count
 
@@ -88,6 +129,7 @@ module DataCycleCore
 
     def thing_count
       return @thing_count if defined? @thing_count
+
       @thing_count = things.count
     end
 
@@ -122,25 +164,31 @@ module DataCycleCore
       return {} if attributes.blank?
 
       keys = attributes.is_a?(::Hash) ? attributes.keys : attributes
+      cps = DataCycleCore::ContentProperties
+        .includes(:thing_template)
+        .where(property_name: keys)
+        .group_by(&:property_name)
+        .filter_map do |key, cps|
+        label = cps.filter_map { |cp|
+          next unless attributes.is_a?(::Array) || attributes[cp.property_name]&.include?(cp.template_name)
 
-      DataCycleCore::ContentProperties.includes(:thing_template).where(property_name: keys).group_by(&:property_name)
-        .to_h do |key, cps|
-        [
-          key,
-          cps.filter_map { |cp|
-            next unless attributes.is_a?(::Array) || attributes[cp.property_name]&.include?(cp.template_name)
+          DataCycleCore::Thing.human_attribute_name(cp.property_name, {
+            base: cp.thing_template.template_thing,
+            locale:,
+            definition: cp.property_definition,
+            locale_string: false,
+            count:,
+            specific:
+          })
+        }.uniq.join(' / ')
 
-            DataCycleCore::Thing.human_attribute_name(cp.property_name, {
-              base: cp.thing_template.template_thing,
-              locale:,
-              definition: cp.property_definition,
-              locale_string: false,
-              count:,
-              specific:
-            })
-          }.uniq.join(' / ')
-        ]
+        next if label.blank?
+
+        [label, key]
       end
+
+      cps.sort!
+      cps
     end
 
     def self.translated_property_names(locale:)

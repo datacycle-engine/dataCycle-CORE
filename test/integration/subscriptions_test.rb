@@ -24,6 +24,7 @@ module DataCycleCore
       assert_response :success
 
       get subscriptions_path
+
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', 'TestArtikel'
 
@@ -39,6 +40,7 @@ module DataCycleCore
       DataCycleCore::Subscription.find_or_create_by(subscribable_id: @content.id, subscribable_type: @content.class.name, user_id: user.id)
 
       get subscriptions_path
+
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', 'TestArtikel'
 
@@ -51,6 +53,7 @@ module DataCycleCore
       assert_response :success
 
       get subscriptions_path
+
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', { count: 0, text: 'TestArtikel' }
     end

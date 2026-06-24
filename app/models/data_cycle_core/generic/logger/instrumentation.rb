@@ -69,8 +69,8 @@ module DataCycleCore
           # @log.info " -> \"#{title} (\##{id})\" #{@kind}ed (#{num} of #{total || '?'})"
         end
 
-        def phase_failed(exception, external_system, step_label, channel = 'download_failed.datacycle')
-          error_instrument(exception:, external_system:, step_label:, channel:, namespace: 'background')
+        def phase_failed(exception, external_system, step_label, step_name = '', channel = 'download_failed.datacycle')
+          error_instrument(exception:, external_system:, step_label:, step_name:, channel:, namespace: 'background')
         end
 
         def validation_error(label, data, error_text)
@@ -88,16 +88,20 @@ module DataCycleCore
           error_instrument(message: text.join(' '))
         end
 
+        def primary_key_changed(label, content, external_key_change)
+          info_instrument(message: "#{@kind_short} #{label} Primary key changed for content id: #{content.id}, #{Array.wrap(external_key_change).join(' -> ')}")
+        end
+
         def error(title, id, data, error)
-          if title && id
-            err = "Error #{@kind}ing \"#{title} (\##{id})\": #{error}"
-          elsif title
-            err =  "Error #{@kind}ing \"#{title}\": #{error}"
-          elsif id
-            err =  "Error #{@kind}ing \"\##{id}\": #{error}"
-          else
-            err =  "Error: #{error}"
-          end
+          err = if title && id
+                  "Error #{@kind}ing \"#{title} (##{id})\": #{error}"
+                elsif title
+                  "Error #{@kind}ing \"#{title}\": #{error}"
+                elsif id
+                  "Error #{@kind}ing \"##{id}\": #{error}"
+                else
+                  "Error: #{error}"
+                end
 
           error_instrument(message: err)
 
@@ -139,6 +143,7 @@ module DataCycleCore
           severity: 'debug',
           external_system: nil,
           step_label: '',
+          step_name: '',
           exception: nil,
           namespace: 'instrumentation_logging',
           channel: 'instrumentation_logging.datacycle',
@@ -149,6 +154,7 @@ module DataCycleCore
             namespace:,
             external_system:,
             step_label:,
+            step_name:,
             type: @kind,
             severity:,
             exception:,

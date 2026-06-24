@@ -7,7 +7,7 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
     remove_foreign_key :content_collection_link_histories, :stored_filters
     remove_foreign_key :content_collection_link_histories, :watch_lists
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE collections
       ADD COLUMN search_vector tsvector generated always AS (
           setweight(
@@ -274,7 +274,7 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
     add_column :content_collection_links, :collection_type, :string
     add_column :content_collection_link_histories, :collection_type, :string
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION generate_unique_collection_slug(old_slug VARCHAR, OUT new_slug VARCHAR) LANGUAGE PLPGSQL AS $$ BEGIN WITH input AS (
           SELECT old_slug::VARCHAR AS slug,
           regexp_replace(old_slug, '-\\d*$', '')::VARCHAR || '-' AS base_slug

@@ -2,7 +2,7 @@
 
 class CopyLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE thing_translations
       SET content = coalesce(thing_translations.content, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -14,7 +14,7 @@ class CopyLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration[6
         );
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE thing_history_translations
       SET content = coalesce(thing_history_translations.content, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -26,7 +26,7 @@ class CopyLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration[6
         );
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE things
       SET metadata = coalesce(things.metadata, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -64,7 +64,7 @@ class CopyLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration[6
         );
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE thing_histories
       SET metadata = coalesce(thing_histories.metadata, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -104,7 +104,7 @@ class CopyLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration[6
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE thing_translations
       SET name = thing_translations.content->>'name',
         description = thing_translations.content->>'description';

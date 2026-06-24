@@ -3,7 +3,7 @@
 namespace :dc do
   namespace :upgrade do
     desc 'copy core templates to project'
-    task :copy_templates, [:folder] => :environment do |_, args|
+    task :copy_templates, [:folder, :override] => :environment do |_, args|
       abort('Please provide a folder name') if args.folder.nil?
 
       project_path = Rails.root
@@ -15,96 +15,14 @@ namespace :dc do
         file_name = File.basename(f, '.template')
         file_path = File.dirname(f)
         dest_path = project_path.join(file_path.gsub(template_path.to_s, '').delete_prefix(File::SEPARATOR))
+        dest_file = dest_path.join(file_name)
+
+        # Skip if destination file is newer and override is not true
+        next if File.exist?(dest_file) && File.mtime(dest_file) >= File.mtime(f) && args.override.to_s != 'true'
 
         FileUtils.mkdir_p(dest_path)
-        FileUtils.cp(f, dest_path.join(file_name))
+        FileUtils.cp(f, dest_file)
       end
-    end
-
-    desc 'override some files in project from core templates'
-    task rails71: :environment do
-      project_path = Rails.root
-      template_path = DataCycleCore::Engine.root.join('lib/templates/rails_7_1/')
-
-      puts 'copying templates ...'
-      Dir.glob(template_path.join('**', '*')).each do |f|
-        next unless File.file?(f)
-
-        file_name = File.basename(f, '.template')
-        file_path = File.dirname(f)
-        dest_path = project_path.join(file_path.gsub(template_path.to_s, ''))
-
-        FileUtils.mkdir_p(dest_path)
-        FileUtils.cp(f, dest_path.join(file_name))
-      end
-
-      puts 'fix Dotenv::Railtie.load ...'
-      # replace Dotenv::Railtie.load with Dotenv::Rails.load in test/test_helper.rb
-      test_helper = Rails.root.join('test', 'test_helper.rb')
-      if File.exist?(test_helper)
-        text = File.read(test_helper)
-        new_text = text.gsub('Dotenv::Railtie.load', 'Dotenv::Rails.load')
-        File.write(test_helper, new_text)
-      end
-
-      puts 'remove config/secrets.yml ...'
-      secrets = Rails.root.join('config', 'secrets.yml')
-      FileUtils.rm_f(secrets)
-
-      puts 'migrate files ...'
-      manual_action_required = []
-      # migrate files
-      Rails.root.glob('**/*.{rb,erb,rake,yml}').each do |f|
-        next if f.to_s.include?('vendor')
-
-        if File.foreach(f).grep(Regexp.new('.ids')).present?
-          text = File.read(f)
-          new_text = text.gsub('.ids', '.pluck(:id)')
-          File.write(f, new_text)
-        end
-
-        if File.foreach(f).grep(Regexp.new('ActiveRecord::Associations::Preloader.new.preload')).present?
-          text = File.read(f)
-          new_text = text.gsub(
-            'ActiveRecord::Associations::Preloader.new.preload',
-            'DataCycleCore::PreloadService.preload'
-          )
-          File.write(f, new_text)
-        end
-
-        if File.foreach(f).grep(/to_s\(:/).present?
-          text = File.read(f)
-          new_text = text.gsub(
-            'to_s(:',
-            'to_formatted_s(:'
-          )
-          File.write(f, new_text)
-        end
-
-        if File.foreach(f).grep(Regexp.new('ActiveRecord::Base.maintain_test_schema')).present?
-          text = File.read(f)
-          new_text = text.gsub(
-            'ActiveRecord::Base.maintain_test_schema',
-            'ActiveRecord.maintain_test_schema'
-          )
-          File.write(f, new_text)
-        end
-
-        manual_action_required.push "[MANUALLY] please replace Rails.application.secrets with corresponding ENV[...] (#{f})" if File.foreach(f).grep(Regexp.new('Rails.application.secrets')).present?
-
-        manual_action_required.push "[MANUALLY] please replace simple_form_for with form_for and replace all f.input with corresponding field helpers (email_field, password_field, text_field) (#{f})" if File.foreach(f).grep(Regexp.new('simple_form_for')).present?
-
-        manual_action_required.push "[MANUALLY] please migrate azure_activedirectory_v2 to entra_id, Migration: https://github.com/RIPAGlobal/omniauth-entra-id/blob/master/UPGRADING.md (#{f})" if File.foreach(f).grep(Regexp.new('azure_activedirectory_v2')).present?
-      end
-
-      if manual_action_required.present?
-        puts '[MANUAL_ACTION_REQUIRED] The following files require manual action:'
-        manual_action_required.each do |mar|
-          puts mar
-        end
-      end
-
-      puts AmazingPrint::Colors.green('[DONE] please check all changes before commiting!')
     end
 
     desc 'remove some unused config files'
@@ -138,6 +56,34 @@ namespace :dc do
           FileUtils.rm_f(file_path)
         end
       end
+
+      file_path = Rails.public_path.join('favicon.ico')
+      if File.exist?(file_path)
+        print 'remove public/favicon.ico ... '
+        FileUtils.rm_f(file_path)
+        puts AmazingPrint::Colors.green('✔')
+      end
+
+      file_path = Rails.public_path.join('apple-touch-icon-precomposed.png')
+      if File.exist?(file_path)
+        print 'remove public/apple-touch-icon-precomposed.png ... '
+        FileUtils.rm_f(file_path)
+        puts AmazingPrint::Colors.green('✔')
+      end
+
+      file_path = Rails.public_path.join('apple-touch-icon.png')
+      if File.exist?(file_path)
+        print 'remove public/apple-touch-icon.png ... '
+        FileUtils.rm_f(file_path)
+        puts AmazingPrint::Colors.green('✔')
+      end
+
+      file_path = Rails.root.join('config', 'content_security_policy.rb')
+      if File.exist?(file_path)
+        print 'remove config/content_security_policy.rb ... '
+        FileUtils.rm_f(file_path)
+        puts AmazingPrint::Colors.green('✔')
+      end
     end
 
     desc 'adjust package.json'
@@ -153,17 +99,47 @@ namespace :dc do
 
       File.write(package_json_path, "#{JSON.pretty_generate(pkg_cfg)}\n")
     end
+
+    desc 'init .rubocop_todo.yml'
+    task init_rubocop_todo: :environment do
+      rubocop_todo_path = Rails.root.join('.rubocop_todo.yml')
+
+      unless File.exist?(rubocop_todo_path)
+        print 'Initializing .rubocop_todo.yml ... '
+        FileUtils.touch(rubocop_todo_path)
+        puts AmazingPrint::Colors.green('✔')
+      end
+    end
+
+    desc ' fix SuperAdmin Role in seeds.rb for internal admin'
+    task fix_super_admin_role: :environment do
+      seeds_path = Rails.root.join('db', 'seeds.rb')
+      file = File.read(seeds_path)
+      new_file = file.gsub('role_id: DataCycleCore::Role.order(rank: :desc).first.id', 'role_id: DataCycleCore::Role.super_admin.id')
+      new_file = new_file.gsub("role_id: DataCycleCore::Role.order('rank DESC').first.id", 'role_id: DataCycleCore::Role.super_admin.id')
+
+      if file != new_file
+        print 'Fixing SuperAdmin Role in seeds.rb ... '
+        File.write(seeds_path, new_file)
+        puts AmazingPrint::Colors.green('✔')
+      end
+    end
   end
 
   desc 'run all available upgrades'
   task upgrade: :environment do
-    # Rake::Task['dc:upgrade:rails71'].invoke
-    # Rake::Task['dc:upgrade:rails71'].reenable
     Rake::Task['dc:upgrade:clean_configs'].invoke
     Rake::Task['dc:upgrade:clean_configs'].reenable
     Rake::Task['dc:upgrade:copy_templates'].invoke('global')
     Rake::Task['dc:upgrade:copy_templates'].reenable
+    # rails 8.1 upgrade
+    Rake::Task['dc:upgrade:copy_templates'].invoke('rails_8_1')
+    Rake::Task['dc:upgrade:copy_templates'].reenable
     Rake::Task['dc:upgrade:adjust_package_json'].invoke
     Rake::Task['dc:upgrade:adjust_package_json'].reenable
+    Rake::Task['dc:upgrade:init_rubocop_todo'].invoke
+    Rake::Task['dc:upgrade:init_rubocop_todo'].reenable
+    Rake::Task['dc:upgrade:fix_super_admin_role'].invoke
+    Rake::Task['dc:upgrade:fix_super_admin_role'].reenable
   end
 end

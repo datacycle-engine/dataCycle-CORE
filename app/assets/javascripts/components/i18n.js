@@ -1,5 +1,4 @@
 import get from "lodash/get";
-import template from "lodash/template";
 import LocalStorageCache from "./local_storage_cache";
 
 const I18n = {
@@ -55,9 +54,12 @@ const I18n = {
 		)
 			text = text[this.countMapping(substitutions.count)];
 
-		const compiled = template(text, { interpolate: /%{([\s\S]+?)}/g });
-
-		return compiled(substitutions);
+		return this._interpolate(text, substitutions);
+	},
+	_interpolate(text, substitutions) {
+		return text.replace(/%{(\w+)}/g, (match, key) => {
+			return substitutions[key] !== undefined ? substitutions[key] : match;
+		});
 	},
 	_errorObject(path, e = {}) {
 		return { error: get(e, "responseJSON.error", path) };

@@ -65,15 +65,18 @@ module DataCycleCore
             'data.name' => ['$data', data_name_path].compact_blank.join('.'),
             'data.parent_id' => ['$data', concept_parent_id].compact_blank.join('.'),
             'data.uri' => ['$data', concept_uri].compact_blank.join('.'),
-            'data.priority' => priority
+            'data.priority' => priority,
+            'external_system' => 1
           }
 
           proj_match_unwind_phases = []
           path_array_positions.each_with_index do |position, index|
             current_full_concept_path = ["dump.#{locale}", data_path.split('.')[0..index].join('.')].compact_blank.join('.')
-            proj_match_unwind_phases << { '$project' => { 'data' => ["$#{current_full_concept_path}"].compact_blank.join('.')}} if index.zero?
-            proj_match_unwind_phases << { '$project' => { 'data' => ["$data.#{data_path.split('.')[index]}"].compact_blank.join('.')}} unless index.zero?
+            proj_match_unwind_phases << { '$project' => { 'data' => ["$#{current_full_concept_path}"].compact_blank.join('.'), 'external_system' => 1 } } if index.zero?
+            proj_match_unwind_phases << { '$project' => { 'data' => ["$data.#{data_path.split('.')[index]}"].compact_blank.join('.'), 'external_system' => 1 } } unless index.zero?
+
             next unless position == 1
+
             proj_match_unwind_phases << { '$unwind' => '$data' }
             proj_match_unwind_phases << { '$match' => create_post_unwind_match_stage(path: current_full_concept_path, source_filter_stage:) }
           end
@@ -88,7 +91,13 @@ module DataCycleCore
             {
               '$group' => {
                 '_id' => '$data.id',
-                'data' => { '$first' => '$data' }
+                'data' => { '$first' => '$data' },
+                'external_system' => { '$mergeObjects' => '$external_system' }
+              }
+            },
+            {
+              '$addFields' => {
+                'data.external_system' => '$external_system'
               }
             },
             {
@@ -96,8 +105,9 @@ module DataCycleCore
             },
             {
               '$addFields' => {
-                'name' => { '$toString' => '$name'},
-                'id' => { '$toString' => '$id'}
+                'name' => { '$toString' => '$name' },
+                'id' => { '$toString' => '$id' },
+                'parent_id' => { '$toString' => '$parent_id' }
               }
             }
           ]
@@ -115,13 +125,17 @@ module DataCycleCore
             '$match' => { 'id' => { '$ne' => nil }, 'name' => { '$ne' => nil } }
           }
 
-          data_id_prefix = options.dig(:download, :data_id_prefix)
+          data_id_prefix = config_with_fallback('id_prefix', options)
+          data_parent_id_prefix = config_with_fallback('parent_id_prefix', options)
+          data_parent_id_prefix = data_id_prefix if data_parent_id_prefix.blank?
+
           raise ArgumentError, 'data_id_prefix and external_id_prefix cannot be present together' if data_id_prefix.present? && options.dig(:download, :external_id_prefix).present?
+
           if data_id_prefix.present?
             pipelines << {
               '$addFields' => {
                 'id' => { '$concat' => [data_id_prefix, '$id'] },
-                **(concept_parent_id.present? ? { 'parent_id' => { '$concat' => [data_id_prefix, '$parent_id'] } } : {})
+                **(concept_parent_id.present? ? { 'parent_id' => { '$concat' => [data_parent_id_prefix, '$parent_id'] } } : {})
               }
             }
           end
@@ -173,7 +187,11 @@ module DataCycleCore
         def self.path_config(key, options)
           suffix = [key.to_s, 'path'].compact_blank.join('_')
 
-          options.dig(:download, :"concept_#{suffix}") || options.dig(:download, :"data_#{suffix}")
+          config_with_fallback(suffix, options)
+        end
+
+        def self.config_with_fallback(key, options)
+          options.dig(:download, :"concept_#{key}") || options.dig(:download, :"data_#{key}")
         end
       end
     end

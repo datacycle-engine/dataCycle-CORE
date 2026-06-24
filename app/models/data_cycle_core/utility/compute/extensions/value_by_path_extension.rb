@@ -15,6 +15,7 @@ module DataCycleCore
             data = filtered_data(data:, filter:, current_key:, external_source_id:) if filter.present?
             return data if key_path.blank?
             return if DataHashService.blank?(data)
+
             external_key_prefix = Array.wrap(external_key_prefix)
             return attribute_value_from_hash(data:, key_path:, filter:, external_key_prefix:, external_source_id:) if data.is_a?(::Hash)
 
@@ -95,12 +96,12 @@ module DataCycleCore
                 cloned_value.except!(*CLONED_ATTRIBUTE_EXCEPTIONS)
                 cloned_value['external_key'] = [*external_key_prefix, external_key].compact.join('_')
 
-                if cloned_value.key?('start_time')
-                  cloned_value['id'] = transformations::ExternalReference.new(:schedule, nil, cloned_value['external_key'])
-                else
-                  # needs to be updated if app/models/data_cycle_core/content/data_hash.rb#upsert_content is changed, and does not inherit external_source_id from parent anymore
-                  cloned_value['id'] = transformations::ExternalReference.new(:content, external_source_id, cloned_value['external_key'])
-                end
+                cloned_value['id'] = if cloned_value.key?('start_time')
+                                       transformations::ExternalReference.new(:schedule, nil, cloned_value['external_key'])
+                                     else
+                                       # needs to be updated if app/models/data_cycle_core/content/data_hash.rb#upsert_content is changed, and does not inherit external_source_id from parent anymore
+                                       transformations::ExternalReference.new(:content, external_source_id, cloned_value['external_key'])
+                                     end
               end
 
               cloned_value.each do |k, v|

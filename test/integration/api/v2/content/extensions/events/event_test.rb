@@ -57,9 +57,10 @@ module DataCycleCore
 
                 # classifications
                 # TODO: (move to generic tests)
-                assert(json_data['classifications'].present?)
+                assert_predicate(json_data['classifications'], :present?)
                 assert_equal(1, json_data['classifications'].size)
                 classification_hash = json_data['classifications'].first
+
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
                 assert_equal('Veranstaltung', classification_hash['name'])
                 assert_equal(1, classification_hash['ancestors'].size)
@@ -94,6 +95,7 @@ module DataCycleCore
                   }
                 end
                 json_sub_events = json_data['subEvent'].map { |i| i.except('identifier', 'inLanguage') }
+
                 assert_equal(sub_events, json_sub_events)
               end
 
@@ -132,7 +134,7 @@ module DataCycleCore
                   ]
                 }
                 I18n.with_locale(:de) do
-                  @content.set_data_hash(data_hash:, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+                  @content.set_data_hash(data_hash:, current_user: User.find_by(email: 'tester@datacycle.at'))
                 end
                 @content.reload
 
@@ -154,21 +156,27 @@ module DataCycleCore
 
               test 'stored item can be found via different endpoints' do
                 get(api_v2_things_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Event' }
+
                 assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_contents_search_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Event' }
+
                 assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_events_path(filter: { from: '2019-10-01' }))
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].first
+
                 assert_equal(@content.id, json_data['identifier'])
               end
             end

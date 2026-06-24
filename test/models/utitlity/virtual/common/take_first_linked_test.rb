@@ -46,7 +46,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#take_first_linked' do
       my_linked: []
     })
     content.my_linked.extend(Module.new do
-      def limit(n)
+      def limit(n) # rubocop:disable Lint/DuplicateMethods
         take(n)
       end
     end)

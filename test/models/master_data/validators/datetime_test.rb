@@ -38,6 +38,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
 
     it 'properly validates a DateObject' do
       date_object = '2010-01-01'.to_datetime
+
       assert_equal(no_error_hash, subject.new(date_object, template_hash).error)
     end
 
@@ -45,6 +46,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
       test_cases = [10, :wednesday]
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -54,6 +56,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
       test_cases = ['10', '10.10.10.10.']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -69,6 +72,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
       ]
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -78,6 +82,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
       test_cases = [Time.now.getlocal, Time.zone.now, '01.01.2019']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash2)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -87,6 +92,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
       test_cases = ['01.01.2017'.to_datetime, '01.01.2017'.to_datetime.in_time_zone, '01.01.2017']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash2)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -95,6 +101,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
     it 'produces no warning when an unsupported keyword is used' do
       new_template = template_hash2.deep_dup.merge({ 'validations' => { 'maxi' => 3 } })
       validator = subject.new(Time.zone.now, new_template)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end

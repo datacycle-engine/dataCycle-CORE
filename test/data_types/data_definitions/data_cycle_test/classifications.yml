@@ -112,7 +112,6 @@
         nl: Zondag
       uri: https://schema.org/Sunday
 
-
 - name: Monate
   concepts:
     - name:
@@ -121,72 +120,84 @@
         it: Gennaio
         fr: Janvier
         nl: Januari
+      uri: https://datacycle.info/terms/month#January
     - name:
         de: Februar
         en: February
         it: Febbraio
         fr: Février
         nl: Februari
+      uri: https://datacycle.info/terms/month#February
     - name:
         de: März
         en: March
         it: Marzo
         fr: Mars
         nl: Maart
+      uri: https://datacycle.info/terms/month#March
     - name:
         de: April
         en: April
         it: Aprile
         fr: Avril
         nl: April
+      uri: https://datacycle.info/terms/month#April
     - name:
         de: Mai
         en: May
         it: Maggio
         fr: Mai
         nl: Mei
+      uri: https://datacycle.info/terms/month#May
     - name:
         de: Juni
         en: June
         it: Giugno
         fr: Juin
         nl: Juni
+      uri: https://datacycle.info/terms/month#June
     - name:
         de: Juli
         en: July
         it: Luglio
         fr: Juillet
         nl: Juli
+      uri: https://datacycle.info/terms/month#July
     - name:
         de: August
         en: August
         it: Agosto
         fr: Août
         nl: Augustus
+      uri: https://datacycle.info/terms/month#August
     - name:
         de: September
         en: September
         it: Settembre
         fr: Septembre
         nl: September
+      uri: https://datacycle.info/terms/month#September
     - name:
         de: Oktober
         en: October
         it: Ottobre
         fr: Octobre
         nl: Oktober
+      uri: https://datacycle.info/terms/month#October
     - name:
         de: November
         en: November
         it: Novembre
         fr: Novembre
         nl: November
+      uri: https://datacycle.info/terms/month#November
     - name:
         de: Dezember
         en: December
         it: Dicembre
         fr: Décembre
         nl: December
+      uri: https://datacycle.info/terms/month#December
 
 - Märkte | all:
     - Markt 1
@@ -347,11 +358,11 @@
     - $$Preis pro Package
 
 - Feratel - Systeme | all:
-    - $$Lokaler ExpertClient | L
-    - $$Internet | T
-    - $$Infomedia/Informator | I
-    - $$Katalog | C
-    - $$PIA | P
+    - $$Lokaler ExpertClient | L **https://interface.deskline.net/system/L
+    - $$Internet | T **https://interface.deskline.net/system/T
+    - $$Infomedia/Informator | I **https://interface.deskline.net/system/I
+    - $$Katalog | C **https://interface.deskline.net/system/C
+    - $$PIA | P **https://interface.deskline.net/system/P
 
 - OutdoorActive - Schwierigkeitsgrad | all:
     - $$unbekannt
@@ -629,15 +640,136 @@
     - CF | Zentralafrikanische Republik
     - CY | Zypern
 
-- Preis-Währung | all:
-    - EUR | Euro
-    - USD | US-Dollar
-    - HUF | Ungarische Forint
-    - CZK | Tschechische Kronen
-    - HRK | Kroatische Kuna
-    - CHF | Schweizer Franken
-    - PLN | Polnische Złoty
-    - DKK | Dänische Kronen
+- name: Preis-Währung
+  concepts:
+    - name:
+        de: EUR
+        en: EUR
+        it: EUR
+        fr: EUR
+        nl: EUR
+        pl: EUR
+        cs: EUR
+      description:
+        de: Euro
+        en: Euro
+        it: Euro
+        fr: Euro
+        nl: Euro
+        pl: Euro
+        cs: Euro
+    - name:
+        de: USD
+        en: USD
+        it: USD
+        fr: USD
+        nl: USD
+        pl: USD
+        cs: USD
+      description:
+        de: US-Dollar
+        en: US Dollar
+        it: Dollaro statunitense
+        fr: Dollar américain
+        nl: Amerikaanse dollar
+        pl: Dolar amerykański
+        cs: Americký dolar
+    - name:
+        de: HUF
+        en: HUF
+        it: HUF
+        fr: HUF
+        nl: HUF
+        pl: HUF
+        cs: HUF
+      description:
+        de: Ungarische Forint
+        en: Hungarian Forint
+        it: Fiorino ungherese
+        fr: Forint hongrois
+        nl: Hongaarse forint
+        pl: Forint węgierski
+        cs: Maďarský forint
+    - name:
+        de: CZK
+        en: CZK
+        it: CZK
+        fr: CZK
+        nl: CZK
+        pl: CZK
+        cs: CZK
+      description:
+        de: Tschechische Krone
+        en: Czech Koruna
+        it: Corona ceca
+        fr: Couronne tchèque
+        nl: Tsjechische kroon
+        pl: Korona czeska
+        cs: Česká koruna
+    - name:
+        de: HRK
+        en: HRK
+        it: HRK
+        fr: HRK
+        nl: HRK
+        pl: HRK
+        cs: HRK
+      description:
+        de: Kroatische Kuna
+        en: Croatian Kuna
+        it: Kuna croata
+        fr: Kuna croate
+        nl: Kroatische kuna
+        pl: Kuna chorwacka
+        cs: Chorvatská kuna
+    - name:
+        de: CHF
+        en: CHF
+        it: CHF
+        fr: CHF
+        nl: CHF
+        pl: CHF
+        cs: CHF
+      description:
+        de: Schweizer Franken
+        en: Swiss Franc
+        it: Franco svizzero
+        fr: Franc suisse
+        nl: Zwitserse frank
+        pl: Frank szwajcarski
+        cs: Švýcarský frank
+    - name:
+        de: PLN
+        en: PLN
+        it: PLN
+        fr: PLN
+        nl: PLN
+        pl: PLN
+        cs: PLN
+      description:
+        de: Polnischer Złoty
+        en: Polish Zloty
+        it: Zloty polacco
+        fr: Zloty polonais
+        nl: Poolse zloty
+        pl: Złoty polski
+        cs: Polský zlotý
+    - name:
+        de: DKK
+        en: DKK
+        it: DKK
+        fr: DKK
+        nl: DKK
+        pl: DKK
+        cs: DKK
+      description:
+        de: Dänische Krone
+        en: Danish Krone
+        it: Corona danese
+        fr: Couronne danoise
+        nl: Deense kroon
+        pl: Korona duńska
+        cs: Dánská koruna
 
 - Lizenzen | show, edit, api, xml:
     - Open Data:
@@ -700,9 +832,9 @@
     - Ganzjahr
 
 - Schwierigkeitsgrad (Trail/Tour) | all:
-    - leicht
-    - mittel
-    - schwer
+    - leicht **odta:Easy
+    - mittel **odta:Medium
+    - schwer **odta:Hard
 
 - $$SchemaTypes | show:
 

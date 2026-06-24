@@ -30,21 +30,27 @@ module DataCycleCore
       SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
       GEO_PROPERTY_TYPES = ['geographic'].freeze
       SLUG_PROPERTY_TYPES = ['slug'].freeze
-      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, *WEBHOOK_ACCESSORS].freeze
+      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, :single_embedded_locale, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
       INTERNAL_PROPERTY_NAMES = ['id', 'external_source_id', 'external_key', 'schema_types', 'data_type'].freeze
+      IMPORTABLE_INTERNAL_PROPERTY_NAMES = ['id', 'external_system_data', 'external_key'].freeze
+      DUMMY_PROPERTY_NAMES = ['dummy'].freeze
+      PROPERTIES_WITH_IMPORTED_FLAG = [
+        'data_pool'
+      ].freeze
 
       after_update :update_template_defaults, if: :template_name_previously_changed?
 
       self.abstract_class = true
 
+      attribute :aggregate_type, :string, default: 'default'
       enum :aggregate_type, { default: 'default', aggregate: 'aggregate', belongs_to_aggregate: 'belongs_to_aggregate' }, prefix: :aggregate_type
 
       attr_accessor(*ATTR_ACCESSORS)
       attr_writer(*ATTR_WRITERS)
 
-      extend  Common::ArelBuilder
-      extend  Searchable
+      extend Common::ArelBuilder
+      include Searchable
       include DestroyContent
       include DataHashUtility
       include Extensions::Content
@@ -62,10 +68,11 @@ module DataCycleCore
       include Extensions::Slug
       include Extensions::ConceptTransformations
       include Extensions::LinkedInText
+      include Extensions::PropertyHelper
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
-        include feature.content_module if feature&.enabled? && feature.content_module
+        prepend feature.content_module if feature&.enabled? && feature.content_module
       end
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
@@ -74,8 +81,16 @@ module DataCycleCore
       scope :where_translated_value, ->(attributes) { includes(:translations).where(translated_value_condition(attributes), *attributes&.values).references(attributes.blank? ? nil : :translations) }
       scope :where_not_translated_value, ->(attributes) { includes(:translations).where.not(translated_value_condition(attributes), *attributes&.values).references(attributes.blank? ? nil : :translations) }
 
+      scope :without_embedded, -> { where.not(content_type: 'embedded') }
+
       after_save :move_changes_to_previous_changes, :reload_memoized
       # after_find :initialize_template_properties
+
+      # can the current embedded only exist in a single locale?
+      # depends on the definition of the embedded attribute, in which this embedded is used, and if it is a translatable attribute or not.
+      def single_embedded_locale?
+        embedded? && single_embedded_locale == true
+      end
 
       # override initialize to setup template_name and thing_template correctly
       def initialize(attributes = nil)
@@ -132,16 +147,19 @@ module DataCycleCore
 
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
+
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
         elsif property_definition
-          overlay_flag = original_name.ends_with?(overlay_name)
-          original_name = original_name.delete_suffix("_#{overlay_name}") if DataCycleCore::Feature::Overlay.enabled? && original_name.ends_with?(overlay_name)
+          overlay_flag = original_name.ends_with?(overlay_name) && !property_definition.dig('features', 'overlay', 'allowed')
+          original_name = original_name.delete_suffix("_#{overlay_name}") if DataCycleCore::Feature::Overlay.enabled? && overlay_flag
 
           if original_name.in?(embedded_property_names) || original_name.in?(linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
+
             get_property_value(original_name, property_definition, args.first, overlay_flag && original_name.in?(overlay_property_names))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
+
             get_property_value(original_name, property_definition, nil, overlay_flag && original_name.in?(overlay_property_names))
           end
         else
@@ -195,6 +213,7 @@ module DataCycleCore
 
       def content_template
         return @content_template if defined? @content_template
+
         @content_template = DataCycleCore::Thing.new(thing_template:)
       end
 
@@ -249,22 +268,56 @@ module DataCycleCore
       alias properties property_names
       alias property_names_with_overlay property_names
 
-      def properties_for(property_name, include_overlay = false)
-        return if property_name.blank?
-        include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name.to_s] : property_definitions[property_name.to_s]
+      def properties_for(property_path, include_overlay = false)
+        return if property_path.blank?
+
+        definitions = property_definitions
+        definitions = definitions.merge(add_overlay_property_definitions) if include_overlay
+        full_path = Array.wrap(property_path).map(&:to_s).intersperse('properties')
+
+        definitions.dig(*full_path)
+      end
+
+      # APIv4 Name, should correspond to content_properties.api_name
+      def api_name_for(property_path, definition = nil)
+        definition = properties_for(property_path) if definition.blank?
+        return if definition.blank?
+
+        api_name = definition.dig('api', 'v4', 'transformation', 'name').presence ||
+                   definition.dig('api', 'v4', 'name').presence ||
+                   definition.dig('api', 'transformation', 'name').presence ||
+                   definition.dig('api', 'name').presence ||
+                   Array.wrap(property_path).last
+
+        api_name.to_s.camelize(:lower)
       end
 
       def writable_property_names
-        property_names - virtual_property_names
+        property_names - virtual_property_names - inverse_linked_property_names
       end
 
-      def overlay_property_names_for(property_name, exclude_types = nil, include_overlay = false)
+      def importable_property_names
+        writable_property_names -
+          local_property_names -
+          internal_property_names -
+          computed_without_fallback_property_names +
+          IMPORTABLE_INTERNAL_PROPERTY_NAMES # ensure these are always included
+      end
+
+      def overlay_property_names_for(property_name, exclude_types: nil, include_overlay: false)
         name_property_selector(include_overlay) do |definition|
           definition.dig('features', 'overlay', 'overlay_for') == property_name &&
             Array.wrap(exclude_types).exclude?(definition.dig('features', 'overlay', 'overlay_type'))
         end
       end
 
+      def overlay_for_property_names(include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.dig('features', 'overlay', 'overlay_for')
+        end
+      end
+
+      # all property_names with overlay
       def properties_with_overlay(include_overlay = false)
         name_property_selector(include_overlay) do |definition|
           definition.dig('features', 'overlay', 'allowed')
@@ -283,6 +336,14 @@ module DataCycleCore
         @translatable_property_names = property_definitions.select { |property_name, definition|
           translatable_property?(property_name, definition)
         }.keys
+      end
+
+      def translatable_computed_property_names
+        computed_property_names.intersection(translatable_property_names)
+      end
+
+      def dummy_property_names
+        DUMMY_PROPERTY_NAMES
       end
 
       def required_property_names(include_overlay = false)
@@ -384,10 +445,27 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition.key?('compute') }
       end
 
+      def inline_computed_property_names(include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.key?('compute') && definition.dig('compute', 'async').to_s != 'true'
+        end
+      end
+
+      def async_computed_property_names(include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.key?('compute') && definition.dig('compute', 'async').to_s == 'true'
+        end
+      end
+
       def computed_without_fallback_property_names
         name_property_selector do |definition|
-          definition.key?('compute') && !definition.dig('compute', 'fallback')
+          definition.key?('compute') &&
+            definition.dig('compute', 'fallback').to_s == 'false'
         end
+      end
+
+      def properties_with_imported_flag
+        PROPERTIES_WITH_IMPORTED_FLAG
       end
 
       def text_with_linked_property_names(include_overlay = false)
@@ -398,14 +476,24 @@ module DataCycleCore
         end
       end
 
-      def resolved_computed_dependencies(key, datahash = {})
+      def flat_computed_parameters(key, datahash = {}, nested = false)
         if computed_property_names.include?(key) && !datahash&.key?(key)
-          Array.wrap(properties_for(key)&.dig('compute', 'parameters')).map { |p|
-            resolved_computed_dependencies(p.split('.').first, datahash)
+          fct = Array.wrap(properties_for(key)&.dig('compute', 'parameters')).map { |p|
+            flat_computed_parameters(p.split('.').first, datahash, true)
           }.flatten.uniq
-        else
+          fct.unshift(key) if nested
+          fct
+        elsif nested
           [key]
+        else
+          []
         end
+      end
+
+      def flat_dependent_computed_property_names(keys, datahash = {})
+        property_definitions.select { |key, _|
+          flat_computed_parameters(key, datahash).intersect?(Array.wrap(keys))
+        }.keys
       end
 
       def dependent_computed_property_names(keys)
@@ -456,6 +544,10 @@ module DataCycleCore
           schedule_property_names(include_overlay)
       end
 
+      def translatable_embedded_property_names
+        name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && !definition['translated'] }
+      end
+
       def untranslatable_embedded_property_names
         name_property_selector { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) && definition['translated'] }
       end
@@ -500,10 +592,6 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition['search'] == true }
       end
 
-      def new_overlay_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition.dig('features', 'overlay', 'allowed') }
-      end
-
       def title_property_name
         name_property_selector { |definition| definition['type'] == 'string' && definition.dig('ui', 'is_title') == true }.first || 'name'
       end
@@ -512,8 +600,12 @@ module DataCycleCore
         name_property_selector { |definition| definition['exif'].present? }
       end
 
+      def internal_property_names
+        INTERNAL_PROPERTY_NAMES
+      end
+
       def resettable_import_property_names
-        writable_property_names - local_property_names - global_property_names - INTERNAL_PROPERTY_NAMES - computed_without_fallback_property_names
+        writable_property_names - local_property_names - global_property_names - internal_property_names - computed_without_fallback_property_names
       end
 
       # returns data the same way, as .as_json
@@ -538,29 +630,28 @@ module DataCycleCore
 
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
-        elsif plain_property_names.include?(root_name) ||
-              table_property_names.include?(root_name) ||
-              oembed_property_names.include?(root_name) ||
-              geo_property_names.include?(root_name)
+        elsif plain_property?(root_name) ||
+              table_property?(root_name) ||
+              oembed_property?(root_name) ||
+              geo_property?(root_name)
           send(property_name)&.as_json
-        elsif classification_property_names.include?(root_name) ||
-              linked_property_names.include?(root_name) ||
-              collection_property_names.include?(root_name)
+        elsif classification_property?(root_name) ||
+              linked_property?(root_name) ||
+              collection_property?(root_name)
           send(property_name).try(:pluck, :id)
-        elsif included_property_names.include?(root_name)
-          embedded_hash = send(property_name).to_h
-          embedded_hash.presence
-        elsif embedded_property_names.include?(root_name)
+        elsif object_property?(root_name)
+          send(property_name).to_h.presence
+        elsif embedded_property?(root_name)
           embedded_array = send(property_name)
           embedded_array = embedded_array.map(&:get_data_hash) if embedded_array.present?
           embedded_array.blank? ? [] : embedded_array.compact
-        elsif asset_property_names.include?(root_name)
+        elsif asset_property?(root_name)
           send(property_name)&.id
-        elsif schedule_property_names.include?(root_name)
+        elsif schedule_property?(root_name)
           schedule_array = send(property_name)
           schedule_array = schedule_array.map(&:to_h).presence
           schedule_array.blank? ? [] : schedule_array.compact
-        elsif timeseries_property_names.include?(root_name)
+        elsif timeseries_property?(root_name)
           [] # don't load all timeseries from db
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
@@ -570,6 +661,7 @@ module DataCycleCore
       def verify
         inconsistent_properties = translatable_property_names & untranslatable_property_names
         raise StandardError, "cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not" unless inconsistent_properties.empty?
+
         self
       end
 
@@ -600,27 +692,29 @@ module DataCycleCore
         return @get_property_value[key] if @get_property_value&.key?(key)
 
         (@get_property_value ||= {})[key] =
-          if virtual_property_names.include?(property_name)
-            load_virtual_attribute(property_name, I18n.locale)
-          elsif plain_property_names.include?(property_name) || table_property_names.include?(property_name) || oembed_property_names.include?(property_name)
+          if virtual_property?(property_name)
+            contents = load_virtual_attribute(property_name, I18n.locale)
+            contents = filter_contents(contents, filter) if linked_property?(property_name)
+            contents
+          elsif plain_property?(property_name) || table_property?(property_name) || oembed_property?(property_name)
             load_json_attribute(property_name, property_definition, overlay_flag)
-          elsif included_property_names.include?(property_name)
+          elsif object_property?(property_name)
             load_included_data(property_name, property_definition, overlay_flag)
-          elsif classification_property_names.include?(property_name)
+          elsif classification_property?(property_name)
             load_classifications(property_name, overlay_flag)
-          elsif linked_property_names.include?(property_name)
+          elsif linked_property?(property_name)
             load_linked_objects(property_name, filter, false, [I18n.locale], overlay_flag)
-          elsif embedded_property_names.include?(property_name)
+          elsif embedded_property?(property_name)
             load_embedded_objects(property_name, filter, !property_definition&.dig('translated'), [I18n.locale], overlay_flag)
-          elsif asset_property_names.include?(property_name) # no overlay
+          elsif asset_property?(property_name) # no overlay
             load_asset_relation(property_name)&.first
-          elsif schedule_property_names.include?(property_name)
+          elsif schedule_property?(property_name)
             load_schedule(property_name, overlay_flag)
-          elsif timeseries_property_names.include?(property_name)
+          elsif timeseries_property?(property_name)
             load_timeseries(property_name)
-          elsif collection_property_names.include?(property_name)
+          elsif collection_property?(property_name)
             load_collections(property_name)
-          elsif geo_property_names.include?(property_name)
+          elsif geo_property?(property_name)
             load_geometry(property_name)
           else
             raise NotImplementedError
@@ -632,12 +726,15 @@ module DataCycleCore
       end
 
       def load_json_attribute(property_name, property_definition, _overlay_flag)
-        if property_definition['storage_location'] == 'column'
+        storage_location = property_definition['storage_location']
+        storage_location = translatable_property?(property_name, property_definition) ? 'translated_value' : 'value' if storage_location == 'column' && ['external_key', 'slug'].exclude?(property_name)
+
+        if storage_location == 'column'
           send(property_name)
         else
           convert_to_type(
             property_definition['type'],
-            send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s),
+            send(NEW_STORAGE_LOCATION[storage_location])&.dig(property_name.to_s),
             property_definition
           )
         end
@@ -771,27 +868,26 @@ module DataCycleCore
         attibute_cache_key = attibute_cache_key(key, filter, overlay_flag)
 
         (@get_property_value ||= {})[attibute_cache_key] =
-          if plain_property_names.include?(key) ||
-             geo_property_names.include?(key)
+          if plain_property?(key) || geo_property?(key)
             convert_to_type(definition['type'], value, definition)
           elsif value.is_a?(ActiveRecord::Relation) || value.is_a?(ActiveRecord::Base)
             value
           elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base)
             value.first.class.unscoped.by_ordered_values(value.pluck(:id)).tap { |rel| rel.send(:load_records, value) }
-          elsif linked_property_names.include?(key)
+          elsif linked_property?(key)
             DataCycleCore::Thing.by_ordered_values(value)
-          elsif embedded_property_names.include?(key)
+          elsif embedded_property?(key)
             # TODO: allow initialization of thing without persisting it, to correctly initialize default_values for embedded objects
             value.blank? || (value.is_a?(::Array) && value.all?(::String) && value.all?(&:uuid?)) ? DataCycleCore::Thing.by_ordered_values(value) : DataCycleCore::Thing.none
-          elsif classification_property_names.include?(key)
+          elsif classification_property?(key)
             DataCycleCore::Classification.by_ordered_values(value)
-          elsif asset_property_names.include?(key)
+          elsif asset_property?(key)
             DataCycleCore::Asset.by_ordered_values(value).first
-          elsif schedule_property_names.include?(key)
+          elsif schedule_property?(key)
             DataCycleCore::Schedule.by_ordered_values(value)
-          elsif timeseries_property_names.include?(key)
+          elsif timeseries_property?(key)
             DataCycleCore::Timeseries.by_ordered_values(value)
-          elsif collection_property_names.include?(key)
+          elsif collection_property?(key)
             DataCycleCore::Collection.by_ordered_values(value)
           else # rubocop:disable Lint/DuplicateBranch
             value
@@ -822,6 +918,22 @@ module DataCycleCore
 
       def thing_template?
         !template_missing?
+      end
+
+      def changes
+        super.merge(datahash_changes || {})
+      end
+
+      def changed?
+        super || datahash_changes.present?
+      end
+
+      def saved_changes
+        super.merge(previous_datahash_changes || {})
+      end
+
+      def saved_changes?
+        super || previous_datahash_changes.present?
       end
 
       private

@@ -36,6 +36,7 @@ describe DataCycleCore::MasterData::Differs::Geographic do
 
     it 'recognizes a deleted value' do
       a = RGeo::Geographic.simple_mercator_factory.point(10, 20)
+
       [a, a.to_s].each do |item|
         assert_equal(['-', a], subject.new(item, nil).diff_hash)
       end
@@ -52,6 +53,7 @@ describe DataCycleCore::MasterData::Differs::Geographic do
     it 'recognizes similar points as equal' do
       a = RGeo::Geographic.simple_mercator_factory.point(10.000000001, 20.0)
       b = RGeo::Geographic.simple_mercator_factory.point(10.0, 20.000000001)
+
       [[a, b], [b, a]].each do |item|
         assert_nil(subject.new(item[0], item[1]).diff_hash)
       end

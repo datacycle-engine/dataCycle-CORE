@@ -27,6 +27,7 @@ describe DataCycleCore::MasterData::Validators::Geographic do
 
     it 'properly validates a geo object' do
       geo_object = RGeo::Geographic.spherical_factory(srid: 4326).point(12.3, 40.344)
+
       assert_equal(no_error_hash, subject.new(geo_object, template_hash).error)
     end
 
@@ -40,6 +41,7 @@ describe DataCycleCore::MasterData::Validators::Geographic do
       test_cases = [10, :wednesday, 'POINT (10.0 47.0 hallo)']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -57,6 +59,7 @@ describe DataCycleCore::MasterData::Validators::Geographic do
       test_cases = [point, line, line3d, wkt_string, wkt_string3d]
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end

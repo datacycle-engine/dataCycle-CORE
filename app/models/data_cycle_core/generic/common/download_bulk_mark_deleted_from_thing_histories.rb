@@ -5,6 +5,9 @@ module DataCycleCore
     module Common
       module DownloadBulkMarkDeletedFromThingHistories
         def self.download_content(utility_object:, options:)
+          utility_object.mode = :full
+          options[:mode] = 'full'
+
           DataCycleCore::Generic::Common::DownloadFunctions.bulk_mark_deleted(
             download_object: utility_object,
             iterator: method(:load_contents).to_proc,

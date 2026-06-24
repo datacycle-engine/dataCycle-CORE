@@ -1,0 +1,12 @@
+---
+- :data:
+    :name: child_mixin
+    :type: mixin
+    :extends:
+      - base_mixin
+      - base_mixin
+    :properties:
+      :child_text:
+        :label: Child label
+        :type: string
+        :storage_location: translated_value

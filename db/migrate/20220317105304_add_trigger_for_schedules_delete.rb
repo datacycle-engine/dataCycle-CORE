@@ -38,7 +38,7 @@ class AddTriggerForSchedulesDelete < ActiveRecord::Migration[5.2]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS delete_schedule_occurences_trigger ON schedules;
       DROP FUNCTION IF EXISTS delete_schedule_occurences_trigger;
       DROP FUNCTION IF EXISTS delete_schedule_occurences;

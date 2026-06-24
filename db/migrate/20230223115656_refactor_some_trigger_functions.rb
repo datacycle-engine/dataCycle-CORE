@@ -2,7 +2,7 @@
 
 class RefactorSomeTriggerFunctions < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP FUNCTION IF EXISTS generate_ca_paths_transitive;
 
       CREATE OR REPLACE FUNCTION generate_ca_paths_transitive (classification_alias_ids uuid []) RETURNS void LANGUAGE PLPGSQL AS $$ BEGIN

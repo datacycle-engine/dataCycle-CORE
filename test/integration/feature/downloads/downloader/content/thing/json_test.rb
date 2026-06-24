@@ -36,6 +36,7 @@ module DataCycleCore
               test 'enable json serializer and render json download for article' do
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:json] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@content)
 
                 get download_thing_path(@content), params: { serialize_format: 'json' }, headers: {
@@ -49,6 +50,7 @@ module DataCycleCore
               test 'enable json serializer and test downloads controller' do
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:json] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@content)
 
                 get "/downloads/things/#{@content.id}", params: { serialize_format: 'json' }, headers: {

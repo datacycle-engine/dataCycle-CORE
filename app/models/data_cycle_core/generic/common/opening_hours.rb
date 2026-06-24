@@ -17,18 +17,21 @@ module DataCycleCore
             case format
             when :google
               raise StandardError unless data_hash.is_a?(::Hash) || data_hash.nil?
+
               parse_google(data_hash || {})
             when :opening_hours_specification
               raise StandardError unless data_hash.is_a?(::Array) || data_hash.nil?
+
               parse_opening_hours_specification(data_hash || [])
             else
-              raise NotImplementedError, "only formats #{FORMATS.map(&:to_s).join(', ')} are implemented"
+              raise NotImplementedError, "only formats #{FORMATS.join(', ')} are implemented"
             end
           simplify_all_ranges
         end
 
         def to_per_day_opening_hours
           return nil if empty?
+
           data
             .map { |day, ranges| { DAY_HASH[day] => ranges.map { |range| convert_range_to_string(range) }.join(', ') } }
             .map { |day_hash| day_hash.values.first.present? ? day_hash : { day_hash.keys.first => CLOSED_STRING } }
@@ -37,6 +40,7 @@ module DataCycleCore
 
         def to_opening_hours_specifications
           return nil if empty?
+
           day_of_week_classification_ids = DAY_HASH
             .map { |key, value| { key => DataCycleCore::ClassificationAlias.for_tree('Wochentage').find_by(name: value).classifications.first.id } }
             .reduce(&:merge)
@@ -64,6 +68,7 @@ module DataCycleCore
 
         def empty?
           return true if @data.empty?
+
           @data.none? { |_day, ranges| ranges.present? }
         end
 
@@ -72,6 +77,7 @@ module DataCycleCore
 
           transformed_data = Array.wrap(data).filter_map do |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
+
             item['external_key'] = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             item
           end
@@ -88,6 +94,7 @@ module DataCycleCore
 
           Array.wrap(data).filter_map do |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
+
             external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             schedule_id = DataCycleCore::Generic::Common::DataReferenceTransformations.get_external_schedule_references(item, external_source_id, ->(*) { external_schedule_key })&.first
             preprocess_opening_time(item, external_source_id, external_schedule_key, day_transformation, schedule_id)
@@ -165,8 +172,10 @@ module DataCycleCore
 
         def simplify_all_ranges
           return if @data.blank?
+
           DAY_HASH.each_key do |day|
             next if @data[day].size < 2
+
             @data[day] = simplify_ranges(@data[day].sort_by(&:min))
           end
           self
@@ -197,6 +206,7 @@ module DataCycleCore
 
         def parse_google_interval(data)
           return nil if data&.dig('open').blank? || data&.dig('close').blank?
+
           opens = data['open']
           closes = data['close']
           parse_time_interval(opens, closes)
@@ -204,6 +214,7 @@ module DataCycleCore
 
         def parse_opening_hours_interval(data)
           return nil if data&.dig('opens')&.blank? || data&.dig('closes').blank?
+
           opens = data['opens']
           closes = data['closes']
           parse_time_interval(opens, closes)
@@ -217,6 +228,7 @@ module DataCycleCore
           return nil if opens > closes
           return nil if opens > 24 * 60 * 60
           return nil if closes > 48 * 60 * 60 # due to next day (2*24)
+
           (opens..closes)
         end
 

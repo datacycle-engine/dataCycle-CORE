@@ -7,9 +7,9 @@ module DataCycleCore
         def cast(value)
           return super if value.blank?
 
-          DataCycleCore::MasterData::DataConverter.string_to_string(value)
+          value = DataCycleCore::MasterData::DataConverter.string_to_string(value)
 
-          super(Array.wrap(value).map { |filter| param_from_definition(filter) })
+          super
         end
       end
     end

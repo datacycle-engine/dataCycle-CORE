@@ -1,7 +1,8 @@
 {
   "files": {
     "includes": [
-      "app/assets/**/*"
+      "app/assets/**/*.{js,mjs,cjs,jsx,ts,tsx,css,scss}",
+      "vendor/gems/data-cycle-core/app/assets/**/*.{js,mjs,cjs,jsx,ts,tsx,css,scss}"
     ]
   },
   "javascript": {

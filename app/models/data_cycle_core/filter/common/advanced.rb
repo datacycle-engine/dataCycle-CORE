@@ -19,12 +19,14 @@ module DataCycleCore
         def advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = respond_to?(:"equals_advanced_#{attribute_path}") ? :"equals_advanced_#{attribute_path}" : :"equals_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+
           send(advanced_type, value, attribute_path)
         end
 
         def not_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = respond_to?(:"not_equals_advanced_#{attribute_path}") ? :"not_equals_advanced_#{attribute_path}" : :"not_equals_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+
           send(advanced_type, value, attribute_path)
         end
 
@@ -34,36 +36,42 @@ module DataCycleCore
         def like_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = respond_to?(:"like_advanced_#{attribute_path}") ? :"like_advanced_#{attribute_path}" : :"like_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+
           send(advanced_type, value, attribute_path)
         end
 
         def not_like_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = respond_to?(:"not_like_advanced_#{attribute_path}") ? :"not_like_advanced_#{attribute_path}" : :"not_like_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+
           send(advanced_type, value, attribute_path)
         end
 
         def exists_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = respond_to?(:"exists_advanced_#{attribute_path}") ? :"exists_advanced_#{attribute_path}" : :"exists_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+
           send(advanced_type, value, attribute_path)
         end
 
         def not_exists_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = respond_to?(:"not_exists_advanced_#{attribute_path}") ? :"not_exists_advanced_#{attribute_path}" : :"not_exists_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+
           send(advanced_type, value, attribute_path)
         end
 
         def greater_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = respond_to?(:"greater_advanced_#{attribute_path}") ? :"greater_advanced_#{attribute_path}" : :"greater_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+
           send(advanced_type, value, attribute_path)
         end
 
         def lower_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = respond_to?(:"lower_advanced_#{attribute_path}") ? :"lower_advanced_#{attribute_path}" : :"lower_advanced_#{type}"
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+
           send(advanced_type, value, attribute_path)
         end
 
@@ -71,9 +79,13 @@ module DataCycleCore
           advanced_numeric(value, attribute_path, :equal)
         end
 
+        alias equals_advanced_number equals_advanced_numeric
+
         def not_equals_advanced_numeric(value = nil, attribute_path = nil)
           advanced_numeric(value, attribute_path, :not_equal)
         end
+
+        alias not_equals_advanced_number not_equals_advanced_numeric
 
         def equals_advanced_date(value = nil, attribute_path = nil)
           advanced_date(value, attribute_path, :equal)
@@ -158,96 +170,46 @@ module DataCycleCore
 
         def equals_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
+
           search_value = value['text']
 
-          reflect(
-            @query.where(
-              DataCycleCore::Thing::Translation
-              .where(locale: @locale)
-              .where(in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s))
-              .where(thing[:id].eq(thing_translations[:thing_id]))
-              .select(1)
-              .arel.exists
-            )
-          )
+          reflect(@query.where(tt_exists_subquery(search_value.downcase.to_s)))
         end
 
         def not_equals_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
+
           search_value = value['text']
 
-          reflect(
-            @query.where.not(
-              DataCycleCore::Thing::Translation
-                .where(locale: @locale)
-                .where(in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s))
-                .where(thing[:id].eq(thing_translations[:thing_id]))
-                .select(1)
-                .arel.exists
-            )
-          )
+          reflect(@query.where.not(tt_exists_subquery(search_value.downcase.to_s)))
         end
 
         def like_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
+
           search_value = value['text']
 
-          reflect(
-            @query.where(
-              DataCycleCore::Thing::Translation
-                .where(locale: @locale)
-                .where(in_json(thing_translations[:content], 'name').matches("%#{search_value}%"))
-                .where(thing[:id].eq(thing_translations[:thing_id]))
-                .select(1)
-                .arel.exists
-            )
-          )
+          reflect(@query.where(tt_exists_subquery("%#{search_value}%")))
         end
 
         def not_like_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
+
           search_value = value['text']
 
-          reflect(
-            @query.where.not(
-              DataCycleCore::Thing::Translation
-                .where(locale: @locale)
-                .where(in_json(thing_translations[:content], 'name').matches("%#{search_value}%"))
-                .where(thing[:id].eq(thing_translations[:thing_id]))
-                .select(1)
-                .arel.exists
-            )
-          )
+          reflect(@query.where.not(tt_exists_subquery("%#{search_value}%")))
         end
 
         def exists_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
 
-          reflect(
-            @query.where.not(
-              DataCycleCore::Thing::Translation
-                .where(locale: @locale)
-                .where(in_json(thing_translations[:content], 'name').eq(nil))
-                .where(thing[:id].eq(thing_translations[:thing_id]))
-                .select(1)
-                .arel.exists
-            )
-          )
+          reflect(@query.where.not(tt_exists_subquery(nil)))
         end
 
         def not_exists_advanced_translated_name(value = nil, _attribute_path = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? }
 
-          reflect(
-            @query.where(
-              DataCycleCore::Thing::Translation
-              .where(locale: @locale)
-              .where(in_json(thing_translations[:content], 'name').eq(nil))
-              .where(thing[:id].eq(thing_translations[:thing_id]))
-              .select(1)
-              .arel.exists
-            )
-          )
+          reflect(@query.where(tt_exists_subquery(nil)))
         end
 
         def equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)
@@ -267,6 +229,22 @@ module DataCycleCore
         end
 
         private
+
+        def tt_exists_subquery(value)
+          base_query = DataCycleCore::Thing::Translation
+            .where(thing[:id].eq(thing_translations[:thing_id]))
+            .select(1)
+
+          base_query = base_query.where(locale: @locale) if @locale.present?
+
+          base_query = if value.nil?
+                         base_query.where(in_json(thing_translations[:content], 'name').eq(nil))
+                       else
+                         base_query.where(in_json(thing_translations[:content], 'name').matches(value))
+                       end
+
+          base_query.arel.exists
+        end
 
         def advanced_classification_alias_ids(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.present? && attribute_path.present? && comparison.present?
@@ -292,6 +270,7 @@ module DataCycleCore
 
         def advanced_numeric(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
+
           if value.key?('equals') || value.key?('not_equals')
             v = (value['equals'] || value['not_equals'])&.to_f
             num_range = "[#{v},#{v}]"
@@ -313,6 +292,7 @@ module DataCycleCore
 
         def advanced_date(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
+
           date_range = "[#{value&.dig('from')},#{value&.dig('until')}]"
 
           case comparison
@@ -329,6 +309,7 @@ module DataCycleCore
 
         def advanced_date_range(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
+
           date_range = "[#{value&.dig('from')},#{value&.dig('until')}]"
 
           interval_keys = DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters.dig(attribute_path, 'attribute_keys')
@@ -348,6 +329,7 @@ module DataCycleCore
 
         def advanced_time(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.present? && attribute_path.present? && comparison.present?
+
           comparison_operator = COMPARISON_OPERATORS[comparison]
           query_string = sanitize_sql(["EXISTS(SELECT 1 FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparison_operator} ?::time)", attribute_path, value])
 
@@ -355,6 +337,7 @@ module DataCycleCore
         end
 
         def advanced_boolean(value = nil, attribute_path = nil, comparison = nil)
+          value = value[:bool] if value.is_a?(Hash)
           return self unless (value.present? || value.to_s == 'false') && attribute_path.present? && comparison.present?
 
           comparison_operator = COMPARISON_OPERATORS[comparison]
@@ -364,6 +347,7 @@ module DataCycleCore
 
         def advanced_string(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
+
           search_value = value['text']&.split(',')&.map(&:strip) # not present for exists, not_exists
 
           attribute_path_exists = true
@@ -406,15 +390,16 @@ module DataCycleCore
         def advanced_query_string(query_string, attribute_path, attribute_path_exists, skip_attribute_exists_query)
           return query_string if skip_attribute_exists_query
           return [attribute_path_exists(attribute_path), query_string].compact_blank.join(' AND ').prepend('(').concat(')') if attribute_path_exists == true
+
           [attribute_path_not_exists(attribute_path), query_string].compact_blank.join(' OR ').prepend('(').concat(')')
         end
 
         def attribute_path_exists(path)
-          sanitize_sql(['jsonb_path_exists(advanced_attributes, :path)', {path: "$.\"#{path}\""}])
+          sanitize_sql(['jsonb_path_exists(advanced_attributes, :path)', { path: "$.\"#{path}\"" }])
         end
 
         def attribute_path_not_exists(path)
-          sanitize_sql(['NOT(jsonb_path_exists(advanced_attributes, :path))', {path: "$.\"#{path}\""}])
+          sanitize_sql(['NOT(jsonb_path_exists(advanced_attributes, :path))', { path: "$.\"#{path}\"" }])
         end
       end
     end

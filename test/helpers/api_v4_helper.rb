@@ -20,6 +20,7 @@ module DataCycleCore
     def header_name(thing, languages = 'de')
       language_arr = languages.split(',')
       return thing.title || thing.template_name if language_arr.size == 1
+
       language_arr.map! do |lang|
         I18n.with_locale(lang) do
           { '@language' => I18n.locale.to_s, '@value' => thing.title || thing.template_name }
@@ -30,16 +31,16 @@ module DataCycleCore
     def assert_compact_header(array)
       array.each do |hash|
         assert_equal(['@id', '@type'], hash.keys)
-        assert(hash['@id'].present?)
-        assert(hash['@type'].present?)
+        assert_predicate(hash['@id'], :present?)
+        assert_predicate(hash['@type'], :present?)
       end
     end
 
     def assert_compact_classification_header(array)
       array.each do |hash|
         assert_equal(['@id', '@type'], hash.keys)
-        assert(hash['@id'].present?)
-        assert(hash['@type'].present?)
+        assert_predicate(hash['@id'], :present?)
+        assert_predicate(hash['@type'], :present?)
       end
     end
 

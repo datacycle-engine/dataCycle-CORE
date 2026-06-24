@@ -2,7 +2,7 @@
 
 class AddOrderToClassificationAliases < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE classification_aliases ADD COLUMN order_a INTEGER;
       ALTER TABLE classification_aliases ALTER COLUMN created_at SET DEFAULT transaction_timestamp();
       ALTER TABLE classification_aliases ALTER COLUMN updated_at SET DEFAULT transaction_timestamp();
@@ -158,7 +158,7 @@ class AddOrderToClassificationAliases < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS update_classification_tree_tree_label_id_trigger ON classification_trees;
       DROP FUNCTION IF EXISTS update_classification_tree_tree_label_id_trigger;
 

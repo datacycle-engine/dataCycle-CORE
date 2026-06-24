@@ -1,0 +1,187 @@
+.content-classifier-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+  --content-classifier-primary-bg: rgba(0, 140, 186, 0.12);
+  --content-classifier-primary-border: rgba(0, 140, 186, 0.4);
+  --content-classifier-confidence-high: #1e6fb9;
+  --content-classifier-confidence-low: #8a5a2d;
+}
+
+.content-classifier-tree-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 14rem;
+  max-width: 18rem;
+}
+
+.content-classifier-tree-search {
+  width: 100%;
+}
+
+.content-classifier-tree-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.content-classifier-tree-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--medium-radius);
+  border: 1px solid transparent;
+  background-color: transparent;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.content-classifier-tree-item:hover,
+.content-classifier-tree-item:focus-visible {
+  background-color: var(--very-light-gray);
+  border-color: var(--light-gray);
+}
+
+.content-classifier-tree-item.is-active {
+  background-color: var(--content-classifier-primary-bg);
+  border-color: var(--content-classifier-primary-border);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.content-classifier-results-panel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.content-classifier-results {
+  border-radius: var(--medium-radius);
+  padding: 1.25rem;
+  max-height: min(25rem, 80vh);
+  max-width: min(25rem, 80vw);
+  overflow-y: auto;
+}
+
+.content-classifier-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--dark-gray);
+  font-size: 0.95rem;
+  min-height: 6rem;
+}
+
+.content-classifier-suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.content-classifier-suggestion {
+  background: #fff;
+  border: 1px solid var(--light-gray);
+  border-radius: var(--medium-radius);
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.content-classifier-suggestion.empty {
+  background: transparent;
+  border: 1px dashed var(--light-gray);
+  color: var(--dark-gray);
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.content-classifier-suggestion-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.content-classifier-suggestion-label input {
+  margin: 0;
+}
+
+.content-classifier-suggestion-text {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.content-classifier-suggestion-title {
+  font-weight: 600;
+}
+
+.content-classifier-suggestion-confidence {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background-color: var(--success-color);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.content-classifier-suggestion-confidence.is-unknown {
+  background-color: var(--light-gray);
+}
+
+.content-classifier-suggestion-confidence.is-max {
+  background-color: var(--success-color);
+}
+
+.content-classifier-suggestion-confidence.is-high {
+  background-color: var(--content-classifier-confidence-high);
+}
+
+.content-classifier-suggestion-confidence.is-low {
+  background-color: var(--content-classifier-confidence-low);
+}
+
+.content-classifier-suggestion-bar {
+  background-color: var(--light-gray);
+  border-radius: 999px;
+  height: 0.35rem;
+  overflow: hidden;
+  margin-left: 2rem;
+}
+
+.content-classifier-suggestion-bar-fill {
+  display: block;
+  height: 100%;
+  background-color: var(--success-color);
+  border-radius: inherit;
+}
+
+.content-classifier-suggestion-bar-fill.is-max {
+  background-color: var(--success-color);
+}
+
+.content-classifier-suggestion-bar-fill.is-high {
+  background-color: var(--content-classifier-confidence-high);
+}
+
+.content-classifier-suggestion-bar-fill.is-low {
+  background-color: var(--content-classifier-confidence-low);
+}
+
+.content-classifier-suggestion-reasoning {
+  margin: 0.5rem 0 0 2rem;
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+}

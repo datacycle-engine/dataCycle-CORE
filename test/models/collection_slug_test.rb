@@ -16,9 +16,11 @@ module DataCycleCore
 
     test 'collections update slug only manually' do
       @collection.update(full_path: 'Test')
+
       assert_equal 'inhaltssammlung-1', @collection.slug
 
       @collection2.update(name: 'Test')
+
       assert_equal 'gespeicherte-suche-1', @collection2.slug
     end
 
@@ -32,6 +34,7 @@ module DataCycleCore
 
     test 'multiple watch_list slugs are generated correctly' do
       @collection.update(slug: 'test')
+
       assert_equal 'test', @collection.slug
 
       1.upto(10) do |index|

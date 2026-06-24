@@ -7,7 +7,8 @@
             options: @options,
             locale: @locale,
             new_content: true,
-            embedded_template: @embedded_template
+            embedded_template: @embedded_template,
+            allowed_locales: allowed_embedded_locales_for_key({ content: @content, key: @key })
           },
           content: @content
         ) %>
@@ -17,16 +18,18 @@
             key: @key,
             definition: @definition,
             parameters: {
+              object: object,
               index: @index.presence&.to_i + index,
               options: @options,
-              object: object,
-              locale: @locale,
-              duplicated_content: @duplicated_content.to_s == 'true',
-              force_render_child_locales: true,
-              force_render_locales: object.available_locales,
-              hide_embedded: @hide_embedded.to_s == 'true',
+              new_content: false,
               attribute_locale: @attribute_locale,
-              translate: @translate
+              duplicated_content: @duplicated_content.to_s == 'true',
+              hide_embedded: @hide_embedded.to_s == 'true',
+              translate: @translate,
+              force_render_child_locales: true,
+              force_render_locales: force_render_locales_for_key(object, { content: @content, key: @key }),
+              locale: @locale,
+              allowed_locales: allowed_embedded_locales_for_key({ content: @content, key: @key })
             },
             content: @content
       ) %>

@@ -46,6 +46,7 @@ module DataCycleCore
               fields: 'dct:modified,geo.latitude,geo.longitude'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # sorting: proximity.geographic_with(LONGITUDE, LATITUDE) --> 1, 1 ASC
@@ -54,9 +55,11 @@ module DataCycleCore
               sort: 'proximity.geographic_with(1, 1)'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(6)
 
             json_data = response.parsed_body
+
             assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id, @poi_f.id, @poi_e.id], json_data['@graph'].pluck('@id'))
 
             # sorting: proximity.geographic_with(LONGITUDE, LATITUDE)  1, 1 DESC
@@ -65,9 +68,11 @@ module DataCycleCore
               sort: '-proximity.geographic_with(1, 1)'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(6)
 
             json_data = response.parsed_body
+
             assert_equal([@poi_c.id, @poi_a.id, @poi_b.id, @poi_d.id, @poi_f.id, @poi_e.id], json_data['@graph'].pluck('@id'))
 
             # sorting: proximity.geographic_with(LONGITUDE, LATITUDE) --> 10, 1 ASC
@@ -76,9 +81,11 @@ module DataCycleCore
               sort: 'proximity.geographic_with(10, 1)'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(6)
 
             json_data = response.parsed_body
+
             assert_equal([@poi_a.id, @poi_b.id, @poi_d.id, @poi_c.id, @poi_f.id, @poi_e.id], json_data['@graph'].pluck('@id'))
 
             # sorting: proximity.geographic_with(LONGITUDE, LATITUDE)  10, 1 DESC
@@ -87,8 +94,10 @@ module DataCycleCore
               sort: '-proximity.geographic_with(10, 1)'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(6)
             json_data = response.parsed_body
+
             assert_equal([@poi_c.id, @poi_d.id, @poi_b.id, @poi_a.id, @poi_f.id, @poi_e.id], json_data['@graph'].pluck('@id'))
           end
         end

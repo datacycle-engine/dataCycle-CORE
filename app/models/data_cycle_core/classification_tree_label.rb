@@ -21,7 +21,7 @@ module DataCycleCore
       end
     end
 
-    has_one :concept_scheme, foreign_key: :id, dependent: nil, inverse_of: :classification_tree_label
+    has_one :concept_scheme, foreign_key: :id, dependent: :delete, inverse_of: :classification_tree_label
     has_many :concepts, through: :concept_scheme
 
     has_many :classification_aliases_with_deleted, -> { with_deleted }, through: :classification_trees, source: :sub_classification_alias
@@ -44,14 +44,14 @@ module DataCycleCore
           attributes
         end
       }.each do |attributes|
-        if parent_classification_alias
-          classification_alias = parent_classification_alias
-            .sub_classification_alias
-            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source], uri: attributes[:uri])
-        else
-          classification_alias = classification_aliases.roots
-            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source], uri: attributes[:uri])
-        end
+        classification_alias = if parent_classification_alias
+                                 parent_classification_alias
+                                   .sub_classification_alias
+                                   .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source], uri: attributes[:uri], external_key: attributes[:external_key])
+                               else
+                                 classification_aliases.roots
+                                   .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source], uri: attributes[:uri], external_key: attributes[:external_key])
+                               end
 
         if classification_alias.new_record?
           classification_alias.internal = attributes[:internal] || false
@@ -87,14 +87,14 @@ module DataCycleCore
           attributes.compact_blank!
         end
       }.each do |attributes|
-        if parent_classification_alias
-          classification_alias = parent_classification_alias
-            .sub_classification_alias
-            .find_or_initialize_by(name: attributes[:name])
-        else
-          classification_alias = classification_aliases.roots
-            .find_or_initialize_by(name: attributes[:name])
-        end
+        classification_alias = if parent_classification_alias
+                                 parent_classification_alias
+                                   .sub_classification_alias
+                                   .find_or_initialize_by(name: attributes[:name])
+                               else
+                                 classification_aliases.roots
+                                   .find_or_initialize_by(name: attributes[:name])
+                               end
 
         if classification_alias.new_record?
           classification_alias.save!
@@ -121,7 +121,7 @@ module DataCycleCore
       raise ArgumentError, 'attributes must be an array' unless attributes.is_a?(Array)
       raise ArgumentError, 'a concept cannot be its own parent (external_key == parent_external_key)' if attributes.any? { |a| a[:external_key] == a[:parent_external_key] }
 
-      query = insert_all_classifications_sql(attributes)
+      query = insert_all_classifications_sql(attributes, add_missing: true)
 
       transaction(joinable: false, requires_new: true) do
         ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
@@ -153,6 +153,7 @@ module DataCycleCore
 
         value[4].each.with_index(1) do |a_name, i|
           next if a_name == name
+
           ancestor = transform_row_data({ path: value[4][0...i] })
           sql_values.push(ancestor) if ancestor.present? && sql_values.none? { |sv| sv[3] == ancestor[3] }
         end
@@ -163,7 +164,7 @@ module DataCycleCore
         v[4].reverse!
       end
 
-      sql = <<-SQL.squish
+      sql = <<~SQL.squish
         WITH raw_data(classification_tree_label_id, name_i18n, name, full_path_names, parent_path_names, external_source_id) AS (
           VALUES #{Array.new(sql_values.size, '(?::uuid, ?::jsonb, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ?::uuid)').join(', ')}
         ),
@@ -281,7 +282,7 @@ module DataCycleCore
     def to_csv_with_mappings
       CSV.generate do |csv|
         csv << ['Pfad zur Klassifizierung', 'Pfad zu gemappter Klassifizierung']
-        classification_aliases.includes(:classification_alias_path, additional_classifications: [primary_classification_alias: :classification_alias_path]).reorder(nil).order('array_reverse(classification_alias_paths.full_path_names) ASC').references(:classification_alias_path).find_each do |ca|
+        classification_aliases.includes(:classification_alias_path, additional_classifications: [{ primary_classification_alias: :classification_alias_path }]).reorder(nil).order('array_reverse(classification_alias_paths.full_path_names) ASC').references(:classification_alias_path).find_each do |ca|
           ca.additional_classifications.map(&:primary_classification_alias).each do |mapped_ca|
             csv << [ca.full_path, mapped_ca.full_path]
           end
@@ -292,7 +293,7 @@ module DataCycleCore
     def to_csv_with_inverse_mappings
       CSV.generate do |csv|
         csv << ['Pfad zur Klassifizierung', 'Pfad zu gemappter Klassifizierung']
-        classification_aliases.includes(:classification_alias_path, primary_classification: [additional_classification_aliases: :classification_alias_path]).reorder(nil).order('array_reverse(classification_alias_paths.full_path_names) ASC').references(:classification_alias_path).find_each do |ca|
+        classification_aliases.includes(:classification_alias_path, primary_classification: [{ additional_classification_aliases: :classification_alias_path }]).reorder(nil).order('array_reverse(classification_alias_paths.full_path_names) ASC').references(:classification_alias_path).find_each do |ca|
           ca.primary_classification.additional_classification_aliases.each do |mapped_ca|
             csv << [mapped_ca.full_path, ca.full_path]
           end
@@ -326,7 +327,7 @@ module DataCycleCore
     end
 
     def sort_classifications_alphabetically!
-      raw_sql = <<-SQL.squish
+      raw_sql = <<~SQL.squish
         UPDATE classification_aliases
         SET order_a = w.order_a
         FROM (
@@ -369,7 +370,7 @@ module DataCycleCore
           :sanitize_sql_array,
           [
             raw_sql,
-            {id:}
+            { id: }
           ]
         )
       )
@@ -424,50 +425,90 @@ module DataCycleCore
       ]
     end
 
-    def insert_all_classifications_sql(attributes, upsert: false)
-      filtered_attributes = attributes.compact_blank.filter { |row| row[:name].present? || row[:name_i18n].present? }
+    def do_update_classifications_sql(upsert: false, add_missing: false)
+      do_classifications = 'DO NOTHING'
+
+      if I18n.locale == I18n.default_locale && (upsert || add_missing)
+        name_value = 'EXCLUDED.name'
+        name_value = "COALESCE(NULLIF(classifications.name, ''), #{name_value})" if add_missing
+        description_value = 'EXCLUDED.description'
+        description_value = "COALESCE(NULLIF(classifications.description, ''), #{description_value})" if add_missing
+        uri_value = 'EXCLUDED.uri'
+        uri_value = "COALESCE(NULLIF(classifications.uri, ''), #{uri_value})" if add_missing
+
+        do_classifications = <<~SQL.squish
+          DO UPDATE SET name = #{name_value},
+            description = #{description_value},
+            uri = #{uri_value},
+            updated_at = NOW()
+          WHERE classifications.name IS DISTINCT FROM EXCLUDED.name
+            OR classifications.description IS DISTINCT FROM EXCLUDED.description
+            OR classifications.uri IS DISTINCT FROM EXCLUDED.uri
+        SQL
+      end
+
+      do_classifications
+    end
+
+    def do_classification_aliases_sql(upsert: false, add_missing: false)
+      do_classification_aliases = 'DO NOTHING'
+
+      if upsert || add_missing
+        name_value = "COALESCE(classification_aliases.name_i18n, '{}'::jsonb) || coalesce(EXCLUDED.name_i18n, '{}'::jsonb)"
+        name_value = "coalesce(EXCLUDED.name_i18n, '{}'::jsonb) || COALESCE(classification_aliases.name_i18n, '{}'::jsonb)" if add_missing
+        description_value = "COALESCE(classification_aliases.description_i18n, '{}'::jsonb) || coalesce(EXCLUDED.description_i18n, '{}'::jsonb)"
+        description_value = "coalesce(EXCLUDED.description_i18n, '{}'::jsonb) || COALESCE(classification_aliases.description_i18n, '{}'::jsonb)" if add_missing
+        uri_value = 'EXCLUDED.uri'
+        uri_value = "COALESCE(NULLIF(classification_aliases.uri, ''), #{uri_value})" if add_missing
+        order_sql = 'order_a = COALESCE(EXCLUDED.order_a, classification_aliases.order_a), '
+        order_sql = '' if add_missing
+        order_cond = 'OR classification_aliases.order_a IS DISTINCT FROM EXCLUDED.order_a'
+        order_cond = '' if add_missing
+        internal_name = ', internal_name = EXCLUDED.internal_name' if I18n.locale == I18n.default_locale && upsert
+
+        do_classification_aliases = <<~SQL.squish
+          DO UPDATE SET name_i18n = #{name_value},
+            description_i18n = #{description_value},
+            uri = #{uri_value},
+            #{order_sql}
+            updated_at = NOW()
+            #{internal_name}
+          WHERE classification_aliases.name_i18n IS DISTINCT FROM EXCLUDED.name_i18n
+            OR classification_aliases.description_i18n IS DISTINCT FROM EXCLUDED.description_i18n
+            OR classification_aliases.uri IS DISTINCT FROM EXCLUDED.uri
+            #{order_cond}
+        SQL
+      end
+
+      do_classification_aliases
+    end
+
+    def do_classification_trees_sql(upsert: false)
+      return 'DO NOTHING' unless upsert
+
+      <<~SQL.squish
+        DO UPDATE SET parent_classification_alias_id = EXCLUDED.parent_classification_alias_id,
+          classification_tree_label_id = EXCLUDED.classification_tree_label_id,
+          external_source_id = EXCLUDED.external_source_id,
+          updated_at = NOW()
+        WHERE classification_trees.parent_classification_alias_id IS DISTINCT FROM EXCLUDED.parent_classification_alias_id
+          OR classification_trees.classification_tree_label_id IS DISTINCT FROM EXCLUDED.classification_tree_label_id
+          OR classification_trees.external_source_id IS DISTINCT FROM EXCLUDED.external_source_id
+      SQL
+    end
+
+    def insert_all_classifications_sql(attributes, upsert: false, add_missing: false)
+      filtered_attributes = attributes.compact_blank
+        .filter { |row| row[:external_key].present? && (row[:name].present? || row[:name_i18n].present?) }
       sql_values = filtered_attributes.map { |row| transform_row_data_external(row) }
       sets_internal = filtered_attributes.any? { |row| row.key?(:internal) }
       sets_assignable = filtered_attributes.any? { |row| row.key?(:assignable) }
 
-      do_classifications = 'DO NOTHING'
-      if upsert && I18n.locale == I18n.default_locale
-        do_classifications = <<-SQL.squish
-          DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, uri = EXCLUDED.uri, updated_at = NOW()
-        SQL
-      end
+      do_classifications = do_update_classifications_sql(upsert:, add_missing:)
+      do_classification_aliases = do_classification_aliases_sql(upsert:, add_missing:)
+      do_classification_trees = do_classification_trees_sql(upsert:)
 
-      do_classification_aliases = 'DO NOTHING'
-      if upsert
-        do_classification_aliases = <<-SQL.squish
-          DO UPDATE SET name_i18n = coalesce(classification_aliases.name_i18n, '{}'::jsonb) || coalesce(EXCLUDED.name_i18n, '{}'::jsonb),
-          description_i18n = coalesce(classification_aliases.description_i18n, '{}'::jsonb) || coalesce(EXCLUDED.description_i18n, '{}'::jsonb),
-          uri = EXCLUDED.uri,
-          order_a = COALESCE(EXCLUDED.order_a, classification_aliases.order_a),
-          updated_at = NOW()
-        SQL
-
-        if I18n.locale == I18n.default_locale
-          do_classification_aliases += <<-SQL.squish
-          , internal_name = EXCLUDED.internal_name
-          SQL
-        end
-      end
-
-      do_classification_trees = 'DO NOTHING'
-      if upsert
-        do_classification_trees = <<-SQL.squish
-          DO UPDATE SET parent_classification_alias_id = EXCLUDED.parent_classification_alias_id,
-            classification_tree_label_id = EXCLUDED.classification_tree_label_id,
-            external_source_id = EXCLUDED.external_source_id,
-            updated_at = NOW()
-          WHERE classification_trees.parent_classification_alias_id IS DISTINCT FROM EXCLUDED.parent_classification_alias_id
-          OR classification_trees.classification_tree_label_id IS DISTINCT FROM EXCLUDED.classification_tree_label_id
-          OR classification_trees.external_source_id IS DISTINCT FROM EXCLUDED.external_source_id
-        SQL
-      end
-
-      sql = <<-SQL.squish
+      sql = <<~SQL.squish
         WITH raw_data(classification_tree_label_id, external_system_id, external_key, parent_external_key, name, name_i18n, description, description_i18n, uri, order_a, internal, assignable) AS (
           VALUES #{Array.new(sql_values.size, '(?::uuid, ?::uuid, ?::varchar, ?::varchar, ?::varchar, ?::jsonb, ?::varchar, ?::jsonb, ?::varchar, ?::integer, ?::boolean, ?::boolean)').join(', ')}
         ), data AS (
@@ -475,13 +516,13 @@ module DataCycleCore
         ), inserted_c AS (
           INSERT INTO classifications (external_source_id, external_key, name, description, uri, created_at, updated_at)
           (SELECT external_system_id::uuid, external_key, name, description, uri, NOW(), NOW() FROM data)
-          ON CONFLICT (external_source_id, external_key) WHERE deleted_at IS NULL
+          ON CONFLICT (external_source_id, external_key) WHERE deleted_at IS NULL AND external_key IS NOT NULL
             #{do_classifications}
           RETURNING *
         ), inserted_ca AS (
           INSERT INTO classification_aliases (external_source_id, external_key, internal_name, name_i18n, description_i18n, uri, order_a, created_at, updated_at#{', internal' if sets_internal}#{', assignable' if sets_assignable})
           (SELECT external_system_id::uuid, external_key, name, name_i18n, description_i18n, uri, order_a, NOW(), NOW()#{', internal' if sets_internal}#{', assignable' if sets_assignable} FROM data)
-          ON CONFLICT (external_source_id, external_key) WHERE deleted_at IS NULL
+          ON CONFLICT (external_source_id, external_key) WHERE deleted_at IS NULL AND external_key IS NOT NULL
             #{do_classification_aliases}
           RETURNING *
         ), inserted_cg AS (
@@ -585,7 +626,7 @@ module DataCycleCore
     end
 
     def clean_stored_filters
-      ActiveRecord::Base.connection.exec_query <<-SQL.squish
+      ActiveRecord::Base.connection.exec_query <<~SQL.squish
         WITH subquery AS
         (
             SELECT

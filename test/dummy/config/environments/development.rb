@@ -32,14 +32,14 @@ Rails.application.configure do
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
 
-    if ENV['REDIS_SERVER'].present?
-      config.cache_store = :redis_cache_store, {
-        url: "redis://#{ENV['REDIS_SERVER']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_CACHE_DATABASE']}",
-        namespace: ENV['REDIS_CACHE_NAMESPACE']
-      }
-    else
-      config.cache_store = :memory_store
-    end
+    config.cache_store = if ENV['REDIS_SERVER'].present?
+                           [:redis_cache_store, {
+                             url: "redis://#{ENV['REDIS_SERVER']}:#{ENV['REDIS_PORT']}/#{ENV['REDIS_CACHE_DATABASE']}",
+                             namespace: ENV['REDIS_CACHE_NAMESPACE']
+                           }]
+                         else
+                           :memory_store
+                         end
 
     config.public_file_server.headers = {
       'Cache-Control' => "public, max-age=#{2.days.to_i}"
@@ -61,6 +61,9 @@ Rails.application.configure do
   # the I18n.default_locale when a translation cannot be found).
   config.i18n.fallbacks = false
 
+  config.force_ssl = ENV['APP_PROTOCOL'] == 'https'
+  config.assume_ssl = ENV['APP_PROTOCOL'] == 'https'
+
   config.action_mailer.perform_caching = false
 
   # Print deprecation notices to the Rails logger.
@@ -80,6 +83,9 @@ Rails.application.configure do
 
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
+
+  # Don't annotate rendered view with file names, as it interferes with content_for?(...)
+  config.action_view.annotate_rendered_view_with_filenames = false
 
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
@@ -104,14 +110,14 @@ Rails.application.configure do
   config.web_console.whiny_requests = false if config.respond_to?(:web_console)
 
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.default_options = { from: "noreply@#{ENV.fetch('APP_HOST', 'localhost')}" }
+  config.action_mailer.default_options = { from: "noreply@#{ENV.fetch('APP_HOST', 'localhost')&.split(':')&.first}" }
   config.action_mailer.smtp_settings = { address: ENV.fetch('MAILHOG_HOST', 'localhost'), port: 1025 }
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') } # required for action_mailer (Missing host to link to! Please provide the :host parameter, set default_url_options[:host])
 
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
-  config.hosts << 'dockerhost'
+  config.hosts.push('dockerhost', 'web', 'localhost', ENV.fetch('APP_HOST', 'localhost'))
 
-  if ENV['RAILS_LOG_TO_STDOUT'].present?
+  if ENV['RAILS_LOG_TO_STDOUT'].to_s == 'true'
     logger = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)

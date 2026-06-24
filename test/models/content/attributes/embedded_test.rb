@@ -11,18 +11,20 @@ module DataCycleCore
           @cw_temp = DataCycleCore::Thing.count
 
           linked = DataCycleCore::TestPreparations.create_content(template_name: 'Linked-Place-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked'), prevent_history: true)
-          linked_id = linked.id
-          @linked_objects = [linked_id]
+          @linked_id = linked.id
+          @linked_objects = [@linked_id]
 
           @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Creative-Work-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
             { 'embedded_creative_work' =>
                 [
                   DataCycleCore::TestPreparations
                     .load_dummy_data_hash('creative_works', 'embedded')
-                    .merge({ 'linked_place' => [linked_id] })
+                    .merge({ 'linked_place' => [@linked_id] })
                 ] }
           ), prevent_history: true)
+        end
 
+        test 'setup' do
           returned_data_hash = @data_set.get_data_hash
 
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
@@ -30,9 +32,10 @@ module DataCycleCore
                 [
                   DataCycleCore::TestPreparations
                     .load_dummy_data_hash('creative_works', 'embedded')
-                    .merge({ 'linked_place' => [linked_id] })
+                    .merge({ 'linked_place' => [@linked_id] })
                 ] }
           )
+
           assert_equal(0, @data_set.errors.messages.size)
           assert_equal(
             expected_hash.except('embedded_creative_work'),
@@ -42,7 +45,7 @@ module DataCycleCore
             expected_hash['embedded_creative_work'].first.except('linked_place'),
             returned_data_hash['embedded_creative_work'].first.except('linked_place', *DataCycleCore::TestPreparations.excepted_attributes)
           )
-          assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'])
+          assert_equal([@linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'])
 
           # check consistency of data in DB
           assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
@@ -55,7 +58,7 @@ module DataCycleCore
           data_set = @data_set
 
           # delete embedded
-          assert(data_set.has_related?)
+          assert_predicate(data_set, :has_related?)
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
           data_set.set_data_hash(data_hash:)
@@ -89,7 +92,7 @@ module DataCycleCore
             prevent_history: true
           )
 
-          assert(data_set.embedded_creative_work.first.parent_templates.pluck(:template_name).include?(data_set.template_name))
+          assert_includes(data_set.embedded_creative_work.first.parent_templates.pluck(:template_name), data_set.template_name)
 
           returned_data_hash = data_set.get_data_hash
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({
@@ -127,6 +130,7 @@ module DataCycleCore
           data_set.save
           returned_data_hash = data_set.get_data_hash
           expected_hash['embedded_creative_work'] = []
+
           assert_equal(0, data_set.errors.size)
           assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
 
@@ -174,7 +178,7 @@ module DataCycleCore
           data_set.set_data_hash(data_hash:)
           returned_data_hash = data_set.get_data_hash
 
-          assert data_set.errors.blank?
+          assert_predicate data_set.errors, :blank?
           assert_equal(
             expected_hash.except('embedded_creative_work'),
             returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes)

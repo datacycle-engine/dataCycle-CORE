@@ -14,6 +14,7 @@ module DataCycleCore
 
         def as_json(options = {})
           return super(methods: :is_valid?) if options.blank? == false && options['add_validity'] == true
+
           super
         end
 

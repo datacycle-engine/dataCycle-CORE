@@ -16,10 +16,12 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_context = json_data['@context']
+
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
             validator = DataCycleCore::V4::Validation::Context.context
+
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -31,10 +33,12 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_context = json_data['@context']
+
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
             validator = DataCycleCore::V4::Validation::Context.context(params[:language])
+
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -46,10 +50,12 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_context = json_data['@context']
+
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
             validator = DataCycleCore::V4::Validation::Context.context(params[:language])
+
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -61,10 +67,12 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_context = json_data['@context']
+
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
             validator = DataCycleCore::V4::Validation::Context.context(params[:language])
+
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -76,10 +84,12 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_context = json_data['@context']
+
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
             validator = DataCycleCore::V4::Validation::Context.context(params[:language])
+
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -89,10 +99,12 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_context = json_data['@context']
+
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
             validator = DataCycleCore::V4::Validation::Context.context(params[:language])
+
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -104,10 +116,12 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_context = json_data['@context']
+
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
             validator = DataCycleCore::V4::Validation::Context.context(params[:language])
+
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
 
@@ -117,10 +131,12 @@ module DataCycleCore
 
             json_data = response.parsed_body
             json_context = json_data['@context']
+
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
 
             validator = DataCycleCore::V4::Validation::Context.context(params[:language])
+
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
         end

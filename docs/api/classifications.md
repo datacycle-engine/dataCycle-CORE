@@ -202,9 +202,30 @@ _/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID?token=YOUR
 
 Dabei wird bei jeder Klassifizierung die Anzahl der indirekt verknüpften Inhalte (Mappings und untergeordnete Klassifizierungen werden berücksichtigt) unter `dc:thingCountWithSubtree`, sowie die Anzahl der direkt verknüpften Inhalte unter `dc:thingCountWithoutSubtree` ausgegeben.
 
-Bei diesem Endpunkt werden verwendete `filter` auf die Inhalte direkt angewendet, verwendete `sort`, `fields` und `includes` werden auf die Klassifizierungen angewendet.
+Bei diesem Endpunkt werden verwendete `filter` auf die Inhalte direkt angewendet, verwendete `sort`, `fields` und `include` Parameter werden auf die Klassifizierungen angewendet.
 
-Die übergebene `language` wird auf Inhalte und Klassifizierungen angewendet.
+Die übergebene `language` steuert die Sprache für die Berechnung der Inhalts-Counts.
+Mit `conceptLanguage` kann optional eine andere Sprache für Klassifizierungen festgelegt werden.
+Wird `conceptLanguage` nicht übergeben, wird für Klassifizierungen ebenfalls `language` verwendet.
+
+Beispiel: Inhalts-Counts für englische Inhalte, Klassifizierungen auf Deutsch.
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "language": "en",
+  "conceptLanguage": "de"
+}
+```
+
+Beispiel: Inhalts-Counts und Klassifizierungen auf Deutsch.
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "language": "de"
+}
+```
 
 ```json
 {

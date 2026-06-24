@@ -28,31 +28,25 @@ en:
       attribute_content_external?: Content imported
       attribute_not_disabled?: Attribute not hidden
       attribute_not_read_only?: Attribute not read-only
-      attribute_is_in_overlay?:
-        Content imported and attribute can be edited in the
+      attribute_is_in_overlay?: Content imported and attribute can be edited in the
         overlay
-      overlay_attribute_visible?:
-        Content not imported or attribute may be edited
+      overlay_attribute_visible?: Content not imported or attribute may be edited
         in the overlay
       attribute_not_releasable?: "Attributes not: %{data}"
-      attribute_not_included_in_publication_schedule?:
-        Attribute not available in
+      attribute_not_included_in_publication_schedule?: Attribute not available in
         the publication plan
       attribute_not_external?: Attribute not marked as "external"
       attribute_force_render?: Attribute marked as "always show"
-      attribute_tree_label_visible?:
-        "Classification tree visible (only attribute
+      attribute_tree_label_visible?: "Classification tree visible (only attribute
         type: Classification)"
       attribute_not_excluded?: "Attributes not: %{data}"
       template_whitelisted?: "Data types: %{data}"
       template_not_blacklisted?: "Data types not: %{data}"
       attribute_whitelisted?: "Attributes: %{data}"
       attribute_not_blacklisted?: "Attributes not: %{data}"
-      attribute_and_template_whitelisted?:
-        "Data type: %{template_name} (Attributes:
+      attribute_and_template_whitelisted?: "Data type: %{template_name} (Attributes:
         %{data})"
-      attribute_and_template_not_blacklisted?:
-        "Data type not: %{template_name} (Attributes:
+      attribute_and_template_not_blacklisted?: "Data type not: %{template_name} (Attributes:
         %{data})"
       attribute_type_whitelisted?: "Attribute types: %{data}"
       attribute_type_not_blacklisted?: "Attribute types not: %{data}"
@@ -79,6 +73,7 @@ en:
       dash_board: Admin Dashboard
       permission: Authorizations
       preview: Widget link
+      oauth: OAuth
     actions:
       index: show (list)
       show: show
@@ -162,7 +157,10 @@ en:
       download_user_info_activity: "Download user information and API activity"
       copy_to_clipboard: Copy to clipboard
       api_translate_text: Translate text via API
-      ai_lector: use D.A.I.S.Y.
+      ai_lector: use data.pixies
+      show_description: Show description
+      update_description: Edit description
+      authenticate_with: authenticate
     restrictions:
       advanced_filter_except_type: "Filter not: %{except}"
       asset_by_user_and_no_content:
@@ -175,8 +173,8 @@ en:
       classification_alias_and_children_not_external_and_not_internal:
         - not "internal" yourself and children
         - not imported themselves and children
-      ? classification_tree_label_and_classification_aliases_not_external_and_not_internal
-      : - not "internal" yourself and children
+      classification_tree_label_and_classification_aliases_not_external_and_not_internal:
+        - not "internal" yourself and children
         - not imported themselves and children
       content_by_report_generator: Report" feature activated
       data_link_by_receiver: User of the recipient of the external link
@@ -188,8 +186,7 @@ en:
         - accessible by API
       stored_filter_by_data_link: Valid external links available
       subject_by_user_and_conditions: User is %{attribute_name}
-      subject_by_user_and_user_group_users:
-        User or user from a shared user group
+      subject_by_user_and_user_group_users: User or user from a shared user group
         is %{attribute_name}
       subject_by_user_roles_whitelist: "Role: %{roles}"
       subject_not_external_and_not_internal:
@@ -213,10 +210,13 @@ en:
       thing_by_user_and_template_name:
         - User is %{attribute_name}
         - "Data type: %{template_names}"
+      things_by_collections:
+        - "Contents in %{collection_type}: %{collection_names_or_ids}"
       things_in_collections:
         - "Contents in %{collection_type}: %{collection_names_or_ids}"
       tree_label_by_visibility: "Visibility: %{visibilities}"
       users_by_email_domain: "E-mail domain: %{domain}"
+      users_by_email: "E-mail address: %{email}"
       users_by_role: "Role: %{roles}"
       users_by_role_and_provider:
         - "Role: %{roles}"

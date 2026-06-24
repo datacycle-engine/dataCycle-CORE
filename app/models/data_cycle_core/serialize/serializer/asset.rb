@@ -55,12 +55,12 @@ module DataCycleCore
 
               proxy_format = transformation&.dig('format')
 
-              case version
-              when 'thumb_preview'
-                proxy_variant = 'thumb'
-              else
-                proxy_variant = version
-              end
+              proxy_variant = case version
+                              when 'thumb_preview'
+                                'thumb'
+                              else
+                                version
+                              end
 
               if proxy_format.present?
                 processing_instructions = DataCycleCore::Feature::ImageProxy.config.dig(proxy_variant, 'processing')
@@ -100,6 +100,7 @@ module DataCycleCore
           def create_asset(content, version, transformation)
             return content.asset.try(:dynamic, transformation&.to_h) if content.asset.respond_to?(:dynamic) && transformation.present?
             return content.asset.try(version) if content.asset.respond_to?(version)
+
             content.asset.file.presence
           end
         end

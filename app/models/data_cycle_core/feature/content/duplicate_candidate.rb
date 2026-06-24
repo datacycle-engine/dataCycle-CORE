@@ -6,11 +6,11 @@ module DataCycleCore
       module DuplicateCandidate
         include Comparable
 
-        def duplicate_method?
-          DataCycleCore::Feature::DuplicateCandidate.duplicate_method(self).present?
+        def duplicate_candidates_allowed?
+          DataCycleCore::Feature::DuplicateCandidate.allowed?(self)
         end
 
-        def duplicate_method
+        def find_duplicates
           DataCycleCore::Feature::DuplicateCandidate.find_duplicates(self)
         end
 
@@ -28,6 +28,7 @@ module DataCycleCore
           # more connections are better
           return 1 if linked_contents.size > other.linked_contents.size
           return -1 if linked_contents.size < other.linked_contents.size
+
           0 # equivalent
         end
 

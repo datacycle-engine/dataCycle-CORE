@@ -33,6 +33,7 @@ describe DataCycleCore::MasterData::Validators::Schedule do
       end
       schedule = DataCycleCore::Schedule.new(thing_id: SecureRandom.uuid, relation: 'schedule')
       schedule.schedule_object = schedule_object
+
       assert_equal(no_error_hash, subject.new([schedule.to_h], template_hash).error)
     end
 
@@ -46,6 +47,7 @@ describe DataCycleCore::MasterData::Validators::Schedule do
       test_cases = [10, :wednesday, 'hallo']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -59,7 +61,7 @@ describe DataCycleCore::MasterData::Validators::Schedule do
       schedule = DataCycleCore::Schedule.new(thing_id: SecureRandom.uuid, relation: 'event_schedule')
       schedule.schedule_object = schedule_object
 
-      assert(subject.new([schedule.to_h], template_hash).error[:error].present?)
+      assert_predicate(subject.new([schedule.to_h], template_hash).error[:error], :present?)
     end
 
     it 'properly validates a schedule object with valid dates' do
@@ -70,7 +72,7 @@ describe DataCycleCore::MasterData::Validators::Schedule do
       schedule = DataCycleCore::Schedule.new(thing_id: SecureRandom.uuid, relation: 'event_schedule')
       schedule.schedule_object = schedule_object
 
-      assert(subject.new([schedule.to_h], template_hash).error[:error].blank?)
+      assert_predicate(subject.new([schedule.to_h], template_hash).error[:error], :blank?)
     end
   end
 end

@@ -14,9 +14,9 @@ module DataCycleCore
 
         private
 
-        def draw_relevant_frame_from(file, additional_video_arguments: '', &block)
+        def draw_relevant_frame_from(file, additional_video_arguments: '', &)
           video_arguments = Shellwords.split(ActiveStorage.video_preview_arguments + additional_video_arguments)
-          draw self.class.ffmpeg_path, '-i', file.path, *video_arguments, '-', &block
+          draw(self.class.ffmpeg_path, '-i', file.path, *video_arguments, '-', &)
         end
 
         def video_options_from_thing

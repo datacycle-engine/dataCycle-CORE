@@ -4,7 +4,7 @@ class FixClassificationAliasLinks < ActiveRecord::Migration[5.2]
   disable_ddl_transaction!
 
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE VIEW classification_alias_links AS (
         WITH primary_classification_groups AS (
           SELECT DISTINCT

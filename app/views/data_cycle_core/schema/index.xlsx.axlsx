@@ -12,7 +12,7 @@ def render_template(sheet, template)
   rows = rows.map do |row|
     first_filled_cell_index = row.find_index(&:present?)
 
-    row[0..first_filled_cell_index] + Array.new(rows.map(&:size).max - row.size) + row[(first_filled_cell_index + 1)..-1]
+    row[0..first_filled_cell_index] + Array.new(rows.map(&:size).max - row.size) + row[(first_filled_cell_index + 1)..]
   end
 
   sheet.add_row([template.template_name], style: [sheet.styles.add_style(sz: 18)])

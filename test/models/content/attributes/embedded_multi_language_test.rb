@@ -13,7 +13,9 @@ module DataCycleCore
 
           @data_set_multi = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Creative-Work-2', data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
           I18n.with_locale(:en) { @data_set_multi.set_data_hash(data_hash: { 'name' => 'English', 'embedded_creative_work' => [{ 'id' => @embedded_multi.id }] }, prevent_history: true) }
+        end
 
+        test 'setup' do
           assert_equal([:de, :en], @data_set_multi.available_locales.sort)
           assert_equal([:de, :en], @embedded_multi.available_locales.sort)
 

@@ -1,4 +1,3 @@
-import fetchInject from "fetch-inject";
 import isEmpty from "lodash/isEmpty";
 import pick from "lodash/pick";
 import MtkAdditionalValuesFilterControl from "./map_controls/mtk_additional_values_filter_control";
@@ -29,20 +28,12 @@ class TourSprungEditor extends MapLibreGlEditor {
 		this.featurePolyLine;
 		this.editorGui;
 		this.draggingMarker;
-		this.allRenderedLayers = [];
 		this.showElevationProfile = this.$container.data("elevationProfile");
 		this.elevationProfile;
 		this.elevationProfilePromise;
-		this.keyFiguresMapping = {
-			length: "distance",
-			max_altitude: "elevation_max",
-			min_altitude: "elevation_min",
-			ascent: "ascend",
-			descent: "descend",
-		};
 	}
-	static isAllowedType(type) {
-		return type?.includes("LineString");
+	static isAllowedType(type, readonly) {
+		return !readonly && type?.includes("LineString");
 	}
 	setup() {
 		this.setZoomMethod();
@@ -54,7 +45,52 @@ class TourSprungEditor extends MapLibreGlEditor {
 			});
 	}
 	async loadExtenalScripts() {
-		return await fetchInject(defaultMtkScripts, fetchInject(mtkLibrary));
+		await this._loadAssets(mtkLibrary);
+		await this._loadAssets(defaultMtkScripts);
+	}
+	_cspNonce() {
+		return document
+			.querySelector("meta[name='csp-nonce']")
+			?.getAttribute("content");
+	}
+	_loadScript(src) {
+		if (document.querySelector(`script[src="${src}"]`))
+			return Promise.resolve();
+
+		return new Promise((resolve, reject) => {
+			const script = document.createElement("script");
+			script.src = src;
+			script.async = false;
+
+			const nonce = this._cspNonce();
+			if (nonce) script.setAttribute("nonce", nonce);
+
+			script.onload = () => resolve();
+			script.onerror = (event) => reject(event);
+			document.head.appendChild(script);
+		});
+	}
+	_loadStyle(href) {
+		if (document.querySelector(`link[rel="stylesheet"][href="${href}"]`))
+			return Promise.resolve();
+
+		return new Promise((resolve, reject) => {
+			const link = document.createElement("link");
+			link.rel = "stylesheet";
+			link.href = href;
+			link.onload = () => resolve();
+			link.onerror = (event) => reject(event);
+			document.head.appendChild(link);
+		});
+	}
+	async _loadAssets(urls = []) {
+		for (const url of urls) {
+			if (url.endsWith(".css")) {
+				await this._loadStyle(url);
+			} else {
+				await this._loadScript(url);
+			}
+		}
 	}
 	_styleControlWithOptions() {
 		const controlConfig = {};
@@ -89,42 +125,16 @@ class TourSprungEditor extends MapLibreGlEditor {
 		);
 		this.initEventHandlers();
 	}
-	initEventHandlers() {
-		super.initEventHandlers();
-
-		this.$container.on(
-			"dc:geoKeyFigure:compute",
-			this._computeKeyFigure.bind(this),
-		);
-	}
 	_setElevationProfileFromFeature() {
 		this.elevationProfilePromise = (async () => {
 			if (!this.elevationProfile) await this._renderElevationProfile();
 
 			return new Promise((resolve, _reject) => {
-				this.elevationProfile.setPolyline(this.featurePolyLine, {}, () =>
+				this.elevationProfile.setPolyline(this.featurePolyLine, () =>
 					resolve(),
 				);
 			});
 		})();
-	}
-	async _computeKeyFigure(event, data = {}) {
-		event.preventDefault();
-
-		if (!(this.elevationProfile || this.elevationProfilePromise))
-			this._setElevationProfileFromFeature();
-
-		await this.elevationProfilePromise;
-		this.elevationProfilePromise = null;
-
-		const keyFigures = this.elevationProfile.getData();
-		const key = data.attributeKey;
-
-		if (!(key && keyFigures && keyFigures.elevation)) return;
-
-		data.callback(
-			Math.round(keyFigures.elevation[this.keyFiguresMapping[key] || key]),
-		);
 	}
 	async configureMap(map) {
 		this.mtkMap = map;
@@ -157,7 +167,8 @@ class TourSprungEditor extends MapLibreGlEditor {
 		});
 
 		this.mtkMap.on("maptypechanged", (_event) => {
-			this.allRenderedLayers = [];
+			this.renderedLayers = {};
+			this.renderedPopupLayers = [];
 			this.drawAdditionalFeatures();
 			this._changeMtkLineStyle();
 		});
@@ -312,14 +323,13 @@ class TourSprungEditor extends MapLibreGlEditor {
 		Object.assign(this.editorGui.editor.dashedLine, this.lineStyle());
 	}
 	async _renderElevationProfile() {
-		if (!this.elevationProfile) await fetchInject(mtkElevationProfile);
+		if (!this.elevationProfile) await this._loadAssets(mtkElevationProfile);
 
 		this.elevationProfile = new MTK.ElevationProfile();
 		this.elevationProfile._container
 			.querySelector("rect.mtk-elevation-close")
 			.dispatchEvent(new Event("click"));
 		if (this.showElevationProfile) this.elevationProfile.addTo(this.mtkMap);
-		this.$container.trigger("dc:map:elevationProfileInitialized");
 	}
 	configureEditor() {
 		this.map.addControl(new maplibregl.NavigationControl(), "bottom-left");
@@ -341,12 +351,12 @@ class TourSprungEditor extends MapLibreGlEditor {
 		this.map.addControl(new UndoRedoControl(this), "top-left");
 
 		if (!isEmpty(this.additionalValuesOverlay))
-			this.map.addControl(
-				new MtkAdditionalValuesFilterControl(this),
-				"top-left",
-			);
+			this.initAdditionalValuesControls();
 
 		this._changeMtkLineStyle();
+	}
+	initAdditionalValuesControls() {
+		this.map.addControl(new MtkAdditionalValuesFilterControl(this), "top-left");
 	}
 }
 

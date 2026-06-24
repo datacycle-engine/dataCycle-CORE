@@ -26,11 +26,11 @@ module DataCycleCore
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
 
-            if (@watch_list || @stored_filter)&.id.present?
-              @pagination_url = method(:api_v4_stored_filter_url)
-            else
-              @pagination_url = method(:api_v4_things_url)
-            end
+            @pagination_url = if (@watch_list || @stored_filter)&.id.present?
+                                method(:api_v4_stored_filter_url)
+                              else
+                                method(:api_v4_things_url)
+                              end
 
             renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
               contents: @contents,
@@ -49,7 +49,7 @@ module DataCycleCore
           depth = @include_parameters&.map(&:size)&.max
           @content.instance_variable_set(:@_recursive_preload_depth, 1 + depth) if depth
 
-          if request.format.geojson? # rubocop:disable Style/GuardClause
+          if request.format.geojson?
             raise ActiveRecord::RecordNotFound unless DataCycleCore.features.dig(:serialize, :serializers, :geojson) == true
 
             render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && return
@@ -137,7 +137,7 @@ module DataCycleCore
           uuid = @uuid || @uuids&.split(',')
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
             query = DataCycleCore::Thing
-              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+              .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
               .where(id: uuid)
 
             if request.format.geojson?
@@ -164,7 +164,7 @@ module DataCycleCore
             query = build_search_query
             query = query.query
               .by_external_key(@external_source_id, @external_keys)
-              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+              .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
 
             @contents = apply_paging(query)
             @pagination_url = method(:api_v4_things_select_by_external_key_url)
@@ -216,7 +216,7 @@ module DataCycleCore
             end
           end
 
-          deleted_contents = deleted_contents.reorder(nil).order('deleted_at DESC')
+          deleted_contents = deleted_contents.reorder(nil).order(deleted_at: :desc)
 
           render plain: list_api_deleted_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
         end
@@ -230,15 +230,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, :weight, {uuid: [], filter: {}, 'dc:liveData': [:@id, :minPrice]}]
-        end
-
-        # @todo: remove obsolete method?
-        def permitted_filter_parameters
-          {
-            filter:
-              attribute_filters + [linked: {}] + [union: []]
-          }
+          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, :weight, { uuid: [], filter: {}, 'dc:liveData': [:@id, :minPrice] }]
         end
 
         private

@@ -86,7 +86,7 @@ module DataCycleCore
 
       def base_contents_subquery
         unless @include_linked
-          return <<-SQL.squish
+          return <<~SQL.squish
             WITH contents AS (
               #{contents_with_default_scope.to_sql}
             )
@@ -104,7 +104,7 @@ module DataCycleCore
         additional_things_query = contents_with_default_scope(additional_things)
           .joins('INNER JOIN content_content_links ccl ON ccl.content_b_id = things.id')
 
-        <<-SQL.squish
+        <<~SQL.squish
           WITH base_things AS (#{@contents.reorder(nil).reselect('things.*').to_sql}),
           selected_things AS (
             #{base_things_query.to_sql}
@@ -122,12 +122,12 @@ module DataCycleCore
         as_mvt_select = sanitize_sql(
           [
             'SELECT ST_AsMVT(mvtgeom, :layer_name) FROM mvtgeom',
-            {layer_name: @layer_name}
+            { layer_name: @layer_name }
           ]
         )
         includes = include_config('t')
 
-        <<-SQL.squish
+        <<~SQL.squish
           #{base_contents_subquery}, mvtgeom AS (
             SELECT ST_AsMVTGeom(MAX(t.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})) AS geom,
               t.id as "@id"
@@ -141,7 +141,7 @@ module DataCycleCore
       end
 
       def mvt_clustered_select_sql
-        layer_select_sql = <<-SQL.squish
+        layer_select_sql = <<~SQL.squish
           mvt_data AS (
             SELECT ST_AsMVT(items.*, :layer_name) AS mvtdata
             FROM items
@@ -156,8 +156,8 @@ module DataCycleCore
         sanitize_sql(
           [
             layer_select_sql,
-            {layer_name: @layer_name,
-             cluster_layer_name: @cluster_layer_name}
+            { layer_name: @layer_name,
+              cluster_layer_name: @cluster_layer_name }
           ]
         )
       end
@@ -173,7 +173,7 @@ module DataCycleCore
       def mvt_cluster_unclustered_sql
         includes = include_config('contents')
 
-        <<-SQL.squish
+        <<~SQL.squish
           UNION ALL
           SELECT ST_AsMVTGeom(MAX(contents.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})),
             contents.id AS "@id"
@@ -188,7 +188,7 @@ module DataCycleCore
       def mvt_cluster_items_select
         return unless @cluster_items
 
-        <<-SQL.squish
+        <<~SQL.squish
           json_agg(clustered_contents.item) AS "items",
         SQL
       end
@@ -198,7 +198,7 @@ module DataCycleCore
 
         includes = include_config('mvtgeom')
 
-        <<-SQL.squish
+        <<~SQL.squish
           mvtgeom
           INNER JOIN (
             SELECT json_build_object(
@@ -225,7 +225,7 @@ module DataCycleCore
       def mvt_clustered_sql
         includes = include_config('mvtgeom')
 
-        <<-SQL.squish
+        <<~SQL.squish
           #{base_contents_subquery},
           mvtgeom AS (
             SELECT contents.geometry AS geom,

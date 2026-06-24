@@ -2,7 +2,7 @@
 
 class MigrateTransitivePathFunctionToConcepts < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS delete_ccc_relations_transitive_trigger ON classification_groups;
       DROP TRIGGER IF EXISTS update_deleted_at_ccc_relations_transitive_trigger ON classification_groups;
       DROP TRIGGER IF EXISTS generate_ca_paths_transitive_trigger ON classification_trees;
@@ -247,7 +247,7 @@ class MigrateTransitivePathFunctionToConcepts < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS concept_schemes_update_transitive_paths_trigger ON concept_schemes;
       DROP TRIGGER IF EXISTS concepts_create_transitive_paths_trigger ON concepts;
       DROP TRIGGER IF EXISTS concepts_update_transitive_paths_trigger ON concepts;

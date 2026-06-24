@@ -14,6 +14,7 @@ end
 if content.synch?
   content.external_system_syncs.each do |system_data|
     next if system_data.external_key.blank?
+
     json['externalIdentifier'] << {
       '@type' => 'PropertyValue',
       'propertyID' => system_data.external_system.identifier,

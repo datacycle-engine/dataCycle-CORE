@@ -8,11 +8,12 @@ module DataCycleCore
       module Image
         class << self
           def width(**args)
-            local_width(**args)
+            local_or_remote_width(**args)
           end
 
           def local_width(computed_parameters:, **_args)
-            image = DataCycleCore::Image.where(id: computed_parameters.values).first
+            asset_ids = computed_parameters.values.select { |v| v.is_a?(::String) && v.uuid? }
+            image = DataCycleCore::Image.find_by(id: asset_ids)
 
             orientation = exif_value(image, ['Orientation'])
 
@@ -34,11 +35,12 @@ module DataCycleCore
           end
 
           def height(**args)
-            local_height(**args)
+            local_or_remote_height(**args)
           end
 
           def local_height(computed_parameters:, **_args)
-            image = DataCycleCore::Image.where(id: computed_parameters.values).first
+            asset_ids = computed_parameters.values.select { |v| v.is_a?(::String) && v.uuid? }
+            image = DataCycleCore::Image.find_by(id: asset_ids)
 
             orientation = exif_value(image, ['Orientation'])
 
@@ -59,8 +61,13 @@ module DataCycleCore
             local_height(**args) || remote_height(**args)
           end
 
+          def file_size(**args)
+            local_or_remote_file_size(**args)
+          end
+
           def local_file_size(computed_parameters:, **_args)
-            DataCycleCore::Asset.where(id: computed_parameters.values).first&.try(:file_size)&.to_i
+            asset_ids = computed_parameters.values.select { |v| v.is_a?(::String) && v.uuid? }
+            DataCycleCore::Image.find_by(id: asset_ids)&.try(:file_size)&.to_i
           end
 
           def remote_file_size(**args)
@@ -108,6 +115,7 @@ module DataCycleCore
           def exif_value(image, path)
             image = DataCycleCore::Image.find_by(id: image) unless image.is_a?(DataCycleCore::Image)
             return nil if image.blank? || path.blank?
+
             image&.metadata&.dig(*path)
           end
 

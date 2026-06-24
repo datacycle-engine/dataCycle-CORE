@@ -32,6 +32,7 @@ module DataCycleCore
           def process_content(utility_object:, raw_data:, locale:, options:)
             return if raw_data.blank?
             return if options&.blank? || options[:import].blank?
+
             allowed_locales = (
               options.dig(:import, :locales) ||
               utility_object.external_source.try(:default_options)&.symbolize_keys&.dig(:locales) ||
@@ -47,6 +48,7 @@ module DataCycleCore
                                    extract_property(raw_data, options, 'external_id_prefix')
               concept_scheme_external_id_prefix = options.dig(:import, :concept_scheme_external_id_prefix) ||
                                                   extract_property(raw_data, options, 'concept_scheme_external_id_prefix')
+              uri_prefix = options.dig(:import, :concept_uri_prefix)
               parent_id = extract_property(raw_data, options, 'parent_id')
               external_system_identifier = extract_property(raw_data, options, 'external_system_identifier')
 
@@ -55,11 +57,14 @@ module DataCycleCore
 
               parent_id = nil if parent_id == external_id # concept cannot be its own parent
 
-              if options.fetch(:import, {}).fetch(:import_mappings, true)
-                mapped_concepts = extract_property(raw_data, options, 'mapped_concepts')
-              else
-                mapped_concepts = []
-              end
+              mapped_concepts = if options.fetch(:import, {}).fetch(:import_mappings, true)
+                                  extract_property(raw_data, options, 'mapped_concepts')
+                                else
+                                  []
+                                end
+
+              uri = extract_property(raw_data, options, 'uri')
+              uri = uri_prefix.to_s + uri if uri.present? && uri_prefix.present?
 
               {
                 external_key: [external_id_prefix, external_id].compact_blank.join,
@@ -68,7 +73,7 @@ module DataCycleCore
                 parent_external_key: parent_id.presence&.then { |pid| [external_id_prefix, pid].compact_blank.join },
                 external_system_identifier:,
                 description: extract_property(raw_data, options, 'description'),
-                uri: extract_property(raw_data, options, 'uri'),
+                uri:,
                 order_a: extract_property(raw_data, options, 'order_a'),
                 concept_scheme_external_key: [
                   concept_scheme_external_id_prefix,
@@ -130,10 +135,12 @@ module DataCycleCore
               .to_h { |k, v|
               new_k = concept_schemes[k]
               next [nil, nil] if new_k.blank? # reject if concept scheme is missing
+
               [
                 new_k,
                 v.filter_map { |da|
                   next if new_k.external_system_id != da[:external_source_id]
+
                   da.slice(*ALLOWED_CONCEPT_KEYS)
                 }.presence
               ]
@@ -258,13 +265,13 @@ module DataCycleCore
                 .to_h { |co| [co.external_key, co.id] }
 
               values.each do |da|
-                concept_id = concepts[da[:external_key]]
-                next if concept_id.nil?
+                classification_alias_id = concepts[da[:external_key]]
+                next if classification_alias_id.nil?
 
-                geom_values << {
-                  classification_alias_id: concept_id,
-                  geom: da[:geom]
-                }
+                geom = da[:geom]
+                geom = geom.data if geom.is_a?(BSON::Binary)
+
+                geom_values << { classification_alias_id:, geom: }
               end
             end
 

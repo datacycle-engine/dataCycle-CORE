@@ -11,26 +11,23 @@
         <a class="has-content represented-by-link" data-toggle="represented-by-<%= item.id %>">
           <i class="fa fa-link" aria-hidden="true"></i>
         </a>
-        <div class="dropdown-pane no-bullet bottom"
-              id="represented-by-<%= item.id %>"
-              data-dropdown>
+        <div class="dropdown-pane no-bullet bottom" id="represented-by-<%= item.id %>" data-dropdown>
           <h5><%= DataCycleCore::User.human_attribute_name(:represented_by, locale: active_ui_locale) %></h5>
+
           <ul class="list-items">
             <% item.represented_by.each do |thing| %>
-              <li><%= link_to I18n.with_locale(thing.first_available_locale(local_assigns[:language], active_ui_locale)) { thing.title }, thing_path(thing.id), target: :_blank %></li>
+              <li>
+                <%= link_to I18n.with_locale(thing.first_available_locale(local_assigns[:language], active_ui_locale)) { thing.title }, thing_path(thing.id), target: :_blank %>
+              </li>
             <% end %>
           </ul>
         </div>
       <% end %>
     </span>
 
-    <span class="title">
-      <%= item.full_name %>
-    </span>
+    <span class="title"><%= item.full_name %></span>
 
-    <span class="description" data-dc-tooltip="<%= item.email %>">
-      <%= item.email %>
-    </span>
+    <span class="description" data-dc-tooltip="<%= item.email %>"><%= item.email %></span>
 
     <% if can?(:generate_access_token, item) && item.access_token.present? %>
       <span class="token">
@@ -68,7 +65,7 @@
     <% end %>
 
     <% if can?(:become, item) %>
-      <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
+      <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), method: :post, class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
     <% end %>
 
     <% if can?(:show, item) %>
@@ -85,13 +82,14 @@
       <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(item), method: :post, class:'success unlock-link', data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } %>
     <% end %>
 
-    <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true), user_path(item), method: :delete, class:'alert delete-user-link', data: { confirm: t('user.delete_user_html', locale: active_ui_locale), dc_tooltip: t('actions.delete', locale: active_ui_locale) } if can?(:destroy, item) && !item.deleted? %>
+    <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true), user_path(item), method: :delete, class:'alert delete-user-link', data: { confirm: t('user.delete_user_html', email: CGI::escapeHTML(item.full_name_with_email), locale: active_ui_locale), dc_tooltip: t('actions.delete', locale: active_ui_locale) } if can?(:destroy, item) && !item.deleted? %>
   </div>
 </div>
 
-<div class="content-details remote-render"
-    id="content-details-<%= item.id %>"
-    data-remote-render-function="render_content_tile_details"
-    data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
-    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: local_assigns[:language]).to_json %>">
-</div>
+<div
+  class="content-details remote-render"
+  id="content-details-<%= item.id %>"
+  data-remote-render-function="render_content_tile_details"
+  data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
+  data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: local_assigns[:language]).to_json %>"
+></div>

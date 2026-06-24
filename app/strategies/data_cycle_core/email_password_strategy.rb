@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class EmailPasswordStrategy < Warden::Strategies::Base
+  class EmailPasswordStrategy < BaseStrategy
     def valid?
-      params[:warden_strategy] == 'email_password' && params[:email].present? && params[:password].present?
+      warden_strategy? && params[:email].present? && params[:password].present?
     end
 
     def authenticate!
       user = User.find_by(email: params[:email])
       params[:iss].presence&.then { |i| request.env['data_cycle.feature.user_api.issuer'] = i }
       params[:original_iss].presence&.then { |i| request.env['data_cycle.feature.user_api.issuer'] = i }
-      user&.valid_password?(params[:password]) ? success!(user) : fail!('invalid combination of email and password')
+
+      return fail!('invalid combination of email and password') unless user
+      return success!(user) if validate(user) { user.valid_password?(params[:password]) }
+
+      fail!('invalid combination of email and password')
     end
 
     def store?

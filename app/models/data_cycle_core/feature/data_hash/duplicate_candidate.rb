@@ -9,56 +9,85 @@ module DataCycleCore
         def after_save_data_hash(options)
           super
 
+          return if embedded?
+          return unless duplicate_candidates_allowed?
+
           # add job to check for possible duplicates and add them as duplicate_candidates
-          add_check_for_duplicates_job if (options.new_content || options.template_changed) &&
-                                          options.check_for_duplicates
+          add_check_for_duplicates_job if affected_by_change?(saved_changes&.keys, options.template_changed)
+
+          add_dependent_check_for_duplicates_job if cached_related_contents?
         end
 
         def create_duplicate_candidates
-          duplicates = duplicate_method
+          duplicates = find_duplicates
+          to_delete = duplicate_candidates
+          fp_duplicate_ids = []
 
-          duplicate_candidates.with_fp.where.not(duplicate_id: duplicates&.pluck(:thing_duplicate_id)&.compact).thing_duplicates.delete_all
+          if duplicates.present?
+            to_delete = to_delete.without_thing_method_pairs(duplicates&.pluck(:thing_duplicate_id, :method))
+            fp_duplicate_ids = duplicate_candidates.with_fp.distinct.reorder(nil).pluck(:duplicate_id)
+          end
 
-          timestamp = Time.zone.now
+          to_delete.thing_duplicates.delete_all
 
-          duplicates.present? ? DataCycleCore::ThingDuplicate.insert_all(duplicates.each { |v| v.merge!({ thing_id: id, created_at: timestamp, updated_at: timestamp }) }, unique_by: :unique_thing_duplicate_idx).count : 0
+          return 0 if duplicates.blank?
+
+          duplicates.each do |v|
+            v[:thing_id] = id
+            v[:false_positive] = fp_duplicate_ids.include?(v[:thing_duplicate_id])
+          end
+
+          ThingDuplicate
+            .insert_all(duplicates, unique_by: :unique_thing_duplicate_idx)
+            .count
         end
 
         def merge_with_duplicate_and_version(duplicate)
           I18n.with_locale(first_available_locale) do
             duplicate.original_id = id
-            set_data_hash(data_hash: {}, version_name: DataCycleCore::Feature::DuplicateCandidate.version_name_for_merge(duplicate), force_update: true)
+            set_data_hash(data_hash: {}, version_name: Feature::DuplicateCandidate.version_name_for_merge(duplicate), force_update: true)
           end
 
           merge_with_duplicate(duplicate)
         end
 
         def merge_with_duplicate(duplicate)
-          DataCycleCore::MergeDuplicateJob.perform_later(id, duplicate.id)
+          MergeDuplicateJob.perform_later(id, duplicate.id)
 
-          DataCycleCore::Thing.find_by(id: duplicate.id)&.duplicate_candidates&.thing_duplicates&.delete_all
+          Thing.find_by(id: duplicate.id)&.duplicate_candidates&.thing_duplicates&.delete_all
         end
 
-        module ClassMethods
-          def create_duplicate_candidates
-            duplicates = DataCycleCore::Feature::DuplicateCandidate.find_duplicates_for_contents(all)
-            all.duplicate_candidates.with_fp.where.not(duplicate_id: duplicates&.pluck(:thing_duplicate_id)&.compact).thing_duplicates.delete_all
+        def mark_duplicate_as_false_positive(duplicate)
+          duplicate.duplicate_candidates
+            .where(duplicate_id: id)
+            .thing_duplicates
+            .update_all(false_positive: true)
+        end
 
-            timestamp = Time.zone.now
-
-            DataCycleCore::ThingDuplicate.insert_all(duplicates.each { |v| v.merge!({ created_at: timestamp, updated_at: timestamp }) }, unique_by: :unique_thing_duplicate_idx) if duplicates.present?
-
-            duplicates&.size || 0
-          end
+        def affected_by_change?(changed_attributes, template_changed = false)
+          template_changed || changed_attributes&.intersect?(combined_parameters)
         end
 
         private
 
         def add_check_for_duplicates_job
-          return if embedded?
-          return unless duplicate_method?
+          CheckForDuplicatesJob.perform_later(id)
+        end
 
-          DataCycleCore::CheckForDuplicatesJob.perform_later(id)
+        def add_dependent_check_for_duplicates_job
+          changed_keys = Array.wrap(datahash_changes&.keys)
+          CheckDependentForDuplicatesJob.perform_later(id, changed_keys)
+        end
+
+        def add_destroy_check_for_duplicates_job
+          id_attribute_hash = ContentContent::Link.id_attribute_hash(id)
+          return if id_attribute_hash.blank?
+
+          DestroyDependentForDuplicatesJob.perform_later(id, id_attribute_hash)
+        end
+
+        def combined_parameters
+          Feature['DuplicateCandidate'].combined_parameters(self)
         end
       end
     end

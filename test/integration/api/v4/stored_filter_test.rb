@@ -7,15 +7,19 @@ module DataCycleCore
   module Api
     module V4
       class StoredFilterTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
-        # rubocop:disable Minitest/MultipleAssertions
         before(:all) do
           DataCycleCore::Thing.delete_all
           @routes = Engine.routes
           @test_content = DataCycleCore::DummyDataHelper.create_data('tour')
+          @previous_user_filters = DataCycleCore.user_filters.deep_dup
         end
 
         setup do
           sign_in(User.find_by(email: 'tester@datacycle.at'))
+        end
+
+        teardown do
+          DataCycleCore.user_filters = @previous_user_filters
         end
 
         def add_fulltext_filter(string)
@@ -209,6 +213,54 @@ module DataCycleCore
           assert_nil(poi['image'])
         end
 
+        test '/api/v4/endpoints/:uuid forced api_linked user_filter filters linked contents' do
+          poi_name = 'Test-POI'
+          fulltext_filter = add_fulltext_filter(poi_name)
+
+          # baseline: without a forced api_linked user_filter the linked image is rendered
+          get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
+          json_data = response.parsed_body
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
+
+          assert_equal(1, json_data['@graph'].size)
+          assert_equal(1, poi['image']&.size)
+
+          # forced api_linked user_filter restricting linked contents to the POI content type filters out the (non-POI) images
+          DataCycleCore.user_filters = { tmp_api_linked: { 'segments' => [{ 'name' => 'DataCycleCore::Abilities::Segments::UsersByRole', 'parameters' => ['admin'] }], 'force' => true, 'scope' => ['api_linked'], 'stored_filter' => [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['POI'] } }] } }
+
+          get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
+          json_data = response.parsed_body
+          poi = json_data['@graph'].detect { |i| i['name'] == poi_name }
+
+          # the main result (api scope) is unaffected, but the linked image is filtered out by the forced api_linked filter
+          assert_equal(1, json_data['@graph'].size)
+          assert_nil(poi['image'])
+        end
+
+        test '/api/v4/endpoints/:uuid forced api_linked user_filter sets a generated id when collection has no linked_stored_filter' do
+          user = DataCycleCore::User.find_by(email: 'tester@datacycle.at')
+          collection = DataCycleCore::StoredFilter.create(
+            name: 'no linked filter',
+            user_id: user.id,
+            language: ['de'],
+            api: true
+          )
+
+          assert_nil(collection.linked_stored_filter_id)
+          assert_nil(collection.linked_stored_filter)
+
+          DataCycleCore.user_filters = { tmp_api_linked: { 'segments' => [{ 'name' => 'DataCycleCore::Abilities::Segments::UsersByRole', 'parameters' => ['admin'] }], 'force' => true, 'scope' => ['api_linked'], 'stored_filter' => [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['POI'] } }] } }
+
+          controller = DataCycleCore::Api::V4::StoredFiltersController.new
+          controller.define_singleton_method(:current_user) { user }
+
+          linked_filter = controller.send(:linked_stored_filter, collection)
+          expected_id = controller.send(:generate_uuid, collection.id, "#{user.user_filters('api_linked').join(',')}/#{user.id}")
+
+          assert_equal(expected_id, linked_filter.id)
+          assert(linked_filter.parameters.any? { |f| f['c'] == 'uf' })
+        end
+
         test '/api/v4/endpoints/:uuid with relation_filter, finds one POI with one suitable image' do
           relation_filter = add_relation_filter('headline')
           get api_v4_stored_filter_path(id: relation_filter.id, include: 'image,poi.image')
@@ -250,7 +302,6 @@ module DataCycleCore
 
           assert_equal(api_v4_stored_filter_path(id: filter.id, page: { number: 2, size: 1 }), "#{uri.path}?#{uri.query}")
         end
-        # rubocop:enable Minitest/MultipleAssertions
       end
     end
   end

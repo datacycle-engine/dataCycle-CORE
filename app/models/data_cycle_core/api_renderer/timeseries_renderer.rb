@@ -70,7 +70,7 @@ module DataCycleCore
       end
 
       def csv_array
-        <<-SQL.squish
+        <<~SQL.squish
           SELECT concat('timestamp; value', chr(10), string_agg(concat(to_json(ts.ts), '; ', ts.value::text), chr(10)))
           FROM (#{query.to_sql}) ts
         SQL
@@ -79,7 +79,7 @@ module DataCycleCore
       def json_array
         scale_sql = ", 'meta', JSON_BUILD_OBJECT('scale_x', '#{@scale_x}')" if @scale_x.present?
 
-        <<-SQL.squish
+        <<~SQL.squish
           SELECT json_build_object('data', json_agg(json_build_array(ts.ts, ts.value))#{scale_sql})
           FROM (#{query.to_sql}) ts
         SQL
@@ -88,7 +88,7 @@ module DataCycleCore
       def json_object
         scale_sql = ", 'meta', JSON_BUILD_OBJECT('scale_x', '#{@scale_x}')" if @scale_x.present?
 
-        <<-SQL.squish
+        <<~SQL.squish
           SELECT json_build_object('data', json_agg(json_build_object('x', ts.ts, 'y', ts.value))#{scale_sql})
           FROM (#{query.to_sql}) ts
         SQL

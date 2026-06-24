@@ -18,9 +18,9 @@ classifications = classification_aliases&.map do |item|
         deletedAt: ancestor.deleted_at
       }.compact
     end
-  }.compact
+  }.compact.deep_stringify_keys
 end
 
 {
-  key.to_sym => classifications
+  key.to_s => classifications
 }

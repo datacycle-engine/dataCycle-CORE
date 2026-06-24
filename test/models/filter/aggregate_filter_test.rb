@@ -18,36 +18,43 @@ module DataCycleCore
 
     test 'filter contents based on aggregate_type -> default' do
       items = DataCycleCore::Filter::Search.new(locale: :de).aggregate_filter('default')
+
       assert_equal(@things_count + 4, items.count)
     end
 
     test 'filter contents based on aggregate_type -> aggregate' do
       items = DataCycleCore::Filter::Search.new(locale: :de).aggregate_filter('aggregate')
+
       assert_equal(1, items.count)
     end
 
     test 'filter contents based on aggregate_type -> belongs_to_aggregate' do
       items = DataCycleCore::Filter::Search.new(locale: :de).aggregate_filter('belongs_to_aggregate')
+
       assert_equal(1, items.count)
     end
 
     test 'filter contents based on aggregate_type -> default, aggregate' do
       items = DataCycleCore::Filter::Search.new(locale: :de).aggregate_filter(['default', 'aggregate'])
+
       assert_equal(@things_count + 4 + 1, items.count)
     end
 
     test 'filter contents based on not aggregate_type -> default' do
       items = DataCycleCore::Filter::Search.new(locale: :de).not_aggregate_filter('default')
+
       assert_equal(2, items.count)
     end
 
     test 'filter contents based on not aggregate_type -> aggregate' do
       items = DataCycleCore::Filter::Search.new(locale: :de).not_aggregate_filter('aggregate')
+
       assert_equal(@things_count + 4 + 1, items.count)
     end
 
     test 'filter contents based on not aggregate_type -> belongs_to_aggregate' do
       items = DataCycleCore::Filter::Search.new(locale: :de).not_aggregate_filter('belongs_to_aggregate')
+
       assert_equal(@things_count + 4 + 1, items.count)
     end
   end

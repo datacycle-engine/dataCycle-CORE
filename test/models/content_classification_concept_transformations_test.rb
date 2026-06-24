@@ -92,9 +92,11 @@ module DataCycleCore
 
     test 'remove classifications for assigned tags tree' do
       valid = @article.mapped_concepts_to_property(concept_scheme: @tags)
+
       assert(valid)
 
       valid = @article.remove_concepts_by_scheme(concept_scheme: @tags)
+
       assert(valid)
       assert_equal(@universal.to_set, @article.universal_classifications.pluck(:id).to_set)
       assert_empty(@article.tags.pluck(:id))
@@ -106,6 +108,7 @@ module DataCycleCore
 
     test 'remove classifications for unassigned tree' do
       valid = @article.remove_concepts_by_scheme(concept_scheme: @tags)
+
       assert_nil(valid)
       assert_equal(@universal.to_set, @article.universal_classifications.pluck(:id).to_set)
       assert_empty(@article.tags.pluck(:id))

@@ -18,6 +18,7 @@ module DataCycleCore
           v.group_by { |a| a[:action] }
             .transform_values do |a|
             next [] if a.any? { |r| r[:restrictions].blank? }
+
             Array.wrap(a.pluck(:restrictions)).compact_blank.uniq
           end
         end

@@ -54,21 +54,27 @@ module DataCycleCore
 
               test 'stored item can be found via different endpoints' do
                 get(xml_v1_things_path)
+
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item['contentType'] == 'Container' }
+
                 assert_equal(@content.id, xml_data['identifier'])
 
                 get(xml_v1_contents_search_path)
+
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item['contentType'] == 'Container' }
+
                 assert_equal(@content.id, xml_data['identifier'])
 
                 get(xml_v1_creative_works_path)
+
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item['contentType'] == 'Container' }
+
                 assert_equal(@content.id, xml_data['identifier'])
               end
             end

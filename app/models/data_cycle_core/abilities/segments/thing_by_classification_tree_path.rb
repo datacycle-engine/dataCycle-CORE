@@ -12,7 +12,7 @@ module DataCycleCore
 
           classification_ids = DataCycleCore::Concept.by_full_paths(@concept_paths).pluck(:id)
 
-          @conditions = { classification_aliases: {id: classification_ids}}
+          @conditions = { classification_aliases: { id: classification_ids } }
         end
 
         private

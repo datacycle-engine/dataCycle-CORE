@@ -24,31 +24,31 @@ module DataCycleCore
         ]]
       }
 
-      if definition&.dig('ui', 'show', 'timeseries')&.key?('groups')
-        options = definition.dig('ui', 'show', 'timeseries', 'groups').to_h do |k, v|
-          [
-            I18n.t("timeseries.grouping_options.#{k}", locale: active_ui_locale),
-            v.map! do |g|
-              [
-                "#{I18n.t("timeseries.grouping_options.#{g}", locale: active_ui_locale)} (#{I18n.t("timeseries.grouping_options.#{k}", locale: active_ui_locale)})",
-                "#{k.underscore}_#{g.underscore}"
-              ]
-            end
-          ]
-        end
-      else
-        options = DataCycleCore::ApiRenderer::TimeseriesRenderer::DEFAULT_AGGREGATE_FUNCTIONS.to_h do |aggregate_function|
-          [
-            I18n.t("timeseries.grouping_options.#{aggregate_function.underscore}", locale: active_ui_locale),
-            DataCycleCore::ApiRenderer::TimeseriesRenderer::DEFAULT_GROUPS.map do |group|
-              [
-                "#{I18n.t("timeseries.grouping_options.#{group.underscore}", locale: active_ui_locale)} (#{I18n.t("timeseries.grouping_options.#{aggregate_function.underscore}", locale: active_ui_locale)})",
-                "#{aggregate_function.underscore}_#{group.underscore}"
-              ]
-            end
-          ]
-        end
-      end
+      options = if definition&.dig('ui', 'show', 'timeseries')&.key?('groups')
+                  definition.dig('ui', 'show', 'timeseries', 'groups').to_h do |k, v|
+                    [
+                      I18n.t("timeseries.grouping_options.#{k}", locale: active_ui_locale),
+                      v.map! do |g|
+                        [
+                          "#{I18n.t("timeseries.grouping_options.#{g}", locale: active_ui_locale)} (#{I18n.t("timeseries.grouping_options.#{k}", locale: active_ui_locale)})",
+                          "#{k.underscore}_#{g.underscore}"
+                        ]
+                      end
+                    ]
+                  end
+                else
+                  DataCycleCore::ApiRenderer::TimeseriesRenderer::DEFAULT_AGGREGATE_FUNCTIONS.to_h do |aggregate_function|
+                    [
+                      I18n.t("timeseries.grouping_options.#{aggregate_function.underscore}", locale: active_ui_locale),
+                      DataCycleCore::ApiRenderer::TimeseriesRenderer::DEFAULT_GROUPS.map do |group|
+                        [
+                          "#{I18n.t("timeseries.grouping_options.#{group.underscore}", locale: active_ui_locale)} (#{I18n.t("timeseries.grouping_options.#{aggregate_function.underscore}", locale: active_ui_locale)})",
+                          "#{aggregate_function.underscore}_#{group.underscore}"
+                        ]
+                      end
+                    ]
+                  end
+                end
 
       config = { class: 'dc-chart-grouping-input', id: nil }
 

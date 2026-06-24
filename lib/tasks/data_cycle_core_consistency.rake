@@ -4,7 +4,7 @@ namespace :data_cycle_core do
   namespace :classifications do
     desc 'perform consistency checks on the db'
     task ensure_consistency: :environment do
-      partially_deleted_entities = ActiveRecord::Base.connection.execute <<-SQL.squish
+      partially_deleted_entities = ActiveRecord::Base.connection.execute <<~SQL.squish
         SELECT
           primary_classification_groups.id "classification_group_id",
           classification_aliases.id "classification_alias_id",
@@ -20,7 +20,7 @@ namespace :data_cycle_core do
                    classification_aliases.deleted_at IS NOT NULL);
       SQL
 
-      inconsistent_names = ActiveRecord::Base.connection.execute <<-SQL.squish
+      inconsistent_names = ActiveRecord::Base.connection.execute <<~SQL.squish
         SELECT
           classification_aliases.id "classification_alias_id",
           classifications.id "classification_id"

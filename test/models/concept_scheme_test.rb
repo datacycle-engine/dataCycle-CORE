@@ -42,7 +42,7 @@ module DataCycleCore
       assert concept_scheme1.is_a?(ConceptScheme)
       assert_equal 'test', concept_scheme1.name
       assert_equal @es_id, concept_scheme1.external_system_id
-      assert_equal true, concept_scheme1.internal
+      assert concept_scheme1.internal
       assert_equal ['show'], concept_scheme1.visibility
       assert_equal ['trigger_webhooks'], concept_scheme1.change_behaviour
     end
@@ -53,7 +53,7 @@ module DataCycleCore
       assert concept_scheme1.is_a?(ConceptScheme)
       assert_equal 'test', concept_scheme1.name
       assert_equal @es_id, concept_scheme1.external_system_id
-      assert_equal true, concept_scheme1.internal
+      assert concept_scheme1.internal
       assert_equal ['show'], concept_scheme1.visibility
       assert_equal ['trigger_webhooks'], concept_scheme1.change_behaviour
     end

@@ -43,7 +43,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
     ]
 
     data_hash.each do |item|
-      sql_query = <<-EOS
+      sql_query = <<-SQL
         INSERT INTO classification_contents
         SELECT id,
           #{item[:name]}_id AS content_data_id,
@@ -53,11 +53,11 @@ class CreateSearch < ActiveRecord::Migration[5.0]
           seen_at, created_at, updated_at,
           external_source_id
         FROM classification_#{item[:name]}s;
-      EOS
+      SQL
       @connection.exec_query(sql_query)
       drop_table :"classification_#{item[:name]}s"
 
-      sql_query = <<-EOS
+      sql_query = <<-SQL
         INSERT INTO classification_content_histories
         SELECT id,
           #{item[:name]}_history_id AS content_data_history_id,
@@ -67,7 +67,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
           seen_at, created_at, updated_at,
           external_source_id
         FROM classification_#{item[:name]}_histories;
-      EOS
+      SQL
       @connection.exec_query(sql_query)
       drop_table :"classification_#{item[:name]}_histories"
     end
@@ -104,7 +104,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
         t.uuid :external_source_id
       end
 
-      sql_query = <<-EOS
+      sql_query = <<-SQL
         INSERT INTO classification_#{item[:name]}s
         SELECT id,
           content_id AS #{item[:name]}_id,
@@ -114,10 +114,10 @@ class CreateSearch < ActiveRecord::Migration[5.0]
           external_source_id
         FROM classification_contents
         WHERE content_type = '#{item[:content_type]}';
-      EOS
+      SQL
       @connection.exec_query(sql_query)
 
-      sql_query = <<-EOS
+      sql_query = <<-SQL
         INSERT INTO classification_#{item[:name]}_histories
         SELECT id,
           content_history_id AS #{item[:name]}_history_id,
@@ -127,7 +127,7 @@ class CreateSearch < ActiveRecord::Migration[5.0]
           external_source_id
         FROM classification_content_histories
         WHERE content_history_type = '#{item[:content_type]}::History';
-      EOS
+      SQL
       @connection.exec_query(sql_query)
     end
 

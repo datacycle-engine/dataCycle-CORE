@@ -22,16 +22,19 @@ module DataCycleCore
       diff_hash_if_defaults_are_not_considered = {
         'slug' => ['-', content_data.slug],
         'data_type' => [['-', content_data.data_type.pluck(:id)]],
+        'dummy' => ['-', 'do_not_show'],
         'data_pool' => [['-', content_data.data_pool.pluck(:id)]],
         'upload_date' => ['-', content_data.upload_date],
         'mandatory_license' => ['-', false],
         'schema_types' => [['-', content_data.schema_types.pluck(:id)]]
       }
+
       assert_equal(diff_hash_if_defaults_are_not_considered, diff)
 
       partial_schema_hash = content_data.schema.dup
       partial_schema_hash['properties'] = content_data.property_definitions&.slice(*data_hash.keys)
-      assert_equal(false, content_data.diff?(data_hash, partial_schema_hash))
+
+      assert_not(content_data.diff?(data_hash, partial_schema_hash))
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
@@ -58,7 +61,7 @@ module DataCycleCore
       partial_schema_hash = content_data.schema.dup
       partial_schema_hash['properties'] = content_data.property_definitions&.slice(*update_hash.keys)
 
-      assert_equal(true, content_data.diff?(update_hash, partial_schema_hash))
+      assert(content_data.diff?(update_hash, partial_schema_hash))
       assert_equal(diff_hash, content_data.diff(update_hash, partial_schema_hash))
       content_data.set_data_hash(data_hash: update_hash, partial_update: true)
 
@@ -72,14 +75,16 @@ module DataCycleCore
 
       history_data = content_data.histories.first
       history_data_hash = history_data.get_data_hash
-      assert_equal(false, history_data.diff?(content_hash))
-      assert_equal(true,  history_data.diff?(content_data.get_data_hash))
-      assert_equal(true,  content_data.diff?(history_data_hash))
+
+      assert_not(history_data.diff?(content_hash))
+      assert(history_data.diff?(content_data.get_data_hash))
+      assert(content_data.diff?(history_data_hash))
 
       assert_equal(diff_hash,   history_data.diff(content_data.get_data_hash))
       assert_equal(diff_hash_t, content_data.diff(history_data.get_data_hash))
 
       history_hash = history_data.get_data_hash
+
       assert_equal(diff_hash_t, content_data.diff(history_hash))
     end
     # TODO: add test incl. embedded + linked
@@ -194,11 +199,13 @@ module DataCycleCore
       created_at = content_data.created_at.to_fs(:long_usec)
 
       diff = content_data.diff(content_hash)
+
       assert_equal({}, diff)
 
       partial_schema_hash = content_data.schema.dup
       partial_schema_hash['properties'] = content_data.property_definitions&.slice(*data_hash.keys)
-      assert_equal(false, content_data.diff?(data_hash, partial_schema_hash))
+
+      assert_not(content_data.diff?(data_hash, partial_schema_hash))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)

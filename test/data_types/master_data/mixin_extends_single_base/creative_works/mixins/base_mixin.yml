@@ -1,0 +1,9 @@
+---
+- :data:
+    :name: base_mixin
+    :type: mixin
+    :properties:
+      :base_text:
+        :label: Base label
+        :type: string
+        :storage_location: translated_value

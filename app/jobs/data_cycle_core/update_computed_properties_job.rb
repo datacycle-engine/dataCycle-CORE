@@ -15,36 +15,32 @@ module DataCycleCore
       arguments[0]
     end
 
-    def perform(content_id, _changed_attributes)
-      DataCycleCore::Thing
-        .where(id: DataCycleCore::Thing::PropertyDependency.select(:content_id).where(dependent_content_id: content_id))
-        .find_each { |thing| update_computed_properties(thing) }
+    def perform(id, _changed_attributes)
+      id_attribute_hash = Thing::PropertyDependency.id_attribute_hash(id)
+      return if id_attribute_hash.blank?
+
+      update_relevant_things(id_attribute_hash)
     end
 
     private
 
-    def update_computed_properties(content)
-      if content.computed_property_names.intersect?(content.translatable_property_names)
-        content.available_locales.each do |locale|
-          translated_computed_keys = content.computed_property_names.intersection(content.translatable_property_names)
+    def update_relevant_things(attribute_hash)
+      queue = WorkerPool.new
 
-          data_hash = {}
-          keys = locale == content.first_available_locale ? content.computed_property_names : translated_computed_keys
-
-          I18n.with_locale(locale) do
-            content.add_computed_values(data_hash:, keys:, force: true)
-            content.webhook_priority = WEBHOOK_PRIORITY
-            content.set_data_hash(data_hash:, update_computed: false)
-          end
-        end
-      else
-        I18n.with_locale(content.first_available_locale) do
-          data_hash = {}
-          content.add_computed_values(data_hash:, force: true)
-          content.webhook_priority = WEBHOOK_PRIORITY
-          content.set_data_hash(data_hash:, update_computed: false)
+      Thing.where(id: attribute_hash.keys).find_each do |t|
+        queue.append do
+          update_computed_properties(t, attribute_hash[t.id])
         end
       end
+
+      queue.wait!
+    end
+
+    def update_computed_properties(content, keys)
+      return if keys.blank?
+
+      content.webhook_priority = WEBHOOK_PRIORITY
+      content.update_computed_values(keys:)
     end
   end
 end

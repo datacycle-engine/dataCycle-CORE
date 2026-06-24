@@ -14,7 +14,6 @@ module DataCycleCore
     before_action :load_watch_list, if: -> { params[:watch_list_id].present? }
     before_action :clear_previous_page, if: -> { request.format.html? && !is_a?(DataCycleCore::ThingsController) && [consent_users_path, update_consent_users_path].exclude?(request.path) }
     before_action :better_errors_hack, if: -> { Rails.env.development? }
-    before_action :flashes_from_params, if: -> { params[:flash].present? }
 
     def after_sign_in_path_for(resource)
       stored_location_for(resource).presence || authorized_root_path
@@ -35,7 +34,7 @@ module DataCycleCore
       Rails.cache.clear
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: t('common.all_caches_cleared', locale: helpers.active_ui_locale)) }
+        format.html { redirect_back_or_to(root_path, notice: t('common.all_caches_cleared', locale: helpers.active_ui_locale)) }
         format.turbo_stream do
           flash.now[:success] = t('common.all_caches_cleared', locale: helpers.active_ui_locale)
           render turbo_stream: turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash')
@@ -76,11 +75,11 @@ module DataCycleCore
     end
 
     def reload_required
-      render(json: { error: I18n.t(:session_expired, scope: [:controllers, :error], locale: helpers.active_ui_locale), confirmation_text: I18n.t(:redirect_to_login, scope: [:actions], locale: helpers.active_ui_locale) }) && return unless user_signed_in?
+      render(json: { error: I18n.t('controllers.error.session_expired', locale: helpers.active_ui_locale), confirmation_text: I18n.t('actions.redirect_to_login', locale: helpers.active_ui_locale) }) && return unless user_signed_in?
 
-      render(json: { error: I18n.t(:token_invalid, scope: [:controllers, :error], locale: helpers.active_ui_locale), confirmation_text: I18n.t(:reload, scope: [:actions], locale: helpers.active_ui_locale) }) && return unless any_authenticity_token_valid? || Rails.env.test?
+      render(json: { error: I18n.t('controllers.error.token_invalid', locale: helpers.active_ui_locale), confirmation_text: I18n.t('actions.reload', locale: helpers.active_ui_locale) }) && return unless any_authenticity_token_valid? || Rails.env.test?
 
-      render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: helpers.active_ui_locale), confirmation_text: I18n.t(:reload, scope: [:actions], locale: helpers.active_ui_locale) }) && return if "DataCycleCore::#{reload_params[:table]&.classify || 'Thing'}".safe_constantize&.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
+      render(json: { error: I18n.t('controllers.info.content_updated', locale: helpers.active_ui_locale), confirmation_text: I18n.t('actions.reload', locale: helpers.active_ui_locale) }) && return if "DataCycleCore::#{reload_params[:table]&.classify || 'Thing'}".safe_constantize&.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
 
       head :no_content
     end
@@ -93,6 +92,7 @@ module DataCycleCore
 
     def translate
       render(json: { error: 'error' }.to_json, status: :bad_request) && return if translate_params[:path].blank?
+
       render(json: { error: translate_params[:path] }.to_json, status: :not_found) && return unless I18n.exists?(translate_params[:path], locale: helpers.active_ui_locale)
 
       render json: { text: I18n.t(translate_params[:path], locale: helpers.active_ui_locale) }.to_json
@@ -122,18 +122,6 @@ module DataCycleCore
       else
         unauthorized_exception_path
       end
-    end
-
-    def flash_params
-      params.require(:flash).permit(:success, :notice, :alert, :error)
-    end
-
-    def flashes_from_params
-      flash_params.each do |k, v|
-        flash[k] = v # rubocop:disable Rails/ActionControllerFlashBeforeRender
-      end
-
-      redirect_to request.path, params: params.delete(:flash)
     end
 
     def tag_group_params

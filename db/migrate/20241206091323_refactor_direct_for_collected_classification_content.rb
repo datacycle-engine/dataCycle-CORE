@@ -4,7 +4,7 @@ class RefactorDirectForCollectedClassificationContent < ActiveRecord::Migration[
   def up
     add_column :collected_classification_contents, :link_type, :string, default: 'direct', null: false
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_ccc_from_ca_ids_transitive(ca_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(ca_ids, 1) > 0 THEN WITH direct_classification_content_relations AS (
           SELECT DISTINCT ON (
               classification_contents.content_data_id,
@@ -303,7 +303,7 @@ class RefactorDirectForCollectedClassificationContent < ActiveRecord::Migration[
       $$;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       SET LOCAL statement_timeout = 0;
 
       DROP INDEX IF EXISTS public.ccc_ca_id_t_id_idx;

@@ -29,8 +29,8 @@ module DataCycleCore
           assert_equal("http://www.example.com/api/v2/things/#{@content.id}", json_data['@id'])
           assert_equal(@content.id, json_data['identifier'])
           assert_equal("http://www.example.com/things/#{@content.id}", json_data['url'])
-          assert(json_data['dateCreated'].present?)
-          assert(json_data['dateModified'].present?)
+          assert_predicate(json_data['dateCreated'], :present?)
+          assert_predicate(json_data['dateModified'], :present?)
           assert_equal('de', json_data['inLanguage'])
           assert_equal(@content.name, json_data['name'])
 
@@ -44,13 +44,14 @@ module DataCycleCore
           assert_equal(1, json_data['embeddedData'].count)
           embedded_data = @content.embedded_data.first
           json_ed = json_data['embeddedData'].first
+
           assert_equal('http://schema.org', json_ed['@context'])
           assert_equal(embedded_data.schema_type, json_ed['@type'])
           assert_equal(embedded_data.template_name, json_ed['contentType'])
           assert_equal(embedded_data.name, json_ed['name'])
           assert_equal(embedded_data.add1, json_ed['add1'])
           assert_equal(embedded_data.add2, json_ed['add2'])
-          assert(json_ed['additionalProperty'].blank?)
+          assert_predicate(json_ed['additionalProperty'], :blank?)
         end
       end
     end

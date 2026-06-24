@@ -78,11 +78,11 @@ module DataCycleCore
     end
 
     test 'no search entries' do
-      assert_equal(0, DataCycleCore::Thing.joins(:searches).where(searches: {self_contained: true}).where(content_type: 'embedded').count)
+      assert_equal(0, DataCycleCore::Thing.joins(:searches).where(searches: { self_contained: true }).where(content_type: 'embedded').count)
     end
 
     test 'search entries with embedded' do
-      assert_equal(2, DataCycleCore::Thing.joins(:searches).where(searches: {self_contained: false}).where(content_type: 'embedded').count)
+      assert_equal(2, DataCycleCore::Thing.joins(:searches).where(searches: { self_contained: false }).where(content_type: 'embedded').count)
     end
 
     # TODO: change this test because with 1 result this test will always rank valid
@@ -92,6 +92,7 @@ module DataCycleCore
       # order_string = DataCycleCore::Filter::Search.get_order_by_query_string(search_for)
       # items = DataCycleCore::Filter::Search.new(locale: [:de, :en]).fulltext_search(search_for).order(order_string)
       items = DataCycleCore::Filter::Search.new(locale: [:de, :en]).fulltext_search(search_for)
+
       assert_equal(search_for, items.first.name)
     end
 
@@ -110,9 +111,11 @@ module DataCycleCore
     test 'test query for external_source' do
       external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system').id
       items = DataCycleCore::Filter::Search.new(locale: :de).external_source(external_source_id)
+
       assert_equal(1, items.count)
 
       items = DataCycleCore::Filter::Search.new(locale: :de).not_external_source(external_source_id)
+
       assert_equal(9, items.count)
     end
 
@@ -121,90 +124,149 @@ module DataCycleCore
       user.things_subscribed << DataCycleCore::Thing.where(template_name: 'Artikel').first
 
       items = DataCycleCore::Filter::Search.new(locale: :de).subscribed_user_id(user.id)
+
       assert_equal(1, items.count)
     end
 
     test 'test query for creator' do
       creator_id = DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       items = DataCycleCore::Filter::Search.new(locale: :de).creator(creator_id)
+
       assert_equal(1, items.count)
     end
 
     test 'test query for date_range (created_at)' do
       items = DataCycleCore::Filter::Search.new(locale: :de)
         .date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
+
       assert_equal(10, items.count)
 
       items = DataCycleCore::Filter::Search.new(locale: :de)
         .not_date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
+
       assert_equal(0, items.count)
     end
 
     test 'test query for validity_period' do
       items = DataCycleCore::Filter::Search.new(locale: :de).validity_period({ from: Date.current, until: Date.current })
+
       assert_equal(8, items.count)
 
       items = DataCycleCore::Filter::Search.new(locale: :de).not_validity_period({ from: Date.current, until: Date.current })
+
       assert_equal(2, items.count)
     end
 
     test 'test query for inactive items' do
       items = DataCycleCore::Filter::Search.new(locale: :de).inactive_things({ from: nil, until: DateTime.current.end_of_day })
+
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(locale: :de).inactive_things({ from: nil, until: (Date.current + 3.weeks).end_of_day })
+
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(locale: :de).inactive_things({ from: Date.current.beginning_of_day, until: (Date.current + 3.weeks).end_of_day })
+
       assert_equal(2, items.count)
     end
 
     test 'test query for boolean -> duplicate_candidates' do
-      assert DataCycleCore::Feature::DuplicateCandidate.enabled?
+      assert_predicate DataCycleCore::Feature::DuplicateCandidate, :enabled?
+
+      updates = []
+      bild_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Bild')
+      updates << { template_name: bild_template.template_name, schema: bild_template.schema.deep_merge('features' => { 'duplicate_candidate' => { 'allowed' => true, 'module' => 'BildPhash' } }) }
+      DataCycleCore::ThingTemplate.upsert_all(updates, unique_by: :template_name)
+
       asset1 = upload_image('test_rgb.jpeg')
-      assert asset1.thumb_preview.present?
+
+      assert_predicate asset1.thumb_preview, :present?
       DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset1.id })
       asset2 = upload_image('test_rgb.png')
-      assert asset2.thumb_preview.present?
+
+      assert_predicate asset2.thumb_preview, :present?
       DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: asset2.id })
       asset3 = upload_image('test_rgb.jpeg')
-      assert asset3.thumb_preview.present?
+
+      assert_predicate asset3.thumb_preview, :present?
       image3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3', asset: asset3.id })
 
       DataCycleCore::Thing
         .where(external_source_id: nil, external_key: nil, template_name: 'Bild')
-        .where.not(content_type: 'embedded')
+        .without_embedded
         .find_each(&:create_duplicate_candidates)
 
       image3.duplicate_candidates.each { |t| t.thing_duplicate.update(false_positive: true) }
 
       items = DataCycleCore::Filter::Search.new(locale: :de).boolean('true', 'duplicate_candidates')
+
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(locale: :de).boolean('false', 'duplicate_candidates')
+
       assert_equal(11, items.count)
+    end
+
+    test 'test query for duplicate_candidate_filter' do
+      assert_predicate DataCycleCore::Feature::DuplicateCandidate, :enabled?
+
+      updates = []
+      place_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Örtlichkeit')
+      updates << { template_name: place_template.template_name, schema: place_template.schema.deep_merge('features' => { 'duplicate_candidate' => { 'allowed' => true, 'module' => ['OnlyTitle', 'NameSimilarity'] } }) }
+      DataCycleCore::ThingTemplate.upsert_all(updates, unique_by: :template_name)
+
+      DataCycleCore::DataHashService
+        .create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
+      DataCycleCore::DataHashService
+        .create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
+      DataCycleCore::DataHashService
+        .create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 2' } }, nil)
+
+      items = DataCycleCore::Filter::Search.new(locale: :de)
+        .duplicate_candidate_filter({ 'method' => 'only_title' })
+
+      assert_equal(2, items.count)
+
+      items = DataCycleCore::Filter::Search.new(locale: :de)
+        .duplicate_candidate_filter({ 'method' => 'all' })
+
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(locale: :de)
+        .duplicate_candidate_filter({ 'method' => 'name_similarity' })
+
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(locale: :de)
+        .duplicate_candidate_filter({ 'method' => 'name_similarity', 'min' => 100 })
+
+      assert_equal(2, items.count)
     end
 
     test 'test query for classification_tree' do
       tree_label_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
       items = DataCycleCore::Filter::Search.new(locale: :de).classification_tree_ids(tree_label_id)
+
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(locale: :de).not_classification_tree_ids(tree_label_id)
+
       assert_equal(7, items.count)
     end
 
     test 'has method to include joined tables' do
-      assert(DataCycleCore::Filter::Search.new(locale: :de).content_includes.any?)
+      assert_predicate(DataCycleCore::Filter::Search.new(locale: :de).content_includes, :any?)
     end
 
     test 'has method to check for validity_period' do
-      assert(DataCycleCore::Filter::Search.new(locale: :de).in_validity_period.any?)
+      assert_predicate(DataCycleCore::Filter::Search.new(locale: :de).in_validity_period, :any?)
     end
 
     test 'has helper for created_at and modified_at' do
       items = DataCycleCore::Filter::Search.new(locale: :de)
       all = items.count
+
       assert_equal(all, items.created_at({ min: 1.hour.ago.to_s }).count)
       assert_equal(all, items.modified_at({ min: 1.hour.ago.to_s }).count)
     end
@@ -244,35 +306,44 @@ module DataCycleCore
 
     test 'test typeahead, specific language' do
       words_typeahead = DataCycleCore::Filter::Search.new(locale: :en).typeahead('xyz', ['en']).to_a
+
       assert_equal(3, words_typeahead.size)
       assert_equal('xyz', words_typeahead.first['word'])
-      assert_equal(0.0, words_typeahead.first['score'])
+      assert_in_delta(0.0, words_typeahead.first['score'])
       assert_equal('xyz-en', words_typeahead.second['word'])
     end
 
     test 'test typeahead, specific language, typeahead in german' do
       words_typeahead = DataCycleCore::Filter::Search.new(locale: :en).typeahead('xyz', ['de']).to_a
+
       assert_equal('xyz-de', words_typeahead.second['word'])
     end
 
     test 'limit for typeahead' do
       words_typeahead = DataCycleCore::Filter::Search.new(locale: :en).typeahead('xyz', ['en'], 1).to_a
+
       assert_equal(1, words_typeahead.size)
       words_typeahead = DataCycleCore::Filter::Search.new(locale: :en).typeahead('xyz', ['en'], 2).to_a
+
       assert_equal(2, words_typeahead.size)
       words_typeahead = DataCycleCore::Filter::Search.new(locale: :en).typeahead('xyz', ['en'], 100).to_a
+
       assert_equal(3, words_typeahead.size)
     end
 
+    test 'sort by type' do
+      result = DataCycleCore::Filter::Search.new(locale: :de).sort_type('ASC', ['dcls:Event', 'dcls:Artikel', 'dcls:Tour', 'dcls:Örtlichkeit']).pluck(:template_name).uniq
+      expected = ['Event', 'Artikel', 'Tour', 'Örtlichkeit']
+
+      assert_equal(expected, result)
+
+      result = DataCycleCore::Filter::Search.new(locale: :de).sort_type('ASC', ['dcls:Tour', 'dcls:Örtlichkeit', 'dcls:Artikel']).pluck(:template_name).uniq
+      expected = ['Tour', 'Örtlichkeit', 'Artikel', 'Event']
+
+      assert_equal(expected, result)
+    end
+
     private
-
-    def create_content(template_name, data = {})
-      DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data)
-    end
-
-    def get_classification_ids(tree_name, *alias_names)
-      DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(alias_names).map(&:classifications).flatten.map(&:id)
-    end
 
     def find_alias_ids(tree_name, *alias_names)
       DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(alias_names).pluck(:id)

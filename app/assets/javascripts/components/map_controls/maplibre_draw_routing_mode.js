@@ -1,5 +1,5 @@
-import PixelmapRoutingService from "./pixelmap_routing_service";
 import CalloutHelpers from "../../helpers/callout_helpers";
+import PixelmapRoutingService from "./pixelmap_routing_service";
 
 const MaplibreDrawRoutingMode = {};
 
@@ -132,7 +132,7 @@ MaplibreDrawRoutingMode.clickAnywhere = async function (state, e) {
 	state.loading = false;
 };
 
-MaplibreDrawRoutingMode.renderError = function () {
+MaplibreDrawRoutingMode.renderError = () => {
 	I18n.t("frontend.map.routing.error").then((text) =>
 		CalloutHelpers.show(text, "alert"),
 	);
@@ -173,9 +173,8 @@ MaplibreDrawRoutingMode.onKeyUp = function (state, e) {
 	}
 };
 
-MaplibreDrawRoutingMode.sleep = function (ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-};
+MaplibreDrawRoutingMode.sleep = (ms) =>
+	new Promise((resolve) => setTimeout(resolve, ms));
 
 MaplibreDrawRoutingMode.onStop = function (state) {
 	// check to see if we've deleted this feature
@@ -220,25 +219,23 @@ MaplibreDrawRoutingMode.toDisplayFeatures = function (state, geojson, display) {
 	display(geojson);
 };
 
-MaplibreDrawRoutingMode.createVertex = function (
+MaplibreDrawRoutingMode.createVertex = (
 	parentId,
 	coordinates,
 	path,
 	selected,
-) {
-	return {
-		type: "Feature",
-		properties: {
-			meta: "vertex",
-			parent: parentId,
-			coord_path: path,
-			active: selected ? "true" : "false",
-		},
-		geometry: {
-			type: "Point",
-			coordinates,
-		},
-	};
-};
+) => ({
+	type: "Feature",
+	properties: {
+		meta: "vertex",
+		parent: parentId,
+		coord_path: path,
+		active: selected ? "true" : "false",
+	},
+	geometry: {
+		type: "Point",
+		coordinates,
+	},
+});
 
 export default MaplibreDrawRoutingMode;

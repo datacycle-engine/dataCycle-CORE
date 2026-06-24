@@ -2,6 +2,7 @@
   <div class="with-dropdown-pane">
     <div class="infoRow">
       <%= render 'data_cycle_core/shared/icon', icon_class: item.icon_class, icon_tooltip: item.organization? ? DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) : item.model_name.human(locale: active_ui_locale) %>
+
       <%= tag.send(item.access_locked? ? :del : :span) do %>
         <%= tag.span item.model_name.human(locale: active_ui_locale) + (item.try(:external) ? " (#{item.class.human_attribute_name('external', locale: active_ui_locale)})" : ''), class: 'title' %>
       <% end %>
@@ -10,13 +11,14 @@
         <a class="has-content represented-by-link" data-toggle="represented-by-<%= item.id %>">
           <i class="fa fa-link" aria-hidden="true"></i>
         </a>
-        <div class="dropdown-pane no-bullet bottom"
-              id="represented-by-<%= item.id %>"
-              data-dropdown>
+        <div class="dropdown-pane no-bullet bottom" id="represented-by-<%= item.id %>" data-dropdown>
           <h5><%= DataCycleCore::User.human_attribute_name(:represented_by, locale: active_ui_locale) %></h5>
+
           <ul class="list-items">
             <% item.represented_by.each do |thing| %>
-              <li><%= link_to I18n.with_locale(thing.first_available_locale(local_assigns[:language], active_ui_locale)) { thing.title }, thing_path(thing.id), target: :_blank %></li>
+              <li>
+                <%= link_to I18n.with_locale(thing.first_available_locale(local_assigns[:language], active_ui_locale)) { thing.title }, thing_path(thing.id), target: :_blank %>
+              </li>
             <% end %>
           </ul>
         </div>
@@ -45,7 +47,7 @@
       <% end %>
 
       <% if can?(:become, item) %>
-        <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
+        <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), method: :post, class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
       <% end %>
 
       <% if can?(:show, item) %>
@@ -103,14 +105,20 @@
   <% content_for(:additional_attributes, flush:true) do %>
     <% if !item.organization? && item.name.present? %>
       <li>
-        <span class="attribute-label"><%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %></span>
+        <span class="attribute-label">
+          <%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %>
+        </span>
+
         <span class="attribute-value"><%= item.name %></span>
       </li>
     <% end %>
 
     <% item.user_api_feature.additional_tile_values(item)&.each do |key, value| %>
       <li>
-        <span class="attribute-label"><%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: active_ui_locale) %></span>
+        <span class="attribute-label">
+          <%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: active_ui_locale) %>
+        </span>
+
         <span class="attribute-value"><%= user_additional_tile_attribute_value(key, value) %></span>
       </li>
     <% end %>
@@ -125,11 +133,11 @@
   <div class="tags">
     <ul class="no-bullet no-format">
       <% if item.role %>
-        <li class="tag"><%= t('roles.'+item.role.name, locale: active_ui_locale) %></li>
+        <li class="tag"><%= item.role.to_select_option.name %></li>
       <% end %>
 
       <% item.user_groups.each do |user_group| %>
-        <li class="tag"><%= user_group.name %></li>
+        <li class="tag"><%= user_group.to_select_option.name %></li>
       <% end %>
     </ul>
   </div>

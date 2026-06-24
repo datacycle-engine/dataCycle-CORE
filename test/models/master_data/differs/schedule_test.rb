@@ -39,6 +39,7 @@ describe DataCycleCore::MasterData::Differs::Schedule do
       end
       a = DataCycleCore::Schedule.new(id: SecureRandom.uuid)
       a.schedule_object = a_schedule
+
       [[a], [a.to_h]].each do |item|
         assert_equal([['-', [a.id]]], subject.new(item, nil).diff_hash)
       end

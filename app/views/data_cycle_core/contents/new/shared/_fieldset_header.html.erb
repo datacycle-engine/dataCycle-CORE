@@ -1,0 +1,6 @@
+<% if index === 0 %>
+  <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge((template.translatable? && I18n.available_locales&.many?) ? { locale: (current_user&.default_locale || active_ui_locale) } : {}) %>
+<% else %>
+  <legend><%= t("new_step_title.#{field_title}", locale: active_ui_locale) %></legend>
+<% end %>
+<%= tag.div(callouts&.dig(field_title.to_sym, :text), class: "callout #{callouts&.dig(field_title.to_sym, :classes).presence || 'primary'}") if local_assigns[:callouts] && callouts&.dig(field_title.to_sym).present? %>

@@ -4,7 +4,8 @@ module DataCycleCore
   module DryParams
     def params_for(schema)
       result = schema.call(params.to_unsafe_hash)
-      raise ActionController::BadRequest unless result.success?
+      raise(DataCycleCore::Error::BadRequestError, result.errors.messages) unless result.success?
+
       result.to_h.with_indifferent_access
     end
 

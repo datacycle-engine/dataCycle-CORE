@@ -41,11 +41,14 @@ module DataCycleCore
         private
 
         def permitted_parameter_keys
-          super + [:id, :language, :search, {filter: {}, meta: [collection: [:name]]}]
+          super + [:id, :language, :search, { filter: {}, meta: [{ collection: [:name] }] }]
         end
 
         def download_params
-          params.permit(:content_id, :serialize_format, meta: [collection: [:name]])
+          # serializeFormat is the canonical (camelCase) parameter; keys are normalized to snake_case
+          # so the deprecated legacy form serialize_format keeps working (see ticket #49261)
+          DataCycleCore.deprecator.warn('Passing "serialize_format" to the download API is deprecated, use "serializeFormat" instead.') if params.key?(:serialize_format) && !Rails.env.test?
+          params.transform_keys(&:underscore).permit(:content_id, :serialize_format, meta: [{ collection: [:name] }])
         end
 
         def validate_params_exceptions

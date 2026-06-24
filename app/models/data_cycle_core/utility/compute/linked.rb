@@ -21,6 +21,7 @@ module DataCycleCore
               else
                 value = DataCycleCore::MasterData::DataConverter.geographic_to_string(location_value)
                 next if value.blank?
+
                 values << value
               end
             end
@@ -55,6 +56,47 @@ module DataCycleCore
             ids.uniq
           end
 
+          # Links to parent website by traversing content_content_links recursively.
+          # Uses a recursive CTE following 'linked_thing', 'submenu', or 'main_menu' relations to find the parent Website.
+          #
+          # @param computed_parameters [Hash] Parameters containing linked content IDs
+          # @return [Array<String>] Array of Website IDs found in the parent hierarchy
+          # @example YAML schema configuration
+          #   :dc_website:
+          #     :type: linked
+          #     :compute:
+          #       :module: Linked
+          #       :method: website
+          #       :parameters:
+          #         - is_linked_to
+          def website(computed_parameters:, **_args)
+            sql = <<~SQL.squish
+              WITH recursive base AS (
+                SELECT ccl.content_a_id,
+                  ccl.relation AS relation,
+                  ARRAY [ccl.content_b_id] AS "path"
+                FROM content_content_links ccl
+                WHERE ccl.content_b_id IN (?)
+                UNION
+                SELECT ccl.content_a_id,
+                  ccl.relation AS relation,
+                  (base."path" || ARRAY [ccl.content_b_id]) AS "path"
+                FROM content_content_links ccl
+                  JOIN base ON base.content_a_id = ccl.content_b_id
+                WHERE ccl.relation IN ('submenu', 'main_menu', 'linked_thing')
+                  AND ccl.content_a_id <> ALL(base."path")
+              )
+              SELECT things.id AS id
+              FROM base
+                JOIN things ON things.id = base.content_a_id
+              WHERE things.template_name = 'Website';
+            SQL
+
+            ids = computed_parameters.values.flatten.uniq
+            sanitized_sql = ActiveRecord::Base.send(:sanitize_sql_array, [sql, ids])
+            ActiveRecord::Base.connection.select_all(sanitized_sql).pluck('id')
+          end
+
           private
 
           def get_ids_from_text(text)
@@ -70,7 +112,7 @@ module DataCycleCore
           end
 
           def get_ids_from_geometry(things:, geometry:)
-            query_sql = <<-SQL.squish
+            query_sql = <<~SQL.squish
               SELECT DISTINCT geometries.thing_id
               FROM geometries
               WHERE geometries.thing_id IN (#{things.select(:id).reorder(nil).to_sql})

@@ -1,0 +1,76 @@
+<%= turbo_frame_tag "content_classifier_#{@content.id}_frame" do %>
+  <div class="content_classifier_form_title reveal-header">
+    <%= t('actions.classify_thing', locale: active_ui_locale) %>
+  </div>
+
+  <div class="content-classifier-form" data-content-id="<%= @content.id %>">
+    <div class="reveal-body">
+      <% if @allowed_properties.blank? %>
+        <div class="callout alert">
+          <%= tag.b(t('feature.content_classifier.no_editable_concept_schemes', locale: active_ui_locale)) %>
+
+          <p>
+            <%= t('feature.content_classifier.no_editable_concept_schemes_description_html', locale: active_ui_locale) %>
+          </p>
+        </div>
+      <% end %>
+
+      <div class="content-classifier-layout">
+        <div class="content-classifier-tree-panel">
+          <div style="font-size: 1rem; margin-bottom: 0.5rem;">
+            <%= t('filter.classification_tree_ids', locale: active_ui_locale) %>
+          </div>
+
+          <%= search_field_tag 'content_classifier_tree_search', nil,
+              class: 'content-classifier-tree-search',
+              placeholder: t('common.searchterm', default: 'Search', locale: active_ui_locale),
+              aria_label: t('common.searchterm', default: 'Search', locale: active_ui_locale),
+              autocomplete: 'off',
+              disabled: @allowed_properties.blank? %>
+
+          <div class="content-classifier-tree-list">
+            <% @allowed_properties.each do |prop| %>
+              <button
+                type="button"
+                class="content-classifier-tree-item"
+                data-tree-id="<%= prop['concept_scheme_id'] %>"
+                data-property-key="<%= prop['property_key'] %>"
+                aria-pressed="false"
+              >
+                <%= prop['concept_scheme_name'] %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="content-classifier-results-panel">
+          <div class="classification-results">
+            <div class="content-classifier-results">
+              <div class="content-classifier-results-header">
+                <h4>
+                  <%= t('frontend.content_classifier.results_title', default: 'Classification Results', locale: active_ui_locale) %>
+                </h4>
+
+                <p>
+                  <%= t('frontend.content_classifier.select_tree', default: 'Select a classification tree.', locale: active_ui_locale) %>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-footer buttons">
+      <button type="button" class="button hollow reset clear-button" disabled>
+        <i class="fa fa-ban" aria-hidden="true"></i>
+        <%= t('frontend.content_classifier.clear_selection', default: 'Clear selection', locale: active_ui_locale) %>
+      </button>
+
+      <button type="button" class="button success submit apply-classifications-button" disabled>
+        <i class="fa fa-check" aria-hidden="true"></i>
+        <%= t('frontend.content_classifier.apply_selected', default: 'Apply Selected', locale: active_ui_locale) %>
+      </button>
+    </div>
+  </div>
+<% end %>

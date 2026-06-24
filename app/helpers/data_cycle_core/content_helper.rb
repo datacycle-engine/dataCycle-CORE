@@ -40,7 +40,7 @@ module DataCycleCore
     end
 
     def grouped_related_contents(content)
-      sql = <<-SQL.squish
+      sql = <<~SQL.squish
         SELECT things.template_name,
           ct.relation,
           COUNT(things.id)
@@ -93,6 +93,8 @@ module DataCycleCore
           return url if url.present?
         end
       end
+
+      nil
     end
   end
 end

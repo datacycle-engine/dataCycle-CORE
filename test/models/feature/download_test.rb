@@ -33,9 +33,9 @@ module DataCycleCore
 
     # only gps download must be enabled
     test 'validate default configuration' do
-      assert_equal(['gpx', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).blank?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).blank?)
+      assert_equal(['gpx', 'id_mapping', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :blank?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :blank?)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@content))
       assert_not(DataCycleCore::Feature::Download.allowed?(@image))
@@ -53,9 +53,9 @@ module DataCycleCore
 
     # only gps download must be enabled
     test 'disable content downloader' do
-      assert_equal(['gpx', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).blank?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).blank?)
+      assert_equal(['gpx', 'id_mapping', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :blank?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :blank?)
 
       DataCycleCore.features[:download][:downloader][:content][:enabled] = false
 
@@ -68,9 +68,9 @@ module DataCycleCore
 
     # only gps download must be enabled
     test 'disable content downloader for things' do
-      assert_equal(['gpx', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).blank?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).blank?)
+      assert_equal(['gpx', 'id_mapping', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :blank?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :blank?)
 
       DataCycleCore.features[:download][:downloader][:content][:thing][:enabled] = false
 
@@ -86,9 +86,9 @@ module DataCycleCore
       DataCycleCore.features[:serialize][:serializers][:json] = true
       DataCycleCore.features[:serialize][:serializers][:xml] = true
 
-      assert_equal(['asset', 'gpx', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).present?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).present?)
+      assert_equal(['asset', 'gpx', 'id_mapping', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :present?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :present?)
 
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:json] = true
@@ -113,9 +113,9 @@ module DataCycleCore
       DataCycleCore.features[:serialize][:serializers][:json] = true
       DataCycleCore.features[:serialize][:serializers][:xml] = true
 
-      assert_equal(['gpx', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).present?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).present?)
+      assert_equal(['gpx', 'id_mapping', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :present?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :present?)
 
       DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
       DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:json] = true
@@ -129,7 +129,7 @@ module DataCycleCore
       assert(DataCycleCore::Feature::Download.allowed?(@watch_list))
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter))
 
-      assert_equal(['json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@watch_list).keys.sort)
+      assert_equal(['id_mapping', 'json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@watch_list).keys.sort)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@content, [:archive, :zip]))
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip]))
@@ -140,9 +140,9 @@ module DataCycleCore
       DataCycleCore.features[:serialize][:serializers][:json] = true
       DataCycleCore.features[:serialize][:serializers][:xml] = true
 
-      assert_equal(['gpx', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).present?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).present?)
+      assert_equal(['gpx', 'id_mapping', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :present?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :present?)
 
       DataCycleCore.features[:download][:downloader][:content][:stored_filter][:enabled] = true
       DataCycleCore.features[:download][:downloader][:content][:stored_filter][:serializers][:json] = true
@@ -156,7 +156,7 @@ module DataCycleCore
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list))
       assert(DataCycleCore::Feature::Download.allowed?(@stored_filter))
 
-      assert_equal(['json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@stored_filter).keys.sort)
+      assert_equal(['id_mapping', 'json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@stored_filter).keys.sort)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@content, [:archive, :zip]))
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip]))
@@ -169,21 +169,24 @@ module DataCycleCore
       DataCycleCore.features[:serialize][:serializers][:json] = true
       DataCycleCore.features[:serialize][:serializers][:xml] = true
 
-      assert_equal(['asset', 'gpx', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).present?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).present?)
+      assert_equal(['asset', 'gpx', 'id_mapping', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :present?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :present?)
 
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = false
       DataCycleCore.features[:download][:downloader][:archive][:zip][:thing][:enabled] = true
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@content, [:archive, :zip]))
 
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:zip][:thing][:enabled] = false
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@content, [:archive, :zip]))
 
       # enable archive zip thing downloader
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:zip][:thing][:enabled] = true
+
       assert(DataCycleCore::Feature::Download.allowed?(@content, [:archive, :zip]))
       # only gpx is enabled in downloader.content.thing.serializers
       assert_equal(['gpx'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@content, [:archive, :zip]).keys.sort)
@@ -195,6 +198,7 @@ module DataCycleCore
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:json] = true
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:xml] = true
+
       assert_equal(['asset', 'gpx', 'json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@content, [:archive, :zip]).keys.sort)
       assert(DataCycleCore::Feature::Download.allowed?(@content))
       assert(DataCycleCore::Feature::Download.allowed?(@image))
@@ -202,6 +206,7 @@ module DataCycleCore
 
       # overrule enabled serializers
       DataCycleCore.features[:download][:downloader][:archive][:zip][:thing][:serializers] = { asset: false, gpx: false }
+
       assert_equal(['json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@content, [:archive, :zip]).keys.sort)
 
       # check mandatory serializers
@@ -220,21 +225,24 @@ module DataCycleCore
       DataCycleCore.features[:serialize][:serializers][:json] = true
       DataCycleCore.features[:serialize][:serializers][:xml] = true
 
-      assert_equal(['asset', 'gpx', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).present?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).present?)
+      assert_equal(['asset', 'gpx', 'id_mapping', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :present?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :present?)
 
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = false
       DataCycleCore.features[:download][:downloader][:archive][:zip][:watch_list][:enabled] = true
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list, [:archive, :zip]))
 
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:zip][:watch_list][:enabled] = false
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list, [:archive, :zip]))
 
       # enable archive zip thing downloader
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:zip][:watch_list][:enabled] = true
+
       assert(DataCycleCore::Feature::Download.allowed?(@watch_list, [:archive, :zip]))
       # only gpx is enabled in downloader.content.thing.serializers
       assert_equal(['gpx'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@watch_list, [:archive, :zip]).keys.sort)
@@ -246,6 +254,7 @@ module DataCycleCore
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:json] = true
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:xml] = true
+
       assert_equal(['asset', 'gpx', 'json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@watch_list, [:archive, :zip]).keys.sort)
       assert(DataCycleCore::Feature::Download.allowed?(@content))
       assert(DataCycleCore::Feature::Download.allowed?(@image))
@@ -253,6 +262,7 @@ module DataCycleCore
 
       # overrule enabled serializers
       DataCycleCore.features[:download][:downloader][:archive][:zip][:watch_list][:serializers] = { asset: false, gpx: false }
+
       assert_equal(['json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@watch_list, [:archive, :zip]).keys.sort)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list))
@@ -268,21 +278,24 @@ module DataCycleCore
       DataCycleCore.features[:serialize][:serializers][:json] = true
       DataCycleCore.features[:serialize][:serializers][:xml] = true
 
-      assert_equal(['asset', 'gpx', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@content).present?)
-      assert(DataCycleCore::Feature::Serialize.available_serializers(@image).present?)
+      assert_equal(['asset', 'gpx', 'id_mapping', 'json', 'license', 'xml'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@content), :present?)
+      assert_predicate(DataCycleCore::Feature::Serialize.available_serializers(@image), :present?)
 
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = false
       DataCycleCore.features[:download][:downloader][:archive][:zip][:stored_filter][:enabled] = true
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip]))
 
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:zip][:stored_filter][:enabled] = false
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip]))
 
       # enable archive zip thing downloader
       DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:zip][:stored_filter][:enabled] = true
+
       assert(DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip]))
       # only gpx is enabled in downloader.content.thing.serializers
       assert_equal(['gpx'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@stored_filter, [:archive, :zip]).keys.sort)
@@ -294,6 +307,7 @@ module DataCycleCore
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:json] = true
       DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:xml] = true
+
       assert_equal(['asset', 'gpx', 'json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@stored_filter, [:archive, :zip]).keys.sort)
       assert(DataCycleCore::Feature::Download.allowed?(@content))
       assert(DataCycleCore::Feature::Download.allowed?(@image))
@@ -301,6 +315,7 @@ module DataCycleCore
 
       # overrule enabled serializers
       DataCycleCore.features[:download][:downloader][:archive][:zip][:stored_filter][:serializers] = { asset: false, gpx: false }
+
       assert_equal(['json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@stored_filter, [:archive, :zip]).keys.sort)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list))
@@ -313,19 +328,23 @@ module DataCycleCore
     test 'enable archive.indesign (content) downloader' do
       DataCycleCore.features[:serialize][:serializers][:indesign] = true
       DataCycleCore.features[:serialize][:serializers][:asset] = true
-      assert_equal(['asset', 'gpx', 'indesign', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+
+      assert_equal(['asset', 'gpx', 'id_mapping', 'indesign', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
 
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = false
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:thing][:enabled] = true
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@content, [:archive, :indesign]))
 
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:thing][:enabled] = false
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@content, [:archive, :indesign]))
 
       # enable archive zip thing downloader
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:thing][:enabled] = true
+
       assert(DataCycleCore::Feature::Download.allowed?(@content, [:archive, :indesign]))
 
       # make sure indesign is enabled
@@ -333,6 +352,7 @@ module DataCycleCore
 
       # overrule enabled serializers
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:thing][:serializers][:gpx] = false
+
       assert_equal(['indesign'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@content, [:archive, :indesign]).keys.sort)
 
       # check mandatory serializers
@@ -348,19 +368,23 @@ module DataCycleCore
     test 'enable archive.indesign (watch_list) downloader' do
       DataCycleCore.features[:serialize][:serializers][:indesign] = true
       DataCycleCore.features[:serialize][:serializers][:asset] = true
-      assert_equal(['asset', 'gpx', 'indesign', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+
+      assert_equal(['asset', 'gpx', 'id_mapping', 'indesign', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
 
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = false
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:watch_list][:enabled] = true
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list, [:archive, :indesign]))
 
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:watch_list][:enabled] = false
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list, [:archive, :indesign]))
 
       # enable archive zip thing downloader
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:watch_list][:enabled] = true
+
       assert(DataCycleCore::Feature::Download.allowed?(@watch_list, [:archive, :indesign]))
 
       # make sure indesign is enabled
@@ -368,6 +392,7 @@ module DataCycleCore
 
       # overrule enabled serializers
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:watch_list][:serializers][:gpx] = false
+
       assert_equal(['indesign'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@watch_list, [:archive, :indesign]).keys.sort)
 
       # check mandatory serializers
@@ -383,19 +408,23 @@ module DataCycleCore
     test 'enable archive.indesign (stored_filter) downloader' do
       DataCycleCore.features[:serialize][:serializers][:indesign] = true
       DataCycleCore.features[:serialize][:serializers][:asset] = true
-      assert_equal(['asset', 'gpx', 'indesign', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
+
+      assert_equal(['asset', 'gpx', 'id_mapping', 'indesign', 'license'], DataCycleCore::Feature::Serialize.available_serializers.keys.sort)
 
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = false
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:stored_filter][:enabled] = true
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :indesign]))
 
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:stored_filter][:enabled] = false
+
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :indesign]))
 
       # enable archive zip thing downloader
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:enabled] = true
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:stored_filter][:enabled] = true
+
       assert(DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :indesign]))
 
       # make sure indesign is enabled
@@ -403,6 +432,7 @@ module DataCycleCore
 
       # overrule enabled serializers
       DataCycleCore.features[:download][:downloader][:archive][:indesign][:stored_filter][:serializers][:gpx] = false
+
       assert_equal(['indesign'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@stored_filter, [:archive, :indesign]).keys.sort)
 
       # check mandatory serializers

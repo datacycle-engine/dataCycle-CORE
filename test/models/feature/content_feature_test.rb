@@ -7,7 +7,7 @@ module DataCycleCore
     test 'content_objects allows querying active features' do
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' }, prevent_history: true)
 
-      assert(content.enabled_features.size.positive?)
+      assert_predicate(content.enabled_features.size, :positive?)
     end
 
     test 'content_object without template' do
@@ -24,7 +24,7 @@ module DataCycleCore
     test 'content_object has consistent data definitions' do
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { 'name' => 'HEADLINE 1' })
 
-      assert(content == content.verify)
+      assert_equal(content, content.verify)
     end
   end
 end

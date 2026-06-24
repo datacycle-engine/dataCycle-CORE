@@ -2,7 +2,7 @@
 
 class CleanUpPgDictMappings < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DELETE FROM pg_dict_mappings pdm
       WHERE pdm.dict::varchar ilike 'pg_catalog.%'
         AND EXISTS (

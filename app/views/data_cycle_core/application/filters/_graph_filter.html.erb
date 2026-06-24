@@ -1,19 +1,32 @@
-<div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
+<div
+  data-id="<%= identifier %>"
+  class="advanced-filter conditional-value-selector <%= filter_method ||= 'i' %>"
+  data-label="<%= filter_name %>"
+>
   <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
   <%= hidden_field_tag "f[#{identifier}][t]", filter_type %>
   <%= hidden_field_tag "f[#{identifier}][n]", filter_name %>
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
-    <span><%= t("filter.graph_filter.input_ui.#{filter_name}.prefix", default: filter_title, locale: active_ui_locale) %></span>
+
+    <span>
+      <%= t("filter.graph_filter.input_ui.#{filter_name}.prefix", default: filter_title, locale: active_ui_locale) %>
+    </span>
   </div>
 
-  <div class="additional-selector remote-render inverted" data-remote-render-function="advanced_graph_filter_advanced_type" data-remote-render-params="<%= to_query_params(
+  <div
+    class="additional-selector remote-render inverted"
+    data-remote-render-function="advanced_graph_filter_advanced_type"
+    data-remote-render-params="<%= to_query_params(
     identifier: identifier,
     filter_name: filter_name,
     filter_advanced_type: filter_advanced_type
-  ).to_json %>">
-    <%= hidden_field_tag "f[#{identifier}][q]", filter_advanced_type %>
+  ).to_json %>"
+  >
+    <% Array.wrap(filter_advanced_type).each do |fat| %>
+      <%= hidden_field_tag "f[#{identifier}][q][]", fat %>
+    <% end %>
   </div>
 
   <%= tag.div(select_tag("f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_name)), class: 'advanced-filter-mode') %>
@@ -22,7 +35,7 @@
     <%= select_tag("f[#{identifier}][v]",
         (filter_method.in?(['s', 'u']) ? thing_values_to_options(value) : nil),
         {
-          include_blank: true,
+          required: true,
           multiple: true,
           id: "f_#{identifier}_v_thing",
           class: "async-select",
@@ -48,7 +61,7 @@
     <%= select_tag("f[#{identifier}][v]",
         (filter_method.in?(['i', 'e']) ? union_values_to_options(value) : nil),
         {
-          include_blank: true,
+          required: true,
           multiple: false,
           id: "f_#{identifier}_v_collection_stored_filter",
           class: "async-select",
@@ -67,9 +80,12 @@
 
     <%= hidden_field_tag "f[#{identifier}][v]", 'dummy', disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
   </div>
+
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
     <div class="buttons">
-      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <button type="button" class="remove-advanced-filter" data-target="<%= identifier %>">
+        <i aria-hidden="true" class="fa fa-times"></i>
+      </button>
     </div>
   <% end %>
 </div>

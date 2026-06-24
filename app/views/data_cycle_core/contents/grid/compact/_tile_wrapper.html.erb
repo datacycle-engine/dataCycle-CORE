@@ -2,7 +2,11 @@
 
 <% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:options]&.[]('force_tile_buttons') || (local_assigns[:edit_buttons] && attribute_editable?(key, definition, local_assigns[:options], content)))) %>
 
-<% content_for(:tile_header_buttons, link_to(tag.i(class: 'fa fa-info'), '#', class: 'show-sidebar-details', data: { dc_tooltip: t('object_browser.details.button', locale: active_ui_locale) })) %>
+<% content_for(:tile_header_buttons, link_to(tag.i(class: 'fa fa-info-circle'), '#', class: 'show-sidebar-details', data: { dc_tooltip: t('object_browser.details.button', locale: active_ui_locale) })) %>
+
+ <% if object.try(:archived?) %>
+  <% content_for(:tile_header_buttons, tag.span(tag.i(class: 'fa fa-archive'))) %>
+<% end %>
 
 <%= tag.li(class: [
   'item',
@@ -22,14 +26,18 @@ data: {
   content_score: object.try(:internal_content_score)&.round
 }) do %>
   <div class="content-link">
-    <i class="fa fa-check object-browser-tile-checkbox" aria-hidden="true"></i>
+    <div class="content-tile-button-wrapper">
+      <i class="fa fa-check object-browser-tile-checkbox" aria-hidden="true"></i>
 
-    <%= hidden_field_tag key, object.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !local_assigns[:editable] if local_assigns[:edit_buttons] %>
-
-    <%= tag.div(yield_content!(:tile_header_buttons), class: 'buttons') if content_for?(:tile_header_buttons) %>
+      <%= hidden_field_tag key, object.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !local_assigns[:editable] if local_assigns[:edit_buttons] %>
+      <%= tag.div(yield_content!(:tile_header_buttons), class: 'buttons') if content_for?(:tile_header_buttons) %>
+    </div>
 
     <%= yield %>
 
+    <% unless tile_classes.include?('asset') %>
+      <%= render 'data_cycle_core/contents/grid/compact/attributes/tags', local_assigns if object.try(:display_classification_aliases, 'tile').present? %>
+    <% end %>
     <%= yield_content!(:tile_bottom_buttons) if content_for?(:tile_bottom_buttons) %>
   </div>
 <% end %>

@@ -1,10 +1,16 @@
-<div class="reveal new-item new-user-dialog" id="new_<%= sanitize_to_id(DataCycleCore::User.name.underscore) %>" data-reveal data-multiple-opened="true">
-  <div class="reveal-header"><%= t('actions.new', data: DataCycleCore::User.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></div>
+<div
+  class="reveal new-item new-user-dialog"
+  id="new_<%= sanitize_to_id(DataCycleCore::User.name.underscore) %>"
+  data-reveal
+  data-multiple-opened="true"
+>
+  <div class="reveal-header">
+    <%= t('actions.new', data: DataCycleCore::User.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %>
+  </div>
 
-  <%
-    allowed_roles = DataCycleCore::Role.accessible_by(current_ability).order(:rank)
-    user = DataCycleCore::User.new(role: allowed_roles.last)
-  %>
+  <% allowed_roles = DataCycleCore::Role.accessible_by(current_ability).order(:rank) %>
+  <% user = DataCycleCore::User.new(role: allowed_roles.last) %>
+
   <%= form_with model: user, local: true, url: { controller: DataCycleCore::User.name.tableize, action: :create_user }, class: 'validation-form' do |f| %>
     <div class="reveal-body">
       <%= hidden_field_tag :table, DataCycleCore::User.name.demodulize.tableize %>
@@ -14,6 +20,7 @@
           <%= DataCycleCore::User.human_attribute_name(:email, locale: active_ui_locale) %>
           <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
         <% end %>
+
         <%= f.email_field :email, required: true, autofocus: true %>
       </div>
 
@@ -22,6 +29,7 @@
           <%= DataCycleCore::User.human_attribute_name(:password, locale: active_ui_locale) %>
           <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
         <% end %>
+
         <%= f.password_field :password, required: true %>
       </div>
 
@@ -45,6 +53,7 @@
           <%= DataCycleCore::User.human_attribute_name(:role_id, locale: active_ui_locale) %>
           <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
         <% end %>
+
         <%= f.select :role_id, options_for_select(allowed_roles.collect{|r| [t('roles.'+r.name, locale: active_ui_locale), r.id]}, allowed_roles.first.id), {}, class: 'no-margin' %>
       </div>
 
@@ -54,7 +63,6 @@
           <%= f.label :access_token, DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale) %>
         </div>
       <% end %>
-
     </div>
 
     <div class="reveal-footer">
@@ -64,13 +72,16 @@
           ]),
           type: :submit,
           class: "button primary",
-          data: { disable: true }
-        %>
+          data: { disable: true } %>
     </div>
-
   <% end %>
 
-  <button class="close-button" data-close aria-label="Close modal" type="button">
+  <button
+    class="close-button"
+    data-close
+    aria-label="Close modal"
+    type="button"
+  >
     <span aria-hidden="true">&times;</span>
   </button>
 </div>

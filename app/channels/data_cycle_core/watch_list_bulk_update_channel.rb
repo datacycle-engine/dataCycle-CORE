@@ -3,7 +3,10 @@
 module DataCycleCore
   class WatchListBulkUpdateChannel < ApplicationCable::Channel
     def subscribed
-      reject && return if current_user.blank?
+      watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id])
+      reject && return unless watch_list
+      reject && return unless current_user&.can?(:bulk_edit, watch_list)
+
       stream_from "bulk_update_#{params[:watch_list_id]}_#{current_user.id}"
     end
 

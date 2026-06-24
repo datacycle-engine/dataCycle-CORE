@@ -2,7 +2,7 @@
 
 class FixComputedSchemaTypesOrder < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION compute_thing_schema_types (
           schema_types jsonb,
           template_name varchar DEFAULT NULL

@@ -44,6 +44,8 @@
         :type: number
         :storage_location: value
         :advanced_search: true
+        :api:
+          :name: dcAmperage
       # same api name as attribute name but explicitly defined
       :voltage:
         :label: Volt
@@ -67,6 +69,14 @@
         :storage_location: value
         :api:
           :name: dcNominalCapacity
+        :advanced_search: true
+      # boolean attribute
+      :dcls_active:
+        :label: Aktive Einheit
+        :type: boolean
+        :storage_location: value
+        :api:
+          :name: dcls:active
         :advanced_search: true
       :data_type:
         :label: Inhaltstyp

@@ -175,5 +175,31 @@ module DataCycleCore
 
     class NoValidClassificationAttributeError < StandardError
     end
+
+    class BadRequestError < ActionController::BadRequest
+      attr_reader :errors
+
+      def initialize(errors)
+        @errors = errors
+        super('bad request')
+      end
+
+      def formatted_errors
+        Array.wrap(errors).map do |error|
+          error = transform_dry_message(error) if error.is_a?(Dry::Schema::Message)
+          {
+            source: { parameter: error[:path] },
+            title: I18n.t("exceptions.#{self.class.name.underscore}", default: message, locale: :en),
+            detail: error[:message]
+          }
+        end
+      end
+
+      private
+
+      def transform_dry_message(error)
+        { path: error.path, message: error.text }
+      end
+    end
   end
 end

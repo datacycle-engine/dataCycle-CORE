@@ -6,7 +6,7 @@
     <div class="row expanded">
       <div class="column edit-header-functions">
         <div class="edit-name">
-          <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.model_name.human(locale: active_ui_locale)} #{t('actions.edit', locale: active_ui_locale)}" %>
+          <i class="fa fa-pencil" aria-hidden="true"></i> <%== content.model_name.human(locale: active_ui_locale) %> <%== t('actions.edit', locale: active_ui_locale) %>
         </div>
         <ul>
           <li class="buttons">
@@ -86,6 +86,9 @@
                   class: async ? 'async-select' : 'multi-select',
                   data: {
                     tree_label: config['tree_label'],
+                    max: 20,
+                    find_path: find_classifications_path,
+                    search_path: search_classifications_path,
                     allow_clear: true,
                     placeholder: ''
                   }

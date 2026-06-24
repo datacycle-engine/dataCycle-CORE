@@ -123,6 +123,9 @@
 
 :user_api:
   :enabled: true
+  :allowed_redirect_hosts:
+    - "*.dummy.com"
+    - "trusted.example.com"
 
 :sortable:
   :enabled: true
@@ -156,7 +159,7 @@
       :type: numeric
     :dc_capacity:
       :type: numeric
-      :path: dc:capacity
+      :path: dcls:capacity
     :amperage:
       :type: numeric
     :voltage:
@@ -168,6 +171,9 @@
     :dc_nominal_capacity:
       :type: numeric
       :path: dcNominalCapacity
+    :dcls_active:
+      :type: boolean
+      :path: dcls:active
 
 :user_registration:
   :enabled: true

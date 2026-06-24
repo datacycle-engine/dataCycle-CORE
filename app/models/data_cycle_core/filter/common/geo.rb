@@ -4,15 +4,29 @@ module DataCycleCore
   module Filter
     module Common
       module Geo
+        POINT_TYPES = ['POINT', 'MULTIPOINT'].freeze
+        LINE_TYPES = ['LINESTRING', 'MULTILINESTRING'].freeze
+        POLYGON_TYPES = ['POLYGON', 'MULTIPOLYGON'].freeze
+        WKT_POINT_REGEX = Regexp.new("^(#{POINT_TYPES.join('|')}).*")
+        WKT_LINE_REGEX = Regexp.new("^(#{LINE_TYPES.join('|')}).*")
+        WKT_POLYGON_REGEX = Regexp.new("^(#{POLYGON_TYPES.join('|')}).*")
+        TYPE_VALIDATIONS = {
+          point: Regexp.new(POINT_TYPES.join('|'), Regexp::IGNORECASE),
+          line: Regexp.new(LINE_TYPES.join('|'), Regexp::IGNORECASE),
+          polygon: Regexp.new(POLYGON_TYPES.join('|'), Regexp::IGNORECASE)
+        }.freeze
+
         def geo_filter(value = nil, type = nil)
           filter_type = type.to_sym
           raise 'Unknown geo filter' unless respond_to?(filter_type)
+
           send(filter_type, value)
         end
 
         def not_geo_filter(value = nil, type = nil)
           filter_type = :"not_#{type}"
           raise 'Unknown geo filter' unless respond_to?(filter_type)
+
           send(filter_type, value)
         end
 
@@ -47,10 +61,8 @@ module DataCycleCore
         end
 
         def geo_radius(values)
-          return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
-
-          distance = values['distance'].to_i
-          distance *= 1000 if values&.dig('unit') == 'km'
+          subquery = geo_radius_subquery(values)
+          return self if subquery.nil?
 
           reflect(
             @query.where(
@@ -58,23 +70,15 @@ module DataCycleCore
               .where(
                 geometries_table[:thing_id].eq(thing[:id])
                 .and(geometries_table[:is_primary].eq(true))
-                .and(
-                  st_dwithin(
-                    cast_geography(geometries_table[:geom_simple]),
-                    cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                    distance
-                  )
-                )
+                .and(subquery)
               ).exists
             )
           )
         end
 
         def not_geo_radius(values)
-          return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
-
-          distance = values['distance'].to_i
-          distance *= 1000 if values&.dig('unit') == 'km'
+          subquery = geo_radius_subquery(values)
+          return self if subquery.nil?
 
           reflect(
             @query.where(
@@ -82,13 +86,7 @@ module DataCycleCore
               .where(
                 geometries_table[:thing_id].eq(thing[:id])
                 .and(geometries_table[:is_primary].eq(true))
-                .and(
-                  st_dwithin(
-                    cast_geography(geometries_table[:geom_simple]),
-                    cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                    distance
-                  ).not
-                )
+                .and(subquery.not)
               ).exists
             )
           )
@@ -218,27 +216,102 @@ module DataCycleCore
           )
         end
 
+        def within_shape(value)
+          geom = geom_from_encoded_value(value)
+          return self if geom.blank?
+
+          reflect(
+            @query.where(
+              DataCycleCore::Geometry.select(1).arel
+              .where(
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(st_intersects(geometries_table[:geom_simple], geom))
+              ).exists
+            )
+          )
+        end
+
+        def not_within_shape(value)
+          geom = geom_from_encoded_value(value)
+          return self if geom.blank?
+
+          reflect(
+            @query.where(
+              DataCycleCore::Geometry.select(1).arel
+              .where(
+                geometries_table[:thing_id].eq(thing[:id])
+                .and(geometries_table[:is_primary].eq(true))
+                .and(st_intersects(geometries_table[:geom_simple], geom).not)
+              ).exists
+            )
+          )
+        end
+
         private
+
+        def geo_radius_subquery(values)
+          return if ((values&.dig('lon').blank? || values&.dig('lat').blank?) && values&.dig('geom').blank?) || values&.dig('distance').blank?
+
+          distance = values['distance'].to_i
+          distance *= 1000 if values&.dig('unit') == 'km'
+          geometry = if values&.dig('geom').present?
+                       st_geom_from_geojson_string(values&.dig('geom'))
+                     else
+                       st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)
+                     end
+
+          st_dwithin(
+            cast_geography(geometries_table[:geom_simple]),
+            cast_geography(geometry),
+            distance
+          )
+        end
+
+        def geom_from_encoded_value(value)
+          return unless value.present? && value.is_a?(Hash)
+
+          shape, type = geo_shape_from_value(value)
+          return unless shape.present? && shape.is_a?(String)
+
+          if shape.start_with?('{') && shape.end_with?('}')
+            validate_geo_type!(shape, type)
+            st_geom_from_geojson_string(shape)
+          elsif WKT_LINE_REGEX.match?(shape) || WKT_POLYGON_REGEX.match?(shape)
+            validate_geo_type!(shape, type)
+            st_geom_from_text(shape)
+          elsif type == :polygon
+            st_make_polygon(st_line_from_polyline(shape))
+          else
+            st_line_from_polyline(shape)
+          end
+        end
+
+        def geo_shape_from_value(value)
+          return unless value.is_a?(Hash)
+
+          value = value.deep_stringify_keys
+          if value['polygon'].present?
+            return value['polygon'], :polygon
+          elsif value['line'].present?
+            return value['line'], :line
+          end
+        end
+
+        def validate_geo_type!(value, type)
+          return if TYPE_VALIDATIONS[type].match?(value.to_s)
+
+          raise DataCycleCore::Error::Api::BadRequestError.new({ parameter_path: type.to_s, type: 'wrong_geo_type' }), "Invalid geometry type for #{type}"
+        end
 
         def geom_type_filter_builder(value)
           geom_type = []
 
           value = value.map(&:downcase)
 
-          if value.include? 'point'
-            geom_type << 'POINT'
-            geom_type << 'MULTIPOINT'
-          end
-
-          if value.include? 'line'
-            geom_type << 'LINESTRING'
-            geom_type << 'MULTILINESTRING'
-          end
-
-          if value.include? 'polygon'
-            geom_type << 'POLYGON'
-            geom_type << 'MULTIPOLYGON'
-          end
+          geom_type.concat(POINT_TYPES) if value.include? 'point'
+          geom_type.concat(LINE_TYPES) if value.include? 'line'
+          geom_type.concat(POLYGON_TYPES) if value.include? 'polygon'
 
           geom_type
         end

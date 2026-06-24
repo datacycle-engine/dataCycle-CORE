@@ -259,6 +259,17 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
               label: 'Änderungsdatum',
               type: 'datetime',
               storage_location: 'value'
+            },
+            external_key: {
+              type: 'string',
+              storage_location: 'column',
+              visible: false
+            },
+            dummy: {
+              type: 'string',
+              storage_location: 'translated_value',
+              default_value: 'do_not_show',
+              visible: false
             }
           }
         }
@@ -281,6 +292,17 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
             id: {
               label: 'id',
               type: 'key'
+            },
+            external_key: {
+              type: 'string',
+              storage_location: 'column',
+              visible: false
+            },
+            dummy: {
+              type: 'string',
+              storage_location: 'translated_value',
+              default_value: 'do_not_show',
+              visible: false
             }
           }
         }
@@ -303,6 +325,17 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
             id: {
               label: 'id',
               type: 'key'
+            },
+            external_key: {
+              type: 'string',
+              storage_location: 'column',
+              visible: false
+            },
+            dummy: {
+              type: 'string',
+              storage_location: 'translated_value',
+              default_value: 'do_not_show',
+              visible: false
             }
           }
         }
@@ -330,6 +363,17 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
               label: 'Name',
               type: 'string',
               storage_location: 'translated_value'
+            },
+            external_key: {
+              type: 'string',
+              storage_location: 'column',
+              visible: false
+            },
+            dummy: {
+              type: 'string',
+              storage_location: 'translated_value',
+              default_value: 'do_not_show',
+              visible: false
             }
           }
         }
@@ -352,6 +396,17 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
             id: {
               label: 'id',
               type: 'key'
+            },
+            external_key: {
+              type: 'string',
+              storage_location: 'column',
+              visible: false
+            },
+            dummy: {
+              type: 'string',
+              storage_location: 'translated_value',
+              default_value: 'do_not_show',
+              visible: false
             }
           }
         }
@@ -379,12 +434,14 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
                                 person
                               ])
       errors = validator.validate
+
       assert_equal [], errors
     end
 
     it 'checks for valid value of name attribute in header' do
       test_hash = header_hash
       test_hash[:data][:name] = nil
+
       assert_not validate_header.call(test_hash).success?
     end
   end

@@ -13,7 +13,8 @@ module DataCycleCore
     test 'image proxy enabled' do
       DataCycleCore.features[:image_proxy][:enabled] = true
       DataCycleCore::Feature::ImageProxy.reload
-      assert DataCycleCore::Feature::ImageProxy.enabled?
+
+      assert_predicate DataCycleCore::Feature::ImageProxy, :enabled?
 
       image = upload_image 'test_rgb.jpeg'
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image.id })
@@ -28,6 +29,7 @@ module DataCycleCore
     test 'image proxy disabled' do
       DataCycleCore.features[:image_proxy][:enabled] = false
       DataCycleCore::Feature::ImageProxy.reload
+
       assert_not DataCycleCore::Feature::ImageProxy.enabled?
 
       image = upload_image 'test_rgb.jpeg'
@@ -43,7 +45,8 @@ module DataCycleCore
     test 'image proxy can handle local and external things' do
       DataCycleCore.features[:image_proxy][:enabled] = true
       DataCycleCore::Feature::ImageProxy.reload
-      assert DataCycleCore::Feature::ImageProxy.enabled?
+
+      assert_predicate DataCycleCore::Feature::ImageProxy, :enabled?
 
       # local content
       image = upload_image 'test_rgb.jpeg'
@@ -54,7 +57,7 @@ module DataCycleCore
       external_content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', content_url: 'https://url.to.image/image.png' })
       external_content.update_columns(external_source_id: DataCycleCore::ExternalSystem.first.id, external_key: 'external_image_key')
 
-      assert external_content.external?
+      assert_predicate external_content, :external?
 
       validate_proxy_urls(DataCycleCore::Feature::ImageProxy.config, content)
     end
@@ -64,9 +67,10 @@ module DataCycleCore
 
       config.each do |variant, processing|
         next if variant == 'dynamic'
+
         proxy_url = DataCycleCore::Feature::ImageProxy.process_image(content:, variant:)
 
-        assert allowed_schemes.include?(Addressable::URI.parse(proxy_url).scheme)
+        assert_includes allowed_schemes, Addressable::URI.parse(proxy_url).scheme
         assert_equal(proxy_url, DataCycleCore::Feature::ImageProxy.process_image(content:, variant:, image_processing: processing&.dig('processing')))
       end
 
@@ -83,7 +87,8 @@ module DataCycleCore
           'format' => 'png'
         }
       )
-      assert allowed_schemes.include?(Addressable::URI.parse(dynamic_url).scheme)
+
+      assert_includes allowed_schemes, Addressable::URI.parse(dynamic_url).scheme
     end
 
     def teardown

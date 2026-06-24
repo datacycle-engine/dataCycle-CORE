@@ -26,7 +26,7 @@ module DataCycleCore
           end
 
           respond_to do |format|
-            format.html { redirect_back(fallback_location: root_path) }
+            format.html { redirect_back_or_to(root_path) }
             format.json do
               render json: {
                 life_cycle_html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/viewers/life_cycle', locals: { content: @object }).strip,

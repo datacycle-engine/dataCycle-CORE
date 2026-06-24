@@ -3,9 +3,9 @@
 module DataCycleCore
   module Generic
     class GenericObject
-      attr_accessor :mode
+      attr_accessor :mode, :locales
       attr_reader :external_source, :options, :source_type, :source_name, :source_object,
-                  :database_name, :logger, :strategy, :locales, :locale, :type, :step_name
+                  :database_name, :logger, :strategy, :locale, :type, :step_name
 
       def initialize(**options)
         @options = options.with_indifferent_access
@@ -23,6 +23,7 @@ module DataCycleCore
           @source_object = DataCycleCore::Generic::Collection
           @source_type = Mongoid::PersistenceContext.new(@source_object, collection: @options.dig(type, :source_type))
           @database_name = "#{@source_type.database_name}_#{@external_source.id}"
+          create_mongo_indexes!
         end
 
         @mode = options.dig(type, :mode)&.to_sym || options[:mode]&.to_sym || :incremental
@@ -41,6 +42,19 @@ module DataCycleCore
       def self.format_float(number, n, m)
         parts = number.round(m).to_s.split('.')
         "#{parts[0].prepend(' ').rjust(n, '.')}.#{parts[1].ljust(m, '0')}"
+      end
+
+      def with_mongodb(&)
+        Mongoid.override_database(database_name)
+        yield
+      ensure
+        Mongoid.override_database(nil)
+      end
+
+      def create_mongo_indexes!
+        with_mongodb do
+          source_object.with(source_type, &:create_indexes)
+        end
       end
 
       def step_label(override_opts = {})

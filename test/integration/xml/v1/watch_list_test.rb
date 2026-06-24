@@ -30,28 +30,33 @@ module DataCycleCore
           )
 
           assert_response(:success)
-          assert_equal(DataCycleCore::WatchList.where(name:).size, 1)
+          assert_equal(1, DataCycleCore::WatchList.where(name:).size)
 
           # read watch_list as xml
           get(xml_v1_collections_path)
+
           assert_response(:success)
-          assert_equal(response.content_type, 'application/xml; charset=utf-8')
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'collections')
+
           assert_equal(1, xml_data['collection'].count { |w| w['name'] == name })
 
           # add data to watchlist
-          get(add_item_watch_list_path(@watch_list), xhr: true, params: {
+          post add_item_watch_list_path(@watch_list), xhr: true, params: {
             thing_id: @content.id
           }, headers: {
             referer: root_path
-          })
+          }
+
           assert_response(:success)
 
           # read wattch_list with one data entry
           get(xml_v1_collection_path(@watch_list))
+
           assert_response(:success)
-          assert_equal(response.content_type, 'application/xml; charset=utf-8')
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'collection')
+
           assert_equal(@content.name, xml_data.dig('things', 'thing', 'name'))
         end
       end

@@ -103,7 +103,6 @@
       :location:
         :label: GPS-Startkoordinaten
         :type: geographic
-        :storage_location: value
         :priority: 2
         :ui:
           :edit:

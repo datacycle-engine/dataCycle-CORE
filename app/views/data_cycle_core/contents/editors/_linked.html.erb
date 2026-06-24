@@ -9,6 +9,9 @@
     <%= attribute_edit_label_tag(**local_assigns) %>
 
     <% if attribute_editable %>
+      <button class="button alert icon remove-all-objectbrowser" data-disable id="clear-object-browser-<%= html_id %>" type="button" data-dc-tooltip="<%= t('object_browser.remove_all_button', locale: active_ui_locale) %>">
+        <i class="fa fa-times"></i>
+      </button>
       <button class="button show-objectbrowser" data-disable id="show-object-browser-<%= html_id %>" type="button" data-open="object_browser_<%= html_id %>">
         <i class="fa fa-plus"></i>
       </button>

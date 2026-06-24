@@ -27,6 +27,21 @@ namespace :data_cycle_core do
       puts ''
     end
 
+    desc 'Restores a mongo db from a backup archive'
+    task :restore_backup, [:name] => [:environment] do |_, args|
+      temp = Time.zone.now
+      backup_name = args[:name] || 'production'
+      backup_dir = DbHelper.backup_directory([Rails.env, 'mongo', backup_name])
+      puts backup_dir
+
+      cmd = "mongorestore --drop --host=mongodb #{backup_dir}"
+      sh cmd
+      puts ''
+      puts "Restored from directory: #{backup_dir}"
+      puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
+      puts ''
+    end
+
     desc 'Show the existing database archives'
     task dumps: :environment do
       backup_dir = DbHelper.backup_directory([Rails.env, 'mongo'])
@@ -65,7 +80,6 @@ namespace :data_cycle_core do
       backup_dir = DbHelper.backup_directory([Rails.env, 'mongo'], create: true)
       download_dir = DbHelper.backup_directory([Rails.env, 'mongo', 'download'], create: true)
       date = Time.zone.now.to_fs(:compact_datetime)
-      file_name = nil
 
       external_system = DataCycleCore::ExternalSystem.find(args[:external_system_id])
       if external_system.blank?
@@ -74,11 +88,11 @@ namespace :data_cycle_core do
       end
 
       db_name = external_system.database_name
-      if args[:download] == 'true'
-        file_name = "#{download_dir}/#{db_name}_download.archive"
-      else
-        file_name = "#{backup_dir}/#{db_name}_#{date}.archive"
-      end
+      file_name = if args[:download] == 'true'
+                    "#{download_dir}/#{db_name}_download.archive"
+                  else
+                    "#{backup_dir}/#{db_name}_#{date}.archive"
+                  end
 
       cmd = "mongodump --db #{db_name} --archive > #{file_name}"
       sh cmd

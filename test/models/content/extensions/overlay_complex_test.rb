@@ -82,40 +82,47 @@ module DataCycleCore
 
     test 'test overlay of simple attribute(column), no overlay present' do
       event = create_event
+
       assert_equal('Test Event', event.name)
       assert_equal('Test Event', event.name_overlay)
     end
 
     test 'test overlay of simple attribute(column), overlay with data present' do
       event = create_event_with_overlay
+
       assert_equal('Test Event', event.name)
       assert_equal('Test Overlay', event.name_overlay)
     end
 
     test 'test fallback of property that does not exist in the overlay' do
       event = create_event_with_overlay
+
       assert_equal(event.data_type, event.data_type_overlay)
     end
 
     test 'test classifications,set only in event' do
       event = create_event_with_classifications
+
       assert_equal(event.event_status, event.event_status_overlay)
     end
 
     test 'test classifications, set differently in event and overlay' do
       event = create_event_with_overlay_classifications
+
       assert_equal('Veranstaltung geplant', event.event_status.first.name)
       assert_equal('Veranstaltung abgesagt', event.event_status_overlay.first.name)
     end
 
     test 'event with schedule' do
       event = create_event_with_schedule
+
       assert_equal(event.schedule, event.schedule_overlay)
       assert_equal(event_date_range(1).stringify_keys, event.schedule_overlay.first.get_data_hash['event_date'])
     end
 
     test 'event with overlayed schedule' do
       event = create_event_with_overlay_schedule
+
       assert_equal(event_date_range(1).stringify_keys, event.schedule.first.get_data_hash['event_date'])
       assert_equal(event_date_range(2).stringify_keys, event.schedule_overlay.first.get_data_hash['event_date'])
     end
@@ -125,10 +132,12 @@ module DataCycleCore
       overlay_image = DataCycleCore::DummyDataHelper.create_data('image')
 
       event = create_event_with_image(image.id, nil)
+
       assert_equal(0, event.overlay.size)
       assert_equal(image.id, event.image_overlay.first.id)
 
       event = create_event_with_image(image.id, overlay_image.id)
+
       assert_not_equal(image.id, overlay_image.id)
       assert_equal(1, event.overlay.size)
       assert_equal(image.id, event.image.first.id)
@@ -144,14 +153,17 @@ module DataCycleCore
       overlay_schedule_hash = create_schedule(odtfrom, odtend, 7.hours)
 
       event = create_event_with_event_schedule(schedule_hash, nil)
+
       assert_equal(0, event.overlay.size)
       assert_equal(dtfrom, event.start_date.to_fs(:long_datetime))
       assert_equal(dtend, event.end_date.to_fs(:long_datetime))
 
       event = create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
+
       assert_equal(1, event.overlay.size)
       schedule = event.event_schedule.first.to_h
       schedule_overlay = event.overlay.first.event_schedule.first.to_h
+
       assert_not_equal(schedule, schedule_overlay)
       assert_equal(schedule_overlay, event.event_schedule_overlay.first.to_h)
 

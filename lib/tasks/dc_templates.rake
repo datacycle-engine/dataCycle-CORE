@@ -33,9 +33,11 @@ namespace :dc do
         exit(-1)
       end
 
-      template_statistics = DataCycleCore::MasterData::Templates::TemplateStatistics.new(start_time: before_import)
-      template_statistics.update_statistics
-      template_statistics.render_statistics
+      if args.verbose.to_s.casecmp('true').zero?
+        template_statistics = DataCycleCore::MasterData::Templates::TemplateStatistics.new(start_time: before_import)
+        template_statistics.update_statistics
+        template_statistics.render_statistics
+      end
     end
 
     namespace :migrations do
@@ -134,6 +136,7 @@ namespace :dc do
         # puts '-----------------------------'
       end
 
+      desc 'validate new data definitions'
       task :validate, [:debug] => :environment do |_, _args|
         puts "validating new data definitions\n"
         mappings = DataCycleCore.data_definition_mapping['templates']
@@ -148,6 +151,7 @@ namespace :dc do
         puts "No matched keys: #{no_matched_keys}"
       end
 
+      desc 'migrate to new data definitions'
       task :data_definitions, [:template_names, :debug] => :environment do |_, args|
         puts "migrate to new data_definitions\n"
         mappings = DataCycleCore.data_definition_mapping['templates']
@@ -174,7 +178,7 @@ namespace :dc do
 
           things = DataCycleCore::Thing.where(template_name: key)
           puts "Changing things template_name #{key} to #{value} for: #{things.count} rows"
-          things_progressbar = ProgressBar.create(total: things.count, format: '%t |%w>%i| %a - %c/%C', title: "#{key} => #{value}")
+          things_progressbar = ProgressBar.create(total: things.count, title: "#{key} => #{value}")
           things.find_each do |thing|
             thing.update(template_name: value, cache_valid_since: Time.zone.now)
             things_progressbar.increment
@@ -190,6 +194,7 @@ namespace :dc do
       # updates relation to universal_classification, for specified list of origin_relations
       # updates those, who do not already have universal_classification assigned
       # deletes those, who have
+      desc 'migrate classifications to universal classifications for relations specified in data_definition_mapping.yml'
       task :universal_classifications, [:debug] => :environment do |_, _args|
         puts "migrate classifications to universal classifications\n"
         if DataCycleCore.data_definition_mapping['universal_classifications'].blank?
@@ -200,7 +205,7 @@ namespace :dc do
         ap classifications
 
         puts 'start updating to universal_classifications'
-        ActiveRecord::Base.connection.execute <<-SQL.squish
+        ActiveRecord::Base.connection.execute <<~SQL.squish
           SET LOCAL statement_timeout = 0;
           WITH rows_to_update AS (
             SELECT content_data_id, classification_id
@@ -219,7 +224,7 @@ namespace :dc do
         SQL
 
         puts 'now histories'
-        ActiveRecord::Base.connection.execute <<-SQL.squish
+        ActiveRecord::Base.connection.execute <<~SQL.squish
           SET LOCAL statement_timeout = 0;
           WITH rows_to_update AS (
             SELECT cch1.content_data_history_id, cch1.classification_id
@@ -239,7 +244,7 @@ namespace :dc do
         SQL
 
         puts 'delete rows, where a dataset with universal_classification already existed'
-        ActiveRecord::Base.connection.execute <<-SQL.squish
+        ActiveRecord::Base.connection.execute <<~SQL.squish
           SET LOCAL statement_timeout = 0;
           DELETE FROM classification_contents WHERE relation IN ('#{classifications.join("','")}');
           DELETE FROM classification_content_histories WHERE relation IN ('#{classifications.join("','")}');
@@ -315,19 +320,19 @@ namespace :dc do
         if source_attribute.present? && target_attribute.present? && from_concept_scheme_name.present? && to_concept_scheme_name.present? && relation.present?
 
           # Count the amount of datasets that need to be updated
-          select_cc = <<-SQL.squish
-          SELECT co2.classification_id AS new_classification_id, cc.id
-          FROM classification_contents AS cc
-            JOIN concepts AS co ON cc.classification_id = co.classification_id
-            JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
-              AND cs.name = ?
-            JOIN concepts AS co2 ON co2.#{target_attribute} = co.#{source_attribute}
-            JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
-              AND cs2.name = ?
-            JOIN things AS th ON th.id = cc.content_data_id
-              #{" AND th.content_type = 'entity'" if templates.blank?}
-              #{' AND th.template_name IN (?)' if templates.present?}
-          WHERE cc.relation = ?
+          select_cc = <<~SQL.squish
+            SELECT co2.classification_id AS new_classification_id, cc.id
+            FROM classification_contents AS cc
+              JOIN concepts AS co ON cc.classification_id = co.classification_id
+              JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+                AND cs.name = ?
+              JOIN concepts AS co2 ON co2.#{target_attribute} = co.#{source_attribute}
+              JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+                AND cs2.name = ?
+              JOIN things AS th ON th.id = cc.content_data_id
+                #{" AND th.content_type = 'entity'" if templates.blank?}
+                #{' AND th.template_name IN (?)' if templates.present?}
+            WHERE cc.relation = ?
           SQL
 
           query_args = [from_concept_scheme_name, to_concept_scheme_name]
@@ -338,34 +343,34 @@ namespace :dc do
           puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
           # Update the classification id in classification_contents old to new classification_ids
-          update_cc = <<-SQL.squish
-          WITH classification_contents_update AS (
-            UPDATE classification_contents as c1
-            SET classification_id = cl_update.new_classification_id
-            FROM (
-                SELECT co2.classification_id AS new_classification_id,
-                  cc.id
-                FROM classification_contents AS cc
-                  JOIN concepts AS co ON cc.classification_id = co.classification_id
-                  JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
-                    AND cs.name = ?
-                  JOIN concepts AS co2 ON co2.#{target_attribute} = co.#{source_attribute}
-                  JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
-                    AND cs2.name = ?
-                  JOIN things AS th ON th.id = cc.content_data_id
-                    #{" AND th.content_type = 'entity'" if templates.blank?}
-                    #{' AND th.template_name IN (?)' if templates.present?}
-                WHERE cc.relation = ?
-              ) as cl_update
-            WHERE c1.id = cl_update.id
-            RETURNING c1.content_data_id
-          )
-          UPDATE things AS th
-          SET cache_valid_since = null
-          WHERE th.id IN (
-              SELECT content_data_id
-              FROM classification_contents_update
+          update_cc = <<~SQL.squish
+            WITH classification_contents_update AS (
+              UPDATE classification_contents as c1
+              SET classification_id = cl_update.new_classification_id
+              FROM (
+                  SELECT co2.classification_id AS new_classification_id,
+                    cc.id
+                  FROM classification_contents AS cc
+                    JOIN concepts AS co ON cc.classification_id = co.classification_id
+                    JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
+                      AND cs.name = ?
+                    JOIN concepts AS co2 ON co2.#{target_attribute} = co.#{source_attribute}
+                    JOIN concept_schemes AS cs2 ON cs2.id = co2.concept_scheme_id
+                      AND cs2.name = ?
+                    JOIN things AS th ON th.id = cc.content_data_id
+                      #{" AND th.content_type = 'entity'" if templates.blank?}
+                      #{' AND th.template_name IN (?)' if templates.present?}
+                  WHERE cc.relation = ?
+                ) as cl_update
+              WHERE c1.id = cl_update.id
+              RETURNING c1.content_data_id
             )
+            UPDATE things AS th
+            SET cache_valid_since = null
+            WHERE th.id IN (
+                SELECT content_data_id
+                FROM classification_contents_update
+              )
           SQL
 
           sanitized_update_cc = ActiveRecord::Base.send(:sanitize_sql_array, [update_cc, *query_args])
@@ -383,7 +388,7 @@ namespace :dc do
           puts 'templates are required'
           exit(1)
         end
-        update_tt_qry = <<-SQL.squish
+        update_tt_qry = <<~SQL.squish
           UPDATE thing_templates
           SET schema = jsonb_set(schema, '{features,creatable,allowed}', 'false'::jsonb)
           where template_name IN (?);
@@ -407,13 +412,13 @@ namespace :dc do
 
         if field_from.present? && field_to.present? && operation.present?
           # count how many rows should be affected by the migration
-          select_th_qry = <<-SQL.squish
-          SELECT 1
-          FROM things AS t1
-            JOIN thing_translations ON t1.id = thing_translations.thing_id
-          WHERE t1.metadata->? IS NOT NULL
-            #{" AND t1.content_type = 'entity'" if templates.blank?}
-            #{' AND t1.template_name IN (?)' if templates.present?}
+          select_th_qry = <<~SQL.squish
+            SELECT 1
+            FROM things AS t1
+              JOIN thing_translations ON t1.id = thing_translations.thing_id
+            WHERE t1.metadata->? IS NOT NULL
+              #{" AND t1.content_type = 'entity'" if templates.blank?}
+              #{' AND t1.template_name IN (?)' if templates.present?}
           SQL
           query_args = [field_from]
           query_args << templates if templates.present?
@@ -422,17 +427,17 @@ namespace :dc do
           puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
           # migrate data
-          update_tt_qry = <<-SQL.squish
-          UPDATE thing_translations AS tt
-          SET content = jsonb_set(tt.content, ?, data_origin.metadata->?)
-          FROM (
-                  SELECT th.metadata, th.id
-                  FROM things AS th
-                  WHERE th.metadata->? IS NOT NULL
-                      #{" AND th.content_type = 'entity'" if templates.blank?}
-                      #{' AND th.template_name IN (?)' if templates.present?}
-              ) AS data_origin
-          WHERE tt.thing_id = data_origin.id
+          update_tt_qry = <<~SQL.squish
+            UPDATE thing_translations AS tt
+            SET content = jsonb_set(tt.content, ?, data_origin.metadata->?)
+            FROM (
+                    SELECT th.metadata, th.id
+                    FROM things AS th
+                    WHERE th.metadata->? IS NOT NULL
+                        #{" AND th.content_type = 'entity'" if templates.blank?}
+                        #{' AND th.template_name IN (?)' if templates.present?}
+                ) AS data_origin
+            WHERE tt.thing_id = data_origin.id
           SQL
 
           query_args = ["{#{field_to}}", field_from, field_from]
@@ -443,12 +448,12 @@ namespace :dc do
 
           # remove old fields from metadata json, if operation equals move
           if operation == 'move'
-            remove_metadata_fields_qry = <<-SQL.squish
-            UPDATE things
-            SET metadata = metadata - ?
-            WHERE things.metadata->? IS NOT NULL
-              #{" AND things.content_type = 'entity'" if templates.blank?}
-              #{' AND things.template_name IN (?)' if templates.present?}
+            remove_metadata_fields_qry = <<~SQL.squish
+              UPDATE things
+              SET metadata = metadata - ?
+              WHERE things.metadata->? IS NOT NULL
+                #{" AND things.content_type = 'entity'" if templates.blank?}
+                #{' AND things.template_name IN (?)' if templates.present?}
             SQL
 
             query_args = [field_from, field_from]
@@ -474,14 +479,14 @@ namespace :dc do
         if field_from.present? && field_to.present? && operation.present?
 
           # count how many rows should be affected by the migration
-          select_tt_qry = <<-SQL.squish
-          SELECT 1
-          FROM thing_translations AS t1
-            JOIN things AS t2 ON t1.thing_id = t2.id
-          WHERE t1.content->? IS NOT NULL
-            AND t1.locale = 'de'#{' '}
-              #{" AND t2.content_type = 'entity'" if templates.blank?}
-              #{'AND t2.template_name IN (?)' if templates.present?}
+          select_tt_qry = <<~SQL.squish
+            SELECT 1
+            FROM thing_translations AS t1
+              JOIN things AS t2 ON t1.thing_id = t2.id
+            WHERE t1.content->? IS NOT NULL
+              AND t1.locale = 'de'#{' '}
+                #{" AND t2.content_type = 'entity'" if templates.blank?}
+                #{'AND t2.template_name IN (?)' if templates.present?}
           SQL
 
           query_args = [field_from]
@@ -491,18 +496,18 @@ namespace :dc do
           puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
           # migrate data
-          update_th_qry = <<-SQL.squish
-          UPDATE things AS th
-          SET metadata = jsonb_set(th.metadata, ?, data_origin.content->?)
-          FROM (
-                  SELECT tt.content, tt.thing_id
-                  FROM thing_translations as tt
-                  WHERE tt.content->? IS NOT NULL
-                      AND tt.locale = 'de'
-              ) AS data_origin
-          WHERE th.id = data_origin.thing_id
-            #{" AND th.content_type = 'entity'" if templates.blank?}
-            #{' AND th.template_name IN (?)' if templates.present?}
+          update_th_qry = <<~SQL.squish
+            UPDATE things AS th
+            SET metadata = jsonb_set(th.metadata, ?, data_origin.content->?)
+            FROM (
+                    SELECT tt.content, tt.thing_id
+                    FROM thing_translations as tt
+                    WHERE tt.content->? IS NOT NULL
+                        AND tt.locale = 'de'
+                ) AS data_origin
+            WHERE th.id = data_origin.thing_id
+              #{" AND th.content_type = 'entity'" if templates.blank?}
+              #{' AND th.template_name IN (?)' if templates.present?}
           SQL
 
           query_args = ["{#{field_to}}", field_from, field_from]
@@ -513,17 +518,17 @@ namespace :dc do
 
           # remove old fields from metadata json, if operation equals move
           if operation == 'move'
-            remove_metadata_fields_qry = <<-SQL.squish
-            UPDATE thing_translations t1
-            SET content = content - ?
-            WHERE EXISTS (
-                SELECT 1 FROM things as t2
-                WHERE t1.thing_id = t2.id
-                  AND t2.metadata->? IS NOT NULL
-                  #{" AND t2.content_type = 'entity'" if templates.blank?}
-                  #{'AND t2.template_name IN (?)' if templates.present?}
-              )
-              AND t1.content->? IS NOT NULL
+            remove_metadata_fields_qry = <<~SQL.squish
+              UPDATE thing_translations t1
+              SET content = content - ?
+              WHERE EXISTS (
+                  SELECT 1 FROM things as t2
+                  WHERE t1.thing_id = t2.id
+                    AND t2.metadata->? IS NOT NULL
+                    #{" AND t2.content_type = 'entity'" if templates.blank?}
+                    #{'AND t2.template_name IN (?)' if templates.present?}
+                )
+                AND t1.content->? IS NOT NULL
             SQL
 
             query_args = [field_from, field_to]
@@ -559,7 +564,7 @@ namespace :dc do
 
         template_names.each do |template_name|
           contents = DataCycleCore::Thing.where(template_name:, external_source_id: nil)
-          progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: template_name)
+          progressbar = ProgressBar.create(total: contents.size, title: template_name)
 
           contents.find_each do |content|
             content.translated_locales.each do |locale|
@@ -614,7 +619,7 @@ namespace :dc do
         puts "move contact_info.url to contact_info.contact_url\n"
 
         # count how many rows should be affected by the migration
-        select_th_qry = <<-SQL.squish
+        select_th_qry = <<~SQL.squish
           SELECT 1
           FROM thing_translations
           WHERE jsonb_path_exists(content, '$.contact_info.url')
@@ -624,7 +629,7 @@ namespace :dc do
         puts "Values to move:  #{rows_to_update.count}\n"
 
         # copy url to contact_url
-        update_tt_qry = <<-SQL.squish
+        update_tt_qry = <<~SQL.squish
           UPDATE thing_translations
           SET content = jsonb_set(
             content,
@@ -637,14 +642,14 @@ namespace :dc do
         puts "Values moved: #{rows_updated}\n"
 
         # delete old data
-        update_tt_qry = <<-SQL.squish
-        UPDATE thing_translations t
-          SET content = jsonb_set(
-            content,
-            '{contact_info}',
-            (content->'contact_info') - 'url'
-          )
-          WHERE t.content->'contact_info' IS NOT NULL
+        update_tt_qry = <<~SQL.squish
+          UPDATE thing_translations t
+            SET content = jsonb_set(
+              content,
+              '{contact_info}',
+              (content->'contact_info') - 'url'
+            )
+            WHERE t.content->'contact_info' IS NOT NULL
         SQL
         ActiveRecord::Base.connection.exec_update(update_tt_qry)
 

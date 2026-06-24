@@ -8,13 +8,11 @@ module DataCycleCore
 
         ALLOWED_NESTED_TYPES = ['string', 'text', 'number', 'boolean', 'datetime', 'date', 'object'].freeze
 
-        NESTED_TYPE_PARAMS = Dry::Schema.Params do
-          required(:type) do
-            str? & included_in?(ALLOWED_NESTED_TYPES)
-          end
+        NESTED_TYPE_PARAMS = Dry::Schema.JSON do
+          required(:type).value(:string, included_in?: ALLOWED_NESTED_TYPES)
         end
 
-        schema(BASE_PARAMS, NESTED_TYPE_PARAMS)
+        json(BASE_PARAMS, NESTED_TYPE_PARAMS)
       end
     end
   end

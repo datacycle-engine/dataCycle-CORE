@@ -14,8 +14,8 @@ module DataCycleCore
       @end_time = 1.day.from_now + 1.hour
       @schedule_value = [Schedule.transform_data_for_data_hash({
         start_time: { time: @start_time, zone: @start_time.time_zone.name },
-        end_time: { time: @start_time + 1.hour, zone: @start_time.time_zone.name},
-        rrules: [{ rule_type: 'IceCube::DailyRule', until: @end_time, interval: 1}],
+        end_time: { time: @start_time + 1.hour, zone: @start_time.time_zone.name },
+        rrules: [{ rule_type: 'IceCube::DailyRule', until: @end_time, interval: 1 }],
         duration: 'PT1H',
         rtimes: nil,
         extimes: nil
@@ -81,210 +81,270 @@ module DataCycleCore
     test 'return name from first linked, if present?' do
       key = 'name'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content2.send(key), value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content3.send(key), value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content2.send(key), value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content3.send(key), value)
     end
 
     test 'return translated_string_value from first linked, if present?' do
       key = 'translated_string_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content2.send(key), value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content2.send(key), value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
     end
 
     test 'return date_value from first linked, if present?' do
       key = 'date_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).to_s, value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content1.send(key).to_s, value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key).to_s, value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).to_s, value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
     end
 
     test 'return boolean_value from first linked, if present?' do
       key = 'boolean_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content3.send(key), value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content3.send(key), value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content3.send(key), value)
     end
 
     test 'return geographic_value from first linked, if present?' do
       key = 'geographic_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).to_s, value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content1.send(key).to_s, value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key).to_s, value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).to_s, value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
     end
 
     test 'return slug_value from first linked, if present?' do
       key = 'slug_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content2.send(key), value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content3.send(key), value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content2.send(key), value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content3.send(key), value)
     end
 
     test 'return number_value from first linked, if present?' do
       key = 'number_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key), value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
     end
 
     test 'return classification_value from first linked, if present?' do
       key = 'classification_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).pluck(:id), value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content1.send(key).pluck(:id), value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key).pluck(:id), value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).pluck(:id), value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
     end
 
     test 'return asset_value from first linked, if present?' do
       key = 'asset_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).id, value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content1.send(key).id, value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key).id, value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).id, value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_nil(value)
     end
 
     test 'return collection_value from first linked, if present?' do
       key = 'collection_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).pluck(:id), value)
 
       value = subject_method(key, nil, [@content3.id, @content1.id])
+
       assert_equal(@content1.send(key).pluck(:id), value)
 
       value = subject_method(key, nil, [@content1.id])
+
       assert_equal(@content1.send(key).pluck(:id), value)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id])
+
       assert_equal(@content1.send(key).pluck(:id), value)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
     end
 
@@ -292,34 +352,41 @@ module DataCycleCore
       key = 'schedule_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['start_time'], value['start_time'])
       assert_equal("#{@new_content.id}_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
       assert_nil(value['id'])
 
-      @new_content.set_data_hash(data_hash: { key => [value]})
+      @new_content.set_data_hash(data_hash: { key => [value] })
 
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['start_time'], value['start_time'])
       assert_equal("#{@new_content.id}_#{key}_#{Digest::SHA1.hexdigest(orig_value.to_json)}", value['external_key'])
       assert_equal(@new_content.try(key).first.id, value['id'])
 
       value = subject_method(key, nil, [@content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['start_time'], value['start_time'])
 
       value = subject_method(key, nil, [@content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['start_time'], value['start_time'])
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['start_time'], value['start_time'])
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
     end
 
@@ -327,36 +394,43 @@ module DataCycleCore
       key = 'translated_embedded_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
-      @new_content.set_data_hash(data_hash: { key => [value]})
+      @new_content.set_data_hash(data_hash: { key => [value] })
 
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
       assert_equal(@new_content.try(key).first.id, value['id'])
 
       value = subject_method(key, nil, [@content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
     end
 
@@ -364,35 +438,42 @@ module DataCycleCore
       key = 'embedded_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
-      @new_content.set_data_hash(data_hash: { key => [value]})
+      @new_content.set_data_hash(data_hash: { key => [value] })
 
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+
       assert_empty(value)
     end
 
@@ -400,35 +481,42 @@ module DataCycleCore
       key = 'embedded_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
-      @new_external_content.set_data_hash(data_hash: { key => [value]})
+      @new_external_content.set_data_hash(data_hash: { key => [value] })
 
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content3.id, @content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, nil, [@content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id], @new_external_content).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
+
       assert_equal(orig_value['id'], value['id'])
       assert_equal(['id'], value.keys)
 
       value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id], @new_external_content)
+
       assert_empty(value)
 
       value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id], @new_external_content)
+
       assert_empty(value)
     end
   end

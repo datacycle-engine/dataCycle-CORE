@@ -98,28 +98,28 @@ describe DataCycleCore::MasterData::Normalizer::ActionParser do
     end
 
     it 'parses addition correctly' do
-      assert(subject.add(add), [{ 'SEX' => ['+', 'M'] }])
+      assert_equal([{ 'SEX' => ['+', 'M'] }], subject.add(add))
     end
 
     it 'parses changes correctly' do
-      assert(subject.alter(alter), [{ 'COUNTRY' => ['~', 'AT', 'Österreich'] }])
+      assert_equal([{ 'COUNTRY' => ['~', 'AT', 'Österreich'] }], subject.alter(alter))
     end
 
     it 'parses deletions correctly' do
-      assert(subject.delete(delete), [])
+      assert_equal([], subject.delete(delete))
     end
 
     it 'parses splits correctly' do
       assert_nil subject.split(split)
-      assert(subject.split(split2), [{ 'CITY' => ['~', 'Radenthein', '9545 Radenthein'] }, { 'ZIP' => ['+', '9545'] }])
+      assert_equal([{ 'CITY' => ['~', 'Radenthein', '9545 Radenthein'] }, { 'ZIP' => ['+', '9545'] }], subject.split(split2))
     end
 
     it 'parses suggestions correctly' do
-      assert(subject.propose(propose), [{ 'ZIP' => ['?', ['9504', '9585', '9524', '9500']] }])
+      assert_equal([{ 'ZIP' => ['?', ['9504', '9585', '9524', '9500']] }], subject.propose(propose))
     end
 
     it 'parses errors correctly' do
-      assert(subject.error(error), [{ 'ERROR' => ['!', 'Unknown or Invalid address COUNTRY+ZIP+CITY+STREET'] }])
+      assert_equal([{ 'ERROR' => ['!', 'Unknown or Invalid address COUNTRY+ZIP+CITY+STREET'] }], subject.error(error))
     end
   end
 end

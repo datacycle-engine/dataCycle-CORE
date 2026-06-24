@@ -1,0 +1,29 @@
+---
+- :data:
+    :name: TimeseriesTransformation
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :dcls_facility_state:
+        :label: Anlagenstatus
+        :type: timeseries
+      :dcls_capacity:
+        :label: Kapazität
+        :type: timeseries
+      :dcls_occupancy:
+        :label: Belegte Plätze
+        :type: timeseries
+      :dcls_free_places:
+        :label: Freie Plätze
+        :type: timeseries

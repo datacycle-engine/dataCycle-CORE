@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.2.2'
+ruby '>= 3.3'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
@@ -24,11 +24,18 @@ gem 'dotenv-rails'
 gem 'jb'
 
 # OmniAuth Authentication
-gem 'omniauth-rails_csrf_protection', '>= 1.0.1'
+gem 'omniauth'
 gem 'omniauth-entra-id'
 
+# OAuth2 Provider
+gem 'doorkeeper'
+gem 'doorkeeper-openid_connect' # has issues as dependency in data_cycle_core.gemspec
+
 group :test do
+  gem 'minitest'
+  gem 'minitest-mock'
   gem 'minitest-hooks'
+  gem 'parallel_tests', require: false
 end
 
 group :development do
@@ -38,17 +45,20 @@ group :development do
   gem 'brakeman', require: false
   gem 'bundler-audit', require: false
   gem 'faker'
-  gem 'fasterer', require: false
-  gem 'rubocop', '!= 1.76.0', require: false
+  gem 'rubocop', '!= 1.85.0', require: false
   gem 'rubocop-ast'
   gem 'rubocop-minitest', require: false
   gem 'rubocop-rake', require: false
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
   gem 'awesome_print'
+  gem 'herb', require: false
 
   gem 'prosopite'
-  # gem 'pg_query'
+end
+
+group :container do # used in docker container only, to ignore it for local ruby-lsp
+  gem 'taglib-ruby', '>= 2.0.0', require: false
 end
 
 group :development, :test, :review do

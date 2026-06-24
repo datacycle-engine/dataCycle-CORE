@@ -116,30 +116,36 @@ module DataCycleCore
         { "dump.#{@locale}" => { '$exists' => true } }
       end
 
-      def deleted_filter(exists)
-        return { 'dump.deleted_at' => { '$exists' => exists } } if @locale.blank?
-        { "dump.#{@locale}.deleted_at" => { '$exists' => exists } }
-      end
-
       def with_deleted_filter
-        deleted_filter(true)
+        {
+          '$or' => [
+            { 'dump.deleted_at' => { '$exists' => true } },
+            { "dump.#{@locale || I18n.default_locale}.deleted_at" => { '$exists' => true } }
+          ]
+        }
       end
 
       def without_deleted_filter
-        deleted_filter(false)
-      end
-
-      def archived_filter(exists)
-        return { 'dump.archived_at' => { '$exists' => exists } } if @locale.blank?
-        { "dump.#{@locale}.archived_at" => { '$exists' => exists } }
+        {
+          'dump.deleted_at' => { '$exists' => false },
+          "dump.#{@locale || I18n.default_locale}.deleted_at" => { '$exists' => false }
+        }
       end
 
       def with_archived_filter
-        archived_filter(true)
+        {
+          '$or' => [
+            { 'dump.archived_at' => { '$exists' => true } },
+            { "dump.#{@locale || I18n.default_locale}.archived_at" => { '$exists' => true } }
+          ]
+        }
       end
 
       def without_archived_filter
-        archived_filter(false)
+        {
+          'dump.archived_at' => { '$exists' => false },
+          "dump.#{@locale || I18n.default_locale}.archived_at" => { '$exists' => false }
+        }
       end
 
       def with_updated_since_filter(timestamp)
@@ -154,8 +160,12 @@ module DataCycleCore
       end
 
       def with_deleted_since_filter(timestamp)
-        return { 'dump.deleted_at' => { '$gte' => timestamp } } if @locale.blank?
-        { "dump.#{@locale}.deleted_at" => { '$gte' => timestamp } }
+        {
+          '$or' => [
+            { 'dump.deleted_at' => { '$gte' => timestamp } },
+            { "dump.#{@locale || I18n.default_locale}.deleted_at" => { '$gte' => timestamp } }
+          ]
+        }
       end
 
       def with_external_id_filter(external_id)

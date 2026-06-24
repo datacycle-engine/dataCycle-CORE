@@ -98,6 +98,7 @@ module DataCycleCore
         assert_response :success
         assert_equal 'application/json; charset=utf-8', response.content_type
         json_data = response.parsed_body
+
         assert_not json_data['valid']
         assert_equal 1, json_data['errors'].size
         assert_empty json_data['warnings']

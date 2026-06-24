@@ -21,8 +21,8 @@ module VirtualAttributeTestUtilities
     if data.is_a?(Array)
       data.map { |d| create_dummy(d, klass) }.then { |v| klass.by_ordered_values(v.pluck(:id)).tap { |rel| rel.send(:load_records, v) } }
     elsif data.is_a?(::Hash)
-      Struct.new(*data.keys.except(:id), :id, :klass, keyword_init: true) {
-        def initialize(id: SecureRandom.uuid, **args)
+      Struct.new(*data.keys.except(:id), :id, :klass) {
+        def initialize(*, id: SecureRandom.uuid, **args)
           super
         end
 

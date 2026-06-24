@@ -1,0 +1,14 @@
+---
+- :data:
+    :name: middle_transitive_mixin
+    :type: mixin
+    :extends: base_transitive_mixin
+    :properties:
+      :middle_text:
+        :label: Middle label
+        :type: string
+        :storage_location: translated_value
+      :shared_text:
+        :label: Middle shared
+        :type: string
+        :storage_location: translated_value

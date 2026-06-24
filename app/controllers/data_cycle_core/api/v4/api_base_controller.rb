@@ -46,7 +46,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, :classification_trees, :classificationTrees, {section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: [], classificationTrees: []}]
+          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, :classification_trees, :classificationTrees, { section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: [], classificationTrees: [] }]
         end
 
         def validate_params_exceptions
@@ -65,14 +65,15 @@ module DataCycleCore
           page_params = DEFAULT_PAGE_SETTINGS.merge(page_parameters)
           section_params = DEFAULT_SECTION_SETTINGS.merge(section_parameters)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
+
           if page_params[:limit].to_i.positive?
             query = query.offset(page_params[:offset].to_i).limit(page_params[:limit].to_i).query
           else
-            if section_params[:meta].to_i.zero?
-              query = query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count
-            else
-              query = query.page(page_params[:number].to_i).per(page_params[:size].to_i)
-            end
+            query = if section_params[:meta].to_i.zero?
+                      query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count
+                    else
+                      query.page(page_params[:number].to_i).per(page_params[:size].to_i)
+                    end
             query = query.padding(page_params[:offset].to_i) if page_params[:offset].to_i.positive?
           end
 
@@ -88,11 +89,13 @@ module DataCycleCore
 
         def parse_tree_params(raw_params)
           return [] if raw_params&.strip.blank?
+
           raw_params.split(',')&.map(&:strip)&.map { |item| item.split('.')&.map(&:strip) }
         end
 
         def parse_language(language_string)
           return nil if language_string&.strip.blank?
+
           language_string.split(',')&.map(&:strip)&.select { |t| I18n.available_locales.include?(t.to_sym) }
         end
 

@@ -16,6 +16,8 @@
     z-index: 12;
     background: $white;
     border-radius: $global-radius;
+    gap: 0.5rem;
+    padding-right: 0.5rem; // to align buttons
 
     .attribute-edit-label {
       position: relative;
@@ -26,7 +28,8 @@
       transition: $color-transition;
     }
 
-    .show-objectbrowser {
+    .show-objectbrowser,
+    .remove-all-objectbrowser {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -34,7 +37,6 @@
       padding: 0.3rem 0.5rem;
       height: 2rem;
       width: 2rem;
-      margin: 0 0.5rem;
     }
   }
 }

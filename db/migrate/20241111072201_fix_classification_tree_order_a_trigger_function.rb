@@ -2,7 +2,7 @@
 
 class FixClassificationTreeOrderATriggerFunction < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.update_classification_trees_order_a_trigger() RETURNS TRIGGER LANGUAGE 'plpgsql' COST 100 VOLATILE NOT LEAKPROOF AS $BODY$ BEGIN PERFORM public.reset_classification_aliases_order_a(ARRAY_AGG(classification_alias_id))
       FROM (
           SELECT new_classification_trees.classification_alias_id

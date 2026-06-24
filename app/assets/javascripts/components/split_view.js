@@ -1,7 +1,7 @@
 import isEqual from "lodash/isEqual";
 import uniqWith from "lodash/uniqWith";
-import CalloutHelpers from "./../helpers/callout_helpers";
 import DomElementHelpers from "../helpers/dom_element_helpers";
+import { translateText } from "../helpers/translate_feature_helpers";
 import ConfirmationModal from "./confirmation_modal";
 
 class SplitView {
@@ -225,6 +225,7 @@ class SplitView {
 		);
 	}
 	dismissSubscribeNotice(_event) {
+		// biome-ignore lint/suspicious/noDocumentCookie: This is intentional as we want to set a cookie to remember that the notice has been dismissed
 		document.cookie = "subscribe_notice_dismissed=true;SameSite=Lax";
 	}
 	availableEditors(container, selectors = []) {
@@ -285,7 +286,7 @@ class SplitView {
 
 		await buttonsContainer.insertAdjacentHTML(
 			"afterbegin",
-			`<a class="button-prime small ${type}-all" data-disable-with="<i class=\'fa fa-spinner fa-fw fa-spin\'></i>" data-dc-tooltip="${await I18n.translate(
+			`<a class="button-prime small ${type}-all" data-disable-with="<i class='fa fa-spinner fa-fw fa-spin'></i>" data-dc-tooltip="${await I18n.translate(
 				`frontend.split_view.${type}_all`,
 			)}"><i class="fa ${
 				this.buttonMappings[type].icon
@@ -334,7 +335,7 @@ class SplitView {
 			"beforeend",
 			`<a class="button-prime small ${type} ${
 				single ? `${type}-single-button` : ""
-			}" data-disable-with="<i class=\'fa fa-spinner fa-fw fa-spin\'></i>" data-dc-tooltip="${await I18n.translate(
+			}" data-disable-with="<i class='fa fa-spinner fa-fw fa-spin'></i>" data-dc-tooltip="${await I18n.translate(
 				`frontend.split_view.${type}`,
 			)}"><i class="fa ${
 				this.buttonMappings[type].icon
@@ -589,43 +590,29 @@ class SplitView {
 	}
 	async translateText(editor, value, key, sourceKey) {
 		if (this.translatableTypes.includes(editor)) {
-			const formData = {
-				text: typeof value === "string" ? value.trim() : value,
-				source_locale: this.leftLocale(),
-				target_locale: this.rightLocale(),
-			};
-
-			const translatedValue = await DataCycle.httpRequest(
-				"/things/translate_text",
-				{
-					method: "POST",
-					body: formData,
-				},
-			).catch(async (error) => {
-				const sourceElement = this.findFieldsByKey(
-					sourceKey,
-					this.leftContainer,
-					false,
-					false,
-				)[0];
-				let errorMessage = await I18n.translate(
-					"frontend.split_view.translate_error",
-					{
-						label: sourceElement.dataset.label,
-					},
-				);
-				if (error?.responseJSON?.error)
-					errorMessage += `<br><i>${error.responseJSON.error}</i>`;
-				CalloutHelpers.show(errorMessage, "alert");
-			});
-
-			await this.copyContents(
-				translatedValue.text,
-				key,
-				false,
-				true,
+			const sourceElement = this.findFieldsByKey(
 				sourceKey,
+				this.leftContainer,
+				false,
+				false,
+			)[0];
+
+			const translatedValue = await translateText(
+				sourceElement.dataset.label,
+				value,
+				this.rightLocale(),
+				this.leftLocale(),
 			);
+
+			if (translatedValue?.text) {
+				await this.copyContents(
+					translatedValue.text,
+					key,
+					false,
+					true,
+					sourceKey,
+				);
+			}
 		} else {
 			await this.copyContents(value, key, true, true, sourceKey);
 		}

@@ -6,8 +6,8 @@ module DataCycleCore
       BROADCAST_ACTIONS = [:update, :append, :prepend, :remove, :replace].freeze
 
       BROADCAST_ACTIONS.each do |action|
-        define_method("broadcast_#{action}_to") do |channel, target: nil, partial: nil, locals: {}, assigns: {}, attributes: {}|
-          broadcast_action_to(channel, action, target:, partial:, locals:, assigns:, attributes:)
+        define_method("broadcast_#{action}_to") do |channel, target: nil, partial: nil, locals: {}, assigns: {}, attributes: {}, html: nil|
+          broadcast_action_to(channel, action, target:, partial:, locals:, assigns:, attributes:, html:)
         end
 
         define_method("broadcast_localized_#{action}_to") do |channel, target: nil, partial: nil, locals: {}, attributes: {}|
@@ -15,19 +15,19 @@ module DataCycleCore
         end
       end
 
-      def render(partial:, **kwargs)
-        ApplicationController.render(partial: partial, layout: false, **kwargs)
+      def render(partial:, **)
+        ApplicationController.render(partial: partial, layout: false, **)
       end
 
       private
 
-      def broadcast_action_to(channel, action, target: nil, partial: nil, locals: {}, assigns: {}, attributes: {})
+      def broadcast_action_to(channel, action, target: nil, partial: nil, locals: {}, assigns: {}, attributes: {}, html: nil)
         ::Turbo::StreamsChannel.broadcast_action_to(
           channel,
           action:,
           attributes:,
           target: target.presence || channel,
-          html: render(partial:, locals:, assigns:)
+          html: html.presence || render(partial:, locals:, assigns:)
         )
       end
 

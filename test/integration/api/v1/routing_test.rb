@@ -20,8 +20,9 @@ module DataCycleCore
           get api_v1_collections_path
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal 1, json_data['collections'].length
         end
 
@@ -29,8 +30,9 @@ module DataCycleCore
           get api_v1_collection_path(@watch_list)
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal 'Merkliste 1', json_data.dig('collection', 'name')
           assert_equal 0, json_data.dig('collection', 'items').length
         end
@@ -46,7 +48,8 @@ module DataCycleCore
           }
 
           filter = User.find_by(email: 'tester@datacycle.at').stored_filters.presence&.find_by(name: 'TestFilter')
-          assert filter.present?
+
+          assert_predicate filter, :present?
 
           assert_redirected_to root_path(stored_filter: filter.id)
           follow_redirect!
@@ -56,7 +59,7 @@ module DataCycleCore
           get api_v1_stored_filter_path(filter)
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
         end
       end
     end

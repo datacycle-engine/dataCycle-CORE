@@ -2,7 +2,7 @@
 
 class ChangeContentCollectionLinkColumnToGenerated < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE content_collection_links DROP COLUMN IF EXISTS stored_filter_id;
 
       ALTER TABLE content_collection_links DROP COLUMN IF EXISTS watch_list_id;

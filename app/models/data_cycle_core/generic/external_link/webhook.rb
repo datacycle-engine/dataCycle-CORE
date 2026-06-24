@@ -10,6 +10,7 @@ module DataCycleCore
           validator = Contract.new
           errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h
           return { error: errors } if errors.present?
+
           data = DataCycleCore::Generic::ExternalLink::Transformations.transformation(external_system.id).call(raw_data)
 
           init_logging do |logging|
@@ -29,6 +30,7 @@ module DataCycleCore
           validator = Contract.new
           errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h
           return { error: errors } if errors.present?
+
           data = DataCycleCore::Generic::ExternalLink::Transformations.transformation(external_system.id).call(raw_data)
 
           init_logging do |logging|
@@ -47,6 +49,7 @@ module DataCycleCore
 
         def update_sync(data:, external_system:)
           return ["Data with id=#{data['id']} not found!"] unless DataCycleCore::Thing.exists?(id: data['id'])
+
           now = Time.zone.now
           data['external_system_syncs'].each do |sync_data|
             sync = external_system.external_system_syncs.find_or_initialize_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_key: sync_data[:external_key], sync_type: 'link')
@@ -64,9 +67,11 @@ module DataCycleCore
 
         def delete_sync(data:, external_system:)
           return ["Data with id=#{data['id']} not found!"] unless DataCycleCore::Thing.exists?(id: data['id'])
+
           data['external_system_syncs'].each do |sync_data|
             sync = external_system.external_system_syncs.find_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_key: sync_data[:external_key], sync_type: 'link')
             return ["Nothing to delete for data with id=#{data['id']}, in system with id=#{external_system.id}, external_id: #{sync_data[:external_key]}!"] if sync.blank?
+
             sync.destroy!
           end
 

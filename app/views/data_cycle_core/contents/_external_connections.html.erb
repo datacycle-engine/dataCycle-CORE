@@ -1,61 +1,65 @@
 <% content_for(:content_external_connections, flush: true) do %>
   <% external_connections = external_systems_with_details(content) if show_external_connections?(content) %>
 
-  <% external_connections&.each do |name, syncs| %>
+  <% external_connections&.each do |external_system, syncs| %>
     <div class="external-connection-with-dropdown">
       <%= tag.span(
             class: 'external-connection copy-to-clipboard',
             data: {
-              toggle: "external-connections-#{name.underscore_blanks}" ,
-              value: syncs.pluck(:external_system_id).first
+              toggle: "external-connections-#{external_system.name.underscore_blanks}" ,
+              value: external_system.id
           }) do %>
-            <i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i>
-            <%= name %>
-            <%= tag.span('*', class: 'primary-external-system', data: { dc_tooltip: t('content_external_data.primary_external_system_tooltip', locale: active_ui_locale) }) if syncs.any?{ |s| s[:primary] } %>
-            (<%= syncs.size %>)
+        <i class="fa fa-external-link-square external-connections-icon <%= syncs.dig('meta', 'status')&.compact&.join(' ') %>"></i>
+        <%= external_system.name %>
+        <%= tag.span('*', class: 'primary-external-system', data: { dc_tooltip: t('content_external_data.primary_external_system_tooltip', locale: active_ui_locale) }) if syncs.dig('meta', 'primary') %>
+        (<%= syncs.dig('meta', 'count') %>)
       <% end %>
-          
-      <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown>
-        <ul class="list-items no-bullet">
-          <% syncs.each do |sync| %>
-            <li>
-              <%= external_sync_status_icon(sync[:status], sync[:sync_type], true) %>
 
-              <%= tag.span(class: 'sync-external-key') do %>
-                <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', data: { value: sync[:external_key], dc_tooltip: sync[:title] }) %>
-              <% end %>
+      <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= external_system.name.underscore_blanks %>" data-dropdown>
+        <% syncs.except('meta').each do |sync_type, sync_list| %>
+          <ul class="list-items sync-list no-bullet">
+            <% sync_list.each do |sync| %>
+              <li>
+                <%= external_sync_status_icon(sync[:status], sync_type, true) %>
 
-              <%= tag.span(l(sync[:date], locale: active_ui_locale, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
+                <%= tag.span(class: 'sync-external-key') do %>
+                  <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', data: { value: sync[:external_key], dc_tooltip: safe_join([tag.b(t('actions.copy_to_clipboard_data', data: DataCycleCore::ExternalSystemSync.human_attribute_name(:external_key, locale: active_ui_locale), locale: active_ui_locale)), sync[:title]], tag.br) }) %>
+                  <%= tag.span('*', class: 'primary-external-key', data: { dc_tooltip: t('content_external_data.primary_external_key_tooltip', locale: active_ui_locale) }) if sync_type == DataCycleCore::ExternalSystemSync::SYNC_TYPES[:import] && sync[:primary] %>
+                <% end %>
 
-              <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', target: :_blank, data: { dc_tooltip: t('actions.external_edit', locale: active_ui_locale) } if sync[:external_edit_url].present? %>
+                <%= tag.span(l(sync[:date], locale: active_ui_locale, format: :history), class: 'last-successful-sync-at', data: { dc_tooltip: sync[:successful_date].present? ? safe_join([tag.b(DataCycleCore::ExternalSystemSync.human_attribute_name(:last_successful_sync_at, locale: active_ui_locale)), l(sync[:successful_date], locale: active_ui_locale, format: :history)], ' ') : nil }) if sync[:date].present? %>
 
-              <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', target: :_blank, data: { dc_tooltip: t('actions.external_detail', locale: active_ui_locale) } if sync[:external_detail_url].present? %>
+                <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', target: :_blank, data: { dc_tooltip: t('actions.external_edit', locale: active_ui_locale) } if sync[:external_edit_url].present? %>
 
-              <%= link_to tag.i(class: 'switch-primary-external-system-icon fa fa-exchange'),
+                <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', target: :_blank, data: { dc_tooltip: t('actions.external_detail', locale: active_ui_locale) } if sync[:external_detail_url].present? %>
+
+                <%= link_to tag.i(class: 'switch-primary-external-system-icon fa fa-arrow-circle-up'),
                             switch_primary_external_system_thing_path(content, external_system_sync_id: sync[:id]),
-                            class: 'switch-primary-external-system-link external-connection-button',
+                            class: 'switch-primary-external-system-link external-connection-button button icon',
                             data: {
                               method: :post,
                               dc_tooltip: t('content_external_data.tooltip', locale: active_ui_locale),
                               confirm: t('content_external_data.warning_html', locale: active_ui_locale),
                               confirmation_button_class: 'success',
                               disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
-                            } if sync[:id].present? && sync[:sync_type] == 'duplicate' && can?(:switch_primary_external_system, content) %>
+                            } if sync[:id].present? && !sync[:primary] &&
+                                 can?(:switch_primary_external_system, content) &&
+                                 sync_type&.in?(DataCycleCore::ExternalSystemSync::SYNC_TYPES.values_at(:duplicate, :import)) %>
 
-              <%= link_to tag.i(class: 'demote-primary-external-system-icon fa fa-long-arrow-down'),
+                <%= link_to tag.i(class: 'demote-primary-external-system-icon fa fa-arrow-circle-down'),
                             demote_primary_external_system_thing_path(content),
-                            class: 'demote-primary-external-system-link external-connection-button',
+                            class: 'demote-primary-external-system-link external-connection-button button icon',
                             data: {
                               method: :post,
                               dc_tooltip: t('external_connections.demote_to_sync.tooltip', locale: active_ui_locale),
                               confirm: t('external_connections.demote_to_sync.warning_html', locale: active_ui_locale),
                               confirmation_button_class: 'success',
                               disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
-                            } if sync[:primary] && can?(:demote_primary_external_system, content) %>
+                            } if sync_type == DataCycleCore::ExternalSystemSync::SYNC_TYPES[:import] && sync[:primary] && can?(:demote_primary_external_system, content) %>
 
-              <%= link_to tag.i(class: 'remove-external-system-icon fa fa-trash'),
+                <%= link_to tag.i(class: 'remove-external-system-icon fa fa-trash'),
                             remove_external_connection_thing_path(content, external_system_sync_id: sync[:id]),
-                            class: 'remove-external-system-link alert external-connection-button',
+                            class: 'remove-external-system-link alert external-connection-button button icon',
                             data: {
                               method: :delete,
                               dc_tooltip: t('external_connections.remove_external_system_sync.tooltip', locale: active_ui_locale),
@@ -63,9 +67,10 @@
                               confirmation_button_class: 'alert',
                               disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
                             } if sync[:id].present? && can?(:remove_external_connection, content) %>
-            </li>
-          <% end %>
-        </ul>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
       </div>
     </div>
   <% end %>
@@ -74,7 +79,7 @@
 <% end %>
 
 <% if content_for?(:content_external_connections) %>
-  <div class="external-connections">
+  <div class="external-connections" id="external-connections-<%= content.id %>">
     <%= yield_content!(:content_external_connections) %>
   </div>
 <% end %>

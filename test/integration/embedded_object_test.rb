@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     test 'update content -> add multiple embedded objects (Zeitleiste-Eintrag)' do
-      timeline_item = Array.new(6) { |i| { translations: { de: { 'name' => "Zeitleiste-Eintrag #{i}" } } } }
+      timeline_item = Array.new(6) { |i| { datahash: { 'template_name' => 'Zeitleiste-Eintrag' }, translations: { de: { 'name' => "Zeitleiste-Eintrag #{i}" } } } }
       patch thing_path(@content), params: {
         thing: {
           datahash: {
@@ -28,8 +28,9 @@ module DataCycleCore
       }
 
       assert_redirected_to thing_path(@content, locale: I18n.locale)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.updated', data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_equal 6, @content.timeline_item.reload.size
     end
 
@@ -37,6 +38,7 @@ module DataCycleCore
       content_with_timeline_item = DataCycleCore::TestPreparations.create_content(template_name: 'Zeitleiste', data_hash: {
         name: 'TestArtikelMitZeitleiste',
         timeline_item: [{
+          template_name: 'Zeitleiste-Eintrag',
           name: 'Zeitleiste 1'
         }]
       })
@@ -46,6 +48,7 @@ module DataCycleCore
         timeline_item: [
           {
             datahash: {
+              template_name: 'Zeitleiste-Eintrag',
               id: content_with_timeline_item.timeline_item.first.id
             },
             translations: {
@@ -67,8 +70,9 @@ module DataCycleCore
       }
 
       assert_redirected_to thing_path(content_with_timeline_item, locale: I18n.locale)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: content_with_timeline_item.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.updated', data: content_with_timeline_item.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_equal 'Updated Zeitleiste 1', content_with_timeline_item.timeline_item.reload.first.name
     end
 
@@ -88,7 +92,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert @response.body.include?(@content.schema.dig('properties', 'timeline_item', 'label'))
+      assert_includes @response.body, @content.schema.dig('properties', 'timeline_item', 'label')
     end
 
     test 'render existing embedded object (Zeitleiste in Artikel)' do
@@ -119,7 +123,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert @response.body.include?(timeline_item.name)
+      assert_includes @response.body, timeline_item.name
     end
 
     test 'update content -> update nested embedded' do
@@ -136,14 +140,16 @@ module DataCycleCore
 
       content_hash = content_with_nested_item.get_data_hash
 
-      assert content_hash.dig('offers', 0, 'price_specification', 0, 'id').present?
+      assert_predicate content_hash.dig('offers', 0, 'price_specification', 0, 'id'), :present?
 
       update_hash = {
         offers: [{
           datahash: {
+            template_name: 'Angebot',
             id: content_hash.dig('offers', 0, 'id'),
             price_specification: [{
               datahash: {
+                template_name: 'Preis',
                 id: content_hash.dig('offers', 0, 'price_specification', 0, 'id'),
                 unit_text: ''
               }
@@ -162,8 +168,9 @@ module DataCycleCore
       }
 
       assert_redirected_to thing_path(content_with_nested_item, locale: I18n.locale)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: content_with_nested_item.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.updated', data: content_with_nested_item.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_nil content_with_nested_item.reload.offers.reload.first.price_specification.reload.first.unit_text
     end
   end

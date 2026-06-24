@@ -15,7 +15,7 @@ namespace :dc do
 
         puts "START UPDATE FILE SIZE ==> Images (#{items_count})"
 
-        progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+        progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
         assets.each do |asset|
           progressbar.increment
@@ -37,7 +37,7 @@ namespace :dc do
 
         puts "START UPDATE MetaData ==> Images (#{items_count})"
 
-        progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+        progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
         assets.each do |asset|
           progressbar.increment
@@ -67,7 +67,7 @@ namespace :dc do
 
         puts "START UPDATE name ==> Images (#{items_count})"
 
-        progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+        progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
         exif_property_names = ['license_classification', 'keyword_classifications', 'copyright_holder', 'author']
         properties = images.first.default_value_property_names.select { |k| exif_property_names.include?(k) }
@@ -119,7 +119,7 @@ namespace :dc do
       items_count = assets.size
       puts "START MIGRATE IMAGES ==> Image (#{items_count})"
 
-      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
       assets.each do |asset|
         progressbar.increment
@@ -145,7 +145,7 @@ namespace :dc do
       items_count = assets.size
       puts "START MIGRATE VIDEOS ==> Video (#{items_count})"
 
-      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
       assets.each do |asset|
         progressbar.increment
@@ -171,7 +171,7 @@ namespace :dc do
       items_count = assets.size
       puts "START MIGRATE PDFS ==> Pdf (#{items_count})"
 
-      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
       assets.each do |asset|
         progressbar.increment
@@ -197,7 +197,7 @@ namespace :dc do
       items_count = assets.size
       puts "START MIGRATE AUDIO ==> Audio (#{items_count})"
 
-      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
       assets.each do |asset|
         progressbar.increment
@@ -223,7 +223,7 @@ namespace :dc do
       items_count = assets.size
       puts "START MIGRATE DataCycleFile ==> DataCycleFile (#{items_count})"
 
-      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
       assets.each do |asset|
         progressbar.increment
@@ -249,7 +249,7 @@ namespace :dc do
       items_count = assets.size
       puts "START MIGRATE TextFile ==> TextFile (#{items_count})"
 
-      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
       assets.each do |asset|
         progressbar.increment
@@ -275,7 +275,7 @@ namespace :dc do
       items_count = assets.size
       puts "START MIGRATE srt_file ==> srt_file (#{items_count})"
 
-      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: items_count, title: 'Progress')
 
       assets.each do |asset|
         progressbar.increment

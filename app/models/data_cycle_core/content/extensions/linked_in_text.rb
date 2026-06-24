@@ -5,7 +5,7 @@ module DataCycleCore
     module Extensions
       module LinkedInText
         def remove_id_from_text_props(data_hash:, linked_id:, keys: nil)
-          regex = %r{<span class="[\w\d\s\-\_]*dc--contentlink[\w\d\s\-\_]*"[\w\d\s\-\_\"\']*data-href="#{linked_id}"[\w\d\s\-\_\"\']*>(.*?)</span>}
+          regex = %r{<span class="[\w\d\s\-_]*dc--contentlink[\w\d\s\-_]*"[\w\d\s\-_"']*data-href="#{linked_id}"[\w\d\s\-_"']*>(.*?)</span>}
 
           Array.wrap(keys.presence || text_with_linked_property_names).each do |key|
             value = send(key)

@@ -17,11 +17,11 @@ module DataCycleCore
     end
 
     def create
-      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return if asset_params[:file].blank? || asset_params[:type].blank?
+      render(json: { error: I18n.t('controllers.error.wrong_content_type', locale: helpers.active_ui_locale) }) && return if asset_params[:file].blank? || asset_params[:type].blank?
 
       object_type = DataCycleCore.asset_objects.find { |a| a == asset_params[:type] }
 
-      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return if object_type.blank?
+      render(json: { error: I18n.t('controllers.error.wrong_content_type', locale: helpers.active_ui_locale) }) && return if object_type.blank?
 
       authorize! :create, object_type.constantize
 
@@ -36,7 +36,7 @@ module DataCycleCore
           render(json: { error: @asset.full_errors(helpers.active_ui_locale) })
         end
       rescue StandardError => e
-        render(json: { error: I18n.t('validation.errors.asset_convert', locale: helpers.active_ui_locale), errorDetail: e.message }, status: :unprocessable_entity)
+        render(json: { error: I18n.t('validation.errors.asset_convert', locale: helpers.active_ui_locale), errorDetail: e.message }, status: :unprocessable_content)
       end
     end
 
@@ -52,12 +52,12 @@ module DataCycleCore
       else
         render(json: {
           error: @asset
-          .errors
-          .map { |e|
-            e.options.present? ? "#{@asset.class.human_attribute_name(e.attribute, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(e.options, helpers.active_ui_locale)}" : I18n.with_locale(helpers.active_ui_locale) { e.message }
-          }
-          .flatten
-          .join(', ')
+            .errors
+            .map { |e|
+              e.options.present? ? "#{@asset.class.human_attribute_name(e.attribute, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(e.options, helpers.active_ui_locale)}" : I18n.with_locale(helpers.active_ui_locale) { e.message }
+            }
+            .flatten
+            .join(', ')
         })
       end
     end
@@ -97,12 +97,6 @@ module DataCycleCore
       render json: { deleted: ids, total: ids.count }
     end
 
-    def duplicate
-      @asset = DataCycleCore::Asset.find(permitted_params[:id])
-      @duplicate = @asset.duplicate
-      @html_target = permitted_params[:html_target]
-    end
-
     private
 
     def set_index_variables
@@ -125,7 +119,7 @@ module DataCycleCore
     end
 
     def asset_params
-      params.require(:asset).permit(:id, :name, :file, :type)
+      params.expect(asset: [:id, :name, :file, :type])
     end
 
     def permitted_params

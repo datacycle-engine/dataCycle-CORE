@@ -44,37 +44,51 @@ describe DataCycleCore::MasterData::Validators::Oembed do
     end
 
     let(:no_error_hash) do
-      { error: {}, warning: {}, result: {'' => ["https://www.youtube.com/oembed?url=#{url}"]} }
+      { error: {}, warning: {}, result: { '' => ["https://www.youtube.com/oembed?url=#{url}"] } }
     end
 
     it 'error on blank url if validation is required:true' do
       validator = subject.new(nil, required_template_hash)
+
       assert_equal(1, validator.error[:error].size)
     end
 
     it 'warning on blank url if validation is soft_required:true' do
       validator = subject.new(nil, soft_required_template_hash)
+
       assert_equal(1, validator.error[:warning].size)
     end
 
     it 'no warning/error on blank url if validation is neither soft_required:true nor required:true' do
       validator = subject.new(nil, soft_required_template_hash)
+
       assert_equal(1, validator.error[:warning].size)
     end
 
     it 'works with a real values' do
       validator = subject.new(url, template_hash)
+
       assert_equal(no_error_hash, validator.error)
     end
 
     it 'error if invalid url' do
       validator = subject.new('ht//www.youtube.com/watch?v=AlGcVkVzxt0&t=1s&pp=ygUJZGF0YWN5Y2xl', template_hash)
+
       assert_equal(1, validator.error[:error].size)
     end
 
     it 'error if valid url, but no url provider found' do
       validator = subject.new('http://www.you-tube.com/watch?v=AlGcVkVzxt0&t=1s&pp=ygUJZGF0YWN5Y2xl', template_hash)
+
       assert_equal(1, validator.error[:error].size)
+    end
+
+    it 'parsed_url works with special urls' do
+      parsed_url = subject.new(validate_now: false).parsed_url('https://kristberg.at/livebild/bergstation.jpg<img class="NO-CACHE">')
+
+      assert_equal('kristberg.at', parsed_url.host)
+      assert_equal('/livebild/bergstation.jpg<img class="NO-CACHE">', parsed_url.path)
+      assert_equal('https', parsed_url.scheme)
     end
   end
 end

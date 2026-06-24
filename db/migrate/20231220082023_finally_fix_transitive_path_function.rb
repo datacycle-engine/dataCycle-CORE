@@ -2,7 +2,7 @@
 
 class FinallyFixTransitivePathFunction < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION generate_ca_paths_transitive (classification_alias_ids uuid []) RETURNS void LANGUAGE PLPGSQL AS $$ BEGIN IF array_length(classification_alias_ids, 1) > 0 THEN WITH RECURSIVE paths(
           id,
           parent_id,
@@ -127,7 +127,7 @@ class FinallyFixTransitivePathFunction < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION generate_ca_paths_transitive (classification_alias_ids uuid []) RETURNS void LANGUAGE PLPGSQL AS $$ BEGIN IF array_length(classification_alias_ids, 1) > 0 THEN WITH RECURSIVE paths(
         id,
         parent_id,

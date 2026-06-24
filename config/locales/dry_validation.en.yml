@@ -8,22 +8,27 @@ en:
           invalid_linked: "invalid linked_object: type must be 'linked'. either define a stored_filter, or a template_name"
           invalid_classification: "invalid classification: tree_label must be set"
           invalid_asset: "invalid asset: type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'data_cycle_file', 'pdf', 'audio'"
+          missing_storage_location: "missing storage_location: storage_location must be defined for type: string"
+          invalid_storage_location: "invalid storage_location: storage_location must be either 'value' or 'translated_value' for type: string"
         properties:
           invalid_object: "invalid included_object: type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data)."
         storage_location:
-          invalid_column: "invalid storage_location column, column is only allowed for external_key, slug, line, location, geom"
+          invalid_column: "invalid storage_location column, column is only allowed for external_key and slug"
         overlay:
           invalid_overlay_type: overlay is not allowed for this attribute type
         data:
           missing_schema_type_or_ancestors: "schema_type or schema_ancestors have to be defined."
         reserved_property_name: "property name is reserved as database column"
         strategy_required: ":import_strategy or :download_strategy must be defined"
+        data_type_not_string: data_type default_value must be a string
       uuid_or_list_of_uuid?: "must be a valid UUID or a list of UUIDs separated by commas"
       fields_wildcard?: "wildcard must only appear at the end of a field or not at all"
       api_sort_parameter?: "must be a valid sort parameter"
       uuid_or_null_string_or_list?: "must be a valid UUID or a 'null' string or a list of UUIDs or 'null' strings separated by commas"
+      nested_json_path?: "must not start with $..<field>, use $.<field> instead"
       uuid?: "must be a valid UUID"
-      api_weight_string?: "must be a valid weight string"
+      api_weight_string?: 'must be a valid weight string (allowed values: ABCD, e.g. "AB")'
+      api_fulltext_fields_string?: 'must be a valid field string for fulltext search (allowed values: name,dc:slug,dc:classification, e.g. "name,dc:slug")'
       ruby_module_or_class?: "must be a valid Ruby module or class"
       ruby_module?: "must be a valid Ruby module"
       ruby_class?: "must be a valid Ruby class"

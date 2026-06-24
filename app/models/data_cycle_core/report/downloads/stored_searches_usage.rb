@@ -5,7 +5,7 @@ module DataCycleCore
     module Downloads
       class StoredSearchesUsage < Base
         def apply(_params)
-          raw_query = <<-SQL.squish
+          raw_query = <<~SQL.squish
             SELECT
               collections.name AS NAME,
               MIN(

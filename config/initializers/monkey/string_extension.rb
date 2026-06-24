@@ -78,6 +78,16 @@ module DataCycleCore
 
       raise Encoding::UndefinedConversionError 'could not guess encoding!'
     end
+
+    def safe_squish
+      dup.safe_squish!
+    end
+
+    def safe_squish!
+      gsub!(/([[:space:]]+)/) { |m| m.include?("\u00A0") ? "\u00A0" : ' ' }
+      strip!
+      self
+    end
   end
 end
 

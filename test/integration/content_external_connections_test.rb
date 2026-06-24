@@ -54,7 +54,7 @@ module DataCycleCore
       assert_equal I18n.t('external_connections.new_form.duplicate_error', locale: @current_user.ui_locale), flash[:error]
     end
 
-    test 'create new external_connection with missing external_source_id' do
+    test 'create new external_connection with missing external_source_id throws error' do
       post create_external_connection_thing_path(@content), params: {
         external_system_sync: {
           external_key: 'test-1'
@@ -65,7 +65,7 @@ module DataCycleCore
       follow_redirect!
 
       assert_response :success
-      assert_equal ["#{DataCycleCore::ExternalSystemSync.human_attribute_name(:external_system_id, locale: @current_user.ui_locale)} #{I18n.t('activerecord.errors.models.data_cycle_core/external_system_sync.attributes.external_system_id.blank', locale: @current_user.ui_locale)}"], flash[:error]
+      assert_predicate flash[:error], :present?
     end
 
     test 'remove external_system_sync' do

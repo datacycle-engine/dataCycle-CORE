@@ -31,6 +31,7 @@ module DataCycleCore
 
     test 'user settings page' do
       get settings_path
+
       assert_response :success
     end
 
@@ -44,6 +45,7 @@ module DataCycleCore
         roles: DataCycleCore::Role.where(name: 'guest').pluck(:id),
         user_groups: @test_group_ids
       }
+
       assert_response :success
       assert_select 'li.grid-item .inner .description', { count: 1, text: 'guest@datacycle.at' }
     end
@@ -61,11 +63,13 @@ module DataCycleCore
         referer: users_path
       }
 
-      assert_redirected_to users_path
-      assert_equal I18n.t(:created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:success]
-      follow_redirect!
-      assert_select 'li.grid-item .inner .description', user[:email]
       created_user = DataCycleCore::User.find_by(email: user[:email])
+
+      assert_redirected_to user_path(created_user)
+      assert_equal I18n.t('controllers.success.created', data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:success]
+      follow_redirect!
+
+      assert_select '.detail-header-wrapper .detail-header .user-email', user[:email]
       assert_equal @current_user.id, created_user.creator.id
       assert_equal [created_user.id], @current_user.created_users.pluck(:id)
     end
@@ -84,13 +88,15 @@ module DataCycleCore
       }
 
       assert_redirected_to users_path
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.updated', data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_select 'li.grid-item > .inner > .title', "Guest1 #{user.family_name}"
       assert_select 'li.grid-item > .inner > .token', { count: 1, text: /.+/ }
       user.reload
-      assert_equal user.notification_frequency, 'week'
-      assert_equal user.default_locale, 'en'
+
+      assert_equal 'week', user.notification_frequency
+      assert_equal 'en', user.default_locale
     end
 
     test 'lock and unlock existing user' do
@@ -101,37 +107,58 @@ module DataCycleCore
       }
 
       assert_redirected_to users_path
-      assert_equal I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:notice]
+      assert_equal I18n.t('controllers.success.locked', data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:notice]
 
       post unlock_user_path(user), params: {}, headers: {
         referer: users_path
       }
 
       assert_redirected_to users_path
-      assert_equal I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:notice]
+      assert_equal I18n.t('controllers.success.unlocked', data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:notice]
     end
 
-    test 'search user by email' do
-      user = User.find_by(email: 'admin@datacycle.at')
+    test 'search returns full email for accessible users' do
+      user = User.find_by(email: 'guest@datacycle.at')
       get search_users_path, xhr: true, params: {
-        q: 'admin'
+        q: 'guest@datacycle.at'
       }
 
       assert_response :success
       users = JSON.parse(@response.body)
+      entry = users.find { |u| u['id'] == user.id }
 
-      assert_equal user.to_select_option.name, users.first['name']
+      assert_not_nil entry
+      assert_equal user.to_select_option.name, entry['name']
+      assert_includes entry['name'], 'guest@datacycle.at'
+    end
+
+    test 'search masks email for users the requester cannot access' do
+      # @current_user (tester@datacycle.at) is an admin; admin@datacycle.at is a
+      # super_admin and therefore not accessible to admins (DC-04 regression).
+      user = User.find_by(email: 'admin@datacycle.at')
+      get search_users_path, xhr: true, params: {
+        q: 'admin@datacycle.at'
+      }
+
+      assert_response :success
+      users = JSON.parse(@response.body)
+      entry = users.find { |u| u['id'] == user.id }
+
+      assert_not_nil entry
+      assert_equal user.to_select_option(DataCycleCore.ui_locales.first, true, mask_email: true).name, entry['name']
+      assert_not_includes entry['name'], 'admin@datacycle.at'
     end
 
     test 'become specific user' do
       sign_in(User.find_by(email: 'admin@datacycle.at'))
 
-      get user_become_path(User.find_by(email: 'guest@datacycle.at')), params: {}, headers: {
+      post user_become_path(User.find_by(email: 'guest@datacycle.at')), params: {}, headers: {
         referer: users_path
       }
 
       assert_redirected_to unauthorized_exception_path
       follow_redirect!
+
       assert_select 'button.show-sidebar > span', 'guest@datacycle.at'
     end
   end

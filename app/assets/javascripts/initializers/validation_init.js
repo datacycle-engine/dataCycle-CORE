@@ -1,6 +1,6 @@
-import Validator from "./../components/validator";
 import BulkUpdateValidator from "./../components/bulk_update_validator";
 import DataCycleNormalizer from "./../components/normalizer";
+import Validator from "./../components/validator";
 
 function initValidator(elem) {
 	if (elem.classList.contains("bulk-edit-form") && window.actionCable)

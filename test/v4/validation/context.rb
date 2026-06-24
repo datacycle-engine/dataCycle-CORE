@@ -18,6 +18,7 @@ module DataCycleCore
 
         def self.build_language_attributes(languages)
           return Dry::Schema.JSON if languages.present? && languages.split(',').size > 1
+
           language = ['de', 'en'].include?(languages) ? languages : 'de'
           Dry::Schema.JSON do
             required(:@language) { eql?(language) }

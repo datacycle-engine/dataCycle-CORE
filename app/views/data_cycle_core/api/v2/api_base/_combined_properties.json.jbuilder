@@ -2,6 +2,7 @@
 
 def concat_string(key, value)
   return if value.blank?
+
   "<section data-attribute=\"#{key}\">#{value}</section>"
 end
 
@@ -16,6 +17,7 @@ combined = {}
 options[:combined_attributes].each do |property|
   definition = content.properties_for(property)
   next if definition.blank?
+
   combined[definition.dig('api', 'transformation', 'name')] ||= {
     'transformation' => definition.dig('api', 'transformation'),
     'items' => []

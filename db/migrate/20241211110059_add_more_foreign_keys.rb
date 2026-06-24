@@ -12,7 +12,7 @@ class AddMoreForeignKeys < ActiveRecord::Migration[7.1]
     remove_index :watch_list_data_hashes, name: :by_watch_list_hashable, if_exists: true
     add_index :watch_list_data_hashes, [:watch_list_id, :thing_id], unique: true, name: :by_watch_list_thing, if_not_exists: true
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW IF EXISTS public.content_items;
 
       CREATE VIEW public.content_items(

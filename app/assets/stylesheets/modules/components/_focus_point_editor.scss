@@ -4,11 +4,18 @@
   margin-top: -0.5rem;
 }
 
-.focus-point-clear {
-  margin-left: 0.5rem;
 
-  .fa {
-    font-size: 1.1rem;
+.focus-feature-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-flow: column;
+
+  button {
+    max-width: 20rem;
+
+    .fa {
+      font-size: 1.1rem;
+    }
   }
 }
 

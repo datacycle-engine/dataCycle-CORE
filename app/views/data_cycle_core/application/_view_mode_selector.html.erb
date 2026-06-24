@@ -17,14 +17,13 @@
       <%= select_tag(
                       "s[v][m]",
                       options_for_select(
-                          sortable.map { |s|
-                            [
-                                s.dig(:label),
-                                s.dig(:method)
-                            ]
-                          }, @sort_params.presence&.first&.dig('m')
+                          sortable.map { |s| s.values_at(:label, :method) },
+                          @sort_params.presence&.first&.dig('m')
                       ),
-                      {:include_blank => I18n.t('sortable.default', default: 'default', locale: active_ui_locale)}
+                      {
+                        include_blank: I18n.t('sortable.default', default: 'default', locale: active_ui_locale),
+                        class: 'filter-sortable-select'
+                      }
                   ) %>
       <span class="filter-sortable-checkbox-wrapper">
         <%

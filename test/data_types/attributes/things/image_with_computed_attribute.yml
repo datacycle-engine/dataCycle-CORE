@@ -40,6 +40,7 @@
         :compute:
           :module: Utility::Compute::Copyright
           :method: copyright_notice
+          :fallback: false
           :parameters:
             - license_classification
             - author

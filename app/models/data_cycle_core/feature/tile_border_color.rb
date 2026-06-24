@@ -28,7 +28,8 @@ module DataCycleCore
             content
               &.classification_aliases
               &.map do |ca|
-                next unless ca.classification_alias_path&.full_path_names&.last == configuration[:tree_label]
+                next unless Array.wrap(configuration[:tree_label]).include?(ca.classification_alias_path&.full_path_names&.last)
+
                 ca.classification_alias_path
                   .full_path_names.values_at(-1, 0)
                   .join('_')

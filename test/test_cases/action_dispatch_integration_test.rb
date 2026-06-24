@@ -16,6 +16,12 @@ module DataCycleCore
       before(:all) do
         @routes = Engine.routes
       end
+
+      private
+
+      def create_content(template_name, data = {}, user = nil)
+        DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data, user:)
+      end
     end
   end
 end

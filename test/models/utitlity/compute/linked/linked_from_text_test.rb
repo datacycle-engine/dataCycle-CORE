@@ -27,26 +27,31 @@ module DataCycleCore
 
     test 'return no ids for linked from text' do
       value = subject_method('testsdfksjdhflksdf', nil)
+
       assert_equal([], value)
     end
 
     test 'return one id for linked from text' do
       value = subject_method('<span class="dc--contentlink" data-href="7c01ad30-a099-45d8-8366-5542a2b8dd3f">sdfadfa</span>', nil)
+
       assert_equal(['7c01ad30-a099-45d8-8366-5542a2b8dd3f'], value)
     end
 
     test 'return multiple ids for linked from text' do
       value = subject_method('<span class="dc--contentlink" data-href="7c01ad30-a099-45d8-8366-5542a2b8dd3f">sdfadfa</span> teksjhdlfkjsbdfsd', '<span class="dc--contentlink" data-href="8c01ad30-a099-45d8-8366-5542a2b8dd3f">sdfadfa</span>')
+
       assert_equal(['7c01ad30-a099-45d8-8366-5542a2b8dd3f', '8c01ad30-a099-45d8-8366-5542a2b8dd3f'], value)
     end
 
     test 'return no ids with empty value for linked from text' do
       value = subject_method('', nil)
+
       assert_equal([], value)
     end
 
     test 'return no ids with nil value for linked from text' do
       value = subject_method(nil, nil)
+
       assert_equal([], value)
     end
 
@@ -56,6 +61,7 @@ module DataCycleCore
       end
 
       value = subject_method('<span class="dc--contentlink" data-href="7c01ad30-a099-45d8-8366-5542a2b8dd3f">sdfadfa</span> teksjhdlfkjsbdfsd', '<span class="dc--contentlink" data-href="8c01ad30-a099-45d8-8366-5542a2b8dd3f">sdfadfa</span>')
+
       assert_equal(['7c01ad30-a099-45d8-8366-5542a2b8dd3f', '8c01ad30-a099-45d8-8366-5542a2b8dd3f', @linked_content.id], value)
     end
 
@@ -67,6 +73,7 @@ module DataCycleCore
       end
 
       value = subject_method('teksjhdlfkjsbdfsd', '<span class="dc--contentlink" data-href="8c01ad30-a099-45d8-8366-5542a2b8dd3f">sdfadfa</span>')
+
       assert_equal(['8c01ad30-a099-45d8-8366-5542a2b8dd3f', @linked_content.id], value)
     end
   end

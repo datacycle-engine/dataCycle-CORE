@@ -1,15 +1,14 @@
-import domElementHelpers from "../helpers/dom_element_helpers";
-import AccordionToggleChildren from "../components/accordion/accordion_toggle_children";
-import OffCanvasClickHandler from "../components/offcanvas/offcanvas_click_handler";
-
-import { Foundation } from "foundation-sites/js/foundation.core";
-import { Reveal } from "foundation-sites/js/foundation.reveal";
-import { Dropdown } from "foundation-sites/js/foundation.dropdown";
 import { Accordion } from "foundation-sites/js/foundation.accordion";
-import { Slider } from "foundation-sites/js/foundation.slider";
+import { Foundation } from "foundation-sites/js/foundation.core";
+import { Dropdown } from "foundation-sites/js/foundation.dropdown";
 import { OffCanvas } from "foundation-sites/js/foundation.offcanvas";
+import { Reveal } from "foundation-sites/js/foundation.reveal";
+import { Slider } from "foundation-sites/js/foundation.slider";
 import { Tabs } from "foundation-sites/js/foundation.tabs";
+import AccordionToggleChildren from "../components/accordion/accordion_toggle_children";
 import CloseButton from "../components/close_button";
+import OffCanvasClickHandler from "../components/offcanvas/offcanvas_click_handler";
+import domElementHelpers from "../helpers/dom_element_helpers";
 
 function removeFoundationOverlays(element, type) {
 	let overlay = document.getElementById(element.dataset[type]);
@@ -95,8 +94,8 @@ export default function () {
 		(e) => new CloseButton(e),
 	);
 
-	// Foundation Slider
-	DataCycle.registerAddCallback(".slider", "fd-slider", (e) => {
+	// Foundation Slider, has to be lazy to correctly set initial value, which does not work for hidden elements
+	DataCycle.registerLazyAddCallback("[data-slider]", "fd-slider", (e) => {
 		new Foundation.Slider($(e));
 	});
 

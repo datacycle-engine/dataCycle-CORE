@@ -4,18 +4,25 @@
   <% if @mode == 'tree' && params[:tree_page].present? && !(@classification_tree || @classification_tree_label).nil? %>
     <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees %>
   <% elsif @mode == 'tree' && params[:page].present? && !@classification_tree.nil? %>
-    <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, language: @language %>
+    <% link_type = params[:link_type].to_s %>
+    <% paging_fun = link_type == 'related' ? [@contents_related, @page_related, @total_pages_related] : [@contents, @page, @total_pages] %>
+    <%= render 'data_cycle_core/contents/tree/contents', contents: paging_fun[0], classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, language: @language, page: paging_fun[1], total_pages: paging_fun[2], link_type: %>
   <% elsif @mode == 'tree' && !@classification_tree.nil? %>
     <ul class="children <%= 'has-contents' if @contents&.size&.positive? %>">
       <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees %>
     </ul>
-    <ul class="contents no-bullet">
-      <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, language: @language %>
+    <ul class="contents no-bullet <%= 'tree-border-connect' if @contents_related.present?%>">
+      <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, language: @language, page: @page, total_pages: @total_pages, link_type: 'direct' %>
     </ul>
+    <% if @contents_related.present? %>
+      <ul class="contents contents-related no-bullet">
+        <%= render 'data_cycle_core/contents/tree/contents', contents: @contents_related, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, language: @language, page: @page_related, total_pages: @total_pages_related, link_type: 'related' %>
+      </ul>
+    <% end %>
   <% elsif @mode == 'tree' && !@container.nil? %>
     <ul class="children"></ul>
     <ul class="contents no-bullet">
-      <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, container: @container, classification_parent_tree: @classification_parent_tree, language: @language %>
+      <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, container: @container, classification_parent_tree: @classification_parent_tree, language: @language,  page: @page, total_pages: @total_pages %>
     </ul>
   <% else %>
     <%= render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: @contents, direction: params[:direction] %>

@@ -48,21 +48,21 @@
           <% y_html = number_with_precision(value.presence&.y, locale: active_ui_locale, precision: 5) %>
         <% end %>
 
-        <div class="detail-type longitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>">
-          <span class="detail-label">
-            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>
-          </span>
-          <span class="detail-content">
-            <%= x_html&.html_safe %>
-          </span>
-        </div>
-
         <div class="detail-type latitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>">
           <span class="detail-label">
             <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>
           </span>
           <span class="detail-content">
             <%= y_html&.html_safe %>
+          </span>
+        </div>
+
+        <div class="detail-type longitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>">
+          <span class="detail-label">
+            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content">
+            <%= x_html&.html_safe %>
           </span>
         </div>
 

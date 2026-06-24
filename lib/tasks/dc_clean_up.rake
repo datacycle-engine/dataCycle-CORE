@@ -69,8 +69,10 @@ namespace :dc do
       linked_data = DataCycleCore::ExternalSystem.all.filter_map do |item|
         name = CleanupHelper.identify_external_source(item)
         next if name.blank?
+
         linked = CleanupHelper.linked(name)
         next if linked.blank?
+
         { external_source_id: item.id, name: item.name, linked: }
       end
 
@@ -114,33 +116,51 @@ namespace :dc do
     end
 
     desc 'delete orphaned external_data'
-    task :external_data, [:external_source_id, :template] => [:environment] do |_, args|
-      template = DataCycleCore::Thing.find_by(template_name: args.fetch(:template))
-      ShellHelper.error('Error: No template found!') if template.blank?
+    task :external_data, [:external_system_or_stored_filter_id, :templates] => [:environment] do |_, args|
+      templates = args.fetch(:templates, '').split('|').filter_map do |template_name|
+        DataCycleCore::ThingTemplate.find_by(template_name: template_name)&.template_name
+      end
 
-      external_source = DataCycleCore::ExternalSystem.find_by(id: args.fetch(:external_source_id))
-      ShellHelper.error('Error: No ExternalSystem found!') if external_source.blank?
+      external_source_or_collection_id = args.external_system_or_stored_filter_id
 
-      orphans = DataCycleCore::Thing.left_outer_joins(:content_content_b).where(
-        things: {
-          external_source_id: external_source.id,
-          template_name: template.template_name
-        },
-        content_contents: {
-          content_b_id: nil
-        }
-      )
+      collection = DataCycleCore::Collection.find_by(id: external_source_or_collection_id)
+      external_system = DataCycleCore::ExternalSystem.find_by(id: external_source_or_collection_id)
+
+      abort('Please provide an array of templates seperated like that template_name|template_name !') if templates.blank?
+      abort('Please provide an external_source_id or a collection_id') if collection.blank? && external_system.blank?
+
+      logger = Logger.new('log/deletes_orphans.log')
+
+      things =
+        if external_system.present?
+          DataCycleCore::Thing.where(external_source_id: external_system.id)
+        else
+          collection.things
+        end
+
+      orphans = things
+        .where(template_name: templates)
+        .where.missing(:content_content_b)
+
+      origin = external_system.present? ? external_system.name : "#{collection.type || 'Collection'}: #{collection.id}"
 
       items_to_delete = orphans.count
-      puts "Deleting #{items_to_delete.to_s.rjust(6)} #{"(template: #{template.template_name})".ljust(32)} from #{external_source.name.ljust(50)} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
+      logger.info("Started deleting #{items_to_delete} orphans with these templates #{templates} from #{origin}")
+      puts "Deleting #{items_to_delete} (templates: #{templates}) from #{origin}"
 
-      index = 0
-      orphans.each do |orphan|
-        ShellHelper.progress_bar(items_to_delete, index)
-        index += 1
-        orphan.destroy_content(save_history: false, destroy_linked: true)
+      queue = DataCycleCore::WorkerPool.new
+      progressbar = ProgressBar.create(total: items_to_delete, title: 'Deleting')
+
+      orphans.find_each do |orphan|
+        queue.append do
+          orphan.destroy_content(destroy_linked: true)
+          progressbar.increment
+        end
       end
-      ShellHelper.progress_bar(items_to_delete, items_to_delete)
+
+      queue.wait!
+      logger.info("[DONE] Deleted #{items_to_delete} ")
+      progressbar.finish
     end
 
     desc 'Check all embedded for orphaned data (does not modify the data)'
@@ -208,6 +228,7 @@ namespace :dc do
       external_system.collection(collection_name) do |collection|
         things.each do |thing|
           next unless collection.find({ external_id: thing.external_key }).none?
+
           # puts "item with external key: #{thing.external_key} not found in mongo collection\n"
           things_missing += 1
           things_missing_keys << thing

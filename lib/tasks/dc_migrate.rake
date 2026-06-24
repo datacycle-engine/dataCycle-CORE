@@ -10,16 +10,16 @@ namespace :dc do
 
       abort('ExternalSystem- or StoredFilter-Id missing!') if external_system_or_stored_filter_id.blank?
 
-      stored_filter = DataCycleCore::StoredFilter.find_by(id: external_system_or_stored_filter_id)
+      stored_filter = DataCycleCore::Collection.by_id_name_slug(external_system_or_stored_filter_id).first
       external_system = DataCycleCore::ExternalSystem.find_by(id: external_system_or_stored_filter_id)
 
       abort('ExternalSystem or StoredFilter not found!') if stored_filter.nil? && external_system.nil?
 
       stored_filter = DataCycleCore::StoredFilter.new if stored_filter.nil?
-      query = stored_filter.apply(skip_ordering: true)
-      query = query.external_system(external_system.id, 'import') if external_system.present?
+      query = stored_filter.things
+      query = query.where(external_source_id: external_system.id) if external_system.present?
 
-      raw_sql = <<-SQL.squish
+      raw_sql = <<~SQL.squish
         WITH RECURSIVE
           content_dependencies AS (
             SELECT
@@ -27,7 +27,7 @@ namespace :dc do
             FROM
               things AS t
             WHERE
-              t.id IN (#{query.query.except(:order).select(:id).to_sql})
+              t.id IN (#{query.except(:order).select(:id).to_sql})
               AND t.content_type != 'embedded'
             UNION
             SELECT
@@ -48,24 +48,24 @@ namespace :dc do
       SQL
 
       embeddeds = DataCycleCore::Thing.where("things.id IN (#{raw_sql})").where(content_type: 'embedded')
-      progressbar1 = ProgressBar.create(total: embeddeds.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: embeddeds')
+      progressbar1 = ProgressBar.create(total: embeddeds.size, title: 'MIGRATING: embeddeds')
 
       embeddeds.each do |embedded|
-        embedded.external_source_to_external_system_syncs('duplicate')
+        embedded.external_source_to_external_system_syncs(DataCycleCore::ExternalSystemSync::SYNC_TYPES[:duplicate])
 
         progressbar1.increment
       end
 
-      contents = query.query.except(:order)
+      contents = query.except(:order)
 
       schedules = DataCycleCore::Schedule.where(thing_id: contents.select(:id))
       puts "MIGRATING: schedules (#{schedules.size})..."
       schedules.update_all(external_source_id: nil, external_key: nil)
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
+      progressbar = ProgressBar.create(total: contents.size, title: 'MIGRATING: things')
 
       contents.each do |content|
-        content.external_source_to_external_system_syncs('duplicate')
+        content.external_source_to_external_system_syncs(DataCycleCore::ExternalSystemSync::SYNC_TYPES[:duplicate])
 
         progressbar.increment
       end
@@ -100,21 +100,27 @@ namespace :dc do
 
     desc 'make external_system_sync to primary external_source'
     task :make_external_system_sync_primary, [:stored_filter_id, :external_system_identifier] => :environment do |_, args|
-      sf = DataCycleCore::StoredFilter.find(args.stored_filter_id)
-      abort('No Stored Filter found!') if sf.blank?
+      sf = DataCycleCore::Collection.by_id_name_slug(args.stored_filter_id).first
+      abort('No Stored Filter found!') if sf.nil?
 
-      es = DataCycleCore::ExternalSystem.find_by(identifier: args.external_system_identifier)
-      abort('No External System found!') if es.blank?
+      es = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(args.external_system_identifier).first
+      abort('No External System found!') if es.nil?
 
-      iterator = sf.apply
-      progressbar = ProgressBar.create(total: iterator.count, format: '%t |%w>%i| %a - %c/%C', title: 'Switching sources...')
+      iterator = sf.things
+      queue = DataCycleCore::WorkerPool.new
+      progressbar = ProgressBar.create(total: iterator.size, title: 'Switching sources...')
 
-      iterator.each do |thing|
-        sync = thing.external_system_syncs.find_by(external_system_id: es.id)
-        progressbar.increment
-        next if sync.blank?
-        thing.switch_primary_external_system(sync)
+      iterator.find_each do |thing|
+        queue.append do
+          sync = thing.external_system_syncs.find_by(external_system_id: es.id)
+          next(progressbar.increment) if sync.blank?
+
+          thing.switch_primary_external_system(sync)
+          progressbar.increment
+        end
       end
+
+      queue.wait!
 
       puts "DONE: #{es.name} is now primary System for all Things provided."
     end
@@ -149,7 +155,7 @@ namespace :dc do
         logger.error(error) && abort(error)
       end
 
-      asset_sql = <<-SQL.squish
+      asset_sql = <<~SQL.squish
         NOT EXISTS (
           SELECT 1 FROM assets
           INNER JOIN asset_contents
@@ -168,62 +174,67 @@ namespace :dc do
         contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
       end
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
+      progressbar = ProgressBar.create(total: contents.size, title: 'MIGRATING: things')
       logger.info("DOWNLOADING: assets for #{contents.size} things...")
+      queue = DataCycleCore::WorkerPool.new
 
       contents.find_each do |content|
-        I18n.with_locale(content.first_available_locale) do
-          asset_type = content.schema&.dig('properties', 'asset', 'asset_type')
-          if asset_type.blank?
-            logger.warn("missing asset_type for #{content.id}")
+        queue.append do
+          I18n.with_locale(content.first_available_locale) do
+            asset_type = content.schema&.dig('properties', 'asset', 'asset_type')
+            if asset_type.blank?
+              logger.warn("missing asset_type for #{content.id}")
+              progressbar.increment
+              next
+            end
+
+            file_url = content.try(:content_url)
+            if file_url.blank?
+              logger.warn("missing content_url for #{content.id}")
+              progressbar.increment
+              next
+              # elsif file_url.split('/').last&.starts_with?('.')
+              #   # add dummy filename if missing
+              #   file_url = file_url.split('/').tap { |a| a[-1] = "dummy.#{file_url.split('.').last}" }.join('/')
+            end
+
+            asset_model = DataCycleCore.asset_objects
+              .find { |a| a == "DataCycleCore::#{asset_type.classify}" }
+              &.safe_constantize
+            asset = asset_model&.new(name: content.title, remote_file_url: file_url)
+
+            unless asset&.save
+              logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}")
+              progressbar.increment
+              next
+            end
+
+            content.external_source_to_external_system_syncs(DataCycleCore::ExternalSystemSync::SYNC_TYPES[:duplicate])
+
+            valid = content.set_data_hash(
+              data_hash: {
+                asset: asset.id,
+                url: nil
+              },
+              prevent_history: true,
+              update_search_all: false
+            )
+
+            if valid
+              logger.info("Successfully loaded asset for #{content.id} from #{file_url}")
+            else
+              logger.error("Error saving content: #{content.errors.messages}")
+            end
+
             progressbar.increment
-            next
-          end
-
-          file_url = content.try(:content_url)
-          if file_url.blank?
-            logger.warn("missing content_url for #{content.id}")
+          rescue DataCycleCore::Error::Asset::RemoteFileDownloadError
             progressbar.increment
-            next
-            # elsif file_url.split('/').last&.starts_with?('.')
-            #   # add dummy filename if missing
-            #   file_url = file_url.split('/').tap { |a| a[-1] = "dummy.#{file_url.split('.').last}" }.join('/')
+            logger.error("Error downloading asset for #{content.id} from #{file_url}")
           end
-
-          asset_model = DataCycleCore.asset_objects
-            .find { |a| a == "DataCycleCore::#{asset_type.classify}" }
-            &.safe_constantize
-          asset = asset_model&.new(name: content.title, remote_file_url: file_url)
-
-          unless asset&.save
-            logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}")
-            progressbar.increment
-            next
-          end
-
-          content.external_source_to_external_system_syncs('import')
-
-          valid = content.set_data_hash(
-            data_hash: {
-              asset: asset.id,
-              url: nil
-            },
-            prevent_history: true,
-            update_search_all: false
-          )
-
-          if valid
-            logger.info("Successfully loaded asset for #{content.id} from #{file_url}")
-          else
-            logger.error("Error saving content: #{content.errors.messages}")
-          end
-
-          progressbar.increment
-        rescue DataCycleCore::Error::Asset::RemoteFileDownloadError
-          progressbar.increment
-          logger.error("Error downloading asset for #{content.id} from #{file_url}")
         end
       end
+
+      queue.wait!
 
       logger.info('DOWNLOAD SUCCESSFUL')
     end
@@ -233,7 +244,7 @@ namespace :dc do
       description_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Öffnungszeit - Beschreibung')
 
       contents = DataCycleCore::Thing.where(template_name: 'Öffnungszeit')
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Öffnungszeit')
+      progressbar = ProgressBar.create(total: contents.size, title: 'Öffnungszeit')
 
       contents.find_each do |content|
         next progressbar.increment unless content.embedded?
@@ -331,6 +342,7 @@ namespace :dc do
       systems.each do |identifier|
         es = DataCycleCore::ExternalSystem.find_by(identifier:)
         next if es.blank?
+
         DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).find_each do |place|
           # update data-type
           DataCycleCore::ClassificationContent.where(content_data_id: place.id, relation: 'data_type').update_all(classification_id: poi_class)
@@ -350,7 +362,7 @@ namespace :dc do
       exit(1) if es.blank?
 
       contents = DataCycleCore::Thing.where(template_name: 'Ergänzende Information', external_source_id: es.id, external_key: nil).includes(:classifications, :translations)
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Ergänzende Information')
+      progressbar = ProgressBar.create(total: contents.size, title: 'Ergänzende Information')
       contents.each do |item|
         desc = item.classifications.first.name
         locale = item.available_locales.first
@@ -379,7 +391,7 @@ namespace :dc do
     desc 'migrate watchlists to paths with separator'
     task migrate_watchlists_to_paths: :environment do
       items = DataCycleCore::WatchList.all
-      progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: items.size, title: 'Progress')
 
       items.find_each do |wl|
         wl.send(:split_full_path)
@@ -388,10 +400,11 @@ namespace :dc do
       end
     end
 
-    task :external_to_univeral_classifications, [:stored_filter] => :environment do |_, args|
+    desc 'migrate external classifications to universal classifications'
+    task :external_to_universal_classifications, [:stored_filter] => :environment do |_, args|
       contents = DataCycleCore::Thing.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id))
 
-      ActiveRecord::Base.connection.execute <<-SQL.squish
+      ActiveRecord::Base.connection.execute <<~SQL.squish
         INSERT INTO
           classification_contents (
             content_data_id,
@@ -437,6 +450,7 @@ namespace :dc do
       SQL
     end
 
+    desc 'migrate universal classifications to attribute classifications'
     task :universal_to_attribute_classifications, [:stored_filter_id, :tree_name, :attribute_key] => :environment do |_, args|
       abort('missing stored_filter_id') if args.stored_filter_id.blank?
       abort('missing attribute_key') if args.attribute_key.blank?
@@ -448,14 +462,14 @@ namespace :dc do
       contents = DataCycleCore::StoredFilter.find(args.stored_filter_id).apply.query
 
       query = DataCycleCore::ClassificationContent
-        .joins(classification: [primary_classification_alias: :classification_tree_label])
+        .joins(classification: [{ primary_classification_alias: :classification_tree_label }])
         .where(
           content_data_id: contents.select(:id),
           relation: 'universal_classifications',
           classifications: { primary_classification_aliases: { classification_tree_labels: { id: tree_label.id } } }
         )
 
-      raw_query = <<-SQL.squish
+      raw_query = <<~SQL.squish
         UPDATE
           classification_contents
         SET
@@ -475,16 +489,17 @@ namespace :dc do
       SQL
 
       ActiveRecord::Base.connection.execute(
-        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, {relation: args.attribute_key}])
+        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, { relation: args.attribute_key }])
       )
 
       query.delete_all
     end
 
+    desc 'migrate classifications from embedded to content things'
     task :pull_classifications_from_embedded, [:stored_filter, :embedded, :source_relation, :target_relation] => :environment do |_, args|
       contents = DataCycleCore::Thing.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id))
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
+      progressbar = ProgressBar.create(total: contents.size, title: 'MIGRATING')
 
       contents.each do |thing|
         embedded_contents = DataCycleCore::ContentContent.where(content_a: thing.id, relation_a: args[:embedded])
@@ -497,12 +512,13 @@ namespace :dc do
       end
     end
 
+    desc 'migrate tours'
     task :tours, [:stored_filter] => :environment do |_, args|
       contents = DataCycleCore::Thing.where(template_name: 'Tour')
 
       contents = contents.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id)) if args[:stored_filter]
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
+      progressbar = ProgressBar.create(total: contents.size, title: 'MIGRATING')
 
       contents.includes(:translations).find_each do |content|
         translation = content.translations.first
@@ -600,7 +616,7 @@ namespace :dc do
       contents = DataCycleCore::Thing.where(external_source_id: outdoor_active.id, template_name: 'Örtlichkeit', external_key: places.keys)
       existing_feratel = DataCycleCore::Thing.where(external_source_id: feratel.id, external_key: places.values).pluck(:external_key, :id).to_h
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: contents.size, title: 'Progress')
 
       contents.find_each do |content|
         feratel_thing_id = existing_feratel[places[content.external_key]]
@@ -637,7 +653,7 @@ namespace :dc do
       if external_source.present?
         contents = DataCycleCore::Thing.includes(:external_source).where(template_name: 'Event', external_source_id: external_source.id).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
         action_type = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'View')
-        progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+        progressbar = ProgressBar.create(total: contents.size, title: 'Progress')
 
         contents.find_each do |content|
           I18n.with_locale(content.first_available_locale) do
@@ -678,7 +694,7 @@ namespace :dc do
 
       contents = DataCycleCore::Thing.where(template_name: ['Event', 'Eventserie']).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
       action_type = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'View')
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: contents.size, title: 'Progress')
 
       contents.find_each do |content|
         I18n.with_locale(content.first_available_locale) do
@@ -721,7 +737,7 @@ namespace :dc do
 
       template_names.each do |template_name|
         contents = DataCycleCore::Thing.where(template_name:, external_source_id: nil)
-        progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: template_name)
+        progressbar = ProgressBar.create(total: contents.size, title: template_name)
 
         contents.find_each do |content|
           content.translated_locales.each do |locale|
@@ -795,7 +811,7 @@ namespace :dc do
       overlays = DataCycleCore::ContentContent.where(relation_a: 'overlay')
       puts('No overlays found!') if overlays.blank?
 
-      progressbar = ProgressBar.create(total: overlays.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: overlays.size, title: 'Progress')
 
       overlays.preload(:content_a, :content_b).find_each do |overlay|
         content = overlay.content_a

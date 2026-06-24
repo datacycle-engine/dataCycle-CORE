@@ -4,7 +4,7 @@ module DataCycleCore
   class CheckForDuplicatesJob < UniqueApplicationJob
     PRIORITY = 5
 
-    queue_as :default
+    queue_as :search_update
 
     def priority
       PRIORITY

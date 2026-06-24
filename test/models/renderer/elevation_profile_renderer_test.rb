@@ -44,7 +44,7 @@ module DataCycleCore
       renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content: @content)
       data = JSON.parse(renderer.render)
 
-      assert_equal(0.0, data.dig('data', 0, 'x'))
+      assert_in_delta(0.0, data.dig('data', 0, 'x'))
       assert_equal(500, data.dig('data', 0, 'y'))
       assert_equal(520, data.dig('data', 1, 'y'))
       assert_equal(480, data.dig('data', 2, 'y'))
@@ -57,7 +57,7 @@ module DataCycleCore
       renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content: @content, data_format: 'array')
       data = JSON.parse(renderer.render)
 
-      assert_equal(0.0, data.dig('data', 0, 0))
+      assert_in_delta(0.0, data.dig('data', 0, 0))
       assert_equal(500, data.dig('data', 0, 1))
       assert_equal(520, data.dig('data', 1, 1))
       assert_equal(480, data.dig('data', 2, 1))

@@ -42,10 +42,12 @@ module DataCycleCore
           new_external_key = 'new_cms_id'
           request_body = { '@graph' => item_body(@data_set.id, @external_system.name, new_external_key) }
           patch api_v4_external_sources_update_path(external_source_id: @external_system.id), params: request_body, as: :json
+
           assert_response :success
 
           assert_equal(new_external_key, @data_set.external_system_sync_by_system(external_system: @external_system, sync_type: 'link', external_key: new_external_key).external_key)
           data = response.parsed_body
+
           assert_equal([{ 'update' => "#{@data_set.id} (#{@data_set.external_system_sync_by_system(external_system: @external_system, sync_type: 'link', external_key: new_external_key).external_key})" }], data)
         end
 
@@ -60,11 +62,13 @@ module DataCycleCore
             ]
           }
           patch api_v4_external_sources_update_path(external_source_id: @external_system.id), params: request_body, as: :json
+
           assert_response :success
 
           assert_equal(new_external_key1, @data_set.external_system_sync_by_system(external_system: @external_system, sync_type: 'link', external_key: new_external_key1).external_key)
           assert_equal(new_external_key2, data_set2.external_system_sync_by_system(external_system: @external_system, sync_type: 'link', external_key: new_external_key2).external_key)
           data = response.parsed_body
+
           assert_equal([{ 'update' => "#{@data_set.id} (#{@data_set.external_system_sync_by_system(external_system: @external_system, sync_type: 'link', external_key: new_external_key1).external_key})" }, { 'update' => "#{data_set2.id} (#{data_set2.external_system_sync_by_system(external_system: @external_system, sync_type: 'link', external_key: new_external_key2).external_key})" }], data)
         end
 
@@ -74,10 +78,12 @@ module DataCycleCore
           request_body = { '@graph' => item_body(thing_id, @external_system.name, new_external_key) }
 
           patch api_v4_external_sources_update_path(external_source_id: @external_system.id), params: request_body, as: :json
+
           assert_response :bad_request
 
           assert_nil(@data_set.external_system_data(@external_system)['external_key'])
           data = response.parsed_body
+
           assert_equal(1, data.first['error'].size)
         end
 
@@ -89,10 +95,12 @@ module DataCycleCore
           request_body = { '@graph' => item_body(@data_set.id, @external_system.name, new_external_key) }
 
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
+
           assert_response :success
 
           assert_nil(@data_set.external_system_data_with_key(@external_system, 'link', new_external_key))
           data = response.parsed_body
+
           assert_equal([{ 'delete' => "#{@data_set.id} (#{new_external_key})" }], data)
         end
 
@@ -114,11 +122,13 @@ module DataCycleCore
             ]
           }
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
+
           assert_response :success
 
           assert_nil(@data_set.external_system_data_with_key(@external_system, 'link', new_external_key1))
           assert_nil(data_set2.external_system_data_with_key(@external_system, 'link', new_external_key2))
           data = response.parsed_body
+
           assert_equal([{ 'delete' => "#{@data_set.id} (#{new_external_key1})" }, { 'delete' => "#{data_set2.id} (#{new_external_key2})" }], data)
         end
 
@@ -128,10 +138,12 @@ module DataCycleCore
           request_body = { '@graph' => item_body(thing_id, @external_system.name, new_external_key) }
 
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
+
           assert_response :bad_request
 
           assert_nil(@data_set.external_system_data(@external_system)['external_key'])
           data = response.parsed_body
+
           assert_equal(1, data.first['error'].size)
         end
 
@@ -141,9 +153,11 @@ module DataCycleCore
           request_body = { '@graph' => item_body(thing_id, @external_system.name, new_external_key) }
 
           delete api_v4_external_sources_delete_path(external_source_id: SecureRandom.uuid), params: request_body, as: :json
+
           assert_response :not_found
 
           patch api_v4_external_sources_update_path(external_source_id: SecureRandom.uuid), params: request_body, as: :json
+
           assert_response :not_found
         end
       end

@@ -26,7 +26,7 @@
             translatable: !definition['translated'] || @content&.id != @split_source&.id
           },
           data_label: 'Textblock' do %>
-      <span class="detail-content"><%= object.try(:text).try(:html_safe) %></span>
+      <span class="detail-content"><%= sanitize(object.try(:text)) %></span>
     <% end %>
   <% end %>
 <% end %>

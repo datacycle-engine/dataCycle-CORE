@@ -9,10 +9,10 @@ module DataCycleCore
         def auto_translations
           @content = DataCycleCore::Thing.find_by(id: params[:id])
           source_locale = param_source_locale || DataCycleCore::Feature::AutoTranslation.configuration['source_lang'] || I18n.locale
-          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Normalisierung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if @content.blank?
+          render(plain: { error: I18n.t('validation.warnings.no_data', data: 'Normalisierung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if @content.blank?
 
           DataCycleCore::AutoTranslationJob.perform_later(params[:id], source_locale)
-          redirect_back(fallback_location: root_path, notice: I18n.t(:auto_translation_submit, scope: [:common], locale: helpers.active_ui_locale))
+          redirect_back_or_to(root_path, notice: I18n.t('common.auto_translation_submit', locale: helpers.active_ui_locale))
         end
 
         private

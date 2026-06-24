@@ -24,7 +24,10 @@ module DataCycleCore
     def header_title
       return if DataCycleCore.header_title.blank?
 
-      tag.span(DataCycleCore.header_title.is_a?(Proc) ? DataCycleCore.header_title.call : DataCycleCore.header_title, class: 'title')
+      h_title = DataCycleCore.header_title
+      h_title = I18n.with_locale(active_ui_locale) { h_title.call } if h_title.is_a?(Proc)
+
+      tag.span(h_title, class: 'title')
     end
 
     def ice_cube_select_options(readonly = false)
@@ -75,7 +78,7 @@ module DataCycleCore
     end
 
     def result_count(mode, result_count, content_class)
-      if mode.in?(['classification_alias', 'ca_recursive', 'container'])
+      if mode.in?(['classification_alias', 'ca_related', 'ca_recursive', 'container'])
         result_count&.positive? ? number_with_delimiter(result_count.to_i, locale: active_ui_locale) : '-'
       else
         t("common.#{content_class}_count_html", count: result_count.to_i, delimited_count: number_with_delimiter(result_count.to_i, locale: active_ui_locale), locale: active_ui_locale)
@@ -92,7 +95,7 @@ module DataCycleCore
               tag.div(class: 'dropdown-pane no-bullet', id: 'tree-view-selector', data: { dropdown: true }) do
                 concat(
                   tag.ul(class: 'no-bullet') do
-                    DataCycleCore::ClassificationTreeLabel.visible('tree_view').presence&.each do |tree_label|
+                    DataCycleCore::ClassificationTreeLabel.visible('tree_view').order(:name).each do |tree_label|
                       concat(
                         tag.li(
                           link_to_unless(
@@ -187,11 +190,11 @@ module DataCycleCore
       end
 
       query = query.template_things.each.select { |t| can?(:create, t, scope, { content: }) }
-      if ordered_array.present?
-        query = query.sort_by { |t| ordered_array.index(t.template_name).to_i }
-      else
-        query = query.sort_by(&:template_name)
-      end
+      query = if ordered_array.present?
+                query.sort_by { |t| ordered_array.index(t.template_name).to_i }
+              else
+                query.sort_by(&:template_name)
+              end
       query = query.first(limit.to_i) if limit.present?
 
       query
@@ -212,19 +215,19 @@ module DataCycleCore
       return params_hash if options_hash.blank?
 
       options_hash.each do |key, value|
-        if value.is_a?(DataCycleCore::Thing) && !value.persisted?
-          params_hash[key] = value.thing_template.persisted? ? { class: value.class.name, attributes: value.attributes.merge(value.attr_accessor_attributes) } : { class: value.class.name, attributes: value.attributes.merge(value.attr_accessor_attributes).merge(thing_template: { class: value.thing_template.class.name, attributes: value.thing_template.attributes }) }
-        elsif value.is_a?(ActiveRecord::Base)
-          params_hash[key] = value.persisted? ? { value.class.primary_key.to_sym => value.try(value.class.primary_key), class: value.class.name } : { class: value.class.name, attributes: value.attributes }
-        elsif value.is_a?(ActiveRecord::Relation)
-          params_hash[key] = { class: value.klass.name, value.klass.primary_key.to_sym => value.pluck(value.klass.primary_key), type: 'Collection' }
-        elsif value.is_a?(OpenStruct)
-          params_hash[key] = { attributes: value.to_h, class: 'OpenStruct' }
-        elsif value.is_a?(::Hash)
-          params_hash[key] = to_query_params(value)
-        else
-          params_hash[key] = value
-        end
+        params_hash[key] = if value.is_a?(DataCycleCore::Thing) && !value.persisted?
+                             value.thing_template.persisted? ? { class: value.class.name, attributes: value.attributes.merge(value.attr_accessor_attributes) } : { class: value.class.name, attributes: value.attributes.merge(value.attr_accessor_attributes).merge(thing_template: { class: value.thing_template.class.name, attributes: value.thing_template.attributes }) }
+                           elsif value.is_a?(ActiveRecord::Base)
+                             value.persisted? ? { value.class.primary_key.to_sym => value.try(value.class.primary_key), class: value.class.name } : { class: value.class.name, attributes: value.attributes }
+                           elsif value.is_a?(ActiveRecord::Relation)
+                             { class: value.klass.name, value.klass.primary_key.to_sym => value.pluck(value.klass.primary_key), type: 'Collection' }
+                           elsif value.is_a?(OpenStruct)
+                             { attributes: value.to_h, class: 'OpenStruct' }
+                           elsif value.is_a?(::Hash)
+                             to_query_params(value)
+                           else
+                             value
+                           end
       end
 
       params_hash
@@ -243,7 +246,9 @@ module DataCycleCore
         DataCycleCore.new_dialog[template&.schema_type&.underscore_blanks] || {}
       else
         DataCycleCore.new_dialog['default']
-      end.transform_values do |v|
+      end.transform_values { |v|
+        next v unless v.is_a?(Array)
+
         v&.filter_map do |t|
           key = Array.wrap(t).first
 
@@ -251,13 +256,13 @@ module DataCycleCore
           next if Array.wrap(except).include?(key)
 
           if t.is_a?(::Array)
-            t[0] = t[0]&.remove('**list')&.squish
+            t[0] = t[0]&.gsub(/\s\*\*.*/, '')&.squish
             t
           else
-            t&.remove('**list')&.squish
+            t&.gsub(/\s\*\*.*/, '')&.squish
           end
         end
-      end
+      }.compact_blank
     end
 
     def content_uploader_data_hash(content, asset)
@@ -487,6 +492,19 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ template: }))
     end
 
+    def render_new_partial_by_name(partial_name:, template:, config:, **kwargs)
+      return if partial_name.blank?
+
+      tag.fieldset(**config['fieldset_attributes']) do
+        concat render('data_cycle_core/contents/new/shared/fieldset_header', template:, **kwargs)
+        concat tag.div(class: 'remote-render', data: {
+          remote_path: "data_cycle_core/contents/new/#{partial_name}",
+          remote_options: to_query_params(template:).to_json,
+          reload_on_goto: true
+        })
+      end
+    end
+
     def link_to_condition(condition, *args, **html_options, &block)
       if condition && block
         link_to(args[0], html_options, &block)
@@ -570,16 +588,16 @@ module DataCycleCore
       options[:data][:type] = alert_class
       options[:data][:id] = SecureRandom.hex(10)
 
-      case value
-      when ::String
-        options[:data][:text] = value
-      when ::Hash
-        options[:data][:text] = value.map { |k, v| "#{k.to_s.titleize}: #{v.join(', ')}" }.join('<br>')
-      when ::Array
-        options[:data][:text] = value.join('<br>')
-      else
-        options[:data][:text] = value.to_s
-      end
+      options[:data][:text] = case value
+                              when ::String
+                                value
+                              when ::Hash
+                                value.map { |k, v| "#{k.to_s.titleize}: #{v.join(', ')}" }.join('<br>')
+                              when ::Array
+                                value.join('<br>')
+                              else
+                                value.to_s
+                              end
 
       tag.div(**options)
     end

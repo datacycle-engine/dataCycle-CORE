@@ -2,7 +2,7 @@
 
 class RefactorTriggerForClassificationGroups < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS delete_ccc_relations_transitive_trigger ON classification_groups;
 
       CREATE TRIGGER delete_ccc_relations_transitive_trigger
@@ -211,7 +211,7 @@ class RefactorTriggerForClassificationGroups < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS delete_ccc_relations_transitive_trigger ON classification_groups;
 
       CREATE TRIGGER delete_ccc_relations_transitive_trigger

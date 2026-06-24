@@ -3,7 +3,7 @@
 class AddDefaultValueForProviders < ActiveRecord::Migration[7.1]
   def up
     # Ensure existing records have an empty JSON object if providers is null
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE users
       SET providers = '{}'::jsonb
       WHERE providers IS NULL;

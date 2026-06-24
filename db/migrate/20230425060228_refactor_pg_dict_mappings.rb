@@ -2,7 +2,7 @@
 
 class RefactorPgDictMappings < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION get_dict (lang varchar) RETURNS regconfig LANGUAGE PLPGSQL AS $$
       DECLARE dict varchar;
 

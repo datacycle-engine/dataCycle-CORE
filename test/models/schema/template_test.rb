@@ -22,36 +22,36 @@ describe DataCycleCore::Schema::Template do
     end
 
     it 'should contain 4 property definitions' do
-      assert(subject.property_definitions.count, 3)
-      assert(subject.property_definitions.pluck(:label).sort, ['stringProperty', 'datetimeProperty', 'dateProperty', 'numberProperty'])
+      assert_equal(5, subject.property_definitions.count)
+      assert_equal(['dateProperty', 'datetimeProperty', 'linkedToText', 'numberProperty', 'stringProperty'], subject.property_definitions.pluck(:label).sort)
     end
 
     it 'should contain correct property definition for "stringProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'stringProperty' }
 
-      assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
-      assert(string_property[:data_type], '//schema.org/Text')
+      assert_equal(['Thing_WithAllSimplePropertyTypes'], string_property[:template_type])
+      assert_equal('//schema.org/Text', string_property[:data_type])
     end
 
     it 'should contain correct property definition for "datetimeProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'datetimeProperty' }
 
-      assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
-      assert(string_property[:data_type], '//schema.org/DateTime')
+      assert_equal(['Thing_WithAllSimplePropertyTypes'], string_property[:template_type])
+      assert_equal('//schema.org/DateTime', string_property[:data_type])
     end
 
     it 'should contain correct property definition for "dateProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'dateProperty' }
 
-      assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
-      assert(string_property[:data_type], '//schema.org/Date')
+      assert_equal(['Thing_WithAllSimplePropertyTypes'], string_property[:template_type])
+      assert_equal('date', string_property[:data_type])
     end
 
     it 'should contain correct property definition for "numberProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'numberProperty' }
 
-      assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
-      assert(string_property[:data_type], '//schema.org/Number')
+      assert_equal(['Thing_WithAllSimplePropertyTypes'], string_property[:template_type])
+      assert_equal('//schema.org/Number', string_property[:data_type])
     end
   end
 
@@ -67,8 +67,8 @@ describe DataCycleCore::Schema::Template do
     it 'should contain correct property definition for "embedded"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'embedded' }
 
-      assert(string_property[:template_type], 'Thing_ActingAsEmbeddedContainer')
-      assert(string_property[:data_type], '/schema/Thing_SimpleEmbedded')
+      assert_equal(['Thing_ActingAsEmbeddedContainer'], string_property[:template_type])
+      assert_equal('/schema/Simple Embedded', string_property[:data_type])
     end
   end
 
@@ -84,15 +84,15 @@ describe DataCycleCore::Schema::Template do
     it 'should contain correct property definition for linked properties based on templates' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithTemplate' }
 
-      assert(string_property[:template_type], 'Thing_SimpleEntityLinkedOne')
-      assert(string_property[:data_type], '/schema/Thing_SimpleEntityLinkedTwo')
+      assert_equal(['Thing_SimpleEntityLinkedOne'], string_property[:template_type])
+      assert_equal('/schema/Simple Linked Entity Two', string_property[:data_type])
     end
 
     it 'should contain correct property definition for linked properties based on templates' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithStoredFilter' }
 
-      assert(string_property[:template_type], 'Thing_SimpleEntityLinkedOne')
-      assert(string_property[:data_type], '//schema.org/Thing')
+      assert_equal(['Thing_SimpleEntityLinkedOne'], string_property[:template_type])
+      assert_equal([], string_property[:data_type])
     end
   end
 
@@ -106,22 +106,22 @@ describe DataCycleCore::Schema::Template do
     end
 
     it 'should expand nested properties' do
-      assert(subject.property_definitions.count, 2)
-      assert(subject.property_definitions.pluck(:label).sort, ['someProperty', 'anotherProperty'].sort)
+      assert_equal(3, subject.property_definitions.count)
+      assert_equal(['anotherProperty', 'linkedToText', 'someProperty'].sort, subject.property_definitions.pluck(:label).sort)
     end
 
     it 'should contain correct property definition for "someProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'someProperty' }
 
-      assert(string_property[:template_type], 'Thing_Container')
-      assert(string_property[:data_type], '//schema.org/Text')
+      assert_equal(['Thing_Container'], string_property[:template_type])
+      assert_equal('//schema.org/Text', string_property[:data_type])
     end
 
     it 'should contain correct property definition for "anotherProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'anotherProperty' }
 
-      assert(string_property[:template_type], 'Thing_Container')
-      assert(string_property[:data_type], '//schema.org/Number')
+      assert_equal(['Thing_Container'], string_property[:template_type])
+      assert_equal('//schema.org/Number', string_property[:data_type])
     end
   end
 
@@ -141,7 +141,7 @@ describe DataCycleCore::Schema::Template do
       assert_nil(props.dig(:linked_with_template3_inverse, :ui, :edit, :disabled))
       assert(props.dig(:linked_with_template4_inverse, :ui, :edit, :disabled))
       assert_nil(props.dig(:linked_with_template5_inverse, :ui, :edit, :disabled))
-      assert_equal(false, props.dig(:linked_with_template6_inverse, :ui, :edit, :disabled))
+      assert_not(props.dig(:linked_with_template6_inverse, :ui, :edit, :disabled))
     end
   end
 
@@ -160,10 +160,109 @@ describe DataCycleCore::Schema::Template do
 
     it 'should have the correct properties from project' do
       props = subject.dig(:data, :properties)
+
       assert(props.key?(:dummy2))
       assert_not(props.key?(:dummy1))
       assert_not(props.key?(:dummy_parent1))
       assert_not(props.key?(:dummy_parent2))
+    end
+  end
+
+  describe 'for extended templates, with missing base template from same type when importing in wrong order' do
+    subject do
+      DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [
+          Rails.root.join('..', 'data_types', 'parent_set2'),
+          Rails.root.join('..', 'data_types', 'parent_set1')
+        ]
+      )
+    end
+
+    it 'should produce error for missing base template' do
+      errors = subject.errors
+
+      assert_equal(1, errors.count)
+      assert_equal(
+        'creative_works.DummyParent.extends => BaseTemplate missing for DummyParent, possibly wrong order of templates',
+        errors.first
+      )
+    end
+  end
+
+  describe 'for normal templates, choosing correct file for environment' do
+    subject do
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [
+          Rails.root.join('..', 'data_types', 'environment_set')
+        ]
+      )
+      template_importer.templates.find { |t| t[:name] == 'DummyParent' }
+    end
+
+    it 'should have the correct properties from environment' do
+      props = subject.dig(:data, :properties)
+
+      assert(props.key?(:name))
+      assert(props.key?(:id))
+      assert_not(props.key?(:dummy_parent1))
+    end
+  end
+
+  describe 'for abstract templates' do
+    subject do
+      DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [Rails.root.join('..', 'data_types', 'abstract_set')]
+      )
+    end
+
+    it 'should exclude abstract templates from importable templates' do
+      assert_nil(subject.templates.find { |t| t[:name] == 'AbstractParent' })
+    end
+
+    it 'should exclude templates that explicitly mark themselves abstract even when extending another' do
+      assert_nil(subject.templates.find { |t| t[:name] == 'ConcreteAbstractChild' })
+    end
+
+    it 'should include concrete children of abstract templates' do
+      assert_predicate(subject.templates.find { |t| t[:name] == 'ConcreteChild' }, :present?)
+    end
+
+    it 'should not inherit the abstract flag via extends' do
+      child = subject.templates.find { |t| t[:name] == 'ConcreteChild' }
+
+      assert_not(child.dig(:data, :abstract))
+    end
+
+    it 'should inherit properties from the abstract base template' do
+      props = subject.templates.find { |t| t[:name] == 'ConcreteChild' }.dig(:data, :properties)
+
+      assert(props.key?(:abstract_prop))
+      assert(props.key?(:child_prop))
+      assert(props.key?(:id))
+      assert(props.key?(:name))
+    end
+
+    it 'should not produce errors when an abstract template is present' do
+      assert_empty(subject.errors)
+    end
+  end
+
+  describe 'for abstract templates extended by themselves' do
+    subject do
+      DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [
+          Rails.root.join('..', 'data_types', 'abstract_self_extend_set1'),
+          Rails.root.join('..', 'data_types', 'abstract_self_extend_set2')
+        ]
+      )
+    end
+
+    it 'should preserve the abstract flag when a template extends itself' do
+      assert_nil(subject.templates.find { |t| t[:name] == 'AbstractSelfExtend' })
+    end
+
+    it 'should not produce errors' do
+      assert_empty(subject.errors)
     end
   end
 
@@ -179,6 +278,7 @@ describe DataCycleCore::Schema::Template do
 
     it 'should have the correct linked_in_text property with computed parameters' do
       props = subject.find { |t| t[:name] == 'Rezept' }.dig(:data, :properties)
+
       assert(props.key?(:linked_in_text))
       assert_equal(['text'], props.dig(:linked_in_text, :compute, :parameters))
       assert(subject.map { |s| s.dig(:data, :properties, :linked_to_text) }.all?(&:present?))

@@ -19,6 +19,7 @@
     line-height: initial;
     margin: 0 !important;
     cursor: pointer;
+    gap: 0.5rem;
 
     .custom-accordion-header {
       color: inherit;
@@ -39,7 +40,7 @@
       position: absolute;
       right: 1rem;
       top: 1rem;
-      margin-top: 0;
+      margin-top: -0.1rem;
     }
 
     >.buttons {
@@ -82,8 +83,6 @@
     }
 
     .icon {
-      margin-right: 0.3rem;
-
       .fa {
         font-size: 1rem;
       }
@@ -100,6 +99,36 @@
       .fa {
         line-height: 1.5rem;
         font-size: 0.9rem;
+      }
+    }
+
+    >button {
+      color: var(--dark-gray);
+
+      &.copy-embedded-id-button {
+        opacity: 0;
+        transition: var(--opacity-transition);
+      }
+
+      &:hover,
+      &:focus {
+        color: var(--dark-gray-hover);
+      }
+    }
+
+    .clear-cache-icon {
+      color: var(--dark-gray);
+      opacity: 0;
+      transition: var(--opacity-transition);
+    }
+
+
+    &:hover,
+    &:focus {
+
+      >button.copy-embedded-id-button,
+      .clear-cache-icon {
+        opacity: 1;
       }
     }
   }
@@ -135,6 +164,10 @@
         margin-left: 0.3rem;
       }
     }
+  }
+
+  .edit-content-link:not(.button-prime) {
+    padding: 0;
   }
 }
 
@@ -249,10 +282,10 @@
 
 .accordion-close-children,
 .accordion-open-children,
-.edit-content-link {
+.edit-content-link:not(.button-prime) {
   cursor: pointer;
-  color: $dark-gray;
-  padding: 0 0.5rem;
+  color: var(--dark-gray);
+  padding: 0 0.3rem;
   display: flex;
   align-items: center;
 
@@ -263,7 +296,7 @@
   }
 
   &:hover {
-    color: $black;
+    color: var(--black);
   }
 }
 
@@ -284,19 +317,6 @@
     .accordion-child-buttons {
       right: 5.5rem;
       top: 0.5rem;
-    }
-  }
-}
-
-.detail-header .edit .button-prime {
-
-  &.accordion-close-all,
-  &.accordion-open-all {
-    background-color: $dark-gray;
-
-    &:focus,
-    &:hover {
-      background-color: lighten($dark-gray, 10%);
     }
   }
 }

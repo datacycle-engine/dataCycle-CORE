@@ -112,19 +112,35 @@ module DataCycleCore
         elsif mode_params[:ct_id].present?
           @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
           @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
+
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('"classification_aliases"."order_a"')
             .page(page_params[:tree_page])
-          @contents = get_filtered_results(query:, user_filter:)
-            .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
-          tmp_count = @contents.count
+
+          filtered_results = get_filtered_results(query:, user_filter:)
+
+          @contents = filtered_results.classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
+          @contents_related = filtered_results.classification_alias_ids_related(@classification_tree.sub_classification_alias.id)
+
+          total_count = @contents.count
+          total_count_related = @contents_related.count
+
           @contents = @contents.content_includes.page(page_params[:page])
+          @contents = @contents.tap { |rel| rel.send(:load_records, []) } if total_count.zero?
           PreloadService.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
+          @contents_related = @contents_related.content_includes.page(page_params[:page])
+          @contents_related = @contents_related.tap { |rel| rel.send(:load_records, []) } if total_count_related.zero?
+          PreloadService.preload(@contents_related, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
+
+          @page_related = @contents_related.current_page
+          @total_count_related = @contents_related.instance_variable_set(:@total_count, total_count_related)
+          @total_pages_related = @contents_related.total_pages
+
           @page = @contents.current_page
-          @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
+          @total_count = @contents.instance_variable_set(:@total_count, total_count)
           @total_pages = @contents.total_pages
         else
           @classification_trees = @classification_tree_label.classification_trees
@@ -156,21 +172,33 @@ module DataCycleCore
 
     private
 
+    def linked_stored_filter(collection)
+      user_linked_filters = current_user&.user_filters('api_linked')
+
+      return unless collection.linked_stored_filter_id.present? || user_linked_filters.present?
+
+      linked_filter = collection.linked_stored_filter
+
+      return linked_filter if user_linked_filters.blank?
+
+      unique_key = generate_uuid(collection.id, "#{user_linked_filters.join(',')}/#{current_user.id}")
+      linked_filter ||= DataCycleCore::StoredFilter.new(id: unique_key)
+      linked_filter.apply_user_filter(current_user, { scope: 'api_linked' })
+    end
+
     # used only in APIv4 and sync_api
     def build_search_query
       endpoint_id = permitted_params[:id]
       @linked_stored_filter = nil
 
       if endpoint_id.present?
-        @collection = DataCycleCore::Collection.by_id_or_slug(endpoint_id).first
-
-        raise ActiveRecord::RecordNotFound if @collection.nil?
+        @collection = DataCycleCore::Collection.by_id_or_slug(endpoint_id).first!
 
         authorize! :api, @collection unless self.class.module_parents.include?(DataCycleCore::Mvt) && any_authenticity_token_valid?
 
         @stored_filter = @collection if @collection.is_a?(DataCycleCore::StoredFilter)
         @watch_list = @collection if @collection.is_a?(DataCycleCore::WatchList)
-        @linked_stored_filter = @collection.linked_stored_filter if @collection.linked_stored_filter_id.present?
+        @linked_stored_filter = linked_stored_filter(@collection)
         @classification_trees_parameters |= Array.wrap(@collection.classification_tree_labels)
         @classification_trees_filter = @classification_trees_parameters.present?
       end
@@ -178,24 +206,21 @@ module DataCycleCore
       filter = @stored_filter || DataCycleCore::StoredFilter.new
       filter.language = @language
       filter.apply_user_filter(current_user, { scope: 'api' })
-      filter.apply_sorting_from_api_parameters(full_text_search: @full_text_search, raw_query_params: permitted_params.to_h)
+      filter.apply_sorting_from_api_parameters(permitted_params.to_h)
 
-      query = filter.apply(watch_list: @watch_list)
-
+      query = filter.cached.apply(watch_list: @watch_list)
       query = query.watch_list_id(@watch_list.id) unless @watch_list.nil?
-
-      query = query.fulltext_search(@full_text_search) if @full_text_search
 
       query = apply_filters(query, permitted_params&.dig(:filter))
       append_filters(query, permitted_params)
     end
 
     def set_view_mode
-      if mode_params[:mode].in?(['list', 'tree', 'map'])
-        @mode = mode_params[:mode].to_s
-      else
-        @mode = 'grid'
-      end
+      @mode = if mode_params[:mode].in?(['list', 'tree', 'map'])
+                mode_params[:mode].to_s
+              else
+                'grid'
+              end
     end
 
     def total_count(query: nil, user_filter: { scope: 'backend' })
@@ -212,6 +237,8 @@ module DataCycleCore
         total_count = total_count.part_of(mode_params[:con_id])
       when 'classification_alias'
         total_count = total_count.classification_alias_ids_without_subtree(classification_tree.sub_classification_alias.id)
+      when 'ca_related'
+        total_count = total_count.classification_alias_ids_without_subtree_with_related(classification_tree.sub_classification_alias.id)
       when 'ca_recursive'
         total_count = total_count.classification_alias_ids_with_subtree(classification_tree.sub_classification_alias.id)
       when 'classification_tree_label'
@@ -233,7 +260,7 @@ module DataCycleCore
     end
 
     def filter_params
-      params.require(:stored_filter).permit(:id, :name)
+      params.expect(stored_filter: [:id, :name])
     end
 
     def mode_params

@@ -7,9 +7,10 @@ class ContentLock {
 		this.editable = this.button.hasClass("editable-lock");
 		this.buttonTooltip = this.button.closest("[data-dc-tooltip]").get(0);
 		this.locks = {};
-		this.lockLength = Number.parseInt(this.button.data("lock-length"));
+		this.lockLength = Number.parseInt(this.button.data("lock-length"), 10);
 		this.lockRenewBefore = Number.parseInt(
 			this.button.data("lock-renew-before"),
+			10,
 		);
 		this.buttonDataDisableWith = this.button.data("disable-with");
 		this.lockCheckInterval = 1;
@@ -88,7 +89,9 @@ class ContentLock {
 	calculateLockedUntil(lockedUntil = {}) {
 		for (const key in lockedUntil) {
 			if (Object.hasOwn(lockedUntil, key))
-				lockedUntil[key] = new Date(Number.parseInt(lockedUntil[key]) * 1000);
+				lockedUntil[key] = new Date(
+					Number.parseInt(lockedUntil[key], 10) * 1000,
+				);
 		}
 
 		Object.assign(this.locks, lockedUntil);
@@ -189,7 +192,8 @@ class ContentLock {
 			}
 		}
 
-		const degree = 360 - Number.parseInt((diffSeconds * 360) / this.lockLength);
+		const degree =
+			360 - Number.parseInt((diffSeconds * 360) / this.lockLength, 10);
 		if (degree > 180) {
 			this.button
 				.find(".pie-timer > .pie-filler")
@@ -204,7 +208,7 @@ class ContentLock {
 	}
 	async checkLockState() {
 		const diffSeconds = this.checkActiveLocks();
-		const diffMinutes = Number.parseInt(diffSeconds / 60);
+		const diffMinutes = Number.parseInt(diffSeconds / 60, 10);
 
 		if (diffSeconds > 0) this.renderCountDown(diffSeconds);
 
@@ -235,8 +239,10 @@ class ContentLock {
 			if (!Object.hasOwn(this.locks, key)) continue;
 
 			const rest =
-				Math.max(0, Number.parseInt((this.locks[key] - Date.now()) / 1000)) -
-				(this.editable ? this.editOffset : 0);
+				Math.max(
+					0,
+					Number.parseInt((this.locks[key] - Date.now()) / 1000, 10),
+				) - (this.editable ? this.editOffset : 0);
 			if (this.editable && rest <= 0) this.lockEditor(key);
 			else if (rest <= 0) this.unlockButton(key);
 

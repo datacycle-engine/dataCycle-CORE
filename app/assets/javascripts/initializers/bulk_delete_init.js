@@ -1,3 +1,5 @@
+import { Turbo } from "@hotwired/turbo-rails";
+
 export default function () {
 	if ($(".bulk-delete-button").length) {
 		const deleteButton = $(".bulk-delete-button");
@@ -18,9 +20,14 @@ export default function () {
 								.find(".progress-bar > .progress-filled")
 								.css("width", `calc(${progress}% - 1rem)`);
 						}
-						if (data.redirect_path !== undefined) {
-							deleteButton.removeAttr("data-disable-with");
-							window.location.href = data.redirect_path;
+						if (data.turbo_stream !== undefined) {
+							Turbo.renderStreamMessage(data.turbo_stream);
+							DataCycle.enableElement(deleteButton);
+							// emptying the count triggers its observer to re-fetch the updated total
+							const resultCount = document.querySelector(
+								"#search-form .result-count",
+							);
+							if (resultCount) resultCount.innerHTML = "";
 						}
 					},
 				},

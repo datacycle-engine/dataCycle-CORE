@@ -31,7 +31,9 @@ review:
 # removed test db settings for deployment
 test:
   <<: *default
-  database: data_cycle_core_test
+  # TEST_ENV_NUMBER is set by parallel_tests for each worker process (blank for
+  # the first, "2", "3", ... for the rest), giving every worker its own database.
+  database: data_cycle_core_test<%= ENV['TEST_ENV_NUMBER'] %>
 
 staging:
   <<: *default

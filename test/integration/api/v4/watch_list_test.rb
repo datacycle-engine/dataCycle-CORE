@@ -24,8 +24,9 @@ module DataCycleCore
         test '/api/v4/endpoints/:uuid with a valid watch_list' do
           get api_v4_stored_filter_path(id: @watch_list.id)
 
-          assert_equal(response.content_type, 'application/json; charset=utf-8')
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = response.parsed_body
+
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(@watch_list.id, json_data.dig('meta', 'collection', 'id'))
@@ -35,8 +36,9 @@ module DataCycleCore
         test '/api/v4/endpoints/:uuid with a valid watch_list slug' do
           get api_v4_stored_filter_path(id: @watch_list.slug)
 
-          assert_equal(response.content_type, 'application/json; charset=utf-8')
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = response.parsed_body
+
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(@watch_list.id, json_data.dig('meta', 'collection', 'id'))

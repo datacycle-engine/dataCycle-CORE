@@ -12,11 +12,11 @@ module DataCycleCore
 
           query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
 
-          if permitted_params&.dig(:filter, :from)
-            query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
-          else
-            query = query.event_from_time(Time.zone.now)
-          end
+          query = if permitted_params&.dig(:filter, :from)
+                    query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
+                  else
+                    query.event_from_time(Time.zone.now)
+                  end
 
           query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to)
 

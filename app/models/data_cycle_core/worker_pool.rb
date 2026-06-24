@@ -2,12 +2,21 @@
 
 module DataCycleCore
   class WorkerPool
-    attr_reader :queue
+    attr_reader :queue, :num_workers
 
-    def initialize(num_workers)
+    def initialize(num_workers = nil)
       @queue = []
-      @pool = Concurrent::FixedThreadPool.new(num_workers) if num_workers&.>(1)
+      @num_workers = num_workers || default_num_workers
+      @pool = Concurrent::FixedThreadPool.new(@num_workers) if @num_workers&.>(1)
     end
+
+    def self.default_num_workers
+      return 1 if Rails.env.test? # avoid concurrency in tests to prevent issues with database transactions
+
+      (ActiveRecord::Base.connection_pool.size / 2).floor
+    end
+
+    delegate :default_num_workers, to: :class
 
     def append_without_db_connection(&)
       if @pool

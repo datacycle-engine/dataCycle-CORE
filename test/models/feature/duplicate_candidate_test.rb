@@ -6,39 +6,42 @@ module DataCycleCore
   class DuplicateCandidateTest < DataCycleCore::TestCases::ActiveSupportTestCase
     include ActiveJob::TestHelper
 
+    before(:all) do
+      updates = []
+      bild_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Bild')
+      updates << { template_name: bild_template.template_name, schema: bild_template.schema.deep_merge('features' => { 'duplicate_candidate' => { 'allowed' => true, 'module' => 'BildPhash' } }) }
+      place_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Örtlichkeit')
+      updates << { template_name: place_template.template_name, schema: place_template.schema.deep_merge('features' => { 'duplicate_candidate' => { 'allowed' => true, 'module' => ['OnlyTitle', 'NameSimilarity'] } }) }
+      DataCycleCore::ThingTemplate.upsert_all(updates, unique_by: :template_name)
+    end
+
     test 'find duplicates for images' do
-      assert DataCycleCore::Feature::DuplicateCandidate.enabled?
+      assert_predicate DataCycleCore::Feature::DuplicateCandidate, :enabled?
 
       image1 = upload_image('test_rgb.jpeg')
-      assert image1.thumb_preview.present?
+
+      assert_predicate image1.thumb_preview, :present?
       content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
       image2 = upload_image('test_rgb.png')
-      assert image2.thumb_preview.present?
+
+      assert_predicate image2.thumb_preview, :present?
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
 
       image3 = upload_image('test_rgb.gif')
-      assert image3.thumb_preview.present?
+
+      assert_predicate image3.thumb_preview, :present?
       content3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3', asset: image3.id })
 
       image4 = upload_image('test_cmyk.jpeg')
-      assert image4.thumb_preview.present?
+
+      assert_predicate image4.thumb_preview, :present?
       content4 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 4', asset: image4.id })
 
       image5 = upload_image('test_rgb_portrait.jpeg')
-      assert image5.thumb_preview.present?
+
+      assert_predicate image5.thumb_preview, :present?
       content5 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 5', asset: image5.id })
-
-      assert_empty content1.duplicate_candidates
-      assert_empty content2.duplicate_candidates
-      assert_empty content3.duplicate_candidates
-      assert_empty content4.duplicate_candidates
-      assert_empty content5.duplicate_candidates
-
-      DataCycleCore::Thing
-        .where(external_source_id: nil, external_key: nil)
-        .where.not(content_type: 'embedded')
-        .find_each(&:create_duplicate_candidates)
 
       assert_equal 3, content1.duplicate_candidates.reload.size
       assert_equal 3, content2.duplicate_candidates.reload.size
@@ -52,7 +55,7 @@ module DataCycleCore
     end
 
     test 'merge with duplicate' do
-      assert DataCycleCore::Feature::DuplicateCandidate.enabled?
+      assert_predicate DataCycleCore::Feature::DuplicateCandidate, :enabled?
 
       image1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1' })
       image2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2' })
@@ -95,27 +98,22 @@ module DataCycleCore
 
     test 'duplicates marked as false_positive are not shown as duplicates' do
       image1 = upload_image('test_rgb.jpeg')
-      assert image1.thumb_preview.present?
+
+      assert_predicate image1.thumb_preview, :present?
       content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
       image2 = upload_image('test_rgb.png')
-      assert image2.thumb_preview.present?
+
+      assert_predicate image2.thumb_preview, :present?
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
 
-      assert_empty content1.duplicate_candidates
-      assert_empty content2.duplicate_candidates
+      assert_equal 1, content1.duplicate_candidates.size
+      assert_equal 1, content2.duplicate_candidates.size
 
-      DataCycleCore::Thing
-        .where(external_source_id: nil, external_key: nil)
-        .where.not(content_type: 'embedded')
-        .find_each(&:create_duplicate_candidates)
-
-      assert_equal 1, content1.duplicate_candidates.reload.size
-      assert_equal 1, content2.duplicate_candidates.reload.size
-
-      DataCycleCore::ThingDuplicate
-        .find(content2.duplicate_candidates.with_fp.find_by(duplicate_id: content1.id).thing_duplicate_id)
-        .update!(false_positive: true)
+      content2.duplicate_candidates
+        .where(duplicate_id: content1.id)
+        .thing_duplicates
+        .update_all(false_positive: true)
 
       assert_empty content1.duplicate_candidates.reload
       assert_empty content2.duplicate_candidates.reload
@@ -151,7 +149,8 @@ module DataCycleCore
 
       assert_equal external_source_f.id, image_f.external_source.id
       assert_equal 5, image_f.external_system_syncs.size
-      assert_equal 5, image_f.external_system_syncs.where(sync_type: 'duplicate').size
+      assert_equal 1, image_f.external_system_syncs.where(sync_type: 'import').size
+      assert_equal 4, image_f.external_system_syncs.where(sync_type: 'duplicate').size
       assert_equal 0, image_f.external_system_syncs.where(sync_type: 'link').size
       assert_equal 0, image_f.external_system_syncs.where(sync_type: 'export').size
     end
@@ -160,8 +159,8 @@ module DataCycleCore
       content1 = DataCycleCore::DataHashService.create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
       content2 = DataCycleCore::DataHashService.create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
 
-      assert_equal 1, content1.duplicate_candidates.size
-      assert_equal 1, content2.duplicate_candidates.size
+      assert_equal 2, content1.duplicate_candidates.size
+      assert_equal 2, content2.duplicate_candidates.size
     end
 
     test 'find duplicates for Örtlichkeit after template_name change' do
@@ -173,8 +172,64 @@ module DataCycleCore
 
       content2.update!(template_name: 'Örtlichkeit')
 
+      assert_equal 2, content1.duplicate_candidates.size
+      assert_equal 2, content2.duplicate_candidates.size
+    end
+
+    test 'find duplicates for Örtlichkeit after update of name' do
+      content1 = DataCycleCore::DataHashService.create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
+      content2 = DataCycleCore::DataHashService.create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
+
+      assert_equal 2, content1.duplicate_candidates.size
+      assert_equal 2, content2.duplicate_candidates.size
+
+      content1.set_data_hash(data_hash: { name: 'Test Örtlichkeit 2' })
+
       assert_equal 1, content1.duplicate_candidates.size
       assert_equal 1, content2.duplicate_candidates.size
+
+      content1.set_data_hash(data_hash: { name: 'Örtlichkeit 2' })
+
+      assert_empty content1.duplicate_candidates
+      assert_empty content2.duplicate_candidates
+    end
+
+    test 'mark Örtlichkeit as false positive marks all methods correctly' do
+      content1 = DataCycleCore::DataHashService.create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
+      content2 = DataCycleCore::DataHashService.create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
+
+      assert_equal 2, content1.duplicate_candidates.size
+      assert_equal 2, content2.duplicate_candidates.size
+
+      content1.mark_duplicate_as_false_positive(content2)
+
+      assert_empty content1.duplicate_candidates
+      assert_empty content2.duplicate_candidates
+    end
+
+    test 'mark Örtlichkeit as false positive with new method added after' do
+      place_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Örtlichkeit')
+      updates = [{ template_name: place_template.template_name, schema: place_template.schema.deep_merge('features' => { 'duplicate_candidate' => { 'allowed' => true, 'module' => ['OnlyTitle'] } }) }]
+      DataCycleCore::ThingTemplate.upsert_all(updates, unique_by: :template_name)
+
+      content1 = DataCycleCore::DataHashService.create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
+      content2 = DataCycleCore::DataHashService.create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
+
+      assert_equal 1, content1.duplicate_candidates.size
+      assert_equal 1, content2.duplicate_candidates.size
+
+      content1.mark_duplicate_as_false_positive(content2)
+
+      assert_empty content1.duplicate_candidates
+      assert_empty content2.duplicate_candidates
+
+      updates = [{ template_name: place_template.template_name, schema: place_template.schema.deep_merge('features' => { 'duplicate_candidate' => { 'allowed' => true, 'module' => ['OnlyTitle', 'NameSimilarity'] } }) }]
+      DataCycleCore::ThingTemplate.upsert_all(updates, unique_by: :template_name)
+
+      content1.set_data_hash(data_hash: { name: 'Test Örtlichkeit 2' })
+
+      assert_empty content1.duplicate_candidates
+      assert_empty content2.duplicate_candidates
     end
   end
 end

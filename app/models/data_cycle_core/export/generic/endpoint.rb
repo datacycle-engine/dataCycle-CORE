@@ -22,13 +22,13 @@ module DataCycleCore
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
           begin
-            if transformation.is_a?(Hash) && transformation.key?(:module) && transformation.key?(:method)
-              transformed_data = transformation[:module].send(transformation[:method], utility_object, data)
-            elsif transformation.is_a?(Proc)
-              transformed_data = transformation.call(utility_object, data)
-            else
-              transformed_data = transformations.try(transformation, utility_object, data)
-            end
+            transformed_data = if transformation.is_a?(Hash) && transformation.key?(:module) && transformation.key?(:method)
+                                 transformation[:module].send(transformation[:method], utility_object, data)
+                               elsif transformation.is_a?(Proc)
+                                 transformation.call(utility_object, data)
+                               else
+                                 transformations.try(transformation, utility_object, data)
+                               end
 
             exported_data = transformed_data.is_a?(::Hash) ? transformed_data : JSON.parse(transformed_data) rescue nil # rubocop:disable Style/RescueModifier
             ess&.update(exported_data:)

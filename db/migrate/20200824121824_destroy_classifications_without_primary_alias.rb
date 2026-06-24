@@ -2,7 +2,7 @@
 
 class DestroyClassificationsWithoutPrimaryAlias < ActiveRecord::Migration[5.2]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DELETE FROM classifications
       WHERE NOT EXISTS (
         SELECT

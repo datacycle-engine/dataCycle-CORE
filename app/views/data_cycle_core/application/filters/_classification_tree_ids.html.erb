@@ -27,7 +27,9 @@
 
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
     <div class="buttons">
-      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <button type="button" class="remove-advanced-filter" data-target="<%= identifier %>">
+        <i aria-hidden="true" class="fa fa-times"></i>
+      </button>
     </div>
   <% end %>
 </div>

@@ -22,6 +22,7 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = response.parsed_body
+
           assert_equal('TestArtikel', json_data['headline'])
         end
 
@@ -32,65 +33,72 @@ module DataCycleCore
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = response.parsed_body
 
-          assert(json_data['data'].present?)
+          assert_predicate(json_data['data'], :present?)
           assert_equal(1, json_data['data'].size)
 
           data_hash = json_data['data'].first
+
           assert_equal('http://schema.org', data_hash['@context'])
           assert_equal('Article', data_hash['@type'].last)
           assert_equal('Artikel', data_hash['contentType'])
-          assert(data_hash['@id'].present?)
+          assert_predicate(data_hash['@id'], :present?)
           assert_equal(@content.id, data_hash['identifier'])
-          assert(data_hash['url'].present?)
-          assert(data_hash['dateCreated'].present?)
-          assert(data_hash['dateModified'].present?)
+          assert_predicate(data_hash['url'], :present?)
+          assert_predicate(data_hash['dateCreated'], :present?)
+          assert_predicate(data_hash['dateModified'], :present?)
           assert_equal('de', data_hash['inLanguage'])
           assert_equal('TestArtikel', data_hash['headline'])
 
-          assert(data_hash['classifications'].present?)
+          assert_predicate(data_hash['classifications'], :present?)
           assert_equal(1, data_hash['classifications'].size)
           classification_hash = data_hash['classifications'].first
+
           assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
           assert_equal('Artikel', classification_hash['name'])
           assert_equal(2, classification_hash['ancestors'].size)
           assert_equal(['Inhaltstypen', 'Text'], classification_hash['ancestors'].pluck('name').sort)
 
-          assert(json_data['meta'].present?)
+          assert_predicate(json_data['meta'], :present?)
           assert_equal(1, json_data.dig('meta', 'total'))
           assert_equal(1, json_data.dig('meta', 'pages'))
-          assert(json_data['links'].present?)
-          assert(json_data.dig('links', 'self').present?)
+          assert_predicate(json_data['links'], :present?)
+          assert_predicate(json_data.dig('links', 'self'), :present?)
         end
 
         test 'stored article can be found in different ways' do
           get(api_v2_contents_search_path)
+
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_search = response.parsed_body
 
           get(api_v2_things_path)
+
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_things = response.parsed_body
 
           get(api_v2_creative_works_path)
+
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_creative_works = response.parsed_body
 
-          assert(json_data_search != json_data_things)
+          assert_not_equal(json_data_search, json_data_things)
           assert_equal(json_data_search.except('links'), json_data_things.except('links'))
-          assert(json_data_search != json_data_creative_works)
+          assert_not_equal(json_data_search, json_data_creative_works)
           assert_equal(json_data_search.except('links'), json_data_creative_works.except('links'))
         end
 
         test 'sorted article is also found in V1 and has the same values as V2' do
           get(api_v1_contents_search_path)
+
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_search_old = response.parsed_body
 
           get(api_v2_contents_search_path)
+
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_search = response.parsed_body
@@ -107,7 +115,7 @@ module DataCycleCore
             'slug' => 'testartikel',
             'headline' => 'TestArtikel'
           }
-          v1_except = ['dateCreated', 'dateModified', 'classifications']
+          v1_except = ['dateCreated', 'dateModified', 'classifications', 'dummy']
 
           v2_hash = {
             '@context' => "#{data_hash['@context']}/thing",

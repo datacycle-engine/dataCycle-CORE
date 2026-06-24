@@ -1,0 +1,9 @@
+<div class="reveal content-classifier-reveal" id="content_classifier_<%= content_id %>" data-reveal data-multiple-opened="true">
+  <%= turbo_frame_tag "content_classifier_#{content_id}_frame",
+    src: content_classifier_form_body_thing_path(id: content_id),
+    loading: 'lazy' %>
+
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

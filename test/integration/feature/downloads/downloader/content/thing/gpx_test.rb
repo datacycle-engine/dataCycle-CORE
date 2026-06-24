@@ -28,9 +28,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@place.name)
+                assert_includes response.body, @place.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal 1, xml.search('wpt').size
               end
 
@@ -40,9 +41,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@place.name)
+                assert_includes response.body, @place.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal 1, xml.search('wpt').size
               end
 
@@ -52,9 +54,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@place.name)
+                assert_includes response.body, @place.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal 1, xml.search('wpt').size
               end
 
@@ -64,9 +67,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@place.name)
+                assert_includes response.body, @place.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal 1, xml.search('wpt').size
               end
 
@@ -76,9 +80,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@tour.name)
+                assert_includes response.body, @tour.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal 343, xml.search('trkpt').size
               end
 
@@ -88,9 +93,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@tour.name)
+                assert_includes response.body, @tour.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal 343, xml.search('trkpt').size
               end
 
@@ -100,9 +106,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@tour.name)
+                assert_includes response.body, @tour.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal 343, xml.search('trkpt').size
               end
 
@@ -112,9 +119,10 @@ module DataCycleCore
                 }
 
                 assert_response :success
-                assert response.body.include?(@tour.name)
+                assert_includes response.body, @tour.name
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal 343, xml.search('trkpt').size
               end
             end

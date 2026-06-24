@@ -23,7 +23,7 @@ module DataCycleCore
 
             assert_equal 'value_de', result.dig(:translations, 'de', 'name')
             assert_equal 'value_en', result.dig(:translations, 'en', 'name')
-            assert result[:datahash].blank?
+            assert_predicate result[:datahash], :blank?
           end
 
           test 'json_ld hash without @value and @language gets nested and not transformed' do
@@ -32,7 +32,7 @@ module DataCycleCore
             })
 
             assert_equal 'value_de', result.dig(:datahash, 'name')
-            assert result[:translations].blank?
+            assert_predicate result[:translations], :blank?
           end
         end
       end

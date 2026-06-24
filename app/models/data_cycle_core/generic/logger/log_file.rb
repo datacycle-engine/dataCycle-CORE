@@ -25,11 +25,11 @@ module DataCycleCore
 
         def error(title, id, data, error)
           if title && id
-            @log.error "Error #{@kind}ing \"#{title} (\##{id})\": #{error}"
+            @log.error "Error #{@kind}ing \"#{title} (##{id})\": #{error}"
           elsif title
             @log.error "Error #{@kind}ing \"#{title}\": #{error}"
           elsif id
-            @log.error "Error #{@kind}ing \"\##{id}\": #{error}"
+            @log.error "Error #{@kind}ing \"##{id}\": #{error}"
           else
             @log.error "Error: #{error}"
           end

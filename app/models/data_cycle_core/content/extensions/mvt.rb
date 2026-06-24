@@ -6,8 +6,8 @@ module DataCycleCore
       module Mvt
         extend ActiveSupport::Concern
 
-        def to_mvt(x, y, z, **kwargs)
-          DataCycleCore::Geo::MvtRenderer.new(x, y, z, contents: self.class.where(id:).limit(1), **kwargs).render
+        def to_mvt(x, y, z, **)
+          DataCycleCore::Geo::MvtRenderer.new(x, y, z, contents: self.class.where(id:).limit(1), **).render
         end
 
         class_methods do
@@ -16,7 +16,7 @@ module DataCycleCore
           end
 
           def to_bbox
-            select_sql = <<-SQL.squish
+            select_sql = <<~SQL.squish
               json_build_object(
                 'xmin', st_xmin(ST_Extent(geometries.geom_simple)),
                 'ymin', st_ymin(ST_Extent(geometries.geom_simple)),

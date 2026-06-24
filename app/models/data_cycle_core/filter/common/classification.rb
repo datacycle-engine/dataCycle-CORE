@@ -16,6 +16,30 @@ module DataCycleCore
           reflect(@query.where.not(sub_query_for_classification_alias_ids(ids, false)))
         end
 
+        def classification_alias_ids_without_subtree_with_related(ids = nil)
+          return self if ids.blank?
+
+          reflect(@query.where(sub_query_for_classification_alias_ids(ids, true, true)))
+        end
+
+        def not_classification_alias_ids_without_subtree_with_related(ids = nil)
+          return self if ids.blank?
+
+          reflect(@query.where.not(sub_query_for_classification_alias_ids(ids, true, true)))
+        end
+
+        def classification_alias_ids_related(ids = nil)
+          return self if ids.blank?
+
+          reflect(@query.where(sub_query_for_classification_alias_ids(ids, false, true)))
+        end
+
+        def not_classification_alias_ids_related(ids = nil)
+          return self if ids.blank?
+
+          reflect(@query.where.not(sub_query_for_classification_alias_ids(ids, false, true)))
+        end
+
         def classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
 
@@ -91,23 +115,24 @@ module DataCycleCore
           return self if user_id.nil?
 
           ids = DataCycleCore::ClassificationAlias
-            .includes(classifications: [user_groups: :user_group_users])
+            .includes(classifications: [{ user_groups: :user_group_users }])
             .where(classifications: { user_groups: { user_group_users: { user_id: } } })
             .pluck(:id)
 
-          if ids.blank?
-            reflect(@query.where('1 = 0'))
-          else
-            reflect(@query.where(sub_query_for_classification_alias_ids(ids, false)))
-          end
+          return reflect(DataCycleCore::Thing.none) if ids.blank?
+
+          reflect(@query.where(sub_query_for_classification_alias_ids(ids, false)))
         end
 
         private
 
-        def sub_query_for_classification_alias_ids(ids, direct = false)
-          query = DataCycleCore::CollectedClassificationContent
-            .where(classification_alias_id: ids)
-          query = query.where(link_type: 'direct') if direct
+        def sub_query_for_classification_alias_ids(ids, direct = false, related = false)
+          link_types = []
+          link_types << 'direct' if direct
+          link_types << 'related' if related
+
+          query = DataCycleCore::CollectedClassificationContent.where(classification_alias_id: ids)
+          query = query.where(link_type: link_types) if link_types.present?
           query.where(ccc_table[:thing_id].eq(thing[:id]))
             .select(1)
             .arel.exists

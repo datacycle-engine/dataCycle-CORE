@@ -18,6 +18,9 @@ module PostgresCustomTypesExtension
       m.alias_type 'tsmultirange', 'varchar'
       m.alias_type 'tstzmultirange', 'varchar'
 
+      # void type (e.g. for pg_stat_statements)
+      m.alias_type 'void', 'varchar'
+
       super
     end
   end

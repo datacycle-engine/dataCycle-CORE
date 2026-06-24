@@ -2,7 +2,7 @@
 
 class RemoveScheduleOccurrencesTable < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS delete_schedule_occurences_trigger ON schedules;
       DROP TRIGGER IF EXISTS generate_schedule_occurences_trigger ON schedules;
       DROP TRIGGER IF EXISTS update_schedule_occurences_trigger ON schedules;
@@ -20,7 +20,7 @@ class RemoveScheduleOccurrencesTable < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE TABLE IF NOT EXISTS schedule_occurrences (
         id uuid NOT NULL DEFAULT uuid_generate_v4(),
         schedule_id uuid NOT NULL,

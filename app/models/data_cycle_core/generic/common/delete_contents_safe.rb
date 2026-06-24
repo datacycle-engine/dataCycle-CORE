@@ -42,16 +42,21 @@ module DataCycleCore
             template_names = Array.wrap(options.dig(:import, :template_name))
             contents = contents.where(template_name: template_names) if template_names.present?
             linked_template_names = Array.wrap(options.dig(:import, :linked_template_name))
+            count = contents.count
 
             contents.find_each do |content|
               if content.available_locales.one? && content.available_locales.include?(I18n.locale)
-                duplicates = content.external_system_syncs.where(sync_type: 'duplicate')
+                # only find external_system_syncs with sync_type import, as they were really imported at some point
+                duplicates = content.external_system_syncs.import
                 if options.dig(:import, :delete_all_duplicates)
-                  duplicates.destroy_all
+                  duplicates.delete_all
                   oldest_import_duplicate = nil
                 else
-                  # look for oldest with import_config
-                  oldest_import_duplicate = duplicates.joins(:external_system).where("external_systems.config ->> 'import_config' IS NOT NULL").order(created_at: :asc).first
+                  # look for most recently updated with import_config
+                  oldest_import_duplicate = duplicates
+                    .with_import_config
+                    .with_active_config
+                    .order(last_successful_sync_at: :desc, updated_at: :desc).first
                 end
               end
 
@@ -65,6 +70,8 @@ module DataCycleCore
                 oldest_import_duplicate.destroy
               end
             end
+
+            count # return the number of deleted contents
           end
         end
       end

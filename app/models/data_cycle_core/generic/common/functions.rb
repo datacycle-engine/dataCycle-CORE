@@ -20,6 +20,7 @@ module DataCycleCore
 
         def self.event_schedule(data_hash, sub_event_function)
           return data_hash if data_hash['event_period'].blank?
+
           sub_event = sub_event_function.call(data_hash)
           schedule_hash = {}
           schedule_hash[:dtstart] = data_hash.dig('event_period', 'start_date')&.in_time_zone
@@ -139,13 +140,31 @@ module DataCycleCore
           return data if (external_name = data.dig(*Array.wrap(name))).nil? || (external_key = data.dig(*Array.wrap(key))).nil?
 
           data['external_system_data'] ||= []
-          data['external_system_data'].push(
-            {
-              'identifier' => external_name,
-              'external_key' => prefix + external_key,
+          data['external_system_data'] << {
+            'identifier' => external_name,
+            'external_key' => prefix + external_key,
+            'sync_type' => 'duplicate'
+          }
+
+          data
+        end
+
+        # function should return array of values to be used as external_key and external_system_data
+        # the first available value will be used as external_key
+        def self.add_ext_key_and_system_data(data, external_system, function)
+          values = Array.wrap(function.call(data)).compact_blank.uniq
+          return data if values.blank?
+
+          data['external_key'] = values.shift
+
+          data['external_system_data'] ||= []
+          values.each do |external_key|
+            data['external_system_data'] << {
+              'identifier' => external_system.identifier,
+              'external_key' => external_key,
               'sync_type' => 'duplicate'
             }
-          )
+          end
 
           data
         end

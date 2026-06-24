@@ -36,6 +36,7 @@ module DataCycleCore
 
       value = schedule.map { |s|
         next unless s[:timestamp].is_a?(EtOrbi::EoTime)
+
         text = [l(s[:timestamp], locale: active_ui_locale, format: :edit)]
         args = []
         args << tag.b(t("dash_board.#{s[:mode]}", locale: active_ui_locale)) if s[:mode].present?

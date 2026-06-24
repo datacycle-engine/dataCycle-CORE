@@ -2,7 +2,7 @@
 
 class MigrateClassificationAliasPathsTriggersToConcepts < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS update_classification_alias_paths_trigger ON public.classification_aliases;
 
       DROP FUNCTION IF EXISTS public.generate_classification_alias_paths_trigger_1();
@@ -222,7 +222,7 @@ class MigrateClassificationAliasPathsTriggersToConcepts < ActiveRecord::Migratio
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS concept_schemes_update_paths_trigger ON public.concept_schemes;
 
       DROP FUNCTION IF EXISTS public.concept_schemes_update_paths_trigger_function();

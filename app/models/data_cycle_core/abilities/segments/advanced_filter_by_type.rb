@@ -11,12 +11,12 @@ module DataCycleCore
           @subject = Array.wrap(subject).map(&:to_sym)
         end
 
-        def include?(_view, _name = nil, type = nil, data = {}, *args)
+        def include?(_view, _name = nil, type = nil, data = {}, *)
           return true if type.nil?
 
           return false unless allowed_types.key?(type.to_s)
 
-          respond_to?(:"#{type}_type", true) ? send(:"#{type}_type", data, *args) : default_type(type, data, *args)
+          respond_to?(:"#{type}_type", true) ? send(:"#{type}_type", data, *) : default_type(type, data, *)
         end
 
         def to_proc
@@ -44,23 +44,24 @@ module DataCycleCore
           end
         end
 
-        def classification_alias_ids_type(data, *args)
-          default_type(__method__, data, *args, key: :name)
+        def classification_alias_ids_type(data, *)
+          default_type(__method__, data, *, key: :name)
         end
 
-        def advanced_attributes_type(data, *args)
-          default_type(__method__, data, *args, key: :name)
+        def advanced_attributes_type(data, *)
+          default_type(__method__, data, *, key: :name)
         end
 
         def default_type(type, data, *_args, key: :advancedType) # rubocop:disable Naming/PredicateMethod
           allowed_types_transformed = allowed_types[type.to_s].presence || allowed_types[type.to_s.sub('_type', '')]
           return true if allowed_types.key?(type.to_s) && allowed_types_transformed.nil?
           return true if ['all', true].include?(allowed_types_transformed)
+
           Array.wrap(allowed_types_transformed).include?(data.dig(:data, key))
         end
 
-        def boolean_type(data, *args)
-          default_type(__method__, data, *args, key: :name)
+        def boolean_type(data, *)
+          default_type(__method__, data, *, key: :name)
         end
       end
     end

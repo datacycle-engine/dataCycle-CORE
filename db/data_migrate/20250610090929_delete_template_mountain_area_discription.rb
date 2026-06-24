@@ -7,6 +7,7 @@ class DeleteTemplateMountainAreaDiscription < ActiveRecord::Migration[7.1]
   def up
     things = DataCycleCore::Thing.where(template_name: 'MountainAreaDiscription')
     return if things.present?
+
     execute <<~SQL.squish
       UPDATE public.things
       SET template_name = 'MountainAreaDescription'

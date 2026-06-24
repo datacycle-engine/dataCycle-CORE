@@ -9,15 +9,37 @@ body.static {
     margin: auto;
   }
 
-  .off-canvas-content > .inner-container {
+  .off-canvas-content>.inner-container {
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--medium-dark-gray);
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--medium-dark-gray);
+      margin-bottom: 1rem;
+      margin-top: 2rem;
+    }
+
     h3 {
-      font-style: italic;
+      font-size: 1.2rem;
+      font-weight: 600;
     }
 
     h4 {
-      font-size: 120%;
-      font-weight: bold;
-      font-style: italic;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    h5 {
+      font-size: 1rem;
+      font-weight: 600;
     }
 
     pre {
@@ -38,7 +60,7 @@ body.static {
       margin-bottom: 2rem;
     }
 
-    li > p {
+    li>p {
       margin-bottom: 0;
     }
 

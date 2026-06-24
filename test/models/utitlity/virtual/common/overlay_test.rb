@@ -8,6 +8,7 @@ require 'helpers/minitest_spec_helper'
 
 describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
   include VirtualAttributeTestUtilities
+  include DataCycleCore::MinitestSpecHelper
 
   subject do
     DataCycleCore::Utility::Virtual::Common
@@ -17,14 +18,14 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     content = create_content_dummy({ is_true: true, is_true_override: false })
     value = subject.overlay(virtual_parameters: ['is_true', 'is_true_override'], content:, virtual_definition: { 'type' => 'boolean' })
 
-    assert_equal(false, value)
+    assert_not(value)
   end
 
   it 'should take original for boolean with blank override' do
     content = create_content_dummy({ is_true: true, is_true_override: nil })
     value = subject.overlay(virtual_parameters: ['is_true', 'is_true_override'], content:, virtual_definition: { 'type' => 'boolean' })
 
-    assert_equal(true, value)
+    assert(value)
   end
 
   it 'should take override for string' do
@@ -67,8 +68,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_linked', 'my_linked_override', 'my_linked_add'], content:, virtual_definition: { 'type' => 'linked' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Thing))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Thing, value.first)
     assert_equal(2, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
   end
@@ -86,8 +87,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_linked', 'my_linked_override', 'my_linked_add'], content:, virtual_definition: { 'type' => 'linked' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Thing))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Thing, value.first)
     assert_equal(1, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001'], value.pluck(:id))
   end
@@ -111,8 +112,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_embedded', 'my_embedded_override', 'my_embedded_add'], content:, virtual_definition: { 'type' => 'embedded' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Thing))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Thing, value.first)
     assert_equal(2, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
   end
@@ -130,8 +131,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_embedded', 'my_embedded_override', 'my_embedded_add'], content:, virtual_definition: { 'type' => 'embedded' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Thing))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Thing, value.first)
     assert_equal(1, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001'], value.pluck(:id))
   end
@@ -153,8 +154,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_classification', 'my_classification_add'], content:, virtual_definition: { 'type' => 'classification' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Classification))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Classification, value.first)
     assert_equal(3, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
   end
@@ -170,8 +171,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_classification', 'my_classification_override', 'my_classification_add'], content:, virtual_definition: { 'type' => 'classification' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Classification))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Classification, value.first)
     assert_equal(1, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001'], value.pluck(:id))
   end
@@ -195,8 +196,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_linked', 'my_linked_override', 'my_linked_add'], content:, virtual_definition: { 'type' => 'linked' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Thing))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Thing, value.first)
     assert_equal(3, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
   end
@@ -215,8 +216,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_schedule', 'my_schedule_override', 'my_schedule_add'], content:, virtual_definition: { 'type' => 'schedule' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Schedule))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Schedule, value.first)
     assert_equal(2, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
   end
@@ -231,8 +232,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_schedule', 'my_schedule_override', 'my_schedule_add'], content:, virtual_definition: { 'type' => 'schedule' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Schedule))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Schedule, value.first)
     assert_equal(1, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001'], value.pluck(:id))
   end
@@ -251,8 +252,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     })
     value = subject.overlay(virtual_parameters: ['my_schedule', 'my_schedule_override', 'my_schedule_add'], content:, virtual_definition: { 'type' => 'schedule' })
 
-    assert(value.is_a?(ActiveRecord::Relation))
-    assert(value.first.is_a?(DataCycleCore::Schedule))
+    assert_kind_of(ActiveRecord::Relation, value)
+    assert_kind_of(DataCycleCore::Schedule, value.first)
     assert_equal(3, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
   end

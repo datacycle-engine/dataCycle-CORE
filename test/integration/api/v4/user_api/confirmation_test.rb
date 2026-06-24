@@ -28,6 +28,54 @@ module DataCycleCore
             assert_response :success
           end
 
+          def create_unconfirmed_user
+            DataCycleCore::User.create(DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
+              email: "dc11_#{SecureRandom.hex(4)}@datacycle.at",
+              role_id: DataCycleCore::Role.find_by(rank: 5)&.id
+            }))
+          end
+
+          test 'POST /api/v4/users/resend_confirmation - allowed forwardToUrl is used in the mail link (DC-11)' do
+            user = create_unconfirmed_user
+            ActionMailer::Base.deliveries.clear
+
+            post api_v4_users_resend_confirmation_path, headers: {
+              Authorization: "Bearer #{@current_user.access_token}"
+            }, params: {
+              email: user.email,
+              forwardToUrl: 'https://app.dummy.com/confirm'
+            }
+
+            assert_response :success
+
+            mail = ActionMailer::Base.deliveries.last
+
+            assert_not_nil mail
+            assert_includes (mail.html_part || mail).body.decoded, 'https://app.dummy.com/confirm'
+          end
+
+          test 'POST /api/v4/users/resend_confirmation - disallowed forwardToUrl falls back to first-party link (DC-11)' do
+            user = create_unconfirmed_user
+            ActionMailer::Base.deliveries.clear
+
+            post api_v4_users_resend_confirmation_path, headers: {
+              Authorization: "Bearer #{@current_user.access_token}"
+            }, params: {
+              email: user.email,
+              forwardToUrl: 'https://evil.com/capture'
+            }
+
+            assert_response :success
+
+            mail = ActionMailer::Base.deliveries.last
+
+            assert_not_nil mail
+            body = (mail.html_part || mail).body.decoded
+
+            assert_not_includes body, 'evil.com'
+            assert_includes body, 'localhost:3000'
+          end
+
           test 'PATCH /api/v4/users/confirm - confirm user - missing token' do
             patch api_v4_users_confirm_path, headers: {
               Authorization: "Bearer #{@current_user.access_token}"
@@ -35,9 +83,10 @@ module DataCycleCore
 
             assert_response :unprocessable_entity
 
-            assert response.content_type.include?('application/json')
+            assert_includes response.content_type, 'application/json'
             json_data = response.parsed_body
-            assert json_data.dig('errors', 'confirmation_token').present?
+
+            assert_predicate json_data.dig('errors', 'confirmation_token'), :present?
           end
 
           test 'PATCH /api/v4/users/confirm - confirm user - wrong token' do
@@ -49,9 +98,10 @@ module DataCycleCore
 
             assert_response :unprocessable_entity
 
-            assert response.content_type.include?('application/json')
+            assert_includes response.content_type, 'application/json'
             json_data = response.parsed_body
-            assert json_data.dig('errors', 'confirmation_token').present?
+
+            assert_predicate json_data.dig('errors', 'confirmation_token'), :present?
           end
 
           test 'PATCH /api/v4/users/confirm - confirm user - ok' do

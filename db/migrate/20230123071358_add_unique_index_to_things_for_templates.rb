@@ -2,7 +2,7 @@
 
 class AddUniqueIndexToThingsForTemplates < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE things ALTER COLUMN created_at SET DEFAULT transaction_timestamp();
       ALTER TABLE things ALTER COLUMN updated_at SET DEFAULT transaction_timestamp();
 
@@ -14,7 +14,7 @@ class AddUniqueIndexToThingsForTemplates < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP INDEX IF EXISTS things_template_name_template_uq_idx;
 
       ALTER TABLE things ALTER COLUMN created_at DROP DEFAULT;

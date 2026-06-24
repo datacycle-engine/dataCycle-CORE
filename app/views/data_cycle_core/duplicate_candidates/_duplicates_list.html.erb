@@ -1,4 +1,4 @@
-<% items = content.duplicate_candidates.presence&.page&.per(DataCycleCore.linked_objects_page_size) %>
+<% items = content.duplicate_candidates.duplicates.includes(:duplicate_candidates).page.per(DataCycleCore.linked_objects_page_size) %>
 <%= render 'data_cycle_core/duplicate_candidates/duplicates_list_items', content: content, items: items, prefix: prefix %>
 
 <div class="clear-both duplicate-list-buttons">

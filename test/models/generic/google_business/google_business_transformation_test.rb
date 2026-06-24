@@ -16,6 +16,7 @@ module DataCycleCore
             }]
           }
         )
+
         assert_equal 1, data.count
         assert_equal '09:30', data[0][:opens]
         assert_equal '12:45', data[0][:closes]

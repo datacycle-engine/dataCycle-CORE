@@ -34,7 +34,7 @@ class UpdateTemplateDefinitionsViaTrigger < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS update_template_definitions_trigger ON things;
       DROP FUNCTION IF EXISTS update_template_definitions_trigger;
     SQL

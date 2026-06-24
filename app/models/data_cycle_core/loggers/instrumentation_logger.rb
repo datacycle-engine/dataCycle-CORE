@@ -7,6 +7,7 @@ module DataCycleCore
 
       def initialize(type:)
         log_file = "./log/#{type}.log"
+        @type = type
         @kind_short = "[#{type.to_s[0].upcase}]"
         super(log_file)
       end
@@ -26,7 +27,7 @@ module DataCycleCore
             if data[:step_label].present?
               message.push(data[:step_label], '...', '[FAILED]')
             else
-              message.push(data[:external_system]&.name, '...', '[FAILED]')
+              message.push(data[:external_system].try(:name), '...', '[FAILED]')
             end
 
             message.push("(Item-ID: #{data[:item_id]})") if data[:item_id].present?
@@ -43,7 +44,10 @@ module DataCycleCore
           message = data.to_json
         end
 
-        send(severity, message) if message.present?
+        return if message.blank?
+
+        send(severity, message)
+        broadcast_line(severity, message) if @type.in?(['import', 'download'])
       end
 
       def self.with_logger(type:)
@@ -51,6 +55,16 @@ module DataCycleCore
         yield(logger)
       ensure
         logger.close
+      end
+
+      private
+
+      def broadcast_line(severity, message)
+        DataCycleCore::TurboService.broadcast_append_to(
+          'admin_dashboard_live_log',
+          target: 'admin-dashboard-live-log-content',
+          html: format_message(format_severity(self.class.const_get(severity.upcase)), Time.current, nil, message)
+        )
       end
     end
   end

@@ -2,7 +2,14 @@
 
 # Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
-Warning[:deprecated] = false
+Warning[:deprecated] = true
+
+# raise on warnings, enable to debug warnings
+# module Warning
+#   def warn(message, ...)
+#     raise message
+#   end
+# end
 
 unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
   require 'simplecov'
@@ -24,11 +31,38 @@ unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
   end
 end
 
+# Load the Rails frameworks before Rails.groups / Bundler.require are used.
+# `rails test` / `rake test` boot the app first, but parallel_tests loads the test
+# files in bare ruby processes where Rails is not yet defined. This mirrors what
+# the dummy app's config/application.rb does, and runs after SimpleCov so coverage
+# is still started before any application code is loaded.
+require File.expand_path('dummy/lib/require_rails', __dir__)
+
 Bundler.require(*Rails.groups)
 
 Dotenv::Rails.load
 
 require File.expand_path('../test/dummy/config/environment.rb', __dir__)
+
+# Eagerly load the standalone library helpers (lib/rake_helpers, generators and the
+# plain lib/data_cycle_core service objects). They are normally required on demand
+# by rake tasks, so in a parallel run only the single worker exercising them records
+# coverage while every other worker falls back to a zero-filled SimpleCov stub that
+# also marks structural lines (e.g. `end`) as relevant-but-uncovered. Loading them
+# here – after SimpleCov.start and the app boot – makes Ruby's Coverage track them
+# consistently in every worker so the Libraries group is reported accurately.
+[
+  'rake_helpers/time_helper',
+  'rake_helpers/shell_helper',
+  'rake_helpers/db_helper',
+  'rake_helpers/parallel_helper',
+  'rake_helpers/content_helper',
+  'rake_helpers/cleanup_helper',
+  'rake_helpers/import_helper',
+  'data_cycle_core/acknowledgments',
+  'data_cycle_core/rufus_yaml_scheduler',
+  'generators/rails/data_migration/data_migration_generator'
+].each { |lib| require lib }
 # ActiveRecord::Migrator.migrations_paths = [File.expand_path("../../test/dummy/db/migrate", __FILE__)]
 # ActiveRecord::Migrator.migrations_paths << File.expand_path('../../db/migrate', __FILE__)
 
@@ -42,10 +76,6 @@ require 'test_cases/action_dispatch_integration_test'
 # Filter out Minitest backtrace while allowing backtrace from other libraries
 # to be shown.
 Minitest.backtrace_filter = Minitest::BacktraceFilter.new
-
-# FIX for delayed_jobs in TEST environment with rails 6.x:
-# https://github.com/rails/rails/issues/37270
-(ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
 
 # # Load fixtures from the engine
 # if ActiveSupport::TestCase.respond_to?(:fixture_path=)
@@ -61,38 +91,14 @@ require 'helpers/data_helper'
 require 'helpers/mongo_helper'
 require 'helpers/api_v4_helper'
 require 'helpers/active_storage_helper'
+require 'helpers/struct_double_helper'
 
-if DataCycleCore::TestPreparations.cli_options[:ignore_preparations]
-  Rails.backtrace_cleaner.remove_silencers!
-else
-  # DataCycleCore::TestPreparations.load_dictionaries
-  DataCycleCore::TestPreparations.load_classifications(
-    [
-      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_test')
-    ]
-  )
-  DataCycleCore::TestPreparations.load_external_systems(
-    [
-      Rails.root.join('..', 'fixtures', 'external_systems')
-    ]
-  )
-  DataCycleCore::TestPreparations.load_templates(
-    [
-      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_test'),
-      Rails.root.join('..', 'data_types', 'attributes'),
-      Rails.root.join('..', 'data_types', 'models')
-    ]
-  )
-end
-
-DataCycleCore::TestPreparations.load_dummy_data(
-  [
-    Rails.root.join('..', 'fixtures', 'data'),
-    Rails.root.join('..', 'v4', 'fixtures', 'data')
-  ]
-)
-
-DataCycleCore::TestPreparations.load_user_roles
-DataCycleCore::TestPreparations.create_users
-DataCycleCore::TestPreparations.create_user_group
-DataCycleCore::PgDictMapping.upsert_missing
+# NB: nothing is prepared here at boot anymore.
+#  - The database preparations (classifications, external systems, templates, user roles, users,
+#    user group, pg dict mappings) are loaded once per worker DB by `dc:test:setup`
+#    (DataCycleCore::TestPreparations.prepare_database!), so the test DB must be set up via that
+#    task before running the suite.
+#  - The dummy-data fixtures are an in-memory, per-process cache and now load lazily on first
+#    access (DataCycleCore::TestPreparations.dummy_data_hash), so test files that don't use them
+#    pay nothing.
+Rails.backtrace_cleaner.remove_silencers! if DataCycleCore::TestPreparations.cli_options[:ignore_preparations]

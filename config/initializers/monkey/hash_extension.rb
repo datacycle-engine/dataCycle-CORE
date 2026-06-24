@@ -14,22 +14,24 @@ module DataCycleCore
       end
     end
 
+    # add parent hash as third argument to block
     def deep_reject(&)
       each_with_object({}) do |(k, v), memo|
-        if v.is_a?(Hash)
-          memo[k] = v.deep_reject(&)
-        elsif v.is_a?(Array)
-          memo[k] = v.map { |val|
-            val.is_a?(Hash) ? val.deep_reject(&) : val
-          }.reject { |val| yield(k, val) }
-        else
-          memo[k] = v
-        end
+        memo[k] = if v.is_a?(Hash)
+                    v.deep_reject(&)
+                  elsif v.is_a?(Array)
+                    v.map { |val|
+                      val.is_a?(Hash) ? val.deep_reject(&) : val
+                    }.reject { |val| yield(k, val, self) }
+                  else
+                    v
+                  end
 
-        memo.delete(k) if yield(k, memo[k])
+        memo.delete(k) if yield(k, memo[k], self)
       end
     end
 
+    # add parent hash as third argument to block
     def deep_reject!(&)
       each do |k, v|
         v.deep_reject!(&) if v.is_a?(Hash)
@@ -37,20 +39,6 @@ module DataCycleCore
         if v.is_a?(Array)
           v.each { |val|
             val.deep_reject!(&) if val.is_a?(Hash)
-          }.reject! { |val| yield(k, val) }
-        end
-
-        delete(k) if yield(k, v)
-      end
-    end
-
-    def deep_reject_with_parent!(&block)
-      each do |k, v|
-        v.deep_reject_with_parent!(&block) if v.is_a?(Hash)
-
-        if v.is_a?(Array)
-          v.each { |val|
-            val.deep_reject_with_parent!(&block) if val.is_a?(Hash)
           }.reject! { |val| yield(k, val, self) }
         end
 
@@ -72,6 +60,14 @@ module DataCycleCore
 
     def deep_compact_blank!
       deep_reject! { |_, v| v.blank? }
+    end
+
+    def deep_compact_blank_safe
+      deep_reject { |_, v| v.blank? && v != false }
+    end
+
+    def deep_compact_blank_safe!
+      deep_reject! { |_, v| v.blank? && v != false }
     end
 
     def deep_freeze

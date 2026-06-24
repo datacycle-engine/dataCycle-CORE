@@ -5,7 +5,7 @@ module DataCycleCore
     layout -> { params[:viewer_layout].presence || 'data_cycle_core/devise' }
 
     def edit
-      @redirect_url = params[:redirect_url]
+      @redirect_url = allowed_redirect_url
 
       super
     end
@@ -24,9 +24,15 @@ module DataCycleCore
     protected
 
     def after_resetting_password_path_for(_resource)
-      return params[:redirect_url] if params[:redirect_url].present?
+      allowed_redirect_url.presence || (Devise.sign_in_after_reset_password ? root_path : new_session_path(resource_name))
+    end
 
-      Devise.sign_in_after_reset_password ? root_path : new_session_path(resource_name)
+    # only honor a caller-supplied redirect_url when it passes the UserApi
+    # host allowlist; otherwise ignore it (open-redirect protection, DC-11)
+    def allowed_redirect_url
+      return if params[:redirect_url].blank?
+
+      params[:redirect_url] if DataCycleCore::Feature::UserApi.redirect_url_allowed?(params[:redirect_url])
     end
   end
 end

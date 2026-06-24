@@ -19,7 +19,8 @@ module DataCycleCore
               test 'api_v4_thing_path validate full image with default params and enabled image proxy' do
                 DataCycleCore.features[:image_proxy][:enabled] = true
                 DataCycleCore::Feature::ImageProxy.reload
-                assert DataCycleCore::Feature::ImageProxy.enabled?
+
+                assert_predicate DataCycleCore::Feature::ImageProxy, :enabled?
 
                 assert_full_thing_datahash(@content)
 
@@ -129,12 +130,13 @@ module DataCycleCore
                 assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
                 assert_equal([], required_attributes)
-                assert_equal({'mandatoryLicense' => false}, json_validate)
+                assert_equal({ 'mandatoryLicense' => false }, json_validate)
               end
 
               test 'api_v4_thing_path validate full image with default params and disabled image proxy' do
                 DataCycleCore.features[:image_proxy][:enabled] = false
                 DataCycleCore::Feature::ImageProxy.reload
+
                 assert_not DataCycleCore::Feature::ImageProxy.enabled?
 
                 assert_full_thing_datahash(@content)
@@ -244,7 +246,7 @@ module DataCycleCore
                 assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
                 assert_equal([], required_attributes)
-                assert_equal({'mandatoryLicense' => false}, json_validate)
+                assert_equal({ 'mandatoryLicense' => false }, json_validate)
               end
 
               def teardown

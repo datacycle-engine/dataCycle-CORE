@@ -16,9 +16,9 @@ export default (() => {
 		return this.replace(/_+(.)/g, (_match, chr) => chr.toUpperCase());
 	};
 	String.prototype.interpolate = function (params) {
-		const names = Object.keys(params);
-		const vals = Object.values(params);
-		return new Function(...names, `return \`${this}\`;`)(...vals);
+		return this.replace(/\${([^}]+)}/g, (match, key) => {
+			return Object.hasOwn(params, key.trim()) ? params[key.trim()] : match;
+		});
 	};
 	String.prototype.sanitizeToId = function () {
 		return this.replaceAll("]", "").replaceAll(/[^-a-zA-Z0-9:._]/g, "_");

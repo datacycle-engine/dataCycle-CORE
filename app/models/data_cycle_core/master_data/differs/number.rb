@@ -14,14 +14,15 @@ module DataCycleCore
 
         def diff(a, b, template, _partial_update)
           return if a.blank? && b.blank?
+
           format_key = template&.dig('validations', 'format')
           a_value = a
           b_value = b
-          if format_key.present? && number_formats.include?(format_key)
-            @diff_hash = method(format_key).call(a_value, b_value)
-          else
-            @diff_hash = float(a_value, b_value)
-          end
+          @diff_hash = if format_key.present? && number_formats.include?(format_key)
+                         method(format_key).call(a_value, b_value)
+                       else
+                         float(a_value, b_value)
+                       end
           diff_hash
         end
 
@@ -39,6 +40,7 @@ module DataCycleCore
           return ['+', float_b] if a.blank?
           return ['-', float_a] if b.blank?
           return if (float_a - float_b).abs < epsilon
+
           ['~', float_a, float_b]
         end
       end

@@ -13,6 +13,7 @@ module DataCycleCore
 
     attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, :synchronous_webhooks, :webhook_source, *WEBHOOK_ACCESSORS
     attr_writer :user_api_feature, :ability
+
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
       'email',
@@ -71,8 +72,13 @@ module DataCycleCore
     belongs_to :creator, class_name: 'DataCycleCore::User'
     has_many :created_users, class_name: 'DataCycleCore::User', foreign_key: :creator_id
 
+    has_many :access_grants, class_name: 'Doorkeeper::AccessGrant', foreign_key: :resource_owner_id, dependent: :delete_all
+    has_many :access_tokens, class_name: 'Doorkeeper::AccessToken', foreign_key: :resource_owner_id, dependent: :delete_all
+
     before_save :reset_ui_locale, unless: :ui_locale_allowed?
     before_create :set_default_role
+
+    validate :system_admin_requires_oauth
 
     delegate :can?, :cannot?, :can_attribute?, to: :ability
 
@@ -84,6 +90,7 @@ module DataCycleCore
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     default_scope { where(deleted_at: nil) }
+    scope :unconfirmed_for, ->(days) { where(confirmed_at: nil, confirmation_sent_at: ..(Time.current - days.days)) }
 
     CONTROLLER_CONTEXT_SCHEMA = Dry::Schema.Params do
       optional(:controller).filled(:string)
@@ -115,6 +122,7 @@ module DataCycleCore
 
     def forward_to_url_with_token(tokens)
       return if forward_to_url.blank?
+      return unless user_api_feature.allowed_redirect_url?(forward_to_url)
 
       uri = Addressable::URI.parse(forward_to_url.to_s)
       uri.query = ([uri.query] + tokens.map { |k, v| "#{k.to_s.camelize(:lower)}=#{v}" }).compact.join('&') if tokens.present?
@@ -146,6 +154,20 @@ module DataCycleCore
       filters
     end
 
+    def user_filters(scope = 'backend')
+      scopes = Array.wrap(scope)
+
+      DataCycleCore.user_filters&.filter_map do |k, f|
+        next if f.blank?
+        next unless Array.wrap(f['scope']).intersect?(scopes)
+        next unless Array.wrap(f['segments']).any? do |s|
+          s['name'].safe_constantize.new(*Array.wrap(s['parameters'])).include?(self)
+        end
+
+        k
+      end || []
+    end
+
     def has_rank?(rank)
       role&.rank&.>= rank
     end
@@ -155,7 +177,7 @@ module DataCycleCore
     end
 
     def is_role?(*role_names)
-      role&.name&.in?(Array.wrap(role_names).map(&:to_s))
+      role_name&.in?(Array.wrap(role_names).map(&:to_s))
     end
 
     def has_user_group?(group_name)
@@ -240,7 +262,7 @@ module DataCycleCore
       user
     end
 
-    def self.from_omniauth(auth)
+    def self.from_omniauth(auth, &)
       return if auth&.info&.email.blank?
 
       user = find_or_initialize_by_omniauth(auth)
@@ -248,12 +270,14 @@ module DataCycleCore
       if user.new_record?
         user.password = Devise.friendly_token
         user.raw_password = user.password
-        user.given_name = auth.info.first_name
-        user.family_name = auth.info.last_name
+        user.given_name = auth.info.first_name.to_s
+        user.family_name = auth.info.last_name.to_s
         user.role = DataCycleCore::Role.find_by(name: Devise.omniauth_configs[auth.provider.to_sym].options[:default_role]) if Devise.omniauth_configs[auth.provider.to_sym]&.options&.[](:default_role).present?
         user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserRegistration.enabled? && user.confirmed_at.blank?
         user.external = true
       end
+
+      yield(user) if block_given?
 
       user.save!
       user
@@ -269,12 +293,12 @@ module DataCycleCore
       all.map(&:as_user_api_json)
     end
 
-    def to_select_option(locale = DataCycleCore.ui_locales.first, disable_locked = true)
+    def to_select_option(locale = DataCycleCore.ui_locales.first, disable_locked = true, mask_email: false)
       DataCycleCore::Filter::SelectOption.new(
         id:,
         name: ActionController::Base.helpers.safe_join([
           ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon user-icon'),
-          email
+          mask_email ? full_name : email
         ].compact, ' '),
         html_class: model_name.param_key,
         dc_tooltip: ActionController::Base.helpers.safe_join(
@@ -310,6 +334,8 @@ module DataCycleCore
       ].compact, ' ')
     end
 
+    # Logs user activity with request context (controller, action, format, referer, origin, and custom tracking headers).
+    # Creates an activity record with the specified type, data, and optional activitiable association.
     def log_request_activity(type:, data: {}, request: nil, activitiable: nil)
       data ||= {}
       data.deep_stringify_keys!
@@ -344,12 +370,13 @@ module DataCycleCore
         email: "u#{id}@ano.nym",
         given_name: '',
         family_name: "anonym_#{id.first(8)}",
-        password: SecureRandom.hex(10),
+        password: Devise.friendly_token,
         default_locale: I18n.default_locale,
         ui_locale: I18n.default_locale,
         updated_at: Time.zone.now,
         locked_at: Time.zone.now,
         sign_in_count: 0,
+        failed_attempts: 0,
         external: false,
         deleted_at: Time.zone.now,
         subscription_ids: nil,
@@ -372,10 +399,48 @@ module DataCycleCore
       organization? ? 'organization' : 'user'
     end
 
+    def role_name
+      role&.name
+    end
+
+    def group_names
+      user_groups.pluck(:name)
+    end
+
+    def update_access_token!
+      update_column(:access_token, generate_access_token)
+    end
+
+    def generate_access_token
+      SecureRandom.hex
+    end
+
+    def confirmable?
+      devise_modules.include?(:confirmable)
+    end
+
+    def registerable?
+      devise_modules.include?(:registerable)
+    end
+
+    # Returns the ability instance for authorization checks.
+    # Memoized to avoid creating multiple instances for the same user.
+    def ability
+      return @ability if defined? @ability
+
+      @ability = DataCycleCore::Ability.new(self)
+    end
+
     private
 
     def set_default_role
-      self.role ||= DataCycleCore::Feature::UserRegistration.default_role
+      return role if role.present?
+
+      self.role = if DataCycleCore::Feature::UserRegistration.enabled?
+                    DataCycleCore::Feature::UserRegistration.default_role
+                  else
+                    DataCycleCore::Role.default
+                  end
     end
 
     def ui_locale_allowed?
@@ -386,10 +451,15 @@ module DataCycleCore
       self.ui_locale = self.class.column_defaults['ui_locale']
     end
 
-    def ability
-      return @ability if defined? @ability
+    def system_admin_requires_oauth
+      return unless role_id_changed? || new_record?
+      return unless role&.rank == 100 # system_admin rank
 
-      @ability = DataCycleCore::Ability.new(self)
+      # Allow system_admin role only if user has OAuth providers
+      # OAuth users have a non-empty providers hash (e.g., { keycloak: "user_id" })
+      return unless providers.blank? || providers.empty?
+
+      errors.add(:role_id, :system_admin_requires_oauth)
     end
 
     def execute_update_webhooks

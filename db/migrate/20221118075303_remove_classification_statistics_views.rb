@@ -2,14 +2,14 @@
 
 class RemoveClassificationStatisticsViews < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW IF EXISTS classification_alias_statistics;
       DROP VIEW IF EXISTS classification_tree_label_statistics;
     SQL
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE VIEW classification_alias_statistics AS (
         WITH descendant_counts AS (
           SELECT

@@ -24,6 +24,7 @@ module DataCycleCore
             assert_context(json_data['@context'], 'de')
 
             validator = DataCycleCore::V4::Validation::Thing.event
+
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -46,6 +47,7 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
+
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -71,6 +73,7 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
+
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -112,6 +115,7 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
+
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -147,6 +151,7 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
+
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -171,6 +176,7 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Thing.event(params: { include: })
+
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -221,6 +227,7 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
+
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -288,6 +295,7 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
+
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -299,6 +307,7 @@ module DataCycleCore
               fields: 'image.thumbnailUrl,description,thumbnailUrl'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
@@ -329,6 +338,7 @@ module DataCycleCore
               thing_with_thumbnail_url = true if item['thumbnailUrl'].present?
               thing_with_image_thumbnail_url = true if item['image']&.first&.dig('thumbnailUrl').present?
             end
+
             assert(thing_with_description)
             assert(thing_with_thumbnail_url)
             assert(thing_with_image_thumbnail_url)
@@ -343,6 +353,7 @@ module DataCycleCore
               include: 'dc:classification.skos:inScheme'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
@@ -391,6 +402,7 @@ module DataCycleCore
               thing_with_classifications_in_scheme = true if item['dc:classification']&.first&.dig('skos:inScheme', 'skos:prefLabel').present?
               thing_with_classifications_pref_label = true if item['dc:classification']&.first&.dig('skos:prefLabel').present?
             end
+
             assert(thing_with_description)
             assert(thing_with_thumbnail_url)
             assert(thing_with_image_thumbnail_url)

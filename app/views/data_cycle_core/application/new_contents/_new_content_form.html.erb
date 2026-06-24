@@ -1,4 +1,4 @@
-<div class="reveal new-content-reveal<%= local_assigns[:object_browser] ? ' in-object-browser' : '' %>"
+<div class="reveal new-content-reveal <%= 'in-object-browser' if local_assigns[:object_browser] %>"
     id="new_<%= local_assigns.fetch(:key, 'default') %>"
     data-reveal
     data-multiple-opened="true">

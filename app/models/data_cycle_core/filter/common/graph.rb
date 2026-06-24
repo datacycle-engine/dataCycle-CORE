@@ -3,6 +3,17 @@
 module DataCycleCore
   module Filter
     module Common
+      # Provides filtering methods for graph relationships between content items.
+      #
+      # This module enables querying content based on their relationships through
+      # the ContentContent::Link association. It supports various filter operations
+      # including existence checks, negations, and like queries for related content.
+      #
+      # @example Check if content has related items
+      #   filter.exists_graph_filter(nil, 'images', query)
+      #
+      # @example Filter by specific relationship
+      #   filter.graph_filter(filter_params, 'parent_items', query)
       module Graph
         extend ActiveSupport::Concern
 
@@ -48,6 +59,7 @@ module DataCycleCore
           thing_id = :content_a_id
           related_to_id = :content_b_id
           thing_id, related_to_id = related_to_id, thing_id if inverse
+          relation = Array.wrap(relation).compact_blank
 
           query = DataCycleCore::ContentContent::Link.select(1)
             .where(content_content_link[thing_id].eq(thing[:id]))

@@ -61,6 +61,7 @@ de:
       dash_board: Admin Dashboard
       permission: Berechtigungen
       preview: Widget-Link
+      oauth: OAuth
     actions:
       index: anzeigen (Liste)
       show: anzeigen
@@ -144,7 +145,10 @@ de:
       download_user_info_activity: "Nutzerinformationen und API-Aktivität herunterladen"
       copy_to_clipboard: in die Zwischenablage kopieren
       api_translate_text: Texte per API übersetzen
-      ai_lector: D.A.I.S.Y. verwenden
+      ai_lector: data.pixies verwenden
+      show_description: Beschreibung anzeigen
+      update_description: Beschreibung bearbeiten
+      authenticate_with: authentifizieren
     restrictions:
       advanced_filter_except_type: "nicht: %{except}"
       asset_by_user_and_no_content:
@@ -157,8 +161,8 @@ de:
       classification_alias_and_children_not_external_and_not_internal:
         - selbst und Kinder nicht "Internal"
         - selbst und Kinder nicht importiert
-      ? classification_tree_label_and_classification_aliases_not_external_and_not_internal
-      : - selbst und Kinder nicht "Internal"
+      classification_tree_label_and_classification_aliases_not_external_and_not_internal:
+        - selbst und Kinder nicht "Internal"
         - selbst und Kinder nicht importiert
       content_by_report_generator: Feature "Report" aktiviert
       data_link_by_receiver: Benutzer der Empfänger des externen Links
@@ -193,10 +197,13 @@ de:
       thing_by_user_and_template_name:
         - "Benutzer ist %{attribute_name}"
         - "Datentyp: %{template_names}"
+      things_by_collections:
+        - "Inhalte in %{collection_type}: %{collection_names_or_ids}"
       things_in_collections:
         - "Inhalte in %{collection_type}: %{collection_names_or_ids}"
       tree_label_by_visibility: "Sichtbarkeit: %{visibilities}"
       users_by_email_domain: "E-Mail Domain: %{domain}"
+      users_by_email: "E-Mail Adresse: %{email}"
       users_by_role: "Rolle: %{roles}"
       users_by_role_and_provider:
         - "Rolle: %{roles}"

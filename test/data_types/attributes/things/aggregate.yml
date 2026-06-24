@@ -11,6 +11,8 @@
         :allowed: true
       :aggregate:
         :allowed: true
+        :additional_base_templates:
+          - Computed-Common-attribute_value_from_first_existing_linked
     :properties:
       :id:
         :label: id
@@ -19,3 +21,6 @@
         :label: Value 1
         :type: string
         :storage_location: translated_value
+      :universal_classifications:
+        :type: classification
+        :universal: true

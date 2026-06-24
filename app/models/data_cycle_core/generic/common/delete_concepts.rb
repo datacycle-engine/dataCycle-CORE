@@ -27,8 +27,11 @@ module DataCycleCore
           to_destroy = DataCycleCore::ClassificationTree.includes(:sub_classification_alias).where(
             sub_classification_alias: { external_source_id: utility_object.external_source.id, external_key: external_keys }
           )
+          count = to_destroy.count
 
           to_destroy.destroy_all
+
+          count # return the number of deleted concepts
         end
       end
     end

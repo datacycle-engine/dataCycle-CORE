@@ -3,6 +3,8 @@
 module DataCycleCore
   class StaticController < ApplicationController
     ROOT_PATHS = [Rails.root, DataCycleCore::Engine.root].freeze
+    AUTHORIZED_FOLDERS = ['docs', 'guides', 'static'].freeze
+
     HTML_OPTIONS = {
       with_toc_data: true,
       hard_wrap: true
@@ -17,43 +19,34 @@ module DataCycleCore
 
     def show
       @root_path = params[:root_path] || 'docs'
+      raise ActiveRecord::RecordNotFound unless AUTHORIZED_FOLDERS.include?(@root_path)
+
       @markdown = render_markdown
     end
 
-    def image
-      root_paths = ROOT_PATHS.map { |p| p.join(*request.path.split('/')) }
-      image_path = root_paths.detect(&:exist?)
-
-      raise ActiveRecord::RecordNotFound unless image_path
-
-      send_file image_path
-    end
-
     def render_markdown
-      root_paths = ROOT_PATHS.map { |p| p.join(@root_path, "#{sanitized_path}.{md,md.erb}") }
-      markdown_path = Dir.glob(root_paths).first
-
+      full_paths = ROOT_PATHS.map { |p| p.join(@root_path, "#{sanitized_path}.{md,md.erb}") }
+      markdown_path = Dir.glob(full_paths).first
       raise ActiveRecord::RecordNotFound if markdown_path.nil?
 
-      markdown = Redcarpet::Markdown.new(DataCycleCore::Static::MarkdownHtmlRenderer.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
+      raw_payload = render_to_string(inline: File.read(markdown_path))
+      renderer = Redcarpet::Markdown.new(
+        DataCycleCore::Static::MarkdownHtmlRenderer.new(**HTML_OPTIONS),
+        **MARKDOWN_OPTIONS
+      )
 
-      markdown.render(render_to_string(inline: File.read(markdown_path)))
+      renderer.render(raw_payload)
     end
+
+    private
 
     def sanitized_path
-      if params['path'].present?
-        sanitize(params['path'])
-      else
-        'overview'
-      end
-    end
+      return 'overview' if params['path'].blank?
 
-    def sanitized_file
-      sanitize(params['file']) if params['file'].present?
-    end
+      decoded = CGI.unescape(params['path'])
+      raise ActiveRecord::RecordNotFound if decoded.include?('..') || !%r{\A[a-zA-Z0-9_\-/]+\z}.match?(decoded)
 
-    def sanitize(string)
-      ActionController::Base.helpers.sanitize(string)
+      decoded
     end
   end
 end

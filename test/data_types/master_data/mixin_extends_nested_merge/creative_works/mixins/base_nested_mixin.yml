@@ -1,0 +1,20 @@
+---
+- :data:
+    :name: base_nested_mixin
+    :type: mixin
+    :properties:
+      :nested_text:
+        :label: Base nested label
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: text_editor
+        :api:
+          :name: dc:base
+          :disabled: false
+        :validations:
+          :min: 1

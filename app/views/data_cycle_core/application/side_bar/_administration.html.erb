@@ -2,8 +2,13 @@
   <% if DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability).exists? %>
     <div>
       <%= link_to classifications_path, class: 'classifications-link' do %>
-        <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
-        <span class="title"><%= t('data_cycle_core.classifications', locale: active_ui_locale) %></span>
+        <span class="icon">
+          <i class="fa fa-sitemap" aria-hidden="true"></i>
+        </span>
+
+        <span class="title">
+          <%= t('actions.manage', locale: active_ui_locale, data: DataCycleCore::Concept.model_name.human(count: 2, locale: active_ui_locale)) %>
+        </span>
       <% end %>
     </div>
   <% end %>
@@ -11,8 +16,13 @@
   <% if can? :index, DataCycleCore::User %>
     <div>
       <%= link_to index_users_path, class: 'users-link' do %>
-        <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
-        <span class="title"><%= t('actions.manage', data: DataCycleCore::User.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %></span>
+        <span class="icon">
+          <i class="fa fa-user" aria-hidden="true"></i>
+        </span>
+
+        <span class="title">
+          <%= t('actions.manage', data: DataCycleCore::User.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %>
+        </span>
       <% end %>
     </div>
   <% end %>
@@ -20,16 +30,40 @@
   <% if can? :index, DataCycleCore::UserGroup %>
     <div>
       <%= link_to user_groups_path, class: 'user-groups-link' do %>
-        <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-        <span class="title"><%= t('actions.manage', locale: active_ui_locale, data: DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale)) %></span>
+        <span class="icon">
+          <i class="fa fa-users" aria-hidden="true"></i>
+        </span>
+
+        <span class="title">
+          <%= t('actions.manage', locale: active_ui_locale, data: DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale)) %>
+        </span>
       <% end %>
     </div>
   <% end %>
 
+  <% if can? :manage, Doorkeeper::Application %>
+    <div>
+      <%= link_to oauth_applications_path, class: 'oauth-applications-link' do %>
+        <span class="icon">
+          <i class="fa fa-openid" aria-hidden="true"></i>
+        </span>
+
+        <span class="title">
+          <%= t('actions.manage', locale: active_ui_locale, data: Doorkeeper::Application.model_name.human(count: 2, locale: active_ui_locale)) %>
+        </span>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<% content_for(:sidebar_monitoring, flush:true) do %>
   <% if can? :index, DataCycleCore::Permission %>
     <div>
       <%= link_to permissions_path, class: 'permissions-link' do %>
-        <span class="icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+        <span class="icon">
+          <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+        </span>
+
         <span class="title"><%= DataCycleCore::Permission.model_name.human(count: 2, locale: active_ui_locale) %></span>
       <% end %>
     </div>
@@ -38,8 +72,23 @@
   <% if can?(:index, :report) && DataCycleCore::Feature::ReportGenerator.enabled? %>
     <div>
       <%= link_to reports_path do %>
-        <span class="icon"><i class="fa fa-table " aria-hidden="true"></i></span>
+        <span class="icon">
+          <i class="fa fa-table" aria-hidden="true"></i>
+        </span>
+
         <span class="title"><%= t('data_cycle_core.reports.root', locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if can?(:show, :grafana_dashboards) %>
+    <div>
+      <%= link_to File.join(root_path, 'grafana'), class: 'grafana-link', target: '_blank' do %>
+        <span class="icon">
+          <i class="fa fa-line-chart" aria-hidden="true"></i>
+        </span>
+
+        <span class="title"><%= t('data_cycle_core.grafana', locale: active_ui_locale) %></span>
       <% end %>
     </div>
   <% end %>
@@ -56,7 +105,10 @@
                   turbo_method: 'delete',
                   turbo_confirm: t('common.confirm_delete_all_caches', locale: active_ui_locale)
               } do %>
-        <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
+        <span class="icon">
+          <i class="fa fa-shield" aria-hidden="true"></i>
+        </span>
+
         <span class="title"><%= t('data_cycle_core.cache.clear_all', locale: active_ui_locale) %></span>
       <% end %>
     </div>
@@ -65,7 +117,10 @@
   <% if can? :manage, :dash_board %>
     <div>
       <%= link_to admin_path, class: 'admin-link' do %>
-        <span class="icon"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
+        <span class="icon">
+          <i class="fa fa-tachometer" aria-hidden="true"></i>
+        </span>
+
         <span class="title"><%= t('data_cycle_core.administration', locale: active_ui_locale) %></span>
       <% end %>
     </div>
@@ -73,15 +128,36 @@
 
   <div>
     <%= link_to docs_path, class: 'documentation-link' do %>
-      <span class="icon"><i class="fa fa-book" aria-hidden="true"></i></span>
+      <span class="icon">
+        <i class="fa fa-book" aria-hidden="true"></i>
+      </span>
+
       <span class="title"><%= t('data_cycle_core.documentation', locale: active_ui_locale) %></span>
     <% end %>
   </div>
+
+  <% if can? :manage, :dash_board %>
+    <div>
+      <%= link_to guides_path, class: 'guides-link' do %>
+        <span class="icon">
+          <i class="fa fa-compass" aria-hidden="true"></i>
+        </span>
+
+        <span class="title"><%= t('data_cycle_core.guides.root', locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
 <% end %>
 
 <% if content_for?(:sidebar_user_administration) %>
   <div class="settings-row">
     <%= yield_content!(:sidebar_user_administration) %>
+  </div>
+<% end %>
+
+<% if content_for?(:sidebar_monitoring) %>
+  <div class="settings-row">
+    <%= yield_content!(:sidebar_monitoring) %>
   </div>
 <% end %>
 

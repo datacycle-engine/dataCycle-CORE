@@ -99,7 +99,7 @@
               <dd>
 
                 <% if content.try(:url).present? %>
-                  <a class="button button-small" href="<%= content.url %>" target="_blank">
+                  <a class="button" href="<%= content.url %>" target="_blank">
                     <i class="fa fa-external-link" aria-hidden="true"></i>
 
                     <%= t('details.bild.open_url', locale: active_ui_locale) %>
@@ -107,7 +107,7 @@
                 <% end %>
 
                 <% if content.try(:youtube_url).present? %>
-                  <a class="button button-small" href="<%= content.youtube_url %>" target="_blank">
+                  <a class="button" href="<%= content.youtube_url %>" target="_blank">
                     <i class="fa fa-external-link" aria-hidden="true"></i>
 
                     <%= t('details.bild.open_youtube_url', locale: active_ui_locale) %>

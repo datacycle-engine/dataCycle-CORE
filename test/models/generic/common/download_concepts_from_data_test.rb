@@ -14,6 +14,7 @@ module DataCycleCore
       }
       ['en', 'de'].each do |locale|
         paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
         assert_equal 'name', paths['data_id_path']
         assert_equal 'name', paths['data_name_path']
         assert_equal "dump.#{locale}.dataPath.name", paths['full_id_path']
@@ -31,6 +32,7 @@ module DataCycleCore
       }
       ['en', 'de'].each do |locale|
         paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
         assert_equal 'name', paths['data_id_path']
         assert_equal 'name', paths['data_name_path']
         assert_equal "dump.#{locale}.dataPath.name", paths['full_id_path']
@@ -49,6 +51,7 @@ module DataCycleCore
       }
       ['en', 'de'].each do |locale|
         paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
         assert_equal 'id', paths['data_id_path']
         assert_equal 'id', paths['data_name_path']
         assert_equal "dump.#{locale}.dataPath.id", paths['full_id_path']
@@ -66,6 +69,7 @@ module DataCycleCore
       }
       ['en', 'de'].each do |locale|
         paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
         assert_equal 'id', paths['data_id_path']
         assert_equal 'id', paths['data_name_path']
         assert_equal "dump.#{locale}.dataPath.id", paths['full_id_path']
@@ -84,6 +88,7 @@ module DataCycleCore
       }
       ['en', 'de'].each do |locale|
         paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
         assert_equal 'id', paths['data_id_path']
         assert_equal 'name', paths['data_name_path']
         assert_equal "dump.#{locale}.id", paths['full_id_path']
@@ -101,6 +106,7 @@ module DataCycleCore
       }
       ['en', 'de'].each do |locale|
         paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
         assert_equal 'id', paths['data_id_path']
         assert_equal 'name', paths['data_name_path']
         assert_equal "dump.#{locale}.id", paths['full_id_path']
@@ -113,12 +119,13 @@ module DataCycleCore
       options = {
         download: {
           data_id_path: 'id',
-          data_name_path: '<%= "name.#{locale}" %>',
+          data_name_path: '<%= "name.#{locale}" %>', # rubocop:disable Lint/InterpolationCheck
           data_path: 'dataPath'
         }
       }
       ['en', 'de'].each do |locale|
         paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
         assert_equal "name.#{locale}", paths['data_name_path']
       end
     end
@@ -133,6 +140,7 @@ module DataCycleCore
       }
       locale = :de
       paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
       assert_equal [1, 1, 0, 1], paths['path_array_positions']
       assert_equal 'dataPath.arr.obj.name', paths['data_path']
     end
@@ -147,6 +155,7 @@ module DataCycleCore
       }
       locale = :de
       paths = DataCycleCore::Generic::Common::DownloadConceptsFromData.prepare_data_paths(options:, locale:)
+
       assert_equal [0, 0, 1], paths['path_array_positions']
       assert_equal 'dataPath.obj.name', paths['data_path']
     end
@@ -163,8 +172,9 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$addFields' => {'name' => {'$trim' => {'input' => '$name'}}}}
+      exp = { '$addFields' => { 'name' => { '$trim' => { 'input' => '$name' } } } }
       relevant_pipeline = pipelines.reverse.find { |p| p.key?('$addFields') }
+
       assert_equal exp, relevant_pipeline
     end
 
@@ -179,8 +189,9 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$addFields' => {'name' => {'$trim' => {'input' => '$name'}}}}
+      exp = { '$addFields' => { 'name' => { '$trim' => { 'input' => '$name' } } } }
       relevant_pipeline = pipelines.reverse.find { |p| p.key?('$addFields') }
+
       assert_not_equal exp, relevant_pipeline
     end
 
@@ -194,7 +205,8 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$match' => {'id' => {'$ne' => nil}, 'name' => {'$ne' => nil}}}
+      exp = { '$match' => { 'id' => { '$ne' => nil }, 'name' => { '$ne' => nil } } }
+
       assert_equal exp, pipelines.last
     end
 
@@ -210,18 +222,19 @@ module DataCycleCore
         source_filter = { "dump.#{locale}.dataPath.arr.obj.type" => 'type' }
         pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter:)
         exp = [
-          {'$project' => {'data' => "$dump.#{locale}.dataPath"}},
-          {'$unwind' => '$data'},
-          {'$match' => {'data.arr.obj.id' => {'$exists' => true}, 'data.arr.obj.type' => 'type'}},
-          {'$project' => {'data' => '$data.arr'}},
-          {'$unwind' => '$data'},
-          {'$match' => {'data.obj.id' => {'$exists' => true}, 'data.obj.type' => 'type'}},
-          {'$project' => {'data' => '$data.obj'}},
-          {'$unwind' => '$data'},
-          {'$match' => {'data.id' => {'$exists' => true}, 'data.type' => 'type'}}
+          { '$project' => { 'data' => "$dump.#{locale}.dataPath", 'external_system' => 1 } },
+          { '$unwind' => '$data' },
+          { '$match' => { 'data.arr.obj.id' => { '$exists' => true }, 'data.arr.obj.type' => 'type' } },
+          { '$project' => { 'data' => '$data.arr', 'external_system' => 1 } },
+          { '$unwind' => '$data' },
+          { '$match' => { 'data.obj.id' => { '$exists' => true }, 'data.obj.type' => 'type' } },
+          { '$project' => { 'data' => '$data.obj', 'external_system' => 1 } },
+          { '$unwind' => '$data' },
+          { '$match' => { 'data.id' => { '$exists' => true }, 'data.type' => 'type' } }
         ]
         first_index = pipelines.find_index { |p| p.key?('$project') } # first projection stage
         last_index = pipelines.rindex { |p| p.key?('$unwind') } # last unwind stage
+
         assert_equal exp, pipelines[first_index..(last_index + 1)]
       end
     end
@@ -238,13 +251,14 @@ module DataCycleCore
         source_filter = { "dump.#{locale}.dataPath.obj.type" => 'type' }
         pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter:)
         exp = [
-          {'$project' => {'data' => "$dump.#{locale}.dataPath"}},
-          {'$project' => {'data' => '$data.obj'}},
-          {'$unwind' => '$data'},
-          {'$match' => {'data.id' => {'$exists' => true}, 'data.type' => 'type'}}
+          { '$project' => { 'data' => "$dump.#{locale}.dataPath", 'external_system' => 1 } },
+          { '$project' => { 'data' => '$data.obj', 'external_system' => 1 } },
+          { '$unwind' => '$data' },
+          { '$match' => { 'data.id' => { '$exists' => true }, 'data.type' => 'type' } }
         ]
         first_index = pipelines.find_index { |p| p.key?('$project') } # first projection stage
         last_index = pipelines.rindex { |p| p.key?('$unwind') } # last unwind stage
+
         assert_equal exp, pipelines[first_index..(last_index + 1)]
       end
     end
@@ -260,7 +274,8 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$addFields' => {'id' => {'$concat' => [options.dig(:download, :data_id_prefix), '$id']}, 'parent_id' => {'$concat' => [options.dig(:download, :data_id_prefix), '$parent_id']}}}
+      exp = { '$addFields' => { 'id' => { '$concat' => [options.dig(:download, :data_id_prefix), '$id'] }, 'parent_id' => { '$concat' => [options.dig(:download, :data_id_prefix), '$parent_id'] } } }
+
       assert_equal exp, pipelines.last
     end
 
@@ -276,7 +291,8 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$addFields' => {'id' => {'$concat' => [options.dig(:download, :data_id_prefix), '$id']}, 'parent_id' => {'$concat' => [options.dig(:download, :data_id_prefix), '$parent_id']}}}
+      exp = { '$addFields' => { 'id' => { '$concat' => [options.dig(:download, :data_id_prefix), '$id'] }, 'parent_id' => { '$concat' => [options.dig(:download, :data_id_prefix), '$parent_id'] } } }
+
       assert_equal exp, pipelines.last
     end
 
@@ -306,8 +322,9 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$project' => {'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id', 'data.uri' => '$data.uri', 'data.priority' => 5}}
+      exp = { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id', 'data.uri' => '$data.uri', 'data.priority' => 5, 'external_system' => 1 } }
       relevant_pipeline = pipelines.reverse.find { |p| p.key?('$project') }
+
       assert_equal exp, relevant_pipeline
     end
 
@@ -324,8 +341,9 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$project' => {'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id_path', 'data.uri' => '$data.uri_path', 'data.priority' => 3}}
+      exp = { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id_path', 'data.uri' => '$data.uri_path', 'data.priority' => 3, 'external_system' => 1 } }
       relevant_pipeline = pipelines.reverse.find { |p| p.key?('$project') }
+
       assert_equal exp, relevant_pipeline
     end
 
@@ -339,8 +357,9 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = {'$addFields' => {'name' => {'$toString' => '$name'}, 'id' => {'$toString' => '$id'}}}
+      exp = { '$addFields' => { 'name' => { '$toString' => '$name' }, 'id' => { '$toString' => '$id' }, 'parent_id' => { '$toString' => '$parent_id' } } }
       relevant_pipelines = pipelines.select { |p| p.key?('$addFields') }
+
       assert_includes relevant_pipelines, exp
     end
 
@@ -356,23 +375,25 @@ module DataCycleCore
         source_filter = { "dump.#{locale}.dataPath.arr.obj.type" => 'type' }
         pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: source_filter)
         exp = [
-          {'$match' => {"dump.#{locale}.dataPath.arr.obj.id" => {'$exists' => true}, "dump.#{locale}.dataPath.arr.obj.type" => 'type'}},
-          {'$project' => {'data' => "$dump.#{locale}.dataPath"}},
-          {'$unwind' => '$data'},
-          {'$match' => {'data.arr.obj.id' => {'$exists' => true}, 'data.arr.obj.type' => 'type'}},
-          {'$project' => {'data' => '$data.arr'}},
-          {'$unwind' => '$data'},
-          {'$match' => {'data.obj.id' => {'$exists' => true}, 'data.obj.type' => 'type'}},
-          {'$project' => {'data' => '$data.obj'}},
-          {'$unwind' => '$data'},
-          {'$match' => {'data.id' => {'$exists' => true}, 'data.type' => 'type'}},
-          {'$project' => {'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id', 'data.uri' => '$data.uri', 'data.priority' => 5}},
-          {'$group' => {'_id' => '$data.id', 'data' => {'$first' => '$data'}}},
-          {'$replaceRoot' => {'newRoot' => '$data'}},
-          {'$addFields' => {'name' => {'$toString' => '$name'}, 'id' => {'$toString' => '$id'}}},
-          {'$addFields' => {'name' => {'$trim' => {'input' => '$name'}}}},
-          {'$match' => {'id' => {'$ne' => nil}, 'name' => {'$ne' => nil}}}
+          { '$match' => { "dump.#{locale}.dataPath.arr.obj.id" => { '$exists' => true }, "dump.#{locale}.dataPath.arr.obj.type" => 'type' } },
+          { '$project' => { 'data' => "$dump.#{locale}.dataPath", 'external_system' => 1 } },
+          { '$unwind' => '$data' },
+          { '$match' => { 'data.arr.obj.id' => { '$exists' => true }, 'data.arr.obj.type' => 'type' } },
+          { '$project' => { 'data' => '$data.arr', 'external_system' => 1 } },
+          { '$unwind' => '$data' },
+          { '$match' => { 'data.obj.id' => { '$exists' => true }, 'data.obj.type' => 'type' } },
+          { '$project' => { 'data' => '$data.obj', 'external_system' => 1 } },
+          { '$unwind' => '$data' },
+          { '$match' => { 'data.id' => { '$exists' => true }, 'data.type' => 'type' } },
+          { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id', 'data.uri' => '$data.uri', 'data.priority' => 5, 'external_system' => 1 } },
+          { '$group' => { '_id' => '$data.id', 'data' => { '$first' => '$data' }, 'external_system' => { '$mergeObjects' => '$external_system' } } },
+          { '$addFields' => { 'data.external_system' => '$external_system' } },
+          { '$replaceRoot' => { 'newRoot' => '$data' } },
+          { '$addFields' => { 'name' => { '$toString' => '$name' }, 'id' => { '$toString' => '$id' }, 'parent_id' => { '$toString' => '$parent_id' } } },
+          { '$addFields' => { 'name' => { '$trim' => { 'input' => '$name' } } } },
+          { '$match' => { 'id' => { '$ne' => nil }, 'name' => { '$ne' => nil } } }
         ]
+
         assert_equal exp, pipelines
       end
     end
@@ -391,17 +412,19 @@ module DataCycleCore
         source_filter = { "dump.#{locale}.dataPath.type" => 'type' }
         pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter:)
         exp = [
-          {'$match' => {"dump.#{locale}.dataPath.id" => {'$exists' => true}, "dump.#{locale}.dataPath.type" => 'type'}},
-          {'$project' => {'data' => "$dump.#{locale}.dataPath"}},
-          {'$unwind' => '$data'},
-          {'$match' => {'data.id' => {'$exists' => true}, 'data.type' => 'type'}},
-          {'$project' => {'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id_path', 'data.uri' => '$data.uri_path', 'data.priority' => 5}},
-          {'$group' => {'_id' => '$data.id', 'data' => {'$first' => '$data'}}},
-          {'$replaceRoot' => {'newRoot' => '$data'}},
-          {'$addFields' => {'name' => {'$toString' => '$name'}, 'id' => {'$toString' => '$id'}}},
-          {'$addFields' => {'name' => {'$trim' => {'input' => '$name'}}}},
-          {'$match' => {'id' => {'$ne' => nil}, 'name' => {'$ne' => nil}}}
+          { '$match' => { "dump.#{locale}.dataPath.id" => { '$exists' => true }, "dump.#{locale}.dataPath.type" => 'type' } },
+          { '$project' => { 'data' => "$dump.#{locale}.dataPath", 'external_system' => 1 } },
+          { '$unwind' => '$data' },
+          { '$match' => { 'data.id' => { '$exists' => true }, 'data.type' => 'type' } },
+          { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id_path', 'data.uri' => '$data.uri_path', 'data.priority' => 5, 'external_system' => 1 } },
+          { '$group' => { '_id' => '$data.id', 'data' => { '$first' => '$data' }, 'external_system' => { '$mergeObjects' => '$external_system' } } },
+          { '$addFields' => { 'data.external_system' => '$external_system' } },
+          { '$replaceRoot' => { 'newRoot' => '$data' } },
+          { '$addFields' => { 'name' => { '$toString' => '$name' }, 'id' => { '$toString' => '$id' }, 'parent_id' => { '$toString' => '$parent_id' } } },
+          { '$addFields' => { 'name' => { '$trim' => { 'input' => '$name' } } } },
+          { '$match' => { 'id' => { '$ne' => nil }, 'name' => { '$ne' => nil } } }
         ]
+
         assert_equal exp, pipelines
       end
     end

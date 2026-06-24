@@ -119,9 +119,7 @@ module DataCycleCore
         end
 
         def self.create_external_reference_mapping_table(collected_references)
-          collected_external_references = collected_references.select do |ref|
-            ref.is_a?(ExternalReference)
-          end
+          collected_external_references = collected_references.grep(ExternalReference)
 
           collected_external_references.map(&:reference_type).uniq.map { |reference_type|
             {
@@ -140,17 +138,13 @@ module DataCycleCore
 
         def self.create_classification_path_mapping_table(collected_references)
           load_classifications_by_path(
-            collected_references.select { |ref|
-              ref.is_a?(ClassificationNameReference)
-            }.map(&:classification_path)
+            collected_references.grep(ClassificationNameReference).map(&:classification_path)
           )
         end
 
         def self.create_classification_uri_mapping_table(collected_references)
           load_classifications_by_uri(
-            collected_references.select { |ref|
-              ref.is_a?(ClassificationUriReference)
-            }.map(&:classification_identifier)
+            collected_references.grep(ClassificationUriReference).map(&:classification_identifier)
           )
         end
 
@@ -184,31 +178,47 @@ module DataCycleCore
           end
         end
 
-        def self.load_things(external_source_id, external_key)
+        def self.load_things(external_source_id, external_keys)
+          return {} if external_keys.blank?
+
           # Order is important, prioritize imported things over external_system_syncs, as to_h overwrites duplicate keys
           (
-            DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key:).pluck(:external_key, :syncable_id) +
-            DataCycleCore::Thing.where(external_source_id:, external_key:).pluck(:external_key, :id)
+            DataCycleCore::ExternalSystemSync
+              .where(external_system_id: external_source_id, external_key: external_keys)
+              .pluck(:external_key, :syncable_id) +
+            DataCycleCore::Thing
+              .where(external_source_id:, external_key: external_keys)
+              .pluck(:external_key, :id)
           ).uniq.to_h
         end
 
         def self.load_schedules(external_source_id, external_keys)
-          DataCycleCore::Schedule.where(external_source_id:, external_key: external_keys)
+          return {} if external_keys.blank?
+
+          DataCycleCore::Schedule
+            .where(external_source_id:, external_key: external_keys)
             .pluck(:external_key, :id).to_h
         end
 
         def self.load_classifications(external_source_id, external_keys)
-          DataCycleCore::Classification.where(external_source_id:, external_key: external_keys)
-            .includes(:primary_classification_alias).where(primary_classification_alias: { assignable: true })
-            .pluck(:external_key, :id).to_h
+          return {} if external_keys.blank?
+
+          DataCycleCore::Concept
+            .where(external_system_id: external_source_id, external_key: external_keys)
+            .assignable
+            .reorder(nil)
+            .pluck(:external_key, :classification_id).to_h
         end
 
         def self.load_classifications_by_uri(classification_identifier)
-          DataCycleCore::ClassificationAlias.for_tree(classification_identifier.pluck(0).uniq)
+          return {} if classification_identifier.blank?
+
+          DataCycleCore::Concept
+            .for_tree(classification_identifier.pluck(0).uniq)
             .where(uri: classification_identifier.pluck(1).uniq)
             .assignable
-            .primary_classifications
-            .pluck(:uri, :id).to_h
+            .reorder(nil)
+            .pluck(:uri, :classification_id).to_h
         end
 
         def self.load_classifications_by_path(classification_paths)
@@ -222,27 +232,27 @@ module DataCycleCore
 
           @peloaded_mappings ||= {}
 
-          @peloaded_mappings.merge!(
-            DataCycleCore::ClassificationAlias::Path.where(
-              'full_path_names[ARRAY_UPPER(full_path_names, 1)] IN (?)',
-              preloadable_classification_trees - @peloaded_mappings.keys.map(&:first)
-            ).joins(classification_alias: :primary_classification)
-              .includes(classification_alias: :primary_classification)
-              .to_h { |path| [path.full_path_names.reverse, path.classification_alias.primary_classification.id] }
-          )
-
-          if (classification_paths - @peloaded_mappings.keys).empty?
-            @peloaded_mappings
-          else
-            @peloaded_mappings.merge(
-              (classification_paths - @peloaded_mappings.keys).map { |classification_path|
-                DataCycleCore::ClassificationAlias::Path.where(full_path_names: classification_path.reverse)
-              }.reduce(:or)
-                .joins(classification_alias: :primary_classification)
-                .includes(classification_alias: :primary_classification)
-                .to_h { |path| [path.full_path_names.reverse, path.classification_alias.primary_classification.id] }
+          preloadable_paths = preloadable_classification_trees - @peloaded_mappings.keys.map(&:first)
+          if preloadable_paths.any?
+            @peloaded_mappings.merge!(
+              DataCycleCore::Concept.includes(:classification_alias_path)
+                .for_tree(preloadable_paths)
+                .assignable
+                .reorder(nil)
+                .to_h { |c| [c.full_path_names.reverse, c.classification_id] }
             )
           end
+
+          paths_to_load = classification_paths - @peloaded_mappings.keys
+
+          return @peloaded_mappings if paths_to_load.empty?
+
+          @peloaded_mappings.merge(
+            DataCycleCore::Concept.by_full_path_arrays(paths_to_load)
+              .assignable
+              .reorder(nil)
+              .to_h { |c| [c.full_path_names.reverse, c.classification_id] }
+          )
         end
 
         def self.clear_peloaded_mappings

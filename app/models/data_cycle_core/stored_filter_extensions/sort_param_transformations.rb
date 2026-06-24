@@ -13,8 +13,10 @@ module DataCycleCore
         'proximity.occurrence' => 'sort_by_proximity_value',
         'proximity.in_occurrence' => 'sort_by_proximity_value',
         'proximity.in_occurrence_with_distance' => 'sort_by_in_occurrence_with_distance',
-        'proximity.in_occurrence_with_distance_pia' => 'sort_by_in_occurrence_with_distance'
+        'proximity.in_occurrence_with_distance_pia' => 'sort_by_in_occurrence_with_distance',
+        '@type' => 'sort_by_content_type'
       }.freeze
+      SORT_PARAM_PREFIXES = ['lon:', 'lat:', 'start:', 'end:', 'attr:'].freeze
 
       def apply_sorting_from_parameters(filters:, sort_params:)
         self.sort_parameters ||= []
@@ -28,21 +30,23 @@ module DataCycleCore
       end
 
       # Calls Methods sort_fulltext_value, sort_proximity_geographic_value, sort_by_proximity_value for sort-attributes via send
-      def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {})
+      def apply_sorting_from_api_parameters(raw_query_params = {})
         self.sort_parameters ||= []
-        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v}) }
-        DataCycleCore::ApiService.order_value_from_params('proximity.geographic', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'proximity_geographic', 'o' => 'ASC', 'v' => v }) }
-        sort_parameters.unshift({ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => full_text_search }) if full_text_search.present?
 
-        raw_query_params&.dig(:sort)&.split(/,(?![^\(]*\))/)&.reverse_each do |sort|
+        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v }) }
+        DataCycleCore::ApiService.order_value_from_params('proximity.geographic', raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'proximity_geographic', 'o' => 'ASC', 'v' => v }) }
+        DataCycleCore::ApiService.order_value_from_params('similarity', raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => v }) }
+
+        raw_query_params&.dig(:sort)&.split(/,(?![^(]*\))/)&.reverse_each do |sort|
           key, order, order_value = DataCycleCore::ApiService.order_key_with_value(sort)
+
           if SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 1
             value = send(SORT_VALUE_API_MAPPING[key], parameters)&.dig('v')
           elsif SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 2
             value = send(SORT_VALUE_API_MAPPING[key], parameters, order_value)&.dig('v')
           end
 
-          filter_order = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
+          filter_order = DataCycleCore::ApiService.order_value_from_params(key, raw_query_params)
           value = value.blank? ? filter_order : merge_api_filter_params(value, filter_order, SORT_VALUE_API_MAPPING[key])
 
           if (advanced_key = DataCycleCore::Feature::Sortable.available_advanced_attribute_for_key(key)).present?
@@ -67,13 +71,13 @@ module DataCycleCore
       def sort_fulltext_value(params)
         return if params.blank?
 
-        params&.find { |f| f['t'] == 'fulltext_search' }&.dig('v')&.then { |v| { 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => v } }
+        params&.find { |f| f['t'] == 'fulltext_search' }&.dig('v').presence&.then { |v| { 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => v } }
       end
 
       def sort_proximity_geographic_value(params)
         return if params.blank?
 
-        params&.find { |f| f['t'] == 'geo_filter' && f['q'] == 'geo_radius' }&.dig('v')&.then { |v| { 'm' => 'proximity_geographic', 'o' => 'DESC', 'v' => v.values_at('lon', 'lat', 'distance') } }
+        params&.find { |f| f['t'] == 'geo_filter' && f['q'] == 'geo_radius' }&.dig('v').presence&.then { |v| { 'm' => 'proximity_geographic', 'o' => 'DESC', 'v' => v.values_at('lon', 'lat', 'distance') } }
       end
 
       def sort_proximity_geographic_with_value(_params, geo)
@@ -97,7 +101,7 @@ module DataCycleCore
 
         relation = parsed_params&.dig('sort_attr').presence || i_config&.dig('n')
         if min.present? || max.present?
-          i_value = { 'min' => min, 'max' => max}.compact_blank
+          i_value = { 'min' => min, 'max' => max }.compact_blank
           q = nil
         else
           i_value = i_config&.dig('v')&.compact_blank
@@ -127,22 +131,36 @@ module DataCycleCore
         { 'v' => i_value }
       end
 
+      def sort_by_content_type(_params, value = nil)
+        parsed_value = value&.split(',')&.map { |v| v&.strip.presence }
+
+        return if parsed_value.blank?
+
+        { 'v' => parsed_value }
+      end
+
       def parse_sort_params(params, sort_key = :sort_by_proximity_value)
         return if params.blank?
+
         sort_params = params&.split(',', -1)&.map { |v| v&.strip.presence }
+        result = { 'lon' => nil, 'lat' => nil, 'start' => nil, 'end' => nil, 'sort_attr' => nil }
 
-        return {'lon' => sort_params[0], 'lat' => sort_params[1]} if sort_key == :sort_proximity_geographic_with_value && sort_params.size == 2
-        return {'start' => sort_params[0], 'end' => sort_params[1], 'sort_attr' => sort_params[2]} if sort_key == :sort_by_proximity_value && sort_params.size == 3
-        return {'lon' => sort_params[0], 'lat' => sort_params[1], 'start' => sort_params[2], 'end' => sort_params[3], 'sort_attr' => sort_params[4]} if sort_key == :sort_by_in_occurrence_with_distance && sort_params.size == 5
+        if sort_params_prefixed?(sort_params)
+          sort_params.each do |param|
+            key, val = param.to_s.split(':', 2).map(&:strip)
 
-        result = {'lon' => nil, 'lat' => nil, 'start' => nil, 'end' => nil, 'sort_attr' => nil}
-        sort_params.each do |param|
-          key, val = param.to_s.split(':', 2).map(&:strip)
-          result[key] = val if result.key?(key)
-          result['sort_attr'] = val if "sort_#{key}" == 'sort_attr'
+            result[key] = val if result.key?(key)
+            result['sort_attr'] = val if "sort_#{key}" == 'sort_attr'
+          end
+
+          return result
         end
 
-        result
+        return { 'lon' => sort_params[0], 'lat' => sort_params[1] } if sort_key == :sort_proximity_geographic_with_value && sort_params.size == 2
+        return { 'start' => sort_params[0], 'end' => sort_params[1], 'sort_attr' => sort_params[2] } if sort_key == :sort_by_proximity_value && sort_params.size == 3
+        return { 'lon' => sort_params[0], 'lat' => sort_params[1], 'start' => sort_params[2], 'end' => sort_params[3], 'sort_attr' => sort_params[4] } if sort_key == :sort_by_in_occurrence_with_distance && sort_params.size == 5
+
+        nil
       end
 
       def merge_api_filter_params(sort_params, filter_params, sort_key)
@@ -184,7 +202,7 @@ module DataCycleCore
       end
 
       def transform_order_hash(sort_hash, watch_list)
-        return sort_hash['m'].gsub('advanced_attribute_', ''), 'sort_advanced_attribute' if sort_hash['m'].starts_with?('advanced_attribute_')
+        return sort_hash['m'].gsub('advanced_attribute_', ''), 'sort_advanced_attribute' if sort_hash['m']&.starts_with?('advanced_attribute_')
         return watch_list.id, 'sort_collection_manual_order' if sort_hash['m'] == 'default' && watch_list&.manual_order
 
         return sort_hash['v'].dup, "sort_#{sort_hash['m']}"
@@ -192,7 +210,7 @@ module DataCycleCore
 
       # Calls sort_advanced_attribute, sort_collection_manual_order, sort_proximity_occurrence,
       # sort_proximity_in_occurrence_with_distance, sort_proximity_in_occurrence_with_distance_pia, ...
-      def apply_order_parameters(watch_list)
+      def apply_order_parameters!(watch_list)
         self.sort_parameters = [{ 'm' => 'default' }] if sort_parameters.blank?
         self.query = query.reset_sort
 
@@ -200,6 +218,7 @@ module DataCycleCore
           sort_value, sort_method_name = transform_order_hash(sort, watch_list)
 
           next unless query.respond_to?(sort_method_name)
+
           if query.method(sort_method_name)&.parameters&.size == 2
             ordered_query = query.send(sort_method_name, sort['o'].presence, sort_value.presence)
           elsif query.method(sort_method_name)&.parameters&.size == 1
@@ -212,6 +231,10 @@ module DataCycleCore
           self.sort_parameters = [sort]
           break
         end
+      end
+
+      def sort_params_prefixed?(params)
+        params.any? { |p| p.starts_with?(*SORT_PARAM_PREFIXES) }
       end
     end
   end

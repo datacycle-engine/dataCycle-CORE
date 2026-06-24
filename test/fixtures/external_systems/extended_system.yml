@@ -1,0 +1,11 @@
+---
+name: Extended-System
+identifier: extended-system
+extends: base-system
+config:
+  download_config:
+    places:
+      sorting: 2
+      source_type: overwritten-source-type
+      endpoint: DataCycleCore::Generic::Csv::Endpoint
+      download_strategy: DownloadFunctions

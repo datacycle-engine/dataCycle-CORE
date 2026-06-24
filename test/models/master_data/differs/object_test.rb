@@ -103,6 +103,7 @@ describe DataCycleCore::MasterData::Differs::Object do
       a = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
       b = a
       diff_hash = subject.new(a, b, template_hash).diff_hash
+
       assert_equal({}, diff_hash)
     end
 
@@ -117,6 +118,7 @@ describe DataCycleCore::MasterData::Differs::Object do
       ]
       b_data.each do |b|
         diff_hash = subject.new(a, b, template_hash).diff_hash
+
         assert_equal({}, diff_hash)
       end
     end
@@ -125,6 +127,7 @@ describe DataCycleCore::MasterData::Differs::Object do
       a = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
       b = { 'greeting' => 'Servas olter', 'anzahl' => 5 }
       diff_hash = subject.new(a, b, template_hash).diff_hash
+
       assert_equal({ 'greeting' => ['~', 'Hello World!', 'Servas olter'] }, diff_hash)
     end
 
@@ -132,6 +135,7 @@ describe DataCycleCore::MasterData::Differs::Object do
       a = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
       b = { 'greeting' => 'Servas!', 'anzahl' => '10.0' }
       diff_hash = subject.new(a, b, template_hash).diff_hash
+
       assert_equal(
         {
           'greeting' => ['~', 'Hello World!', 'Servas!'],
@@ -145,6 +149,7 @@ describe DataCycleCore::MasterData::Differs::Object do
       a = { 'greeting' => 'servas', 'range' => { 'von' => 1, 'bis' => 100 } }
       b = a
       diff_hash = subject.new(a, b, template_hash_deep).diff_hash
+
       assert_equal({}, diff_hash)
     end
 
@@ -152,6 +157,7 @@ describe DataCycleCore::MasterData::Differs::Object do
       a = { 'greeting' => 'servas', 'range' => { 'von' => 1, 'bis' => 100 } }
       b = { 'greeting' => 'servas', 'range' => { 'von' => 0, 'bis' => 99 } }
       diff_hash = subject.new(a, b, template_hash_deep).diff_hash
+
       assert_equal({ 'range' => { 'von' => ['~', 1, 0], 'bis' => ['~', 100, 99] } }, diff_hash)
     end
 
@@ -159,6 +165,7 @@ describe DataCycleCore::MasterData::Differs::Object do
       a = { 'greeting' => 'servas', 'range' => { 'von' => nil, 'bis' => nil } }
       b = { 'greeting' => 'servas' }
       diff_hash = subject.new(a, b, template_hash_deep).diff_hash
+
       assert_equal({}, diff_hash)
     end
 
@@ -166,6 +173,7 @@ describe DataCycleCore::MasterData::Differs::Object do
       a = { 'greeting' => 'servas', 'range' => { 'von' => nil, 'bis' => nil, 'descriptions' => { 'text' => '', 'content' => '' } } }
       b = { 'greeting' => 'servas' }
       diff_hash = subject.new(a, b, template_hash_deeper).diff_hash
+
       assert_equal({}, diff_hash)
     end
   end

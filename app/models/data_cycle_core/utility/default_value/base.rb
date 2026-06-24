@@ -17,6 +17,7 @@ module DataCycleCore
             case properties['default_value']
             when ::String, ::Numeric, ::TrueClass, ::FalseClass
               return data_hash[key] = properties['default_value'] if properties['type'] != 'classification'
+
               method_name = DataCycleCore::Utility::DefaultValue::Classification.method(:by_name)
             else
               method_name = DataCycleCore::ModuleService
@@ -42,7 +43,7 @@ module DataCycleCore
 
           private
 
-          def condition_user(user, config, _content) # rubocop:disable Naming/PredicateMethod
+          def condition_user(user, config, _content)
             user&.is_rank?(config['rank'].to_i) if config&.dig('rank').present?
           end
 

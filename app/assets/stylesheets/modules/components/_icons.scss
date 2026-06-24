@@ -2,7 +2,7 @@
   position: relative;
 
   &::before {
-    font-family: 'FontAwesome';
+    font-family: "FontAwesome";
     position: relative;
     text-align: center;
     font-style: normal;
@@ -15,55 +15,63 @@
     justify-content: center;
 
     &::after {
-      font-family: 'FontAwesome';
+      font-family: "FontAwesome";
       position: absolute;
       text-align: center;
       font-style: normal;
-      content: '\f1c0';
+      content: "\f1c0";
       right: -1px;
       bottom: -1px;
       font-size: 70%;
-      text-shadow: -1px 0px 0px white, 1px 0px 0px white, 0px -1px 0px white, 0px 1px 0px white;
+      text-shadow:
+        -1px 0px 0px white,
+        1px 0px 0px white,
+        0px -1px 0px white,
+        0px 1px 0px white;
     }
   }
 
   &.thing-icon {
     &::before {
-      content: '\f15b';
+      content: "\f15b";
     }
 
     &.thema::before,
     &.lift::before {
-      content: '\f2dc';
+      content: "\f2dc";
     }
 
     &.funding::before {
-      content: '\f0d6';
+      content: "\f0d6";
     }
 
     &.ideas_innovations::before {
-      content: '\f0eb';
+      content: "\f0eb";
+    }
+
+    &.train_station::before {
+      content: "\f238";
     }
 
     &.ski_slope,
     &.mountain_area,
     &.snow_report_location {
       &::before {
-        content: '\f2dc';
+        content: "\f2dc";
       }
     }
 
     &.thema_archiv,
     &.container_archiv {
       &::before {
-        content: '\f187';
+        content: "\f187";
       }
     }
 
     &.thema_aktuelle_inhalte,
     &.container_aktuelle_inhalte {
       &::before {
-        content: '\f07c';
+        content: "\f07c";
       }
     }
 
@@ -71,7 +79,7 @@
     &.thema_recherche,
     &.container_recherche {
       &::before {
-        content: '\f0eb';
+        content: "\f0eb";
       }
     }
 
@@ -79,21 +87,23 @@
     &.vorschlage,
     &.container_vorschlage {
       &::before {
-        content: '\f249';
+        content: "\f249";
       }
     }
 
     &.artikel,
     &.article,
     &.safety_tip,
+    &.culinary_heritage,
     &.standard_artikel,
     &.strukturierter_artikel,
     &.radroutenbeschreibung,
     &.angebot,
     &.inhaltsblock,
+    &.web_page,
     &.beschreibungstext {
       &::before {
-        content: '\f15c';
+        content: "\f15c";
       }
     }
 
@@ -102,80 +112,81 @@
     &.bild,
     &.foto-serie {
       &::before {
-        content: '\f03e';
+        content: "\f03e";
       }
     }
 
     &.socialmediaposting,
     &.organization {
       &::before {
-        content: '\f0c0';
+        content: "\f0c0";
       }
     }
 
     &.portrait::before {
-      content: '\f2c1';
+      content: "\f2c1";
     }
 
     &.biografie::before {
-      content: '\f2bb';
+      content: "\f2bb";
     }
 
     &.zitat::before {
-      content: '\f10d';
+      content: "\f10d";
     }
 
     &.zeitleiste,
     &.zeitleiste_eintrag {
       &::before {
-        content: '\f017';
+        content: "\f017";
       }
     }
 
     &.app,
     &.mobileapplication {
       &::before {
-        content: '\f10b';
+        content: "\f10b";
       }
     }
 
     &.voting::before {
-      content: '\f164';
+      content: "\f164";
     }
 
     &.rezept,
     &.rezept_komponente {
       &::before {
-        content: '\f0f5';
+        content: "\f0f5";
       }
     }
 
     &.linktipps::before {
-      content: '\f0c1';
+      content: "\f0c1";
     }
 
-    &.website::before {
-      content: '\f109';
+    &.website::before,
+    &.web_site::before {
+      content: "\f109";
     }
 
     &.interview::before {
-      content: '\f075';
+      content: "\f075";
     }
 
     &.quiz::before {
-      content: '\f059';
+      content: "\f059";
     }
 
     &.frage::before {
-      content: '\f128';
+      content: "\f128";
     }
 
     &.antwort::before {
-      content: '\f112';
+      content: "\f112";
     }
 
     &.person::before {
-      content: '\f007';
+      content: "\f007";
     }
 
     &.place,
@@ -184,27 +195,27 @@
     &.ortlichkeit,
     &.poi {
       &::before {
-        content: '\f041';
+        content: "\f041";
       }
     }
 
     &.lodging_business,
     &.unterkunft {
       &::before {
-        content: '\f236';
+        content: "\f236";
       }
     }
 
     &.food_establishment,
     &.gastronomischer_betrieb {
       &::before {
-        content: '\f0f5';
+        content: "\f0f5";
       }
     }
 
     &.local_business {
       &::before {
-        content: '\f0f7';
+        content: "\f0f7";
       }
     }
 
@@ -216,24 +227,24 @@
     &.donau_tour,
     &.trail {
       &::before {
-        content: '\f279';
+        content: "\f279";
       }
     }
 
     &.ladestation {
       &::before {
-        content: '\f242';
+        content: "\f242";
       }
     }
 
     &.ski_resort {
       &::before {
-        content: '\f2dc';
+        content: "\f2dc";
       }
     }
 
     &.zertifizierung::before {
-      content: '\f0a3';
+      content: "\f0a3";
     }
 
     &.video_object,
@@ -243,41 +254,41 @@
     &.webcam,
     &.youtube_video {
       &::before {
-        content: '\f03d';
+        content: "\f03d";
       }
     }
 
     &.event,
     &.subevent {
       &::before {
-        content: '\f073';
+        content: "\f073";
       }
     }
 
     &.prospekt,
-    &.embedded_pdf_object, 
+    &.embedded_pdf_object,
     &.pdf {
       &::before {
-        content: '\f1c1';
+        content: "\f1c1";
       }
     }
 
     &.audio_object,
     &.audio {
       &::before {
-        content: '\f1c7';
+        content: "\f1c7";
       }
     }
 
     &.vkzeit::before {
-      content: '\f274';
+      content: "\f274";
     }
 
     &.job_posting,
     &.jobposting,
     &.job_article {
       &::before {
-        content: '\f0b1';
+        content: "\f0b1";
       }
     }
 
@@ -287,26 +298,26 @@
     &.hotel_-_zimmer,
     &.win_tours_hotel {
       &::before {
-        content: '\f236';
+        content: "\f236";
       }
     }
 
     &.termine,
     &.wintours_-_termin {
       &::before {
-        content: '\f073';
+        content: "\f073";
       }
     }
 
     &.fahrrad,
     &.fahrradangebot {
       &::before {
-        content: '\f206';
+        content: "\f206";
       }
     }
 
     &.schiff::before {
-      content: '\f21a';
+      content: "\f21a";
     }
 
     &.reise,
@@ -315,69 +326,69 @@
     &.win_tours_reise,
     &.produkt {
       &::before {
-        content: '\f0f2';
+        content: "\f0f2";
       }
     }
 
     &.wintours_-_rabatt,
     &.win_tours_rabatt {
       &::before {
-        content: '\f153';
+        content: "\f153";
       }
     }
 
     &.weather_station {
       &::before {
-        content: '\f2cb';
+        content: "\f2cb";
       }
     }
 
     &.parkplatz {
       &::before {
-        content: '\f1b9';
+        content: "\f1b9";
       }
     }
 
     &.tourist_destination {
       &::before {
-        content: '\f024';
+        content: "\f024";
       }
     }
 
     &.potential_action,
     &.action {
       &::before {
-        content: '\f061';
+        content: "\f061";
       }
     }
 
     &.url_action {
       &::before {
-        content: '\f0c1';
+        content: "\f0c1";
       }
     }
 
     &.ergaenzende_information {
       &::before {
-        content: '\f0f6';
+        content: "\f0f6";
       }
     }
 
     &.wine_soil {
       &::before {
-        content: '\f18c';
+        content: "\f18c";
       }
     }
 
     &.special_announcement {
       &::before {
-        content: '\f0a1';
+        content: "\f0a1";
       }
     }
 
     &.occupancy_rate {
       &::before {
-        content: '\f080';
+        content: "\f080";
       }
     }
   }
@@ -392,146 +403,165 @@
   // FeratelWebcam
   &.wetterprognose {
     &::before {
-      content: '\f185';
+      content: "\f185";
     }
   }
 
   &.data_cycle_file-icon::before {
-    content: '\f15b';
+    content: "\f15b";
   }
 
   &.image-icon::before {
-    content: '\f03e';
+    content: "\f03e";
   }
 
   &.text_file-icon::before {
-    content: '\f0f6';
+    content: "\f0f6";
   }
 
   &.pdf-icon::before {
-    content: '\f1c1';
+    content: "\f1c1";
   }
 
   &.audio-icon::before {
-    content: '\f1c7';
+    content: "\f1c7";
   }
 
   &.video::before {
-    content: '\f03d';
+    content: "\f03d";
   }
 
   &.filter-icon {
     &::before {
-      content: '\f0b0';
+      content: "\f0b0";
     }
 
     &.classification_tree_ids::before {
-      content: '\f0e8';
+      content: "\f0e8";
     }
 
     &.geo_radius,
     &.geo_within_classification,
     &.administrative_einheiten {
       &::before {
-        content: '\f0ac';
+        content: "\f0ac";
       }
     }
 
     &.sprache::before {
-      content: '\f075';
+      content: "\f075";
     }
   }
 
   &.classification_tree_label-icon,
   &.concept_scheme-icon {
     &::before {
-      content: '\f02b';
+      content: "\f02b";
     }
 
     &.bundeslander::before {
-      content: '\f041';
+      content: "\f041";
     }
 
     &.markte,
     &.zielmarkte {
       &::before {
-        content: '\f192';
+        content: "\f192";
       }
     }
 
     &.inhaltstypen::before {
-      content: '\f15c';
+      content: "\f15c";
     }
 
     &.inhaltsarten::before {
-      content: '\f15b';
+      content: "\f15b";
     }
 
     &.jahreszeiten::before {
-      content: '\f073';
+      content: "\f073";
     }
   }
 
   &.user-icon::before {
-    content: '\f007';
+    content: "\f007";
   }
 
   &.user_group-icon::before {
-    content: '\f0c0';
+    content: "\f0c0";
   }
 
   &.role-icon::before {
-    content: '\f2be';
+    content: "\f2be";
   }
 
   &.organization-icon::before {
-    content: '\f0c0';
+    content: "\f0c0";
   }
 
   &.watch_list-icon::before {
-    content: '\f0ca';
+    content: "\f0ca";
   }
 
   &.stored_filter-icon::before {
-    content: '\f0b0';
+    content: "\f0b0";
   }
 
   &.property-icon {
+    &::before {
+      content: "\f059";
+    }
 
     &.type-date::before,
     &.type-daterange::before,
+    &.type-schedule::before,
     &.type-object.key-duration::before {
-      content: '\f073';
+      content: "\f073";
     }
 
     &.type-classification::before {
-      content: '\f02b';
+      content: "\f02b";
     }
 
+    &.type-linked::before {
+      content: "\f178";
+    }
+
+    &.type-linked-inverse::before {
+      content: "\f177";
+    }
+
+    &.type-embedded {
+      &::before {
+        content: "\f07c";
+      }
+    }
+
+
     &.type-classification.key-universal_classifications::before {
-      content: '\f02c';
+      content: "\f02c";
     }
 
     &.type-object {
       &::before {
-        content: '\f07c';
+        content: "\f07c";
       }
 
       &.key-validity_period::before {
-        content: '\f073';
+        content: "\f073";
       }
     }
 
     &.type-number-content_score::before {
-      content: '\f006';
+      content: "\f006";
     }
 
     &.type-number-content_score.medium-score::before {
-      content: '\f123';
+      content: "\f123";
     }
 
     &.type-number-content_score.high-score::before {
-      content: '\f005';
+      content: "\f005";
     }
   }
 }

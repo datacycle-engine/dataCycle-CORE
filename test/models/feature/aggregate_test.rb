@@ -19,7 +19,8 @@ module DataCycleCore
     end
 
     after(:all) do
-      DataCycleCore.features = DataCycleCore.features.except(:aggregate).merge({ aggregate: @aggregate_before_state })
+      DataCycleCore.features = DataCycleCore.features.except(:aggregate)
+        .merge({ aggregate: @aggregate_before_state })
       DataCycleCore::Feature::Aggregate.reload
     end
 
@@ -52,6 +53,7 @@ module DataCycleCore
 
     test 'aggregate_content and contents get correct aggregate_type when deleted' do
       @aggregate_content.destroy
+
       assert_equal 'default', @content1.reload.aggregate_type
       assert_equal 'default', @content2.reload.aggregate_type
     end
@@ -66,6 +68,7 @@ module DataCycleCore
 
     test 'aggregate content has correct external syncs' do
       @content1.update(external_source_id: @external_source.id, external_key: '1')
+
       assert_equal(
         @content1.external_syncs_as_property_values,
         @aggregate_content.external_syncs_as_property_values
@@ -73,10 +76,19 @@ module DataCycleCore
       @content2.add_external_system_data(@external_source, { name: 'HEADLINE - NO TAGS 2' }, 'success', 'export', '2')
 
       @aggregate_content.set_data_hash(data_hash: { aggregate_for: [@content1.id, @content2.id] })
+
       assert_equal(
         @content1.external_syncs_as_property_values + @content2.external_syncs_as_property_values,
         @aggregate_content.external_syncs_as_property_values
       )
+    end
+
+    test 'aggregate content merges unknown classifications into universal_classifications' do
+      classification_id = DataCycleCore::Concept.for_tree('Tags').pick(:classification_id)
+      content = create_content('Computed-Common-attribute_value_from_first_existing_linked', { name: 'Entity with Aggregate 2', classification_value: [classification_id] })
+      @aggregate_content.set_data_hash(data_hash: { aggregate_for: [@content1.id, content.id] })
+
+      assert_equal [classification_id], @aggregate_content.universal_classifications.pluck(:id)
     end
   end
 end

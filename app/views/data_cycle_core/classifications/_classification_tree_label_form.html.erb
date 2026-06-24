@@ -1,8 +1,10 @@
 <%= form_with(model: classification_tree_label, url: classifications_path, namespace: classification_tree_label&.id, local: true, class: 'classification-tree-label-form') do |f| %>
-
   <div class="ca-buttons">
     <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update submit-button', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw') }) %>
-    <button class="button-prime small discard secondary" type="reset"><i aria-hidden="true" class="fa fa-times"></i></button>
+
+    <button class="button-prime small discard secondary" type="reset">
+      <i aria-hidden="true" class="fa fa-times"></i>
+    </button>
   </div>
 
   <%= f.hidden_field :id %>
@@ -33,23 +35,56 @@
   <% classification_tree_label.visibility = DataCycleCore.default_classification_visibilities if classification_tree_label.new_record? %>
 
   <div class="ca-input">
-    <div class="ca-collection-checkboxes">
+    <div class="ca-collection-checkboxes concept-scheme-visibilities">
       <%= f.label :visibility, classification_tree_label.class.human_attribute_name(:visibility, locale: active_ui_locale) %>
-      <%= f.collection_check_boxes :visibility,
-        DataCycleCore.classification_visibilities.map { |v|
-          OpenStruct.new(
-            name: v,
-            title: t("classification_visibilities.#{v}", locale: active_ui_locale, default: v),
-            checked: f.object.visibility.include?(v)
-          )
-        },
-        :name,
-        :title do |l| %>
-        <span class="dc-checkbox">
-          <%= l.check_box %>
-          <%= I18n.with_locale(active_ui_locale) { l.label } %>
-        </span>
-      <% end %>
+
+      <% grouped_visibilities = grouped_concept_scheme_visibilities(classification_tree_label) %>
+
+      <ul
+        class="tabs concept-scheme-visibility-groups-tabs"
+        data-tabs
+        id="concept-scheme-visibility-groups-<%= classification_tree_label.id %>"
+      >
+        <% grouped_visibilities.each do |group| %>
+          <li class="tabs-title <%= 'is-active' if group[:selected] %>">
+            <a
+              href="#<%= group[:identifier] %>"
+              aria-selected="<%= group[:selected] %>"
+              data-tabs-target="<%= group[:identifier] %>"
+            >
+              <%= group[:title] %>
+              <i class="fa fa-info-circle" aria-hidden="true" data-dc-tooltip="<%= group[:tooltip] %>"></i>
+            </a>
+          </li>
+        <% end %>
+      </ul>
+
+      <div
+        class="tabs-content concept-scheme-visibility-groups-content"
+        data-tabs-content="concept-scheme-visibility-groups-<%= classification_tree_label.id %>"
+      >
+        <% grouped_visibilities.each do |group| %>
+          <div class="tabs-panel <%= 'is-active' if group[:selected] %>" id="<%= group[:identifier] %>">
+            <div class="concept-scheme-visibility-group-container">
+              <%= f.collection_check_boxes :visibility,
+              group[:visibilities].map { |v|
+                  OpenStruct.new(
+                    name: v,
+                    title: safe_join([
+                      t("classification_visibilities.entries.#{v}", locale: active_ui_locale, default: v),
+                      concept_scheme_visibility_icon(v),
+                    ], ' '),
+                    checked: f.object.visibility.include?(v)
+                  )
+                },
+                :name,
+                :title do |l| %>
+                <span class="dc-checkbox"><%= l.check_box %><%= I18n.with_locale(active_ui_locale) { l.label } %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -57,6 +92,7 @@
     <div class="ca-input">
       <div class="ca-collection-checkboxes">
         <%= f.label :change_behaviour, classification_tree_label.class.human_attribute_name(:change_behaviour, locale: active_ui_locale) %>
+
         <%= f.collection_check_boxes :change_behaviour,
           DataCycleCore.classification_change_behaviour.map { |v|
             OpenStruct.new(
@@ -67,10 +103,7 @@
           },
           :name,
           :title do |l| %>
-          <span class="dc-checkbox">
-            <%= l.check_box %>
-            <%= I18n.with_locale(active_ui_locale) { l.label } %>
-          </span>
+          <span class="dc-checkbox"><%= l.check_box %><%= I18n.with_locale(active_ui_locale) { l.label } %></span>
         <% end %>
       </div>
     </div>
@@ -78,7 +111,7 @@
 
   <% if classification_tree_label.persisted? && can?(:view_all, classification_tree_label) %>
     <div class="ca-input">
-      <%= f.label :external_key, classification_tree_label.class.human_attribute_name(:external_key, locale: active_ui_locale), class: 'ca-label'%>
+      <%= f.label :external_key, classification_tree_label.class.human_attribute_name(:external_key, locale: active_ui_locale), class: 'ca-label' %>
       <%= f.text_field :external_key, class: 'ca-input-field', disabled: true %>
     </div>
   <% end %>

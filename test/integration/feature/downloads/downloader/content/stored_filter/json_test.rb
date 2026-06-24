@@ -37,6 +37,7 @@ module DataCycleCore
                 get download_stored_filter_path(@stored_filter), params: { serialize_format: 'json' }, headers: {
                   referer: stored_filter_path(@stored_filter)
                 }
+
                 assert_equal(302, response.status)
               end
 
@@ -44,6 +45,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:serializers][:json] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@stored_filter)
 
                 get download_stored_filter_path(@stored_filter), params: { serialize_format: 'json' }, headers: {
@@ -58,6 +60,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:serializers][:json] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@stored_filter)
 
                 get "/downloads/stored_filters/#{@stored_filter.id}", params: { serialize_format: 'json' }, headers: {

@@ -22,19 +22,20 @@ module DataCycleCore
         assert_equal("#{admin_user.given_name} #{admin_user.family_name}".squish, admin_user.full_name)
       end
 
-      it 'has a rank sufficient for all roles' do
-        ranks = DataCycleCore::Role.pluck(:rank)
+      it 'has a rank sufficient for all roles except system_admin' do
+        ranks = DataCycleCore::Role.where.not(name: 'system_admin').pluck(:rank)
+
         ranks.each do |rank|
-          assert_equal(true, admin_user.has_rank?(rank))
+          assert(admin_user.has_rank?(rank))
         end
       end
 
-      it 'has rank admin' do
-        assert_equal(true, admin_user.is_rank?(DataCycleCore::Role.order('rank DESC').first.rank))
+      it 'has rank super_admin' do
+        assert(admin_user.is_rank?(DataCycleCore::Role.find_by(name: 'super_admin')&.rank))
       end
 
       it 'has user group Administrators' do
-        assert_equal(true, admin_user.has_user_group?('Administrators'))
+        assert(admin_user.has_user_group?('Administrators'))
       end
 
       it 'return all users for usergroups' do
@@ -61,12 +62,12 @@ module DataCycleCore
         assert_equal("anonym_#{user.id.first(8)}", user.family_name)
         assert_nil(user.current_sign_in_ip)
         assert_nil(user.last_sign_in_ip)
-        assert(old_password != user.password)
-        assert(user.locked_at.present?)
-        assert(user.deleted_at.present?)
+        assert_not_equal(old_password, user.password)
+        assert_predicate(user.locked_at, :present?)
+        assert_predicate(user.deleted_at, :present?)
 
-        assert(user.persisted?)
-        assert(user.reload.id.present?)
+        assert_predicate(user, :persisted?)
+        assert_predicate(user.reload.id, :present?)
       end
     end
   end

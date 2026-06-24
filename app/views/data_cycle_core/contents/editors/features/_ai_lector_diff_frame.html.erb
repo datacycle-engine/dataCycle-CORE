@@ -1,0 +1,32 @@
+<%= turbo_frame_tag overlay_id do %>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+
+  <div class="reveal-header">
+    <%= t('feature.ai_lector.diff.title', locale: active_ui_locale) %>
+  </div>
+
+  <form class="ai-lector-diff-form">
+    <div class="reveal-body">
+      <div class="ai-lector-diff-content ellipsis-loading">
+        <%= t('feature.ai_lector.diff.thinking', locale: active_ui_locale) %>
+      </div>
+    </div>
+
+    <div class="reveal-footer buttons">
+      <%= button_tag safe_join([tag.i(class: 'fa fa-times'), t('actions.cancel', locale: active_ui_locale)]),
+                     class: 'button secondary hollow',
+                     data: { close: '' },
+                     type: :button %>
+      <%= button_tag safe_join([t('feature.ai_lector.diff.finetune', locale: active_ui_locale), tag.i(class: 'fa fa-pencil')]),
+                     class: 'button primary hollow ai-lector-finetune-button',
+                     data: { disable: true },
+                     type: :button if local_assigns[:allow_feedback_loop] %>
+      <%= button_tag safe_join([t('feature.ai_lector.diff.accept_changes', locale: active_ui_locale), tag.i(class: 'fa fa-check')]),
+                     class: 'button success',
+                     data: { disable: true },
+                     type: :submit %>
+    </div>
+  </form>
+<% end %>

@@ -3,7 +3,7 @@
 module DataCycleCore
   module Abilities
     module Segments
-      class WatchListByUserShares < StoredFilterBySharedUsers
+      class WatchListByUserShares < CollectionBySharedUsers
         def initialize(**)
           @subject = DataCycleCore::WatchList
         end

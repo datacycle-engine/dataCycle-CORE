@@ -156,12 +156,13 @@ module DataCycleCore
       data.set_data_hash(data_hash:)
       data.save
 
-      assert_equal(false, data.data.flag1)
+      assert_not(data.data.flag1)
       assert_nil(data.data.flag2)
       assert_nil(data.data.flag3)
 
       test_data = DataCycleCore::Thing.find(data.id)
-      assert_equal(false, test_data.data.flag1)
+
+      assert_not(test_data.data.flag1)
       assert_nil(test_data.data.flag2)
       assert_nil(test_data.data.flag3)
     end

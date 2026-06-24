@@ -1,7 +1,7 @@
-import SimpleSelect2 from "../components/simple_select2";
 import AsyncSelect2 from "../components/async_select2";
 import CheckBoxSelector from "../components/check_box_selector";
 import RadioButtonSelector from "../components/radio_button_selector";
+import SimpleSelect2 from "../components/simple_select2";
 
 export default function () {
 	// FIXME: remove when https://github.com/select2/select2/issues/5993 is resolved

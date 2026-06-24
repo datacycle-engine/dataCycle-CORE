@@ -34,6 +34,9 @@ module DataCycleCore
         @params = params
         @template = template
         @request_method = request_method || 'GET'
+
+        transform_include_parameters!
+        transform_fields_parameters!
       end
 
       def render(render_format = :json)
@@ -159,6 +162,42 @@ module DataCycleCore
         return true if section_params.blank?
 
         !section_params[section.to_sym]&.to_i&.zero?
+      end
+
+      def sanitize_sql(sql_array)
+        ActiveRecord::Base.send(:sanitize_sql_array, sql_array)
+      end
+
+      private
+
+      def string_to_array(value)
+        if value.is_a?(Array)
+          value.map { |i| string_to_array(i) }.flatten
+        elsif value.is_a?(String)
+          value.strip.split('.')
+        else
+          value
+        end
+      end
+
+      def transform_nested_params(params)
+        return [] if params.blank?
+
+        if params.is_a?(String)
+          params.strip.split(',').map { |i| string_to_array(i) }
+        elsif params.is_a?(Array)
+          params.map { |i| string_to_array(i) }
+        else
+          []
+        end
+      end
+
+      def transform_include_parameters!
+        @params[:include_parameters] = transform_nested_params(@params[:include_parameters])
+      end
+
+      def transform_fields_parameters!
+        @params[:fields_parameters] = transform_nested_params(@params[:fields_parameters])
       end
     end
   end

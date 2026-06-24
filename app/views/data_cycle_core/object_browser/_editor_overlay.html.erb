@@ -62,6 +62,36 @@
       </div>
     <% end %>
 
+    <% if (sortable_config = definition.dig('ui', 'edit', 'options', 'sortable')).present? %>
+      <span class="filter-sortable">
+        <% sortable = DataCycleCore::Feature['Sortable'].available_object_browser_options(sortable_config, current_user) %>
+        <% filter_id = SecureRandom.hex(10) %>
+        <%= select_tag(
+                        "s[v][m]",
+                        options_for_select(
+                            sortable.map { |s| s.values_at(:label, :method) },
+                            sortable.presence&.first&.dig(:method)
+                        ),
+                        {
+                          include_blank: I18n.t('sortable.default', default: 'default', locale: active_ui_locale),
+                          id: "s_v_m_#{filter_id}",
+                          class: 'filter-sortable-select'
+                        }
+                    ) %>
+        <span class="filter-sortable-checkbox-wrapper">
+          <%= check_box nil,
+                        "s[v][o]",
+                        { checked: true, id: "s_v_o_#{filter_id}" },
+                        'ASC',
+                        'DESC' %>
+          <label for="s_v_o_<%= filter_id %>" data-dc-tooltip="<%= t("sortable.ordering.asc", locale: active_ui_locale) %>">
+            <%= tag.i(class: 'fa fa-sort-asc sort-asc') %>
+            <%= tag.i(class: 'fa fa-sort-desc sort-desc') %>
+          </label>
+        </span>
+      </span>
+    <% end %>
+
     <div class="buttons">
       <%= button_tag type: :submit, class: "button success" do %>
         <i class="fa fa-search" aria-hidden="true"></i>

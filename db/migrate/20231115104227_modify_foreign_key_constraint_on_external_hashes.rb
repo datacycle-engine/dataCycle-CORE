@@ -2,7 +2,7 @@
 
 class ModifyForeignKeyConstraintOnExternalHashes < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE external_hashes DROP CONSTRAINT fk_external_hashes_things;
 
       ALTER TABLE external_hashes
@@ -11,7 +11,7 @@ class ModifyForeignKeyConstraintOnExternalHashes < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE external_hashes DROP CONSTRAINT fk_external_hashes_things;
 
       ALTER TABLE external_hashes

@@ -47,6 +47,7 @@ module DataCycleCore
       test 'set updated_at at linked data and find main thing' do
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Linked-Creative-Work-1').updated_since(@timestamp).count)
         new_timestamp = Time.zone.now
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Linked-Creative-Work-1').updated_since(new_timestamp).count)
 
         linked_item = DataCycleCore::Thing.find(@linked_objects.last)
@@ -58,6 +59,7 @@ module DataCycleCore
 
       test 'set updated_at at linked data and find main thing then remove link --> do not find it again' do
         new_timestamp = Time.zone.now
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Linked-Creative-Work-1').updated_since(new_timestamp).count)
 
         linked_item = DataCycleCore::Thing.find(@linked_objects.last)
@@ -71,6 +73,7 @@ module DataCycleCore
           partial_update: true,
           save_time: @timestamp
         )
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Linked-Creative-Work-1').updated_since(new_timestamp).count)
       end
     end

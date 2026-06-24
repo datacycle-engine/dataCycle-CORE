@@ -17,25 +17,33 @@ module DataCycleCore
 
     test 'filter contents based on author relation exists' do
       items = DataCycleCore::Filter::Search.new(locale: :de).exists_relation_filter('author')
+
       assert_equal(3, items.count)
       items = DataCycleCore::Filter::Search.new(locale: :de).exists_relation_filter('author', false)
+
       assert_equal(3, items.count)
       items = DataCycleCore::Filter::Search.new(locale: :de).exists_relation_filter('author', true)
+
       assert_equal(2, items.count)
       # DataCycleCore::StoredFilter.apply_filter_parameters calls the method with two strings
       items = DataCycleCore::Filter::Search.new(locale: :de).exists_relation_filter('author', 'author')
+
       assert_equal(3, items.count)
     end
 
     test 'filter contents based on author relation not exists' do
       items = DataCycleCore::Filter::Search.new(locale: :de).not_exists_relation_filter('author')
+
       assert_equal(4, items.count)
       items = DataCycleCore::Filter::Search.new(locale: :de).not_exists_relation_filter('author', false)
+
       assert_equal(4, items.count)
       items = DataCycleCore::Filter::Search.new(locale: :de).not_exists_relation_filter('author', true)
+
       assert_equal(5, items.count)
       # DataCycleCore::StoredFilter.apply_filter_parameters calls the method with two strings
       items = DataCycleCore::Filter::Search.new(locale: :de).not_exists_relation_filter('author', 'author')
+
       assert_equal(4, items.count)
     end
   end

@@ -25,6 +25,7 @@ module DataCycleCore
         def default_role
           role = configuration&.dig('default_role')
           return role if role == 'all'
+
           role.to_sym
         end
 

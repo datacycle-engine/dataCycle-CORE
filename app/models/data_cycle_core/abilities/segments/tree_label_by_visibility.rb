@@ -27,7 +27,7 @@ module DataCycleCore
 
         def to_restrictions(**)
           to_restriction(
-            visibilities: Array.wrap(visibilities).map { |v| I18n.t("classification_visibilities.#{v}", locale:) }.join(', ')
+            visibilities: Array.wrap(visibilities).map { |v| I18n.t("classification_visibilities.entries.#{v}", locale:) }.join(', ')
           )
         end
       end

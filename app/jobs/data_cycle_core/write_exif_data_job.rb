@@ -55,11 +55,11 @@ module DataCycleCore
           exif_value += property_definition.dig('exif', 'prepend') if property_definition.dig('exif', 'append')
 
           exif_keys.each do |key|
-            if exif_value.is_a?(Array) && EXIF_ARRAY_DATA_TYPES.exclude?(key)
-              exif_data[key] = exif_value.join(',')
-            else
-              exif_data[key] = exif_value
-            end
+            exif_data[key] = if exif_value.is_a?(Array) && EXIF_ARRAY_DATA_TYPES.exclude?(key)
+                               exif_value.join(',')
+                             else
+                               exif_value
+                             end
             updated_values[key] = exif_data[key]
           end
         end

@@ -16,9 +16,13 @@ const QuillHelpers = {
 			const text = this.normalizeText(textField.innerHTML);
 
 			if (text !== hiddenField.value) {
+				editor.dataset.changed = "true";
 				hiddenField.value = text;
+			}
+
+			if (triggerChangeEvent && editor.dataset.changed === "true") {
+				editor.dataset.changed = "false";
 				$(hiddenField).trigger("change");
-				if (triggerChangeEvent) $(hiddenField).trigger("change");
 			}
 		}
 	},

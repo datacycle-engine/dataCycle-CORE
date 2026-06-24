@@ -2,7 +2,7 @@
 
 class AddPrimaryKeyForPgDictMappings < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE pg_dict_mappings
       ADD PRIMARY KEY (locale);
     SQL

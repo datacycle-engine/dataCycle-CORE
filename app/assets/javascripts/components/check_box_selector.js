@@ -44,6 +44,8 @@ class CheckBoxSelector {
 		this.$inputFields.each((_, item) => {
 			this.setInputValue(item, value);
 		});
+
+		this.$element.trigger("change");
 	}
 	setInputValue(item, value) {
 		$(item).prop("checked", value?.includes($(item).val()));

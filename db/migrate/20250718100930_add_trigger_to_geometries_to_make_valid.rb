@@ -2,7 +2,7 @@
 
 class AddTriggerToGeometriesToMakeValid < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION make_valid_geometries() RETURNS TRIGGER AS $$
       BEGIN
         NEW.geom = ST_MakeValid(NEW.geom);

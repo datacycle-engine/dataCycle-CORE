@@ -11,7 +11,8 @@ module DataCycleCore
       data_hash = { 'name' => 'Dies ist ein Test!' }
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestSimple', data_hash:, prevent_history: true)
       returned_data_hash = data_set.get_data_hash
-      assert_equal(data_hash, returned_data_hash.except('id', 'linked_to_text').compact)
+
+      assert_equal(data_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes).compact)
       assert_equal(0, data_set.errors.messages.size)
 
       # check consistency of data in DB
@@ -30,7 +31,8 @@ module DataCycleCore
       save_time = Time.zone.now
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestSimple', data_hash:, save_time:)
       returned_data_hash = data_set.get_data_hash
-      assert_equal(data_hash, returned_data_hash.except('id', 'linked_to_text').compact)
+
+      assert_equal(data_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes).compact)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template_count)
@@ -50,7 +52,8 @@ module DataCycleCore
 
       save_time = Time.zone.now
       returned_data_hash = data_set.get_data_hash
-      assert_equal(data_hash, returned_data_hash.except('id', 'linked_to_text').compact)
+
+      assert_equal(data_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes).compact)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template_cw_count)
@@ -75,7 +78,8 @@ module DataCycleCore
       data_set.set_data_hash(data_hash:, new_content: true)
 
       returned_data_hash = data_set.get_data_hash
-      assert_equal(data_hash, returned_data_hash.except('id', 'data_pool', 'linked_to_text').compact)
+
+      assert_equal(data_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes).compact)
 
       assert_equal(1, returned_data_hash['data_pool'].count)
       assert_equal(0, data_set.errors.size)
@@ -114,7 +118,8 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash = data_hash
       expected_hash['test_place'][0] = data_set_place.get_data_hash
-      assert_equal(data_hash, returned_data_hash.except('id', 'linked_to_text'))
+
+      assert_equal(data_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(0, data_set.errors.size)
 
       returned_data_hash = data_set.as_of(data_set.updated_at + 3.seconds).get_data_hash
@@ -127,7 +132,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
 
-      assert_equal(expected_hash, returned_data_hash.except('id', 'linked_to_text'))
+      assert_equal(expected_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
     end
 
     test 'save data to History with embeddedObject from same content_table' do
@@ -154,7 +159,8 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash = data_hash
       expected_hash['test_cw'][0] = data_set_cw.get_data_hash
-      assert_equal(data_hash, returned_data_hash.except('id', 'linked_to_text'))
+
+      assert_equal(data_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(0, data_set.errors.size)
 
       new_data_hash = { 'name' => 'Neuer aktueller Datensatz!', 'test_cw' => [{ 'id' => data_set_cw.id }] }
@@ -171,8 +177,8 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Thing::History::Translation.count)
       assert_equal(1, DataCycleCore::ClassificationContent::History.count)
 
-      assert_equal(new_data_hash, data_set_new.except('id', 'linked_to_text'))
-      assert_equal(expected_hash, data_set_history.except('id', 'linked_to_text'))
+      assert_equal(new_data_hash, data_set_new.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(expected_hash, data_set_history.except(*DataCycleCore::TestPreparations.excepted_attributes))
     end
 
     test 'create CreativeWork and store multiple Histories to test as_of method' do
@@ -215,15 +221,15 @@ module DataCycleCore
       assert_equal(3, DataCycleCore::Thing::History.count)
       assert_equal(3, DataCycleCore::Thing::History::Translation.count)
 
-      assert_equal(data_hash_1w, data_set.get_data_hash.except('id', 'linked_to_text'))
-      assert_equal(data_hash_1w, data_set.get_data_hash.except('id', 'linked_to_text'))
-      assert_equal(data_hash_2w, data_set.as_of(weeks1ago - 1.day).get_data_hash.except('id', 'linked_to_text'))
-      assert_equal(data_hash_3w, data_set.as_of(weeks2ago - 1.day).get_data_hash.except('id', 'linked_to_text'))
-      assert_equal(data_hash_4w, data_set.as_of(weeks3ago - 1.day).get_data_hash.except('id', 'linked_to_text'))
-      assert_equal(data_hash_4w, data_set.as_of(weeks4ago - 1.day).get_data_hash.except('id', 'linked_to_text'))
+      assert_equal(data_hash_1w, data_set.get_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(data_hash_1w, data_set.get_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(data_hash_2w, data_set.as_of(weeks1ago - 1.day).get_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(data_hash_3w, data_set.as_of(weeks2ago - 1.day).get_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(data_hash_4w, data_set.as_of(weeks3ago - 1.day).get_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(data_hash_4w, data_set.as_of(weeks4ago - 1.day).get_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_nil(data_set.as_of(weeks4ago - 2.weeks))
       assert_nil(data_set.as_of(3.months.ago))
-      assert_equal(data_hash_1w, data_set.as_of(1.month.from_now).get_data_hash.except('id', 'linked_to_text'))
+      assert_equal(data_hash_1w, data_set.as_of(1.month.from_now).get_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
     end
 
     test 'save creative work with embeddedLink to history' do

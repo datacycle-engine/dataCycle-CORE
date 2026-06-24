@@ -72,6 +72,7 @@ module DataCycleCore
             json_data = response.parsed_body['@graph'].first
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content_overlay)
+
             assert_equal(header.except('name'), data.except('name'))
 
             ['image', 'location'].each do |embedded|
@@ -88,7 +89,7 @@ module DataCycleCore
             assert_equal(overlay_place.id, json_data.dig('location', 0, '@id'))
 
             # attribute link is rendered in additionalProperty
-            assert(json_data['additionalProperty'].present?)
+            assert_predicate(json_data['additionalProperty'], :present?)
             assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
             assert_equal('Link', json_data.dig('additionalProperty', 0, 'name'))
             assert_equal('link', json_data.dig('additionalProperty', 0, 'identifier'))

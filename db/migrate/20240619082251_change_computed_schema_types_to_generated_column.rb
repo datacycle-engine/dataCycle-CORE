@@ -2,7 +2,7 @@
 
 class ChangeComputedSchemaTypesToGeneratedColumn < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION compute_thing_schema_types(
           schema_types jsonb,
           template_name character varying DEFAULT NULL::character varying
@@ -59,7 +59,7 @@ class ChangeComputedSchemaTypesToGeneratedColumn < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE IF EXISTS thing_templates DROP COLUMN IF EXISTS computed_schema_types;
 
       ALTER TABLE IF EXISTS thing_templates

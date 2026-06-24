@@ -4,7 +4,7 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
   disable_ddl_transaction!
 
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE VIEW classification_alias_links AS (
         WITH primary_classification_groups AS (
           SELECT DISTINCT
@@ -457,7 +457,7 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TABLE IF EXISTS classification_alias_paths_transitive;
 
       CREATE OR REPLACE RECURSIVE VIEW classification_alias_paths_transitive (id, ancestors_ids, full_path_ids,

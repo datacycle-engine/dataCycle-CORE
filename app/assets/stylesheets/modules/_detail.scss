@@ -18,15 +18,10 @@
     right: 0.5rem;
     top: 0.5rem;
     margin: 0;
+    display: flex;
 
     a {
       position: relative;
-      padding: 0 3px;
-      display: inline-block;
-
-      &:last-child {
-        padding: 0 0 0 3px;
-      }
     }
 
     .button-prime {

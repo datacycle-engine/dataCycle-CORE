@@ -92,11 +92,11 @@ module DataCycleCore
         end
 
         def apply_event_query_filters(query)
-          if permitted_params&.dig(:filter, :from).present?
-            query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
-          else
-            query = query.event_from_time(Time.zone.now)
-          end
+          query = if permitted_params&.dig(:filter, :from).present?
+                    query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
+                  else
+                    query.event_from_time(Time.zone.now)
+                  end
 
           query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to).present?
           query
@@ -120,6 +120,7 @@ module DataCycleCore
           excluded_controller_names = ['things', 'contents']
           return permitted_params[:type]&.classify if permitted_params[:type].present?
           return controller_name.classify unless excluded_controller_names.include?(controller_name)
+
           nil
         end
       end

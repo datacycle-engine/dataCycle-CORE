@@ -10,7 +10,7 @@ module DataCycleCore
           transitive_triggers = enabled? ? 'ENABLE' : 'DISABLE'
           non_transitive_triggers = enabled? ? 'DISABLE' : 'ENABLE'
 
-          ActiveRecord::Base.connection.execute <<-SQL.squish
+          ActiveRecord::Base.connection.execute <<~SQL.squish
             ALTER TABLE classification_alias_paths_transitive #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;
             ALTER TABLE classification_alias_paths_transitive #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
             ALTER TABLE classification_contents #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
@@ -37,6 +37,42 @@ module DataCycleCore
           DataCycleCore::RebuildClassificationMappingsJob.perform_later if update_jobs
         rescue ActiveRecord::NoDatabaseError
           nil
+        end
+
+        def rebuild_transitive_tables!
+          if enabled?
+            ActiveRecord::Base.connection.execute <<~SQL.squish
+              SET LOCAL statement_timeout = 0;
+              SELECT public.upsert_ca_paths_transitive (ARRAY_AGG(id)) FROM concepts;
+            SQL
+          else
+            ActiveRecord::Base.connection.execute <<~SQL.squish
+              SET LOCAL statement_timeout = 0;
+              SELECT public.upsert_ca_paths (ARRAY_AGG(id)) FROM concepts;
+            SQL
+          end
+
+          rebuild_ccc!
+
+          return if Rails.env.test?
+
+          DataCycleCore::RunTaskJob.perform_later('db:maintenance:vacuum', [true, 'classification_alias_paths|classification_alias_paths_transitive|collected_classification_contents'])
+        end
+
+        def rebuild_ccc!
+          if enabled?
+            ActiveRecord::Base.connection.execute <<~SQL.squish
+              SET LOCAL statement_timeout = 0;
+              SELECT public.generate_collected_cl_content_relations_transitive (array_agg(things.id))
+              FROM things;
+            SQL
+          else
+            ActiveRecord::Base.connection.execute <<~SQL.squish
+              SET LOCAL statement_timeout = 0;
+              SELECT public.generate_collected_classification_content_relations (array_agg(things.id), ARRAY[]::UUID[])
+              FROM things;
+            SQL
+          end
         end
       end
     end

@@ -4,6 +4,16 @@ module DataCycleCore
   module ApiService
     API_SCHEDULE_ATTRIBUTES = [:eventSchedule, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule, :hoursAvailable, :validitySchedule].freeze
     API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dc:touched'].freeze
+    API_SKIP_ATTRIBUTE_VALIDATION = [:graph, :linked, :attribute].freeze
+    API_VALIDATE_ATTRIBUTES = [:'dct:deleted', :slug, :'skos:broader', :'skos:ancestors'].freeze
+    RELATION_FILTER_TYPES = [
+      *Content::Content::LINKED_PROPERTY_TYPES,
+      *Content::Content::EMBEDDED_PROPERTY_TYPES
+    ].freeze
+
+    FORBIDDEN_PARENTS = {
+      attribute: [:attribute]
+    }.freeze
 
     def list_api_deleted_request(contents)
       json_context = api_plain_context(@language)
@@ -30,11 +40,12 @@ module DataCycleCore
 
       return search if search.none? || query.content_ids(content_id).query.exists?
 
-      related_content_ids = search.first.cached_related_contents.pluck(:id)
+      search_first = search.first
+      related_content_ids = search_first.with_cached_related_contents.where.not(id: search_first.id).pluck(:id)
 
       return new_thing_search(@language, nil) if related_content_ids.blank?
 
-      if search.first.embedded?
+      if search_first.embedded?
         return new_thing_search(@language, nil) unless query.content_ids(related_content_ids).query.exists?
 
         search
@@ -56,19 +67,21 @@ module DataCycleCore
         .pick(:thing_id)
     end
 
-    def apply_filters(query, filters)
+    def apply_filters(query, filters, key_path = [:filter])
       return query if filters.blank?
 
       filters.each do |filter_k, filter_v|
         if filter_k == 'union'
           query = apply_union_filters(query, filter_v)
         else
-          filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
+          filter_v = filter_v.to_h.deep_symbolize_keys if filter_v.respond_to?(:to_h)
           next if filter_v.blank?
+
           filter_method_name = "apply_#{filter_k.to_s.underscore_blanks}_filters"
           # TODO: add API error
           next unless respond_to?(filter_method_name)
-          query = send(filter_method_name, query, filter_v)
+
+          query = query_filter_method(filter_method_name, query, filter_v, key_path + [filter_k])
         end
       end
 
@@ -92,6 +105,7 @@ module DataCycleCore
       filters.each do |operator, values|
         query_method = "not_#{query_method}" if operator == :notIn
         next unless query.respond_to?(query_method)
+
         values.each do |v|
           query = query.send(query_method, v.split(','))
         end
@@ -112,6 +126,7 @@ module DataCycleCore
           filter&.each do |k, v|
             query_method = filter_prefix + query_method_mapping(k)
             next unless query.respond_to?(query_method)
+
             if k == :box
               query = query.send(query_method, *v)
             else
@@ -131,55 +146,92 @@ module DataCycleCore
     end
 
     def apply_schedule_filters(query, filters)
+      return query.schedule_search(filters.dig(:all, :in), [], include_all: true) if filters.key?(:all)
+
       query.in_schedule(filters&.dig(:in), 'absolute')
     end
 
-    def apply_attribute_filters(query, filters)
+    def apply_attribute_filters(query, filters, key_path = [:filter])
       filters.each do |attribute_key, operator|
         attribute_path = attribute_path_mapping(attribute_key)
+        legacy_attribute_path = property_name_mapping(attribute_key)
+
+        if attribute_path.nil? && legacy_attribute_path.nil?
+          raise DataCycleCore::Error::Api::BadRequestError.new({
+            parameter_path: parameter_path(key_path + [attribute_key]),
+            type: 'invalid_parameter',
+            detail: 'attribute is unknown'
+          }), 'API Bad Request Error'
+        end
+
         operator.each do |k, v|
           query_method = query_method_mapping(attribute_key, v)
           query_method = "not_#{query_method}" if k == :notIn
           next unless query.respond_to?(query_method)
 
           v = transform_values_for_query(v, attribute_key)
-          if query.method(query_method)&.parameters&.size == 3
-            if advanced_attribute_key_by_path(attribute_key).present?
-              query = query.send(query_method, v, advanced_attribute_type_by_path(attribute_key), attribute_path)
-            else
-              query = query.send(query_method, v, attribute_path, attribute_key.to_s.delete_prefix('dc:').underscore_blanks)
-            end
-          else
-            query = query.send(query_method, v, attribute_path)
-          end
+
+          query = if query.method(query_method)&.parameters&.size == 3
+                    if attribute_path != 'absolute' && advanced_attribute_key_by_path(attribute_key).present?
+                      query.send(query_method, v, advanced_attribute_type_by_path(attribute_key), attribute_path)
+                    else
+                      query.send(query_method, v, attribute_path, legacy_attribute_path)
+                    end
+                  else
+                    query.send(query_method, v, attribute_path)
+                  end
         end
       end
+
       query
     end
 
-    def apply_linked_filters(query, linked_filter)
+    def apply_linked_filters(query, linked_filter, key_path = [:filter])
       linked_filter.each do |linked_name, attribute_filter|
-        linked_query = DataCycleCore::StoredFilter.new(language: @language, include_embedded: true).apply
-
-        attribute_filter.delete_if { |k, _v| [:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :classificationTreeId, :watchListId, :endpointId].exclude?(k) }
+        linked_query = DataCycleCore::StoredFilter.new(include_embedded: true).apply_nested
 
         linked_query = apply_filters(linked_query, attribute_filter)
-        query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
+        next if linked_query.blank?
+
+        query = query.relation_filter(
+          linked_query,
+          get_attribute_name_by_api_name(linked_name, key_path, RELATION_FILTER_TYPES)
+        )
       end
+
       query
     end
 
-    def apply_union_filters(query, filters)
+    def apply_graph_filters(query, graph_filters, key_path = [:filter])
+      graph_filters.each do |graph_name, attribute_filter|
+        graph_query = DataCycleCore::StoredFilter.new(include_embedded: true).apply_nested
+
+        graph_query = apply_filters(graph_query, attribute_filter)
+        next if graph_query.blank?
+
+        query = query.graph_filter(
+          graph_query,
+          get_attribute_name_by_api_name(graph_name, key_path, RELATION_FILTER_TYPES),
+          'is_linked_to'
+        )
+      end
+
+      query
+    end
+
+    def apply_union_filters(query, filters, key_path = [:filter])
       all_filters = []
-      filters.each do |filter|
-        union_query = DataCycleCore::StoredFilter.new(language: @language).apply(skip_ordering: true)
+      filters.each.with_index do |filter, index|
+        union_query = DataCycleCore::StoredFilter.new(include_embedded: true).apply_nested
 
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
+
           filter_method_name = "apply_#{filter_k.to_s.underscore_blanks}_filters"
           next unless respond_to?(filter_method_name)
-          union_query = send(filter_method_name, union_query, filter_v)
+
+          union_query = query_filter_method(filter_method_name, union_query, filter_v, key_path + [index, filter_k])
         end
 
         all_filters += [union_query]
@@ -208,10 +260,17 @@ module DataCycleCore
       apply_union_filter_methods(query, filters, 'classification_tree_ids')
     end
 
+    def apply_search_filters(query, filters)
+      query.fulltext_search(filters)
+    end
+
+    alias apply_q_filters apply_search_filters
+
     def apply_union_filter_methods(query, filters, query_method)
       filters.each do |operator, values|
         query_method = "not_#{query_method}" if operator == :notIn
         next unless query.respond_to?(query_method)
+
         values.each do |v|
           query = query.send(query_method, v.split(','))
         end
@@ -222,6 +281,7 @@ module DataCycleCore
     def transform_values_for_query(value, key)
       return { 'from' => value[:min], 'until' => value[:max] } if advanced_attribute_type_by_path(key) == 'date'
       return { 'text' => value.values.first } if advanced_attribute_type_by_path(key) == 'string' && value&.values&.first.present?
+
       value
     end
 
@@ -231,38 +291,55 @@ module DataCycleCore
       return 'within_box' if key == :box
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
+      return 'within_shape' if key == :geoShape
       return 'equals_advanced_slug' if key == :slug
-      return 'equals_advanced_attributes' if advanced_attribute_type_by_path(key) == 'numeric'
+      return 'equals_advanced_attributes' if ['numeric', 'boolean'].include?(advanced_attribute_type_by_path(key))
       return "#{value.keys.first}_advanced_attributes" if advanced_attribute_key_by_path(key).present?
+
       key.to_s
     end
 
-    def linked_attribute_mapping(linked_name)
-      case linked_name
-      when :location
-        'content_location'
-      else
-        linked_name&.to_s&.underscore
-      end
+    def api_to_property_name(api_name)
+      api_name.to_s.delete_prefix('dc:').delete_prefix('dcls:').underscore_blanks
+    end
+
+    def api_advanced_attribute_mapping(api_name)
+      q1 = DataCycleCore::ContentProperties.where(api_name:, advanced_search: true).distinct
+      q2 = DataCycleCore::ContentProperties
+        .where(property_name: api_to_property_name(api_name), advanced_search: true).distinct # in case linked filters are used with actual property names (location vs content_locatin)
+
+      q1.pluck(:property_name).presence || q2.pluck(:property_name)
+    end
+
+    def api_attribute_mapping(api_name, property_type)
+      q1 = DataCycleCore::ContentProperties.where(api_name:, property_type:).distinct
+      q2 = DataCycleCore::ContentProperties
+        .where(property_name: api_to_property_name(api_name), property_type:).distinct # in case linked filters are used with actual property names (location vs content_locatin)
+
+      q1.pluck(:property_name).presence || q2.pluck(:property_name)
+    end
+
+    def api_advanced_attribute_type(api_name)
+      q1 = DataCycleCore::ContentProperties
+        .where(api_name:, advanced_search: true).distinct
+      q2 = DataCycleCore::ContentProperties
+        .where(property_name: api_to_property_name(api_name), advanced_search: true)
+        .distinct
+
+      q1.pluck(:property_type).presence || q2.pluck(:property_type)
+    end
+
+    def property_name_mapping(p_name)
+      property_name = api_to_property_name(p_name)
+      DataCycleCore::ContentProperties.exists?(property_name:) ? property_name : nil
     end
 
     def advanced_attribute_type_by_path(path)
       key = advanced_attribute_key_by_path(path)
       return if key.blank?
 
-      DataCycleCore::ApiService.additional_advanced_attributes[key]&.dig('type')
-    end
-
-    def advanced_attribute_key_by_path(path)
-      key = path.to_s.underscore
-
-      return key if DataCycleCore::ApiService.additional_advanced_attributes[key].present?
-
-      DataCycleCore::ApiService.additional_advanced_attributes.each do |k, v|
-        return k if v.is_a?(Hash) && v['path'].to_s == path.to_s
-      end
-
-      nil
+      DataCycleCore::ApiService.additional_advanced_attributes[key]&.dig('type') ||
+        api_advanced_attribute_type(key)&.first
     end
 
     def attribute_path_mapping(attribute_key)
@@ -277,6 +354,20 @@ module DataCycleCore
       else
         advanced_attribute_key_by_path(attribute_key)
       end
+    end
+
+    def advanced_attribute_key_by_path(path)
+      key = path.to_s.underscore
+
+      return key if DataCycleCore::ApiService.additional_advanced_attributes[key].present?
+
+      DataCycleCore::ApiService.additional_advanced_attributes.each do |k, v|
+        return k if v.is_a?(Hash) && v['path'].to_s == path.to_s
+      end
+
+      return if path.to_s.include?('_')
+
+      api_advanced_attribute_mapping(path).first
     end
 
     def attribute_filter_operations
@@ -298,92 +389,61 @@ module DataCycleCore
       }
     end
 
-    def classification_filter_operations
-      {
-        in: {
-          withSubtree: [],
-          withoutSubtree: []
-        },
-        notIn: {
-          withSubtree: [],
-          withoutSubtree: []
-        }
-      }
-    end
+    def validate_api_filters(filters, key_path = [:filter], validator = DataCycleCore::MasterData::Contracts::ApiFilterContract.new)
+      raise 'API Bad Request Error' unless filters.is_a?(Hash)
 
-    def attribute_filters
-      [
-        :search,
-        :q,
-        {
-          classifications: classification_filter_operations
-        },
-        {
-          'dc:classification': classification_filter_operations
-        },
-        {
-          attribute: {
-            'dct:created': attribute_filter_operations,
-            'dct:deleted': attribute_filter_operations,
-            'dct:modified': attribute_filter_operations,
-            'dc:touched': attribute_filter_operations,
-            schedule: attribute_filter_operations
-          }
-        },
-        {
-          geo: {
-            in: {
-              box: [],
-              perimeter: [],
-              shapes: []
-            },
-            notIn: {
-              box: [],
-              perimeter: [],
-              shapes: []
-            }
-          }
-        }
-      ]
+      validation_errors = []
+
+      API_SKIP_ATTRIBUTE_VALIDATION.each do |f|
+        next if filters[f].blank?
+
+        if FORBIDDEN_PARENTS.key?(f) && key_path&.intersect?(FORBIDDEN_PARENTS[f])
+          raise DataCycleCore::Error::Api::BadRequestError.new(
+            nested_linked_errors(filters, key_path)
+          ), 'API Bad Request Error'
+        end
+
+        filters.delete(f).each do |key, filter|
+          new_filter = API_VALIDATE_ATTRIBUTES.include?(key) ? { key => filter } : filter
+          new_key_path = API_VALIDATE_ATTRIBUTES.include?(key) ? key_path : key_path + [f, key]
+
+          validation_errors.concat(validate_api_filters(new_filter, new_key_path, validator))
+        end
+      end
+
+      if key_path.exclude?(:union) && filters[:union].present?
+        filters.delete(:union).each.with_index do |filter, index|
+          validation_errors.concat(validate_api_filters(filter, key_path + [:union, index], validator))
+        end
+      end
+
+      validation = validator.call(filters)
+      validation_errors.concat(api_errors(validation.errors, key_path)) if validation.errors.to_h.present?
+      validation_errors
     end
 
     def validate_api_params(unpermitted_params, exceptions = [], validate_params_contract = nil)
-      validator = validate_params_contract&.new || DataCycleCore::MasterData::Contracts::ApiContract.new
-      linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
-
       validation_params = unpermitted_params&.deep_symbolize_keys&.except(*exceptions.map(&:to_sym))
-      linked_params = validation_params[:filter].delete(:linked) if validation_params.dig(:filter, :linked).present?
-      union_params = validation_params[:filter].delete(:union) if validation_params.dig(:filter, :union).present?
+      validation_errors = []
 
+      validation_errors.concat(validate_api_filters(validation_params.delete(:filter))) if validation_params&.dig(:filter).present?
+
+      validator = validate_params_contract&.new || DataCycleCore::MasterData::Contracts::ApiContract.new
       validation = validator.call(validation_params)
-      validation_errors = validation.errors.to_h.present? ? api_errors(validation.errors) : []
-      linked_params&.each do |linked_name, attribute_filter|
-        linked_validation = linked_validator.call(attribute_filter)
-        validation_errors += api_errors(linked_validation.errors, linked_name) if linked_validation.errors.to_h.present?
-      end
-      union_params&.each do |union_parameters|
-        union_validation_errors = validate_api_union_params(union_parameters)
-        validation_errors += union_validation_errors if union_validation_errors.present?
-      end
+      validation_errors.concat(api_errors(validation.errors)) if validation.errors.to_h.present?
+
       raise DataCycleCore::Error::Api::BadRequestError.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
     end
 
-    def validate_api_union_params(unpermitted_params)
-      validator = DataCycleCore::MasterData::Contracts::ApiUnionFilterContract.new
-      linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
+    def get_attribute_name_by_api_name(api_name, key_path, property_type)
+      attribute_names = api_attribute_mapping(api_name, property_type)
+      return attribute_names if attribute_names.present?
 
-      raise 'API Bad Request Error' unless unpermitted_params.is_a?(Hash)
-
-      validation_params = unpermitted_params&.deep_symbolize_keys
-      linked_params = validation_params.delete(:linked) if validation_params[:linked].present?
-
-      validation = validator.call(validation_params)
-      validation_errors = validation.errors.to_h.present? ? api_errors(validation.errors) : []
-      linked_params&.each do |linked_name, attribute_filter|
-        linked_validation = linked_validator.call(attribute_filter)
-        validation_errors += api_errors(linked_validation.errors, linked_name) if linked_validation.errors.to_h.present?
-      end
-      validation_errors
+      raise DataCycleCore::Error::Api::BadRequestError.new({
+        parameter_path: parameter_path(key_path + [api_name]),
+        type: 'invalid_parameter',
+        detail: 'attribute is unknown'
+      }), 'API Bad Request Error'
     end
 
     # only used for classifications + deleted things endpoint
@@ -396,16 +456,27 @@ module DataCycleCore
       DataCycleCore::ApiService.order_key_with_value(sort)
     end
 
-    def self.order_value_from_params(key, full_text_search, raw_query_params)
+    def self.order_value_from_params(key, raw_query_params)
       schedule_order_params = order_constraints[key]&.filter_map do |mapping|
         value = raw_query_params.dig(*mapping)
-        value = value.merge('relation' => mapping.last) if value.present? && value.is_a?(Hash) && mapping.last != 'schedule'
+        if value.is_a?(Hash) && value.key?('all')
+          value = value['all'].merge('relation' => 'all') # filter[schedule][all] => sort across all schedule relations
+        elsif value.present? && value.is_a?(Hash) && mapping.last != 'schedule'
+          value = value.merge('relation' => mapping.last)
+        end
         value
       end
 
       return schedule_order_params if schedule_order_params.present? && ['proximity.occurrence_with_distance', 'proximity.in_occurrence_with_distance', 'proximity.in_occurrence_with_distance_pia'].include?(key)
+
       return schedule_order_params.first if schedule_order_params.present?
-      full_text_search if key == 'similarity' && full_text_search.present?
+      return if key != 'similarity'
+
+      search_value = raw_query_params.dig(:filter, :search) || raw_query_params.dig(:filter, :q)
+      value = search_value.is_a?(Hash) ? search_value[:value] : search_value
+      return if value.blank?
+
+      search_value
     end
 
     def self.order_constraints
@@ -442,15 +513,8 @@ module DataCycleCore
       DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters
     end
 
-    def self.additional_advanced_attribute_keys
-      additional_advanced_attributes&.map do |k, v|
-        next k.camelize(:lower).to_sym unless v.is_a?(::Hash)
-        v['path'].presence&.to_sym || k.camelize(:lower).to_sym
-      end
-    end
-
     def self.order_key_with_value(sort)
-      match_data = sort.match(/([+-]?)([\w:.]+)(?:\(([^)]*)\))?/)
+      match_data = sort.match(/([+-]?)([\w:.@]+)(?:\(([^)]*)\))?/)
 
       order = match_data[1] == '-' ? 'DESC' : 'ASC'
       key = match_data[2] || sort
@@ -465,6 +529,20 @@ module DataCycleCore
 
     private
 
+    def query_filter_method(filter_method_name, query, value, key_path)
+      return unless respond_to?(filter_method_name)
+
+      if method(filter_method_name).parameters.size == 3
+        send(filter_method_name, query, value, key_path)
+      else
+        send(filter_method_name, query, value)
+      end
+    end
+
+    def parameter_path(key_path)
+      key_path.drop(1).inject(key_path.first.to_s) { |a, b| a << "[#{b}]" }
+    end
+
     def new_thing_search(language, ids, embedded = false)
       DataCycleCore::Filter::Search
         .new(
@@ -475,27 +553,39 @@ module DataCycleCore
         .content_ids(ids)
     end
 
-    def api_errors(errors, linked_name = nil)
+    def api_errors(errors, key_path = [])
       errors.map do |error|
-        type = 'invalid_parameter'
-        error_path = error.path
-        if error.path.is_a?(::String)
-          type = 'unknown_parameter'
-          error_path = error.path.split('.')
-        end
-        error_path.prepend(:filter, :linked, linked_name) if linked_name.present?
-        parameter_path = error_path.drop(1).inject(error_path.first.to_s) { |a, b| a << "[#{b}]" }
+        error_path = error.path.is_a?(::String) ? error.path.split('.') : error.path
+        error_path.prepend(*key_path) if key_path.present?
+
         {
-          parameter_path:,
-          type:,
+          parameter_path: parameter_path(error_path),
+          type: error.path.is_a?(::String) ? 'unknown_parameter' : 'invalid_parameter',
           detail: error.to_s
         }
       end
     end
 
+    def nested_linked_errors(filter, key_path)
+      param_path = parameter_path(key_path)
+
+      while filter.is_a?(Hash) && filter.any?
+        key = filter.keys.first
+        param_path << "[#{key}]"
+        filter = filter[key]
+      end
+
+      [{
+        parameter_path: param_path,
+        type: 'invalid_parameter',
+        detail: 'is not allowed'
+      }]
+    end
+
     def date_from_single_value(value)
       return if value.blank?
       return value if value.is_a?(::Date)
+
       DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
     end
 

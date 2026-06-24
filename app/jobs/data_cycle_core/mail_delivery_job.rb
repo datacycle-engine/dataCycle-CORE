@@ -6,7 +6,7 @@ module DataCycleCore
     include DataCycleCore::JobExtensions::Callbacks
 
     ATTEMPTS = 10
-    WAIT = :exponentially_longer
+    WAIT = :polynomially_longer
     PRIORITY = 5
 
     queue_as :mailers

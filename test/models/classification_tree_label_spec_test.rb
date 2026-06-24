@@ -42,11 +42,11 @@ describe DataCycleCore::ClassificationTreeLabel do
   it 'should create necessary objects for classifications' do
     tree_one.create_classification_alias('CLASSIFICATION 1')
 
-    assert(tree_one.classification_aliases.size, 1)
-    assert(tree_one.classification_aliases.first.name, 'CLASSIFICATION 1')
+    assert_equal(1, tree_one.classification_aliases.size)
+    assert_equal('CLASSIFICATION 1', tree_one.classification_aliases.first.name)
 
-    assert(tree_one.classification_aliases.first.classifications.size, 1)
-    assert(tree_one.classification_aliases.first.classifications.first.name, 'CLASSIFICATION 1')
+    assert_equal(1, tree_one.classification_aliases.first.classifications.size)
+    assert_equal('CLASSIFICATION 1', tree_one.classification_aliases.first.classifications.first.name)
   end
 
   it 'should create necessary objects for nested classifications' do
@@ -54,27 +54,27 @@ describe DataCycleCore::ClassificationTreeLabel do
 
     classification_aliases = tree_one.classification_aliases.roots
 
-    assert(classification_aliases.size, 1)
-    assert(classification_aliases.first.name, 'CLASSIFICATION I')
+    assert_equal(1, classification_aliases.size)
+    assert_equal('CLASSIFICATION I', classification_aliases.first.name)
 
-    assert(classification_aliases.first.classifications.size, 1)
-    assert(classification_aliases.first.classifications.first.name, 'CLASSIFICATION I')
-
-    classification_aliases = classification_aliases.first.sub_classification_alias
-
-    assert(classification_aliases.size, 1)
-    assert(classification_aliases.first.name, 'CLASSIFICATION I - A')
-
-    assert(classification_aliases.first.classifications.size, 1)
-    assert(classification_aliases.first.classifications.first.name, 'CLASSIFICATION I - A')
+    assert_equal(1, classification_aliases.first.classifications.size)
+    assert_equal('CLASSIFICATION I', classification_aliases.first.classifications.first.name)
 
     classification_aliases = classification_aliases.first.sub_classification_alias
 
-    assert(classification_aliases.size, 1)
-    assert(classification_aliases.first.name, 'CLASSIFICATION I - A - 1')
+    assert_equal(1, classification_aliases.size)
+    assert_equal('CLASSIFICATION I - A', classification_aliases.first.name)
 
-    assert(classification_aliases.first.classifications.size, 1)
-    assert(classification_aliases.first.classifications.first.name, 'CLASSIFICATION I - A - 1')
+    assert_equal(1, classification_aliases.first.classifications.size)
+    assert_equal('CLASSIFICATION I - A', classification_aliases.first.classifications.first.name)
+
+    classification_aliases = classification_aliases.first.sub_classification_alias
+
+    assert_equal(1, classification_aliases.size)
+    assert_equal('CLASSIFICATION I - A - 1', classification_aliases.first.name)
+
+    assert_equal(1, classification_aliases.first.classifications.size)
+    assert_equal('CLASSIFICATION I - A - 1', classification_aliases.first.classifications.first.name)
   end
 
   it 'should create nested classifications with external sources and keys' do
@@ -85,14 +85,14 @@ describe DataCycleCore::ClassificationTreeLabel do
     }
     tree_one.create_classification_alias(classification_attributes)
 
-    assert(tree_one.classification_aliases.size, 1)
-    assert(tree_one.classification_aliases.first.name, 'CLASSIFICATION 1')
-    assert(tree_one.classification_aliases.first.external_source_id, external_source.id)
+    assert_equal(1, tree_one.classification_aliases.size)
+    assert_equal('CLASSIFICATION 1', tree_one.classification_aliases.first.name)
+    assert_equal(external_source.id, tree_one.classification_aliases.first.external_source_id)
 
-    assert(tree_one.classification_aliases.first.classifications.size, 1)
-    assert(tree_one.classification_aliases.first.classifications.first.name, 'CLASSIFICATION 1')
-    assert(tree_one.classification_aliases.first.classifications.first.external_source_id, external_source.id)
-    assert(tree_one.classification_aliases.first.classifications.first.external_key, '1234')
+    assert_equal(1, tree_one.classification_aliases.first.classifications.size)
+    assert_equal('CLASSIFICATION 1', tree_one.classification_aliases.first.classifications.first.name)
+    assert_equal(external_source.id, tree_one.classification_aliases.first.classifications.first.external_source_id)
+    assert_equal('1234', tree_one.classification_aliases.first.classifications.first.external_key)
   end
 
   it 'should created nested classifications with same name' do
@@ -100,27 +100,27 @@ describe DataCycleCore::ClassificationTreeLabel do
 
     classification_aliases = tree_one.classification_aliases.roots
 
-    assert(classification_aliases.size, 1)
-    assert(classification_aliases.first.name, 'CLASSIFICATION I')
+    assert_equal(1, classification_aliases.size)
+    assert_equal('CLASSIFICATION I', classification_aliases.first.name)
 
-    assert(classification_aliases.first.classifications.size, 1)
-    assert(classification_aliases.first.classifications.first.name, 'CLASSIFICATION I')
+    assert_equal(1, classification_aliases.first.classifications.size)
+    assert_equal('CLASSIFICATION I', classification_aliases.first.classifications.first.name)
 
     classification_aliases = classification_aliases.first.sub_classification_alias
 
-    assert(classification_aliases.size, 1)
-    assert(classification_aliases.first.name, 'CLASSIFICATION I')
+    assert_equal(1, classification_aliases.size)
+    assert_equal('CLASSIFICATION I', classification_aliases.first.name)
 
-    assert(classification_aliases.first.classifications.size, 1)
-    assert(classification_aliases.first.classifications.first.name, 'CLASSIFICATION I')
+    assert_equal(1, classification_aliases.first.classifications.size)
+    assert_equal('CLASSIFICATION I', classification_aliases.first.classifications.first.name)
   end
 
   it 'should ignore aliases from different classification trees' do
     tree_one.create_classification_alias('CLASSIFICATION I', 'CLASSIFICATION I - A')
     tree_two.create_classification_alias('CLASSIFICATION I', 'CLASSIFICATION I - A')
 
-    assert(tree_one.classification_aliases.size, 2)
-    assert(tree_two.classification_aliases.size, 2)
+    assert_equal(2, tree_one.classification_aliases.size)
+    assert_equal(2, tree_two.classification_aliases.size)
     tree_one.classification_aliases.each do |tree_one_alias|
       assert(tree_two.classification_aliases.map(&:id).exclude?(tree_one_alias.id))
     end
@@ -129,7 +129,7 @@ describe DataCycleCore::ClassificationTreeLabel do
   it 'should return newly created alias' do
     classification_alias = tree_one.create_classification_alias('CLASSIFICATION I', 'CLASSIFICATION I - A')
 
-    assert_equal(false, classification_alias.new_record?)
+    assert_not(classification_alias.new_record?)
     assert_predicate(classification_alias, :present?)
     assert(classification_alias.name, 'CLASSIFICATION I - A')
   end

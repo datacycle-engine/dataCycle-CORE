@@ -44,6 +44,7 @@ module DataCycleCore
             # all items (8)
             post_params = {}
             post api_v4_things_path(post_params)
+
             assert_api_count_result(8)
 
             # withSubtree CC BY-SA 4.0 (2)
@@ -59,6 +60,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             # withSubtree CC BY 4.0 (2)
@@ -74,6 +76,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             # withSubtree CC BY (3)
@@ -89,6 +92,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(3)
 
             # withSubtree CC0 (4)
@@ -104,6 +108,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             # withSubtree place (4)
@@ -120,6 +125,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### Logical AND
@@ -137,6 +143,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             # withSubtree food establisment AND CC BY(1)
@@ -154,6 +161,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             ### Logical OR
@@ -170,6 +178,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(7)
 
             # withSubtree food establisment OR CC BY(4)
@@ -185,6 +194,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### withoutSubtree
@@ -202,6 +212,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             # withoutSubtree CC BY 4.0 (2)
@@ -217,6 +228,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             # withoutSubtree CC BY (1)
@@ -232,6 +244,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             # combine withSubtree and withoutSubtree
@@ -251,6 +264,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (1)
@@ -269,6 +283,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
           end
 
@@ -276,6 +291,7 @@ module DataCycleCore
             # all items (8)
             post_params = {}
             post api_v4_things_path(post_params)
+
             assert_api_count_result(8)
 
             # withSubtree CC BY-SA 4.0 (6)
@@ -291,6 +307,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(6)
 
             # withSubtree CC BY 4.0 (6)
@@ -306,6 +323,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(6)
 
             # withSubtree CC BY (5)
@@ -321,6 +339,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(5)
 
             # withSubtree CC0 (4)
@@ -336,6 +355,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             # withSubtree place (4)
@@ -352,6 +372,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### Logical AND
@@ -369,6 +390,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             # withSubtree food establisment AND CC BY(4)
@@ -386,6 +408,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### Logical OR
@@ -402,6 +425,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             # withSubtree food establisment OR CC BY(4)
@@ -417,6 +441,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### withoutSubtree
@@ -434,6 +459,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(8)
 
             # withoutSubtree CC BY 4.0 (6)
@@ -449,6 +475,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(6)
 
             # withoutSubtree CC BY (7)
@@ -464,6 +491,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(7)
 
             # combine withSubtree and withoutSubtree
@@ -483,6 +511,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (4)
@@ -501,6 +530,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
           end
 
@@ -508,6 +538,7 @@ module DataCycleCore
             # all items (8)
             post_params = {}
             post api_v4_things_path(post_params)
+
             assert_api_count_result(8)
 
             # withSubtree CC BY-SA 4.0 (2)
@@ -523,6 +554,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             # withSubtree CC BY 4.0 (2)
@@ -538,6 +570,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             # withSubtree CC BY (3)
@@ -553,6 +586,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(3)
 
             # withSubtree CC0 (4)
@@ -568,6 +602,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             # withSubtree place (4)
@@ -584,6 +619,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### Logical AND
@@ -601,6 +637,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             # withSubtree food establisment AND CC BY(1)
@@ -618,6 +655,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             ### Logical OR
@@ -634,6 +672,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(7)
 
             # withSubtree food establisment OR CC BY(4)
@@ -649,6 +688,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### withoutSubtree
@@ -666,6 +706,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(0)
 
             # withoutSubtree CC BY 4.0 (2)
@@ -681,6 +722,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             # withoutSubtree CC BY (1)
@@ -696,6 +738,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             # combine withSubtree and withoutSubtree
@@ -715,6 +758,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(2)
 
             # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (1)
@@ -733,6 +777,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
           end
 
@@ -740,6 +785,7 @@ module DataCycleCore
             # all items (8)
             post_params = {}
             post api_v4_things_path(post_params)
+
             assert_api_count_result(8)
 
             # withSubtree CC BY-SA 4.0 (6)
@@ -755,6 +801,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(6)
 
             # withSubtree CC BY 4.0 (6)
@@ -770,6 +817,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(6)
 
             # withSubtree CC BY (5)
@@ -785,6 +833,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(5)
 
             # withSubtree CC0 (4)
@@ -800,6 +849,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             # withSubtree place (4)
@@ -816,6 +866,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### Logical AND
@@ -833,6 +884,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             # withSubtree food establisment AND CC BY(4)
@@ -850,6 +902,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### Logical OR
@@ -866,6 +919,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
 
             # withSubtree food establisment OR CC BY(4)
@@ -881,6 +935,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             ### withoutSubtree
@@ -898,6 +953,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(8)
 
             # withoutSubtree CC BY 4.0 (6)
@@ -913,6 +969,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(6)
 
             # withoutSubtree CC BY (7)
@@ -928,6 +985,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(7)
 
             # combine withSubtree and withoutSubtree
@@ -947,6 +1005,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
 
             # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (4)
@@ -965,6 +1024,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(4)
           end
         end

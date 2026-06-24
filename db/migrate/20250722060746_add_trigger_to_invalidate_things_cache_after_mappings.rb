@@ -2,7 +2,7 @@
 
 class AddTriggerToInvalidateThingsCacheAfterMappings < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.invalidate_things_trigger() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$ BEGIN
       UPDATE things
       SET cache_valid_since = NOW()

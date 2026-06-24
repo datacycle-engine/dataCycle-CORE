@@ -4,7 +4,7 @@ class PrefillNewConceptTables < ActiveRecord::Migration[6.1]
   disable_ddl_transaction!
 
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE classification_aliases
       SET deleted_at = NOW()
       WHERE classification_aliases.id IN (
@@ -125,7 +125,7 @@ class PrefillNewConceptTables < ActiveRecord::Migration[6.1]
       FROM new_classification_tree_labels nctl ON CONFLICT DO NOTHING;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       WITH new_classification_groups AS (
         SELECT *
         FROM classification_groups cg
@@ -189,7 +189,7 @@ class PrefillNewConceptTables < ActiveRecord::Migration[6.1]
       WHERE groups.primary = false ON CONFLICT DO NOTHING;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       WITH new_classification_trees AS (
         SELECT *
         FROM classification_trees ct
@@ -213,7 +213,7 @@ class PrefillNewConceptTables < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       TRUNCATE TABLE concepts
       CASCADE;
     SQL

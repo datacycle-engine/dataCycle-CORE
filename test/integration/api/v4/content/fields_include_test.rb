@@ -47,6 +47,7 @@ module DataCycleCore
 
           def load_api_data(fields, includes)
             get api_v4_thing_path(id: @content_overlay, fields: fields&.join(','), include: includes&.join(','))
+
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
             response.parsed_body['@graph'].first
@@ -54,6 +55,7 @@ module DataCycleCore
 
           def load_api_data_fails(fields, includes)
             get api_v4_thing_path(id: @content_overlay, fields: fields&.join(','), include: includes&.join(','))
+
             assert_response(:bad_request)
             response.parsed_body
           end
@@ -84,6 +86,7 @@ module DataCycleCore
             fields = ['name']
             includes = ['image', 'location', 'subEvent']
             json_data = load_api_data(fields, includes)
+
             assert_equal(add_default(['name', 'image', 'location']), json_data.keys.sort)
           end
 
@@ -112,7 +115,7 @@ module DataCycleCore
           # only fields in main/default object, no additional included data
           test 'testing wildcard fields - fields=* (only fields in main object, no incuded data)' do
             fields = ['*']
-            includes = []
+            includes = ['dc:slugifiedName']
             json_data_wildcard = load_api_data(fields, nil)
             json_data_default = load_api_data(nil, add_content_header_fields(includes))
 
@@ -121,7 +124,7 @@ module DataCycleCore
 
           test 'testing wildcard fields - fields=image.* (only fields in main object + image)' do
             fields = ['*', 'image.*']
-            includes = ['image']
+            includes = ['image', 'dc:slugifiedName', 'image.dc:slugifiedName']
             json_data_includes = load_api_data(nil, add_content_header_fields(includes))
             json_data_wildcard = load_api_data(fields, nil)
 
@@ -131,7 +134,7 @@ module DataCycleCore
 
           test 'testing wildcard fields - fields=eventSchedule.* (only fields in main object + eventSchedule)' do
             fields = ['*', 'eventSchedule.*']
-            includes = ['eventSchedule']
+            includes = ['eventSchedule', 'dc:slugifiedName', 'eventSchedule.dc:slugifiedName']
             json_data_includes = load_api_data(nil, add_content_header_fields(includes))
             json_data_wildcard = load_api_data(fields, nil)
 
@@ -141,7 +144,7 @@ module DataCycleCore
 
           test 'testing fields for wildcard - nested fields' do
             fields = ['*', 'image.*', 'image.dc:classification.*', 'image.dc:classification.skos:broader.*', 'image.dc:classification.skos:broader.skos:topConceptOf.*']
-            includes = ['image', 'image.dc:classification', 'image.dc:classification.skos:broader', 'image.dc:classification.skos:broader.skos:topConceptOf']
+            includes = ['image', 'image.dc:classification', 'image.dc:classification.skos:broader', 'image.dc:classification.skos:broader.skos:topConceptOf', 'dc:slugifiedName', 'image.dc:slugifiedName', 'image.dc:classification.dc:slugifiedName', 'image.dc:classification.skos:broader.dc:slugifiedName', 'image.dc:classification.skos:broader.skos:topConceptOf.dc:slugifiedName']
             json_data_includes = load_api_data(nil, add_content_header_fields(includes))
             json_data_wildcard = load_api_data(fields, nil)
 
@@ -155,6 +158,7 @@ module DataCycleCore
           test 'testing invalid wildcard fields - fields=*.*' do
             fields = ['*.*']
             json_data_wildcard = load_api_data_fails(fields, nil)
+
             assert_equal [
               {
                 'source' => { 'parameter' => 'fields' },

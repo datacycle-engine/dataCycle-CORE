@@ -1,4 +1,5 @@
 import Quill from "quill";
+
 const Break = Quill.import("blots/break");
 const Embed = Quill.import("blots/embed");
 const Delta = Quill.import("delta");
@@ -38,4 +39,4 @@ function lineBreakHandler(range) {
 	this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
 }
 
-export { SmartBreak, lineBreakMatcher, lineBreakHandler };
+export { lineBreakHandler, lineBreakMatcher, SmartBreak };

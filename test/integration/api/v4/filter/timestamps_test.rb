@@ -21,6 +21,7 @@ module DataCycleCore
 
             params = {}
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -36,9 +37,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             json_data = response.parsed_body
+
             assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
             params = {
@@ -55,6 +58,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:created_at, 10.days.ago)
@@ -71,6 +75,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:created_at, 10.days.from_now)
@@ -87,6 +92,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count - 1)
 
             params = {
@@ -103,6 +109,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count - 1)
 
             @food_establishment_a.update_column(:created_at, 10.days.ago)
@@ -122,6 +129,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:created_at, orig_ts)
@@ -133,6 +141,7 @@ module DataCycleCore
 
             params = {}
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -148,9 +157,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             json_data = response.parsed_body
+
             assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
             params = {
@@ -167,6 +178,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:updated_at, 10.days.ago)
@@ -183,6 +195,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:updated_at, 10.days.from_now)
@@ -199,6 +212,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count - 1)
 
             params = {
@@ -215,6 +229,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count - 1)
 
             @food_establishment_a.update_column(:updated_at, 10.days.ago)
@@ -234,6 +249,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:updated_at, orig_ts)
@@ -245,6 +261,7 @@ module DataCycleCore
 
             params = {}
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -260,9 +277,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             json_data = response.parsed_body
+
             assert_equal(@food_establishment_a.id, json_data['@graph'].first['@id'])
 
             params = {
@@ -279,6 +298,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:cache_valid_since, 10.days.ago)
@@ -295,6 +315,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:cache_valid_since, 10.days.from_now)
@@ -311,6 +332,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count - 1)
 
             params = {
@@ -327,6 +349,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count - 1)
 
             @food_establishment_a.update_column(:cache_valid_since, 10.days.ago)
@@ -346,6 +369,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:cache_valid_since, orig_ts)
@@ -357,6 +381,7 @@ module DataCycleCore
 
             params = {}
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -377,6 +402,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_a.update_column(:updated_at, orig_ts)
@@ -385,6 +411,7 @@ module DataCycleCore
           test 'api/v4/things/deleted endpoint' do
             params = {}
             post api_v4_contents_deleted_path(params)
+
             assert_api_count_result(0)
 
             food_establishment_a_id = @food_establishment_a.id
@@ -393,6 +420,7 @@ module DataCycleCore
             @food_establishment_a.destroy_content(save_time: 1.minute.ago)
 
             post api_v4_contents_deleted_path(params)
+
             assert_api_count_result(1)
 
             @food_establishment_b.destroy_content
@@ -409,11 +437,13 @@ module DataCycleCore
               }
             }
             post api_v4_contents_deleted_path(params)
+
             assert_api_count_result(2)
 
             # make sure only id and deleted_at timestamp is present
             json_data = response.parsed_body
             validator = DataCycleCore::V4::Validation::Thing.deleted_thing
+
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -434,6 +464,7 @@ module DataCycleCore
               }
             }
             post api_v4_contents_deleted_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -448,6 +479,7 @@ module DataCycleCore
               }
             }
             post api_v4_contents_deleted_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -462,6 +494,7 @@ module DataCycleCore
               }
             }
             post api_v4_contents_deleted_path(params)
+
             assert_api_count_result(0)
 
             params = {
@@ -477,6 +510,7 @@ module DataCycleCore
               }
             }
             post api_v4_contents_deleted_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -494,6 +528,7 @@ module DataCycleCore
               }
             }
             post api_v4_contents_deleted_path(params)
+
             assert_api_count_result(2)
           end
         end

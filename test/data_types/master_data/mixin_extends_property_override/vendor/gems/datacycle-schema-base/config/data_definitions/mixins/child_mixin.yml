@@ -1,0 +1,9 @@
+---
+- :data:
+    :name: child_mixin
+    :type: mixin
+    :properties:
+      :base_property:
+        :type: string
+        :label: From base child_mixin (base gem)
+        :storage_location: translated_value

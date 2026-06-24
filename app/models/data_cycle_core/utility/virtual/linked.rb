@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module Virtual
       module Linked
+        extend DataCycleCore::ContentHelper
+
         class << self
           def parent(content:, **_args)
             content&.related_contents&.limit(1) || DataCycleCore::Thing.none
@@ -44,6 +46,27 @@ module DataCycleCore
             end
 
             query.query
+          end
+
+          def tour_start_location(content:, virtual_definition:, **)
+            template_name = virtual_definition['template_name']
+            return DataCycleCore::Thing.none if template_name.blank?
+
+            line = content.try(:line)
+            return DataCycleCore::Thing.none if line.blank?
+
+            line = line.first if line.is_a?(RGeo::Geographic::SphericalMultiLineStringImpl)
+            return DataCycleCore::Thing.none if line.blank?
+
+            start_point = line.start_point
+            return DataCycleCore::Thing.none if start_point.blank?
+
+            start_location = DataCycleCore::Thing.new(template_name:)
+            start_location.id = generate_uuid(content.id, start_point.to_s)
+            start_location.set_memoized_attribute('location', start_point)
+
+            DataCycleCore::Thing.where(id: start_location.id)
+              .tap { |rel| rel.send(:load_records, [start_location]) }
           end
         end
       end

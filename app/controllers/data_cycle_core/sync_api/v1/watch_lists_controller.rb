@@ -7,12 +7,14 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         def index
-          if permitted_params[:user_email].present?
-            @watch_lists = DataCycleCore::WatchList
-              .accessible_by(DataCycleCore::Ability.new(User.find_by(email: permitted_params[:user_email]), session)).without_my_selection
-          else
-            @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability).without_my_selection
-          end
+          @watch_lists = if permitted_params[:user_email].present?
+                           target_user = User.find_by(email: permitted_params[:user_email])
+                           authorize! :show, target_user unless target_user == current_user
+                           DataCycleCore::WatchList
+                             .accessible_by(DataCycleCore::Ability.new(target_user, session)).without_my_selection
+                         else
+                           DataCycleCore::WatchList.accessible_by(current_ability).without_my_selection
+                         end
           render json: @watch_lists.map(&:to_hash)
         end
 

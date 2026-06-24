@@ -1,13 +1,14 @@
 import {
-  arrow,
-  autoUpdate,
-  computePosition,
-  flip,
-  hide,
-  offset,
-  shift,
+	arrow,
+	autoUpdate,
+	computePosition,
+	flip,
+	hide,
+	offset,
+	shift,
 } from "@floating-ui/dom";
 import { nanoid } from "nanoid";
+import { sanitizeHtml } from "../helpers/sanitize_html";
 
 class Tooltips {
 	constructor() {
@@ -49,6 +50,25 @@ class Tooltips {
 			"tooltip",
 			this.addEventsForTooltip.bind(this),
 		);
+
+		this.attributeObserver = new MutationObserver(
+			this.handleAttributeMutations.bind(this),
+		);
+		this.attributeObserver.observe(document.body, {
+			subtree: true,
+			attributes: true,
+			attributeFilter: ["data-dc-tooltip"],
+		});
+	}
+	handleAttributeMutations(mutations) {
+		for (const mutation of mutations) {
+			const target = mutation.target;
+			if (!(target instanceof HTMLElement)) continue;
+			if (!target.dataset.dcTooltip) continue;
+			if (target.dataset.dcTooltipId) continue;
+
+			this.addEventsForTooltip(target);
+		}
 	}
 	addEventsForTooltip(element) {
 		element.dataset.dcTooltipId = nanoid();
@@ -123,7 +143,7 @@ class Tooltips {
 	}
 	updateTooltipContent() {
 		this.tooltipContent.innerHTML = this.referenceElement?.dataset.dcTooltip
-			? this.referenceElement.dataset.dcTooltip.trim()
+			? sanitizeHtml(this.referenceElement.dataset.dcTooltip.trim())
 			: "";
 
 		if (this.referenceElement?.dataset.dcTooltipClass)

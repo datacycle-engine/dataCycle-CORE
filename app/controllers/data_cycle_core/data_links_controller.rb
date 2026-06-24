@@ -25,19 +25,19 @@ module DataCycleCore
     end
 
     def create
-      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: helpers.active_ui_locale)) && return unless receiver_params[:id].present? || receiver_params[:email].match?(Devise.email_regexp)
+      redirect_back_or_to(root_path, alert: (I18n.t 'controllers.success.invalid_mail', locale: helpers.active_ui_locale)) && return unless receiver_params[:id].present? || receiver_params[:email].match?(Devise.email_regexp)
 
-      if receiver_params[:id].present?
-        @receiver = DataCycleCore::User.find_by(id: receiver_params[:id])
-      else
-        @receiver = DataCycleCore::User.where(email: receiver_params[:email]).first_or_initialize(receiver_params.merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(rank: 0)))
-      end
+      @receiver = if receiver_params[:id].present?
+                    DataCycleCore::User.find_by(id: receiver_params[:id])
+                  else
+                    DataCycleCore::User.where(email: receiver_params[:email]).first_or_initialize(receiver_params.merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(rank: 0)))
+                  end
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return unless @receiver.valid?
+      redirect_back_or_to(root_path, alert: (I18n.t 'controllers.error.invalid_mail', locale: helpers.active_ui_locale)) && return unless @receiver.valid?
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :user_locked, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if @receiver.locked?
+      redirect_back_or_to(root_path, alert: (I18n.t 'controllers.error.user_locked', locale: helpers.active_ui_locale)) && return if @receiver.locked?
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if DataCycleCore::DataLink.joins(:receiver).exists?(item_type: data_link_params[:item_type], item_id: data_link_params[:item_id], users: { email: @receiver.email })
+      redirect_back_or_to(root_path, alert: (I18n.t 'controllers.error.email_exists', locale: helpers.active_ui_locale)) && return if DataCycleCore::DataLink.joins(:receiver).exists?(item_type: data_link_params[:item_type], item_id: data_link_params[:item_id], users: { email: @receiver.email })
 
       @data_link = DataCycleCore::DataLink.new(data_link_params)
       @data_link.creator = current_user
@@ -48,7 +48,7 @@ module DataCycleCore
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{'_and_sent' if send_email_params[:send] == '1'}", data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), scope: [:controllers, :success], locale: helpers.active_ui_locale))
+      redirect_back_or_to(root_path, notice: (I18n.t "saved#{'_and_sent' if send_email_params[:send] == '1'}", data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), scope: [:controllers, :success], locale: helpers.active_ui_locale))
     end
 
     def update
@@ -60,14 +60,14 @@ module DataCycleCore
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{'_and_sent' if send_email_params[:send] == '1'}", scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+      redirect_back_or_to(root_path, notice: (I18n.t "updated#{'_and_sent' if send_email_params[:send] == '1'}", scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def destroy
       @data_link = DataCycleCore::DataLink.find(params[:id])
       @data_link.update_column(:valid_until, 1.minute.ago)
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+      redirect_back_or_to(root_path, notice: (I18n.t 'controllers.success.invalidated', data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def unlock
@@ -77,12 +77,13 @@ module DataCycleCore
 
       @data_link.update_column(:valid_until, nil)
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :unlocked, scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+      redirect_back_or_to(root_path, notice: (I18n.t 'controllers.success.unlocked', data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def get_text_file
-      @data_link = DataCycleCore::DataLink.find(params[:id])
+      @data_link = DataCycleCore::DataLink.find_by(id: params[:id])
 
+      raise CanCan::AccessDenied unless @data_link.try(:is_valid?)
       raise ActiveRecord::RecordNotFound if @data_link.text_file.blank?
 
       file_name = (@data_link.text_file.name.presence || DataCycleCore::DataLink.human_attribute_name('text_file', locale: helpers.active_ui_locale)).underscore_blanks
@@ -116,8 +117,7 @@ module DataCycleCore
 
     def data_link_params
       params
-        .require(:data_link)
-        .permit(:id, :item_id, :item_type, :creator_id, :permissions, :comment, :valid_from, :valid_until, :asset_id, :locale)
+        .expect(data_link: [:id, :item_id, :item_type, :creator_id, :permissions, :comment, :valid_from, :valid_until, :asset_id, :locale])
         .tap do |p|
           p[:valid_until] = p[:valid_until]&.to_datetime&.end_of_day.to_s
         end
@@ -147,7 +147,9 @@ module DataCycleCore
     end
 
     def url_split_params
-      params.require(:data_link).permit(:source_table, :source_id)
+      params.expect(data_link: [:source_table, :source_id])
+    rescue ActionController::ParameterMissing # url_split_params are not required
+      {}
     end
   end
 end

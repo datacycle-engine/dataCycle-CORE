@@ -22,14 +22,14 @@ module DataCycleCore
         'period' => {
           'created_at' => '2017-06-01'.to_datetime.to_fs(:db),
           'updated_at' => '2017-07-01'.to_datetime.to_fs(:db)
-        },
-        'linked_to_text' => []
+        }
       }
       returned_data_hash['period'].each do |key, value|
         returned_data_hash['period'][key] = value.to_datetime.to_fs(:db)
       end
       returned_data_hash['period']['updated_at'] = '2017-07-01'.to_datetime.to_fs(:db)
-      assert_equal(expected_hash, returned_data_hash.except('id'))
+
+      assert_equal(expected_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
     end
 
     test 'save Object in metadata and data within object to column and next level object' do
@@ -58,12 +58,12 @@ module DataCycleCore
             'valid_from' => '2017-06-01'.in_time_zone,
             'valid_until' => '2017-07-01'.in_time_zone
           }
-        },
-        'linked_to_text' => []
+        }
       }
       returned_data_hash['period']['updated_at'] = expected_hash['period']['updated_at']
       returned_data_hash['period']['created_at'] = returned_data_hash['period']['created_at'].to_datetime.to_fs(:db)
-      assert_equal(expected_hash, returned_data_hash.except('id'))
+
+      assert_equal(expected_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(0, data_set.errors.messages.size)
     end
   end

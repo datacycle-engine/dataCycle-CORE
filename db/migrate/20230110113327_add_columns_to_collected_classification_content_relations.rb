@@ -2,7 +2,7 @@
 
 class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TABLE IF EXISTS collected_classification_content_relations;
 
       CREATE TABLE collected_classification_contents (
@@ -169,7 +169,7 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE TABLE collected_classification_content_relations (
         id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
         content_id uuid,

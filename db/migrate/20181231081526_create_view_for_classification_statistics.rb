@@ -2,7 +2,7 @@
 
 class CreateViewForClassificationStatistics < ActiveRecord::Migration[5.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE VIEW classification_alias_statistics AS (
         WITH descendant_counts AS (
           SELECT
@@ -42,7 +42,7 @@ class CreateViewForClassificationStatistics < ActiveRecord::Migration[5.1]
       );
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE VIEW classification_tree_label_statistics AS (
         WITH descendant_counts AS (
           SELECT
@@ -74,11 +74,11 @@ class CreateViewForClassificationStatistics < ActiveRecord::Migration[5.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW classification_alias_statistics;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW classification_tree_label_statistics;
     SQL
   end

@@ -6,7 +6,6 @@
       # :tour:
       #   :label: Route
       #   :type: geographic
-      #   :storage_location: value
       #   :ui:
       #     :edit:
       #       :disabled: true
@@ -22,7 +21,6 @@
       :line:
         :label: Route
         :type: geographic
-        :storage_location: column
         :ui:
           :edit:
             :type: LineString

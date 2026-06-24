@@ -14,7 +14,7 @@ namespace :dc do
           .joins(:classification_contents)
           .select('classifications.id, count(classification_contents.id) as size')
           .group('classifications.id')
-          .order('size DESC')
+          .order(size: :desc)
           .first
           .id
         main_classification_alias_id = DataCycleCore::Classification.find(main_classification_id).primary_classification_alias.id

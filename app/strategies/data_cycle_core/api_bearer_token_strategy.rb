@@ -5,7 +5,8 @@ module DataCycleCore
     include ActionController::HttpAuthentication::Token::ControllerMethods
 
     def valid?
-      ActionController::HttpAuthentication::Token.token_and_options(request).present?
+      valid_strategy? &&
+        ActionController::HttpAuthentication::Token.token_and_options(request).present?
     end
 
     def authenticate!

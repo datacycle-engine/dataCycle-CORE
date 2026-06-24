@@ -11,9 +11,6 @@
         :allowed: true
       :overlay:
         :allowed: true
-      :duplicate_candidate:
-        :allowed: true
-        :method: :only_title_duplicate
       :translatable:
         :allowed: true
       :download:

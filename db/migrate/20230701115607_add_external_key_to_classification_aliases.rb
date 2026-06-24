@@ -19,7 +19,7 @@ class AddExternalKeyToClassificationAliases < ActiveRecord::Migration[6.1]
 
     add_foreign_key :classification_alias_paths_transitive, :classification_aliases, on_delete: :cascade, validate: false
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE UNIQUE INDEX index_classification_aliases_unique_external_source_id_and_key
         ON classification_aliases(external_source_id, external_key) WHERE deleted_at IS NULL;
 
@@ -49,7 +49,7 @@ class AddExternalKeyToClassificationAliases < ActiveRecord::Migration[6.1]
 
     remove_foreign_key :classification_alias_paths_transitive, :classification_aliases
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP INDEX IF EXISTS index_classifications_unique_external_source_id_and_key;
       DROP INDEX IF EXISTS index_classification_aliases_unique_external_source_id_and_key;
       DROP INDEX IF EXISTS index_classification_trees_unique_classification_alias;

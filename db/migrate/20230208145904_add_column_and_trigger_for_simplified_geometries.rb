@@ -9,7 +9,7 @@ class AddColumnAndTriggerForSimplifiedGeometries < ActiveRecord::Migration[6.1]
 
     execute('VACUUM ANALYZE things')
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION geom_simple_update () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$ BEGIN NEW.geom_simple := (
           SELECT st_simplify(
               ST_Force2D (COALESCE(NEW."location", NEW.line)),
@@ -45,7 +45,7 @@ class AddColumnAndTriggerForSimplifiedGeometries < ActiveRecord::Migration[6.1]
     remove_index :things, name: 'index_things_on_geom_simple_spatial'
     remove_column :things, :geom_simple
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER geom_simple_update_trigger ON things;
       DROP TRIGGER geom_simple_insert_trigger ON things;
       DROP FUNCTION geom_simple_update;

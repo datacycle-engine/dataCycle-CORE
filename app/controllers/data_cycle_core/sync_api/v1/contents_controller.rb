@@ -40,7 +40,7 @@ module DataCycleCore
           uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
             fetched_things = DataCycleCore::Thing
-              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+              .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
               .where(id: uuid)
             @contents = apply_paging(fetched_things)
             render json: sync_api_format(@contents) { @contents.to_sync_data }.to_json
@@ -64,13 +64,13 @@ module DataCycleCore
             end
           end
 
-          deleted_contents = deleted_contents.except(:order).order('deleted_at DESC')
+          deleted_contents = deleted_contents.except(:order).order(deleted_at: :desc)
 
           render plain: list_api_deleted_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :deleted_at, :updated_since, :uuids, :index_only, {uuid: []}]
+          super + [:id, :language, :deleted_at, :updated_since, :uuids, :index_only, { uuid: [] }]
         end
 
         private
@@ -85,6 +85,7 @@ module DataCycleCore
               authorize! :api, @stored_filter
               @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
             elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.find_by(id: endpoint_id))
+              # authorize! :api, @watch_list # enable after checking, if it doesnt break anything
             else
               raise ActiveRecord::RecordNotFound
             end
@@ -96,7 +97,7 @@ module DataCycleCore
 
           query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
           query = query.content_ids(params[:content_id]) if params&.dig(:content_id).present?
-          query = query.updated_since(@updated_since) if @updated_since.present?
+          query = query.valid_since(@updated_since) if @updated_since.present?
 
           query
         end
@@ -123,11 +124,11 @@ module DataCycleCore
           object_url = lambda do |params|
             url_for(params_for(URL_PARAMS_SCHEMA).reverse_merge(params))
           end
-          if request.request_method == 'POST'
-            common_params = {}
-          else
-            common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
-          end
+          common_params = if request.request_method == 'POST'
+                            {}
+                          else
+                            @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
+                          end
           links = {}
           links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page
           links[:next] = object_url.call(common_params.merge(page: { number: contents.next_page, size: contents.limit_value })) if contents.next_page

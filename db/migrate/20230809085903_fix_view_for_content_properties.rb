@@ -2,7 +2,7 @@
 
 class FixViewForContentProperties < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE VIEW public.content_computed_properties AS
       SELECT content_properties.content_id,
         content_properties.content_template_name,

@@ -2,7 +2,7 @@
 
 class AddFunctionForToHistory < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE thing_history_translations DROP COLUMN IF EXISTS history_valid;
       ALTER TABLE content_content_histories DROP COLUMN IF EXISTS history_valid;
 
@@ -140,7 +140,7 @@ class AddFunctionForToHistory < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP FUNCTION IF EXISTS to_thing_history;
       DROP FUNCTION IF EXISTS to_schedule_history;
       DROP FUNCTION IF EXISTS to_content_content_history;

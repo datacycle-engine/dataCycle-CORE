@@ -15,7 +15,7 @@ module DataCycleCore
         # check consistency of data in DB
         assert_equal(1, DataCycleCore::Audio.count)
         # check audio data
-        assert(@audio.file_size.positive?)
+        assert_predicate(@audio.file_size, :positive?)
         assert_equal(file_name, @audio.name)
         assert_equal('DataCycleCore::Audio', @audio.type)
         assert(@audio.metadata.is_a?(Hash))
@@ -39,7 +39,7 @@ module DataCycleCore
 
         assert_not(@audio.persisted?)
         assert_not(@audio.valid?)
-        assert(@audio.errors.present?)
+        assert_predicate(@audio.errors, :present?)
       end
     end
   end

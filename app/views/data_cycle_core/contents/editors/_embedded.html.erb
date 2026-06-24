@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge({ 'class' => Array.wrap(options['class']).push('object embedded_object').compact_blank.join(' ') }), content: content, parent: local_assigns[:parent] do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: merge_class_in_options(options, 'object embedded_object'), content: content, parent: local_assigns[:parent] do %>
   <% objects = local_assigns[:duplicated_content].to_s == 'true' ? value&.includes(:translations) : value&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 
   <%= embedded_editor_header(**local_assigns) %>
@@ -29,7 +29,8 @@
       }) do %>
     <% if objects.present? %>
       <% objects.each_with_index do |object, index| %>
-        <%= render_embedded_object_partial(key: key,
+        <%= render_embedded_object_partial(
+          key: key,
           definition: definition,
           parameters: {
             object: object,
@@ -41,14 +42,19 @@
             hide_embedded: local_assigns[:hide_embedded].to_s == 'true',
             translate: local_assigns[:translate],
             force_render_child_locales: local_assigns.dig(:force_render_child_locales),
-            force_render_locales: object.available_locales,
-            locale: I18n.locale.to_s
+            force_render_locales: force_render_locales_for_key(object, local_assigns),
+            locale: I18n.locale.to_s,
+            allowed_locales: allowed_embedded_locales_for_key(local_assigns)
           },
           content: content
         ) %>
       <% end %>
       <% value&.pluck(:id, :template_name)&.reject {|v| objects&.pluck(:id)&.include?(v[0])}&.each_with_index do |(id,template_name), index| %>
-        <div class="content-object-item hidden" data-id="<%= id %>" id="<%= "#{sanitize_to_id(key)}_item_#{index + objects.size}" %>">
+        <div
+          class="content-object-item hidden"
+          data-id="<%= id %>"
+          id="<%= sanitize_to_id(key) %>_item_<%= index + objects.size %>"
+        >
           <%= hidden_field_tag "#{embedded_key_prefix(key, index + objects.size)}[id]", id %>
           <%= hidden_field_tag "#{embedded_key_prefix(key, index + objects.size)}[template_name]", template_name %>
         </div>
@@ -76,5 +82,4 @@
               locale: I18n.locale
             } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
   <% end %>
-
 <% end unless (DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) && !DataCycleCore::Feature::PublicationSchedule.enabled?) %>

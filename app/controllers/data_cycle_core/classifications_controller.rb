@@ -70,9 +70,9 @@ module DataCycleCore
                 sub_classification_alias: [
                   :classification_alias_path,
                   :classification_tree_label,
-                  {additional_classifications: [primary_classification_alias: :classification_alias_path],
-                   primary_classification: [additional_classification_aliases: :classification_alias_path],
-                   classifications: [primary_classification_alias: :classification_alias_path]}
+                  { additional_classifications: [{ primary_classification_alias: :classification_alias_path }],
+                    primary_classification: [{ additional_classification_aliases: :classification_alias_path }],
+                    classifications: [{ primary_classification_alias: :classification_alias_path }] }
                 ]
               )
 
@@ -154,11 +154,7 @@ module DataCycleCore
       else
         @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(create_params[:classification_tree_label_id])
 
-        if create_params['classification_tree_id']
-          @classification_tree = DataCycleCore::ClassificationTree.find(create_params['classification_tree_id'])
-        else
-          @classification_tree = nil
-        end
+        @classification_tree = (DataCycleCore::ClassificationTree.find(create_params['classification_tree_id']) if create_params['classification_tree_id'])
 
         ActiveRecord::Base.transaction do
           @classification_alias = DataCycleCore::ClassificationAlias.new(create_params[:classification_alias].except(:translation))
@@ -250,17 +246,17 @@ module DataCycleCore
 
       respond_to do |format|
         format.csv do
-          if download_params[:include_contents]
-            raw_csv = object.to_csv(include_contents: true)
-          elsif download_params[:specific_type] == 'mapping_import'
-            raw_csv = object.to_csv_for_mappings
-          elsif download_params[:specific_type] == 'mapping_export'
-            raw_csv = object.to_csv_with_mappings
-          elsif download_params[:specific_type] == 'mapping_export_inverse'
-            raw_csv = object.to_csv_with_inverse_mappings
-          else
-            raw_csv = object.to_csv
-          end
+          raw_csv = if download_params[:include_contents]
+                      object.to_csv(include_contents: true)
+                    elsif download_params[:specific_type] == 'mapping_import'
+                      object.to_csv_for_mappings
+                    elsif download_params[:specific_type] == 'mapping_export'
+                      object.to_csv_with_mappings
+                    elsif download_params[:specific_type] == 'mapping_export_inverse'
+                      object.to_csv_with_inverse_mappings
+                    else
+                      object.to_csv
+                    end
 
           send_data "sep=,\n#{raw_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace)}",
                     type: 'text/csv; charset=iso-8859-1;',
@@ -295,6 +291,7 @@ module DataCycleCore
       target_alias = aliases[merge_params[:target_alias_id]]
 
       raise ActiveRecord::RecordNotFound if source_alias.nil? || target_alias.nil?
+
       authorize! :edit, source_alias
       authorize! :edit, target_alias
 
@@ -376,6 +373,7 @@ module DataCycleCore
 
     def create_params
       return @create_params if defined? @create_params
+
       @create_params = begin
         params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
@@ -383,8 +381,8 @@ module DataCycleCore
         normalize_names(params).permit(
           :classification_tree_label_id,
           :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, :mappable, {visibility: [], change_behaviour: []}],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
+          classification_tree_label: [:id, :name, :internal, :mappable, { visibility: [], change_behaviour: [] }],
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, classification_ids: [], ui_configs: [:color] }]
         )
       end
     end
@@ -397,8 +395,8 @@ module DataCycleCore
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
         normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, :mappable, {visibility: [], change_behaviour: []}],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, {translation: locale_params, classification_ids: [], ui_configs: [:color]}]
+          classification_tree_label: [:id, :name, :internal, :mappable, { visibility: [], change_behaviour: [] }],
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, classification_ids: [], ui_configs: [:color] }]
         )
       end
     end
@@ -410,7 +408,7 @@ module DataCycleCore
     end
 
     def locale_params
-      I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
+      I18n.available_locales.map { |l| [{ l.to_sym => [:name, :description] }] }
     end
 
     def normalize_names(hash)

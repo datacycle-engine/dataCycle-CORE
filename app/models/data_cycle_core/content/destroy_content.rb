@@ -27,13 +27,15 @@ module DataCycleCore
             to_history(delete: true, all_translations: !(opts[:destroy_locale] && available_locales.many?))
           end
 
-          destroy_children(new_opts)
-
           if opts[:destroy_locale] && available_locales.many?
             return self unless destroy_thing_translation?(new_opts)
+
+            destroy_children(new_opts)
             destroy_thing_translation(new_opts)
           else
             return self unless destroy_thing?(new_opts)
+
+            destroy_children(new_opts)
             destroy_thing(new_opts.merge(destroy_locale: false))
             super()
           end
@@ -58,8 +60,12 @@ module DataCycleCore
 
         asset_contents&.destroy_all
 
+        # watch_list_data_hashes are removed by FK cascade => touch watch_lists here
+        watch_lists.touch_all
+
         last_history_entry = histories.where.not(deleted_at: nil)&.first
         return if last_history_entry.blank?
+
         DataCycleCore::ContentContent::History
           .where(content_b_history_id: id, content_b_history_type: self.class.to_s)
           .update_all(content_b_history_id: last_history_entry.id, content_b_history_type: last_history_entry.class.to_s)
@@ -88,7 +94,7 @@ module DataCycleCore
           next if item.content_content_b.any? { |cc| opts[:destroyed_ids].exclude?(cc.content_a_id) }
 
           if collection_ids.present?
-            filter = DataCycleCore::StoredFilter.new(parameters: [union_filter_ids: collection_ids])
+            filter = DataCycleCore::StoredFilter.new(parameters: [{ union_filter_ids: collection_ids }])
             next unless filter.things.exists?(item.id)
           else
             next if template_names.exclude?(item.template_name)
@@ -104,9 +110,7 @@ module DataCycleCore
         return true unless embedded? && opts[:check_ancestors]
 
         # embedded should only be destroyed if all parents are destroyed
-        !content_content_b
-          .where.not(content_a_id: opts[:destroyed_ids])
-          .exists?
+        !content_content_b.where.not(content_a_id: opts[:destroyed_ids]).exists?
       end
 
       def destroy_thing_translation?(opts)

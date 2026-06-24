@@ -52,7 +52,7 @@ module DataCycleCore
 
           content.set_data_hash(data_hash: { name: 'Test Bild 2' }, update_search_all: false, prevent_history: true, partial_update: true)
 
-          assert content.alternative_headline.blank?
+          assert_predicate content.alternative_headline, :blank?
           assert_equal 'Test Bild 2', content.name
         end
 
@@ -64,7 +64,7 @@ module DataCycleCore
 
           content.set_data_hash(data_hash: { name: 'Test Bild 2', alternative_headline: nil }, update_search_all: false, prevent_history: true, partial_update: true)
 
-          assert content.alternative_headline.blank?
+          assert_predicate content.alternative_headline, :blank?
           assert_equal 'Test Bild 2', content.name
         end
 
@@ -86,7 +86,7 @@ module DataCycleCore
 
           content.set_data_hash(data_hash: { name: 'Test Bild 2' }, update_search_all: false, prevent_history: true)
 
-          assert content.alternative_headline.blank?
+          assert_predicate content.alternative_headline, :blank?
           assert_equal 'Test Bild 2', content.name
         end
 
@@ -165,7 +165,7 @@ module DataCycleCore
           }, update_search_all: false, prevent_history: true, partial_update: true)
 
           assert_equal 'test2', content.embedded_creative_work.first.test_attribute
-          assert content.embedded_creative_work.first.test_text_attribute.blank?
+          assert_predicate content.embedded_creative_work.first.test_text_attribute, :blank?
         end
 
         test 'default strings get set in embedded on new contents' do
@@ -206,7 +206,7 @@ module DataCycleCore
           }, update_search_all: false, prevent_history: true, partial_update: true)
 
           assert_equal 'test2', content.embedded_creative_work.first.test_attribute
-          assert content.embedded_creative_work.first.test_text_attribute.blank?
+          assert_predicate content.embedded_creative_work.first.test_text_attribute, :blank?
         end
       end
     end

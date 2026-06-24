@@ -1,74 +1,42 @@
-<!-- #	Systemarchitektur
-Die technische Basis für dataCycle bildet das Web-Application-Framework „Ruby on Rails“. Da in der dataCycle nicht
-nur Daten zu finden sind, die auch innerhalb der dataCycle erstellt worden sind, ist es notwendig, externe Systeme
-über einen Import-Prozess anzubinden. Dieser Import-Prozess erfolgt in zwei Schritten, die auch über verschiedene
-Datenbanken abgebildet werden. Zuerst werden die Daten in eine Staging-Datenbank importiert, von wo aus sie dann über
-eine Datentransformation in die Core-Datenbank übernommen werden.
+# Systemarchitektur
 
-##	Staging-Datenbank
-Im ersten Schritt werden die Daten als Rohdaten in einer MongoDB gespeichert. Dadurch ist es möglich, die Daten in der
-ursprünglichen Datenstruktur für genaue Analysen bzw. Fehlersuchen zu verwenden. Ohne diesen Schritt wäre es an
-manchen Stellen schwierig, eine genaue Verbindung zwischen den Originaldaten und den transformierten Daten
-herzustellen, da sich die Datenstruktur bei der Transformation in die gewünschte Zieldatenstruktur oft sehr stark
-verändert. Ein weiterer Vorteil der Staging-Datenbank ist die Möglichkeit bereits an dieser Stelle mit aggregierten
-Datensätzen arbeiten zu können. Ein Beispiel dafür ist etwa das Erstellen von Listen mit allen bekannten Werten von
-Aufzählungen wie z.B. Tags.
+## 1. Grundlegende Philosophie: Der API-First-Ansatz
 
-Das Übernehmen der Daten in die Staging-Datenbank wird dabei von der jeweiligen Datenquelle vorgegeben. Das heißt,
-dass in der Staging-Datenbank für jeden verfügbaren Daten-Endpunkt eine eigene Collection angelegt wird. Stellt eine
-Datenquelle zum Beispiel Kontaktpersonen und Firmen als getrennte Endpunkte zur Verfügung gibt es auch in der
-Staging-Datenbank diese beiden separaten Collections. Gibt es eine Möglichkeit, Aufzählungen wie beispielsweise
-Kategorien in Form von eigenen Endpunkten abzufragen, so werden auch diese als eigene Collections angelegt.
+Das Hauptziel von `dataCycle` ist es, Daten aus heterogenen Quellsystemen zentral zusammenzuführen (Data-Hub-Ansatz) und über eine leistungsfähige, einfach nutzbare und auf etablierten, öffentlichen Standards basierende API bereitzustellen. Die Plattform ist so konzipiert, dass Daten sowohl durch den Import aus externen Systemen als auch durch die direkte Erstellung und Pflege (Data-Management-System, DMS) in `dataCycle` verwaltet werden können.
 
-Beim Speichern der Datensätze in die Datenbank werden die Daten so wenig wie möglich verändert. Stehen die Daten in
-Form von JSON-Datensätzen zur Verfügung, können die Daten ohne Veränderung übernommen werden, bei anderen
-Datenformaten sind minimale Transformationen notwendig. Bei XML ist es zum Beispiel notwendig, Child-Nodes und
-Attribute-Nodes zusammenzuführen, wodurch es aber wiederum zu Namenskonflikten kommen könnte. Aus diesem Grund
-müssen hier auch leichte Anpassungen an der Datenstruktur vorgenommen werden, damit die Daten ohne Probleme in der
-Staging-Datenbank abgelegt werden können.
+Ein zentrales Architekturprinzip ist die konsequente Harmonisierung der Daten direkt beim Import in die Core-Datenbank. Alle Daten liegen dort bereits in einer einheitlichen, sauberen Zielstruktur (Golden Record) vor. Dies vermeidet ein komplexes und fehleranfälliges Mapping bei der Datenausgabe und garantiert eine hohe Konsistenz und Performance an der Schnittstelle. Änderungen in den angebundenen Quellsystemen werden dabei automatisch in `dataCycle` übernommen, was eine mehrfache Datenpflege überflüssig macht.
 
-Damit der nächste Schritt des Import-Prozesses effizient durchgeführt werden kann, werden die Rohdaten in eine
-rudimentäre Basis-Datenstruktur eingebettet und mit ein paar Metadaten angereichert. Eine wichtige Information ist
-zum Beispiel die Sprache oder die ID des Datensatzes. Zusätzlich werden noch Timestamps angelegt, damit leicht
-ermittelt werden kann, wie aktuell ein Datensatz in der Staging-Datenbank gerade ist.
+Die primäre Schnittstelle zu diesem harmonisierten Datenbestand ist die `dataCycle` API. Sie basiert auf dem offenen Standard JSON-LD und ist von den flexiblen Abfragemöglichkeiten von GraphQL inspiriert, ohne dessen Komplexität zu erfordern. Wesentliche Merkmale sind:
+* Die Möglichkeit, verknüpfte Inhalte über mehrere Ebenen mit abzufragen (Graph-Traversal).
+* Die Möglichkeit, die ausgelieferten Attribute gezielt einzuschränken (Field-Selection).
+* Ein modularer Filter-Baukasten, der die flexible Kombination verschiedener Filter ermöglicht (z.B. nach Klassifizierung, Geodaten, Terminen oder verknüpften Inhalten).
 
-##	Core-Datenbank
-Die Core-Datenbank ist die Basis sowohl für die Verwaltung aller innerhalb des Systems erstellen Inhalte sowie aller
-importierten Daten als auch für den Data-Access-Layer, also die externe Datenschnittstelle. Für die Core-Datenbank
-wird eine relationale Datenbank, nämlich PostgreSQL verwendet. PostgreSQL ist deshalb im Einsatz, weil es sich zum
-einen um eine performante, weit verbreitete und gut etablierte Open-Source-Datenbank handelt. Zum anderen stehen
-einige sehr wichtige Funktionen zur Verfügung, wie zum Beispiel die Basisfunktionalität für eine Volltextsuche, die
-bei ähnlichen Systemen gar nicht oder nur zum Teil vorhanden sind. Der Import von externen Daten läuft über die
-oben beschriebene Staging-Datenbank und wird je nach konkretem Anwendungsfall individuell entwickelt. Für weit
-verbreitete bzw. viel genutzte Datenschnittstellen stehen bereits entsprechende Importer bereit, die nur mehr für die
-einzelnen Installationen von dataCycle und die konkreten Anwendungsszenarien eingerichtet werden müssen.
+## 2. Technologischer Stack & Hosting-Architektur
 
-In der Core-Datenbank sind auch die wesentlichen Features für das dataCycle zugrundeliegende Redaktionssystem
-abgebildet. Diese Funktionen sind im Folgenden kurz beschrieben.
+Die technische Basis für `dataCycle` bildet das Web-Application-Framework „Ruby on Rails“. Die gesamte Architektur ist in **Docker-Container** gekapselt, was maximale Flexibilität beim Hosting und eine einfache Skalierbarkeit bis hin zum Betrieb in einem Kubernetes-Cluster ermöglicht.
 
-###	Volltextsuche
-Eine wichtige Anforderung für die Filterung von Daten innerhalb von dataCycle ist die Volltextsuche. Dabei
-müssen einige sehr unterschiedliche Dinge berücksichtigt und miteinander kombiniert werden. PostgreSQL bietet hier
-zwar bereits sehr viel Basisfunktionalität, es ist aber dennoch notwendig, noch eine weitere Abstraktionsebene
-einzuziehen. Eine Herausforderung ist beispielsweise das Kombinieren von Daten mit unterschiedlichen Basis-Datentypen.
-Außerdem ist es oft notwendig, unterschiedliche Datentypen mit einer unterschiedlichen Gewichtung zu versehen, um eine
-priorisierte Sortierreihenfolge zu ermöglichen. Zusätzlich dazu müssen auch Klassifizierungen bei der Volltextsuche
-mitberücksichtigt werden. Um diese Herausforderungen möglichst gut zu bewältigen, gibt es spezielle Tabellen, die alle
-relevanten Daten aller Basisdatentypen in einer für die Volltextsuche optimierten Form zusammenfassen. Eine wichtige
-Information, die an dieser Stelle für jeden einzelnen Datensatz hinterlegt ist, ist ein sogenannter Boost. Dieser
-Boost wird verwendet, um die Reihenfolge, die standardmäßig auf Basis der Relevanz eines Suchergebnisses erstellt
-wird, noch weiter zu verfeinern. Der Boost wird dabei als zusätzliche Gewichtung verwendet, die mit der normalen
-Gewichtungsfunktion für die Sortierreihenfolge multipliziert wird. Ergebnisse mit einem höheren Boot werden dabei
-entsprechend vorgereiht.
+Das Datenbank-Setup ist zweigeteilt, um den Anforderungen des Importprozesses gerecht zu werden:
+* **MongoDB als Staging-Datenbank:** Hier werden die Rohdaten der Quellsysteme 1:1 und weitestgehend unverändert abgelegt. Dieser Bereich dient als sogenannte Staging Area.
+* **PostgreSQL mit PostGIS als Core-Datenbank:** Diese performante, relationale Open-Source-Datenbank bildet das Herz des Systems. Sie speichert die fertig transformierten und harmonisierten Zieldaten und nutzt die **PostGIS-Erweiterung** für die hochperformante Verarbeitung von Geodaten.
 
-###	Change-Tracking
-Besonders für innerhalb von dataCycle angelegte Kreativ-Daten ist es oft notwendig, die Änderungen eines
-Datensatzes genau nachverfolgen zu können. Damit kann zum Beispiel im Nachhinein festgestellt werden, von welchem
-Benutzer welche Anpassungen vorgenommen worden sind, wenn mehrere unterschiedliche Benutzer an ein und demselben
-Datensatz arbeiten. Um das zu ermöglichen wird innerhalb der Core-Datenbank die komplette Historie eines Datensatzes
-gespeichert, es werden also alle Version ab der Erstellung in der Datenbank abgelegt. Damit der Zugriff auf die
-aktuellen Daten durch die historischen Daten nicht unnötig verlangsamt wird, werden die historischen Daten in eigenes
-dafür vorgesehen Tabellen abgelegt. Über diesen Mechanismus ist es auch möglich, nachzuverfolgen, welche Inhalte von
-welchem Benutzer zu welchem Zeitpunkt gelöscht worden sind. Es kommt in der Praxis immer wieder vor, dass Inhalte
-unabsichtlich gelöscht werden und in diesen Fällen ist es sehr hilfreich, herauszufinden, durch welchen Benutzer
-dieser Vorgang ausgelöst worden sind. -->
+## 3. Logisches Fundament: Der Knowledge Graph
+
+`dataCycle` speichert Daten nicht in isolierten Tabellen, sondern modelliert sie als **Knowledge Graph** (auch semantisches Netz genannt). Das bedeutet, dass Inhalte als vernetzte Entitäten (Knoten) behandelt werden und die Beziehungen zwischen ihnen (Kanten) eine ebenso hohe Bedeutung haben wie die Inhalte selbst ("First-Class-Citizens").
+
+Dieses Konzept, das dem einer **Graphdatenbank** zugrunde liegt, ist die logische Grundlage für die Datenharmonisierung und erlaubt es, komplexe Zusammenhänge der realen Welt (z.B. eine Veranstaltung findet an einem Ort statt, der von einer Organisation betrieben wird) präzise abzubilden und abzufragen.
+
+## 4. Logisches Fundament: Das multidimensionale Klassifizierungssystem
+
+Aufbauend auf dem Knowledge Graphen ist das Klassifizierungssystem ein weiterer zentraler Architekturbaustein. Anstatt Inhalte nur mit einfachen Tags (Schlagwörtern) zu versehen, ermöglicht `dataCycle` die Erstellung beliebig vieler, voneinander unabhängiger **Klassifizierungsbäume** (auch **Taxonomien** genannt).
+
+Jeder dieser Bäume stellt eine eigene Ordnungsdimension dar (z.B. nach Zielgruppe, nach Region, nach Thema). Ein Inhalt kann somit multidimensional klassifiziert (kategorisiert, verschlagwortet) werden. Der entscheidende architektonische Vorteil liegt im **Klassifizierungsmapping**: Das System bietet einen Mechanismus, um Klassifizierungen aus unterschiedlichen Quellsystemen (unterschiedliche Vokabulare) auf einen zentralen, vereinheitlichten Klassifizierungsbaum abzubilden. Dies ist ein Kernprozess der Datenharmonisierung und stellt sicher, dass die Daten nicht nur strukturell, sondern auch inhaltlich konsolidiert werden.
+
+## 5. Der zentrale Datenfluss: Der zweistuﬁge Import-Prozess (ETL-Ansatz)
+
+Der Import von Daten in die `dataCycle` Core-Datenbank ist ein klar definierter, zweistufiger Prozess, der einem klassischen **ETL-Ansatz** (Extract, Transform, Load) folgt:
+
+### Schritt 1: Extract (Staging)
+Die Daten werden als Rohdaten aus den Quellsystemen extrahiert und in die MongoDB-Staging-Datenbank geladen. Für jeden Endpunkt einer Datenquelle wird eine eigene "Collection" angelegt, um die ursprüngliche Struktur beizubehalten. Die Datensätze werden dabei so wenig wie möglich verändert und lediglich um einige Metadaten wie Sprache, ID und Timestamps für den nächsten Verarbeitungsschritt angereichert.
+
+### Schritt 2: Transform & Load
+Aus der Staging-Datenbank werden die Daten in die Zielstruktur der Core-Datenbank (PostgreSQL) überführt (Load). In diesem Schritt findet die eigentliche **Transformation** und Harmonisierung statt. Für weit verbreitete Datenschnittstellen stehen bereits fertige Importer zur Verfügung, die nur noch für den konkreten Anwendungsfall konfiguriert werden müssen.

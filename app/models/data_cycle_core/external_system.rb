@@ -41,8 +41,14 @@ module DataCycleCore
       query = query.or(where(id: ids)) if ids.present?
       query
     }
+    scope :with_import_config, -> { where("external_systems.config ->> 'import_config' IS NOT NULL") }
+    scope :deactivated, -> { where(deactivated: true) }
+    scope :activated, -> { where(deactivated: false) }
+
+    before_validation :set_identifier, on: :create
 
     validates :name, presence: true
+    validates :identifier, presence: true
 
     def name_with_types
       nwt = name
@@ -56,58 +62,78 @@ module DataCycleCore
 
     def export_config
       return @export_config if defined? @export_config
+
       @export_config = config&.dig('export_config')&.with_indifferent_access
     end
 
     def refresh_config
       return @refresh_config if defined? @refresh_config
+
       @refresh_config = config&.dig('refresh_config')&.with_indifferent_access
     end
 
     def download_config
       return @download_config if defined? @download_config
+
       @download_config = config&.dig('download_config')&.with_indifferent_access
     end
 
     def import_config
       return @import_config if defined? @import_config
+
       @import_config = config&.dig('import_config')&.with_indifferent_access
+    end
+
+    def transformations
+      return @transformations if defined? @transformations
+
+      @transformations = config&.dig('transformations')&.with_indifferent_access
     end
 
     def download_list
       return @download_list if defined? @download_list
+
       @download_list = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
     def download_list_ranked
       return @download_list_ranked if defined? @download_list_ranked
+
       @download_list_ranked = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v['sorting'], k.to_sym] }
     end
 
     def download_pretty_list
       return @download_pretty_list if defined? @download_pretty_list
+
       @download_pretty_list = download_list_ranked
         &.map { |sorting, name| "#{sorting.to_s.ljust(4)}:#{name.to_sym}" }
     end
 
     def import_list
       return @import_list if defined? @import_list
+
       @import_list = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
     def import_list_ranked
       return @import_list_ranked if defined? @import_list_ranked
+
       @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v['sorting'], k.to_sym] }
     end
 
     def import_pretty_list
       return @import_pretty_list if defined? @import_pretty_list
+
       @import_pretty_list = import_list_ranked
         &.map { |sorting, name| "#{sorting.to_s.ljust(4)}:#{name.to_sym}" }
     end
 
     def export_config_by_filter_key(method_name, key)
       export_config&.dig(method_name.to_sym, 'filter', key) || export_config&.dig(:filter, key)
+    end
+
+    def export_config_by_method_name_and_filter_key(method_name, key)
+      export_config&.dig(method_name.to_sym, 'filter', key)
     end
 
     def step_timestamp(key, name, type)
@@ -131,10 +157,11 @@ module DataCycleCore
       step_timestamp(__method__, name, type)&.then { |t| ActiveSupport::Duration.build(t) }
     end
 
-    def merge_last_import_step_time_info(import_step = nil, values = {})
-      return if import_step.blank?
+    def set_import_step_time_info(import_step = nil, values = {})
+      return if import_step.blank? || values.blank?
+
       last_import_step_time_info[import_step] ||= {}
-      last_import_step_time_info[import_step] = last_import_step_time_info[import_step].merge(values)
+      last_import_step_time_info[import_step].merge!(values.stringify_keys)
       invalidate_last_download_and_import
     end
 
@@ -148,8 +175,10 @@ module DataCycleCore
     def credentials(type = 'import')
       @credentials ||= Hash.new do |h, key|
         next h[key] = self[:credentials] unless self[:credentials].is_a?(Hash)
+
         t_credentials = self[:credentials][key] || {}
         next h[key] = t_credentials if t_credentials.is_a?(Array)
+
         h[key] = self[:credentials].merge(t_credentials)&.except('import', 'export')
       end
       @credentials[type.to_s]
@@ -158,6 +187,7 @@ module DataCycleCore
     def default_options(type = 'import')
       @default_options ||= Hash.new do |h, key|
         next h[key] = self[:default_options] unless self[:default_options].is_a?(Hash)
+
         h[key] = self[:default_options].merge(self[:default_options][key] || {}).except('import', 'export')
       end
       @default_options[type.to_s]
@@ -166,9 +196,9 @@ module DataCycleCore
     def handle_import_error_notification(last_exception = nil)
     end
 
-    def check_for_repeated_failure(type, exception = nil)
+    def check_for_repeated_failure(type, exception = nil, step_name = nil)
       options = default_options(type.to_sym)
-      last_success = send(:"last_successful_#{type}")
+      last_success = step_name.present? ? last_successful_try(step_name, type) : send(:"last_successful_#{type}")
 
       return if options.blank? || last_success.blank?
       return if options['error_notification'].blank?
@@ -195,6 +225,7 @@ module DataCycleCore
 
     def refresh(options = {})
       raise "Missing refresh_strategy for #{name}, options given: #{options}" if export_config.dig(:refresh, :strategy).blank?
+
       utility_object = DataCycleCore::Export::PushObject.new(
         external_system: self,
         action: :refresh
@@ -357,6 +388,7 @@ module DataCycleCore
       remove_instance_variable(:@refresh_config) if instance_variable_defined?(:@refresh_config)
       remove_instance_variable(:@download_config) if instance_variable_defined?(:@download_config)
       remove_instance_variable(:@import_config) if instance_variable_defined?(:@import_config)
+      remove_instance_variable(:@transformations) if instance_variable_defined?(:@transformations)
       remove_instance_variable(:@download_list) if instance_variable_defined?(:@download_list)
       remove_instance_variable(:@download_list_ranked) if instance_variable_defined?(:@download_list_ranked)
       remove_instance_variable(:@download_pretty_list) if instance_variable_defined?(:@download_pretty_list)
@@ -371,16 +403,26 @@ module DataCycleCore
       last_import_step_time_info[key.to_s] || {}
     end
 
+    def locales
+      default_options&.dig('locales')
+    end
+
     private
+
+    def set_identifier
+      self.identifier ||= name.to_s.to_slug
+    end
 
     def download_accessors
       return @download_accessors if defined? @download_accessors
+
       @download_accessors = full_sorted_steps(:download)
         .map { |name| timestamp_key_for_step(name, :download).to_sym }
     end
 
     def import_accessors
       return @import_accessors if defined? @import_accessors
+
       @import_accessors = full_sorted_steps(:import)
         .map { |name| timestamp_key_for_step(name, :import).to_sym }
     end

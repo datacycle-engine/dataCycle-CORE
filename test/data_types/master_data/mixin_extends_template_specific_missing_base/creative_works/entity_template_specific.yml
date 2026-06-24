@@ -1,0 +1,14 @@
+---
+- :data:
+    :name: Entity-Template-Specific
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :mixed_in:
+        :type: mixin
+        :name: child_mixin

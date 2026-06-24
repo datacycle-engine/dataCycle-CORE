@@ -10,8 +10,8 @@ module DataCycleCore
 
         attr_reader :errors, :counts
 
-        def initialize(paths: nil)
-          @paths = paths.presence || [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+        def initialize(paths: nil, import_concepts: true, import_mappings: true)
+          @paths = Array.wrap(paths).presence || [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
           @errors = []
           @concept_schemes = {}
           @concept_mappings = {}
@@ -21,8 +21,8 @@ module DataCycleCore
             concept_mappings: 0
           }
 
-          load_concepts
-          load_concept_mappings
+          load_concepts if import_concepts
+          load_concept_mappings if import_mappings
         end
 
         def import
@@ -90,13 +90,15 @@ module DataCycleCore
             next if concept_scheme.blank? || concept_scheme.external_source_id != cs[:external_source_id]
             next if cs[:concepts].blank?
 
-            existing = DataCycleCore::ClassificationAlias.with_deleted.where(external_source_id: cs[:external_source_id], external_key: cs[:concepts].pluck(:external_key)).pluck(:external_key)
-            to_insert = cs[:concepts].reject { |c| existing.include?(c[:external_key]) }
+            concepts = Array.wrap(cs[:concepts])
+            existing = DataCycleCore::ClassificationAlias.with_deleted.where(external_source_id: cs[:external_source_id], external_key: concepts.pluck(:external_key))
+            existing_keys = existing.pluck(:external_key)
+            deleted_keys = existing.only_deleted.pluck(:external_key)
+            concepts.reject! { |c| deleted_keys.include?(c[:external_key]) } # do not re-insert deleted concepts
+            next if concepts.blank?
 
-            next if to_insert.blank?
-
-            concept_scheme.insert_all_external_classifications(to_insert)
-            @counts[:concepts] += to_insert.size
+            concept_scheme.insert_all_external_classifications(concepts)
+            @counts[:concepts] += (concepts.pluck(:external_key) - existing_keys).size
           rescue StandardError => e
             @errors.push("error inserting concepts for #{cs[:name]} => #{e}")
           end
@@ -232,7 +234,7 @@ module DataCycleCore
           internal = false
 
           if name.starts_with?('$$') # '$$' prefix for interal concept_schemes
-            name = name[2..-1]
+            name = name[2..]
             internal = true
           end
 
@@ -287,7 +289,7 @@ module DataCycleCore
           internal = false
 
           if name.starts_with?('$$') # '$$' prefix for interal concepts
-            name = name[2..-1]
+            name = name[2..]
             internal = true
           end
 
@@ -319,10 +321,14 @@ module DataCycleCore
           es_mapping = external_sources.to_h { |es| [es.name, es.id] }.merge(external_sources.to_h { |es| [es.identifier, es.id] })
 
           @concept_schemes.each_value do |cs|
-            cs[:visibility] = DataCycleCore.default_classification_visibilities if cs[:visibility].blank? || cs[:visibility].include?('all')
+            cs[:visibility] = DataCycleCore.default_classification_visibilities if cs[:visibility].blank?
+            cs[:visibility] = Array.wrap(cs[:visibility]).map(&:to_s)
+              .flat_map { |v| v.in?(['all', 'default']) ? DataCycleCore.default_classification_visibilities : v }
+              .uniq
             cs[:internal] = false if cs[:internal].nil?
             es_id = es_mapping[cs.delete(:external_source)] if cs[:external_source].present?
             cs[:external_source_id] = es_id
+            cs[:concepts].uniq! { |c| c[:external_key] } # deduplicate concepts by external_key
             cs[:concepts].each.with_index do |c, index|
               c[:order_a] = index
               c[:external_source_id] = es_id if es_id.present?

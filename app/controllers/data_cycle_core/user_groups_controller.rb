@@ -22,11 +22,11 @@ module DataCycleCore
       end
 
       @sort_params = sort_params
-      if @sort_params.present?
-        query = query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
-      else
-        query = query.order(:name)
-      end
+      query = if @sort_params.present?
+                query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
+              else
+                query.order(:name)
+              end
 
       @mode = mode_params[:mode].in?(['list', 'tree', 'map']) ? mode_params[:mode].to_s : 'grid'
       @contents = query.includes(:users).page(params[:page])
@@ -52,18 +52,18 @@ module DataCycleCore
       @user_group = DataCycleCore::UserGroup.new(user_group_params)
 
       if @user_group.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
+        flash[:success] = I18n.t 'controllers.success.created', data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
       end
 
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to(root_path)
     end
 
     def update
       if @user_group.update(user_group_params)
 
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
+        flash[:success] = I18n.t 'controllers.success.updated', data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
 
         if Rails.env.development?
           redirect_to edit_user_group_path(@user_group)
@@ -78,11 +78,11 @@ module DataCycleCore
 
     def destroy
       if @user_group.destroy
-        flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
+        flash[:success] = I18n.t 'controllers.success.destroyed', data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
       end
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to(root_path)
     end
 
     private
@@ -92,7 +92,7 @@ module DataCycleCore
     end
 
     def user_group_params
-      ug_params = params.require(:user_group).permit(:name, user_ids: [], classification_ids: [], shared_collection_ids: [], permissions: [])
+      ug_params = params.expect(user_group: [:name, { user_ids: [], classification_ids: [], shared_collection_ids: [], permissions: [] }])
 
       ug_params[:user_ids]&.compact_blank!
       ug_params[:classification_ids]&.compact_blank!

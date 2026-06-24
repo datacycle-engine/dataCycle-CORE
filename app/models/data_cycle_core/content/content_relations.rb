@@ -18,7 +18,8 @@ module DataCycleCore
 
         case name
         when 'DataCycleCore::Thing'
-          has_many :classification_contents, class_name: 'DataCycleCore::ClassificationContent', foreign_key: 'content_data_id', dependent: :delete_all
+          # deleted by FK ON DELETE CASCADE (content_data_id)
+          has_many :classification_contents, class_name: 'DataCycleCore::ClassificationContent', foreign_key: 'content_data_id'
           has_many :classifications, through: :classification_contents
         when 'DataCycleCore::Thing::History'
           has_many :classification_content_histories, class_name: 'DataCycleCore::ClassificationContent::History', foreign_key: 'content_data_history_id', dependent: :delete_all
@@ -31,10 +32,11 @@ module DataCycleCore
         has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
 
         # relation content to all other contents
-        has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :delete_all, inverse_of: :content_b
+        # content_contents are deleted by FK ON DELETE CASCADE (content_a_id/content_b_id)
+        has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', inverse_of: :content_b
         has_many :content_a, through: :content_content_b
         has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :delete_all
-        has_many :content_content_a, -> { order(order_a: :asc, content_b_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :delete_all, inverse_of: :content_a
+        has_many :content_content_a, -> { order(order_a: :asc, content_b_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', inverse_of: :content_a
         has_many :content_b, through: :content_content_a
         has_many :content_b_linked, -> { where.not(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
         has_many :content_b_embedded, -> { where(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
@@ -46,7 +48,9 @@ module DataCycleCore
         belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
         belongs_to :representation_of, class_name: 'DataCycleCore::User'
 
-        has_many :watch_list_data_hashes, inverse_of: :thing, dependent: :destroy
+        # deleted by FK ON DELETE CASCADE (thing_id); the lost belongs_to touch
+        # on watch_lists is replicated in DestroyContent#destroy_children
+        has_many :watch_list_data_hashes, inverse_of: :thing
         has_many :watch_lists, through: :watch_list_data_hashes
 
         has_many :subscriptions, as: :subscribable, dependent: :delete_all
@@ -104,6 +108,30 @@ module DataCycleCore
           return DataCycleCore::Timeseries.none if self == DataCycleCore::Thing::History
 
           load_relation(relation_name: :timeseries, preload:)
+        end
+
+        def with_cached_related_contents
+          tree_query = <<~SQL.squish
+            WITH RECURSIVE paths (content_b_id, content_a_id, PATH) AS (
+              SELECT things.id AS content_b_id,
+                things.id AS content_a_id,
+                ARRAY [things.id] AS path
+              FROM things
+              WHERE things.id IN (:id)
+              UNION ALL
+              SELECT DISTINCT ON (d.content_a_id) d.content_b_id, d.content_a_id, p.path || ARRAY[d.content_a_id]
+              FROM paths p
+              INNER JOIN content_content_links d ON p.content_a_id = d.content_b_id
+              WHERE d.content_a_id != ALL (p.path)
+              AND d.relation IS NOT NULL
+              AND ARRAY_LENGTH(p.path, 1) <= :depth
+            )
+            SELECT DISTINCT paths.content_a_id FROM paths
+          SQL
+
+          unscoped.where("#{table_name}.id IN (#{ActiveRecord::Base.send(
+            :sanitize_sql_array, [tree_query, { id: all.pluck(:id), depth: DataCycleCore.cache_invalidation_depth }]
+          )})")
         end
       end
 
@@ -166,12 +194,8 @@ module DataCycleCore
         content_content_a.except(:order).exists?
       end
 
-      def has_cached_related_contents? # rubocop:disable Naming/PredicatePrefix
-        cached_related_contents.exists?
-      end
-
       def related_contents(embedded: false)
-        tree_query = <<-SQL.squish
+        tree_query = <<~SQL.squish
           WITH RECURSIVE content_tree(id) AS (
               SELECT #{content_a_id_column}
               FROM #{content_content_table}
@@ -189,7 +213,7 @@ module DataCycleCore
         sanitized_base = ActiveRecord::Base.send(
           :sanitize_sql_array, [
             tree_query,
-            {id:, content_type_embedded: CONTENT_TYPE_EMBEDDED}
+            { id:, content_type_embedded: CONTENT_TYPE_EMBEDDED }
           ]
         )
         query = self.class.where("#{self.class.table_name}.id IN (#{sanitized_base})")
@@ -197,8 +221,10 @@ module DataCycleCore
         query
       end
 
+      # Returns all non-embedded contents that directly or transitively depend on this content.
+      # Uses recursive query to traverse the dependency tree upward through content_content_links.
       def depending_contents
-        raw_sql = <<-SQL.squish
+        raw_sql = <<~SQL.squish
           WITH RECURSIVE content_dependencies AS (
             SELECT content_content_links.content_a_id AS id
             FROM content_content_links
@@ -210,25 +236,20 @@ module DataCycleCore
               JOIN content_dependencies ON content_dependencies.id = content_content_links.content_b_id
             WHERE content_content_links.relation IS NOT NULL
           )
-          SELECT things.id
-          FROM things
-          WHERE things.id != :id::UUID
-          AND EXISTS (
-              SELECT 1
-              FROM content_dependencies
-              WHERE content_dependencies.id = #{self.class.table_name}.#{self.class.primary_key}
-            )
+          SELECT content_dependencies.id
+          FROM content_dependencies
+          WHERE content_dependencies.id != :id::UUID
         SQL
 
         self.class
           .where.not(content_type: 'embedded')
-          .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, {id:}])})")
+          .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, { id: }])})")
       end
 
       def linked_contents
         # does not work for Histories, due to thing ids (instead of thing_history ids) in content_content_histories
 
-        tree_query = <<-SQL.squish
+        tree_query = <<~SQL.squish
           WITH RECURSIVE content_tree(id) AS (
             SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
             FROM #{self.class.table_name}
@@ -248,14 +269,14 @@ module DataCycleCore
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
           :sanitize_sql_array, [
             tree_query,
-            {id:,
-             content_type_embedded: CONTENT_TYPE_EMBEDDED}
+            { id:,
+              content_type_embedded: CONTENT_TYPE_EMBEDDED }
           ]
         )})")
       end
 
       def embedded_contents
-        tree_query = <<-SQL.squish
+        tree_query = <<~SQL.squish
           WITH RECURSIVE content_tree(id) AS (
             SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
             FROM #{self.class.table_name}
@@ -276,35 +297,20 @@ module DataCycleCore
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
           :sanitize_sql_array, [
             tree_query,
-            {id:,
-             content_type_embedded: CONTENT_TYPE_EMBEDDED}
+            { id:,
+              content_type_embedded: CONTENT_TYPE_EMBEDDED }
           ]
         )})")
       end
 
-      def cached_related_contents
-        return self.class.none if history?
+      def cached_related_contents?
+        return false if history?
 
-        tree_query = <<-SQL.squish
-          WITH RECURSIVE paths (content_b_id, content_a_id, PATH) AS (
-            SELECT DISTINCT ON (c.content_a_id) c.content_b_id, c.content_a_id, ARRAY[c.content_b_id, c.content_a_id]
-            FROM content_content_links c
-            WHERE c.content_b_id = :id
-            AND c.relation IS NOT NULL
-            UNION ALL
-            SELECT DISTINCT ON (d.content_a_id) d.content_b_id, d.content_a_id, p.path || ARRAY[d.content_a_id]
-            FROM paths p
-            INNER JOIN content_content_links d ON p.content_a_id = d.content_b_id
-            WHERE d.content_a_id != ALL (p.path)
-            AND d.relation IS NOT NULL
-            AND ARRAY_LENGTH(p.path, 1) <= :depth
-          )
-          SELECT DISTINCT paths.content_a_id FROM paths
-        SQL
+        content_content_links_b.any?
+      end
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
-          :sanitize_sql_array, [tree_query, {id:, depth: DataCycleCore.cache_invalidation_depth}]
-        )})")
+      def with_cached_related_contents
+        self.class.where(id: id).with_cached_related_contents
       end
 
       def template_name=(value)

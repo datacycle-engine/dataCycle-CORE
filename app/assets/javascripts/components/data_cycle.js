@@ -4,12 +4,9 @@ import ObserverHelpers from "../helpers/observer_helpers";
 import DataCycleHttpClient from "./data_cycle_http_client";
 
 class DataCycle {
+	static #instance;
+
 	constructor(config = {}) {
-		// biome-ignore lint/correctness/noConstructorReturn: not needed for singleton
-		if (DataCycle._instance) return DataCycle._instance;
-
-		DataCycle._instance = this;
-
 		this.config = Object.assign(
 			{
 				EnginePath: "",
@@ -57,6 +54,12 @@ class DataCycle {
 		this.callbackQueue = [];
 
 		this.init();
+	}
+	static instance(config = {}) {
+		if (!DataCycle.#instance) {
+			DataCycle.#instance = new DataCycle(config);
+		}
+		return DataCycle.#instance;
 	}
 	init() {
 		Object.freeze(this.config);

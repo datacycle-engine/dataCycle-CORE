@@ -30,7 +30,7 @@ export default class FocusPointEditor extends ImageDetailEditorBase {
 		};
 	}
 
-	insertFocusPointUi() {
+	async insertFocusPointUi() {
 		this.imageContainer.insertAdjacentHTML(
 			"beforeend",
 			`<div class="focus-point-ui">
@@ -39,18 +39,15 @@ export default class FocusPointEditor extends ImageDetailEditorBase {
       </div>`,
 		);
 
+		const text = await I18n.t("feature.focus_point_editor.clear_focus_point");
 		this.button.insertAdjacentHTML(
 			"afterend",
-			`<button class="button alert hollow focus-point-clear" data-dc-tooltip>
-        <i class="fa fa-times"></i>
-      </button>`,
+			`<button class="button alert hollow focus-point-clear" data-dc-tooltip="${text}">
+          <i class="fa fa-times"></i> ${text}
+        </button>`,
 		);
+
 		this.clearButton = this.button.nextElementSibling;
-
-		I18n.t("feature.focus_point_editor.clear_focus_point").then((text) => {
-			this.clearButton.dataset.dcTooltip = text;
-		});
-
 		this.focusPointUi = this.imageContainer.querySelector(".focus-point-ui");
 		this.crossHair = this.focusPointUi.querySelector(
 			".focus-point-ui__crosshair",
@@ -61,7 +58,7 @@ export default class FocusPointEditor extends ImageDetailEditorBase {
 	async enableEditing() {
 		await super.enableEditing();
 
-		this.insertFocusPointUi();
+		await this.insertFocusPointUi();
 		this.initOverlayPosition();
 
 		this.focusPointUi.addEventListener("click", this.handlers.updatePosition);

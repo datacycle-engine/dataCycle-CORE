@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class ApiTokenStrategy < Warden::Strategies::Base
+  class ApiTokenStrategy < BaseStrategy
     def valid?
-      params[:token].present?
+      valid_strategy? && params[:token].present?
     end
 
     def authenticate!
@@ -20,13 +20,16 @@ module DataCycleCore
       request.env['devise.skip_trackable'] = true
 
       user = User.find_by(access_token: token)
-      return success!(user) unless user.nil?
+      return success!(user) if !user.nil? && validate(user)
 
       decoded = DataCycleCore::JsonWebToken.decode(token)
       user = DataCycleCore::User.find_with_token(decoded)
       decoded['iss'].presence&.then { |i| request.env['data_cycle.feature.user_api.issuer'] = i }
       decoded['original_iss'].presence&.then { |i| request.env['data_cycle.feature.user_api.issuer'] = i }
-      user.nil? ? fail!('invalid authentication token') : success!(user)
+
+      return success!(user) if validate(user)
+
+      fail!('invalid authentication token')
     rescue JSON::ParserError, JWT::DecodeError
       fail!('invalid authentication token')
     end

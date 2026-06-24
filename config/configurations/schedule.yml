@@ -1,5 +1,6 @@
 - "0 0 * * 1": # every Monday at 00:00
     - data_cycle_core:notifications:send[week]
+    - doorkeeper:db:cleanup
 
 - "0 0 * * *": # every day at 00:00
     - data_cycle_core:notifications:send[day]
@@ -14,3 +15,6 @@
 
 - "01 3 1 * *": # every month at 03:01
     - db:configure:rebuild_schedule_occurrences
+
+- "*/10 * * * *": # every 10 minutes
+    - dc:cache:rebuild_collection_caches

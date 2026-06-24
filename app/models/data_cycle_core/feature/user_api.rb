@@ -50,6 +50,13 @@ module DataCycleCore
           .with_indifferent_access
       end
 
+      # checks a caller-supplied forwardToUrl/redirectUrl against the allowlist
+      # for this feature. The current issuer's config, when present, replaces the
+      # global :allowed_redirect_hosts (see #configuration).
+      def allowed_redirect_url?(url)
+        self.class.url_allowed?(url, configuration[:allowed_redirect_hosts])
+      end
+
       def default_rank
         configuration[:default_rank].to_i
       end
@@ -164,6 +171,46 @@ module DataCycleCore
       end
 
       class << self
+        # global-only allowlist check (no issuer context, e.g. PasswordsController web flow)
+        def redirect_url_allowed?(url)
+          url_allowed?(url, configuration[:allowed_redirect_hosts])
+        end
+
+        # returns true when +url+ is a first-party (relative) URL or its host
+        # matches one of the configured +patterns+. Fails closed: an absolute URL
+        # with no matching pattern (or an empty/blank pattern list) is rejected.
+        #
+        # supported patterns (case-insensitive):
+        #   "example.com"   exact host
+        #   "*.example.com" the apex "example.com" plus any subdomain at any depth
+        def url_allowed?(url, patterns)
+          url = url.to_s
+          return false if url.blank?
+
+          # Browsers normalize backslashes to forward slashes and strip embedded
+          # tab/newline/space before parsing a URL, while Addressable does not.
+          # Reject any URL containing a backslash or ASCII control/space char so
+          # the host we validate is the host the browser actually navigates to,
+          # closing parser-divergence open-redirect bypasses (DC-11).
+          return false if url.match?(/[\\\x00-\x20\x7f]/)
+
+          uri = Addressable::URI.parse(url)
+          return false if uri.nil?
+
+          # purely relative, first-party path (no scheme, no host, not protocol-relative "//host")
+          return true if uri.scheme.blank? && uri.host.blank? && !url.start_with?('//')
+
+          host = uri.host&.downcase&.chomp('.') # drop the optional FQDN root dot
+          return false if host.blank? # scheme without host (javascript:, mailto:, ...)
+
+          allowed = Array.wrap(patterns).map { |p| p.to_s.downcase }.compact_blank
+          return false if allowed.empty?
+
+          allowed.any? { |pattern| host_matches_pattern?(host, pattern) }
+        rescue Addressable::URI::InvalidURIError
+          false
+        end
+
         def new_user_confirmation?
           configuration[:allowed_issuers]&.any? { |_, v| v.dig(:new_user_confirmation, :user_group).present? } || configuration[:new_user_confirmation].present?
         end
@@ -192,6 +239,17 @@ module DataCycleCore
 
         def expires
           Time.zone.now + (configuration[:expiration_time] || 24.hours)
+        end
+
+        private
+
+        def host_matches_pattern?(host, pattern)
+          if pattern.start_with?('*.')
+            suffix = pattern.delete_prefix('*.')
+            host == suffix || host.end_with?(".#{suffix}")
+          else
+            host == pattern
+          end
         end
       end
     end

@@ -7,7 +7,8 @@ module DataCycleCore
 
       belongs_to :classification_alias, foreign_key: :id
       belongs_to :concept, foreign_key: :id
-      has_many :ancestor_classification_aliases, ->(p) { unscope(:where).where('id = ANY(ARRAY[?]::UUID[])', p.ancestor_ids) }, class_name: 'DataCycleCore::ClassificationAlias'
+      has_many :ancestor_classification_aliases, ->(p) { unscope(:where).where('id = ANY(ARRAY[?]::UUID[])', p.ancestor_ids).by_ordered_values(p.ancestor_ids) }, class_name: 'DataCycleCore::ClassificationAlias'
+      has_many :ancestor_concepts, ->(p) { unscope(:where).where('id = ANY(ARRAY[?]::UUID[])', p.ancestor_ids).by_ordered_values(p.ancestor_ids) }, class_name: 'DataCycleCore::Concept'
 
       def readonly?
         true
@@ -16,18 +17,22 @@ module DataCycleCore
 
     extend ::Mobility
 
+    validates :internal_name, presence: true
+    validate :validate_color_format
+
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n }
     default_scope { order(order_a: :asc, id: :asc) }
-    before_save :set_internal_data
+    before_validation :set_internal_data
     after_update :update_primary_classification
     after_update :add_things_cache_invalidation_job, if: :cached_attributes_changed?
     after_update :add_things_search_update_job, if: :search_attributes_changed?
     after_update :add_things_webhooks_job_update, if: :webhook_attributes_changed?
     before_destroy :add_things_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
     after_destroy :clean_stored_filters
+    after_find :set_thing_counts
 
-    attr_accessor :content_template, :prevent_webhooks
+    attr_accessor :content_template, :prevent_webhooks, :thing_count_with_subtree, :thing_count_without_subtree
 
     acts_as_paranoid
 
@@ -57,6 +62,7 @@ module DataCycleCore
     has_one :primary_classification, through: :concept, source: :classification, class_name: 'Classification'
     has_many :additional_classification_groups, through: :concept, source: :mapped_classification_groups, class_name: 'ClassificationGroup'
     has_many :additional_classifications, through: :concept, source: :mapped_classifications, class_name: 'Classification'
+    has_many :collected_classification_contents # , through: :collected_classification_content
 
     has_many :classification_polygons, dependent: :destroy
     accepts_nested_attributes_for :classification_polygons
@@ -75,8 +81,6 @@ module DataCycleCore
         .map { |l| where("classification_aliases.name_i18n ->> '#{l}' IS NOT NULL AND classification_aliases.name_i18n ->> '#{l}' != ''") }
         .inject { |scope, query| scope.or(query) }
     }
-
-    validate :validate_color_format
 
     def self.for_tree(tree_name)
       return none if tree_name.blank?
@@ -157,7 +161,7 @@ module DataCycleCore
             :sanitize_sql_array,
             [
               order_string,
-              {term:}
+              { term: }
             ]
           )
         )
@@ -173,7 +177,13 @@ module DataCycleCore
     end
 
     def linked_contents
-      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: classifications.pluck(:id) }).or(DataCycleCore::Thing.includes(:classifications).where(classifications: { id: sub_classification_alias.with_descendants.classifications.pluck(:id) })).distinct
+      DataCycleCore::Thing.where(
+        collected_classification_contents
+          .select(1)
+          .where('collected_classification_contents.thing_id = things.id')
+          .arel
+          .exists
+      )
     end
 
     def ancestors
@@ -272,7 +282,7 @@ module DataCycleCore
         ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
 
         if new_ca.nil?
-          new_parent = ctl.create_classification_alias(*(new_path[1...-1].map { |c| { name: c } }))
+          new_parent = ctl.create_classification_alias(*new_path[1...-1].map { |c| { name: c } })
 
           merge_children_into_self if destroy_children
           move_to_tree(new_parent&.id, ctl.id)
@@ -288,8 +298,11 @@ module DataCycleCore
     def move_after(tree_label, previous_sibling, parent_ca = nil)
       parent_ca = previous_sibling&.parent_classification_alias if parent_ca.nil?
 
-      move_to_tree(parent_ca&.id, tree_label.id)
-      update_columns(updated_at: Time.zone.now, order_a: previous_sibling&.reload&.order_a || parent_ca&.reload&.order_a || 0)
+      transaction do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+        move_to_tree(parent_ca&.id, tree_label.id)
+        update_columns(updated_at: Time.zone.now, order_a: previous_sibling&.reload&.order_a || parent_ca&.reload&.order_a || 0)
+      end
     end
 
     def move_to_tree(parent_ca_id, tree_label_id)
@@ -297,7 +310,7 @@ module DataCycleCore
 
       classification_tree&.update(parent_classification_alias_id: parent_ca_id, classification_tree_label_id: tree_label_id)
 
-      return unless classification_tree&.changed?
+      return unless classification_tree&.saved_changes?
 
       add_things_cache_invalidation_job
       add_things_search_update_job
@@ -386,6 +399,11 @@ module DataCycleCore
 
     private
 
+    def set_thing_counts
+      self.thing_count_with_subtree = self['thing_count_with_subtree']
+      self.thing_count_without_subtree = self['thing_count_without_subtree']
+    end
+
     def validate_color_format
       return unless color?
 
@@ -394,8 +412,10 @@ module DataCycleCore
 
     def set_internal_data
       return unless name_i18n_changed? # && internal_name.blank?
+
       available_translation = I18n.available_locales.drop_while { |locale| name(locale:).blank? }
       return if available_translation.blank?
+
       self.internal_name = DataCycleCore::MasterData::DataConverter.string_to_string(name(locale: available_translation.first)&.to_s)
     end
 
@@ -413,7 +433,7 @@ module DataCycleCore
     def search_attributes_changed?
       return @search_attributes_changed if defined? @search_attributes_changed
 
-      @search_attributes_changed = saved_changes.keys.intersect?(['internal_name']) ||
+      @search_attributes_changed = saved_changes.key?('internal_name') ||
                                    saved_changes['name_i18n']&.map(&:compact_blank)&.reject(&:blank?).present?
     end
 
@@ -487,8 +507,14 @@ module DataCycleCore
       )
     end
 
+    # invalidate all linked things (direct and mapped) and their related things
+    # ignore locked records to avoid deadlocks, as those are already invalidated by their transactions
     def invalidate_things_cache
-      linked_contents.invalidate_all
+      linked_contents
+        .except(:includes)
+        .lock('FOR UPDATE SKIP LOCKED')
+        .with_cached_related_contents
+        .invalidate_all
     end
 
     def update_things_search
@@ -496,7 +522,7 @@ module DataCycleCore
     end
 
     def clean_stored_filters
-      ActiveRecord::Base.connection.exec_query <<-SQL.squish
+      ActiveRecord::Base.connection.exec_query <<~SQL.squish
         WITH subquery AS
         (
             SELECT

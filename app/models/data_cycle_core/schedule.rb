@@ -266,6 +266,7 @@ module DataCycleCore
           generate_single_opening_hours_specification_object(out, valid_from, valid_until, days) if valid_from <= valid_until
 
           next unless index == extimes.size - 1
+
           valid_from = current_ex + 1.day
           valid_until = next_ex # without -1 day as it is the until in the rrule
           generate_single_opening_hours_specification_object(out, valid_from, valid_until, days) if valid_from <= valid_until
@@ -287,7 +288,7 @@ module DataCycleCore
 
     def generate_single_opening_hours_specification_object(out, valid_from, valid_until, days)
       out << {
-        '@id' => id,
+        '@id' => generate_deterministic_id(valid_from, valid_until),
         '@type' => 'OpeningHoursSpecification',
         'validFrom' => valid_from&.iso8601,
         'validThrough' => valid_until&.iso8601,
@@ -295,6 +296,18 @@ module DataCycleCore
         'closes' => self.class.opening_time_with_duration(schedule_object&.start_time, duration)&.to_fs(:only_time),
         'dayOfWeek' => days.map { |day| dow(day) }.presence
       }.compact
+    end
+
+    def generate_deterministic_id(valid_from, valid_until)
+      time_to = self.class.opening_time_with_duration(schedule_object&.start_time, duration)&.to_fs(:only_time)
+      valid_through_ts = Time.zone.parse("#{valid_until} #{time_to}")
+      new_until = "#{valid_through_ts.strftime('%Y%m%dT%H%M%S')}Z"
+
+      new_rrule = rrule&.sub(/UNTIL=\d+T\d+Z/, "UNTIL=#{new_until}")
+      hash_input  = "#{new_rrule}-#{valid_from}"
+      hash_suffix = Digest::SHA256.hexdigest(hash_input)[0, 5]
+
+      id.present? ? id[0...-5] + hash_suffix : nil
     end
 
     def to_schedule_schema_org
@@ -356,6 +369,7 @@ module DataCycleCore
     def to_schedule_schema_org_api_v3
       return {} unless schedule_object.terminating?
       return {} unless schedule_object.all_occurrences.size.positive?
+
       start_date = dtstart&.beginning_of_day&.to_fs(:long_msec)
       start_time = dtstart&.to_fs(:only_time)
       end_date = nil
@@ -403,6 +417,7 @@ module DataCycleCore
     def to_schedule_schema_org_api_v2
       return {} unless schedule_object.terminating?
       return {} unless schedule_object.all_occurrences.size.positive?
+
       start_date = dtstart&.beginning_of_day&.to_fs(:long_msec)
       start_time = dtstart&.to_fs(:only_time)
       end_date = nil
@@ -443,6 +458,7 @@ module DataCycleCore
 
     def to_sub_event_api_v2
       return [] unless schedule_object.terminating?
+
       schedule_object.all_occurrences.map do |occurrence|
         {
           '@context' => 'http://schema.org',
@@ -462,6 +478,7 @@ module DataCycleCore
 
     def to_sub_event
       return [] unless schedule_object.terminating?
+
       schedule_object.all_occurrences.map do |occurrence|
         sub_event_hash = {
           '@context' => 'http://schema.org',
@@ -543,11 +560,11 @@ module DataCycleCore
           start_time = s.dig('start_time', 'time')&.in_time_zone
           start_time = start_time.beginning_of_day if s.dig('start_time', 'time')&.size == 10 # check if end_time is Date or DateTime by string size comparison xxxx-xx-xx == size 10
 
-          if (end_time = s.dig('end_time', 'time').presence&.in_time_zone).present?
-            s['duration'] = iso8601_duration(start_time, s.dig('end_time', 'time').size == 10 ? end_time.end_of_day : end_time).iso8601 # check if end_time is Date or DateTime by string size comparison xxxx-xx-xx == size 10
-          else
-            s['duration'] = parts_to_iso8601_duration(s['duration']).iso8601
-          end
+          s['duration'] = if (end_time = s.dig('end_time', 'time').presence&.in_time_zone).present?
+                            iso8601_duration(start_time, s.dig('end_time', 'time').size == 10 ? end_time.end_of_day : end_time).iso8601 # check if end_time is Date or DateTime by string size comparison xxxx-xx-xx == size 10
+                          else
+                            parts_to_iso8601_duration(s['duration']).iso8601
+                          end
 
           s['start_time'] = {
             time: start_time.to_s,
@@ -656,6 +673,7 @@ module DataCycleCore
       # for time only
       def time_to_duration(start_time, end_time)
         return 0 if start_time.blank? || end_time.blank?
+
         start_time = start_time.in_time_zone
         if end_time > '24:00:00'
           et = end_time.split(':')
@@ -779,11 +797,11 @@ module DataCycleCore
       end
 
       def add_missing_rrule_values!(rrule, data)
-        if rrule.key?(:interval)
-          rrule[:interval] = rrule[:interval].to_i
-        else
-          rrule[:interval] = 1
-        end
+        rrule[:interval] = if rrule.key?(:interval)
+                             rrule[:interval].to_i
+                           else
+                             1
+                           end
 
         rrule[:until] = until_as_utc(rrule[:until], data.dig(:start_time, :time)) if rrule[:until].present?
 
@@ -955,21 +973,23 @@ module DataCycleCore
     def self.schedule_occurrences_sql(range_start:, range_end:)
       # public prefix is required for types and functions from pg_rrule extension
 
-      sql = <<-SQL.squish
-        CREATE OR REPLACE FUNCTION generate_schedule_occurences_array(
+      sql = <<~SQL.squish
+        CREATE OR REPLACE FUNCTION generate_schedule_occurences(
             s_dtstart timestamp WITH time zone,
             s_rrule character varying,
             s_rdate timestamp WITH time zone [],
             s_exdate timestamp WITH time zone [],
             s_duration INTERVAL
-          ) RETURNS tstzmultirange LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE AS $$
-        DECLARE schedule_array tstzmultirange;
-
-        schedule_duration INTERVAL;
+          ) RETURNS setof tstzrange LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE AS $$
+        DECLARE schedule_duration INTERVAL;
 
         all_occurrences timestamp WITHOUT time zone [];
 
-        BEGIN CASE
+        BEGIN IF s_dtstart > ? THEN RETURN;
+
+        END IF;
+
+        CASE
           WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds';
 
         WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds';
@@ -990,13 +1010,13 @@ module DataCycleCore
             END
           )::public.rrule,
           s_dtstart AT TIME ZONE 'Europe/Vienna',
-          :range_end AT TIME ZONE 'Europe/Vienna'
+          ? AT TIME ZONE 'Europe/Vienna'
         );
 
         END CASE
         ;
 
-        WITH occurences AS (
+        RETURN QUERY WITH occurences AS (
           SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence
           UNION
           SELECT unnest(s_rdate) AS occurence
@@ -1008,15 +1028,13 @@ module DataCycleCore
             ) exdate
           FROM unnest(s_exdate) AS s(exdate)
         )
-        SELECT range_agg(
-            tstzrange(
-              occurences.occurence,
-              occurences.occurence + schedule_duration
-            )
-          ) INTO schedule_array
+        SELECT tstzrange(
+            occurences.occurence,
+            occurences.occurence + schedule_duration
+          )
         FROM occurences
         WHERE occurences.occurence IS NOT NULL
-          AND occurences.occurence + schedule_duration > :range_start
+          AND occurences.occurence + schedule_duration > ?
           AND NOT EXISTS (
             SELECT 1
             FROM exdates
@@ -1024,20 +1042,15 @@ module DataCycleCore
                 occurences.occurence,
                 occurences.occurence + schedule_duration
               )
-          );
-
-        RETURN schedule_array;
+          )
+        ORDER BY occurences.occurence ASC;
 
         END;
 
         $$;
       SQL
 
-      ActiveRecord::Base.send(:sanitize_sql_array, [
-                                sql,
-                                {range_start:,
-                                 range_end:}
-                              ])
+      ActiveRecord::Base.send(:sanitize_sql_array, [sql, range_end, range_end, range_start])
     end
   end
 end

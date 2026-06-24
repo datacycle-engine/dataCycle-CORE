@@ -11,9 +11,6 @@
         :allowed: true
       :download:
         :allowed: true
-      :duplicate_candidate:
-        :allowed: true
-        :method: bild_duplicate
       :overlay:
         :allowed: false
       :serialize:
@@ -236,7 +233,6 @@
             :disabled: true
       :file_type:
         :label: Dateiformat - Klassifizierung
-        :storage_location: classification
         :type: classification
         :tree_label: Dateiformate
         :compute:

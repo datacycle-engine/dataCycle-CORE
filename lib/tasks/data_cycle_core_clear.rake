@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
-delete_classifications = <<-EOS
+delete_classifications = <<-SQL
   DELETE FROM classifications;
   DELETE FROM classification_groups;
   DELETE FROM classification_aliases;
   DELETE FROM classification_trees;
   DELETE FROM classification_tree_labels;
-EOS
+SQL
 
-delete_secondary_data = <<-EOS
+delete_secondary_data = <<-SQL
   DELETE FROM watch_list_data_hashes;
   DELETE FROM watch_lists;
   DELETE FROM subscriptions;
   DELETE FROM data_links;
-EOS
+SQL
 
-delete_contents = <<-EOS
+delete_contents = <<-SQL
   DELETE FROM things;
   DELETE FROM thing_translations;
 
@@ -23,20 +23,20 @@ delete_contents = <<-EOS
 
   DELETE FROM classification_contents;
   DELETE FROM searches;
-EOS
+SQL
 
-delete_assets = <<-EOS
+delete_assets = <<-SQL
   DELETE FROM assets;
   DELETE FROM asset_contents;
-EOS
+SQL
 
-delete_soft_deleted_classifications = <<-EOS
+delete_soft_deleted_classifications = <<-SQL
   DELETE FROM classifications WHERE deleted_at IS NOT NULL;
   DELETE FROM classification_groups WHERE deleted_at IS NOT NULL;
   DELETE FROM classification_aliases WHERE deleted_at IS NOT NULL;
   DELETE FROM classification_trees WHERE deleted_at IS NOT NULL;
   DELETE FROM classification_tree_labels WHERE deleted_at IS NOT NULL;
-EOS
+SQL
 
 namespace :data_cycle_core do
   namespace :clear do
@@ -93,7 +93,7 @@ namespace :data_cycle_core do
       persistent_activities = DataCycleCore.persistent_activities
       persistent_activities -= ['downloads'] if include_downloads
 
-      raw_query = <<-SQL.squish
+      raw_query = <<~SQL.squish
         DELETE
         FROM activities
         WHERE activities.created_at < :max_age
@@ -102,7 +102,7 @@ namespace :data_cycle_core do
       raw_query += ' AND activities.activity_type NOT IN (:persistent_activities)' if persistent_activities.present?
       sanitized_sql = ActiveRecord::Base.send(
         :sanitize_sql_for_conditions,
-        [raw_query, {max_age:, persistent_activities:}]
+        [raw_query, { max_age:, persistent_activities: }]
       )
 
       ActiveRecord::Base.transaction(joinable: false, requires_new: true) do

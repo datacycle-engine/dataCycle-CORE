@@ -3,7 +3,7 @@
 class MigrateTemplatesToOwnTable < ActiveRecord::Migration[6.1]
   # rubocop:disable Rails/BulkChangeTable
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE TABLE IF NOT EXISTS thing_templates (
         template_name varchar PRIMARY KEY NOT NULL,
         schema jsonb,
@@ -19,7 +19,7 @@ class MigrateTemplatesToOwnTable < ActiveRecord::Migration[6.1]
     add_index :thing_templates, :content_type, using: :btree
     add_index :thing_templates, :boost, using: :btree
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DELETE FROM things
       WHERE template_name IS NULL;
 
@@ -29,7 +29,7 @@ class MigrateTemplatesToOwnTable < ActiveRecord::Migration[6.1]
 
     change_column_null(:things, :template_name, false)
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS insert_thing_schema_types ON things;
       DROP TRIGGER IF EXISTS update_thing_schema_types ON things;
 
@@ -109,7 +109,7 @@ class MigrateTemplatesToOwnTable < ActiveRecord::Migration[6.1]
     remove_index :things, name: :things_computed_schema_types_idx, if_exists: true
     remove_index :things, name: :things_template_name_template_uq_idx, if_exists: true
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       INSERT INTO thing_templates(template_name, "schema")
       SELECT DISTINCT ON (things.template_name) things.template_name,
         "things"."schema"
@@ -141,7 +141,7 @@ class MigrateTemplatesToOwnTable < ActiveRecord::Migration[6.1]
     add_column :thing_histories, :schema, :jsonb, if_not_exists: true
     add_column :thing_histories, :template, :boolean, default: false, null: false, if_not_exists: true
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE things ADD COLUMN IF NOT EXISTS computed_schema_types VARCHAR[];
 
       DROP TRIGGER IF EXISTS insert_thing_schema_types ON things;

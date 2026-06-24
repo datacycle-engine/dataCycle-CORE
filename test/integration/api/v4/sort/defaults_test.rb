@@ -117,9 +117,11 @@ module DataCycleCore
               fields: 'name'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
+
             assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd', 'poi_a', 'poi_b', 'poi_c', 'poi_d'], json_data['@graph'].pluck('name'))
           end
 
@@ -141,6 +143,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             json_data = response.parsed_body
@@ -155,9 +158,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # default sorting: proximity.geographic ASC
@@ -172,9 +177,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             json_data = response.parsed_body
+
             assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data['@graph'].pluck('name'))
           end
 
@@ -198,9 +205,11 @@ module DataCycleCore
               sort: 'proximity.inTime'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             json_data = response.parsed_body
+
             assert_equal(['aaaaaa', 'aaabbb', 'cccccc', 'dddddd'], json_data['@graph'].pluck('name'))
 
             # proximity.occurrence
@@ -219,9 +228,11 @@ module DataCycleCore
               sort: 'proximity.occurrence'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             json_data = response.parsed_body
+
             assert_equal(['dddddd', 'cccccc', 'aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
 
             # similarity
@@ -233,9 +244,11 @@ module DataCycleCore
               sort: '-similarity'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # proximity.geographic ASC
@@ -251,9 +264,11 @@ module DataCycleCore
               sort: 'proximity.geographic'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             json_data = response.parsed_body
+
             assert_equal(['poi_d', 'poi_b', 'poi_a', 'poi_c'], json_data['@graph'].pluck('name'))
           end
 
@@ -274,9 +289,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(['aaaaaa', 'aaabbb'], json_data['@graph'].pluck('name'))
 
             # overrule sorting priority schedule -> location -> search: search -> schedule
@@ -296,9 +313,11 @@ module DataCycleCore
               sort: 'similarity'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(['aaabbb', 'aaaaaa'], json_data['@graph'].pluck('name'))
           end
         end

@@ -98,68 +98,73 @@ module DataCycleCore
     end
 
     test 'filter event_schedule with sort_created_at' do
-      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => {'from' => @from, 'until' => @until}}]
-      sort_params = [{'o' => 'ASC', 'm' => 'created_at'}]
+      filter_params = [{ 'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => { 'from' => @from, 'until' => @until } }]
+      sort_params = [{ 'o' => 'ASC', 'm' => 'created_at' }]
 
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: sort_params, filters: filter_params)
       query = stored_filter.things
 
       things = [@event_d, @event_c, @event_b, @event_a, @poi]
+
       things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
 
     test 'filter opening_hours_specification with sort modified_at' do
-      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => {'from' => @from, 'until' => @until}}]
-      sort_params = [{'o' => 'ASC', 'm' => 'modified_at'}]
+      filter_params = [{ 'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => { 'from' => @from, 'until' => @until } }]
+      sort_params = [{ 'o' => 'ASC', 'm' => 'modified_at' }]
 
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: sort_params, filters: filter_params)
       query = stored_filter.things
 
       things = [@event_d, @event_c, @event_b, @event_a, @poi]
+
       things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
 
     test 'filter opening_hours_specification with sort name' do
-      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => {'from' => @from, 'until' => @until}}]
-      sort_params = [{'o' => 'ASC', 'm' => 'name'}]
+      filter_params = [{ 'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => { 'from' => @from, 'until' => @until } }]
+      sort_params = [{ 'o' => 'ASC', 'm' => 'name' }]
 
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: sort_params, filters: filter_params)
       query = stored_filter.things
 
       things = [@event_a, @event_b, @event_c, @event_d, @poi]
+
       things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
 
     test 'filter opening_hours_specification with sort default' do
-      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'opening_hours_specification', 'v' => {'from' => @from, 'until' => @until}}]
+      filter_params = [{ 'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'opening_hours_specification', 'v' => { 'from' => @from, 'until' => @until } }]
 
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: nil, filters: filter_params)
       query = stored_filter.things
 
       things = [@poi, @event_a, @event_b, @event_c, @event_d]
+
       things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end
     end
 
     test 'filter event_schedule with sort default' do
-      filter_params = [{'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => {'from' => @from, 'until' => @until}}]
+      filter_params = [{ 'c' => 'a', 't' => 'in_schedule', 'q' => 'absolute', 'm' => 'i', 'n' => 'event_schedule', 'v' => { 'from' => @from, 'until' => @until } }]
 
       stored_filter = DataCycleCore::StoredFilter.new
       stored_filter.apply_sorting_from_parameters(sort_params: nil, filters: filter_params)
       query = stored_filter.things
 
       things = [@event_d, @event_c, @event_b, @event_a, @poi]
+
       things.zip(query).each_with_index do |(expected, actual), _i|
         assert_equal(expected.id, actual.id)
       end

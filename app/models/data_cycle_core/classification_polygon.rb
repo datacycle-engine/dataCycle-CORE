@@ -5,7 +5,7 @@ module DataCycleCore
     belongs_to :classification_alias
 
     def self.to_bbox
-      select_sql = <<-SQL.squish
+      select_sql = <<~SQL.squish
         json_build_object(
           'xmin', st_xmin(ST_Extent(classification_polygons.geom_simple)),
           'ymin', st_ymin(ST_Extent(classification_polygons.geom_simple)),
@@ -19,14 +19,14 @@ module DataCycleCore
     end
 
     def self.to_mvt(x, y, z, layer_name)
-      select_sql = <<-SQL.squish
+      select_sql = <<~SQL.squish
         classification_polygons.classification_alias_id AS id,
         classification_polygons.geom_simple AS geometry,
         array_to_json(ARRAY ['skos:Concept']::VARCHAR []) AS "@type",
         classification_alias.internal_name AS name
       SQL
 
-      outer_select_sql = <<-SQL.squish
+      outer_select_sql = <<~SQL.squish
         ST_AsMVTGeom(ST_Transform(t.geometry, 3857), ST_TileEnvelope(#{z}, #{x}, #{y})) AS geom,
         t.id AS "@id",
         t."@type" AS "@type",
@@ -35,13 +35,13 @@ module DataCycleCore
 
       query = unscoped.with(
         mvtgeom: unscoped
-                  .select(outer_select_sql)
-                  .from(
-                    reselect(select_sql)
-                    .joins(:classification_alias)
-                    .where(sanitize_sql(["ST_Intersects(classification_polygons.geom_simple, ST_Transform(ST_TileEnvelope(#{z}, #{x}, #{y}), 4326))"]))
-                    .arel.as('t')
-                  )
+          .select(outer_select_sql)
+          .from(
+            reselect(select_sql)
+          .joins(:classification_alias)
+          .where(sanitize_sql(["ST_Intersects(classification_polygons.geom_simple, ST_Transform(ST_TileEnvelope(#{z}, #{x}, #{y}), 4326))"]))
+          .arel.as('t')
+          )
       )
         .select("ST_AsMVT(mvtgeom, '#{layer_name.presence || 'dcConcepts'}')")
         .from('mvtgeom')
@@ -52,8 +52,8 @@ module DataCycleCore
     end
 
     def self.combined_geojson
-      select_sql = <<-SQL.squish
-        ST_AsGeoJSON(ST_Force3D(ST_MakeValid(ST_Union(classification_polygons.geom))), 6) AS geom
+      select_sql = <<~SQL.squish
+        ST_AsGeoJSON(ST_Force3D(ST_MakeValid(ST_Union(classification_polygons.geom)))) AS geom
       SQL
 
       connection.select_all(except(:order).select(select_sql)).first&.values&.first

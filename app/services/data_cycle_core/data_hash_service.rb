@@ -4,16 +4,103 @@ module DataCycleCore
   class DataHashService
     extend NormalizeService
 
+    ARRAY_PROPERTY_TYPES = ['classification', 'linked', 'collection'].freeze
+    SCHEDULE_PARAMS = [{ datahash: [:id, :full_day, :rtimes, :extimes, { start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, { validations: [:day_of_week, :day_of_month, { day: [], day_of_month: [], day_of_week: {} }] }] }] }].freeze
+    OPENING_TIME_PARAMS = [{ datahash: [:valid_from, :valid_until, :holiday, { time: [{ datahash: [:id, :opens, :closes] }], rrules: [{ validations: [{ day: [] }] }] }] }].freeze
+
+    attr_accessor :template_cache
+
+    def initialize
+      @template_cache = {}
+    end
+
+    def permitted_content_params(template_name_or_schema, params)
+      return ActionController::Parameters.new.permit if params.blank? || template_name_or_schema.blank?
+
+      if template_name_or_schema.is_a?(String)
+        template = get_internal_template(template_name_or_schema)
+        template_hash = template.schema.deep_dup
+      elsif template_name_or_schema.is_a?(::Hash)
+        template_hash = template_name_or_schema.deep_dup
+      else
+        return ActionController::Parameters.new.permit
+      end
+
+      permit_content_hash(template_hash, params, true)
+    end
+
+    def permit_content_hash(template_hash, params, translations = true)
+      return ActionController::Parameters.new.permit unless params.is_a?(ActionController::Parameters) && template_hash.is_a?(::Hash)
+
+      permitted = params.permit(:template_name, :version_name)
+      permitted_datahash = permit_content_hash(template_hash, params[:datahash], translations)
+      permitted[:datahash] = permitted_datahash if params.key?(:datahash)
+
+      permitted_translations = ActionController::Parameters.new.permit
+      params[:translations]&.each do |key, value|
+        permitted_translations[key.to_sym] = permit_content_hash(template_hash, value, translations)
+      end
+      permitted[:translations] = permitted_translations if params.key?(:translations)
+
+      params.except(:datahash, :translations)&.each_key do |k|
+        permitted.merge!(permit_param_for_prop(params, k, template_hash))
+      end
+
+      permitted
+    end
+
+    def permit_param_for_prop(params, key, template_hash)
+      prop = template_hash['properties'][key.to_s]
+      return if prop.nil? || prop.key?('compute') || prop.key?('virtual')
+
+      if prop['type'] == 'schedule'
+        params.permit({ key.to_sym => SCHEDULE_PARAMS })
+      elsif prop['type'] == 'opening_time'
+        params.permit({ key.to_sym => OPENING_TIME_PARAMS })
+      elsif prop['type'] == 'embedded'
+        embedded_params = ActionController::Parameters.new.permit
+        permitted_embedded = ActionController::Parameters.new.permit
+        if params[key].is_a?(ActionController::Parameters)
+          params[key]&.each do |index, value|
+            next unless value.is_a?(ActionController::Parameters)
+
+            template_name = value[:template_name].presence || value.dig(:datahash, :template_name)
+            embedded_schema = get_internal_template(template_name).schema
+            permitted_embedded[index] = permit_content_hash(embedded_schema, value, true)
+          end
+        elsif params[key].is_a?(::Array) # used in tests and possibly other places
+          params[key].each_with_index do |value, index|
+            next unless value.is_a?(ActionController::Parameters)
+
+            template_name = value[:template_name].presence || value.dig(:datahash, :template_name)
+            embedded_schema = get_internal_template(template_name).schema
+            permitted_embedded[index] = permit_content_hash(embedded_schema, value, true)
+          end
+        end
+        embedded_params[key.to_sym] = permitted_embedded
+        embedded_params
+      elsif prop['type'] == 'object' && prop['properties'].present?
+        object_params = ActionController::Parameters.new.permit
+        object_params[key.to_sym] = permit_content_hash(prop, params[key], false)
+        object_params
+      elsif ARRAY_PROPERTY_TYPES.include?(prop['type'])
+        params.permit({ key.to_sym => [] })
+      else
+        params.permit(key.to_sym)
+      end
+    end
+
     def self.flatten_datahash_value(datahash, template_hash, debug = false)
       datahash = datahash.to_h.dc_deep_dup.with_indifferent_access
+      template_cache = {}
 
       if datahash.key?(:translations) || datahash.key?(:datahash)
-        datahash[:datahash] = flatten_recursive(datahash[:datahash], template_hash)
+        datahash[:datahash] = flatten_recursive(datahash[:datahash], template_hash, template_cache)
         datahash[:translations]&.transform_values! do |locale_hash|
-          flatten_recursive(locale_hash, template_hash)
+          flatten_recursive(locale_hash, template_hash, template_cache)
         end
       else
-        datahash = flatten_recursive(datahash, template_hash)
+        datahash = flatten_recursive(datahash, template_hash, template_cache)
       end
 
       raise datahash.inspect if debug == true
@@ -43,44 +130,22 @@ module DataCycleCore
       datahash
     end
 
-    def self.get_internal_template(name)
-      DataCycleCore::Thing.new(template_name: name)
-    end
+    def self.get_internal_template(name, template_cache = {})
+      t_names = Array.wrap(name)
+      missing = t_names - template_cache.keys
 
-    def self.create_duplicate(content: nil, current_user: nil)
-      return if content.blank? || !content.content_type?('entity')
-      new_content = DataCycleCore::Thing.new(template_name: content.template_name)
-
-      content.available_locales.each do |locale|
-        I18n.with_locale(locale) do
-          ActiveRecord::Base.transaction do
-            created = new_content.new_record?
-            new_content.save!
-            new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ name: "DUPLICATE: #{content.title}" })
-            valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user:, new_content: created)
-
-            raise ActiveRecord::Rollback, 'dataHash errors found' unless valid
-          end
+      if missing.present?
+        missing_templates = DataCycleCore::ThingTemplate.where(template_name: missing).index_by(&:template_name)
+        missing.each do |tn|
+          template_cache[tn] = DataCycleCore::Thing.new(thing_template: missing_templates[tn])
         end
       end
-      return false if new_content.id.nil?
-      new_content.reload
+
+      name.is_a?(::Array) ? template_cache.values_at(*t_names) : template_cache[name]
     end
 
-    def self.get_object_params(template_name, params_hash)
-      template = get_internal_template(template_name)
-      schema_hash = template.schema.deep_dup
-      keys = get_keys_from_hash(params_hash)
-      schema_hash['properties'].slice!(*keys) if keys.present?
-      get_params_from_hash(schema_hash)
-    end
-
-    def self.get_keys_from_hash(params_hash)
-      keys = []
-      keys.concat(params_hash[:datahash].keys) if params_hash&.[](:datahash).present?
-      keys.concat(params_hash[:translations].values.map(&:keys).flatten) if params_hash&.[](:translations).present?
-      keys.concat(params_hash.except(:datahash, :translations).keys) if params_hash.present?
-      keys.uniq.map(&:to_s)
+    def get_internal_template(name)
+      self.class.get_internal_template(name, template_cache)
     end
 
     def self.create_internal_object(template, object_params, current_user, is_part_of = nil, source = nil)
@@ -114,44 +179,11 @@ module DataCycleCore
           current_user:,
           source:,
           new_content: true,
-          save_time:,
-          check_for_duplicates: true
+          save_time:
         )
       end
 
       object
-    end
-
-    def self.get_params_from_hash(template_hash, translations = true)
-      allowed_params = []
-      array_property_types = ['classification', 'linked', 'collection']
-
-      template_hash['properties'].each do |key, value|
-        next if value.key?('compute') || value.key?('virtual')
-
-        if value['type'] == 'schedule'
-          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, {start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, {validations: [:day_of_week, :day_of_month, {day: [], day_of_month: [], day_of_week: {}}]}]}]] }
-        elsif value['type'] == 'opening_time'
-          parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, {time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]}]] }
-        elsif value['type'] == 'embedded'
-          object_schemas = Array.wrap(value['template_name']).map { |t| get_internal_template(t).schema }
-          parameter = { key.to_sym => object_schemas.map { |os| get_params_from_hash(os) }.reduce({}) { |p1, p2| p1.deep_merge(p2) { |_k, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? (v1 + v2).uniq : v2 } } }
-        elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
-          parameter = { key.to_sym => get_params_from_hash(value, false) }
-        elsif array_property_types.include?(value['type'])
-          parameter = { key.to_sym => [] }
-        else
-          parameter = key.to_sym
-        end
-
-        allowed_params.push(parameter)
-      end
-
-      allowed_params.push(:template_name)
-
-      return allowed_params unless translations
-
-      { datahash: allowed_params, translations: I18n.available_locales.index_with { |_l| allowed_params } }
     end
 
     def self.blank?(value)
@@ -200,11 +232,11 @@ module DataCycleCore
       neutral_hash = datahash.key?(:datahash) ? datahash[:datahash].to_h : datahash.except(:translations, :version_name).to_h
       keep_locales = (find_locales_recursive(neutral_hash, [], reject_blank) + allowed_locales.map(&:to_s)).uniq
 
-      if reject_blank
-        translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
-      else
-        translations = datahash[:translations]&.slice(*keep_locales).presence || { I18n.locale.to_s => {} }
-      end
+      translations = if reject_blank
+                       datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+                     else
+                       datahash[:translations]&.slice(*keep_locales).presence || { I18n.locale.to_s => {} }
+                     end
 
       translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
     end
@@ -230,6 +262,7 @@ module DataCycleCore
 
     def self.find_locales_recursive(datahash, locales = [], reject_blank = true)
       return locales unless datahash.is_a?(::Hash)
+
       datahash&.each_value do |v|
         next unless v.is_a?(::Array)
 
@@ -252,7 +285,7 @@ module DataCycleCore
     class << self
       private
 
-      def flatten_recursive(datahash, template_hash)
+      def flatten_recursive(datahash, template_hash, template_cache = {})
         temp_datahash = {}
 
         datahash&.each do |key, value|
@@ -261,21 +294,19 @@ module DataCycleCore
 
           if value.is_a?(::Hash)
             if type == 'embedded'
-              object_schemas = Array.wrap(properties['template_name']).index_with { |t| get_internal_template(t).schema }
-              default_schema = object_schemas.values.first
               temp_value = []
 
               value.each_value do |object_value|
                 if object_value.key?('datahash') || object_value.key?('translations')
                   temp_value.push(object_value.tap do |v|
-                    e_schema = object_schemas[v.dig('datahash', 'template_name')] || default_schema
+                    e_schema = get_internal_template(v.dig('datahash', 'template_name'))&.schema
 
-                    v['datahash'] = flatten_recursive(v['datahash'], e_schema)
-                    v['translations'] = v['translations']&.transform_values { |t| flatten_recursive(t, e_schema) }
+                    v['datahash'] = flatten_recursive(v['datahash'], e_schema, template_cache)
+                    v['translations'] = v['translations']&.transform_values { |t| flatten_recursive(t, e_schema, template_cache) }
                   end)
                 else
-                  e_schema = object_schemas[object_value['template_name']] || default_schema
-                  temp_value.push(flatten_recursive(object_value, e_schema))
+                  e_schema = get_internal_template(object_value['template_name'])&.schema
+                  temp_value.push(flatten_recursive(object_value, e_schema, template_cache))
                 end
               end
 
@@ -284,7 +315,7 @@ module DataCycleCore
               temp_value = {}
 
               value.each do |object_key, object_value|
-                temp_value[object_key] = flatten_recursive({ object_key => object_value }, properties)[object_key]
+                temp_value[object_key] = flatten_recursive({ object_key => object_value }, properties, template_cache)[object_key]
               end
 
               value = temp_value
@@ -298,9 +329,9 @@ module DataCycleCore
           elsif value.is_a?(::Array)
             value = value.compact_blank.uniq
           elsif type == 'number' && properties.dig('validations', 'format') == 'float'
-            value = value.blank? ? nil : value.to_f
+            value = value.presence&.to_f
           elsif type == 'number'
-            value = value.blank? ? nil : value.to_i
+            value = value.presence&.to_i
           elsif type == 'boolean'
             value = blank?(value) ? nil : value == 'true'
           elsif type == 'table'

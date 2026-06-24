@@ -24,11 +24,11 @@ module DataCycleCore
 
         def error(title, id, data, error)
           if title && id
-            puts "Error #{@kind}ing \"#{title} (\##{id})\": #{error}"
+            puts "Error #{@kind}ing \"#{title} (##{id})\": #{error}"
           elsif title
             puts "Error #{@kind}ing \"#{title}\": #{error}"
           elsif id
-            puts "Error #{@kind}ing \"\##{id}\": #{error}"
+            puts "Error #{@kind}ing \"##{id}\": #{error}"
           else
             puts "Error: #{error}"
           end

@@ -36,6 +36,7 @@ module DataCycleCore
       def load_linked_objects(relation_name, filter = nil, same_language = false, languages = [I18n.locale], overlay_flag = false)
         properties = properties_for(relation_name, overlay_flag)
         return [] if properties.nil?
+
         relation_b = properties['inverse_of']
         language_flag = same_language
         language_flag = properties['linked_language'] == 'same' if properties['linked_language'].present?
@@ -68,20 +69,21 @@ module DataCycleCore
           send(relation_name).where(content_contents: content_contents_condition).i18n.includes(:thing_template)
         end
 
-        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: languages }) if same_language
+        relation_contents = relation_contents.with_translation(languages) if same_language
 
-        if filter.present?
-          filtered_contents = relation_contents.to_a.filter { |c| filter.thing_ids.include?(c.id) }
-          relation_contents = relation_contents
-            .where(id: filtered_contents.pluck(:id))
-            .tap { |rel| rel.send(:load_records, filtered_contents) }
-        end
-
-        relation_contents
+        filter_contents(relation_contents, filter)
       end
 
       def load_classifications(relation_name, _overlay_flag = false)
-        classification_contents.with_relation(relation_name).classifications
+        rel = classifications.where(classification_contents: { relation: relation_name })
+
+        if classification_contents.loaded?
+          loaded_records = classification_contents.select { |cc| cc.relation == relation_name }
+            .filter_map(&:classification)
+          rel.tap { |r| r.send(:load_records, loaded_records) }
+        end
+
+        rel
       end
 
       def load_default_classification(tree_label, alias_name)
@@ -89,20 +91,60 @@ module DataCycleCore
       end
 
       def load_asset_relation(relation_name)
-        DataCycleCore::Asset.joins(:asset_content)
-          .where(asset_contents: { thing_id: id, relation: relation_name })
+        rel = assets.where(asset_contents: { thing_id: id, relation: relation_name })
+
+        if asset_contents.loaded?
+          loaded_records = asset_contents.select { |ac| ac.relation == relation_name }.filter_map(&:asset)
+          rel.tap { |r| r.send(:load_records, loaded_records) }
+        end
+
+        rel
       end
 
       def load_schedule(relation_name, _overlay_flag = false)
-        DataCycleCore::Schedule.where(thing_id: id, relation: relation_name).order(created_at: :asc)
+        rel = schedules.where(relation: relation_name).order(created_at: :asc)
+
+        if schedules.loaded?
+          loaded_records = schedules.select { |s| s.relation == relation_name }.sort_by(&:created_at)
+          rel.tap { |r| r.send(:load_records, loaded_records) }
+        end
+
+        rel
       end
 
       def load_timeseries(property_name)
-        DataCycleCore::Timeseries.where(thing_id: id, property: property_name).order(timestamp: :asc)
+        rel = timeseries.where(property: property_name).order(timestamp: :asc)
+
+        if timeseries.loaded?
+          loaded_records = timeseries.select { |t| t.property == property_name }.sort_by(&:timestamp)
+          rel.tap { |r| r.send(:load_records, loaded_records) }
+        end
+
+        rel
       end
 
       def load_collections(property_name)
-        DataCycleCore::Collection.joins(:content_collection_links).where(content_collection_links: { thing_id: id, relation: property_name }).order(order_a: :asc)
+        rel = DataCycleCore::Collection.includes(:content_collection_links)
+          .where(content_collection_links: { thing_id: id, relation: property_name })
+          .order(order_a: :asc)
+
+        if content_collection_links.loaded?
+          loaded_records = content_collection_links.select { |ccl| ccl.relation == property_name }
+            .sort_by(&:order_a)
+            .filter_map(&:collection)
+          rel.tap { |r| r.send(:load_records, loaded_records) }
+        end
+
+        rel
+      end
+
+      def filter_contents(contents, filter)
+        return contents if filter.nil? || contents.blank?
+
+        filtered_contents = contents.to_a.filter { |c| filter.cached.thing_ids_nested.include?(c.id) }
+
+        contents.where(id: filtered_contents.pluck(:id))
+          .tap { |rel| rel.send(:load_records, filtered_contents) }
       end
 
       def load_geometry(property_name)

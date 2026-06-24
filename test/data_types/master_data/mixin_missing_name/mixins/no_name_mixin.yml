@@ -1,0 +1,7 @@
+---
+- :data:
+    :properties:
+      :test_text:
+        :type: string
+        :label: Test text
+        :storage_location: translated_value

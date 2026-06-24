@@ -25,6 +25,7 @@
           :json: false
           :indesign: false
           :xml: false
+          :id_mapping: true
       :stored_filter:
         :enabled: false
         :serializers:
@@ -33,6 +34,7 @@
           :json: false
           :indesign: false
           :xml: false
+          :id_mapping: true
     :archive:
       :zip:
         :enabled: false
@@ -91,9 +93,19 @@
     :json: false
     :xml: false
     :geojson: false
-    :mvt: false
+    :mvt:
+      depends_on:
+        module: DataCycleCore::Feature::ViewMode
+        method: map_enabled?
     :pdf: false
     :content_score: false
+    :id_mapping: true
+    # :id_mapping:
+    #   :dc_link: true
+    #   :name: true
+    #   :external_system_syncs: false # set to false to exclude external_system_syncs from id mapping export
+    #   :concept_scheme_ids:
+    #     - 5d268a32-93f7-45ed-9fc2-f476004232d4 # OutdoorActive - Quellen
 
 :overlay:
   :enabled: true
@@ -113,14 +125,15 @@
 
 :life_cycle:
   :enabled: false
-#   :attribute_keys:
-#     - data_pool
-#   :tree_label: Inhaltspools
-#   :ordered:
-#     - Vorschläge
-#     - Recherche
-#     - Aktuelle Inhalte
-#     - Archiv
+  # :attribute_keys:
+  #   - data_pool
+  # :tree_label: Inhaltspools
+  # :ordered:
+  #   - Vorschläge
+  #   - Recherche
+  #   - Aktuelle Inhalte
+  #   - Archiv
+  # :archive_name: Archiv
 
 :idea_collection:
   :enabled: false
@@ -203,6 +216,8 @@
       - validity_schedule
   :classification_alias_ids: all
   #  :related_to: true
+  :duplicate_candidate_filter:
+    :depends_on: DataCycleCore::Feature::DuplicateCandidate
   :external_source: false
   :external_system: true
   :id: true
@@ -231,7 +246,7 @@
     :internal_content_score:
       :type: numeric
       :depends_on: DataCycleCore::Feature::ContentScore
-  # :union_filter_ids: true
+  :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
   #   :linked_location:
@@ -281,6 +296,7 @@
   #     :type: date
   #   :translated_name:
   #     :type: string
+  #     :path: name
   #   :live_stream_start_end:
   #     :type: date_range
   #     # default query_operator: overlaps
@@ -314,12 +330,19 @@
     :enabled: false
     :attribute_keys:
 
+:translate:
+  :enabled: false
+
 :auto_translation:
   :enabled: false
   :source_lang: de
 
-:translate:
+# inspired by auto_translation, but does not use "Übersetzung" as template
+# translations are generated for the same content, only if "generated_translation" is set to true
+:generated_translation:
   :enabled: false
+  :dependencies:
+    - translate
 
 :external_media_archive:
   :enabled: false
@@ -344,6 +367,18 @@
 :user_api:
   :enabled: false
   :expiration_time: <%= 24.hours %>
+  # Allowlist of hosts that callers may pass as forwardToUrl / redirectUrl in the
+  # password reset and confirmation flows (DC-11). Fails closed: when this list is
+  # empty, all external (absolute) URLs are rejected and the flows fall back to
+  # first-party links. Relative URLs are always allowed. Patterns are matched
+  # case-insensitively against the URL host:
+  #   "example.com"   exact host
+  #   "*.example.com" the apex "example.com" plus any subdomain at any depth
+  # ERB is evaluated, so environment-specific hosts can be injected, e.g.:
+  #   :allowed_redirect_hosts:
+  #     - "*.dummy.com"
+  #     - <%= ENV['APP_HOST'] %>
+  :allowed_redirect_hosts: []
   :default_rank: 0
   :allowed_ranks:
     - 0
@@ -405,6 +440,9 @@
 :geo_key_figure:
   :enabled: false
   :attribute_keys:
+  # :local: true # get values from JS Map Library (only for Toursprung)
+  # :external_source: "Name of the external source"
+  # :endpoint: Endpoint module for fetching the values
 
 :my_selection:
   :enabled: false
@@ -492,6 +530,14 @@
       :dzt_report:
         :enabled: false
         :class: DataCycleCore::Report::Downloads::DztReport
+        :allowed_formats:
+          - "csv"
+          - "tsv"
+          - "json"
+          - "xlsx"
+      :my_watch_lists_overview:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::MyWatchListsOverview
         :allowed_formats:
           - "csv"
           - "tsv"
@@ -629,7 +675,9 @@
   :enabled: false
 
 :string_sanitizer:
-  :enabled: false
+  :enabled: true
 
 :preview_link:
   :enabled: false
+  # :module: "PreviewLink"
+  # :method: "build"

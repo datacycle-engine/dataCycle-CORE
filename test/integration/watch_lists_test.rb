@@ -38,12 +38,14 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal DataCycleCore::WatchList.where(name:).size, 1
+      assert_equal 1, DataCycleCore::WatchList.where(name:).size
 
       get api_v2_collections_path
+
       assert_response :success
-      assert_equal response.content_type, 'application/json; charset=utf-8'
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
+
       assert_equal(1, json_data['collections'].count { |w| w['name'] == name })
     end
 
@@ -61,8 +63,9 @@ module DataCycleCore
       }
 
       assert_redirected_to watch_list_path(@watch_list)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.updated', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_equal @watch_list.reload.name, name
     end
 
@@ -79,6 +82,7 @@ module DataCycleCore
 
       assert_response :success
       response_body = response.parsed_body
+
       assert response_body['valid']
     end
 
@@ -93,6 +97,7 @@ module DataCycleCore
 
       assert_response :success
       response_body = response.parsed_body
+
       assert_not response_body['valid']
     end
 
@@ -102,17 +107,19 @@ module DataCycleCore
       }
 
       assert_redirected_to root_path
-      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.destroyed', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:success]
 
       get api_v2_collections_path
+
       assert_response :success
-      assert_equal response.content_type, 'application/json; charset=utf-8'
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert_equal json_data['collections'].size, 0
+
+      assert_equal 0, json_data['collections'].size
     end
 
     test 'add content to watch_list' do
-      get add_item_watch_list_path(@watch_list), xhr: true, params: {
+      post add_item_watch_list_path(@watch_list), xhr: true, params: {
         thing_id: @content.id
       }, headers: {
         referer: root_path
@@ -121,14 +128,17 @@ module DataCycleCore
       assert_response :success
 
       get watch_list_path(@watch_list)
+
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', 'TestArtikel'
 
       get api_v2_collection_path(@watch_list)
+
       assert_response :success
-      assert_equal response.content_type, 'application/json; charset=utf-8'
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert_equal json_data.dig('collection', 'items').size, 1
+
+      assert_equal 1, json_data.dig('collection', 'items').size
     end
 
     test 'add related content to watch_list' do
@@ -142,20 +152,23 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal DataCycleCore::WatchList.where(name: @watch_list.name).size, 1
-      assert @watch_list.things.pluck(:id).include?(@image_a.id)
-      assert @watch_list.things.pluck(:id).include?(@image_b.id)
+      assert_equal 1, DataCycleCore::WatchList.where(name: @watch_list.name).size
+      assert_includes @watch_list.things.pluck(:id), @image_a.id
+      assert_includes @watch_list.things.pluck(:id), @image_b.id
       assert_not @watch_list.things.pluck(:id).include?(@image_c.id)
 
       get watch_list_path(@watch_list)
+
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', 'TestBildB'
 
       get api_v2_collection_path(@watch_list)
+
       assert_response :success
-      assert_equal response.content_type, 'application/json; charset=utf-8'
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert_equal json_data.dig('collection', 'items').size, 2
+
+      assert_equal 2, json_data.dig('collection', 'items').size
     end
 
     test 'add related content to new watch_list' do
@@ -170,21 +183,25 @@ module DataCycleCore
 
       assert_response :success
       watch_list = DataCycleCore::WatchList.find_by(name: 'TestWatchList2')
+
       assert_not_nil watch_list
 
-      assert watch_list.things.pluck(:id).include?(@image_a.id)
-      assert watch_list.things.pluck(:id).include?(@image_b.id)
+      assert_includes watch_list.things.pluck(:id), @image_a.id
+      assert_includes watch_list.things.pluck(:id), @image_b.id
       assert_not watch_list.things.pluck(:id).include?(@image_c.id)
 
       get watch_list_path(watch_list)
+
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', 'TestBildB'
 
       get api_v2_collection_path(watch_list)
+
       assert_response :success
-      assert_equal response.content_type, 'application/json; charset=utf-8'
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert_equal json_data.dig('collection', 'items').size, 2
+
+      assert_equal 2, json_data.dig('collection', 'items').size
     end
 
     test 'remove content from watch_list' do
@@ -199,14 +216,17 @@ module DataCycleCore
       assert_response :success
 
       get watch_list_path(@watch_list)
+
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', { count: 0, text: 'TestArtikel' }
 
       get api_v2_collection_path(@watch_list)
+
       assert_response :success
-      assert_equal response.content_type, 'application/json; charset=utf-8'
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert_equal json_data.dig('collection', 'items').size, 0
+
+      assert_equal 0, json_data.dig('collection', 'items').size
     end
 
     test 'bulk delete all watch_list items' do
@@ -214,11 +234,13 @@ module DataCycleCore
       items_before = @watch_list.things.count
 
       delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
+
       assert_response :success
 
       items_after = @watch_list.things.count
+
       assert_equal(0, items_after)
-      assert(items_before != items_after)
+      assert_not_equal(items_before, items_after)
     end
 
     test 'bulk delete all watch_list_items, fails because one item is external' do
@@ -230,6 +252,7 @@ module DataCycleCore
       items_before = @watch_list.things.count
 
       delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
+
       assert_response :success
 
       assert_equal(items_before, @watch_list.things.count)
@@ -277,7 +300,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.bulk_updated', count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal bulk_name, @content.name
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -302,7 +325,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], counts: 'en: <b>1</b>', locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.bulk_updated', count: 1, locale: DataCycleCore.ui_locales.first) + I18n.t('controllers.info.bulk_updated_skipped_html', counts: 'en: <b>1</b>', locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal bulk_name, @content.name
     end
 
@@ -338,7 +361,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.bulk_updated', count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal @additional_tags.to_set, @content.tags.reload.pluck(:id).to_set
     end
 
@@ -374,7 +397,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.bulk_updated', count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal (@default_tags + @additional_tags).to_set, @content.tags.reload.pluck(:id).to_set
     end
 
@@ -410,7 +433,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.bulk_updated', count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal [@default_tags.last].to_set, @content.tags.reload.pluck(:id).to_set
     end
 
@@ -435,6 +458,7 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
+
       assert json_data['valid']
     end
 
@@ -442,7 +466,7 @@ module DataCycleCore
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Zweiter Inhalt' })
       @watch_list.things << content2
 
-      assert @watch_list.things.pluck(:id).include?(content2.id)
+      assert_includes @watch_list.things.pluck(:id), content2.id
 
       post add_to_watchlist_stored_filters_path, params: {
         f: {
@@ -459,8 +483,8 @@ module DataCycleCore
 
       assert_redirected_to root_path
       assert_equal I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:notice]
-      assert @watch_list.things.pluck(:id).include?(@content.id)
-      assert @watch_list.things.pluck(:id).include?(content2.id)
+      assert_includes @watch_list.things.pluck(:id), @content.id
+      assert_includes @watch_list.things.pluck(:id), content2.id
     end
 
     test 'clear watch_list' do
@@ -469,6 +493,7 @@ module DataCycleCore
       assert_equal(1, @watch_list.things.count)
 
       delete clear_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
+
       assert_redirected_to watch_list_path(@watch_list)
 
       assert_equal(0, @watch_list.things.count)

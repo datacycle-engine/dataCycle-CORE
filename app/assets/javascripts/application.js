@@ -39,7 +39,7 @@ import foundationInit from "./initializers/foundation_init";
 import validationInit from "./initializers/validation_init";
 
 export default (dataCycleConfig = {}, postDataCycleInit = null) => {
-	DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
+	DataCycle = window.DataCycle = DataCycleSingleton.instance(dataCycleConfig);
 
 	initCustomElements();
 	UrlReplacer.cleanSearchFormParams();

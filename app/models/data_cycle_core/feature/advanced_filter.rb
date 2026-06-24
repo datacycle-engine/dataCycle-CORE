@@ -76,6 +76,7 @@ module DataCycleCore
 
       def self.available_advanced_attribute_filters
         return {} unless enabled?
+
         configuration['advanced_attributes'] || {}
       end
 
@@ -88,7 +89,7 @@ module DataCycleCore
           [
             I18n.t("filter.classification_alias_ids.#{c.name.underscore_blanks}", default: I18n.t("filter.#{c.name.underscore_blanks}", default: c.name, locale:), locale:),
             'classification_alias_ids',
-            {data: { name: c.name, visible: c.visible?('filter') }}
+            { data: { name: c.name, visible: c.visible?('filter') } }
           ]
         end
       end
@@ -102,7 +103,7 @@ module DataCycleCore
           [
             I18n.t("filter.relation_filter.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale:), locale:),
             'relation_filter',
-            {data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }}
+            { data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v } }
           ]
         end
       end
@@ -116,7 +117,7 @@ module DataCycleCore
           [
             I18n.t("filter.relation_filter_inv.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale:), locale:),
             'relation_filter_inv',
-            {data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }}
+            { data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v } }
           ]
         end
       end
@@ -132,7 +133,7 @@ module DataCycleCore
           [
             I18n.t("filter.graph_filter.dropdown_text.#{k.underscore_blanks}", default: k.capitalize, locale:),
             'graph_filter',
-            {data: { name: k }}
+            { data: { name: k } }
           ]
         end
       end
@@ -144,7 +145,7 @@ module DataCycleCore
           [
             I18n.t('filter.union_filter_ids', collections: DataCycleCore::WatchList.model_name.human(count: 2, locale:), default: 'union_filter_ids'.capitalize, locale:),
             'union_filter_ids',
-            {data: { name: 'union_filter_ids'.capitalize }}
+            { data: { name: 'union_filter_ids'.capitalize } }
           ]
         ]
       end
@@ -158,14 +159,14 @@ module DataCycleCore
                 value_arr << [
                   I18n.t("filter.geo_filter.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale:), locale:),
                   'geo_filter',
-                  {data: { name: c, advancedType: k }}
+                  { data: { name: c, advancedType: k } }
                 ]
               end
             elsif v
               value_arr << [
                 I18n.t("filter.geo_filter.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale:), locale:),
                 'geo_filter',
-                {data: { name: k, advancedType: k }}
+                { data: { name: k, advancedType: k } }
               ]
             end
           end
@@ -182,7 +183,7 @@ module DataCycleCore
             [
               I18n.t("filter.date_range.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale:), locale:),
               'date_range',
-              {data: { name: c }}
+              { data: { name: c } }
             ]
           end
         when Hash
@@ -190,7 +191,7 @@ module DataCycleCore
             [
               I18n.t("filter.date_range.#{c.to_s.underscore_blanks}", default: I18n.t("filter.#{c.to_s.underscore_blanks}", default: c, locale:), locale:),
               'date_range',
-              {data: { name: c }}
+              { data: { name: c } }
             ]
           end
         when Array
@@ -198,7 +199,7 @@ module DataCycleCore
             [
               I18n.t("filter.date_range.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale:), locale:),
               'date_range',
-              {data: { name: c }}
+              { data: { name: c } }
             ]
           end
         else
@@ -207,18 +208,19 @@ module DataCycleCore
       end
 
       def boolean(locale, value = [])
-        value = [{'duplicate_candidates' => {'depends_on' => 'DataCycleCore::Feature::DuplicateCandidate'}}] if value == 'all'
+        value = [{ 'duplicate_candidates' => { 'depends_on' => 'DataCycleCore::Feature::DuplicateCandidate' } }] if value == 'all'
 
         value.presence&.filter_map do |c|
           if c.is_a?(::Hash)
             next if c.values.first['depends_on'].present? && !c.values.first['depends_on'].safe_constantize&.enabled?
+
             c = c.keys.first
           end
 
           [
             I18n.t("filter.boolean.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale:), locale:),
             'boolean',
-            {data: { name: c }}
+            { data: { name: c } }
           ]
         end || []
       end
@@ -232,7 +234,7 @@ module DataCycleCore
           [
             I18n.t("filter.related_through_attribute.#{k.underscore_blanks}", default: k.capitalize, locale:),
             'related_through_attribute',
-            {data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }}
+            { data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v } }
           ]
         end
       end
@@ -245,7 +247,7 @@ module DataCycleCore
           [
             I18n.t("filter.#{key.underscore_blanks}", default: key.capitalize, locale:),
             key,
-            {data: { name: key.capitalize }}
+            { data: { name: key.capitalize } }
           ]
         ]
       end
@@ -259,7 +261,7 @@ module DataCycleCore
           [
             I18n.t("filter.user.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale:), locale:),
             'user',
-            {data: { name: k, advancedType: k }}
+            { data: { name: k, advancedType: k } }
           ]
         end
       end
@@ -273,7 +275,7 @@ module DataCycleCore
           [
             I18n.t("filter.advanced_attributes.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k, locale:), locale:),
             'advanced_attributes',
-            {data: { name: k, advancedType: v['type'] }}
+            { data: { name: k, advancedType: v['type'] } }
           ]
         end
       end
@@ -287,20 +289,21 @@ module DataCycleCore
           [
             I18n.t("filter.in_schedule_types.#{k.underscore_blanks}", default: k, locale:),
             'inactive_things',
-            {data: { name: k, advancedType: k }}
+            { data: { name: k, advancedType: k } }
           ]
         end
       end
 
       def in_schedule(locale, value)
         return [] unless value
+
         value.filter_map do |k, v|
           next unless v
 
           [
             I18n.t("filter.in_schedule_types.#{k.underscore_blanks}", default: k, locale:),
             'in_schedule',
-            {data: { name: k, advancedType: k }}
+            { data: { name: k, advancedType: k } }
           ]
         end
       end
@@ -314,20 +317,21 @@ module DataCycleCore
           [
             I18n.t("filter.in_schedule_types.#{k.underscore_blanks}", default: k, locale:),
             'validity_period',
-            {data: { name: k, advancedType: k }}
+            { data: { name: k, advancedType: k } }
           ]
         end
       end
 
       def offer_period(locale, value)
         return [] unless value
+
         value.filter_map do |k, v|
           next unless v
 
           [
             I18n.t("filter.in_schedule_types.#{k.underscore_blanks}", default: k, locale:),
             'offer_period',
-            {data: { name: k, advancedType: k }}
+            { data: { name: k, advancedType: k } }
           ]
         end
       end
@@ -354,10 +358,11 @@ module DataCycleCore
 
       def graph_filter_restrictions(type, name)
         return unless configuration.dig(type, name).is_a?(::Hash)
+
         configuration.dig(type, name, 'filter')
       end
 
-      def self.graph_filter_relations(relations: nil)
+      def self.graph_filter_relations_query(relations: nil)
         query = DataCycleCore::ContentContent::Link
           .includes(:content_a, :content_b)
           .distinct.where.not(relation: nil)
@@ -367,14 +372,30 @@ module DataCycleCore
         query = query.where(relation: relations) if relations.present?
 
         query
+      end
+
+      def self.grouped_graph_filter_relations(query)
+        query
           .pluck('content_content_links.relation, content_a.template_name')
           .group_by(&:first)
           .transform_values { |v| v.map(&:second).uniq }
       end
 
+      def self.graph_filter_relations
+        query = graph_filter_relations_query
+        grouped_graph_filter_relations(query)
+      end
+
+      def self.selected_graph_filter_relations(relations: nil)
+        return [] if relations.blank?
+
+        query = graph_filter_relations_query(relations: relations)
+        grouped_graph_filter_relations(query)
+      end
+
       def cache_key_base
         cache_key = "#{feature_path}_#{Digest::SHA2.hexdigest(configuration.to_json)}"
-        cache_key += "_#{DataCycleCore::ClassificationTreeLabel.maximum(:updated_at).iso8601}" if configuration['classification_alias_ids']
+        cache_key += "_#{DataCycleCore::ClassificationTreeLabel.maximum(:updated_at)&.iso8601}" if configuration['classification_alias_ids']
         cache_key += "_#{DataCycleCore::ContentContent::Link.any?}" if configuration['graph_filter']
         cache_key
       end

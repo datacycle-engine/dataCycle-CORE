@@ -42,18 +42,17 @@
       <h4>
         <i class='fa fa-database' aria-hidden='true'></i> core database
       </h4>
+
+      <% if can?(:show_admin_activities, :dash_board) %>
+        <%= link_to 'activities', admin_activities_path, class: 'button small hollow' %>
+      <% end %>
     </div>
-    <% if can? :show_admin_activities, :dash_board %>
-      <div class="small-12 columns">
-        <%= link_to 'activities', admin_activities_path, class: 'button small' %>
-      </div>
-    <% end %>
   </div>
 
   <div class="grid-external-modules">
     <div class="grid-parent">
-      <%= render 'data_cycle_core/dash_board/pg_total_stats' %>
-      <%= render 'data_cycle_core/dash_board/job_queue_stats' %>
+      <%= render 'data_cycle_core/dash_board/pg_total_stats', stat_database: @stat_database %>
+      <%= render 'data_cycle_core/dash_board/job_queue_stats', stat_job_queue: @stats_job_queue %>
     </div>
   </div>
 
@@ -64,7 +63,7 @@
           <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i> import modules
           <% if can?(:create, DataCycleCore::ExternalSystem) && DataCycleCore.external_system_template_paths.present? %>
             <% random_id = SecureRandom.hex(10) %>
-            <a href="#" class="add-external_system-button" data-open="<%= random_id %>"><i class="fa fa-plus"></i></a>
+            <a href="#" class="add-external_system-button button small" data-open="<%= random_id %>"><i class="fa fa-plus"></i></a>
             <div class="reveal new-item remote-render" id="<%= random_id %>" data-reveal data-remote-path="data_cycle_core/external_systems/new"></div>
           <% end %>
         </h4>
@@ -124,6 +123,21 @@
       <div class="grid-parent">
         <%= render partial: 'export_modules', collection: @grouped_external_systems&.dig(:foreign), as: :external_system %>
       </div>
+    </div>
+  <% end %>
+
+  <% if can?(:show, :live_logs) %>
+    <div class="row">
+      <div class="small-12 columns">
+        <h4>
+          <i class='fa fa-align-left' aria-hidden='true'></i> live logs
+        </h4>
+      </div>
+    </div>
+
+    <div class="grid-external-modules">
+      <%= turbo_stream_from "admin_dashboard_live_log" %>
+      <%= render 'data_cycle_core/dash_board/live_logs' %>
     </div>
   <% end %>
 </section>

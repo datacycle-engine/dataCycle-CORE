@@ -34,6 +34,7 @@ module DataCycleCore
       assert_response :bad_request
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
+
       assert_equal 'error', json_data['error']
 
       get i18n_translate_path, xhr: true, params: {
@@ -41,9 +42,11 @@ module DataCycleCore
       }, headers: {
         referer: root_path
       }
+
       assert_response :not_found
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
+
       assert_equal 'not.existing.path', json_data['error']
     end
 

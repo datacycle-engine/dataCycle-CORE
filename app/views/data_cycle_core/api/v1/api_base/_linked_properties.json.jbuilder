@@ -12,6 +12,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
   data = content.send(property).includes(:translations, :classifications)
 
   next if data.empty?
+
   json.set! property.pluralize.camelize(:lower) do
     json.array!(data) do |item|
       @duplicate_linked_in_path ||= []

@@ -32,7 +32,7 @@ module DataCycleCore
           end
 
           test 'validate feature is enabled' do
-            assert(DataCycleCore::Feature::Serialize.available_serializers.include?('geojson'))
+            assert_includes(DataCycleCore::Feature::Serialize.available_serializers, 'geojson')
           end
 
           test 'geojson of stored tour exists' do
@@ -45,6 +45,7 @@ module DataCycleCore
             assert_response(:success)
             assert_equal('application/geo+json; charset=utf-8', response.content_type)
             geojson_data = RGeo::GeoJSON.decode(response.body)
+
             assert_equal('Test-TOUR', geojson_data['name'])
           end
 
@@ -61,7 +62,7 @@ module DataCycleCore
 
             assert_equal('Feature', geojson_data['type'])
             assert_kind_of(Hash, geojson_data['geometry'])
-            assert_equal('MultiLineString', geojson_data.dig('geometry', 'type'))
+            assert_equal('LineString', geojson_data.dig('geometry', 'type'))
             assert_kind_of(Array, geojson_data.dig('geometry', 'coordinates'))
             assert_kind_of(Hash, geojson_data['properties'])
             assert_equal(@test_tour.id, geojson_data['id'])
@@ -81,7 +82,7 @@ module DataCycleCore
             coder = RGeo::GeoJSON.coder(geo_factory: factory)
             geojson_data = coder.decode(response.body)
 
-            assert_equal('MultiLineString', geojson_data.geometry.geometry_type.type_name)
+            assert_equal('LineString', geojson_data.geometry.geometry_type.type_name)
             assert_equal(@test_tour.id, geojson_data.feature_id)
             assert_equal('Test-TOUR', geojson_data['name'])
           end
@@ -154,7 +155,7 @@ module DataCycleCore
             geojson_data = response.parsed_body
 
             assert_equal(1, geojson_data.dig('properties', 'dc:classification').count)
-            assert(geojson_data.dig('properties', 'dc:classification', 0, 'dc:path').include?('Wochentage'))
+            assert_includes(geojson_data.dig('properties', 'dc:classification', 0, 'dc:path'), 'Wochentage')
           end
 
           test 'geojson of stored article is valid geojson' do

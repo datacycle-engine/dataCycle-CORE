@@ -30,6 +30,7 @@ module DataCycleCore
 
     def changes_mode(diff)
       return '' if diff.blank?
+
       diff.is_a?(Hash) || diff[0].is_a?(Array) ? INDICATOR_CLASSES['~'] : INDICATOR_CLASSES[diff[0]]
     end
 
@@ -44,6 +45,7 @@ module DataCycleCore
 
     def change_by_mode(diff, mode)
       return [] if diff&.dig(0) != mode
+
       diff[1]
     end
 
@@ -293,6 +295,7 @@ module DataCycleCore
     def thing_from_histories(left, right)
       return left.thing, nil, false if left.nil? || right.nil?
       return left, right, false if left.history? && right.history?
+
       left.history? ? [right, left, true] : [left, right, true]
     end
 

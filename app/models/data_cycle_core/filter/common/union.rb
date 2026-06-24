@@ -109,7 +109,7 @@ module DataCycleCore
 
           return subquery.where('1 = 0').to_sql if watch_lists.blank?
 
-          subquery.where(watch_list_id: watch_lists.pluck(:id)).to_sql
+          subquery.where(watch_list_id: watch_lists.pluck(:id).uniq).to_sql
         end
 
         def filter_ids_query(ids)
@@ -117,10 +117,10 @@ module DataCycleCore
 
           filters = ids.all?(DataCycleCore::StoredFilter) ? ids : DataCycleCore::StoredFilter.where(id: ids)
 
-          return DataCycleCore::Thing.where('1 = 0').select(:id).to_sql if filters.blank?
+          return DataCycleCore::Thing.none.select(:id).to_sql if filters.blank?
 
-          filters.map { |f|
-            f.things(skip_ordering: true)
+          filters.uniq.map { |f|
+            f.cached(cached_result).things_nested
               .except(*UNION_FILTER_EXCEPTS)
               .select(:id)
               .to_sql
@@ -132,12 +132,12 @@ module DataCycleCore
         def collection_ids_query(ids)
           return if ids.blank?
 
-          collections = DataCycleCore::Collection.where(id: ids)
+          collections = Array.wrap(ids).all?(DataCycleCore::Collection) ? ids : DataCycleCore::Collection.where(id: ids).to_a
 
-          return DataCycleCore::Thing.where('1 = 0').select(:id).to_sql if collections.blank?
+          return DataCycleCore::Thing.none.select(:id).to_sql if collections.blank?
 
-          stored_filters = collections.filter { |f| f.is_a?(DataCycleCore::StoredFilter) }
-          watch_lists = collections.filter { |f| f.is_a?(DataCycleCore::WatchList) }
+          stored_filters = collections.grep(DataCycleCore::StoredFilter)
+          watch_lists = collections.grep(DataCycleCore::WatchList)
           queries = []
           queries.push(watch_list_ids_query(watch_lists)) if watch_lists.present?
           queries.push(filter_ids_query(stored_filters)) if stored_filters.present?

@@ -1,12 +1,87 @@
+<%#= ai_lector_dropdown(content, key) %>
 <% dropdown_id = "#{sanitize_to_id(key)}-ai-lector-dropdown" %>
-<%= button_tag(tag.i(class: 'fa fa-magic'), type: 'button', data: { toggle: dropdown_id }, class: 'ai-lector-dropdown-button') %>
-<%= tag.div(class: 'dropdown-pane ai-lector-dropdown', id: dropdown_id, data: { hover: false, dropdown: true, close_on_click: true, position: 'bottom' }) do %>
-  <ul class="no-bullet">
-    <% DataCycleCore::Feature['AiLector'].tips_config(content, key)&.each do |k, v| %>
-      <li class="ai-lector-tip-container">
-        <%= button_tag(t("feature.ai_lector.tips.#{k}", default: k.to_s, locale: active_ui_locale), class: 'ai-lector-tips-button ai-lector-button', type: 'button', data: { template_name: content.template_name, tip_key: k, key: key, locale: I18n.locale }) %>
-        <div class="ai-lector-result"></div>
-      </li>
-    <% end %>
-  </ul>
-<% end %>
+<div class="ai-lector-dropdown-container">
+  <button type="button" class="ai-lector-dropdown-button" data-toggle="<%= dropdown_id %>">
+    <i class="fa fa-magic" aria-hidden="true"></i>
+  </button>
+
+  <div id="<%= dropdown_id %>"
+       class="dropdown-pane ai-lector-dropdown"
+       data-hover="false"
+       data-dropdown="true"
+       data-close-on-click="true"
+       data-position="bottom">
+    <ul class="no-bullet">
+      <% if (tips = DataCycleCore::Feature['AiLector'].config_by_type(content, key, 'tips', I18n.locale)).present? %>
+        <li class="ai-lector-section-header">
+          <%= t('feature.ai_lector.tips.title', locale: active_ui_locale) %>
+        </li>
+        <% tips.each do |k, v| %>
+          <% identifier = SecureRandom.hex(10) %>
+          <li class="ai-lector-row">
+            <button type="button"
+                    id="<%= identifier %>"
+                    class="ai-lector-button ai-lector-tip-button"
+                    data-template-name="<%= content.template_name %>"
+                    data-content-id="<%= content.id %>"
+                    data-tip-key="<%= k %>"
+                    data-key="<%= key %>"
+                    data-prompt-type="tips"
+                    data-locale="<%= I18n.locale %>">
+              <%= t("feature.ai_lector.tips.#{k}", default: k, locale: active_ui_locale) %>
+            </button>
+            <div class="ai-lector-result">
+              <button class="close-button ai-lector-close-result" aria-label="Close results" type="button">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <div class="ai-lector-result-content ellipsis-loading">
+                <%= t('feature.ai_lector.tips.thinking', locale: active_ui_locale) %>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      <% end %>
+
+      <% if (improvements = DataCycleCore::Feature['AiLector'].config_by_type(content, key, 'improvements', I18n.locale)).present? %>
+        <li class="ai-lector-section-header">
+          <%= t('feature.ai_lector.improvements.title', locale: active_ui_locale) %>
+        </li>
+        <% improvements.each do |k, v| %>
+          <% identifier = SecureRandom.hex(10) %>
+          <li class="ai-lector-row">
+            <button type="button"
+                    id="<%= identifier %>"
+                    class="ai-lector-button ai-lector-improvement-button"
+                    data-template-name="<%= content.template_name %>"
+                    data-content-id="<%= content.id %>"
+                    data-tip-key="<%= k %>"
+                    data-key="<%= key %>"
+                    data-identifier="<%= identifier %>"
+                    data-prompt-type="improvement"
+                    data-locale="<%= I18n.locale %>">
+              <%= t("feature.ai_lector.improvements.#{k}", default: k, locale: active_ui_locale) %>
+            </button>
+            <%= turbo_frame_tag("#{identifier}-context-overlay",  loading: 'lazy',
+              src: remote_render_path(
+                options: { overlay_id: "#{identifier}-context-overlay", key: k }.to_json,
+                partial: 'data_cycle_core/contents/editors/features/ai_lector_context_frame',
+              ),
+              class: 'ai-lector-context-overlay reveal', data: { reveal: true }) if v[:allow_direct_user_input] %>
+            <%= turbo_frame_tag("#{identifier}-diff-overlay", loading: 'lazy',
+              src: remote_render_path(
+                options: { overlay_id: "#{identifier}-diff-overlay", identifier: , allow_feedback_loop: v[:allow_feedback_loop] }.to_json,
+                partial: 'data_cycle_core/contents/editors/features/ai_lector_diff_frame',
+              ),
+              class: 'ai-lector-diff-overlay reveal', data: { reveal: true }) %>
+            <%= turbo_frame_tag("#{identifier}-finetune-overlay",  loading: 'lazy',
+              src: remote_render_path(
+                options: { overlay_id: "#{identifier}-finetune-overlay" }.to_json,
+                partial: 'data_cycle_core/contents/editors/features/ai_lector_finetune_frame',
+              ),
+              class: 'ai-lector-finetune-overlay reveal', data: { reveal: true }) if v[:allow_feedback_loop] %>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
+  </div>
+</div>

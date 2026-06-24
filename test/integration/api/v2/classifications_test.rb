@@ -20,6 +20,7 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = response.parsed_body
+
           assert_equal(['data', 'links', 'meta'], json_data.keys.sort)
         end
 
@@ -30,6 +31,7 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = response.parsed_body
+
           assert_equal(classification_tree.id, json_data.dig('data', 'id'))
           assert_equal(classification_tree.name, json_data.dig('data', 'name'))
         end
@@ -44,6 +46,7 @@ module DataCycleCore
 
           total = classification_tree.classification_trees.count
           pages = (total / 25.0).ceil
+
           assert_equal({ 'total' => total, 'pages' => pages }, json_data['meta'])
           assert_equal(25, json_data['data'].count)
         end

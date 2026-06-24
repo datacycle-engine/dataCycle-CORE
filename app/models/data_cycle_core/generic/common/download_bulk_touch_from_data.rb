@@ -14,16 +14,7 @@ module DataCycleCore
         end
 
         def self.load_contents(options: {}, **)
-          data = DownloadDataFromData.load_data_from_mongo(options:, **)
-
-          if options.dig(:download, :data_id_transformation)
-            data.each do |s|
-              s['id'] =
-                DownloadDataFromData.data_id(options.dig(:download, :data_id_transformation), s)
-            end
-          end
-
-          data.pluck('id')
+          DownloadDataFromData.load_ids_from_mongo(options:, **)
         end
       end
     end

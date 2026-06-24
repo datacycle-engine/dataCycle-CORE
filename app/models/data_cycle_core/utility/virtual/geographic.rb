@@ -26,7 +26,11 @@ module DataCycleCore
           #   :parameters:
           #     - location
           def coordinates_to_value(virtual_parameters:, virtual_definition:, content:, **_args)
-            content.send(virtual_parameters[0])&.send(virtual_definition.dig('virtual', 'key'))
+            ["#{virtual_parameters[0]}_overlay", virtual_parameters[0].to_s].each do |k|
+              value = content.try(k)
+              return value.send(virtual_definition.dig('virtual', 'key')) if value.present?
+            end
+            nil
           end
         end
       end

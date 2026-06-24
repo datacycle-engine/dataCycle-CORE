@@ -12,6 +12,7 @@ module DataCycleCore
 
         def normalize(id, data_list, comment = 'data_cycle')
           return if data_list.blank?
+
           load_data(id.presence || SecureRandom.uuid, comment, data_list)
         end
 
@@ -27,8 +28,10 @@ module DataCycleCore
             }.to_json
           end
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point}", response) unless response.success?
+
           data = JSON.parse(response.body)
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point}", response) unless data['status'] == 'OK'
+
           data
         end
       end

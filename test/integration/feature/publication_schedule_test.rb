@@ -17,16 +17,19 @@ module DataCycleCore
       test 'add publication schedules to content' do
         publication_date = Time.zone.now
         classification_tree_labels = DataCycleCore::Feature::PublicationSchedule.classification_tree_labels(@content)
-        assert classification_tree_labels.present?
+
+        assert_predicate classification_tree_labels, :present?
 
         classifications = classification_tree_labels.transform_values do |c|
           DataCycleCore::ClassificationAlias.for_tree(c)&.map(&:primary_classification)
         end
+
         assert classifications.values.all?(&:present?)
 
         publication_schedules = Array.new(2) do |i|
           {
             datahash: classifications.transform_values { |c| [c[i].id] }.merge({
+              'template_name' => 'Publikations-Plan',
               DataCycleCore::Feature::PublicationSchedule.publication_date_key(@content) => publication_date
             })
           }
@@ -44,7 +47,7 @@ module DataCycleCore
         }
 
         assert_redirected_to thing_path(@content, locale: I18n.locale)
-        assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
+        assert_equal I18n.t('controllers.success.updated', data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
         assert_equal 2, @content.try(DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first).reload.size
       end
 
@@ -52,11 +55,13 @@ module DataCycleCore
         publication_date = Time.zone.now.to_date.to_s
 
         classification_tree_labels = DataCycleCore::Feature::PublicationSchedule.classification_tree_labels(@content)
-        assert classification_tree_labels.present?
+
+        assert_predicate classification_tree_labels, :present?
 
         classifications = classification_tree_labels.transform_values do |c|
           DataCycleCore::ClassificationAlias.for_tree(c)&.map(&:primary_classification)
         end
+
         assert classifications.values.all?(&:present?)
 
         @content_with_publication_schedule = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: {
@@ -68,7 +73,7 @@ module DataCycleCore
           ]
         })
 
-        assert @content_with_publication_schedule.reload.try(DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first).present?
+        assert_predicate @content_with_publication_schedule.reload.try(DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first), :present?
 
         get publications_path, params: {
           publications_from: publication_date,

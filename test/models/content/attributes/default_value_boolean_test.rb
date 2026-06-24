@@ -24,35 +24,35 @@ module DataCycleCore
           set_default_value('SimpleJsonTest', 'bool', 'true')
           content = DataCycleCore::TestPreparations.create_content(template_name: 'SimpleJsonTest', data_hash: { name: 'Test SimpleJsonTest 1' })
 
-          assert_equal true, content.bool
+          assert content.bool
         end
 
         test 'default booleans dont override existing values on new contents' do
           set_default_value('SimpleJsonTest', 'bool', 'true')
           content = DataCycleCore::TestPreparations.create_content(template_name: 'SimpleJsonTest', data_hash: { name: 'Test SimpleJsonTest 1', bool: 'false' })
 
-          assert_equal false, content.bool
+          assert_not content.bool
         end
 
         test 'default booleans dont override existing false boolean values on new contents' do
           set_default_value('SimpleJsonTest', 'bool', 'true')
           content = DataCycleCore::TestPreparations.create_content(template_name: 'SimpleJsonTest', data_hash: { name: 'Test SimpleJsonTest 1', bool: false })
 
-          assert_equal false, content.bool
+          assert_not content.bool
         end
 
         test 'default booleans dont override existing true boolean values on new contents' do
           set_default_value('SimpleJsonTest', 'bool', 'false')
           content = DataCycleCore::TestPreparations.create_content(template_name: 'SimpleJsonTest', data_hash: { name: 'Test SimpleJsonTest 1', bool: true })
 
-          assert_equal true, content.bool
+          assert content.bool
         end
 
         test 'default booleans get overriden by blank values on existing contents with partial update' do
           set_default_value('SimpleJsonTest', 'bool', 'true')
           content = DataCycleCore::TestPreparations.create_content(template_name: 'SimpleJsonTest', data_hash: { name: 'Test SimpleJsonTest 1' })
 
-          assert_equal true, content.bool
+          assert content.bool
 
           content.set_data_hash(data_hash: { name: 'Test SimpleJsonTest 2', bool: nil }, update_search_all: false, prevent_history: true, partial_update: true)
 

@@ -46,7 +46,7 @@ module DataCycleCore
 
         progress = ((index.to_f / things_size) * 100).round
       ensure
-        ActionCable.server.broadcast(channel_name, { collection_id:, concept_scheme_id:, progress:})
+        ActionCable.server.broadcast(channel_name, { collection_id:, concept_scheme_id:, progress: })
       end
 
       ActionCable.server.broadcast(channel_name, {

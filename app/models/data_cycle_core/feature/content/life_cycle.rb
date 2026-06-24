@@ -37,6 +37,10 @@ module DataCycleCore
           DataCycleCore::Feature::LifeCycle.ordered_classifications(self)&.values&.pluck(:id)&.index(classification_id)
         end
 
+        def archived?
+          life_cycle_stage_name?(DataCycleCore::Feature::LifeCycle.archive_name(self))
+        end
+
         def icon_type
           base_type = super
 

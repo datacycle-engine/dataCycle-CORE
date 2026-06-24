@@ -45,6 +45,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:xml] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:serializers][:xml] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@stored_filter)
 
                 get download_stored_filter_path(@stored_filter), params: { serialize_format: 'xml' }, headers: {
@@ -53,7 +54,8 @@ module DataCycleCore
 
                 assert_response :success
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal @content.name, xml.xpath('//thing/name').text
               end
 
@@ -61,6 +63,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:xml] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:serializers][:xml] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@stored_filter)
 
                 get "/downloads/stored_filters/#{@stored_filter.id}", params: { serialize_format: 'xml' }, headers: {
@@ -69,7 +72,8 @@ module DataCycleCore
 
                 assert_response :success
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal @content.name, xml.xpath('//thing/name').text
               end
 

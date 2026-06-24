@@ -1,12 +1,12 @@
 import cloneDeep from "lodash/cloneDeep";
 import unionBy from "lodash/unionBy";
-import DomElementHelpers from "../../helpers/dom_element_helpers";
-import uploadDuplicate from "../../templates/uploadDuplicate";
 import MimeTypes from "mime";
-import AssetDetailLoader from "./asset_detail_loader";
-import AssetValidator from "../asset_validator";
+import DomElementHelpers from "../../helpers/dom_element_helpers";
 import DurationHelpers from "../../helpers/duration_helpers";
+import uploadDuplicate from "../../templates/uploadDuplicate";
+import AssetValidator from "../asset_validator";
 import ConfirmationModal from "../confirmation_modal";
+import AssetDetailLoader from "./asset_detail_loader";
 
 class AssetFile {
 	constructor(uploader, config = {}) {
@@ -448,6 +448,7 @@ class AssetFile {
 		).removeAttr("data-open");
 
 		clonedHtml.html(this._updateIdsInClonedErrors(clonedHtml.html()));
+		clonedHtml.addClass("reveal-header");
 		this.fileFormField = $(clonedHtml).prependTo(html);
 
 		this.fileField
@@ -520,7 +521,7 @@ class AssetFile {
 	async updateProgress(startTime, e) {
 		if (!e.lengthComputable) return;
 
-		const elapsedtime = (new Date().getTime() - startTime) / 1000;
+		const elapsedtime = (Date.now() - startTime) / 1000;
 		const eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
 		this.fileField
 			.add(this.fileFormField)
@@ -567,7 +568,7 @@ class AssetFile {
 		data.append("asset[type]", this.uploader.validation.class);
 		data.append("asset[name]", this.file.name);
 		this._prepareFileForUpload();
-		const startTime = new Date().getTime();
+		const startTime = Date.now();
 
 		const promise = new Promise((resolve, reject) => {
 			const req = new XMLHttpRequest();

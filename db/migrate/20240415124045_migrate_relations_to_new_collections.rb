@@ -2,7 +2,7 @@
 
 class MigrateRelationsToNewCollections < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE data_links
       SET item_type = 'DataCycleCore::Collection'
       WHERE item_type IN (
@@ -20,7 +20,7 @@ class MigrateRelationsToNewCollections < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE data_links
       SET item_type = collections.type
       FROM collections

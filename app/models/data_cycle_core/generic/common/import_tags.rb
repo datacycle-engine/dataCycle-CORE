@@ -83,6 +83,7 @@ module DataCycleCore
 
           def process_content(utility_object:, raw_data:, locale:, options:)
             return if options&.blank? || options[:import].blank?
+
             allowed_locales = options.dig(:import, :locales) || utility_object.external_source.try(:default_options)&.symbolize_keys&.dig(:locales) || [locale]
             return unless allowed_locales.include?(locale)
 
@@ -111,6 +112,7 @@ module DataCycleCore
 
           def parse_common_tag_path(options)
             return options.dig(:import, :tag_path) if options.dig(:import, :tag_path).present?
+
             options.dig(:import, :tag_id_path).split('.')
               .zip(options.dig(:import, :tag_name_path).split('.'))
               .take_while { |id_component, name_component| id_component == name_component }
@@ -126,6 +128,7 @@ module DataCycleCore
             end
 
             return nil if raw_data&.dig(*common_path).blank?
+
             if raw_data&.dig(*common_path).is_a?(::Array)
               raw_data.dig(*common_path).map do |item|
                 id_value = (id_path - common_path).blank? ? item : item.dig(*(id_path - common_path))

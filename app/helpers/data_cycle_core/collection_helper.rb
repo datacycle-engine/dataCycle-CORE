@@ -17,11 +17,11 @@ module DataCycleCore
         collections = collections.order(updated_at: :desc)
       end
 
-      if DataCycleCore::Feature::CollectionGroup.enabled?
-        collection_groups = collections.group_by { |c| c.full_path_names&.dig(collection_group_index) }
-      else
-        collection_groups = { nil => collections }
-      end
+      collection_groups = if DataCycleCore::Feature::CollectionGroup.enabled?
+                            collections.group_by { |c| c.full_path_names&.dig(collection_group_index) }
+                          else
+                            { nil => collections }
+                          end
 
       return collections, collection_groups, collection_group_index + 1, nested, group_title
     end
@@ -91,9 +91,27 @@ module DataCycleCore
     def watch_list_list_title(watch_list)
       safe_join([
         watch_list.collection_shares.any? ? tag.i(class: 'fa fa-users') : nil,
-        watch_list.name,
-        watch_list.api ? tag.span('API', class: 'content-title-api') : nil
+        tag.span(watch_list.name, class: 'content-title', title: watch_list.name),
+        watch_list.api ? tag.span('API', class: 'content-title-api tag hollow') : nil
       ].compact)
+    end
+
+    def cached_update_tooltip(stored_search)
+      safe_join(
+        [
+          tag.b(t('data_cycle_core.stored_searches.cache_ttl.rebuild_cache', locale: active_ui_locale)),
+          cached_tooltip(stored_search)
+        ], '<br>'
+      )
+    end
+
+    def cached_tooltip(stored_search)
+      t(
+        'data_cycle_core.stored_searches.cache_ttl.tooltip',
+        locale: active_ui_locale,
+        time: l(stored_search.cache_updated_at, format: :short),
+        interval: distance_of_time_in_words(stored_search.cache_ttl.minutes)
+      )
     end
   end
 end

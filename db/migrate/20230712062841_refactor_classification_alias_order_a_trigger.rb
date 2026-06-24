@@ -2,7 +2,7 @@
 
 class RefactorClassificationAliasOrderATrigger < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION update_classification_aliases_order_a (tree_label_ids UUID []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN IF array_length(tree_label_ids, 1) > 0 THEN
       UPDATE classification_aliases
       SET order_a = w.order_a
@@ -216,7 +216,7 @@ class RefactorClassificationAliasOrderATrigger < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION update_classification_aliases_order_a (tree_label_ids UUID []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
       UPDATE classification_aliases
       SET order_a = w.order_a

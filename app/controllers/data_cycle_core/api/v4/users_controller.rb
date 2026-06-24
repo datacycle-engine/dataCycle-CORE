@@ -43,10 +43,10 @@ module DataCycleCore
 
             render json: @user.as_user_api_json.merge(@user.generate_user_token.to_h).deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :created
           else
-            render json: { errors: @user.errors }, status: :unprocessable_entity
+            render json: { errors: @user.errors }, status: :unprocessable_content
           end
         rescue DataCycleCore::Error::Api::UserApiRankError => e
-          render(json: { errors: { rank: [e.message] } }, status: :unprocessable_entity)
+          render(json: { errors: { rank: [e.message] } }, status: :unprocessable_content)
         end
 
         def update
@@ -61,7 +61,7 @@ module DataCycleCore
           if current_user.save
             render json: current_user.as_user_api_json.merge(current_user.generate_user_token.to_h), status: :ok
           else
-            render json: { errors: current_user.errors }, status: :unprocessable_entity
+            render json: { errors: current_user.errors }, status: :unprocessable_content
           end
         end
 
@@ -84,7 +84,7 @@ module DataCycleCore
           user.resend_confirmation_instructions if DataCycleCore::User.reconfirmable
 
           if user.errors.present?
-            render json: { errors: user.errors }, status: :unprocessable_entity
+            render json: { errors: user.errors }, status: :unprocessable_content
           else
             head :ok
           end
@@ -97,7 +97,7 @@ module DataCycleCore
           user.user_api_feature = @user_api_feature
 
           if user.errors.present?
-            render json: { errors: user.errors }, status: :unprocessable_entity
+            render json: { errors: user.errors }, status: :unprocessable_content
           else
             render json: user.as_user_api_json.merge(user.generate_user_token.to_h), status: :ok
           end
@@ -110,7 +110,7 @@ module DataCycleCore
           user.user_api_feature = @user_api_feature
 
           if user.errors.present?
-            render json: { errors: user.errors }, status: :unprocessable_entity
+            render json: { errors: user.errors }, status: :unprocessable_content
           else
             head :ok
           end
@@ -124,7 +124,7 @@ module DataCycleCore
             .deep_transform_keys(&:underscore)
             .with_indifferent_access
 
-          helpers.layout_params(layout_hash, @user_api_feature&.current_issuer)
+          helpers.layout_params(sanitize_redirect_urls(layout_hash), @user_api_feature&.current_issuer)
         end
 
         def password_params
@@ -132,6 +132,17 @@ module DataCycleCore
             .permit(:email, :mailerLayout, :viewerLayout, :redirectUrl, :password, :passwordConfirmation, :resetPasswordToken, :confirmationToken, :forwardToUrl).to_h
             .deep_transform_keys(&:underscore)
             .with_indifferent_access
+        end
+
+        # drop caller-supplied redirect/forward URLs that are not on the configured
+        # allowlist so they never reach the mail workflow or post-reset redirect.
+        # layout_params is the only path that assigns these onto the user.
+        def sanitize_redirect_urls(hash)
+          [:redirect_url, :forward_to_url].each do |key|
+            hash[key] = nil if hash[key].present? && !@user_api_feature&.allowed_redirect_url?(hash[key])
+          end
+
+          hash
         end
 
         def user_params

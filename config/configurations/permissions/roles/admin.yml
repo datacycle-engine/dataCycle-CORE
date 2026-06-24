@@ -16,9 +16,9 @@ object_browser:
   parameters: :object_browser
 
 role_index:
-  actions: index
+  actions: [index, filter]
   segment: RolesExcept
-  parameters: :super_admin
+  parameters: [super_admin, system_admin]
 
 user_api_login:
   actions: [login, renew_login, reset_password, confirm]
@@ -226,7 +226,7 @@ user_actions:
     - set_role
     - set_user_groups
   segment: UsersExceptRoles
-  parameters: :super_admin
+  parameters: [[super_admin, system_admin]]
 
 user_group_actions:
   actions: [read, create, update, destroy]

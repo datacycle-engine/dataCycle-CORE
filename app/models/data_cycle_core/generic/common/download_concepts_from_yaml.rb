@@ -20,15 +20,19 @@ module DataCycleCore
           raise ArgumentError, 'missing file path!' if file_path.nil?
 
           path = Rails.root.join(file_path)
-          file = File.open(path)
-          data = YAML.safe_load(file)
+          modified_time = nil
 
-          data.map do |key, value|
-            {
-              'id' => key,
-              'name' => value.is_a?(::Hash) ? value[locale] : value,
-              'modifiedAt' => file.mtime.iso8601
-            }.compact
+          File.open(path) do |file|
+            modified_time = file.mtime.iso8601
+            data = YAML.safe_load(file)
+
+            data.map do |key, value|
+              {
+                'id' => key,
+                'name' => value.is_a?(::Hash) ? value[locale] : value,
+                'modifiedAt' => modified_time
+              }.compact
+            end
           end
         end
 

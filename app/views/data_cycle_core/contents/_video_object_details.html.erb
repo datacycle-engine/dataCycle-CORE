@@ -98,7 +98,7 @@
 
               <% if content.try(:url).present? %>
 
-                <a class="button button-small" href="<%= content.url %>" target="_blank">
+                <a class="button" href="<%= content.url %>" target="_blank">
                   <i class="fa fa-external-link" aria-hidden="true"></i>
 
                   <%= t('details.bild.open_url', locale: active_ui_locale) %>
@@ -107,7 +107,7 @@
 
               <% if content.try(:youtube_url).present? %>
 
-                <a class="button button-small" href="<%= content.youtube_url %>" target="_blank">
+                <a class="button" href="<%= content.youtube_url %>" target="_blank">
                   <i class="fa fa-external-link" aria-hidden="true"></i>
 
                   <%= t('details.bild.open_youtube_url', locale: active_ui_locale) %>
@@ -116,7 +116,7 @@
 
               <% if content.try(:content_url).present? %>
 
-                <a class="button button-small" href="<%= content.content_url %>" target="_blank">
+                <a class="button" href="<%= content.content_url %>" target="_blank">
                   <i class="fa fa-external-link" aria-hidden="true"></i>
 
                   <%= t('details.video.open_content_url', locale: active_ui_locale) %>
@@ -142,5 +142,38 @@
 
     </div>
 
+  </div>
+
+  <div class="detail-content detail-content-wrapper">
+    <div class="row align-center">
+      <div class="type properties">
+        <% ordered_validation_properties(
+            validation: content.schema,
+            content_area: local_assigns.dig(:options, :force_render).to_s == 'true' ? '' : 'content',
+            scope: :show,
+            exclude_types: local_assigns.dig(:options, :exclude_types)
+          ).except(DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.first).each do |key, prop| %>
+          <% next if ['overlay', 'asset', 'thumbnail_url', 'caption', 'description',
+                      'content_location', 'comment', 'source', 'image_id', 'visibility',
+                      'copyright_notice_override', 'copyright_notice_computed', 'copyright_notice',
+                      'copyright_holder', 'copyright_year', 'restrictions',
+                      'width', 'height', 'content_size', 'file_format',
+                      'date_created', 'date_modified', 'upload_date', 'content_url'].include?(key) %>
+
+          <% next if prop.dig('ui', 'show', 'disabled') || prop.dig('type') == 'attribute_group' %>
+
+          <% value = content.try(key.to_sym) %>
+          <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) && prop&.dig('type')&.in?(['linked', 'embedded']) %>
+
+          <%= render_attribute_viewer key: "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[#{key}]",
+                                      definition: prop,
+                                      value: value,
+                                      parameters: {
+                                        options: options
+                                      },
+                                      content: content %>
+        <% end %>
+      </div>
+    </div>
   </div>
 <% end %>

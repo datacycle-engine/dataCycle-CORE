@@ -7,9 +7,11 @@ module DataCycleCore
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n.order(order_a: :asc, id: :asc) }
     before_validation :set_internal_name
+    after_find :set_thing_counts
+
     validates :internal_name, presence: true
 
-    attr_accessor :prevent_webhooks
+    attr_accessor :prevent_webhooks, :thing_count_with_subtree, :thing_count_without_subtree
 
     belongs_to :external_system
     belongs_to :concept_scheme
@@ -39,9 +41,11 @@ module DataCycleCore
     has_many :things, through: :classification_contents, source: 'content_data'
 
     delegate :visible?, to: :concept_scheme
+    delegate :full_path_names, to: :classification_alias_path
 
     scope :in_context, ->(context) { includes(:concept_scheme).where('concept_schemes.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:concept_scheme) }
     scope :search, ->(q) { includes(:classification_alias_path).where("ARRAY_TO_STRING(ARRAY_REVERSE(full_path_names), ' > ') ILIKE :q OR (concepts.description_i18n ->> :locale) ILIKE :q OR (concepts.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q.squish.gsub(/\s/, '%')}%" }).references(:classification_alias_path) }
+    scope :by_full_path_arrays, ->(full_paths) { full_paths.blank? ? none : includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.map { |v| v.to_s.strip }.reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
     scope :by_full_paths, ->(full_paths) { full_paths.blank? ? none : includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
     scope :assignable, -> { where(assignable: true) }
 
@@ -62,7 +66,7 @@ module DataCycleCore
                                         :sanitize_sql_array,
                                         [
                                           order_string,
-                                          {term:}
+                                          { term: }
                                         ]
                                       )
                                     )
@@ -75,6 +79,10 @@ module DataCycleCore
     # keep readonly until reverse triggers are defined and working
     def readonly?
       true
+    end
+
+    def self.classifications
+      Classification.where(id: pluck(:classification_id))
     end
 
     def self.classification_polygons
@@ -121,6 +129,12 @@ module DataCycleCore
 
     def full_path
       classification_alias_path&.full_path_names&.reverse&.join(' > ')
+    end
+
+    def ancestors
+      return [] unless classification_alias_path
+
+      classification_alias_path.ancestor_concepts
     end
 
     def translated_locales
@@ -205,6 +219,11 @@ module DataCycleCore
       return unless name_i18n_changed?
 
       self.internal_name = name_i18n.values_at(*I18n.available_locales.map(&:to_s)).compact_blank.first
+    end
+
+    def set_thing_counts
+      self.thing_count_with_subtree = self['thing_count_with_subtree']
+      self.thing_count_without_subtree = self['thing_count_without_subtree']
     end
   end
 end

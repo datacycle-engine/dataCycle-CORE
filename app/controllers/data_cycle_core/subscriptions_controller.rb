@@ -28,10 +28,10 @@ module DataCycleCore
 
       respond_to do |format|
         if !@subscription.nil? && @subscription.save
-          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Abonnement', locale: helpers.active_ui_locale)) }
+          format.html { redirect_back_or_to(root_path, notice: (I18n.t 'controllers.success.created', data: 'Abonnement', locale: helpers.active_ui_locale)) }
           format.js
         else
-          format.html { redirect_back(fallback_location: root_path) }
+          format.html { redirect_back_or_to(root_path) }
         end
       end
     end
@@ -43,7 +43,7 @@ module DataCycleCore
       @subscription.destroy
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Abonnement', locale: helpers.active_ui_locale)) }
+        format.html { redirect_back_or_to(root_path, notice: (I18n.t 'controllers.success.destroyed', data: 'Abonnement', locale: helpers.active_ui_locale)) }
         format.js
       end
     end

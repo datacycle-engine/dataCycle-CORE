@@ -5,7 +5,7 @@ class FixBrokenConceptsAgain < ActiveRecord::Migration[7.1]
   # disable_ddl_transaction!
 
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE concepts
       SET concept_scheme_id = to_update.classification_tree_label_id
       FROM (

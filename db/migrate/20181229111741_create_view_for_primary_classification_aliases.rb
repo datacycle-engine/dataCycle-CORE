@@ -2,7 +2,7 @@
 
 class CreateViewForPrimaryClassificationAliases < ActiveRecord::Migration[5.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE VIEW primary_classification_groups AS
       SELECT DISTINCT ON (classification_id) *
       FROM classification_groups
@@ -11,7 +11,7 @@ class CreateViewForPrimaryClassificationAliases < ActiveRecord::Migration[5.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW primary_classification_groups;
     SQL
   end

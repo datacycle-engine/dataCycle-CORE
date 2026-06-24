@@ -33,6 +33,7 @@ class MigrateTimestampsToLastImportStepTimeInfo < ActiveRecord::Migration[7.1]
     end
 
     return if config.blank?
+
     config.each_key do |key|
       step_json = {
         last_try: last_try,
@@ -40,7 +41,7 @@ class MigrateTimestampsToLastImportStepTimeInfo < ActiveRecord::Migration[7.1]
         last_successful_try: last_successful_try,
         last_successful_try_time: last_successful_try_time
       }
-      external_system.merge_last_import_step_time_info(key_prefix + key, step_json)
+      external_system.set_import_step_time_info(key_prefix + key, step_json)
     end
   end
 end

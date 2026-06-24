@@ -10,12 +10,18 @@ module DataCycleCore
       include Permissions::Roles::Standard
       include Permissions::Roles::Admin
       include Permissions::Roles::SuperAdmin
+      include Permissions::Roles::SystemAdmin
       include Permissions::Roles::UserGroups
+      include Permissions::Roles::UserGroupPermission
+
+      USER_ROLE_SEGMENTS = [Segments::UsersByRole, Segments::UsersExceptRoles].freeze
 
       def self.list
         unless defined? @list
           @list = []
-          new.permissions
+          instance = new
+          instance.permissions
+          instance.load_system_admin_permissions
         end
 
         @list
@@ -41,6 +47,7 @@ module DataCycleCore
         load_standard_permissions
         load_admin_permissions
         load_super_admin_permissions
+        load_user_group_permissions
         load_permissions_for_user_groups if DataCycleCore::Feature::UserGroupPermission.enabled?
       end
 
@@ -102,6 +109,7 @@ module DataCycleCore
 
         DataCycleCore.permissions.dig(:roles, permissions)&.each_value do |permission|
           next if permission.blank?
+
           parameters = parse_parameters_from_yaml(permission[:parameters])
           condition_segment = condition_to_segment(role, permission)
 
@@ -121,6 +129,7 @@ module DataCycleCore
 
           permissions&.each_value do |permission|
             next if permission.blank?
+
             parameters = parse_parameters_from_yaml(permission[:parameters])
 
             permit(
@@ -187,20 +196,32 @@ module DataCycleCore
         user_segment = Segments::UsersByRole.new(role.name)
         user_segment.ability = ability
 
-        permissions = list.select { |l| l[:condition].class.in?([Segments::UsersByRole, Segments::UsersExceptRoles]) && l[:condition].include?(DataCycleCore::User.new(role:)) }
+        permissions = list.select do |l|
+          USER_ROLE_SEGMENTS.include?(l[:condition].class) &&
+            l[:condition].include?(DataCycleCore::User.new(role:))
+        end
 
         cloned_permissions = clone_permissions(permissions, ability)
 
         return user_segment, cloned_permissions
       end
 
-      def self.cloned_additional_permissions(key, permissions, ability)
+      def self.clone_additional_permissions(key, permissions, ability)
         key_segment = key.clone
         key_segment.ability = ability
-
         cloned_permissions = clone_permissions(permissions, ability)
 
         return key_segment, cloned_permissions
+      end
+
+      def self.additional_permissions(roles, ability)
+        additional_permissions = list.select do |l|
+          USER_ROLE_SEGMENTS.exclude?(l[:condition].class) &&
+            (roles.any? { |role| l[:condition].include?(DataCycleCore::User.new(role:)) } ||
+            l[:condition].include?(ability.user))
+        end
+
+        additional_permissions.group_by { |l| l[:condition] }
       end
 
       def self.grouped_list(roles, ability)
@@ -211,9 +232,8 @@ module DataCycleCore
           grouped_list[key_segment] = permissions
         end
 
-        additional_permissions = list.reject { |l| l[:condition].class.in?([Segments::UsersByRole, Segments::UsersExceptRoles]) }.group_by { |l| l[:condition] }
-        additional_permissions.each do |key, permissions|
-          key_segment, cloned_permissions = cloned_additional_permissions(key, permissions, ability)
+        additional_permissions(roles, ability).each do |key, permissions|
+          key_segment, cloned_permissions = clone_additional_permissions(key, permissions, ability)
           grouped_list[key_segment] = cloned_permissions
         end
 

@@ -29,6 +29,7 @@ module DataCycleCore
         'external_content_score' => []
       }
       resulted_hash = data_set.get_data_hash_partial(data_set.property_names - DataCycleCore::TestPreparations.excepted_attributes('place') - data_set.virtual_property_names).compact
+
       assert_equal(expected_hash, resulted_hash.except('opening_hours_specification', 'opening_hours_description', 'opening_hours', 'potential_action'))
       assert_nil(data_set.desc)
       assert_equal(['address', 'location'], data_set.object_browser_fields)
@@ -37,6 +38,7 @@ module DataCycleCore
 
       assert_equal(1, DataCycleCore::Thing.where(template_name: 'Örtlichkeit').count)
       data_set.destroy
+
       assert_equal(0, DataCycleCore::Thing.where(template_name: 'Örtlichkeit').count)
     end
 
@@ -75,7 +77,7 @@ module DataCycleCore
     test 'tour has correct WKT 1.2 string representation' do
       test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
 
-      assert test_tour.line.as_text.include?('MULTILINESTRING Z')
+      assert_includes test_tour.line.as_text, 'MULTILINESTRING Z'
     end
   end
 end

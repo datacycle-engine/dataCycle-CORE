@@ -15,11 +15,11 @@ module DataCycleCore
         # check consistency of data in DB
         assert_equal(1, DataCycleCore::Image.count)
         # check image data
-        assert(@image.file_size.positive?)
+        assert_predicate(@image.file_size, :positive?)
         assert_equal(file_name, @image.name)
         assert_equal('DataCycleCore::Image', @image.type)
         assert(@image.metadata.is_a?(Hash))
-        assert(@image.duplicate_check['phash'].positive?)
+        assert_predicate(@image.duplicate_check['phash'], :positive?)
       end
 
       test 'upload Image: rgb/jpg' do
@@ -81,7 +81,7 @@ module DataCycleCore
 
         assert_not(@image.persisted?)
         assert_not(@image.valid?)
-        assert(@image.errors.present?)
+        assert_predicate(@image.errors, :present?)
       end
     end
   end

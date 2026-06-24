@@ -2,7 +2,7 @@
 
 class RefactorCollectedClassificationContents < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TABLE collected_classification_contents;
 
       CREATE TABLE collected_classification_contents (
@@ -175,7 +175,7 @@ class RefactorCollectedClassificationContents < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TABLE collected_classification_contents;
 
       CREATE TABLE collected_classification_contents (

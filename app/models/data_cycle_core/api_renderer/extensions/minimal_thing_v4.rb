@@ -30,11 +30,12 @@ module DataCycleCore
                                   !@params[:permitted_params]&.dig(:page, :limit)&.to_i&.positive?
 
           ActiveRecord::Base.transaction do
-            ActiveRecord::Base.connection.exec_query(
-              ActiveRecord::Base.send(:sanitize_sql_array, ['SET LOCAL timezone = ?;', Time.zone.name])
-            )
-            result = ActiveRecord::Base.connection.select_all(minimal_query)
-            result&.rows&.first&.first || '{}'
+            ActiveRecord::Base.connection_pool.with_connection do |c|
+              c.exec_query(sanitize_sql(['SET LOCAL timezone = ?;', Time.zone.name]))
+              query = minimal_query
+              result = c.select_all(query)
+              result&.rows&.first&.first || '{}'
+            end
           end
         end
 
@@ -71,6 +72,7 @@ module DataCycleCore
 
         def section_visible?(section)
           return false if single_thing? && section.in?([:links, :meta])
+
           self.class.section_visible?(@params[:section_parameters], section)
         end
 
@@ -117,7 +119,7 @@ module DataCycleCore
 
           next_condition = apply_minimal_links_query! # if @graph is not requested, we do not need the contents
 
-          sql_query = <<-SQL.squish
+          sql_query = <<~SQL.squish
             'links',
             json_strip_nulls(
               json_build_object('prev', ?, 'next', (CASE WHEN #{next_condition} THEN ? ELSE NULL END))
@@ -192,6 +194,14 @@ module DataCycleCore
           @thing_query ||= single_thing? ? DataCycleCore::Thing.where(id: @content.id).page(1).per(1) : @contents
         end
 
+        def creates_things_with_meta_visible!
+          select_fields = '"things".*'
+
+          @with_tables[:things] = thing_query
+            .except(:order, :joins, :group, :limit, :offset)
+            .reselect(select_fields)
+        end
+
         def apply_graph_query!
           render_props = MINIMAL_ATTRIBUTES.slice(*requested_fields)
 
@@ -199,11 +209,7 @@ module DataCycleCore
           query = query.joins(:thing_template) if render_props.key?('@type')
           select_fields = "json_build_object(#{render_props.map { |k, v| "'#{k}', #{v}" }.join(', ')}) AS \"data\""
 
-          if section_visible?(:meta)
-            @with_tables[:things] = thing_query
-              .except(:order, :joins, :group, :limit, :offset)
-              .reselect('"things".*')
-          end
+          creates_things_with_meta_visible! if section_visible?(:meta)
 
           if !section_visible?(:meta) && section_visible?(:links)
             select_fields += ", ROW_NUMBER() OVER (ORDER BY #{thing_query.arel.orders.map { |o| o.is_a?(String) ? o : o.to_sql }.join(', ')}) AS \"row_number\""

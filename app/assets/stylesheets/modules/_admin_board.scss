@@ -79,8 +79,9 @@
 }
 
 .card .card-divider h5 {
-  color: var(--black);
+  color: var(--black-08);
   font-size: 1.2rem;
+  font-weight: 400;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -126,7 +127,8 @@
       justify-content: flex-end;
       gap: 0.5rem;
 
-      a {
+      a,
+      button {
         color: var(--dark-gray-05);
         font-size: 1rem;
 
@@ -143,7 +145,7 @@
 }
 
 .card.accordion .card-divider .subheader {
-  margin-right: 1.2rem;
+  margin-right: 1.5rem;
 }
 
 .card-divider.accordion-title {
@@ -168,6 +170,8 @@
 }
 
 .accordion.card.import-module {
+  transition: border-color 0.3s, box-shadow 0.3s;
+
   &.deactivated {
     border-color: var(--very-light-gray);
 
@@ -181,6 +185,10 @@
     }
   }
 
+  &:has(.header .import-data-timestamps > li.running) {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 3px var(--primary-color);
+  }
 }
 
 .accordion.import-module>.accordion-item {
@@ -352,7 +360,7 @@ ul.import-data-timestamps li {
   }
 
   &.finished {
-    color: var(--success-color);
+    color: var(--success-color-hover);
 
     &::before {
       font-size: 0.9rem;
@@ -361,7 +369,7 @@ ul.import-data-timestamps li {
   }
 
   &.error {
-    color: var(--alert-color);
+    color: var(--alert-color-hover);
 
     &::before {
       font-size: 0.9rem;
@@ -370,7 +378,7 @@ ul.import-data-timestamps li {
   }
 
   &.running {
-    color: var(--primary-color);
+    color: var(--primary-color-hover);
 
     &::before {
       font-size: 0.9rem;
@@ -381,9 +389,11 @@ ul.import-data-timestamps li {
 }
 
 .dash_board {
+
   h4 {
     margin-top: 1rem;
-    display: flex;
+    margin-right: 0.5rem;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
 
@@ -436,21 +446,25 @@ ul.import-data-timestamps li {
           font-style: italic;
         }
 
-        .job-status {
-          border-radius: var(--global-radius);
-          padding: 0.1rem 0.3rem;
-          font-size: 0.8rem;
-          font-weight: 600;
-
-          &.queued {
-            background-color: var(--dark-gray);
-            color: var(--white);
-          }
+        .es-name {
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+          white-space: nowrap;
+          gap: 0.3rem;
 
           &.running {
-            background-color: var(--primary-color);
-            color: var(--white);
+            color: var(--primary-color);
           }
+
+          b {
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .job-status {
+          color: var(--primary-color);
         }
       }
     }
@@ -487,6 +501,28 @@ ul.import-data-timestamps li {
         border: none;
         border-bottom: 1px solid var(--light-gray);
       }
+    }
+  }
+
+  .card.live-log {
+    span.info-icon {
+      color: var(--dark-gray);
+    }
+  }
+
+  .live-log-content {
+    background-color: var(--nearly-white);
+
+    #admin-dashboard-live-log-content {
+      display: flex;
+      flex-direction: column-reverse;
+      overflow-y: auto;
+      max-height: 600px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.8rem;
+      line-height: 1rem;
     }
   }
 }
@@ -565,19 +601,19 @@ table.import-steps {
 
   tr {
     font-size: 1rem;
-    color: var(--dark-gray);
+    color: var(--dark-gray-hover);
 
 
     &.finished {
-      color: var(--success-color);
+      color: var(--success-color-hover);
     }
 
     &.error {
-      color: var(--alert-color);
+      color: var(--alert-color-hover);
     }
 
     &.running {
-      color: var(--primary-color);
+      color: var(--primary-color-hover);
     }
 
     td {
@@ -590,7 +626,8 @@ table.import-steps {
 
         .fa {
           vertical-align: middle;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
+          font-weight: bold;
 
           &.fa-circle {
             font-size: 0.4rem;
@@ -623,6 +660,11 @@ table.import-steps {
 
         .duration-xl {
           font-weight: 700;
+        }
+
+        .duration-running .fa {
+          vertical-align: middle;
+          font-size: 0.9rem;
         }
       }
     }

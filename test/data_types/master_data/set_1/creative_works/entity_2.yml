@@ -25,3 +25,8 @@
             :type: text_editor
             :options:
               :data-size: basic
+      :tags:
+        :label: Tags
+        :type: classification
+        :tree_label: Tags
+        :global: true

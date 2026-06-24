@@ -35,7 +35,7 @@ module DataCycleCore
     end
 
     test 'memoization of view_helpers' do
-      assert_equal DataCycleCore::LocalizationService.view_helpers.object_id, DataCycleCore::LocalizationService.view_helpers.object_id
+      assert_same DataCycleCore::LocalizationService.view_helpers, DataCycleCore::LocalizationService.view_helpers
     end
 
     test 'correctly localize and substitute text' do
@@ -48,6 +48,7 @@ module DataCycleCore
 
     test 'correctly localize error messages from validators' do
       translated_string = 'already translated string'
+
       assert_equal translated_string, DataCycleCore::LocalizationService.localize_validation_errors(translated_string, :de)
 
       translatable_errors = DataCycleCore::LocalizationService.localize_validation_errors({

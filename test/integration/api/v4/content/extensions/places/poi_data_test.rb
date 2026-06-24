@@ -127,7 +127,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['opening_hours_specification', 'opening_hours_description']) do
                   {
                     'openingHoursSpecification' => [{
-                      '@id' => @content.opening_hours_specification.find_by("dtstart <= '2019-10-10 10:00'").id,
+                      '@id' => @content.opening_hours_specification.find_by("dtstart <= '2019-10-10 10:00'").generate_deterministic_id('2019-10-10', '2019-10-17'),
                       '@type' => 'OpeningHoursSpecification',
                       'validFrom' => '2019-10-10',
                       'validThrough' => '2019-10-17',
@@ -135,7 +135,7 @@ module DataCycleCore
                       'opens' => '10:00',
                       'closes' => '11:00'
                     }, {
-                      '@id' => @content.opening_hours_specification.find_by("dtstart >= '2019-10-10 10:00'").id,
+                      '@id' => @content.opening_hours_specification.find_by("dtstart >= '2019-10-10 10:00'").generate_deterministic_id('2019-10-10', '2019-10-17'),
                       '@type' => 'OpeningHoursSpecification',
                       'validFrom' => '2019-10-10',
                       'validThrough' => '2019-10-17',
@@ -239,6 +239,27 @@ module DataCycleCore
 
                 assert_equal([], required_attributes)
                 assert_equal({}, json_validate)
+              end
+
+              test 'openingHoursSpecification includes dct:modified only when explicitly requested' do
+                schedule1 = @content.opening_hours_specification.find_by("dtstart <= '2019-10-10 10:00'")
+                schedule2 = @content.opening_hours_specification.find_by("dtstart >= '2019-10-10 10:00'")
+
+                post api_v4_thing_path(id: @content.id, include: 'openingHoursSpecification.dct:modified')
+                json_data = response.parsed_body['@graph'].first
+
+                specs = json_data['openingHoursSpecification'].select { |s| s['@type'] == 'OpeningHoursSpecification' }
+
+                assert_equal schedule1.updated_at.as_json, specs.find { |s| s['opens'] == '10:00' }['dct:modified']
+                assert_equal schedule2.updated_at.as_json, specs.find { |s| s['opens'] == '13:00' }['dct:modified']
+
+                post api_v4_thing_path(id: @content.id)
+                json_data = response.parsed_body['@graph'].first
+
+                specs = json_data['openingHoursSpecification'].select { |s| s['@type'] == 'OpeningHoursSpecification' }
+
+                assert_nil specs.find { |s| s['opens'] == '10:00' }['dct:modified']
+                assert_nil specs.find { |s| s['opens'] == '13:00' }['dct:modified']
               end
             end
           end

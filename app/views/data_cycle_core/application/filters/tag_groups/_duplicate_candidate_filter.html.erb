@@ -1,0 +1,33 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-external-link" aria-hidden="true"></i>
+    <span><%= t("filter.#{key}", default: title, locale: active_ui_locale) %></span>
+  </span>
+
+  <span class="tags-container">
+    <% if value&.dig('method').present? %>
+      <%= t("duplicate.with_method", locale: active_ui_locale) %>
+      <% Array.wrap(value['method']).each do |method| %>
+        <span class="tag">
+          <%= method == 'all' ? t("common.all", locale: active_ui_locale) : DataCycleCore::Utility::DuplicateCandidate::Base.by_identifier(method)&.model_name&.human(count: 1, locale: active_ui_locale) %>
+        </span>
+      <% end %>
+    <% end %>
+
+    <% if value&.dig('min').present? || value&.dig('max').present? %>
+      <%= t("duplicate.with_score", locale: active_ui_locale) %>
+
+      <% if value&.dig('min').present? %>
+        <%= t("terms.min", locale: active_ui_locale) %>
+        <span class="tag"><%= value['min'] %></span>
+      <% end %>
+
+      <% if value&.dig('max').present? %>
+        <%= t("terms.max", locale: active_ui_locale) %>
+        <span class="tag"><%= value['max'] %></span>
+      <% end %>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+</span>

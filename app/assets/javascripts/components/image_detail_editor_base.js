@@ -39,7 +39,7 @@ class ImageDetailEditorBase {
 		I18n.t(
 			`feature.${this.constructor.i18nNameSpace}.editing_button_title`,
 		).then((text) => {
-			this.button.innerHTML = text;
+			this.button.innerHTML = `<i class="fa fa-check"  aria-hidden="true"></i>${text}`;
 		});
 	}
 	async disableEditing() {
@@ -50,7 +50,7 @@ class ImageDetailEditorBase {
 		);
 		I18n.t(`feature.${this.constructor.i18nNameSpace}.button_title`).then(
 			(text) => {
-				this.button.innerHTML = text;
+				this.button.innerHTML = `<i class="fa fa-pencil" aria-hidden="true"></i>${text}`;
 			},
 		);
 	}

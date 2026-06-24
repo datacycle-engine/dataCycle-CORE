@@ -6,6 +6,7 @@ module DataCycleCore
   module Feature
     class ContentLockTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include ActionView::Helpers::DateHelper
+      include ActiveSupport::Testing::TimeHelpers
 
       before(:all) do
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
@@ -41,22 +42,24 @@ module DataCycleCore
       # end
 
       test 'lock content in bulk edit view' do
-        get bulk_edit_watch_list_path(@watch_list), params: {}, headers: {
-          referer: watch_list_path(@watch_list)
-        }
+        freeze_time do
+          get bulk_edit_watch_list_path(@watch_list), params: {}, headers: {
+            referer: watch_list_path(@watch_list)
+          }
 
-        assert_response :success
-        assert(@watch_list.things.all? { |c| c.lock.present? })
+          assert_response :success
+          assert(@watch_list.things.all? { |c| c.lock.present? })
 
-        logout
-        sign_in(User.find_by(email: 'admin@datacycle.at'))
+          logout
+          sign_in(User.find_by(email: 'admin@datacycle.at'))
 
-        get edit_thing_path(@content), params: {}, headers: {
-          referer: thing_path(@content)
-        }
+          get edit_thing_path(@content), params: {}, headers: {
+            referer: thing_path(@content)
+          }
 
-        assert_redirected_to thing_path(@content)
-        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_locales.first), flash[:alert]
+          assert_redirected_to thing_path(@content)
+          assert_equal I18n.t('common.content_locked_html', user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_locales.first), flash[:alert]
+        end
       end
 
       # test 'check locks for content' do

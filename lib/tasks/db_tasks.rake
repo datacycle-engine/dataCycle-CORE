@@ -5,13 +5,14 @@ require 'rake_helpers/db_helper'
 namespace :db do
   namespace :migrate do
     desc 'run data migrations'
-    task with_data: :environment do
-      data_paths = Rails.application.config.paths['db/migrate'].paths.map { |p| p.sub('/migrate', '/data_migrate') }
-      Rails.application.config.paths['db/migrate'].concat(data_paths)
-      ActiveRecord::Migrator.migrations_paths.concat(data_paths)
+    task data: :environment do
+      data_paths = Rails.application.config.paths['db/migrate'].paths
+        .map { |p| p.sub('/migrate', '/data_migrate') }
+      Rails.application.config.paths['db/migrate'] = data_paths
+      ActiveRecord::Migrator.migrations_paths = data_paths
+      ActiveRecord::Base.schema_migrations_table_name = 'data_migrations'
 
-      Rake::Task['db:migrate'].invoke
-      Rake::Task['db:migrate'].reenable
+      ActiveRecord::Tasks::DatabaseTasks.migrate_all
     end
 
     desc 'check before migrations'
@@ -24,7 +25,7 @@ namespace :db do
       # missing_pg_dict_mappings = DataCycleCore::PgDictMapping.check_missing
       # abort("missing pg_dict_mappings (#{missing_pg_dict_mappings.join(', ')})!") if missing_pg_dict_mappings.present?
 
-      result = ActiveRecord::Base.connection.execute <<-SQL.squish
+      result = ActiveRecord::Base.connection.execute <<~SQL.squish
         WITH duplicate_external_classification AS (
           SELECT classifications.external_source_id,
             classifications.external_key,
@@ -51,18 +52,54 @@ namespace :db do
       SQL
 
       abort('duplicate external_classifications found!') if result.any?
+
+      duplicate_classifications = ActiveRecord::Base.connection.execute <<~SQL.squish
+        SELECT c.external_key
+        FROM classifications c
+        WHERE c.external_source_id IS NULL
+          AND c.external_key IS NOT NULL
+          AND c.deleted_at IS NULL
+        GROUP BY c.external_key
+        HAVING COUNT(c.id) > 1;
+      SQL
+
+      abort("duplicate internal classifications found! (#{duplicate_classifications.pluck('external_key').join(', ')})") if duplicate_classifications.any?
+
+      duplicate_aliases = ActiveRecord::Base.connection.execute <<~SQL.squish
+        SELECT c.external_key
+        FROM classification_aliases c
+        WHERE c.external_source_id IS NULL
+          AND c.external_key IS NOT NULL
+          AND c.deleted_at IS NULL
+        GROUP BY c.external_key
+        HAVING COUNT(c.id) > 1;
+      SQL
+
+      abort("duplicate internal classification_aliases found! (#{duplicate_aliases.pluck('external_key').join(', ')})") if duplicate_aliases.any?
+
+      ess_wo_not_null_fields = ActiveRecord::Base.connection.execute <<~SQL.squish
+        SELECT id
+        FROM external_system_syncs
+        WHERE syncable_id IS NULL
+          OR syncable_type IS NULL
+          OR external_system_id IS NULL;
+      SQL
+
+      abort("external system syncs with null fields for syncable_id, syncable_type or external_system_id found! (#{ess_wo_not_null_fields.pluck('id').join(', ')})") if ess_wo_not_null_fields.any?
     end
   end
 
   namespace :rollback do
     desc 'run data migrations'
-    task with_data: :environment do
-      data_paths = Rails.application.config.paths['db/migrate'].paths.map { |p| p.sub('/migrate', '/data_migrate') }
-      Rails.application.config.paths['db/migrate'].concat(data_paths)
-      ActiveRecord::Migrator.migrations_paths.concat(data_paths)
+    task data: :environment do
+      data_paths = Rails.application.config.paths['db/migrate'].paths
+        .map { |p| p.sub('/migrate', '/data_migrate') }
+      Rails.application.config.paths['db/migrate'] = data_paths
+      ActiveRecord::Migrator.migrations_paths = data_paths
+      ActiveRecord::Base.schema_migrations_table_name = 'data_migrations'
+      step = ENV['STEP'] ? ENV['STEP'].to_i : 1
 
-      Rake::Task['db:rollback'].invoke
-      Rake::Task['db:rollback'].reenable
+      ActiveRecord::Tasks::DatabaseTasks.migration_connection_pool.migration_context.rollback(step)
     end
   end
 
@@ -89,52 +126,40 @@ namespace :db do
       Rake::Task['data_cycle_core:clear:activities'].invoke(*args)
       Rake::Task['data_cycle_core:clear:activities'].reenable
     end
+
+    desc 'reindex database and refresh collation version'
+    task refresh_collation_version: :environment do
+      db_name = ActiveRecord::Base.connection.current_database
+      puts "Reindexing database '#{db_name}' and refreshing collation version..."
+      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 0;')
+      ActiveRecord::Base.connection.exec_query("REINDEX DATABASE CONCURRENTLY \"#{db_name}\";")
+      ActiveRecord::Base.connection.exec_query("ALTER DATABASE \"#{db_name}\" REFRESH COLLATION VERSION;")
+      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 60000;')
+    ensure
+      puts 'Cleanup invalid indexes...'
+      ActiveRecord::Base.connection
+        .select_all('SELECT pg_class.relname FROM pg_class, pg_index WHERE pg_index.indisvalid = false AND pg_index.indexrelid = pg_class.oid;')
+        .first&.each_value do |index_name|
+        puts "Dropping invalid index '#{index_name}'..."
+        ActiveRecord::Base.connection.exec_query("DROP INDEX IF EXISTS \"#{index_name}\";")
+      end
+    end
   end
 
   namespace :configure do
     desc 'rebuild all tables concerning transitive classifications'
     task rebuild_transitive_tables: :environment do
-      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          SET LOCAL statement_timeout = 0;
-          SELECT public.upsert_ca_paths_transitive (ARRAY_AGG(id)) FROM concepts;
-        SQL
-      else
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          SET LOCAL statement_timeout = 0;
-          SELECT public.upsert_ca_paths (ARRAY_AGG(id)) FROM concepts;
-        SQL
-      end
-
-      Rake::Task['db:configure:rebuild_ccc'].invoke
-      Rake::Task['db:configure:rebuild_ccc'].reenable
-
-      next if Rails.env.test?
-
-      Rake::Task['db:maintenance:vacuum'].invoke(true, 'classification_alias_paths|classification_alias_paths_transitive|collected_classification_contents')
-      Rake::Task['db:maintenance:vacuum'].reenable
+      DataCycleCore::Feature::TransitiveClassificationPath.rebuild_transitive_tables!
     end
 
     desc 'rebuild collected_classification_contents'
     task rebuild_ccc: :environment do
-      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          SET LOCAL statement_timeout = 0;
-          SELECT public.generate_collected_cl_content_relations_transitive (array_agg(things.id))
-          FROM things;
-        SQL
-      else
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          SET LOCAL statement_timeout = 0;
-          SELECT public.generate_collected_classification_content_relations (array_agg(things.id), ARRAY[]::UUID[])
-          FROM things;
-        SQL
-      end
+      DataCycleCore::Feature::TransitiveClassificationPath.rebuild_ccc!
     end
 
     desc 'rebuild content_content_links'
     task rebuild_content_content_links: :environment do
-      ActiveRecord::Base.connection.execute <<-SQL.squish
+      ActiveRecord::Base.connection.execute <<~SQL.squish
         SELECT generate_content_content_links(ARRAY_AGG(id)) FROM content_contents;
       SQL
 
@@ -170,7 +195,7 @@ namespace :db do
   desc 'Dumps the database to backups (mode = review|activities|full)'
   task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
     temp = Time.zone.now
-    dump_fmt = DbHelper.ensure_format(args[:format])
+    dump_fmt = DbHelper.ensure_format(args.format)
     dump_sfx = DbHelper.suffix_for_format(dump_fmt)
     backup_dir = DbHelper.backup_directory(Rails.env, create: true)
     full_path  = nil
@@ -180,16 +205,16 @@ namespace :db do
     pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
 
     DbHelper.with_config do |host, port, db, user, password|
-      if args[:backup_name].nil?
-        full_path = "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{dump_sfx}"
-      else
-        full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
-      end
+      full_path = if args[:backup_name].nil?
+                    "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{dump_sfx}"
+                  else
+                    "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
+                  end
 
       sh "rm -rf #{full_path}" if full_path.present?
 
       excludes = DATABASE_DUMP_EXCLUDES[args.mode].map { |e| "--exclude-table-data='#{e}'" }.join(' ') if args.mode.present?
-      cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if dump_fmt == 'd'} -v -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
+      cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if dump_fmt == 'd'} -v -O --compress=zstd --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
     end
 
     sh cmd
@@ -248,6 +273,10 @@ namespace :db do
         system cmd
         Rake::Task['db:maintenance:vacuum'].invoke
         Rake::Task['db:maintenance:vacuum'].reenable
+        Rake::Task['dc:jobs:unlock'].invoke
+        Rake::Task['dc:jobs:unlock'].reenable
+        Rake::Task['dc:external_systems:fail_running_imports'].invoke
+        Rake::Task['dc:external_systems:fail_running_imports'].reenable
         puts ''
         puts "Restored from file: #{file}"
         puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"

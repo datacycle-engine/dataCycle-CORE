@@ -34,11 +34,11 @@ module SharedExamplesForContent
       end
 
       it 'provides names of plain properties' do
-        assert(subject.plain_property_names + subject.geo_property_names, ['property', 'existing_property'])
+        assert_operator(subject.plain_property_names, :+, subject.geo_property_names, ['property', 'existing_property'])
       end
 
       it 'provides existing data' do
-        assert(subject.existing_property, property_value)
+        assert_equal(property_value, subject.existing_property)
       end
     end
   end
@@ -60,7 +60,7 @@ module SharedExamplesForContent
       end
 
       it 'provides names of plain properties' do
-        assert(subject.plain_property_names + subject.geo_property_names, ['property'])
+        assert_operator(subject.plain_property_names, :+, subject.geo_property_names, ['property'])
       end
     end
   end
@@ -112,29 +112,29 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of plain properties' do
-      assert(subject.plain_property_names + subject.geo_property_names, ['id', 'name', '1', '2', '3'])
+      assert_operator(subject.plain_property_names, :+, subject.geo_property_names, ['id', 'name', '1', '2', '3'])
     end
 
     it 'provides methods for all property names as string' do
       ['id', 'name', '1', '2', '3'].each do |item|
-        assert(subject.respond_to?(item))
-        assert(subject.respond_to?(:"#{item}="))
+        assert_respond_to(subject, item)
+        assert_respond_to(subject, :"#{item}=")
       end
     end
 
     it 'provides methods for all property names as symbol' do
       ['id', 'name', '1', '2', '3'].each do |item|
-        assert(subject.respond_to?(item.to_sym))
-        assert(subject.respond_to?(:"#{item}="))
+        assert_respond_to(subject, item.to_sym)
+        assert_respond_to(subject, :"#{item}=")
       end
     end
 
     it 'fails to provide methods for properties that are not specified in the subject' do
       ['abcd', 'jklm'].each do |item|
-        assert_equal(subject.respond_to?(item), false)
-        assert_equal(subject.respond_to?(item.to_sym), false)
-        assert_equal(subject.respond_to?(:"#{item}="), false)
-        assert_equal(subject.respond_to?(:"#{item}="), false)
+        assert_not(subject.respond_to?(item))
+        assert_not(subject.respond_to?(item.to_sym))
+        assert_not(subject.respond_to?(:"#{item}="))
+        assert_not(subject.respond_to?(:"#{item}="))
       end
     end
 
@@ -150,11 +150,11 @@ describe DataCycleCore::Content do
     end
 
     it 'provides list of untranslatable properties' do
-      assert(subject.untranslatable_property_names, ['id', '1', '2'])
+      assert_equal(['id', '1', '2'], subject.untranslatable_property_names)
     end
 
     it 'provides list of translatable properties' do
-      assert(subject.translatable_property_names, ['name', '3'])
+      assert_equal(['name', '3'], subject.translatable_property_names)
     end
   end
 
@@ -188,7 +188,7 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of linked properties' do
-      assert(subject.linked_property_names, ['existing_locations', 'existing_main_location'])
+      assert_equal(['existing_locations', 'existing_main_location'], subject.linked_property_names)
     end
 
     # Test does not work with Time.zone.now
@@ -197,7 +197,7 @@ describe DataCycleCore::Content do
     #     .with("places", [1, 2, 3], Time.zone.now, true)
     #     .and_return([double('DataCycleCore::Place'), double('DataCycleCore::Place'), double('DataCycleCore::Place')])
     #
-    #   assert(subject.existing_locations.size, 3)
+    #   assert_equal(3, subject.existing_locations.size)
     # end
     #
     # it "provides existing data for single linked object" do
@@ -235,7 +235,7 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of embedded properties' do
-      assert(subject.embedded_property_names, ['existing_locations', 'nested_creative_works'])
+      assert_equal(['existing_locations', 'nested_creative_works'], subject.embedded_property_names)
     end
   end
 
@@ -286,33 +286,32 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of included property' do
-      assert(subject.included_property_names, ['included_object'])
+      assert_equal(['included_object'], subject.included_property_names)
     end
 
     it 'provides plain_property_names' do
-      assert(subject.plain_property_names + subject.geo_property_names, ['id', 'description'])
+      assert_operator(subject.plain_property_names, :+, subject.geo_property_names, ['id', 'description'])
     end
 
     it 'provides translatable_property_names' do
-      assert(subject.translatable_property_names, ['description'])
+      assert_equal(['description'], subject.translatable_property_names)
     end
 
     it 'returns value for translatable_property' do
-      assert(subject.description, 'dies ist ein Test')
+      assert_equal('dies ist ein Test', subject.description)
     end
 
     it 'returns an hash for included property' do
-      assert(subject.included_object.to_h.deep_stringify_keys, { 'property1' => 'data property1', 'property2' => 'data property2' })
+      assert_equal({ 'property1' => 'data property1', 'property2' => 'data property2' }, subject.included_object.to_h.deep_stringify_keys)
     end
 
     it 'returns values for included sub_properties' do
-      assert(subject.included_object.property1, 'data property1')
-      assert(subject.included_object.property2, 'data property2')
+      assert_equal('data property1', subject.included_object.property1)
+      assert_equal('data property2', subject.included_object.property2)
     end
 
     it 'return a proper hash with :to_h' do
-      assert(
-        subject.to_h,
+      assert_equal(
         {
           'id' => nil,
           'description' => 'dies ist ein Test',
@@ -320,7 +319,8 @@ describe DataCycleCore::Content do
             'property1' => 'data property1',
             'property2' => 'data property2'
           }
-        }
+        },
+        subject.to_h
       )
     end
   end
@@ -408,8 +408,7 @@ describe DataCycleCore::Content do
     end
 
     it 'returns an hash for included property' do
-      assert(
-        subject.included_object.to_h,
+      assert_equal(
         {
           'property1' => 'data property1',
           'property2' => 'data property2',
@@ -418,7 +417,8 @@ describe DataCycleCore::Content do
             'property_deep2' => 'data property_deep2',
             'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
           }
-        }
+        },
+        subject.included_object.to_h
       )
     end
 
@@ -428,13 +428,13 @@ describe DataCycleCore::Content do
     end
 
     it 'returns deep_included_object' do
-      assert(
-        subject.included_object.deep_included_object.to_h,
+      assert_equal(
         {
           'property_deep1' => 'data property_deep1',
           'property_deep2' => 'data property_deep2',
           'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
-        }
+        },
+        subject.included_object.deep_included_object.to_h
       )
     end
 
@@ -444,16 +444,15 @@ describe DataCycleCore::Content do
     end
 
     it 'returns attribues for deeper_object' do
-      assert(subject.included_object.deep_included_object.deeper_object.to_h, { 'property_deeper' => 'deeper_property_name' })
+      assert_equal({ 'property_deeper' => 'deeper_property_name' }, subject.included_object.deep_included_object.deeper_object.to_h)
     end
 
     it 'returns values for deepest level' do
-      assert(subject.included_object.deep_included_object.deeper_object.property_deeper, 'deeper_property_name')
+      assert_equal('deeper_property_name', subject.included_object.deep_included_object.deeper_object.property_deeper)
     end
 
     it 'returns all data :to_h ' do
-      assert(
-        subject.to_h,
+      assert_equal(
         {
           'id' => nil,
           'description' => 'dies ist ein Test',
@@ -466,7 +465,8 @@ describe DataCycleCore::Content do
               'deeper_object' => { 'property_deeper' => 'deeper_property_name' }
             }
           }
-        }
+        },
+        subject.to_h
       )
     end
   end
@@ -518,12 +518,12 @@ describe DataCycleCore::Content do
     end
 
     it 'returns an hash for included property' do
-      assert(
-        subject.included_object.to_h,
+      assert_equal(
         {
           'property1' => 'data property1',
           'property2' => 'data property2'
-        }
+        },
+        subject.included_object.to_h
       )
     end
 
@@ -540,8 +540,7 @@ describe DataCycleCore::Content do
     end
 
     it 'returns all data :to_h ' do
-      assert(
-        subject.to_h,
+      assert_equal(
         {
           'id' => nil,
           'description' => 'dies ist ein Test',
@@ -549,7 +548,8 @@ describe DataCycleCore::Content do
             'property1' => 'data property1',
             'property2' => 'data property2'
           }
-        }
+        },
+        subject.to_h
       )
     end
   end

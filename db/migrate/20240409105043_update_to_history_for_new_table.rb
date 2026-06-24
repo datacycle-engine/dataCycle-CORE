@@ -2,7 +2,7 @@
 
 class UpdateToHistoryForNewTable < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION to_content_collection_link_history (content_id UUID, new_history_id UUID) RETURNS void LANGUAGE PLPGSQL AS $$
       DECLARE insert_query TEXT;
 
@@ -68,7 +68,7 @@ class UpdateToHistoryForNewTable < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION to_thing_history (
           content_id UUID,
           current_locale VARCHAR,

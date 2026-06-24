@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'minitest/mock'
 
 module DataCycleCore
   module Content
@@ -39,6 +40,7 @@ module DataCycleCore
             'value_2' => 6,
             'common_copy' => 5
           }
+
           assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
           assert_equal(5, data_set.value_1)
           assert_equal(6, data_set.value_2)
@@ -87,6 +89,36 @@ module DataCycleCore
 
             assert_equal(1, DataCycleCore::Thing.where(template_name: 'Computed-String').count)
           end
+        end
+
+        test 'add_computed_values called only with changed keys' do
+          data = { 'value_1' => 5, 'value_2' => 6 }
+          content = DataCycleCore::TestPreparations.create_content(template_name: 'Calculation-Math', data_hash: data)
+
+          mock_method = Minitest::Mock.new
+
+          mock_method.expect :call, nil do |*, **kwargs|
+            assert_equal(['math_sum'], kwargs[:keys])
+          end
+          content.stub :add_computed_values, mock_method do
+            content.set_data_hash(data_hash: { 'value_1' => 10 })
+          end
+          mock_method.verify
+        end
+
+        test 'add_computed_values called with empty changed keys' do
+          data = { 'value_1' => 5, 'value_2' => 6 }
+          content = DataCycleCore::TestPreparations.create_content(template_name: 'Calculation-Math', data_hash: data)
+
+          mock_method = Minitest::Mock.new
+
+          mock_method.expect :call, nil do |*, **kwargs|
+            assert_equal([], kwargs[:keys])
+          end
+          content.stub :add_computed_values, mock_method do
+            content.set_data_hash(data_hash: { 'value_1' => 5 })
+          end
+          mock_method.verify
         end
       end
     end

@@ -2,13 +2,13 @@
 
 class RemoveDeadHistoryEntries < ActiveRecord::Migration[5.2]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DELETE FROM thing_history_translations
       WHERE upper(history_valid) IS NULL
       OR lower(history_valid) IS NULL
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE content_content_histories
       SET history_valid = thing_history_translations.history_valid
       FROM thing_history_translations
@@ -19,7 +19,7 @@ class RemoveDeadHistoryEntries < ActiveRecord::Migration[5.2]
       )
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DELETE FROM content_content_histories
       WHERE upper(history_valid) IS NULL
       OR lower(history_valid) IS NULL

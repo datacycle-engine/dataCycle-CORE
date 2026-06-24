@@ -10,7 +10,7 @@ namespace :dc do
         abort('no ids given') if ids.blank?
 
         to_restore = DataCycleCore::Thing::History.where(thing_id: ids).where.not(deleted_at: nil)
-        progressbar = ProgressBar.create(total: to_restore.size, format: '%t |%w>%i| %a - %c/%C', title: 'Restoring')
+        progressbar = ProgressBar.create(total: to_restore.size, title: 'Restoring')
 
         to_restore.find_each do |history_entry|
           history_entry.restore

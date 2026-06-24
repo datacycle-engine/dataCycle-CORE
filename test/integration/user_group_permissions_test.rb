@@ -41,7 +41,7 @@ module DataCycleCore
 
     test 'user_group permissions, with collection, set_life_cycle poi' do
       reset_permission_test_user_groups
-      update_permissions_test_user_group(@test_group1, {user_ids: [@permissions_test_user.id]})
+      update_permissions_test_user_group(@test_group1, { user_ids: [@permissions_test_user.id] })
 
       assert @permissions_test_user.can?(:set_life_cycle, @dummy_poi1)
       assert @permissions_test_user.cannot?(:set_life_cycle, @dummy_event)
@@ -51,7 +51,7 @@ module DataCycleCore
 
     test 'user_group permissions, with collection, merge_duplicates' do
       reset_permission_test_user_groups
-      update_permissions_test_user_group(@test_group2, {user_ids: [@permissions_test_user.id]})
+      update_permissions_test_user_group(@test_group2, { user_ids: [@permissions_test_user.id] })
 
       assert @permissions_test_user.can?(:merge_duplicates, @dummy_poi1)
       assert @permissions_test_user.can?(:merge_duplicates, @dummy_event)
@@ -82,11 +82,11 @@ module DataCycleCore
     end
 
     def reset_permission_test_user_groups
-      update_permissions_test_user_group(@test_group1, {user_ids: []})
-      update_permissions_test_user_group(@test_group2, {user_ids: []})
+      update_permissions_test_user_group(@test_group1, { user_ids: [] })
+      update_permissions_test_user_group(@test_group2, { user_ids: [] })
     end
 
-    def update_permissions_test_user_group(group, hash = {user_ids: []})
+    def update_permissions_test_user_group(group, hash = { user_ids: [] })
       group.update(hash)
     end
   end

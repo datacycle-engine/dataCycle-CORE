@@ -2,7 +2,7 @@
 
 class UpdateTriggerForSimplifiedGeometries < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION geom_simple_update () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$ BEGIN NEW.geom_simple := (
          st_simplify(
               ST_Force2D (COALESCE(NEW."location", NEW.line)),
@@ -20,7 +20,7 @@ class UpdateTriggerForSimplifiedGeometries < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION geom_simple_update () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$ BEGIN NEW.geom_simple := (
           SELECT st_simplify(
               ST_Force2D (COALESCE(NEW."location", NEW.line)),

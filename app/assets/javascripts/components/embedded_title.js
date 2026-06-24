@@ -36,7 +36,7 @@ class EmbeddedTitle {
 		const value = this.getSourceValue();
 
 		this.$targetField.text(value);
-		this.$targetField.attr("title", value);
+		this.$targetField[0].dataset.dcTooltip = value;
 
 		if (value?.length) this.$targetField.addClass("visible");
 		else this.$targetField.removeClass("visible");

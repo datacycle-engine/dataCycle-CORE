@@ -16,18 +16,18 @@ module DataCycleCore
       Array.wrap(dynamic_parts).each do |dynamic_part|
         namespaced_path = i18n_path.to_s.split('.').map { |v| v == '?' ? dynamic_part : v }.compact_blank.join('.')
 
-        if i18n_options.key?(:scope)
-          namespaced_options = i18n_options.merge(scope: i18n_options[:scope].map { |v| v == '?' ? dynamic_part : v }.compact_blank.join('.'))
-        else
-          namespaced_options = i18n_options
-        end
+        namespaced_options = if i18n_options.key?(:scope)
+                               i18n_options.merge(scope: i18n_options[:scope].map { |v| v == '?' ? dynamic_part : v }.compact_blank.join('.'))
+                             else
+                               i18n_options
+                             end
 
-        return t(namespaced_path, **namespaced_options).html_safe if I18n.exists?(namespaced_path, **namespaced_options) # rubocop:disable Rails/OutputSafety
+        return t(namespaced_path, **namespaced_options).html_safe if I18n.exists?(namespaced_path, **namespaced_options)
       end
 
       i18n_options[:scope] = i18n_options[:scope].except('?').compact_blank.join('.') if i18n_options.key?(:scope)
       clean_path = i18n_path.to_s.split('.').except('?').compact_blank.join('.')
-      t(clean_path, **i18n_options).html_safe if I18n.exists?(clean_path, **i18n_options) # rubocop:disable Rails/OutputSafety
+      t(clean_path, **i18n_options).html_safe if I18n.exists?(clean_path, **i18n_options)
     end
 
     def first_existing_action_template(namespaces)

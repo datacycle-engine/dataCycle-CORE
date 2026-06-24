@@ -1,0 +1,113 @@
+# Externe Links
+
+Externe Links können verwendet werden, um einen Inhalt für eine externe Person freizugeben. Dafür ist eine E-Mail Adresse, sowie die ID des Inhalts notwendig.
+
+## Allgemeines
+
+Zur Authentifizierung empfiehlt sich die Verwendung eines API-Token, es können aber prinzipiell alle für die Datenschnittstelle angebotenen [Authentifizierungs-Mechanismen](/docs/api#authentifizierung) genutzt werden.
+
+## Erstellen von externen Links
+
+Mit einer Anfrage können mehrere externe Links erstellt werden.
+
+### Vollständiges Beispiel
+
+```url
+POST <%= api_v4_data_links_url %>
+```
+
+JSON-Body
+```json
+{
+  "@graph": [
+    {
+      "receiver": {
+        "email": "receiver1@demo.com",
+        "givenName": "Receiver",
+        "familyName": "One",
+        "name": "Demo Organization"
+      },
+      "item": {
+        "@id": "a5696e01-2024-4e97-8425-5b749660f735",
+        "@type": "Thing"
+      },
+      "permission": "read",
+      "comment": "This is a test external link",
+      "validFrom": "2026-02-01T09:42:28+01:00",
+      "validUntil": "2026-02-09T09:42:42+01:00"
+    }
+  ]
+}
+```
+
+### Antwort
+In der Antwort gibt es wieder ```@graph```, und ```errors``` bei Fehlern.
+
+```json
+{
+  "@graph": [
+    {
+      "success": true,
+      "@id": "662a2277-3456-4937-9385-43cb3b72d8ce",
+      "url": <%= data_link_url("662a2277-3456-4937-9385-43cb3b72d8ce") %>
+    }
+  ]
+}
+```
+
+### Antwort mit Fehler
+
+```json
+{
+  "@graph": [
+    {
+      "success": false
+    }
+  ],
+  "errors": [
+    "source": {
+      "parameter": ["@graph", 0, "item", "@id"]
+    },
+    "title": "Not found",
+    "detail": "item not found with @id 'a5696e01-2024-4e97-8425-5b749660f735'"
+  ]
+}
+```
+
+### Parameter pro externem Link
+
+##### ```receiver``` (required: true)
+Informationen zum Empfänger
+
+##### ```receiver[email]``` (required: true)
+E-Mail Adresse des Empfängers
+
+##### ```receiver[givenName]```
+Vorname des Empfängers
+
+##### ```receiver[familyName]```
+Familien des Empfängers
+
+##### ```item``` (required: true)
+Informationen zum Inhalt
+
+##### ```item[@id]``` (required: true)
+ID des Inhalts
+
+##### ```item[@type]``` (default: "Thing")
+Typ des Inhalts. Aktuell ist nur "Thing" erlaubt.
+
+##### ```permission``` (required: true)
+Berechtigung für den Inhalt. Mögliche Werte sind "read" und "write".
+Für "write" muss der Benutzer berechtigt sein, den Inhalt zu bearbeiten.
+
+##### ```comment```
+Ein Kommentar, dass in der E-Mail an den Empfänger angezeigt wird.
+
+##### ```validFrom``` (format: ISO 8601 String)
+Ab diesem Zeitpunkt ist der externe Link gültig.
+Wenn das Attribut nicht übergeben wird, ist der externe Link immer gültig.
+
+##### ```validUntil``` (format: ISO 8601 String)
+Bis zu diesem Zeitpunkt ist der externe Link gültig.
+Wenn das Attribut nicht übergeben wird, ist der externe Link immer gültig.

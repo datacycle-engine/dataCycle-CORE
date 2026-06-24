@@ -19,6 +19,8 @@ module DataCycleCore
 
             apply_overlays!(content, data_hash, parameter_keys) if key.nil?
 
+            parameter_keys &= parameter_keys(content, key, properties)
+
             method_name = DataCycleCore::ModuleService
               .load_module(properties.dig('content_score', 'module').classify, 'Utility::ContentScore')
               .method(properties.dig('content_score', 'method'))
@@ -103,11 +105,11 @@ module DataCycleCore
             scores = {}
 
             parameters.each do |key, value|
-              if key.in?(content.content_score_property_names)
-                scores[key] = content.calculate_content_score(key, { key => value })
-              else
-                scores[key] = DataCycleCore::Utility::ContentScore::Base.value_present?(parameters, key) ? 1 : 0
-              end
+              scores[key] = if key.in?(content.content_score_property_names)
+                              content.calculate_content_score(key, { key => value })
+                            else
+                              DataCycleCore::Utility::ContentScore::Base.value_present?(parameters, key) ? 1 : 0
+                            end
             end
 
             scores
@@ -120,6 +122,7 @@ module DataCycleCore
           def split_last(str, delimiter)
             index = str.rindex(delimiter)
             return [str, nil] unless index
+
             [str[0...index], str[(index + delimiter.length)..]]
           end
 
@@ -128,13 +131,13 @@ module DataCycleCore
             return parameter_keys unless key.nil?
 
             parameter_keys + parameter_keys.flat_map do |param_key|
-              content.overlay_property_names_for(param_key, 'overlay')
+              content.overlay_property_names_for(param_key, exclude_types: 'overlay')
             end
           end
 
           def apply_overlays!(content, data_hash, parameter_keys)
             parameter_keys.intersection(content.properties_with_overlay).each do |key|
-              content.overlay_property_names_for(key, 'overlay').each do |k|
+              content.overlay_property_names_for(key, exclude_types: 'overlay').each do |k|
                 next if data_hash[k].blank?
 
                 props = content.properties_for(k)

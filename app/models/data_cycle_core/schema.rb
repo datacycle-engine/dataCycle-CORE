@@ -82,13 +82,16 @@ module DataCycleCore
         case definition['type']
         when 'embedded'
           raise 'Cannot resolve embedded templates without schema' if @schema.nil?
+
           "/schema/#{definition['template_name']}"
         when 'linked'
           if definition['template_name'].present?
             raise 'Cannot resolve linked templates without schema' if @schema.nil?
+
             "/schema/#{definition['template_name']}"
           elsif definition['stored_filter'].present?
             raise 'Cannot resolve linked templates without schema' if @schema.nil?
+
             @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
               .filter_map { |i| i.sub(/^Organisation$/, 'Organization') }
           else

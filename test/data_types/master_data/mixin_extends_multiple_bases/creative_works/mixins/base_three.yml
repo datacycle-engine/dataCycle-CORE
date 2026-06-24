@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: base_three
+    :type: mixin
+    :properties:
+      :base_three_text:
+        :label: Base three label
+        :type: string
+        :storage_location: translated_value
+      :multi_level_shared_text:
+        :label: Base three overrides
+        :type: string
+        :storage_location: translated_value

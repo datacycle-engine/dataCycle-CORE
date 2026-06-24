@@ -12,6 +12,7 @@ module DataCycleCore
           webhook = utility_object.webhook_job_class
           queue_method = synchronous_webhooks?(data, utility_object) ? :perform_now : :perform_later
           apply_webhook_params!(webhook, data)
+          webhook = webhook.set(wait: utility_object.wait_time) if utility_object.wait_time.present?
 
           webhook.send(
             queue_method,

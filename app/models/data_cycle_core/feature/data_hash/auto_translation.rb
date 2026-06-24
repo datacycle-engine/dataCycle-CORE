@@ -16,8 +16,10 @@ module DataCycleCore
         def create_update_translations
           additional_infos = load_translated_content
           return { 'error' => 'Nothing to translate' } if additional_infos.blank?
+
           template = ThingTemplate.find_by(template_name: 'Übersetzung')
           return { 'error' => 'Data Type not found!' } if template.blank?
+
           data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
@@ -56,6 +58,7 @@ module DataCycleCore
                   },
                   prevent_history: true
                 )
+
                 translations_created[classification].push(locale)
               end
             end
@@ -68,8 +71,10 @@ module DataCycleCore
           source_locale = source_locale.to_s
           additional_translations = subject_of.where(template_name: 'Übersetzung')
           return { 'error' => 'Nothing to translate' } if additional_translations.blank?
+
           template = ThingTemplate.find_by(template_name: 'Übersetzung')
           return { 'error' => 'Data Type not found!' } if template.blank?
+
           data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
@@ -79,6 +84,7 @@ module DataCycleCore
           translations_done = {}
           additional_translations.each do |content|
             next if content.blank?
+
             alocales = content.available_locales.map(&:to_s)
             next unless alocales.include?(source_locale)
 
@@ -118,6 +124,7 @@ module DataCycleCore
                   },
                   prevent_history: true
                 )
+
                 translations_done[classification].push(target_locale.to_sym)
               end
             end
@@ -166,6 +173,7 @@ module DataCycleCore
         def destroy_all_translated_content
           content_a.map do |i|
             next unless i.template_name == 'Übersetzung'
+
             I18n.with_locale(i.available_locales.first || 'de') { i.destroy_content(save_history: false, destroy_locale: false) }
           end
         end

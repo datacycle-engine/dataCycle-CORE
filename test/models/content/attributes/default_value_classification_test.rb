@@ -45,7 +45,7 @@ module DataCycleCore
 
           content.set_data_hash(data_hash: { name: 'Test Artikel 2' }, update_search_all: false, prevent_history: true, partial_update: true)
 
-          assert content.data_type.blank?
+          assert_predicate content.data_type, :blank?
           assert_equal 'Test Artikel 2', content.name
         end
 
@@ -54,7 +54,7 @@ module DataCycleCore
 
           content.set_data_hash(data_hash: { name: 'Test Artikel 2', data_type: nil }, update_search_all: false, prevent_history: true, partial_update: true)
 
-          assert content.data_type.blank?
+          assert_predicate content.data_type, :blank?
           assert_equal 'Test Artikel 2', content.name
         end
 
@@ -78,7 +78,7 @@ module DataCycleCore
 
           content.set_data_hash(data_hash: { name: 'Test Artikel 2' }, update_search_all: false, prevent_history: true)
 
-          assert content.data_type.blank?
+          assert_predicate content.data_type, :blank?
           assert_equal 'Test Artikel 2', content.name
         end
 

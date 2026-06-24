@@ -4,7 +4,7 @@ class VacuumAfterTemplateMigration < ActiveRecord::Migration[6.1]
   disable_ddl_transaction!
 
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       VACUUM things, thing_histories;
     SQL
   end

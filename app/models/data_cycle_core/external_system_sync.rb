@@ -2,19 +2,34 @@
 
 module DataCycleCore
   class ExternalSystemSync < ApplicationRecord
+    SYNC_TYPES = {
+      export: 'export',
+      duplicate: 'duplicate',
+      import: 'import'
+    }.freeze
+
     belongs_to :syncable, polymorphic: true
     belongs_to :external_system
+    belongs_to :thing, -> { where(external_system_syncs: { syncable_type: 'DataCycleCore::Thing' }) }, class_name: 'DataCycleCore::Thing', foreign_key: 'syncable_id', optional: true, inverse_of: :external_system_syncs
 
     validates :external_system_id, presence: true # rubocop:disable Rails/RedundantPresenceValidationOnBelongsTo
 
-    scope :export, -> { where(sync_type: 'export') }
+    scope :export, -> { where(sync_type: SYNC_TYPES[:export]) }
+    scope :import, -> { where(sync_type: SYNC_TYPES[:import]) }
+    scope :with_import_config, -> { joins(:external_system).merge(ExternalSystem.with_import_config) }
+    scope :with_active_config, -> { joins(:external_system).merge(ExternalSystem.activated) }
     store_accessor :data, :exported_data
     attribute :exported_data, :jsonb
 
     store_accessor :data, :exception, suffix: true
     attribute :exception_data, :jsonb
 
-    DUPLICATE_SYNC_TYPE = 'duplicate'
+    store_accessor :data, :job_id
+    attribute :job_id, :string
+    store_accessor :data, :job_status
+    attribute :job_status, :string
+    store_accessor :data, :seen_at
+    attribute :seen_at, :datetime
 
     def external_url
       return data['external_url'] if data&.dig('external_url').present?

@@ -1,0 +1,25 @@
+---
+name: Override-System
+identifier: override-system
+extends: base-system
+credentials:
+  token: OVERRIDE_TOKEN
+  api_version: v2
+  username: OVERRIDE_USER
+default_options:
+  export:
+    external_url: https://override.example.com
+    format: json
+config:
+  download_config:
+    images:
+      source_type: images
+    places:
+      source_type: places
+  import_config:
+    images:
+      tree_label: Override - Tags
+    events:
+      sorting: 3
+      source_type: events
+      import_strategy: ImportContents

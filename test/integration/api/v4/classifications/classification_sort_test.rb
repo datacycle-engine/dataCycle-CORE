@@ -27,13 +27,15 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
+
             assert_equal(tree_tags.id, json_data['@graph'].first['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:created'].to_datetime >= b['dct:created'].to_datetime)
+              assert_operator(a['dct:created'].to_datetime, :>=, b['dct:created'].to_datetime)
             end
 
             # ASC
@@ -44,13 +46,15 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
+
             assert_equal(tree_tags.id, json_data['@graph'].last['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:created'].to_datetime <= b['dct:created'].to_datetime)
+              assert_operator(a['dct:created'].to_datetime, :<=, b['dct:created'].to_datetime)
             end
 
             # make sure ASC is default
@@ -61,13 +65,15 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
+
             assert_equal(tree_tags.id, json_data['@graph'].last['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:created'].to_datetime <= b['dct:created'].to_datetime)
+              assert_operator(a['dct:created'].to_datetime, :<=, b['dct:created'].to_datetime)
             end
             tree_tags.update_column(:created_at, orig_ts)
           end
@@ -86,13 +92,15 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
+
             assert_equal(tree_tags.id, json_data['@graph'].first['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
+              assert_operator(a['dct:modified'].to_datetime, :>=, b['dct:modified'].to_datetime)
             end
 
             # ASC
@@ -103,13 +111,15 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
+
             assert_equal(tree_tags.id, json_data['@graph'].last['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
+              assert_operator(a['dct:modified'].to_datetime, :<=, b['dct:modified'].to_datetime)
             end
 
             # make sure ASC is default
@@ -120,13 +130,15 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
+
             assert_equal(tree_tags.id, json_data['@graph'].last['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
+              assert_operator(a['dct:modified'].to_datetime, :<=, b['dct:modified'].to_datetime)
             end
 
             # make sure modified DESC is default for empty sort params
@@ -136,13 +148,15 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
+
             assert_equal(tree_tags.id, json_data['@graph'].first['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
+              assert_operator(a['dct:modified'].to_datetime, :>=, b['dct:modified'].to_datetime)
             end
             tree_tags.update_column(:updated_at, orig_ts)
           end
@@ -159,13 +173,15 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees)
 
             json_data = response.parsed_body
+
             assert_equal(tree_tags.id, json_data['@graph'].first['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:created'].to_datetime >= b['dct:created'].to_datetime)
+              assert_operator(a['dct:created'].to_datetime, :>=, b['dct:created'].to_datetime)
             end
             tree_tags.update_column(:created_at, orig_ts)
           end
@@ -188,13 +204,15 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
+
             assert_equal(classificaton_tag.id, json_data['@graph'].last['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
+              assert_operator(a['dct:modified'].to_datetime, :<=, b['dct:modified'].to_datetime)
             end
 
             # modified ASC
@@ -206,13 +224,15 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
+
             assert_equal(classificaton_tag.id, json_data['@graph'].last['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:modified'].to_datetime <= b['dct:modified'].to_datetime)
+              assert_operator(a['dct:modified'].to_datetime, :<=, b['dct:modified'].to_datetime)
             end
 
             # modified DESC
@@ -224,13 +244,15 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
+
             assert_equal(classificaton_tag.id, json_data['@graph'].first['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
+              assert_operator(a['dct:modified'].to_datetime, :>=, b['dct:modified'].to_datetime)
             end
 
             # make sure default is order_a ASC
@@ -241,15 +263,17 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
+
             assert_equal(classifications.first.id, json_data['@graph'].first['@id'])
 
             classification_mappings = classifications.index_by(&:id)
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(classification_mappings[a['@id']].order_a < classification_mappings[b['@id']].order_a)
+              assert_operator(classification_mappings[a['@id']].order_a, :<, classification_mappings[b['@id']].order_a)
             end
 
             # muliple and invalid sort params
@@ -261,13 +285,15 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count)
 
             json_data = response.parsed_body
+
             assert_equal(classificaton_tag.id, json_data['@graph'].first['@id'])
 
             json_data['@graph'].each_cons(2) do |a, b|
-              assert(a['dct:modified'].to_datetime >= b['dct:modified'].to_datetime)
+              assert_operator(a['dct:modified'].to_datetime, :>=, b['dct:modified'].to_datetime)
             end
 
             classificaton_tag.update_column(:updated_at, orig_ts)

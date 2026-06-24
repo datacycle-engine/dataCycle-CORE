@@ -19,6 +19,9 @@
 
         <%= yield_content! :additional_functions %>
 
+        <!-- AI Lector Selector helper -->
+        <%#= render 'data_cycle_core/contents/editors/features/ai_lector_selector' %>
+
         <% if can?(:index, content) && content.try(:content_type?, 'entity') && action_name != 'merge_with_duplicate' %>
           <li class="has-dropdown right">
             <%= render 'data_cycle_core/application/split_sources', content: content, value: @split_source %>

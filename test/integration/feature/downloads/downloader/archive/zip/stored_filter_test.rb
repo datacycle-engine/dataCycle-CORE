@@ -57,6 +57,7 @@ module DataCycleCore
                   json: true,
                   xml: true
                 }
+
                 assert DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip])
 
                 get download_zip_stored_filter_path(@stored_filter), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
@@ -78,9 +79,11 @@ module DataCycleCore
                   json: true,
                   xml: true
                 }
+
                 assert DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip])
 
                 get "/downloads/stored_filter_collections/#{@stored_filter.id}", params: { serialize_format: 'asset, json, xml' }
+
                 assert_response :success
                 assert_equal('application/zip', response.headers['Content-Type'])
               end

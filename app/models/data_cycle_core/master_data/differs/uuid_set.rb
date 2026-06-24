@@ -16,6 +16,7 @@ module DataCycleCore
           return if a == b
           return [['-', a]] if b.blank?
           return [['+', b]] if a.blank?
+
           new_items = b - a
           del_items = a - b
           new_record = nil
@@ -27,14 +28,17 @@ module DataCycleCore
 
         def parse_uuid(a)
           return if a.blank?
+
           a.is_a?(ActiveRecord::Base) ? a&.id : a
         end
 
         def parse_uuids(a)
           return [] if a.blank?
+
           data = a.is_a?(::String) ? [a] : a
           data = a&.pluck(:id) if data.is_a?(ActiveRecord::Relation)
           raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
+
           data
         end
       end

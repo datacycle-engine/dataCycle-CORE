@@ -34,90 +34,90 @@ module DataCycleCore
     end
 
     test 'delete linked images' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       @article.destroy(destroy_linked: { template_names: ['Bild'] })
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_raises(ActiveRecord::RecordNotFound) { @image.reload }
       assert_not(@organization.reload.destroyed?)
     end
 
     test 'dont delete linked without config' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       @article.destroy(destroy_linked: {})
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_not(@image.reload.destroyed?)
       assert_not(@organization.reload.destroyed?)
     end
 
     test 'dont delete linked with legacy config' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       @article.destroy(destroy_linked: true)
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_not(@image.reload.destroyed?)
       assert_not(@organization.reload.destroyed?)
     end
 
     test 'dont delete linked organizations from images' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       @article.destroy(destroy_linked: { template_names: ['Organization'] })
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_not(@image.reload.destroyed?)
       assert_not(@organization.reload.destroyed?)
     end
 
     test 'dont delete linked images with different external_source_id' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       @image.update_column(:external_source_id, @external_system.id)
 
       @article.destroy(destroy_linked: { template_names: ['Bild', 'Organization'] })
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_not(@image.reload.destroyed?)
       assert_not(@organization.reload.destroyed?)
     end
 
     test 'delete linked images with external_source_id, but not organization with same external_source_id' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       @image.update_column(:external_source_id, @external_system.id)
 
       @article.destroy(destroy_linked: { template_names: ['Bild', 'Organization'], external_system_ids: [@external_system.id] })
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_raises(ActiveRecord::RecordNotFound) { @image.reload }
       assert_not(@organization.reload.destroyed?)
     end
 
     test 'delete linked images with external_source_id and organization with same external_source_id' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       @image.update_column(:external_source_id, @external_system.id)
 
       @article.destroy(destroy_linked: { template_names: ['Bild', 'Organization'], external_system_ids: [@external_system.id, @article.external_source_id] })
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_raises(ActiveRecord::RecordNotFound) { @image.reload }
       assert_raises(ActiveRecord::RecordNotFound) { @organization.reload }
     end
 
     test 'delete linked images with collection_ids from stored_filter' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       collection = DataCycleCore::StoredFilter.new.parameters_from_hash(
         [
@@ -127,37 +127,50 @@ module DataCycleCore
 
       @article.destroy(destroy_linked: { collection_ids: [collection.id] })
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_raises(ActiveRecord::RecordNotFound) { @image.reload }
       assert_not(@organization.reload.destroyed?)
     end
 
     test 'delete linked images with collection_ids from watch_list' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       collection = DataCycleCore::WatchList.create(full_path: 'Test List 1')
       collection.things << @image
 
       @article.destroy(destroy_linked: { collection_ids: [collection.id] })
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_raises(ActiveRecord::RecordNotFound) { @image.reload }
       assert_not(@organization.reload.destroyed?)
     end
 
     test 'dont delete linked existing relations' do
-      assert_equal(false, @image.destroyed?)
+      assert_not(@image.destroyed?)
 
       DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 2', image: [@image.id] })
 
       @article.destroy(destroy_linked: { template_names: ['Bild'] })
 
-      assert(@article.destroyed?)
+      assert_predicate(@article, :destroyed?)
       assert_raises(ActiveRecord::RecordNotFound) { @article.reload }
       assert_not(@image.reload.destroyed?)
       assert_not(@organization.reload.destroyed?)
+    end
+
+    test 'invalidate cache if linked is deleted' do
+      assert_not(@image.destroyed?)
+
+      article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 2', image: [@image.id] })
+      cache_valid_since = article.cache_valid_since
+
+      @image.destroy
+
+      assert_predicate(@image, :destroyed?)
+      assert_raises(ActiveRecord::RecordNotFound) { @image.reload }
+      assert_not_equal(cache_valid_since, article.reload.cache_valid_since)
     end
   end
 end

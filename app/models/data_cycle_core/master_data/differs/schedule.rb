@@ -18,6 +18,7 @@ module DataCycleCore
         def schedule_change(a, b, template)
           return if a.blank? || b.blank? || template.blank?
           return if a.is_a?(ActiveRecord::Relation) && b.is_a?(ActiveRecord::Relation)
+
           changes = []
           a.each do |a_item|
             a_uuid = nil
@@ -31,6 +32,7 @@ module DataCycleCore
               a_data = a_item.to_h
             end
             next if a_uuid.nil?
+
             b_data = find_item(b, a_uuid)
             change = diff_schedule(a_data, b_data)
             changes << a_uuid if change.present?
@@ -47,6 +49,7 @@ module DataCycleCore
 
         def schedule_comp(a, b) # rubocop:disable Naming/PredicateMethod
           return true if a == b
+
           ::Hashdiff.diff(a, b).blank?
         end
 
@@ -63,6 +66,7 @@ module DataCycleCore
               iuuid = item.id
             end
             next unless iuuid == uuid
+
             return data
           end
           nil

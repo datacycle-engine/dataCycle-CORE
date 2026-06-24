@@ -38,6 +38,14 @@ module DataCycleCore
           configuration(content)['ordered']
         end
 
+        def archive_name(content = nil)
+          configuration(content)['archive_name'] || []
+        end
+
+        def archive_id(content = nil)
+          ordered_classifications(content)&.dig(archive_name(content))&.[](:id)
+        end
+
         def creatable_stages(content = nil)
           ordered_classifications(content)
             .except('Archiv')

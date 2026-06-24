@@ -12,6 +12,7 @@ const MaplibreGl = () =>
 
 const iconPaths = {
 	start:
+		// biome-ignore lint/suspicious/noTemplateCurlyInString: this is later interpolated
 		'data:image/svg+xml;utf8,<svg width="21.091" height="33.117" version="1.1" viewBox="0 0 21.091 33.117" xmlns="http://www.w3.org/2000/svg"><path d="m10.545 1c-5.2719 0-9.5453 4.2748-9.5453 9.5484 0 9.5484 9.5453 21.006 9.5453 21.006s9.5453-11.458 9.5453-21.006c0-5.2736-4.2734-9.5484-9.5453-9.5484z" fill="${color}" stroke="${strokeColor}" stroke-width="2" style="paint-order:normal"/><path d="m15.944 11.969-8.9451 5.0275 0.11862-10.26z" fill="%23fff" fill-opacity="1"/></svg>',
 };
 
@@ -119,7 +120,8 @@ class MapLibreGlViewer {
 		this.selectedAdditionalLayers = {};
 		this.sources = {};
 		this.layers = {};
-		this.allRenderedLayers = [];
+		this.renderedLayers = {};
+		this.renderedPopupLayers = [];
 		this.hoveredStateId = {};
 		this.throttledHighlight = throttle(this._highlightLinked.bind(this), 1000);
 		this.debouncedFilterLayerReload = debounce(
@@ -426,12 +428,23 @@ class MapLibreGlViewer {
 		if (!this.afterValue && this.feature)
 			this._addSourceAndLayer({ key: "primary", data: this.feature });
 	}
+	findAdditionalValueElement(key) {
+		return this.$parentContainer
+			.closest("form")
+			.find(
+				`.form-element[data-key*="[${key}]"]:not(.form-element .form-element) .object-browser[data-editable="true"]`,
+			);
+	}
 	drawAdditionalFeatures() {
 		for (const [key, value] of Object.entries(this.additionalFeatures)) {
+			const edtiableTarget =
+				this.constructor.name.includes("Editor") &&
+				this.findAdditionalValueElement(key).length !== 0;
+
 			this._addAdditionalSourceAndLayers(
 				key,
 				value,
-				this.constructor.name.includes("Editor") ? "_selected" : "",
+				edtiableTarget ? "_selected" : "",
 			);
 		}
 
@@ -513,14 +526,17 @@ class MapLibreGlViewer {
 	_removeSourceForKey(key) {
 		if (!this.sources[key]) return;
 
-		const layers = this.map.getLayersOrder().filter((v) => v.includes(key));
-		this.allRenderedLayers = this.allRenderedLayers.filter(
-			(v) => !v.includes(key),
-		);
-		for (const layer of layers) this.map.removeLayer(layer);
-
+		this.#removeLayersForKey(key);
 		this.map.removeSource(this.sources[key]);
 		this.sources[key] = undefined;
+	}
+	removeAdditionalSource(key) {
+		if (!this.additionalSources[key]) return;
+
+		this.#removeLayersForKey(key);
+		this.map.removeSource(this.editor.additionalSources[key]);
+		this.additionalSources[key] = undefined;
+		this.additionalLayers[key] = undefined;
 	}
 	_getLastLayerId(idRegex) {
 		return this.map
@@ -528,6 +544,32 @@ class MapLibreGlViewer {
 			.layers.find(
 				(l) => l.metadata?.namespace === "dataCycle" && l.id?.match(idRegex),
 			)?.id;
+	}
+	#removeLayersForKey(key) {
+		const layers = this.renderedLayers[key];
+		if (!layers) return;
+
+		for (const layerId of layers) {
+			this.renderedPopupLayers = this.renderedPopupLayers.filter(
+				(id) => id !== layerId,
+			);
+			this.map.removeLayer(layerId);
+		}
+
+		this.renderedLayers[key] = undefined;
+	}
+	#addRenderedLayer(key, layerId, popup = false) {
+		if (!this.renderedLayers[key]) this.renderedLayers[key] = [];
+		this.renderedLayers[key].push(layerId);
+
+		if (popup) this.renderedPopupLayers.push(layerId);
+	}
+	#addLayer(layer, beforeId, popup = false) {
+		const key = layer.metadata?.["dc:key"];
+		if (!key) return;
+
+		this.#addRenderedLayer(key, layer.id, popup);
+		this.map.addLayer(layer, beforeId);
 	}
 	_lineLayer({
 		layerId,
@@ -549,7 +591,7 @@ class MapLibreGlViewer {
 
 		if (this.map.getLayer(layerId)) return layerId;
 
-		this.map.addLayer(
+		this.#addLayer(
 			{
 				id: `${layerId}_hover_start`,
 				type: "symbol",
@@ -575,12 +617,14 @@ class MapLibreGlViewer {
 				},
 				metadata: {
 					namespace: "dataCycle",
+					"dc:key": layerId,
 				},
 			},
 			this._getLastLayerId("point"),
+			popup,
 		);
 
-		this.map.addLayer(
+		this.#addLayer(
 			{
 				id: `${layerId}_hover_foreground`,
 				type: "line",
@@ -617,12 +661,13 @@ class MapLibreGlViewer {
 				},
 				metadata: {
 					namespace: "dataCycle",
+					"dc:key": layerId,
 				},
 			},
 			this._getLastLayerId(`${layerId}_hover_start`),
 		);
 
-		this.map.addLayer(
+		this.#addLayer(
 			{
 				id: layerId,
 				type: "line",
@@ -654,12 +699,14 @@ class MapLibreGlViewer {
 				},
 				metadata: {
 					namespace: "dataCycle",
+					"dc:key": layerId,
 				},
 			},
 			this._getLastLayerId(`${layerId}_hover_foreground`),
+			popup,
 		);
 
-		this.map.addLayer(
+		this.#addLayer(
 			{
 				id: `${layerId}_hover`,
 				type: "line",
@@ -692,19 +739,14 @@ class MapLibreGlViewer {
 				},
 				metadata: {
 					namespace: "dataCycle",
+					"dc:key": layerId,
 				},
 			},
 			this._getLastLayerId(layerId),
+			popup,
 		);
 
 		this.initMapHoverActions(`${layerId}_hover`, source, sourceLayer);
-
-		if (popup)
-			this.allRenderedLayers.push(
-				`${layerId}_hover`,
-				layerId,
-				`${layerId}_hover_start`,
-			);
 
 		return layerId;
 	}
@@ -728,58 +770,63 @@ class MapLibreGlViewer {
 
 		if (this.map.getLayer(layerId)) return layerId;
 
-		this.map.addLayer({
-			id: `${layerId}_hover`,
-			type: "circle",
-			source: source,
-			"source-layer": sourceLayer,
-			filter: ["==", "$type", "Point"],
-			paint: {
-				"circle-radius": [
-					"interpolate",
-					["linear"],
-					["zoom"],
-					0,
-					1.75,
-					5,
-					2,
-					15,
-					circleRadius + 2,
-				],
-				"circle-stroke-width": [
-					"interpolate",
-					["linear"],
-					["zoom"],
-					5,
-					0,
-					15,
-					4,
-				],
-				"circle-color": this.getStyleCaseExpression(
-					styleProperty,
-					this.getHoverColorMatchHexExpression(),
-					pointColor,
-				),
-				"circle-stroke-color": this.definedColors.white,
-				"circle-opacity": [
-					"case",
-					["boolean", ["feature-state", "hover"], false],
-					1,
-					0,
-				],
-				"circle-stroke-opacity": [
-					"case",
-					["boolean", ["feature-state", "hover"], false],
-					1,
-					0,
-				],
+		this.#addLayer(
+			{
+				id: `${layerId}_hover`,
+				type: "circle",
+				source: source,
+				"source-layer": sourceLayer,
+				filter: ["==", "$type", "Point"],
+				paint: {
+					"circle-radius": [
+						"interpolate",
+						["linear"],
+						["zoom"],
+						0,
+						1.75,
+						5,
+						2,
+						15,
+						circleRadius + 2,
+					],
+					"circle-stroke-width": [
+						"interpolate",
+						["linear"],
+						["zoom"],
+						5,
+						0,
+						15,
+						4,
+					],
+					"circle-color": this.getStyleCaseExpression(
+						styleProperty,
+						this.getHoverColorMatchHexExpression(),
+						pointColor,
+					),
+					"circle-stroke-color": this.definedColors.white,
+					"circle-opacity": [
+						"case",
+						["boolean", ["feature-state", "hover"], false],
+						1,
+						0,
+					],
+					"circle-stroke-opacity": [
+						"case",
+						["boolean", ["feature-state", "hover"], false],
+						1,
+						0,
+					],
+				},
+				metadata: {
+					namespace: "dataCycle",
+					"dc:key": layerId,
+				},
 			},
-			metadata: {
-				namespace: "dataCycle",
-			},
-		});
+			null,
+			popup,
+		);
 
-		this.map.addLayer(
+		this.#addLayer(
 			{
 				id: layerId,
 				type: "circle",
@@ -816,14 +863,14 @@ class MapLibreGlViewer {
 				},
 				metadata: {
 					namespace: "dataCycle",
+					"dc:key": layerId,
 				},
 			},
 			this._getLastLayerId(`${layerId}_hover`),
+			popup,
 		);
 
 		this.initMapHoverActions(`${layerId}_hover`, source, sourceLayer);
-
-		if (popup) this.allRenderedLayers.push(`${layerId}_hover`, layerId);
 
 		return layerId;
 	}
@@ -847,7 +894,7 @@ class MapLibreGlViewer {
 
 		if (this.map.getLayer(layerId)) return layerId;
 
-		this.map.addLayer(
+		this.#addLayer(
 			{
 				id: `${layerId}_hover`,
 				type: "fill",
@@ -864,12 +911,14 @@ class MapLibreGlViewer {
 				},
 				metadata: {
 					namespace: "dataCycle",
+					"dc:key": layerId,
 				},
 			},
 			this._getLastLayerId("line"),
+			popup,
 		);
 
-		this.map.addLayer(
+		this.#addLayer(
 			{
 				id: layerId,
 				type: "fill",
@@ -886,14 +935,14 @@ class MapLibreGlViewer {
 				},
 				metadata: {
 					namespace: "dataCycle",
+					"dc:key": layerId,
 				},
 			},
 			this._getLastLayerId(`${layerId}_hover`),
+			popup,
 		);
 
 		this.initMapHoverActions(`${layerId}_hover`, source, sourceLayer);
-
-		if (popup) this.allRenderedLayers.push(`${layerId}_hover`, layerId);
 
 		return layerId;
 	}
@@ -906,7 +955,7 @@ class MapLibreGlViewer {
 
 		this.map.on("mousemove", async (e) => {
 			const feature = this.map.queryRenderedFeatures(e.point, {
-				layers: this.allRenderedLayers,
+				layers: this.renderedPopupLayers,
 			})[0];
 
 			if (feature?.properties?.name) {

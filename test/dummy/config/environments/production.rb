@@ -24,6 +24,7 @@ Rails.application.configure do
 
   # Disable serving static files from the `/public` folder by default since
   # Apache or NGINX already handles this.
+  config.public_file_server.headers = { 'cache-control' => "public, max-age=#{1.year.to_i}" }
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
@@ -57,6 +58,7 @@ Rails.application.configure do
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = ENV['APP_PROTOCOL'] == 'https'
+  config.assume_ssl = ENV['APP_PROTOCOL'] == 'https'
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
@@ -104,7 +106,7 @@ Rails.application.configure do
   # require 'syslog/logger'
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
-  if ENV['RAILS_LOG_TO_STDOUT'].present?
+  if ENV['RAILS_LOG_TO_STDOUT'].to_s == 'true'
     logger = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
@@ -113,10 +115,14 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  # Only use :id for inspections in production.
+  config.active_record.attributes_for_inspect = [:id]
+
   config.action_mailer.delivery_method = :sendmail
   config.action_mailer.default_options = { from: "noreply@#{ENV.fetch('APP_HOST', 'localhost')}" }
-  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') } # required for action_mailer (Missing host to link to! Please provide the :host parameter, set default_url_options[:host])
+  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'https') } # required for action_mailer (Missing host to link to! Please provide the :host parameter, set default_url_options[:host])
 
+  config.hosts.push('dockerhost', 'web', 'localhost', ENV.fetch('APP_HOST', 'localhost'))
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
   config.action_cable.url = '/cable'
   config.action_cable.allowed_request_origins = [config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')]

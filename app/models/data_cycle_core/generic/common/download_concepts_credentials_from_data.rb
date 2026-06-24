@@ -17,6 +17,7 @@ module DataCycleCore
 
         def self.load_concepts_from_mongo(options:, source_filter:, **_keyword_args)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
+
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
           # concept_name = options.dig(:download, :concept_name_path)

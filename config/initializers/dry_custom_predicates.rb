@@ -9,6 +9,7 @@ Rails.application.reloader.to_prepare do
     Dry::Logic::Predicates.predicate(:api_sort_parameter?) do |value|
       next false unless value.is_a?(String)
       next true unless value.starts_with?('random')
+
       _key, _order, v = DataCycleCore::ApiService.order_key_with_value(value)
 
       v = v.to_f if v.is_a?(String)
@@ -23,8 +24,16 @@ Rails.application.reloader.to_prepare do
       end
     end
 
+    Dry::Logic::Predicates.predicate(:nested_json_path?) do |value|
+      value.is_a?(String) && format?(/^(?!\$\.\.)/i, value)
+    end
+
     Dry::Logic::Predicates.predicate(:api_weight_string?) do |value|
       value.is_a?(String) && format?(/^[ABCD]{1,4}$/i, value)
+    end
+
+    Dry::Logic::Predicates.predicate(:api_fulltext_fields_string?) do |value|
+      value.is_a?(String) && value.split(',').map(&:strip).all? { |v| v.in?(DataCycleCore::Filter::Common::Fulltext::FULLTEXT_FIELDS) }
     end
 
     Dry::Logic::Predicates.predicate(:uuid?) do |value|

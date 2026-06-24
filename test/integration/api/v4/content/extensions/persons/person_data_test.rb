@@ -427,6 +427,7 @@ module DataCycleCore
               test 'api_v4_thing_path validate full person and person_overlay with default params' do
                 assert_full_thing_datahash(@content)
                 content_overlay = DataCycleCore::V4::DummyDataHelper.create_data('person_overlay')
+
                 assert_full_thing_datahash(content_overlay)
                 @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { 'overlay' => [content_overlay.get_data_hash] })
                 @content.reload
@@ -542,6 +543,7 @@ module DataCycleCore
               test 'api_v4_thing_path validate full person and person_overlay_minimal with default params' do
                 assert_full_thing_datahash(@content)
                 content_overlay = DataCycleCore::V4::DummyDataHelper.create_data('person_overlay_minimal')
+
                 assert_full_thing_datahash(content_overlay)
                 @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { 'overlay' => [content_overlay.get_data_hash] })
                 @content.reload

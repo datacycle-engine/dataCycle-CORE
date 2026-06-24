@@ -8,15 +8,15 @@ module DataCycleCore
           default_value_keys = Array.wrap(keys.presence || default_value_property_names).intersection(default_value_property_names)
 
           # BUG: if attribute_blank? is used on content in new language, translated_locales will include the new language after this method call
-          if force
-            default_value_keys = default_value_keys.reject { |k| data_hash.key?(k) }
-          elsif new_content
-            default_value_keys = default_value_keys.select { |k| attribute_blank?(data_hash, k) }
-          elsif !partial && translated_locales.presence&.exclude?(I18n.locale)
-            default_value_keys = default_value_keys.select { |k| attribute_blank?(data_hash, k) }.intersection(translatable_property_names)
-          else
-            default_value_keys = default_value_keys.select { |k| attribute_blank?(data_hash, k) }.intersection(data_hash.keys)
-          end
+          default_value_keys = if force
+                                 default_value_keys.reject { |k| data_hash.key?(k) }
+                               elsif new_content
+                                 default_value_keys.select { |k| attribute_blank?(data_hash, k) }
+                               elsif !partial && translated_locales.presence&.exclude?(I18n.locale)
+                                 default_value_keys.select { |k| attribute_blank?(data_hash, k) }.intersection(translatable_property_names)
+                               else
+                                 default_value_keys.select { |k| attribute_blank?(data_hash, k) }.intersection(data_hash.keys)
+                               end
 
           return data_hash if default_value_keys.blank?
 

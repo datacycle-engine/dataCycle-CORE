@@ -27,14 +27,16 @@ module DataCycleCore
           test 'concepts at /api/v4/things/:id serializes with only minimal header, in de and en' do
             languages = 'de,en'
             get api_v4_thing_path(id: @content.id, language: languages)
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
             json_data = json_data['@graph'].first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content, languages)
+
             assert_equal(header.except('name'), data.except('name'))
             assert_compact_classification_header(json_data['dc:classification'])
             assert_equal(['de', 'en'], json_data['name'].pluck('@language').sort)

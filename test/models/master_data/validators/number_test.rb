@@ -44,6 +44,7 @@ describe DataCycleCore::MasterData::Validators::Number do
 
     it 'rejects strings' do
       validator = subject.new('10', template_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -56,17 +57,20 @@ describe DataCycleCore::MasterData::Validators::Number do
 
     it 'succeeds if number is given within min, max options' do
       validator = subject.new(50.55, template_hash_val)
+
       assert_equal(no_error_hash, validator.error)
     end
 
     it 'errors out when number < min' do
       validator = subject.new(1, template_hash_val)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
 
     it 'errors out when number > max' do
       validator = subject.new(500, template_hash_val)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -75,6 +79,7 @@ describe DataCycleCore::MasterData::Validators::Number do
       new_hash = template_hash.deep_dup
       new_hash['validations'] = { 'format' => 'xxx' }
       validator = subject.new(5.333, new_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -83,6 +88,7 @@ describe DataCycleCore::MasterData::Validators::Number do
       new_hash = template_hash.deep_dup
       new_hash['validations'] = { 'format' => 'integer' }
       validator = subject.new(5.333, new_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -91,6 +97,7 @@ describe DataCycleCore::MasterData::Validators::Number do
       new_hash = template_hash.deep_dup
       new_hash['validations'] = { 'format' => 'float' }
       validator = subject.new('5.333E-4', new_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -98,6 +105,7 @@ describe DataCycleCore::MasterData::Validators::Number do
     it 'produces no warning when an unsupported keyword is used' do
       new_template = template_hash_val.deep_dup.merge({ 'validations' => { 'maxi' => 3 } })
       validator = subject.new(7.999, new_template)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end

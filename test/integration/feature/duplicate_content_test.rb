@@ -14,13 +14,14 @@ module DataCycleCore
       end
 
       test 'create duplicate of content' do
-        get create_duplication_thing_path(@content), params: {}, headers: {
+        post create_duplication_thing_path(@content), params: {}, headers: {
           referer: thing_path(@content)
         }
 
         assert_response :found
         duplicate = DataCycleCore::Thing.where_translated_value(name: "DUPLICATE: #{@content.name}").first
-        assert duplicate.present?
+
+        assert_predicate duplicate, :present?
         assert_not_equal @content.id, duplicate.id
       end
     end

@@ -615,6 +615,52 @@ module DataCycleCore
             update_tag.primary_classification.update_column(:external_source_id, nil)
             update_tag.primary_classification.update_column(:external_key, nil)
           end
+
+          test 'api/v4/concept_schemes/(:id) test dc:slugifiedName' do
+            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree_id = tree.id
+
+            params = { id: tree_id, fields: 'dc:slugifiedName' }
+            post api_v4_concept_scheme_path(params)
+            json_data = response.parsed_body
+            json_validate = json_data.dup['@graph'].first
+
+            assert_equal(tree.name.to_slug, json_validate['dc:slugifiedName'])
+
+            params = { id: tree_id, fields: 'dc:slugifiedName', language: 'de,en' }
+            post api_v4_concept_scheme_path(params)
+            json_data = response.parsed_body
+            json_validate = json_data.dup['@graph'].first
+
+            assert_equal(2, json_validate['dc:slugifiedName'].size)
+            json_validate['dc:slugifiedName'].each do |item|
+              assert_equal(tree.name.to_slug, item['@value'])
+            end
+          end
+
+          test 'api/v4/concept_schemes/(:id)/concepts test dc:slugifiedName' do
+            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree_id = tree.id
+
+            params = { id: tree_id, fields: 'dc:slugifiedName' }
+            post classifications_api_v4_concept_scheme_path(params)
+            json_data = response.parsed_body
+            json_validate = json_data.dup['@graph'].first
+            slug = tree.concepts.first.name.to_slug
+
+            assert_equal(slug, json_validate['dc:slugifiedName'])
+
+            params = { id: tree_id, fields: 'dc:slugifiedName', language: 'de,en' }
+            post classifications_api_v4_concept_scheme_path(params)
+            json_data = response.parsed_body
+            json_validate = json_data.dup['@graph'].first
+
+            assert(json_validate['dc:slugifiedName'].is_a?(Array))
+            assert_equal(1, json_validate['dc:slugifiedName'].size)
+            json_validate['dc:slugifiedName'].each do |item|
+              assert_equal(slug, item['@value'])
+            end
+          end
         end
       end
     end

@@ -140,6 +140,20 @@ crumb :docs do
   end
 end
 
+# Developer Guides
+crumb :guides do
+  link t('data_cycle_core.guides.root', locale: active_ui_locale), guides_path, authorized: true
+
+  path_segments = (params['path'] || '').split('/')
+
+  (0..(path_segments.length - 1)).each do |i|
+    translation_key = (['data_cycle_core', 'guides'] + path_segments[0..i]).join('.')
+    translation_key += '.root' if t(translation_key, locale: active_ui_locale).is_a? Hash
+
+    link t(translation_key, default: path_segments[i].to_s, locale: active_ui_locale), guides_with_path(path_segments[0..i]), authorized: true
+  end
+end
+
 # Static
 crumb :static do
   path_segments = (params['path'] || '').split('/')

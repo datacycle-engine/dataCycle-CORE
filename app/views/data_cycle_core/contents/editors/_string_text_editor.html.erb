@@ -17,18 +17,20 @@
           content_id: content.id,
           template: to_query_params(thing_template: content.thing_template).to_json,
           content_template_name: content.thing_template.persisted? ? content.template_name : nil,
-        }.merge(definition&.slice('validations', 'warnings')),
+        }.merge(definition&.slice('validations', 'warnings')).merge(options[:data] || {}),
         class: 'quill-editor',
         id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}-editor"
       }) %>
 
     <%= content_tag :div, options do %>
-      <%= value.presence&.html_safe %>
+      <%= sanitized_rich_text(value.presence, definition) %>
     <% end %>
 
     <div class="ql-toolbar text-editor-toolbar">
       <span class="ql-formats">
-        <%= render 'data_cycle_core/contents/editors/features/ai_lector', content: contextual_content(local_assigns), key: key if ai_lector_allowed?(**local_assigns) %>
+        <%= render 'data_cycle_core/contents/editors/features/ai_lector',
+                   content: contextual_content(local_assigns),
+                   key: key if ai_lector_allowed?(**local_assigns) %>
       </span>
     </div>
   </div>

@@ -34,6 +34,7 @@ if in_language?(content, options) && !(options[:ancestor_ids]&.include?(content.
   json.merge! render('container_children_properties', content:, options:) if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 
   json.merge! render('external', content:) if attribute_visible?('identifier', options)
+  json.merge! render('slugified_name', content:, options:) if attribute_visible?('dc:slugifiedName', options, false)
 end
 
 json

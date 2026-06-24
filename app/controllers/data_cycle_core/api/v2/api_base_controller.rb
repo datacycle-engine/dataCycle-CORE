@@ -35,6 +35,7 @@ module DataCycleCore
         def apply_paging(query)
           page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.compact_blank.symbolize_keys)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
+
           query.page(page_params[:number].to_i).per(page_params[:size].to_i)
         end
 

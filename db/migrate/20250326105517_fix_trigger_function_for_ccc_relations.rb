@@ -2,7 +2,7 @@
 
 class FixTriggerFunctionForCccRelations < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.generate_collected_classification_content_relations(
           content_ids uuid [],
           excluded_classification_ids uuid []

@@ -2,7 +2,7 @@
 
 class MoveGeometriesToOwnTableAndDeleteLegacyColumns < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       SET LOCAL statement_timeout = 0;
 
       INSERT INTO geometries (thing_id, relation, geom, priority)
@@ -21,7 +21,7 @@ class MoveGeometriesToOwnTableAndDeleteLegacyColumns < ActiveRecord::Migration[7
       WHERE things.geom IS NOT NULL;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       SET LOCAL statement_timeout = 0;
 
       INSERT INTO geometry_histories (thing_history_id, relation, geom, priority)
@@ -35,7 +35,7 @@ class MoveGeometriesToOwnTableAndDeleteLegacyColumns < ActiveRecord::Migration[7
       WHERE thing_histories.line IS NOT NULL;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS geom_simple_insert_trigger ON public.things;
       DROP TRIGGER IF EXISTS geom_simple_update_trigger ON public.things;
       DROP FUNCTION IF EXISTS public.geom_simple_update();

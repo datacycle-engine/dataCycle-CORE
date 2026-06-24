@@ -2,7 +2,7 @@
 
 class FixGenerateCollectedClassificationContentRelationsTriggerWithUpsert < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP FUNCTION IF EXISTS generate_collected_classification_content_relations;
 
       CREATE
@@ -179,7 +179,7 @@ class FixGenerateCollectedClassificationContentRelationsTriggerWithUpsert < Acti
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP FUNCTION IF EXISTS generate_collected_classification_content_relations;
 
       CREATE

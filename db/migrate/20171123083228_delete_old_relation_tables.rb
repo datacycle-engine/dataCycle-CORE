@@ -17,7 +17,7 @@ class DeleteOldRelationTables < ActiveRecord::Migration[5.0]
   end
 
   def down
-    sql_string = <<-EOS
+    sql_string = <<-SQL
       CREATE TABLE creative_work_event_histories (
           id uuid DEFAULT uuid_generate_v4() NOT NULL,
           creative_work_history_id uuid,
@@ -132,7 +132,7 @@ class DeleteOldRelationTables < ActiveRecord::Migration[5.0]
           created_at timestamp without time zone NOT NULL,
           updated_at timestamp without time zone NOT NULL
       );
-    EOS
+    SQL
     ActiveRecord::Base.connection.execute(sql_string)
   end
 end

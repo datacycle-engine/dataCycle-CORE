@@ -28,7 +28,7 @@ module DataCycleCore
         end
 
         CONTENT = Dry::Schema.Params do
-          optional(:uuid).filled(:array)
+          optional(:uuid).filled(:array).each(:string)
           optional(:uuids).filled(:string)
           optional(:content_id) { str? | array? }
         end
@@ -36,6 +36,7 @@ module DataCycleCore
         CLASSIFICATIONS = Dry::Schema.Params do
           optional(:classification_id).filled(:string)
           optional(:classification_ids).filled(:string)
+          optional(:classificationIds).filled(:string)
           optional(:classification_tree_label_id).filled(:uuid_or_list_of_uuid?)
         end
 
@@ -94,9 +95,14 @@ module DataCycleCore
         end
 
         GEO_FILTER = Dry::Schema.Params do
-          optional(:box).value(:array, min_size?: 4)
-          optional(:perimeter).value(:array, min_size?: 3)
-          optional(:shapes).value(:array, min_size?: 1)
+          optional(:box).value(:array, size?: 4).each { str? | int? | float? }
+          optional(:perimeter).value(:array, size?: 3).each { str? | int? | float? }
+          optional(:shapes).value(:array, min_size?: 1).each(:uuid?)
+          optional(:geoShape).hash do
+            # GeoJSON must be provided as a string, as Dry::Schema cannot validate nested Arrays with validate_keys yet
+            optional(:line).filled(:string)
+            optional(:polygon).filled(:string)
+          end
         end
 
         TIME_FILTER = Dry::Schema.Params do
@@ -123,6 +129,14 @@ module DataCycleCore
           end
         end
 
+        SCHEDULE_FILTER = Dry::Schema.Params do
+          optional(:in).hash do
+            optional(:min).filled(:string)
+            optional(:max).filled(:string)
+          end
+          optional(:all).hash(TIME_FILTER)
+        end
+
         IN_UUID_OR_NULL_ARRAY_FILTER = Dry::Schema.Params do
           optional(:in).filled(:array).each(:uuid_or_null_string_or_list?)
           optional(:notIn).filled(:array).each(:uuid_or_null_string_or_list?)
@@ -134,8 +148,13 @@ module DataCycleCore
         end
 
         IN_ARRAY_FILTER = Dry::Schema.Params do
-          optional(:in).filled(:array)
-          optional(:notIn).filled(:array)
+          optional(:in).filled(:array).each(:string)
+          optional(:notIn).filled(:array).each(:string)
+        end
+
+        FULLTEXT_SEARCH_FILTER = Dry::Schema.Params do
+          optional(:value).filled(:string)
+          optional(:fields).filled(:api_fulltext_fields_string?)
         end
 
         FILTER = Dry::Schema.Params do
@@ -144,8 +163,8 @@ module DataCycleCore
           optional(:filterId).hash(IN_ARRAY_FILTER)
           optional(:watchListId).hash(IN_ARRAY_FILTER)
           optional(:classificationTreeId).hash(IN_ARRAY_FILTER)
-          optional(:search).value(:string)
-          optional(:q).value(:string)
+          optional(:search).value { str? | hash(FULLTEXT_SEARCH_FILTER) }
+          optional(:q).value { str? | hash(FULLTEXT_SEARCH_FILTER) }
           optional(:classifications).hash do
             optional(:in).hash(CLASSIFICATIONS_FILTER)
             optional(:notIn).hash(CLASSIFICATIONS_FILTER)
@@ -157,24 +176,17 @@ module DataCycleCore
           optional(:geo).hash do
             optional(:in).hash(GEO_FILTER)
             optional(:notIn).hash(GEO_FILTER)
-            optional(:withGeometry).filled(:string)
+            optional(:withGeometry).filled(:bool)
           end
           optional(:creator).hash do
-            optional(:in).filled(:array)
-            optional(:notIn).filled(:array)
+            optional(:in).filled(:array).each(:uuid_or_list_of_uuid?)
+            optional(:notIn).filled(:array).each(:uuid_or_list_of_uuid?)
           end
-          optional(:attribute).hash do
-            optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
-            (DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES +
-              DataCycleCore::ApiService::API_DATE_RANGE_ATTRIBUTES +
-              DataCycleCore::ApiService.additional_advanced_attribute_keys).each do |a|
-              optional(a).hash(ATTRIBUTE_FILTER)
-            end
-            optional(:slug).hash(ATTRIBUTE_FILTER)
-            optional(:'skos:broader').hash(IN_UUID_OR_NULL_ARRAY_FILTER)
-            optional(:'skos:ancestors').hash(IN_UUID_ARRAY_FILTER)
-          end
-          optional(:schedule).hash(ATTRIBUTE_FILTER)
+          optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
+          optional(:slug).hash(ATTRIBUTE_FILTER)
+          optional(:'skos:broader').hash(IN_UUID_OR_NULL_ARRAY_FILTER)
+          optional(:'skos:ancestors').hash(IN_UUID_ARRAY_FILTER)
+          optional(:schedule).hash(SCHEDULE_FILTER)
         end
 
         TRANSLATE = Dry::Schema.Params do

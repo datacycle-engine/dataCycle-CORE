@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: child_nested_mixin
+    :type: mixin
+    :extends: base_nested_mixin
+    :properties:
+      :nested_text:
+        :label: Child nested label
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: false
+        :api:
+          :name: dc:child
+        :validations:
+          :max: 10
+      :child_only_text:
+        :label: Child only
+        :type: string
+        :storage_location: translated_value

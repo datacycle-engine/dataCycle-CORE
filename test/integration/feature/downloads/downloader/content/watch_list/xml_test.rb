@@ -40,6 +40,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:xml] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:xml] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get download_watch_list_path(@watch_list), params: { serialize_format: 'xml' }, headers: {
@@ -48,7 +49,8 @@ module DataCycleCore
 
                 assert_response :success
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal @watch_list.name, xml.xpath('//collection/name').text
                 assert_equal @content.name, xml.xpath('//collection/things/thing/name').text
               end
@@ -57,6 +59,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:xml] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:xml] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get "/downloads/watch_lists/#{@watch_list.id}", params: { serialize_format: 'xml' }, headers: {
@@ -65,7 +68,8 @@ module DataCycleCore
 
                 assert_response :success
                 xml = Nokogiri::XML(response.body)
-                assert xml.errors.blank?
+
+                assert_predicate xml.errors, :blank?
                 assert_equal @watch_list.name, xml.xpath('//collection/name').text
                 assert_equal @content.name, xml.xpath('//collection/things/thing/name').text
               end

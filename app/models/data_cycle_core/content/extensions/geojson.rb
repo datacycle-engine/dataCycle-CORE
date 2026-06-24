@@ -27,6 +27,7 @@ module DataCycleCore
             return factory.collection([line, location])
           end
           return line unless line.nil?
+
           location
         end
 

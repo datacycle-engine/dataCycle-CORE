@@ -340,7 +340,7 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
 
     transformed_data = subject.get_external_schedule_references(raw_data, 'EXTERNAL SOURCE ID', 'schedule_id')
 
-    assert(transformed_data.present?)
+    assert_predicate(transformed_data, :present?)
 
     assert_equal('EXTERNAL SOURCE ID', transformed_data.first.external_source_id)
     assert_equal('SOME EXTERNAL ID', transformed_data.first.external_key)
@@ -353,7 +353,7 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
 
     transformed_data = subject.get_external_content_references(raw_data, 'EXTERNAL SOURCE ID', 'content_id')
 
-    assert(transformed_data.present?)
+    assert_predicate(transformed_data, :present?)
 
     assert_equal('EXTERNAL SOURCE ID', transformed_data.first.external_source_id)
     assert_equal('SOME EXTERNAL ID', transformed_data.first.external_key)
@@ -366,7 +366,7 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
 
     transformed_data = subject.get_classification_name_references(raw_data, 'Jahreszeiten', 'classifications')
 
-    assert(transformed_data.present?)
+    assert_predicate(transformed_data, :present?)
 
     assert_equal('Jahreszeiten', transformed_data.first.tree_name)
     assert_equal('SOME EXTERNAL ID', transformed_data.first.classification_name)

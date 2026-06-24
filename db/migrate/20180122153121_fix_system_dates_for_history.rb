@@ -7,7 +7,7 @@ class FixSystemDatesForHistory < ActiveRecord::Migration[5.0]
       content = table_name.singularize
       next unless @connection.table_exists?(table_name)
 
-      query = <<-EOS
+      query = <<-SQL
         WITH t AS (
           SELECT
             #{content}_histories.id AS id,
@@ -21,7 +21,7 @@ class FixSystemDatesForHistory < ActiveRecord::Migration[5.0]
         SET updated_at = t.new_created_at, created_at = t.new_created_at
         FROM t
         WHERE #{content}_histories.id = t.id;
-      EOS
+      SQL
 
       @connection.exec_query(query)
     end

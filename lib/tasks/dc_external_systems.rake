@@ -30,5 +30,15 @@ namespace :dc do
         exit(-1)
       end
     end
+
+    desc 'set all running imports to failed'
+    task fail_running_imports: :environment do
+      to_update = DataCycleCore::ExternalSystem.where("external_systems.last_import_step_time_info @? '$.* ? (@.status == \"running\")'")
+      puts "setting #{to_update.size} running imports to failed"
+
+      to_update.find_each(&:fail_running_steps!)
+    rescue StandardError
+      puts AmazingPrint::Colors.red('🔥 there were some errors!')
+    end
   end
 end

@@ -7,12 +7,14 @@
 
   <%= tag.span(
     'API',
-    class: "content-title-api copy-to-clipboard",
+    class: "content-title-api tag hollow copy-to-clipboard",
     data: {
       value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_filter),
       dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
     }
   ) if stored_filter.api %>
+
+  <%= tag.span('CACHED', class: 'tag hollow', data: { dc_tooltip: cached_tooltip(stored_filter) }) if stored_filter.cache_result? %>
 
   <%= tag.span(stored_filter.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale), locale: active_ui_locale) }) if stored_filter.slug.present? %>
 

@@ -9,7 +9,7 @@
   <span class="detail-content">
     <%
       value = options.dig(:item_diff, 1).presence if options.dig(:item_diff, 0) == '+'
-      value = value.try(:html_safe) if definition.dig('ui', 'edit', 'type').try(:underscore) == 'text_editor'
+      value = sanitized_rich_text(value, definition) if definition.dig('ui', 'edit', 'type').try(:underscore) == 'text_editor'
     %>
 
     <%= value %>

@@ -14,25 +14,25 @@ module DataCycleCore
 
       api_property_definition = api_definition(definition)
       api_version = @api_version || 2
-      if api_version == 4
+      partials = if api_version == 4
 
-        partials = [
-          "#{definition&.dig('type')&.underscore}_#{key.underscore}",
-          definition.dig('features', 'overlay', 'overlay_for')&.then { |overlay_for| "#{definition&.dig('type')&.underscore}_#{overlay_for.underscore}" },
-          (api_property_definition&.dig('partial').present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
-          api_property_definition&.dig('partial')&.underscore,
-          definition['type'].underscore,
-          'default'
-        ].compact_blank
-      else
-        partials = [
-          "#{definition['type'].underscore}_#{key.underscore}",
-          "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
-          "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
-          definition['type'].underscore,
-          'default'
-        ].compact_blank
-      end
+                   [
+                     "#{definition&.dig('type')&.underscore}_#{key.underscore}",
+                     definition.dig('features', 'overlay', 'overlay_for')&.then { |overlay_for| "#{definition&.dig('type')&.underscore}_#{overlay_for.underscore}" },
+                     (api_property_definition&.dig('partial').present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+                     api_property_definition&.dig('partial')&.underscore,
+                     definition['type'].underscore,
+                     'default'
+                   ].compact_blank
+                 else
+                   [
+                     "#{definition['type'].underscore}_#{key.underscore}",
+                     "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
+                     "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
+                     definition['type'].underscore,
+                     'default'
+                   ].compact_blank
+                 end
 
       api_partials = partials.dup.map { |p| "data_cycle_core/api/v#{api_version}/api_base/attributes/#{p}" }
       if @api_subversion.present?
@@ -65,26 +65,27 @@ module DataCycleCore
       api_definition(definition, api_version, api_context)['disabled'] || false
     end
 
-    def included_attribute?(name, attribute_list)
+    def included_attribute?(name, attribute_list, full_check = true)
       return true if API_DEFAULT_ATTRIBUTES.include?(name)
       return false if attribute_list.blank?
-      return true if full_recursive?(attribute_list)
+      return true if full_check && full_recursive?(attribute_list)
 
       attribute_list.pluck(0).intersect?(Array.wrap(name))
     end
 
-    def fields_attribute?(name, attribute_list)
+    def fields_attribute?(name, attribute_list, full_check = true)
       return true if attribute_wildcard?(attribute_list)
 
-      included_attribute?(name, attribute_list)
+      included_attribute?(name, attribute_list, full_check)
     end
 
     def included_attribute_not_full?(name, attribute_list)
       included_attribute?(name, attribute_list) && !full_recursive?(attribute_list)
     end
 
-    def attribute_visible?(name, options)
-      included_attribute?(name, options[:include]) || fields_attribute?(name, options[:fields])
+    def attribute_visible?(name, options, full_check = true)
+      included_attribute?(name, options[:include], full_check) ||
+        fields_attribute?(name, options[:fields], full_check)
     end
 
     def subtree_for(name, attribute_list)
@@ -119,7 +120,9 @@ module DataCycleCore
     end
 
     def in_language?(content, options)
-      (content.embedded? && options[:translatable_embedded]) || content.translatable? || options[:languages].include?(content.first_available_locale.to_s)
+      (content.embedded? && options[:translatable_embedded]) ||
+        content.translatable? ||
+        options[:languages].include?(content.first_available_locale.to_s)
     end
 
     def ordered_api_properties(validation:, type: nil)
@@ -138,16 +141,17 @@ module DataCycleCore
 
     def load_value_object(content, key, value, languages, definition = nil, expand_language = false)
       data_value = nil
-      first_locale = Array.wrap(languages).first
+      languages = Array.wrap(languages)
 
       return api_value_format(value, definition) unless content.translatable_property_names.include?(key)
-      single_value = languages.size == 1 && content.available_locales.map(&:to_s).include?(first_locale)
+      return unless content.available_locales.map(&:to_s).intersect?(languages)
 
-      if single_value && !expand_language
-        data_value = I18n.with_locale(first_locale) { api_value_format(content.send(:"#{key}_overlay"), definition) } || []
+      if languages.one? && !expand_language
+        data_value = I18n.with_locale(languages.first) { api_value_format(content.send(:"#{key}_overlay"), definition) } || []
 
         if content.embedded_property_names.include?(key)
           data_value = DataCycleCore::Thing.none
+
           content.available_locales.map(&:to_s).each do |locale|
             records = data_value.to_a + I18n.with_locale(locale) { content.try("#{key}_overlay") }.to_a
             records_ids = records.pluck(:id)
@@ -209,6 +213,7 @@ module DataCycleCore
     def api_value_format(value, definition)
       return value if definition.blank? || definition['format'].blank?
       return value if DataCycleCore::DataHashService.blank?(value)
+
       "#{definition.dig('format', 'prepend')}#{value}#{definition.dig('format', 'append')}"
     end
 
@@ -268,6 +273,7 @@ module DataCycleCore
     def merge_overlay(data, overlay)
       overlay.map { |key, value|
         next if value.blank?
+
         if key == 'dc:classification'
           data[key] ||= []
           { key => data[key] + value }
@@ -309,6 +315,30 @@ module DataCycleCore
       end
 
       new_options
+    end
+
+    def render_slugified_name(item, languages)
+      return if languages.blank?
+
+      return_data = nil
+
+      if languages.one?
+        return_data = I18n.with_locale(languages.first) { item.try(:name).presence&.to_s&.to_slug }
+      else
+        value_container = []
+
+        languages.each do |language|
+          I18n.with_locale(language) do
+            next if item.name.blank?
+
+            value_container << { '@language' => language, '@value' => item.try(:name)&.to_s.presence&.to_slug }
+          end
+        end
+
+        return_data = value_container
+      end
+
+      return_data.presence
     end
   end
 end

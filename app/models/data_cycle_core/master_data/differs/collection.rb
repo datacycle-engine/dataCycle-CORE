@@ -18,6 +18,7 @@ module DataCycleCore
           return if a.to_set == b.to_set
           return [['-', a]] if b.blank?
           return [['+', b]] if a.blank?
+
           new_items = b - a
           del_items = a - b
           new_record = nil

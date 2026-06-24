@@ -10,11 +10,11 @@ module DataCycleCore
             name = args[:content].name&.parameterize(separator: '_') || args[:content].id
             if transformations['version'] == 'original'
               content = args[:content]
-              if content.respond_to?(:asset) && content.send(:asset).present?
-                orig_url = content.send(:asset)&.try(:file)&.try(:url)
-              else
-                orig_url = content.content_url
-              end
+              orig_url = if content.respond_to?(:asset) && content.send(:asset).present?
+                           content.send(:asset)&.try(:file)&.try(:url)
+                         else
+                           content.content_url
+                         end
               [
                 Rails.application.config.asset_host,
                 'asset',

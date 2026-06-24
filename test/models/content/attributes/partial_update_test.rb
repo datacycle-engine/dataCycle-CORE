@@ -18,19 +18,22 @@ module DataCycleCore
           sliced_template = @content.schema.dup
           sliced_template['properties'] = @content.schema['properties']&.slice(*new_data.keys)
           diff = @content.diff(new_data, sliced_template)
+
           assert_equal({ 'name' => ['~', 'Test Artikel 1', 'Artikel'] }, diff)
 
           @content.set_data_hash(data_hash: new_data, partial_update: true)
-          assert_equal(@content.name, 'Artikel')
+
+          assert_equal('Artikel', @content.name)
           assert_equal(1, @content.image.count)
         end
 
         test 'partial update Artikel name and Bild name' do
           @image.set_data_hash(data_hash: { 'name' => 'Bild' })
           @content.set_data_hash(data_hash: { 'name' => 'Artikel', 'image' => [@image.id] })
-          assert_equal(@content.name, 'Artikel')
-          assert_equal(@image.name, 'Bild')
-          assert_equal(@content.image.first.name, 'Bild')
+
+          assert_equal('Artikel', @content.name)
+          assert_equal('Bild', @image.name)
+          assert_equal('Bild', @content.image.first.name)
         end
       end
     end

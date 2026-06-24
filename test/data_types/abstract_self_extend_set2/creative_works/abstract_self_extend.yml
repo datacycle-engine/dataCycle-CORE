@@ -1,0 +1,9 @@
+---
+- :data:
+    :name: AbstractSelfExtend
+    :extends: AbstractSelfExtend
+    :properties:
+      :override_prop:
+        :label: OverrideProp
+        :type: string
+        :storage_location: value

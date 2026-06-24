@@ -59,21 +59,25 @@ module DataCycleCore
             # test without base filter
             graph_filter = add_a_b_graph_filter(nil, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(1)
 
             # test with watch_list as base filter
             graph_filter = add_a_b_graph_filter(@watch_list, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(1)
 
             # test with empty stored_filter as base filter
             graph_filter = add_a_b_graph_filter(@empty_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(0)
 
             # test with stored_filter as base filter
             graph_filter = add_a_b_graph_filter(@stored_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(0)
           end
 
@@ -81,21 +85,25 @@ module DataCycleCore
             # test without base filter
             graph_filter = not_add_a_b_graph_filter(nil, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(4)
 
             # test with watch_list as base filter
             graph_filter = not_add_a_b_graph_filter(@watch_list, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
 
             # test with empty stored_filter as base filter
             graph_filter = not_add_a_b_graph_filter(@empty_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
 
             # test with stored_filter as base filter
             graph_filter = not_add_a_b_graph_filter(@stored_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(4)
           end
 
@@ -103,21 +111,25 @@ module DataCycleCore
             # test without base filter
             graph_filter = add_b_a_graph_filter(nil, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(1)
 
             # test with watch_list as base filter
             graph_filter = add_b_a_graph_filter(@watch_list, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(0)
 
             # test with empty stored_filter as base filter
             graph_filter = add_b_a_graph_filter(@empty_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(0)
 
             # test with stored_filter as base filter
             graph_filter = add_b_a_graph_filter(@stored_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(1)
           end
 
@@ -125,21 +137,25 @@ module DataCycleCore
             # test without base filter
             graph_filter = not_add_b_a_graph_filter(nil, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(4)
 
             # test with watch_list as base filter
             graph_filter = not_add_b_a_graph_filter(@watch_list, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
 
             # test with empty stored_filter as base filter
             graph_filter = not_add_b_a_graph_filter(@empty_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
 
             # test with stored_filter as base filter
             graph_filter = not_add_b_a_graph_filter(@stored_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(4)
           end
 
@@ -147,21 +163,25 @@ module DataCycleCore
             # test without base filter
             graph_filter = add_a_b_graph_filter(nil, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(3)
 
             # test with watch_list as base filter
             graph_filter = add_a_b_graph_filter(@watch_list, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(2)
 
             # test with empty stored_filter as base filter
             graph_filter = add_a_b_graph_filter(@empty_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(0)
 
             # test with stored_filter as base filter
             graph_filter = add_a_b_graph_filter(@stored_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(1)
           end
 
@@ -169,21 +189,25 @@ module DataCycleCore
             # test without base filter
             graph_filter = not_add_a_b_graph_filter(nil, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(3)
 
             # test with watch_list as base filter
             graph_filter = not_add_a_b_graph_filter(@watch_list, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
 
             # test with empty stored_filter as base filter
             graph_filter = not_add_a_b_graph_filter(@empty_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
 
             # test with stored_filter as base filter
             graph_filter = not_add_a_b_graph_filter(@stored_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
           end
 
@@ -191,21 +215,25 @@ module DataCycleCore
             # test without base filter
             graph_filter = add_b_a_graph_filter(nil, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(2)
 
             # test with watch_list as base filter
             graph_filter = add_b_a_graph_filter(@watch_list, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(0)
 
             # test with empty stored_filter as base filter
             graph_filter = add_b_a_graph_filter(@empty_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(0)
 
             # test with stored_filter as base filter
             graph_filter = add_b_a_graph_filter(@stored_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(0)
           end
 
@@ -213,21 +241,25 @@ module DataCycleCore
             # test without base filter
             graph_filter = not_add_b_a_graph_filter(nil, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(3)
 
             # test with watch_list as base filter
             graph_filter = not_add_b_a_graph_filter(@watch_list, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
 
             # test with empty stored_filter as base filter
             graph_filter = not_add_b_a_graph_filter(@empty_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
 
             # test with stored_filter as base filter
             graph_filter = not_add_b_a_graph_filter(@stored_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
+
             assert_api_count_result(5)
           end
 
@@ -446,7 +478,7 @@ module DataCycleCore
                 }
               ],
               sort_parameters: [
-                {'m' => 'default'}
+                { 'm' => 'default' }
               ],
               api: true
             )

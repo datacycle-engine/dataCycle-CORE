@@ -3,26 +3,9 @@
 module DataCycleCore
   module DataLinkHelper
     def data_link_modes(content)
-      modes = [OpenStruct.new(type: :read)]
-
-      modes.push(OpenStruct.new(type: :write)) if can?(:create_editable_links, DataCycleCore::DataLink) &&
-                                                  !content.is_a?(DataCycleCore::StoredFilter) &&
-                                                  (
-                                                    (
-                                                      content.is_a?(DataCycleCore::WatchList) &&
-                                                      content.try(:things)&.all? { |thing| can?(:edit, thing) } &&
-                                                      can?(:add_item, content)
-                                                    ) ||
-                                                    can?(:edit, content)
-                                                  )
-
-      modes.unshift(OpenStruct.new(type: :download)) if (
-        content.is_a?(DataCycleCore::WatchList) && can?(:download_zip, content)
-      ) || (
-        content.is_a?(DataCycleCore::Thing) && can?(:download, content)
-      )
-
-      modes
+      DataCycleCore::DataLink.allowed_permissions(content, current_user).map do |perm|
+        OpenStruct.new(type: perm.to_sym)
+      end
     end
 
     def finalize_agbs_label

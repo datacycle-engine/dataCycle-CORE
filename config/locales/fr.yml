@@ -1,5 +1,9 @@
 ---
 fr:
+  environment_name:
+    development: Développement
+    staging: Pré-production
+    production: Production
   opening_time:
     valid_from: Validité à partir de
     valid_until: jusqu'à
@@ -20,3 +24,45 @@ fr:
     booking:
       hotel_important_information: Informations importantes
       hotel_description: Description courte
+
+  classification_visibilities:
+    groups:
+      contents: Contenus
+      dashboard_views: Vues du tableau de bord
+      dashboard_filters: Filtres du tableau de bord
+      interfaces: Interfaces
+      classification_administration: Administration des classifications
+    group_tooltips:
+      contents: Visibilité à certains endroits dans un contenu
+      dashboard_views: Visibilité dans les vues du tableau de bord
+      dashboard_filters: Visibilité en tant qu'options de filtre dans le tableau de bord
+      interfaces: Visibilité via les interfaces
+      classification_administration: "Visibilité dans l'administration des classifications<br>En fonction des autorisations de l'utilisateur, seuls les arbres de classification activés<br>pour l'aperçu des classifications sont affichés dans l'administration des classifications"
+    entries:
+      backend: Tableau de bord
+      show: Vue détaillée (toujours visible)
+      show_more: Vue détaillée (réduite par défaut)
+      edit: Vue d'édition
+      api: API
+      tile: Tuile
+      compact: Tuiles compactes
+      filter: Filtres avancés du tableau de bord
+      list: Vue en liste
+      tree_view: Racine dans la vue arborescente
+      xml: XML (Legacy)
+      classification_overview: Aperçu des classifications
+      classification_administration: Administration des classifications
+    entry_tooltips:
+      backend: Les classifications sont affichées dans le tableau de bord
+      show: Les classifications sont toujours affichées de manière développée dans la vue détaillée
+      show_more: Les classifications sont affichées dans la vue détaillée mais sont réduites par défaut
+      edit: Les classifications peuvent être sélectionnées et modifiées dans la vue d'édition (cela dépend également des autorisations de l'utilisateur pour l'attribut respectif)
+      api: Les classifications sont livrées via l'interface API
+      tile: Les classifications sont affichées dans les tuiles
+      compact: Les classifications sont affichées dans les tuiles compactes (par exemple dans le navigateur d'objets)
+      filter: Les classifications sont disponibles en tant qu'options de filtre avancées dans le tableau de bord
+      list: Les classifications sont affichées dans la vue en liste
+      tree_view: L'arbre de classification est disponible en tant qu'élément racine pour la vue arborescente
+      xml: Les classifications sont livrées via l'interface XML (Legacy)
+      classification_overview: Les classifications sont visibles dans l'administration des classifications si le rôle actuel de l'utilisateur possède les autorisations correspondantes
+      classification_administration: Les classifications sont visibles et gérables dans l'administration des classifications si le rôle actuel de l'utilisateur possède les autorisations correspondantes

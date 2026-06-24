@@ -36,7 +36,7 @@ namespace :dc do
       tmp = Time.zone.now
       puts 'COPYING SLUGS'
 
-      sql = <<-SQL.squish
+      sql = <<~SQL.squish
         UPDATE searches
         SET slug = tt.slug
         FROM thing_translations tt

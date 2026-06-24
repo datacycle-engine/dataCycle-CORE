@@ -11,11 +11,13 @@ module DataCycleCore
 
       def last_import_status
         return @last_import_status if defined? @last_import_status
+
         @last_import_status = last_status(:import)
       end
 
       def last_download_status
         return @last_download_status if defined? @last_download_status
+
         @last_download_status = last_status(:download)
       end
 
@@ -32,6 +34,16 @@ module DataCycleCore
           last_download_status:,
           last_import_status:
         }
+      end
+
+      def fail_running_steps!
+        last_import_step_time_info&.each do |step_key, info|
+          next unless info['status'] == 'running'
+
+          timestamp = info['last_try']&.in_time_zone
+
+          update_step_timestamp_end(timestamp, step_key, false)
+        end
       end
 
       private

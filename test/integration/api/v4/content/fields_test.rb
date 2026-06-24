@@ -54,8 +54,9 @@ module DataCycleCore
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 
-          def load_api_data(fields)
-            get api_v4_thing_path(id: @content_overlay, fields: fields.join(','))
+          def load_api_data(fields, languages = nil)
+            get api_v4_thing_path(id: @content_overlay, fields: fields.join(','), language: languages)
+
             assert_response(:success)
             assert_equal('application/json; charset=utf-8', response.content_type)
             response.parsed_body['@graph'].first
@@ -68,6 +69,7 @@ module DataCycleCore
           test 'testing EventOverlay with fields parameter (filtering unstructured data)' do
             fields = ['dc:entityUrl']
             json_data = load_api_data(fields)
+
             assert_equal((fields + default_fields).sort, json_data.keys.sort)
           end
 
@@ -102,7 +104,26 @@ module DataCycleCore
           test 'testing EventOverlay with fields parameter (filtering linked/embedded data --> linked rendered with default header)' do
             fields = ['image', 'subEvent']
             json_data = load_api_data(fields)
+
             assert_equal((default_fields + ['image']).sort, json_data.keys.sort)
+          end
+
+          test 'testing dc:slugifiedName' do
+            fields = ['dc:slugifiedName']
+            json_data = load_api_data(fields)
+
+            assert_equal(@content_overlay.name.to_slug, json_data['dc:slugifiedName'])
+          end
+
+          test 'testing dc:slugifiedName with multiple languages' do
+            fields = ['dc:slugifiedName']
+            json_data = load_api_data(fields, 'de,en')
+
+            assert(json_data['dc:slugifiedName'].is_a?(Array))
+            assert_equal(1, json_data['dc:slugifiedName'].size)
+            json_data['dc:slugifiedName'].each do |name_entry|
+              assert_equal(@content_overlay.name.to_slug, name_entry['@value'])
+            end
           end
         end
       end

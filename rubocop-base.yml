@@ -1,0 +1,207 @@
+# author: rainer@pixelpoint.at
+
+plugins:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rake
+  - rubocop-minitest
+
+AllCops:
+  DisplayCopNames: true
+  SuggestExtensions: false
+  TargetRubyVersion: 3.3
+  TargetRailsVersion: 8.0
+  NewCops: enable
+  Exclude:
+    - "node_modules/**/*"
+    - "tmp/**/*"
+    - "cache/**/*"
+    - "bash/**/*"
+    - ".git/**/*"
+    - ".bundle/**/*"
+    - ".ruby-lsp/**/*"
+    - ".insomnia/**/*"
+    - "coverage/**/*"
+    - "log/**/*"
+
+#######################################################
+########## Bundler
+Bundler/OrderedGems:
+  Enabled: false
+
+Style/FetchEnvVar:
+  Enabled: false
+
+#######################################################
+########## Layout
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+#######################################################
+########## Lint
+
+#Lint/SplatKeywordArguments:
+#  Enabled: false
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+
+Lint/MissingSuper:
+  Enabled: false
+
+Lint/ShadowingOuterLocalVariable:
+  Enabled: true
+
+#######################################################
+########## Style
+
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
+Style/Documentation:
+  Enabled: true
+  Include:
+    - "app/**/*"
+    - "lib/**/*"
+
+Style/DocumentationMethod:
+  Enabled: true
+  Include:
+    - "app/**/*"
+    - "lib/**/*"
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+Style/MixinUsage:
+  Exclude:
+    - "bin/setup"
+    - "bin/update"
+
+Rails/Output:
+  Exclude:
+    - "db/seeds.rb"
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/RedundantReturn:
+  AllowMultipleReturnValues: true
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+Style/ExponentialNotation:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/OperatorMethodCall:
+  Enabled: false
+
+Style/SafeNavigationChainLength:
+  Max: 10
+
+#######################################################
+########## Metrics
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Max: 5
+
+Metrics/ClassLength:
+  Enabled: false # enable if inheritance and merging is fixed
+  Max: 300
+  Exclude:
+    - "db/**/*"
+    - "test/**/*"
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false # enable if inheritance and merging is fixed
+  Max: 300
+  Exclude:
+    - "db/**/*"
+    - "test/**/*"
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+#######################################################
+########## Naming
+
+Naming/MethodParameterName:
+  MinNameLength: 1
+
+#######################################################
+########## Rails
+
+Rails/CreateTableWithTimestamps:
+  Enabled: false
+
+Rails/FilePath:
+  EnforcedStyle: arguments
+
+Rails/HelperInstanceVariable:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Rails/DeprecatedActiveModelErrorsMethods:
+  Enabled: false
+
+Rails/StrongParametersExpect:
+  Enabled: false # TODO: check if this really shoud be disabled. Autocorrect crashes many tests
+
+Rails/BulkChangeTable:
+  Database: postgresql
+
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - development
+    - test
+    - staging
+
+#######################################################
+########## Minitest
+Minitest/AssertKindOf:
+  Enabled: false
+
+Minitest/MultipleAssertions:
+  Enabled: false
+
+Minitest/AssertRaisesCompoundBody:
+  Enabled: false

@@ -182,7 +182,6 @@
       :file_type:
         :label: Dateiformat - Klassifizierung
         :type: classification
-        :storage_location: classification
         :tree_label: Dateiformate
         :compute:
           :module: Utility::Compute::Asset

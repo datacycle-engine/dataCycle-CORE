@@ -21,7 +21,8 @@ module DataCycleCore
           raise 'Delete canceled (Last download(s) failed)!' unless utility_object.source_steps_successful?
 
           delete_deadline = eval(options.dig(:import, :last_successful_try)) if options.dig(:import, :last_successful_try).present? # rubocop:disable Security/Eval
-          if delete_deadline.present? && last_success < delete_deadline
+          last_success = utility_object.last_successful_try
+          if delete_deadline.present? && (last_success.blank? || last_success < delete_deadline)
             last_date = last_success.presence || 'never'
             delete_date = delete_deadline.presence || 'not specified'
             raise "No recent successful download detected! Last successful Download: #{last_date}, delete deadline: #{delete_date}"

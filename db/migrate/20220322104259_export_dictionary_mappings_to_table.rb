@@ -2,7 +2,7 @@
 
 class ExportDictionaryMappingsToTable < ActiveRecord::Migration[5.2]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE TABLE IF NOT EXISTS pg_dict_mappings (
         locale varchar NOT NULL,
         dict varchar NOT NULL
@@ -80,7 +80,7 @@ class ExportDictionaryMappingsToTable < ActiveRecord::Migration[5.2]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP FUNCTION IF EXISTS get_dict;
 
       CREATE OR REPLACE FUNCTION get_dict (

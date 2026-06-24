@@ -21,7 +21,7 @@ module DataCycleCore
       @data_set.add_external_system_data(@external_system, external_thing_data)
     end
 
-    test 'add and update data for external system' do # rubocop:disable Minitest/MultipleAssertions
+    test 'add and update data for external system' do
       assert_equal({ 'key_1' => 'value_1' }, @data_set.external_system_data(@external_system))
 
       assert_equal(DataCycleCore::Thing.count, @content_count + 1)
@@ -34,7 +34,7 @@ module DataCycleCore
       assert_equal(update_data, @data_set.external_system_data(@external_system))
     end
 
-    test 'remove data for external system' do # rubocop:disable Minitest/MultipleAssertions
+    test 'remove data for external system' do
       @data_set.remove_external_system_data(@external_system)
 
       assert_nil(@data_set.external_system_data(@external_system))
@@ -60,7 +60,7 @@ module DataCycleCore
       assert_equal(0, @data_set.external_system_syncs.count)
     end
 
-    test 'external source to external systems sync' do # rubocop:disable Minitest/MultipleAssertions
+    test 'external source to external systems sync' do
       external_source_id = DataCycleCore::ExternalSystem.first.id
       external_key = '1234'
 

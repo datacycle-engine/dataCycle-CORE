@@ -8,10 +8,13 @@ module DataCycleCore
 
     VALID_JOB_TYPES = {
       'dc:import:append_job' => [:key, :mode, :inline],
+      'dc:import:append_import_job' => [:key, :mode, :inline],
       'dc:import:append_partial_job' => [:key, :download_names, :import_names, :mode],
       'dc:downport:partial' => [:key, :download_names, :import_names, :mode, :max_count],
       'data_cycle_core:import:perform' => [:key, :mode, :max_count]
     }.freeze
+
+    INLINE_JOB_TYPES = ['dc:downport:partial', 'data_cycle_core:import:perform'].freeze
 
     attr_accessor(
       :stat_update, :pg_name, :pg_size, :pg_overlays,
@@ -36,7 +39,7 @@ module DataCycleCore
     def load_pg_stats
       pg_tables = {}
 
-      stats_sql = <<-SQL.squish
+      stats_sql = <<~SQL.squish
         SELECT
           relname AS tablename,
           pg_total_relation_size(relid) AS total_size,
@@ -55,7 +58,7 @@ module DataCycleCore
         pg_tables[stat_res['tablename']] = stat_res.except('tablename')
       end
 
-      count_sql = pg_tables.keys.map { |t_name| "SELECT '#{t_name}' AS tablename, count(*) AS count FROM #{t_name}" }.join(' UNION ')
+      count_sql = pg_tables.keys.map { |t_name| "SELECT '#{t_name}' AS tablename, count(*) AS count FROM #{t_name}" }.join(' UNION ALL ')
       count_res = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, count_sql))
       count_res.each do |count_r|
         pg_tables[count_r['tablename']]['count'] = count_r['count']
@@ -65,6 +68,8 @@ module DataCycleCore
     end
 
     def load_mongo_stats(external_system_id)
+      return if ENV['MONGODB_HOST'].blank?
+
       mongo_host = ENV['MONGODB_HOST']
       external_source = DataCycleCore::ExternalSystem.find(external_system_id)
 
@@ -189,7 +194,7 @@ module DataCycleCore
               schedules << {
                 timestamp: next_time,
                 mode: opts[:mode],
-                inline: opts[:inline].to_s == 'true',
+                inline: opts[:inline].to_s == 'true' || INLINE_JOB_TYPES.include?(t_name.to_s),
                 steps: steps.uniq
               }
             end
@@ -213,6 +218,8 @@ module DataCycleCore
     end
 
     def load_mongo_data
+      return if ENV['MONGODB_HOST'].blank?
+
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
       DataCycleCore::ExternalSystem.where("external_systems.config ? 'import_config'").find_each do |external_source|

@@ -63,6 +63,7 @@ describe DataCycleCore::MasterData::Validators::Object do
     it 'works with a simple hash' do
       data_hash = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
       validator = subject.new(data_hash, template_hash)
+
       assert_equal(no_error_hash, validator.error)
     end
 
@@ -71,6 +72,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       new_template_hash['greeting']['type'] = 'wrong type'
       data_hash = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
       validator = subject.new(data_hash, new_template_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -78,12 +80,14 @@ describe DataCycleCore::MasterData::Validators::Object do
     it 'ignores additional data given' do
       data_hash = { 'greeting' => 'Hello World!', 'anzahl' => 5, 'xxx' => 'xxx' }
       validator = subject.new(data_hash, template_hash)
+
       assert_equal(no_error_hash, validator.error)
     end
 
     it 'does not warn for missing data' do
       data_hash = { 'greeting' => 'Hello World!' }
       validator = subject.new(data_hash, template_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -93,6 +97,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       new_template_hash['anzahl']['type'] = 'object'
       data_hash = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
       validator = subject.new(data_hash, new_template_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -100,10 +105,12 @@ describe DataCycleCore::MasterData::Validators::Object do
     it 'aggregates errors/warnings' do
       data_hash = { 'greeting' => ['test', 'test2'], 'anzahl' => '5' }
       validator = subject.new(data_hash, template_hash)
+
       assert_equal(2, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
       data_hash = { 'greeting' => nil, 'anzahl' => nil }
       validator = subject.new(data_hash, template_hash)
+
       assert_equal(0, validator.error[:error].size)
       # assert_equal(1, validator.error[:warning].size)
     end
@@ -116,6 +123,7 @@ describe DataCycleCore::MasterData::Validators::Object do
         }
       }
       validator = subject.new(data_hash, daterange_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
@@ -126,6 +134,7 @@ describe DataCycleCore::MasterData::Validators::Object do
         }
       }
       validator = subject.new(data_hash, daterange_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
@@ -136,6 +145,7 @@ describe DataCycleCore::MasterData::Validators::Object do
         }
       }
       validator = subject.new(data_hash, daterange_hash)
+
       assert_equal(3, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
@@ -146,6 +156,7 @@ describe DataCycleCore::MasterData::Validators::Object do
         }
       }
       validator = subject.new(data_hash, daterange_hash)
+
       assert_equal(2, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
@@ -156,6 +167,7 @@ describe DataCycleCore::MasterData::Validators::Object do
         }
       }
       validator = subject.new(data_hash, daterange_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
@@ -166,6 +178,7 @@ describe DataCycleCore::MasterData::Validators::Object do
         }
       }
       validator = subject.new(data_hash, daterange_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -225,18 +238,22 @@ describe DataCycleCore::MasterData::Validators::Object do
         }
       }
       validator = subject.new(data_hash, daterange_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
       validator = subject.new({}, daterange_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
       validator = subject.new(nil, daterange_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
       validator = subject.new({ 'test' => 'wrong' }, daterange_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -251,12 +268,14 @@ describe DataCycleCore::MasterData::Validators::Object do
       template_hash = daterange_hash.deep_dup
       template_hash['validity_period']['validations']['unknown_valitor'] = 'test'
       validator = subject.new(data_hash, template_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
 
       template_hash = daterange_hash.deep_dup
       template_hash['validity_period']['validations']['daterange'] = { 'from' => 'valid_from' }
       validator = subject.new(data_hash, template_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end

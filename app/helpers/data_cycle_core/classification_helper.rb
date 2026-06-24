@@ -2,6 +2,12 @@
 
 module DataCycleCore
   module ClassificationHelper
+    VISIBILITY_ICONS = {
+      'list' => 'fa-th-list',
+      'tree_view' => 'fa-sitemap',
+      'tile' => 'fa-th'
+    }.freeze
+
     # TODO: refactor
     def get_classifications_for_name(name)
       return if name.blank?
@@ -32,7 +38,7 @@ module DataCycleCore
     def classification_tree_label_has_children?(treelabel)
       DataCycleCore::Classification
         .includes(:classification_groups, :classification_aliases)
-        .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+        .joins(classification_aliases: [{ classification_tree: [:classification_tree_label] }])
         .where(classification_tree_labels: { name: treelabel }).any?
     end
 
@@ -72,7 +78,7 @@ module DataCycleCore
       tooltip_html << tag.div(concept.full_path, class: 'tag-full-path') if concept.try(:full_path).present?
 
       I18n.with_locale(concept.first_available_locale(active_ui_locale)) do
-        tooltip_html << "<div class=\"tag-description\">#{concept.description}</div>" if concept.try(:description).present?
+        tooltip_html << tag.div(sanitize(concept.description), class: 'tag-description') if concept.try(:description).present?
       end
 
       if concept.name_i18n.keys.many?
@@ -83,8 +89,8 @@ module DataCycleCore
               concept
                 .name_i18n
                 .each_with_object({}) { |(k, v), h|
-                (h[v] ||= []) << k
-              }
+                  (h[v] ||= []) << k
+                }
                 .transform_values { |v| v.sort.join(', ') }
                 .sort_by { |_k, v| v }
                 .map { |k, v| tag.li(ActionView::OutputBuffer.new("#{k} #{tag.span("(#{v})", class: 'tag-translations-locales')}")) }
@@ -120,9 +126,9 @@ module DataCycleCore
         .assignable
         .includes(
           :primary_classification, :classification_alias_path, sub_classification_alias: [
-            :primary_classification, :classification_alias_path, {sub_classification_alias: [
+            :primary_classification, :classification_alias_path, { sub_classification_alias: [
               :primary_classification, :classification_alias_path, :sub_classification_alias
-            ]}
+            ] }
           ]
         )
         .order(order_by)
@@ -241,20 +247,47 @@ module DataCycleCore
     end
 
     def matched_concept_path(name, matches)
-      return name if matches.blank?
+      return name if matches.blank? || name.blank?
+
       matched_name = ''
-      rest = name
+      rest = name.to_s
 
       matches.each do |m|
-        index = rest =~ /#{m}/i
+        index = rest =~ Regexp.new(Regexp.escape(m), true)
         next if index.nil?
+
         index_end = index + m.size
         matched_name += rest[0...index]
         matched_name += "<mark>#{rest[index...index_end]}</mark>"
-        rest = rest[index_end..-1]
+        rest = rest[index_end..].to_s
       end
 
       matched_name + rest
+    end
+
+    def concept_scheme_visibility_icon(visibility)
+      icon_class = VISIBILITY_ICONS[visibility] || 'fa-info-circle'
+
+      tag.i(
+        class: "fa #{icon_class}",
+        aria_hidden: 'true',
+        data: {
+          dc_tooltip: t("classification_visibilities.entry_tooltips.#{visibility}", locale: active_ui_locale)
+        }
+      )
+    end
+
+    def grouped_concept_scheme_visibilities(concept_scheme)
+      DataCycleCore::ConceptScheme.grouped_visibilities.map do |group, visibilities|
+        {
+          key: group,
+          selected: group == DataCycleCore::ConceptScheme.grouped_visibilities.keys.first,
+          identifier: "cs-visibility-group-#{group}-#{concept_scheme.id}",
+          title: t("classification_visibilities.groups.#{group}", locale: active_ui_locale),
+          tooltip: t("classification_visibilities.group_tooltips.#{group}", locale: active_ui_locale),
+          visibilities: visibilities
+        }
+      end
     end
   end
 end

@@ -7,7 +7,7 @@ module DataCycleCore
         module ImportConcepts
           def import_concept_schemes(utility_object:, iterator:, data_processor:, external_system_processor:, options:)
             init_logging(utility_object) do |logging|
-              init_mongo_db(utility_object) do
+              utility_object.with_mongodb do
                 each_locale(utility_object.locales) do |locale|
                   I18n.with_locale(locale) do
                     item_count = 0
@@ -20,20 +20,34 @@ module DataCycleCore
                       utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                         filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
                         raw_data = filtered_items(iterator, locale, filter_object).to_a
-                        concept_scheme_data = raw_data.filter_map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.uniq
+                        concept_scheme_data = raw_data
+                          .filter_map { |rd|
+                            data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:)
+                          }
+                          .uniq
+                        concept_scheme_data = external_system_processor
+                          .call(data_array: concept_scheme_data, options:, utility_object:)
 
-                        concept_scheme_data = external_system_processor.call(data_array: concept_scheme_data, options:, utility_object:)
+                        # ensure uniqueness of concept schemes by external_source_id and external_key to avoid upsert conflicts
+                        concept_scheme_data.uniq! { |csd| [csd[:external_source_id], csd[:external_key]] }
 
-                        upserted = concept_scheme_data.present? ? DataCycleCore::ClassificationTreeLabel.upsert_all(concept_scheme_data, unique_by: :index_ctl_on_external_source_id_and_external_key, returning: :id) : []
+                        upserted = []
+                        if concept_scheme_data.present?
+                          upserted = DataCycleCore::ClassificationTreeLabel.upsert_all(
+                            concept_scheme_data,
+                            unique_by: :index_ctl_on_external_source_id_and_external_key,
+                            returning: :id
+                          )
+                        end
 
                         item_count += upserted.count
                         times << Time.current
                         logging.phase_partial(step_label, item_count, times)
                       end
 
-                      logging.phase_finished(step_label, item_count)
+                      logging.phase_finished(step_label, item_count, Time.current - times.first)
                     rescue StandardError => e
-                      logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
+                      logging.phase_failed(e, utility_object.external_source, step_label, utility_object.step_name, 'import_failed.datacycle')
                     end
                   end
                 end
@@ -43,7 +57,7 @@ module DataCycleCore
 
           def import_concepts(utility_object:, iterator:, data_processor:, data_transformer:, data_mapping_processor:, data_geom_processor:, options:)
             init_logging(utility_object) do |logging|
-              init_mongo_db(utility_object) do
+              utility_object.with_mongodb do
                 each_locale(utility_object.locales) do |locale|
                   I18n.with_locale(locale) do
                     item_count = 0
@@ -80,6 +94,7 @@ module DataCycleCore
                             item_id: "#{concept_scheme.name} (#{concept_scheme.external_key})"
                           )
                           raise if Rails.env.local?
+
                           item_count
                         end
 
@@ -100,9 +115,9 @@ module DataCycleCore
                         logging.phase_partial(step_label, item_count, times, additional_text.join(', '))
                       end
 
-                      logging.phase_finished(step_label, item_count, times.last - times.first)
+                      logging.phase_finished(step_label, item_count, Time.current - times.first)
                     rescue StandardError => e
-                      logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
+                      logging.phase_failed(e, utility_object.external_source, step_label, utility_object.step_name, 'import_failed.datacycle')
                     end
                   end
                 end

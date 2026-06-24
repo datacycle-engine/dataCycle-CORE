@@ -89,7 +89,7 @@ class ReplaceViewForScheduleOccurrencesWithTableAndTriggers < ActiveRecord::Migr
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS generate_schedule_occurences_trigger ON schedules;
       DROP FUNCTION IF EXISTS generate_schedule_occurences_trigger;
       DROP FUNCTION IF EXISTS generate_schedule_occurences;

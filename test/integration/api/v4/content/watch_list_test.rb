@@ -12,6 +12,13 @@ module DataCycleCore
             @routes = Engine.routes
             @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'Merkliste 1')
             @current_user = User.find_by(email: 'tester@datacycle.at')
+            @other_user = User.find_or_create_by(email: 'collection_impersonation@datacycle.at') do |u|
+              u.given_name = 'Other'
+              u.family_name = 'User'
+              u.password = 'TGkfC7qekIjC'
+              u.confirmed_at = 1.day.ago
+              u.role = DataCycleCore::Role.find_by(name: 'standard')
+            end
           end
 
           setup do
@@ -22,8 +29,9 @@ module DataCycleCore
             get api_v4_collections_path
 
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data['@graph'].length)
           end
 
@@ -32,8 +40,9 @@ module DataCycleCore
             follow_redirect!
 
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal('Merkliste 1', json_data.dig('meta', 'collection', 'name'))
             assert_equal(0, json_data.dig('meta', 'total'))
             assert_equal(0, json_data.dig('meta', 'pages'))
@@ -44,7 +53,7 @@ module DataCycleCore
             get api_v4_collections_path(user_email: 'tester@datacycle.at')
 
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal('Merkliste 1', json_data.dig('@graph', 0, 'name'))
@@ -60,18 +69,21 @@ module DataCycleCore
               headers: { referer: root_path }
             )
             filter = User.find_by(email: 'tester@datacycle.at').stored_filters.presence&.find_by(name: 'TestFilter')
-            assert(filter.present?)
+
+            assert_predicate(filter, :present?)
             assert_redirected_to(root_path(stored_filter: filter.id))
             follow_redirect!
 
             filter.update(api: true)
             get api_v4_stored_filter_path(id: filter.id)
+
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
 
             get api_v4_users_path
+
             assert_response :success
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(['@context', '@graph'], json_data.keys)
@@ -100,7 +112,38 @@ module DataCycleCore
 
             assert_response :success
 
-            assert @watch_list.things.pluck(:id).blank?
+            assert_predicate @watch_list.things.pluck(:id), :blank?
+          end
+
+          test '/api/v4/collections/ with user_email of another user is unauthorized' do
+            sign_in(@other_user)
+
+            get api_v4_collections_path(user_email: @current_user.email)
+
+            assert_response :unauthorized
+          end
+
+          test '/api/v4/collections/:id/add_item by a non-owner is unauthorized' do
+            article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'ForbiddenAdd' })
+            sign_in(@other_user)
+
+            post add_item_api_v4_collection_path(id: @watch_list.id, thing_id: article.id)
+
+            assert_response :unauthorized
+            assert_not_includes @watch_list.reload.things.pluck(:id), article.id
+          end
+
+          test '/api/v4/collections/:id/remove_item by a non-owner is unauthorized' do
+            article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'ForbiddenRemove' })
+            @watch_list.things << article
+            sign_in(@other_user)
+
+            post remove_item_api_v4_collection_path(id: @watch_list.id, thing_id: article.id)
+
+            assert_response :unauthorized
+            assert_includes @watch_list.reload.things.pluck(:id), article.id
+
+            @watch_list.things.destroy(article)
           end
         end
       end

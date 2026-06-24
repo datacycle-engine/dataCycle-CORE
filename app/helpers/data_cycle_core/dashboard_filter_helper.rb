@@ -3,8 +3,8 @@
 module DataCycleCore
   module DashboardFilterHelper
     RELATION_FILTER_ALLOWED_TYPES = {
-      'items_linked_to' => ['i', 'p', 's'],
-      'linked_items_in' => ['i', 'e', 'p', 'b', 's', 'u']
+      'items_linked_to' => ['s', 'i', 'p'],
+      'linked_items_in' => ['s', 'u', 'i', 'e', 'p', 'b']
     }.freeze
 
     RELATION_FILTER_TYPES = {
@@ -14,6 +14,15 @@ module DataCycleCore
       'b' => 'not_exists',
       's' => 'equal',
       'u' => 'not_equal'
+    }.freeze
+
+    RELATED_TO_ALLOWED_TYPES = ['i', 'e', 'p', 'b'].freeze
+
+    RELATED_TO_FILTER_TYPES = {
+      'i' => 'related',
+      'e' => 'not_related',
+      'p' => 'related_exists',
+      'b' => 'related_not_exists'
     }.freeze
 
     def union_ids_to_value(value)
@@ -156,6 +165,14 @@ module DataCycleCore
       options_for_select(filter_options, filter_method)
     end
 
+    def related_to_filter_options(filter_method)
+      filter_options = RELATED_TO_FILTER_TYPES.slice(*RELATED_TO_ALLOWED_TYPES).map do |k, v|
+        [I18n.t("filter.related_to_method.#{v}", locale: active_ui_locale), k]
+      end
+
+      options_for_select(filter_options, filter_method)
+    end
+
     def advanced_graph_filter_options(filter_method, filter_type)
       filter_options = RELATION_FILTER_TYPES.slice(*RELATION_FILTER_ALLOWED_TYPES[filter_type]).map do |k, v|
         [I18n.t("filter.graph_filter.#{filter_type}.#{v}", locale: active_ui_locale), k]
@@ -171,21 +188,37 @@ module DataCycleCore
         locale: active_ui_locale,
         count: filter_name == 'linked_items_in' ? 1 : 2,
         specific: filter_name
-      ).invert.sort.to_a.map { |(v, k)| [v, k, { data: { dc_tooltip: v } }] }
-      # specific keys: items_linked_to, linked_items_in
+      )
+
+      inverted_labels = thing_template_labels.map do |k, v|
+        [safe_join([graph_filter_icon(v, filter_name).to_str, k]), v, { data: { dc_tooltip: k } }]
+      end
+
+      # disable until a use case arises
+      # used to filter without relation to a specific attribute
+      # inverted_labels.prepend(
+      #   [
+      #     "<i class=\"fa fa-asterisk graph-filter-attribute-placeholder\" aria-hidden=\"true\"></i> (#{t('filter.graph_filter.placeholder.attribute', locale: active_ui_locale)})",
+      #     nil,
+      #     { data: { dc_tooltip: t('filter.graph_filter.placeholder.attribute', locale: active_ui_locale) } }
+      #   ]
+      # )
 
       select_tag(
         "f[#{identifier}][q]",
-        options_for_select(thing_template_labels, filter_advanced_type),
+        options_for_select(inverted_labels, filter_advanced_type),
         {
-          multiple: false,
-          class: 'single-select',
-          data: {
-            max: 20,
-            allow_clear: false
-          }
+          required: true,
+          multiple: true,
+          class: 'multi-select',
+          data: { allow_clear: true }
         }
       )
+    end
+
+    def graph_filter_icon(key, type)
+      icon_type = type == 'linked_items_in' ? 'type-linked' : 'type-linked-inverse'
+      tag.i(class: "dc-type-icon property-icon #{icon_type} key-#{key}", data: { dc_tooltip: key })
     end
 
     def selected_filter_params(filter, config)

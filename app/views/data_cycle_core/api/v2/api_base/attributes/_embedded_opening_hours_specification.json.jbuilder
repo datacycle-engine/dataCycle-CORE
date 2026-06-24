@@ -2,6 +2,7 @@
 
 render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
   key_new = definition.dig('api', 'name') || key.camelize(:lower)
+  json.set! key_new, []
   json.set! key_new do
     json.array!(value.presence&.includes(:translations, :classifications)&.sum do |specification|
       if specification.time.present?

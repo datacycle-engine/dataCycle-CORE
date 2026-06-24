@@ -48,6 +48,7 @@ module DataCycleCore
               fields: 'dct:modified,geo.latitude,geo.longitude'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -61,6 +62,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -74,6 +76,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             params = {
@@ -87,6 +90,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             params = {
@@ -100,6 +104,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(0)
 
             params = {
@@ -113,6 +118,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             # notIn
@@ -127,6 +133,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -140,6 +147,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(3)
 
             params = {
@@ -153,6 +161,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(0)
 
             params = {
@@ -166,6 +175,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             params = {
@@ -179,6 +189,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             # combine in and notIn
@@ -196,6 +207,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
           end
         end

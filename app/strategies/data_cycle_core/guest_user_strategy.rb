@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class GuestUserStrategy < Warden::Strategies::Base
+  class GuestUserStrategy < BaseStrategy
     def valid?
-      session[:guest_user_id].present?
+      valid_strategy? && session[:guest_user_id].present?
     end
 
     def authenticate!
@@ -11,7 +11,9 @@ module DataCycleCore
 
       return if u.nil?
 
-      success!(u)
+      success!(u) if validate(u)
+
+      fail!('invalid guest user')
     end
   end
 end

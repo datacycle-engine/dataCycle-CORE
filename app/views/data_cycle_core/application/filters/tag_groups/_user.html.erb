@@ -14,7 +14,7 @@
       <%= tag.span(value&.dig('text'), class: 'tag', data: { dc_tooltip: value&.dig('text') }) %>
     </span>
   <% else %>
-    <% users = DataCycleCore::User.with_deleted.where(id: value).to_h { |c| [c.id, c.to_select_option(active_ui_locale)] } %>
+    <% users = DataCycleCore::User.with_deleted.where(id: value).to_h { |c| [c.id, c.to_select_option(active_ui_locale, true, mask_email: cannot?(:show, c))] } %>
 
     <span class="tags-container">
       <% Array.wrap(value).each do |user_id| %>

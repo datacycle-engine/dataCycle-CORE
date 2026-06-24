@@ -4,6 +4,7 @@
     <span>
       <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>
       (<%= t("common.#{filter_advanced_type}", default: filter_advanced_type, locale: active_ui_locale) %>)
+      <%= local_assigns[:filter_method] == 's' ? t("common.like", locale: active_ui_locale) : t("common.is", locale: active_ui_locale) %>
     </span>
   </span>
 

@@ -5,8 +5,9 @@ module DataCycleCore
     class ReportGenerator < Base
       class << self
         def by_identifier(identifier, content = nil)
-          return content_reports(content).dig(identifier, 'class') if content.present?
-          global_reports.dig(identifier, 'class')
+          return content_reports(content)[identifier].values_at('class', 'params') if content.present?
+
+          global_reports[identifier].values_at('class', 'params')
         end
 
         def global_reports

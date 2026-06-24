@@ -69,7 +69,7 @@ class ClassificationAliasPathsTransitive < ActiveRecord::Migration[5.2]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW classification_alias_paths_transitive;
       DROP VIEW classification_alias_links;
     SQL

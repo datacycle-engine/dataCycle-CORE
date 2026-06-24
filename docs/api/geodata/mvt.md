@@ -16,7 +16,7 @@ Anfragen mit Filtern und Einschränkungen funktionieren analog zu den [Anfragen 
 
 Der Name des Daten-Layers in den Tiles lautet standardmäßig "dataCycle". Mit dem optionalen Parameter `layerName`, der bei Anfragen mitgeschickt werden kann, ist es mögliche einen eigenen Namen zu vergeben.
 
-Zur Authentifizierung empfiehlt sich die Verwendung eines API-Token, es können aber prinzipiell alle für die Datenschnittstelle angebotenen [Authentifizierung-Mechanismen](/docs/api#authentifizierung) genutzt werden.
+Zur Authentifizierung empfiehlt sich die Verwendung eines API-Token, es können aber prinzipiell alle für die Datenschnittstelle angebotenen [Authentifizierungs-Mechanismen](/docs/api#authentifizierung) genutzt werden.
 
 
 **Zu beachten ist, dass eine implizite Filterung auf Geo-Objekte aktiv ist. Es werden keine Daten ohne Koordinaten ausgegeben.**

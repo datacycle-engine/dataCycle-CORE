@@ -6,6 +6,7 @@ module DataCycleCore
       class TemplateTransformer
         include Extensions::Overlay
         include Extensions::LinkedInText
+        include MixinResolutionPolicy
 
         attr_reader :template, :mixin_paths, :linked_to_text_keys, :api_schema_types
 
@@ -19,6 +20,12 @@ module DataCycleCore
           @api_schema_types = []
         end
 
+        # Merges base templates into a template, using inheritance, in order.
+        #
+        # @param template [Hash] the template definition to extend
+        # @param templates [Array<Hash>] available templates to extend from
+        # @return [Hash] the template with base templates merged
+        # @raise [TemplateError] if a base template is missing
         def self.merge_base_templates(template:, templates:)
           return template unless template.key?(:extends)
 
@@ -27,16 +34,17 @@ module DataCycleCore
 
             raise TemplateError.new('extends'), "BaseTemplate missing for #{extends_name}" if base_template.blank?
 
-            template = base_template[:data].deep_dup.deep_merge(template.except(:extends))
+            base_data = base_template[:data].deep_dup
+            base_data.except!(:abstract) unless template[:name] == extends_name
+            template = base_data.deep_merge(template.except(:extends))
           end
 
           template
         end
 
-        def main_config_property(key)
-          DataCycleCore.main_config.dig(:templates, @content_set, @template[:name], key) || {}
-        end
-
+        # Transforms the template by resolving mixins, applying configurations, and generating schema types.
+        #
+        # @return [Array<Hash, Array>] tuple of [transformed_template, errors]
         def transform
           return @template, @errors if @transform_properties == false
 
@@ -52,6 +60,12 @@ module DataCycleCore
           return @template, @errors
         end
 
+        private
+
+        def main_config_property(key)
+          DataCycleCore.main_config.dig(:templates, @content_set, @template[:name], key) || {}
+        end
+
         def transform_properties
           new_properties = replace_mixin_properties(@template[:properties])
 
@@ -64,12 +78,54 @@ module DataCycleCore
           new_properties
         end
 
+        def replace_mixin_properties(props, additional_attributes = {}, additional_path = [])
+          properties = ActiveSupport::HashWithIndifferentAccess.new
+
+          props&.each do |key, value|
+            if value.nil?
+              properties.delete(key)
+            elsif value[:type] == 'mixin'
+              properties.merge!(replace_mixin_property(key, value[:name].to_sym, value.except(:name, :type), additional_path), &deep_reverse_merge)
+            else
+              properties.deep_merge!({ key => value&.merge(additional_attributes) })
+            end
+          end
+
+          properties.deep_reject! { |_, v| v.nil? }
+          properties
+        end
+
+        def deep_reverse_merge
+          ->(_, v1, v2) { v1.is_a?(::Hash) && v2.is_a?(::Hash) ? v1.merge(v2, &deep_reverse_merge) : v1 }
+        end
+
+        def replace_mixin_property(key, property_name, additional_attributes, additional_path = [])
+          mixin = select_best_candidate(@mixins&.dig(property_name), include_content_set: @content_set)
+          if mixin.nil?
+            @errors.push("properties.#{key} => mixin for #{property_name} not found!")
+            return {}
+          end
+
+          resolved_properties = mixin[:properties] || {}
+
+          return {} if resolved_properties.blank?
+
+          record_mixin_path(key, mixin)
+
+          replace_mixin_properties(resolved_properties, additional_attributes, additional_path + [key])
+        end
+
+        def record_mixin_path(key, mixin)
+          @mixin_paths.unshift("#{@content_set}.#{key} => #{mixin[:path]}")
+        end
+
         def add_missing_parameters!(properties)
           return properties if properties.blank?
 
           resolve_computed_params_path!(properties)
           hide_inverse_linked_in_edit_mode!(properties)
           filter_conditional_properties!(properties)
+          add_classification_api_name!(properties)
 
           properties
         end
@@ -96,45 +152,18 @@ module DataCycleCore
           end
         end
 
-        def replace_mixin_properties(props, additional_attributes = {}, additional_path = [])
-          properties = ActiveSupport::HashWithIndifferentAccess.new
+        def add_classification_api_name!(properties)
+          properties.filter { |_k, prop| prop&.dig(:type) == 'classification' }.each_value do |prop|
+            next if prop.dig(:api, :v4, :partial).present? ||
+                    prop.dig(:api, :partial).present? ||
+                    prop.dig(:api, :v4, :name).present? ||
+                    prop.dig(:api, :name).present?
 
-          props&.each do |key, value|
-            if value.nil?
-              properties.delete(key)
-            elsif value[:type] == 'mixin'
-              # deep reverse merge
-              m_proc = ->(_, v1, v2) { v1.is_a?(::Hash) && v2.is_a?(::Hash) ? v1.merge(v2, &m_proc) : v1 }
-              properties.merge!(replace_mixin_property(key, value[:name].to_sym, value.except(:name, :type), additional_path), &m_proc)
-            else
-              properties.deep_merge!({ key => value&.merge(additional_attributes) })
-            end
+            prop[:api] ||= {}
+            prop[:api][:v4] ||= {}
+            prop[:api][:v4][:name] ||= 'dc:classification'
           end
-
-          properties.deep_reject! { |_, v| v.nil? }
-          properties
         end
-
-        def replace_mixin_property(key, property_name, additional_attributes, additional_path = [])
-          template_name = @template[:name].underscore_blanks
-          mixin = @mixins&.dig(property_name)&.find do |m|
-            (m[:set] == @content_set || m[:set].nil?) &&
-              (m[:template_name] == template_name || m[:template_name].nil?)
-          end
-
-          if mixin.nil?
-            @errors.push("#{@error_path}.properties.#{key} => mixin for #{property_name} not found!")
-            return {}
-          end
-
-          return {} if mixin[:properties].blank?
-
-          @mixin_paths.unshift("#{@content_set}.#{@template[:name]}.#{key} => #{mixin[:path]}")
-
-          replace_mixin_properties(mixin[:properties], additional_attributes, additional_path + [key])
-        end
-
-        private
 
         def keys_from_parameters(property)
           return [] if property.blank?

@@ -6,11 +6,7 @@ module DataCycleCore
       attr_accessor :logger, :endpoint
 
       def initialize(logger: nil, host: nil, end_point: nil, **)
-        if logger.blank?
-          @logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
-        else
-          @logger = logger
-        end
+        @logger = logger.presence || DataCycleCore::Generic::Logger::LogFile.new('normalize')
 
         @endpoint = DataCycleCore::MasterData::Normalizer::Endpoint.new(host:, end_point:, **)
       end
@@ -91,6 +87,7 @@ module DataCycleCore
         def merge_street_streetnr(report)
           fields_list = report&.dig('entry', 'fields')
           return report if fields_list.blank?
+
           types = fields_list.pluck('type').uniq
           return report unless types.include?('STREET') && types.include?('STREETNR')
 
@@ -141,6 +138,7 @@ module DataCycleCore
 
         def get_type_from_path(path, template)
           return if path.blank?
+
           template.dig(*(['properties'] * path.split('/').size).zip(path.split('/')).flatten.compact + ['type'])
         end
 
@@ -154,13 +152,15 @@ module DataCycleCore
 
         def update_path(hash, path, value)
           return hash if path.blank? || value.blank?
+
           set_value(hash.deep_dup, path.split('/'), value)
         end
 
         def set_value(hash, path, value)
           return value if path.blank?
           return hash unless hash.is_a?(::Hash)
-          hash[path.first] = set_value(hash[path.first] || {}, path[1..-1], value)
+
+          hash[path.first] = set_value(hash[path.first] || {}, path[1..], value)
           hash
         end
       end

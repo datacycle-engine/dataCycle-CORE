@@ -19,5 +19,9 @@ module DataCycleCore
     def self.classification_aliases
       DataCycleCore::ClassificationAlias.where(id: pluck(:classification_alias_id))
     end
+
+    def self.concepts
+      DataCycleCore::Concept.where(id: pluck(:classification_alias_id))
+    end
   end
 end

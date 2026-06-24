@@ -27,7 +27,7 @@ module DataCycleCore
 
         assert_response :success
 
-        csv = CSV.parse(body.encode('utf-8'))[1..-1] # skipping first line because of separator information for Microsoft Excel
+        csv = CSV.parse(body.encode('utf-8'))[1..] # skipping first line because of separator information for Microsoft Excel
 
         assert_equal csv[0][0], tree_label.name
 
@@ -52,11 +52,12 @@ module DataCycleCore
 
         assert_response :success
 
-        csv = CSV.parse(body.encode('utf-8'))[1..-1] # skipping first line because of separator information for Microsoft Excel
+        csv = CSV.parse(body.encode('utf-8'))[1..] # skipping first line because of separator information for Microsoft Excel
 
         assert_equal csv[0][0], tree_label.name
 
         text_sub_csv = extract_sub_tree(csv, [nil, 'Text'])
+
         [1, 2].each do |i|
           assert_not_includes text_sub_csv, [nil, nil, 'Artikel', 'de', "TestArtikel #{i}"]
         end
@@ -65,11 +66,13 @@ module DataCycleCore
         end
 
         article_sub_csv = extract_sub_tree(csv, [nil, nil, 'Artikel'])
+
         [1, 2].each do |i|
           assert_includes article_sub_csv, [nil, nil, nil, 'Artikel', 'de', "TestArtikel #{i}"]
         end
 
         offer_sub_csv = extract_sub_tree(csv, [nil, nil, 'Biografie'])
+
         [1, 2, 3].each do |i|
           assert_includes offer_sub_csv, [nil, nil, nil, 'Biografie', 'de', "TestBiografie #{i}"]
         end

@@ -1,0 +1,19 @@
+# author: rainer@pixelpoint.at
+
+AllCops:
+  Exclude:
+    - "node_modules/**/*"
+    - "tmp/**/*"
+    - "cache/**/*"
+    - "bash/**/*"
+    - "private/**/*"
+    - "public/**/*"
+    - "docker/**/*"
+    - "coverage/**/*"
+    - ".git/**/*"
+    - ".bundle/**/*"
+    - ".ruby-lsp/**/*"
+    - ".insomnia/**/*"
+    - "coverage/**/*"
+    - "log/**/*"
+    - "vendor/gems/datacycle-*/**/*"

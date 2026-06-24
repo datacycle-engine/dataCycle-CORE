@@ -16,8 +16,10 @@ Devise.setup do |config|
   config.email_regexp = URI::MailTo::EMAIL_REGEXP
   config.reset_password_within = 6.hours
   config.sign_out_via = :delete
-  config.lock_strategy = :none
-  config.unlock_strategy = :none
+  config.lock_strategy = :failed_attempts
+  config.maximum_attempts = 3
+  config.unlock_strategy = :time
+  config.unlock_in = 1.hour
   config.http_authenticatable = true
   config.secret_key = ENV['SECRET_KEY_BASE']
 
@@ -25,11 +27,12 @@ Devise.setup do |config|
     require 'omniauth-entra-id'
     config.omniauth :pixelpoint_aad_v2, {
       name: 'pixelpoint_aad_v2',
+      controller: 'data_cycle_core/omniauth', # used for custom omniauth callbacks controller in project
       client_id: ENV['PIXELPOINT_AAD_V2_CLIENT_ID'],
       client_secret: ENV['PIXELPOINT_AAD_V2_CLIENT_SECRET'],
       tenant_id: ENV['PIXELPOINT_AAD_V2_TENANT_ID'],
       strategy_class: OmniAuth::Strategies::EntraId,
-      default_role: 'super_admin'
+      default_role: 'system_admin'
     }
   end
 

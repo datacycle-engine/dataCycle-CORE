@@ -52,6 +52,7 @@ module DataCycleCore
 
     test 'overwriten name, added description (not present in definition of thing)' do
       thing = create_thing_with_overlay
+
       assert_equal('Test-Thing-With-Overlay', thing.name)
       assert_equal('Test Overlay', thing.name_overlay)
       assert_raise(NoMethodError) { thing.description }

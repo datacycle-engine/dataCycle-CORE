@@ -7,7 +7,8 @@ module DataCycleCore
       include Enumerable
       include DataCycleCore::Common::ArelBuilder
 
-      attr_reader :query, :include_embedded
+      attr_reader :query, :include_embedded, :cached_result
+
       def_delegators :query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
       TERMINAL_METHODS = [:count, :size, :pluck, :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :query, *TERMINAL_METHODS
@@ -49,7 +50,7 @@ module DataCycleCore
       end
 
       def none
-        reflect(@query.none)
+        reflect(DataCycleCore::Thing.none)
       end
 
       private
@@ -100,6 +101,22 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_Disjoint', [geom1, geom2])
       end
 
+      def st_line_from_polyline(polyline)
+        Arel::Nodes::NamedFunction.new('ST_LineFromEncodedPolyline', [quoted(polyline.to_s)])
+      end
+
+      def st_make_polygon(geom)
+        Arel::Nodes::NamedFunction.new('ST_MakePolygon', [geom])
+      end
+
+      def st_geom_from_geojson_string(geojson)
+        Arel::Nodes::NamedFunction.new('ST_GeomFromGeoJSON', [quoted(geojson.to_s)])
+      end
+
+      def st_geom_from_text(text, srid = 4326)
+        Arel::Nodes::NamedFunction.new('ST_GeomFromText', [quoted(text.to_s), srid])
+      end
+
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new('@', geo1, geo2)
       end
@@ -133,10 +150,14 @@ module DataCycleCore
       end
 
       def tstzrange(ts_l, ts_h, border = '[]')
+        ts_l = Arel::Nodes::SqlLiteral.new('NULL') if ts_l.nil?
+        ts_h = Arel::Nodes::SqlLiteral.new('NULL') if ts_h.nil?
         Arel::Nodes::NamedFunction.new('tstzrange', [ts_l, ts_h, quoted(border)])
       end
 
       def tsrange(ts_l, ts_h, border = '[]')
+        ts_l = Arel::Nodes::SqlLiteral.new('NULL') if ts_l.nil?
+        ts_h = Arel::Nodes::SqlLiteral.new('NULL') if ts_h.nil?
         Arel::Nodes::NamedFunction.new('tsrange', [ts_l, ts_h, quoted(border)])
       end
 
@@ -326,8 +347,9 @@ module DataCycleCore
       def reflect(query)
         self.class.new(
           locale: @locale,
-          query: query,
-          include_embedded: include_embedded
+          query:,
+          include_embedded:,
+          cached_result:
         )
       end
     end

@@ -2,7 +2,7 @@
 
 class RefactorContentContentLinkTriggers < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP INDEX IF EXISTS index_contents_a_b;
 
       CREATE INDEX IF NOT EXISTS index_content_content_links_on_contents_a_b ON content_content_links USING btree (content_a_id, content_b_id);
@@ -104,7 +104,7 @@ class RefactorContentContentLinkTriggers < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE content_content_links DROP CONSTRAINT fk_content_content_links_content_contents,
         DROP COLUMN content_content_id,
         DROP COLUMN relation;

@@ -1,0 +1,37 @@
+---
+name: Base-System
+identifier: base-system
+credentials:
+  host: BASE_HOST
+  token: BASE_TOKEN
+  api_version: v1
+default_options:
+  transformations: DataCycleCore::Generic::Common::Transformations
+  export:
+    external_url: https://base.example.com
+module_base: DataCycleCore::Generic::Common
+config:
+  download_config:
+    images:
+      sorting: 1
+      source_type: contents
+      endpoint: DataCycleCore::Generic::Csv::Endpoint
+      download_strategy: DownloadFunctions
+    places:
+      sorting: 2
+      source_type: contents
+      endpoint: DataCycleCore::Generic::Csv::Endpoint
+      download_strategy: DownloadFunctions
+  import_config:
+    images:
+      sorting: 1
+      source_type: images
+      import_strategy: ImportTags
+      tree_label: Base - Tags
+    places:
+      sorting: 2
+      source_type: places
+      import_strategy: ImportContents
+      main_content:
+        template: Place
+        transformation: to_place

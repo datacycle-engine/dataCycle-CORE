@@ -6,14 +6,14 @@ class RebuildCccRelationsForRelationColumn < ActiveRecord::Migration[7.1]
 
   def up
     if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
-      execute <<-SQL.squish
+      execute <<~SQL.squish
         SET LOCAL statement_timeout = 0;
 
         SELECT public.generate_collected_cl_content_relations_transitive (array_agg(things.id))
         FROM things;
       SQL
     else
-      execute <<-SQL.squish
+      execute <<~SQL.squish
         SET LOCAL statement_timeout = 0;
 
         SELECT public.generate_collected_classification_content_relations (array_agg(things.id), ARRAY[]::UUID[])

@@ -24,11 +24,13 @@ module DataCycleCore
           @content.thing_template.update_column(:schema, @content.schema)
 
           get xml_v1_thing_path(id: @content)
+
           assert_response(:success)
           assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           data_hash = xml_data.dig('RDF', 'thing')
+
           assert_equal(new_type, data_hash['type'])
         end
 
@@ -38,11 +40,13 @@ module DataCycleCore
           @content.thing_template.update_column(:schema, @content.schema)
 
           get xml_v1_thing_path(id: @content)
+
           assert_response(:success)
           assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           data_hash = xml_data.dig('RDF', 'thing')
+
           assert_equal(@content.text, data_hash['alternative'])
         end
 
@@ -52,11 +56,13 @@ module DataCycleCore
           @content.thing_template.update_column(:schema, @content.schema)
 
           get xml_v1_thing_path(id: @content)
+
           assert_response(:success)
           assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           data_hash = xml_data.dig('RDF', 'thing')
+
           assert_equal(@content.text, data_hash['newName'])
         end
 
@@ -66,12 +72,14 @@ module DataCycleCore
           @content.thing_template.update_column(:schema, @content.schema)
 
           get xml_v1_thing_path(id: @content)
+
           assert_response(:success)
           assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           data_hash = xml_data.dig('RDF', 'thing')
-          assert(@content.text.present?)
+
+          assert_predicate(@content.text, :present?)
           assert_nil(data_hash['text'])
         end
       end

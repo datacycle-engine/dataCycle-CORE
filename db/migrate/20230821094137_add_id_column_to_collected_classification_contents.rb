@@ -2,7 +2,7 @@
 
 class AddIdColumnToCollectedClassificationContents < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE IF EXISTS collected_classification_contents
       ADD COLUMN id uuid NOT NULL DEFAULT uuid_generate_v4();
 
@@ -227,7 +227,7 @@ class AddIdColumnToCollectedClassificationContents < ActiveRecord::Migration[6.1
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION generate_collected_cl_content_relations_transitive(thing_ids UUID []) RETURNS void LANGUAGE PLPGSQL AS $$ BEGIN IF array_length(thing_ids, 1) > 0 THEN
       DELETE FROM collected_classification_contents
       WHERE collected_classification_contents.thing_id IN (

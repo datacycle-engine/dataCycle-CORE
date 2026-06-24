@@ -14,11 +14,21 @@ object_properties['@type'] = api_property_definition['type'] if api_property_def
 ordered_api_properties(validation: definition).each do |o_key, o_definition|
   next if options[:field_filter] && new_fields.present? && !attribute_visible?(attribute_key(o_key, o_definition), object_options) && api_property_definition.dig('transformation', 'method') != 'merge_object'
 
+  nested_api_definition = api_definition(o_definition)
+  property_name = nested_api_definition.dig('transformation', 'name')
   key_new = attribute_key(o_key, o_definition)
 
   data_value = load_object_value_object(content, key, o_key, value.try(o_key), options[:languages], o_definition, options[:expand_language])
 
-  object_properties[key_new.camelize(:lower)] = data_value if data_value.present?
+  next if DataCycleCore::DataHashService.blank?(data_value)
+
+  if nested_api_definition.dig('transformation', 'method')
+    object_properties[property_name] ||= {}
+    object_properties[property_name][key_new] = data_value
+    object_properties[property_name]['@type'] = nested_api_definition.dig('transformation', 'type') if nested_api_definition.dig('transformation', 'type').present?
+  else
+    object_properties[key_new.camelize(:lower)] = data_value
+  end
 end
 
 if ['unwrap', 'merge_object'].include?(api_property_definition.dig('transformation', 'method'))

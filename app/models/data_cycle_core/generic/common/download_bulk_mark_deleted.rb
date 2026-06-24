@@ -5,7 +5,10 @@ module DataCycleCore
     module Common
       module DownloadBulkMarkDeleted
         def self.download_content(utility_object:, options:)
-          DataCycleCore::Generic::Common::DownloadFunctions.bulk_mark_deleted(
+          utility_object.mode = :full
+          options[:mode] = 'full'
+
+          DownloadFunctions.bulk_mark_deleted(
             download_object: utility_object,
             iterator: method(:load_contents).to_proc,
             options:,
@@ -17,7 +20,7 @@ module DataCycleCore
           opts = options
           opts = opts.deep_merge(download: { read_type: opts.dig(:download, :source_type) }) if opts.dig(:download, :read_type).blank?
 
-          DataCycleCore::Generic::Common::DownloadDataFromData.load_data_from_mongo(options: opts, **).pluck('id')
+          DownloadDataFromData.load_ids_from_mongo(options: opts, **)
         end
       end
     end

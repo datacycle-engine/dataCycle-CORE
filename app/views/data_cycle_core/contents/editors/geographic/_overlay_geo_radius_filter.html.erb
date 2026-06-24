@@ -1,0 +1,12 @@
+<div class="no-bullet geo-radius-filter-container">
+  <label for="<%= "#{random_id}_geo_radius_filter_#{key}" %>" class="filter-group-label"><%= config[:label] %></label>
+  <input type="number"
+         name="additional_values_filter[geo_radius][v][distance]"
+         id="<%= "#{random_id}_geo_radius_filter_#{key}" %>"
+         class="dc-geo-radius-filter-distance"
+         min="0"
+         step="1"
+         placeholder="<%= t('common.distance', locale: active_ui_locale) %>"
+         data-group-key="<%= key %>" />
+  <%= select_tag "additional_values_filter[geo_radius][v][unit]", options_for_select(['km', 'm'], 'm'), class: 'geo-radius-unit-selector', data: { group_key: key } %>
+</div>

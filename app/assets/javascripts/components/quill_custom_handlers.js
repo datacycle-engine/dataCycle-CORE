@@ -1,4 +1,5 @@
 import CalloutHelpers from "../helpers/callout_helpers";
+import { translateText } from "../helpers/translate_feature_helpers";
 
 const QuillCustomHandlers = {
 	quillInlineTranslator: null,
@@ -61,51 +62,37 @@ const QuillCustomHandlers = {
 			'<i class="fa fa-spinner fa-spin fa-fw"></i>',
 		);
 
-		DataCycle.httpRequest("/things/translate_text", {
-			method: "POST",
-			body: {
-				text: typeof value === "string" ? value.trim() : value,
-				target_locale: this.quill.root.parentElement.dataset.locale,
-			},
-		})
-			.then(
-				async ({ text, detected_source_language: detectedSourceLocale }) => {
-					this.quill.clipboard.dangerouslyPasteHTML(text);
+		const translatedValue = await translateText(
+			this.quill.root.closest(".form-element").dataset.label,
+			value,
+			this.quill.root.parentElement.dataset.locale,
+		);
 
-					CalloutHelpers.show(
-						await I18n.translate("feature.translate.inline_success", {
-							source_locale:
-								detectedSourceLocale &&
-								(await I18n.translate(
-									`locales.${detectedSourceLocale.toLowerCase()}`,
-									{},
-									detectedSourceLocale.toLowerCase(),
-								)),
-							target_locale: await I18n.translate(
-								`locales.${this.quill.root.parentElement.dataset.locale}`,
-								{},
-								this.quill.root.parentElement.dataset.locale,
-							),
-						}),
-						"success",
-					);
-				},
-			)
-			.catch(async (error) => {
-				let errorMessage = await I18n.translate(
-					"frontend.split_view.translate_error",
-					{
-						label: this.quill.root.closest(".form-element").dataset.label,
-					},
-				);
-				if (error?.responseJSON?.error)
-					errorMessage += `<br><i>${error.responseJSON.error}</i>`;
-				CalloutHelpers.show(errorMessage, "alert");
-			})
-			.finally(() => {
-				DataCycle.enableElement(button);
-				this.quill.enable();
-			});
+		if (translatedValue?.text) {
+			this.quill.clipboard.dangerouslyPasteHTML(translatedValue.text);
+			const srcLocale = translatedValue.detected_source_language;
+
+			CalloutHelpers.show(
+				await I18n.translate("feature.translate.inline_success", {
+					source_locale:
+						srcLocale &&
+						(await I18n.translate(
+							`locales.${srcLocale.toLowerCase()}`,
+							{},
+							srcLocale.toLowerCase(),
+						)),
+					target_locale: await I18n.translate(
+						`locales.${this.quill.root.parentElement.dataset.locale}`,
+						{},
+						this.quill.root.parentElement.dataset.locale,
+					),
+				}),
+				"success",
+			);
+		}
+
+		DataCycle.enableElement(button);
+		this.quill.enable();
 	},
 	async loadIconTranslation(icons, key) {
 		const text = await I18n.translate(`frontend.text_editor.${key}`);

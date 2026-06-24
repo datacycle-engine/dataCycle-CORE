@@ -20,6 +20,7 @@ module DataCycleCore
             actions = []
             normalize_report['actionList'].each do |action|
               raise ArgumentError, "Unknown taskType: #{action['taskType']} | known types: #{action_type.keys}" unless action_type.key?(action['taskType'])
+
               entry = send(action_type[action['taskType']], action)
               actions << entry if entry.present?
             end
@@ -44,6 +45,7 @@ module DataCycleCore
 
           def split(action)
             return if action['taskId'] == 'Split_StreetStreetnr'
+
             action['fieldsAfter']
               .product(action['fieldsBefore'])
               .map do |after, before|

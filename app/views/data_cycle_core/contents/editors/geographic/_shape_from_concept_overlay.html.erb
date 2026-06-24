@@ -2,9 +2,11 @@
   <button class="close-button" data-close aria-label="Close modal" type="button">
     <span aria-hidden="true">&times;</span>
   </button>
+
   <div class="reveal-header">
     <%= t('frontend.map.shape_from_concept.overlay_title', locale: active_ui_locale) %>
   </div>
+
   <%= form_for(:concepts, url: geometry_classifications_path, class: 'shape-from-concept-form', data: { turbo_frame: "#{overlay_id}-geometry" }) do |f| %>
     <div class="reveal-body">
       <p><%= t('frontend.map.shape_from_concept.overlay_description', locale: active_ui_locale) %></p>

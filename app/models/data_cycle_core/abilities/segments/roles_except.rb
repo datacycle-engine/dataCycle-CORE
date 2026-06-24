@@ -6,8 +6,9 @@ module DataCycleCore
       class RolesExcept < Base
         attr_reader :subject, :conditions, :allowed
 
-        def initialize(except = [])
-          except = Array.wrap(except).map(&:to_s)
+        def initialize(*except)
+          except = Array.wrap(except).flatten.map(&:to_s)
+          except += ['system_admin'] if except.exclude?('system_admin') # system_admin should always be excluded from the allowed roles
           @allowed = DataCycleCore::Role.where.not(name: except).pluck(:name)
           @subject = DataCycleCore::Role
           @conditions = { name: allowed }

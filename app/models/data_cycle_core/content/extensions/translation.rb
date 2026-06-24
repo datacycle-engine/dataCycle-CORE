@@ -30,9 +30,11 @@ module DataCycleCore
         end
 
         def translated_helper_text(key, locale)
-          return unless I18n.exists?("helper_text.attributes.#{base_template_name}.#{key.attribute_name_from_key}.tooltip", locale:)
-
-          I18n.t("helper_text.attributes.#{base_template_name}.#{key.attribute_name_from_key}.tooltip", locale:)
+          if I18n.exists?("helper_text.attributes.#{base_template_name}.#{key.attribute_name_from_key}.tooltip", locale:)
+            I18n.t("helper_text.attributes.#{base_template_name}.#{key.attribute_name_from_key}.tooltip", locale:)
+          elsif I18n.exists?("helper_text.attributes.#{key.attribute_name_from_key}.tooltip", locale:)
+            I18n.t("helper_text.attributes.#{key.attribute_name_from_key}.tooltip", locale:)
+          end
         end
 
         class_methods do

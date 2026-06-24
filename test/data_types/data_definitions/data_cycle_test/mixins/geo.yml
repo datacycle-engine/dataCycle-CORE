@@ -61,7 +61,6 @@
       :location:
         :label: GPS-Koordinaten
         :type: geographic
-        :storage_location: column
         :api:
           :disabled: true
         :ui:

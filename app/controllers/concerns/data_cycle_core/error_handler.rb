@@ -20,6 +20,8 @@ module DataCycleCore
       rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
       rescue_from PG::QueryCanceled, with: :too_many_requests
       rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
+      rescue_from DataCycleCore::Error::BadRequestError, with: :bad_request_error
+      rescue_from ActiveRecord::StatementInvalid, with: :bad_request if self <= ActionController::API
       rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
 
       rescue_from DataCycleCore::Error::Download::InvalidSerializationFormatError, with: :user_interface_error
@@ -41,7 +43,7 @@ module DataCycleCore
     end
 
     def bad_request_api_error(exception)
-      api_errors = exception.data.map do |error|
+      api_errors = Array.wrap(exception.data).map do |error|
         {
           source: {
             parameter: error[:parameter_path]
@@ -51,6 +53,15 @@ module DataCycleCore
         }
       end
       render json: { errors: api_errors }, layout: false, status: :bad_request
+    end
+
+    def bad_request_error(e)
+      respond_to do |format|
+        format.json do
+          render json: { errors: e.formatted_errors }, layout: false, status: :bad_request
+        end
+        format.any { head :bad_request }
+      end
     end
 
     def expired_content_api_error(exception)
@@ -78,17 +89,28 @@ module DataCycleCore
     end
 
     def user_interface_error(exception)
-      redirect_back(fallback_location: root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false) && return if is_a?(ApplicationController)
+      redirect_back_or_to(root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false) && return if is_a?(ApplicationController)
 
-      bad_request
+      bad_request(exception)
     end
 
     def not_acceptable
       head :not_acceptable
     end
 
-    def bad_request
-      head :bad_request
+    def bad_request(exception)
+      respond_to do |format|
+        format.json do
+          api_errors = [{ title: I18n.t("exceptions.#{exception.class.name.underscore}", locale: :en) }] if I18n.exists?("exceptions.#{exception.class.name.underscore}", locale: :en)
+
+          if api_errors.present?
+            render json: { errors: api_errors }, layout: false, status: :bad_request
+          else
+            head :bad_request
+          end
+        end
+        format.any { head :bad_request }
+      end
     end
 
     def too_many_requests

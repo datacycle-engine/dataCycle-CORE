@@ -6,11 +6,11 @@ module DataCycleCore
       module Classification
         class << self
           def by_name(property_definition:, **_additional_args)
-            if property_definition&.dig('default_value').is_a?(Hash)
-              value = property_definition&.dig('default_value', 'value')
-            else
-              value = property_definition&.dig('default_value')
-            end
+            value = if property_definition&.dig('default_value').is_a?(Hash)
+                      property_definition&.dig('default_value', 'value')
+                    else
+                      property_definition&.dig('default_value')
+                    end
 
             concepts = DataCycleCore::Concept.for_tree(property_definition&.dig('tree_label'))
               .with_internal_name(value)

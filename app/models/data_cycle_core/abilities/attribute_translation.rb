@@ -29,7 +29,7 @@ module DataCycleCore
               filtered_a.pluck(:text).uniq
             end
 
-            path_t[0].product(*path_t[1..-1]).map { |p| p.join(' -> ') }
+            path_t[0].product(*path_t[1..]).map { |p| p.join(' -> ') }
           else
             attributes(property_translations, template_name).pluck(path).compact.pluck(:text).uniq
           end

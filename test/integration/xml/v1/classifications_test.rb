@@ -20,7 +20,8 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
-          assert(xml_data.dig('RDF', 'classificationTree').size.positive?)
+
+          assert_predicate(xml_data.dig('RDF', 'classificationTree').size, :positive?)
         end
 
         test 'xml for specific classificaiton_trees' do
@@ -30,6 +31,7 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
+
           assert_equal(classification_tree.id, xml_data.dig('RDF', 'classificationTree', 'id'))
           assert_equal(classification_tree.name, xml_data.dig('RDF', 'classificationTree', 'name'))
         end
@@ -43,6 +45,7 @@ module DataCycleCore
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           total = classification_tree.classification_trees.count
+
           assert_equal(total, xml_data['RDF']['classifications']['classification'].count)
         end
       end

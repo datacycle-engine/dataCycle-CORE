@@ -18,6 +18,10 @@
       ], filter_advanced_type) %>
   </div>
 
+  <div class="advanced-filter-mode">
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.is", locale: active_ui_locale), 'i'], [t("common.like", locale: active_ui_locale), 's']], filter_method) %>
+  </div>
+
   <div class="advanced-filter-selector">
     <%= hidden_field_tag "f[#{identifier}][v][helper]", 'true', {class: 'hidden_helper', disabled: (!['b', 'p'].include?(filter_method))} %>
     <%= text_field_tag "f[#{identifier}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text', disabled: (['b', 'p'].include?(filter_method)), data: { initial_focus: true } } %>

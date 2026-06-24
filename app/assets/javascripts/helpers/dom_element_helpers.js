@@ -309,6 +309,24 @@ export function stripTags(str) {
 	}
 }
 
+export function startFromCoordinates(coordinates) {
+	if (!coordinates || !coordinates.length) return null;
+
+	if (Array.isArray(coordinates?.[0]))
+		return startFromCoordinates(coordinates[0]);
+
+	return coordinates;
+}
+
+export function endFromCoordinates(coordinates) {
+	if (!coordinates || !coordinates.length) return null;
+
+	if (Array.isArray(coordinates?.[coordinates.length - 1]))
+		return endFromCoordinates(coordinates[coordinates.length - 1]);
+
+	return coordinates;
+}
+
 const DomElementHelpers = {
 	inputFieldSelectors,
 	listPropertyClasses,

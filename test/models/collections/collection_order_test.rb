@@ -29,7 +29,7 @@ module DataCycleCore
         @collection.update_order_by_array([@content3.id, @content5.id, @content.id, @content4.id, @content2.id])
 
         assert_equal [@content3.id, @content5.id, @content.id, @content4.id, @content2.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:thing_id)
-        assert_equal true, @collection.manual_order
+        assert @collection.manual_order
       end
 
       test 'set manual order for all watch_list items' do

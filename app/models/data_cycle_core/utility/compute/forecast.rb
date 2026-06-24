@@ -8,6 +8,7 @@ module DataCycleCore
           def wind_direction(computed_parameters:, **_args)
             degree = computed_parameters['wind_direction']
             return nil if degree.nil?
+
             degree = degree.to_f % 360
             case degree
             when 0..11.25, 348.75..360

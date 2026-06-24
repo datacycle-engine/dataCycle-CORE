@@ -2,7 +2,7 @@
 
 class RefactorSomeTriggersForCollectedClassificationContents < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS generate_collected_classification_content_relations_trigger ON classification_alias_paths;
 
       CREATE TRIGGER update_collected_classification_content_relations_trigger
@@ -33,7 +33,7 @@ class RefactorSomeTriggersForCollectedClassificationContents < ActiveRecord::Mig
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS generate_collected_classification_content_relations_trigger ON classification_alias_paths;
       DROP TRIGGER IF EXISTS update_collected_classification_content_relations_trigger ON classification_alias_paths;
 

@@ -8,8 +8,13 @@ module DataCycleCore
       @errors = nil
       @duplicates = nil
       @stat_database = StatsDatabase.new.load_all_stats
+      @stats_job_queue = StatsJobQueue.new.job_list
       @rebuilding_classification_mappings = StatsJobQueue.rebuilding_mappings_jobs.exists?
       @grouped_external_systems = DataCycleCore::ExternalSystem.grouped_by_type(@stat_database.import_modules)
+    end
+
+    def pg_stats
+      @stat_database = StatsDatabase.new.load_pg_stats
     end
 
     def download
@@ -56,7 +61,7 @@ module DataCycleCore
 
     def delete_queue
       job = Delayed::Job.find(import_params[:id])
-      job.destroy if job.present?
+      job.presence&.destroy
 
       respond_to_admin_path_actions
     end
@@ -84,8 +89,9 @@ module DataCycleCore
       end
     end
 
-    def import_module_partial
-      render partial: 'data_cycle_core/dash_board/import_module', locals: { external_source_id: import_module_partial_params[:id] }
+    def import_module
+      @external_source_id = import_module_partial_params[:id]
+      @data = DataCycleCore::StatsDatabase.new.load_mongo_stats(@external_source_id)
     end
 
     def activities
@@ -101,13 +107,9 @@ module DataCycleCore
       when 'details'
         activities = DataCycleCore::Activity.activity_details
       else
-        render(json: { error: I18n.t(:unknown_activity_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return
+        render(json: { error: I18n.t('controllers.error.unknown_activity_type', locale: helpers.active_ui_locale) }) && return
       end
       render json: { data: activities&.as_json&.map { |activity| activity.except('id') } }
-    end
-
-    def logs
-      @dataname = params[:dataname]
     end
 
     private

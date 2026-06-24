@@ -1,0 +1,10 @@
+---
+- :data:
+    :name: child_mixin
+    :type: mixin
+    :extends: child_mixin
+    :properties:
+      :event_property:
+        :type: string
+        :label: From events child_mixin (extends base)
+        :storage_location: translated_value

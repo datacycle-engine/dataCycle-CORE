@@ -121,6 +121,7 @@ module DataCycleCore
             end
 
             return response['etag'] if response.status == 200
+
             nil
           rescue StandardError
             nil

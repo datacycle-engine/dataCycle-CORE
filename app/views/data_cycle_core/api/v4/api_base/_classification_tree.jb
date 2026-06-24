@@ -31,4 +31,6 @@ attributes.each do |attribute, operation|
   json[attribute] = operation.call if options[:field_filter] == false || attribute_visible?(attribute, options)
 end
 
+json['dc:slugifiedName'] = render_slugified_name(content, options[:languages]) if attribute_visible?('dc:slugifiedName', options, false)
+
 json.compact

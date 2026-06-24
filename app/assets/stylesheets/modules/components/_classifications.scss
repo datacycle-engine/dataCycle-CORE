@@ -131,8 +131,8 @@ ul.backend-treeview-list,
         display: flex;
         flex-flow: row;
         padding: 1rem;
-        border: 1px solid rgba($dark-gray, 0.5);
-        box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+        border: 1px solid var(--dark-gray-05);
+        box-shadow: 0 0 0 var(--dark-gray-05);
         transition: $input-transition;
         border-radius: $global-radius;
         background: $white;
@@ -198,8 +198,8 @@ ul.backend-treeview-list,
         flex-flow: row wrap;
         gap: 0.5rem;
         padding: 2.5rem 1rem 1rem 1rem;
-        border: 1px solid rgba($dark-gray, 0.5);
-        box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+        border: 1px solid var(--dark-gray-05);
+        box-shadow: 0 0 0 var(--dark-gray-05);
         transition: $input-transition;
         border-radius: $global-radius;
         background: $white;
@@ -535,17 +535,10 @@ ul.backend-treeview-list,
           position: relative;
 
           .create {
-            font-weight: 600;
-            padding: 0.20rem 0.4rem;
             display: inline-flex;
             gap: 0.3rem;
             align-items: center;
             justify-content: center;
-            margin: 0;
-
-            .fa {
-              font-size: 0.9rem;
-            }
           }
         }
 
@@ -626,6 +619,72 @@ ul.backend-treeview-list,
         height: 2.2rem;
       }
     }
+
+    >form .ca-input .ca-collection-checkboxes.concept-scheme-visibilities {
+      padding: 0;
+      gap: 0 0.5rem;
+      overflow: hidden;
+
+      >label {
+        position: relative;
+        top: 0;
+        left: 0;
+        padding: 0.5rem 1rem;
+      }
+
+      >.tabs {
+        display: flex;
+        align-items: end;
+        z-index: 1;
+        margin-bottom: -1px;
+
+        .tabs-title {
+          height: 100%;
+          border: 1px solid transparent;
+
+          border-bottom-color: var(--dark-gray-05);
+
+          &.is-active {
+            border-color: transparent var(--dark-gray-05) transparent var(--dark-gray-05);
+          }
+
+          >a {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            height: 100%;
+            padding: 0.5rem 1rem;
+            background: var(--very-light-gray);
+            transition: var(--background-color-transition);
+            font-size: 0.9rem;
+
+            &:hover {
+              background: var(--nearly-white);
+            }
+
+            &[aria-selected="true"] {
+              background: transparent;
+            }
+          }
+        }
+      }
+
+      >.tabs-content {
+        width: 100%;
+        padding: 1rem;
+        border-color: var(--dark-gray-05);
+
+        .tabs-panel {
+          padding: 0;
+
+          .concept-scheme-visibility-group-container {
+            display: flex;
+            flex-flow: row wrap;
+            gap: 0.5rem;
+          }
+        }
+      }
+    }
   }
 
   form:not(.add-watchlist-form) {
@@ -635,8 +694,8 @@ ul.backend-treeview-list,
     }
 
     input[type='text'] {
-      border: 1px solid rgba($dark-gray, 0.5);
-      box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+      border: 1px solid var(--dark-gray-05);
+      box-shadow: 0 0 0 var(--dark-gray-05);
       transition: $input-transition;
       border-radius: $global-radius;
       background: $white;
@@ -669,8 +728,8 @@ ul.backend-treeview-list,
 
     .form-element {
       .editor-block {
-        border: 1px solid rgba($dark-gray, 0.5);
-        box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+        border: 1px solid var(--dark-gray-05);
+        box-shadow: 0 0 0 var(--dark-gray-05);
         transition: $input-transition;
         border-radius: $global-radius;
         background: $white;
@@ -725,8 +784,8 @@ ul.backend-treeview-list,
       padding: 0 0 0 0;
 
       .select2-container {
-        border: 1px solid rgba($dark-gray, 0.5);
-        box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+        border: 1px solid var(--dark-gray-05);
+        box-shadow: 0 0 0 var(--dark-gray-05);
         transition: $input-transition;
         border-radius: $global-radius;
         background: $white;
@@ -850,6 +909,7 @@ ul.backend-treeview-list,
 #search-results>ul.tree {
 
   .child-count-full,
+  .child-count-direct-and-related,
   .child-count-direct {
     .loading {
       display: inline;
@@ -871,11 +931,6 @@ ul.backend-treeview-list,
     right: 0;
     top: 0;
     gap: 0.3rem;
-
-    >a,
-    >i {
-      padding: 0 3px;
-    }
   }
 
   >li {
@@ -886,6 +941,7 @@ ul.backend-treeview-list,
       display: flex;
 
       .child-count-direct,
+      .child-count-direct-and-related,
       .child-count-full {
         margin: 0 0.2rem;
         padding: 0;
@@ -1041,6 +1097,36 @@ ul.backend-treeview-list,
       display: none;
       position: relative;
 
+      &.contents-related {
+        color: $dark-gray;
+
+        >li:first-child:before {
+          height: 2.4rem;
+        }
+
+        >li:first-child {
+          padding-top: 1.5rem;
+        }
+
+        >li:first-child::after {
+          content: "";
+          position: absolute;
+          top: 0.75rem;
+          left: 0;
+          width: 33rem;
+          height: 0;
+          border-top: 2px dotted var(--dark-gray);
+        }
+      }
+
+      &.tree-border-connect {
+        >li.content-row {
+          &:last-child {
+            border-left: 1px solid var(--dark-gray);
+          }
+        }
+      }
+
       >li.content-row {
         transition: background-color 0.25s ease-out;
         position: relative;
@@ -1118,10 +1204,6 @@ ul.backend-treeview-list,
 
           .type {
             display: flex;
-
-            a {
-              color: inherit;
-            }
 
             .dropdown-pane a {
               color: $primary-color;
@@ -1449,5 +1531,17 @@ ul.backend-treeview-list,
         display: none;
       }
     }
+  }
+}
+
+.test {
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0.75rem;
+    left: 0;
+    width: 15rem;
+    height: 0;
+    border-top: 2px dotted var(--dark-gray);
   }
 }

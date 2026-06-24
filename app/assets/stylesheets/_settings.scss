@@ -109,10 +109,12 @@ $gray: #666666;
   --success-color: #{$success-color};
   --warning-color: #{$warning-color};
   --alert-color: #{$alert-color};
+  --alert-color-02: rgba(204, 75, 55, 0.2);
   --light-gray: #{$light-gray};
   --medium-gray: #{$medium-gray};
   --medium-dark-gray: #cccccc;
-  --dark-gray: #{$dark-gray};
+  --dark-gray: #9d9d9d;
+  --dark-gray-hover: hsl(0, 0%, 52%);
   --darker-gray: #666666;
   --dark-gray-05: rgba(157, 157, 157, 0.5);
   --black-01: rgba(0, 0, 0, 0.1);
@@ -148,12 +150,17 @@ $gray: #666666;
   --nearly-white: #f8f8f8;
   --absolute-white: #ffffff;
   --black-09: rgba(51, 51, 51, 0.9);
+  --black-08: rgba(51, 51, 51, 0.8);
   --black-03: rgba(51, 51, 51, 0.3);
-  --alert-color-05: rgba(204, 75, 55, 0.5);
-  --warning-color-05: rgba(255, 174, 0, 0.5);
-  --success-color-05: rgba(144, 192, 98, 0.5);
-  --primary-color-05: rgba(23, 121, 186, 0.5);
+  --white-09: rgba(255, 255, 255, 0.9);
+  --alert-color-hover: hsl(8, 59%, 41%);
+  --warning-color-hover: hsl(41, 100%, 40%);
+  --success-color-hover: hsl(91, 43%, 47%);
+  --primary-color-hover: hsl(204, 78%, 31%);
+  --secondary-color-hover: hsl(0, 0%, 36%);
   --nearly-white-09: rgba(248, 248, 248, 0.9);
+  --opacity-transition: #{$opacity-transition};
+  --background-color-transition: background-color 0.25s ease-out;
 }
 
 // 2. Breakpoints
@@ -319,8 +326,8 @@ $breadcrumbs-item-slash: true;
 // 11. Button
 // ----------
 
-$button-padding: 0.85rem 1rem;
-$button-margin: 0 0 $global-margin 0;
+$button-padding: 0.75rem 1rem;
+$button-margin: 0;
 $button-fill: solid;
 $button-background: $primary-color;
 $button-background-hover: scale-color($button-background, $lightness: -15%);
@@ -338,6 +345,7 @@ $button-opacity-disabled: 0.25;
 $button-background-hover-lightness: -20%;
 $button-hollow-hover-lightness: -50%;
 $button-transition: background-color 0.25s ease-out, color 0.25s ease-out;
+$button-font-weight: 600;
 
 // 12. Button Group
 // ----------------

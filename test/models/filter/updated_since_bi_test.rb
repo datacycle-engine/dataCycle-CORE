@@ -22,6 +22,7 @@ module DataCycleCore
 
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(timestamp).count)
         new_timestamp = Time.zone.now
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         linked_item = DataCycleCore::Thing.find(linked_objects.last)
@@ -35,6 +36,7 @@ module DataCycleCore
         data_set, timestamp = data_setup(bi: 2)
         linked_objects = data_set.linked_place.pluck(:id)
         new_timestamp = Time.zone.now
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         linked_item = DataCycleCore::Thing.find(linked_objects.last)
@@ -43,6 +45,7 @@ module DataCycleCore
 
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
         data_set.set_data_hash(data_hash: { 'linked_place' => linked_objects.first }, partial_update: true, save_time: timestamp)
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
       end
 
@@ -51,16 +54,20 @@ module DataCycleCore
         linked = data_set.linked_main_place.first
         data_set.set_data_hash(data_hash: { 'linked_main2_place' => [linked.id] }, partial_update: true, save_time: timestamp)
         new_timestamp = Time.zone.now
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         linked.updated_at = new_timestamp
         linked.save!
+
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         data_set.set_data_hash(data_hash: { 'linked_main_place' => [] }, partial_update: true, save_time: timestamp)
+
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         data_set.set_data_hash(data_hash: { 'linked_main2_place' => [] }, partial_update: true, save_time: timestamp)
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
       end
 
@@ -69,16 +76,20 @@ module DataCycleCore
         linked_bi = data_set.linked_place.first
         data_set.set_data_hash(data_hash: { 'linked_main_place' => [linked_bi.id] }, partial_update: true, save_time: timestamp)
         new_timestamp = Time.zone.now
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         linked_bi.updated_at = new_timestamp
         linked_bi.save!
+
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         data_set.set_data_hash(data_hash: { 'linked_place' => [] }, partial_update: true, save_time: timestamp)
+
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         data_set.set_data_hash(data_hash: { 'linked_main_place' => [] }, partial_update: true, save_time: timestamp)
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
       end
 
@@ -87,16 +98,20 @@ module DataCycleCore
         linked_bi = data_set.linked_place.first
         data_set.set_data_hash(data_hash: { 'linked_main_place' => [linked_bi.id] }, partial_update: true, save_time: timestamp)
         new_timestamp = Time.zone.now
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         linked_bi.updated_at = new_timestamp
         linked_bi.save!
+
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         data_set.set_data_hash(data_hash: { 'linked_main_place' => [] }, partial_update: true, save_time: timestamp)
+
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
 
         data_set.set_data_hash(data_hash: { 'linked_place' => [] }, partial_update: true, save_time: timestamp)
+
         assert_equal(0, DataCycleCore::Filter::Search.new.template_names('Tour-Sync').updated_since(new_timestamp).count)
       end
 

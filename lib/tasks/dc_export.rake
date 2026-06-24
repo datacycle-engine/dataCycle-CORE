@@ -28,6 +28,7 @@ namespace :dc do
 
       filter = stored_filter || DataCycleCore::StoredFilter.new
       filter.language = locales
+      linked_stored_filter = endpoint.linked_stored_filter.cached if endpoint.linked_stored_filter_id.present?
 
       query = filter.apply(watch_list:)
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
@@ -39,7 +40,7 @@ namespace :dc do
       size = contents.count
       contents = contents.page(1).per(size)
 
-      logger = Logger.new("log/dc_export_#{endpoint.id}_jsonld.log")
+      logger = Logger.new('log/dc_export_jsonld.log')
       start_time = Time.zone.now
 
       dir = Rails.public_path.join('uploads', 'export')
@@ -85,16 +86,12 @@ namespace :dc do
           '@graph' => []
         }.to_json
 
-        worker_pool_size = (ActiveRecord::Base.connection_pool.size / 2) - 1
-        queue = DataCycleCore::WorkerPool.new(worker_pool_size)
+        queue = DataCycleCore::WorkerPool.new(DataCycleCore::WorkerPool.default_num_workers - 1)
 
-        logger.info("[EXPORTING] #{size} things in endpoint: #{endpoint.id} (#{worker_pool_size} Threads)")
-        puts "Exporting #{size} things in endpoint: #{endpoint.id} (#{worker_pool_size} Threads)"
-
-        file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
-        file << result.delete_suffix(']}')
-
-        progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
+        logger.info("[EXPORTING][#{endpoint.id}] #{size} things in endpoint - (#{queue.num_workers} Threads)")
+        filepath = dir.join("#{endpoint.id}.jsonld.tmp")
+        FileUtils.rm_f(filepath)
+        File.write(filepath, result.delete_suffix(']}'), mode: 'a')
 
         contents.find_each do |item|
           queue.append do
@@ -119,7 +116,8 @@ namespace :dc do
                                permitted_params: { section: { links: 0 } },
                                watch_list:,
                                stored_filter:,
-                               api_context: 'api'
+                               api_context: 'api',
+                               linked_stored_filter:
                              },
                              locals: {
                                content: item,
@@ -128,46 +126,43 @@ namespace :dc do
                            ))
               rescue SystemStackError, ActiveRecord::ConnectionTimeoutError => e
                 unless retries < 3
-                  logger.error("[ERROR] for thing: #{item.id}")
-                  logger.error("Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+                  logger.error("[ERROR][#{endpoint.id}] for thing: #{item.id}")
+                  logger.error("[ERROR][#{endpoint.id}] Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
 
                   raise
                 end
 
-                logger.error("[RETRYING] for thing: #{item.id} (retry: #{retries})")
+                logger.info("[RETRYING][#{endpoint.id}] for thing: #{item.id} (retry: #{retries})")
                 retries += 1
                 retry
               end
             end
 
-            file << "#{data.to_json},"
-
-            progress.increment
+            File.write(filepath, "#{data.to_json},", mode: 'a')
           end
         end
 
         queue.wait!
 
-        file.truncate(file.size - 1)
-        file << ']}'
-        file.close
-
+        File.truncate(filepath, File.size(filepath) - 1) # remove last comma
+        File.write(filepath, ']}', mode: 'a')
         FileUtils.rm_f(dir.join("#{endpoint.id}.jsonld"))
         File.rename(dir.join("#{endpoint.id}.jsonld.tmp"), dir.join("#{endpoint.id}.jsonld"))
       rescue StandardError => e
         unless global_retries < 3 # after 3 failed tries
-          logger.error("[FAILED EXPORT] for things in endpoint: #{endpoint.id} after #{Time.zone.now - start_time}s")
-          logger.error("Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+          logger.error("[FAILED][#{endpoint.id}] after #{Time.zone.now - start_time}s")
+          logger.error("[FAILED][#{endpoint.id}] Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
 
           raise
         end
 
-        logger.error("[RETRYING EXPORT] for things in endpoint: #{endpoint.id} (retry: #{global_retries})")
+        logger.info("[RETRYING][#{endpoint.id}] retry: #{global_retries}")
         global_retries += 1
         retry
       end
 
-      logger.info("[FINISHED EXPORT] for things in endpoint: #{endpoint.id} after #{Time.zone.now - start_time}s")
+      logger.info("[FINISHED][#{endpoint.id}] after #{Time.zone.now - start_time}s")
+      GC.start
     end
   end
 end

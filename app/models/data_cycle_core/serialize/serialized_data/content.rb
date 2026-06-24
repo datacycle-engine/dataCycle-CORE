@@ -29,7 +29,7 @@ module DataCycleCore
         def faraday_connection
           Faraday.new do |con|
             con.request :retry, { max: 2 }
-            con.use FaradayMiddleware::FollowRedirects, limit: 5
+            con.response :follow_redirects, limit: 5
             con.adapter Faraday.default_adapter
             con.ssl.verify = false
           end
@@ -62,6 +62,7 @@ module DataCycleCore
 
         def active_storage?
           return false if remote? || @data.is_a?(::String)
+
           record_for_active_storage_file&.file&.try(:attached?)
         end
 
@@ -80,6 +81,7 @@ module DataCycleCore
 
         def record_for_active_storage_file
           return data&.blob&.attachments&.first&.record if data.is_a?(ActiveStorage::VariantWithRecord)
+
           data.try(:record)
         end
 
@@ -115,10 +117,10 @@ module DataCycleCore
           @data = +''
 
           response = faraday_connection.get(parsed_data_uri) do |req|
-            req.options.on_data = lambda { |chunk, _|
+            req.options.on_data = proc do |chunk, _bytes_received, _env| # should be proc, as the number of arguments might change
               @data << chunk
               yield(chunk)
-            }
+            end
           end
 
           @mime_type = response.headers&.dig('content-type')

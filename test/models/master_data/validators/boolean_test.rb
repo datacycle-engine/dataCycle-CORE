@@ -27,6 +27,7 @@ describe DataCycleCore::MasterData::Validators::Boolean do
 
     it 'properly validates a bool' do
       date_object = true
+
       assert_equal(no_error_hash, subject.new(date_object, template_hash).error)
     end
 
@@ -34,6 +35,7 @@ describe DataCycleCore::MasterData::Validators::Boolean do
       test_cases = [10, :wednesday]
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -43,6 +45,7 @@ describe DataCycleCore::MasterData::Validators::Boolean do
       test_cases = [true, false, 'true', 'false', '    true     ']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end

@@ -33,6 +33,11 @@ module DataCycleCore
           tmp.reload
         end
       end
+
+      # Ensure any in-memory cache is cleared between tests so throttles and cached data do not leak between test cases.
+      teardown do
+        Rails.cache.clear if defined?(Rails) && Rails.cache.respond_to?(:clear)
+      end
     end
   end
 end

@@ -8,6 +8,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 (content.included_property_names - options[:hidden_attributes]).each do |key|
   next if content.send(key).blank?
+
   json.set! key.camelize(:lower) do
     content.send(key).to_h.each do |d|
       json.set! d[0], d[1]

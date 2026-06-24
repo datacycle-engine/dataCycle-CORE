@@ -2,7 +2,7 @@
 
 class RefactorGenerateCollectedClContentRelationsTransitive < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION generate_collected_cl_content_relations_transitive(classification_contents) RETURNS void LANGUAGE SQL AS $$
       DELETE FROM collected_classification_contents
       WHERE collected_classification_contents.thing_id IN (

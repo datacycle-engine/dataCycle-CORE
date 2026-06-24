@@ -5,7 +5,7 @@ class AddMappableForConceptSchemes < ActiveRecord::Migration[7.1]
     add_column :classification_tree_labels, :mappable, :boolean, default: true, null: false
     add_column :concept_schemes, :mappable, :boolean, default: true, null: false
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION insert_concept_schemes_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
       INSERT INTO concept_schemes(
           id,
@@ -82,7 +82,7 @@ class AddMappableForConceptSchemes < ActiveRecord::Migration[7.1]
     remove_column :classification_tree_label, :mappable
     remove_column :concept_schemes, :mappable
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION insert_concept_schemes_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
       INSERT INTO concept_schemes(
           id,

@@ -6,10 +6,11 @@ module DataCycleCore
       module Typeahead
         def typeahead(typeahead_text, language = ['de'], limit = 10)
           return [] if typeahead_text.blank?
+
           normalized_search = typeahead_text.unicode_normalize(:nfkc)
           locale = language.first # typeahead only supports one language!
-          typeahead_query = <<-SQL.squish
-            SELECT word, word <-> :word as score
+          typeahead_query = <<~SQL.squish
+            SELECT word, word <-> ? as score
             FROM ts_stat($$
               #{
                 @query
@@ -21,11 +22,11 @@ module DataCycleCore
               }
             $$)
             ORDER BY score
-            LIMIT :limit
+            LIMIT ?
           SQL
 
           ActiveRecord::Base.connection.select_all(
-            sanitize_sql([typeahead_query, {word: normalized_search, limit:}])
+            sanitize_sql([typeahead_query, normalized_search, limit])
           )
         end
 
@@ -35,17 +36,17 @@ module DataCycleCore
           normalized_name = typeahead_text.unicode_normalize(:nfkc).strip
           locale = language.first # typeahead only supports one language!
 
-          typeahead_query = <<-SQL.squish
+          typeahead_query = <<~SQL.squish
             SELECT s1.headline
             FROM searches s1
               INNER JOIN (
                 SELECT DISTINCT ON (TRIM(s.headline)) s.id,
-                  word_similarity(s.headline, :sort) AS rank
+                  word_similarity(s.headline, ?) AS rank
                 FROM searches s
-                WHERE s.headline ILIKE :search
-                  AND s.locale = :locale
+                WHERE s.headline ILIKE ?
+                  AND s.locale = ?
                   AND s.content_data_id IN (#{@query.reorder(nil).select(:id).to_sql})
-                LIMIT :limit
+                LIMIT ?
               ) s2 ON s2.id = s1.id
             ORDER BY s2.rank DESC NULLS LAST
           SQL
@@ -53,10 +54,10 @@ module DataCycleCore
           ActiveRecord::Base.connection.select_all(
             sanitize_sql([
                            typeahead_query,
-                           {search: "#{normalized_name}%",
-                            sort: normalized_name,
-                            locale:,
-                            limit:}
+                           normalized_name,
+                           "#{normalized_name}%",
+                           locale,
+                           limit
                          ])
           ).to_a.pluck('headline').map(&:strip)
         end
@@ -74,25 +75,25 @@ module DataCycleCore
           normalized_name += normalized_name.match?(/:[ABCD]{0,4}$/i) ? '*' : ':*'
           locale = language.first # typeahead only supports one language!
 
-          typeahead_query = <<-SQL.squish
+          typeahead_query = <<~SQL.squish
             SELECT s1.headline
             FROM searches s1
               INNER JOIN (
                 SELECT DISTINCT ON (s.headline) s.id,
                   ts_rank_cd(
                     s.search_vector,
-                    to_tsquery(pg_dict_mappings.dict, :tsquery_value),
+                    to_tsquery(pg_dict_mappings.dict, ?),
                     2
                   ) AS rank
                 FROM searches s
                   LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = s.locale
                 WHERE s.search_vector @@ to_tsquery(
                     "pg_dict_mappings"."dict",
-                    :tsquery_value
+                    ?
                   )
-                  AND s.locale = :locale
+                  AND s.locale = ?
                   AND s.content_data_id IN (#{@query.reorder(nil).select(:id).to_sql})
-                LIMIT :limit
+                LIMIT ?
               ) s2 ON s2.id = s1.id
             ORDER BY s2.rank DESC NULLS LAST
           SQL
@@ -100,9 +101,10 @@ module DataCycleCore
           ActiveRecord::Base.connection.select_all(
             sanitize_sql([
                            typeahead_query,
-                           {tsquery_value: normalized_name,
-                            locale:,
-                            limit:}
+                           normalized_name,
+                           normalized_name,
+                           locale,
+                           limit
                          ])
           ).to_a.pluck('headline').map(&:strip)
         end

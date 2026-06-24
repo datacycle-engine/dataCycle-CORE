@@ -14,6 +14,7 @@ module DataCycleCore
       )
 
       organization = data_set
+
       assert_equal('Firmenname', organization.name)
       assert_equal('+ 43 123 456', organization.contact_info.telephone)
       assert_equal('+ 43 654 321', organization.contact_info.fax_number)
@@ -30,6 +31,7 @@ module DataCycleCore
       data_set = DataCycleCore::Thing.new(template_name: 'Organization')
       data_set.schema['properties'] = { 'test' => { 'label' => 'test', 'type' => 'test' } }
       data_set.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization'))
+
       assert_equal 1, data_set.warnings.count # no changes made
     end
   end

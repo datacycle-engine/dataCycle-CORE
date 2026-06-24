@@ -13,6 +13,10 @@ import {
 } from "../components/quill_custom_link";
 import handleEnter from "../components/quill_enter_handler";
 import {
+	QuillPlaceholderFormat,
+	QuillPlaceholderModule,
+} from "../components/quill_placeholder";
+import {
 	lineBreakHandler,
 	lineBreakMatcher,
 	SmartBreak,
@@ -30,6 +34,8 @@ Quill.register("modules/contentlink", QuillContentlinkModule);
 Quill.register("formats/contentlink", ContentlinkBlot);
 Quill.register("modules/customlink", QuillLinkModule);
 Quill.register("formats/customlink", QuillLinkFormat);
+Quill.register("modules/placeholder", QuillPlaceholderModule);
+Quill.register("formats/placeholder", QuillPlaceholderFormat);
 Quill.register("modules/counter", Counter);
 
 class TextEditor {
@@ -40,9 +46,13 @@ class TextEditor {
 		this.excludeFormats = this.element.dataset.excludeFormats
 			? castArray(this.element.dataset.excludeFormats)
 			: [];
-		this.debouncedUpdate;
+		this.headerLevels = domElementHelpers.parseDataAttribute(
+			this.element.dataset.headerLevels,
+		) || [1, 2, 3, 4, false];
+		this.debouncedUpdate = debounce(this.updateSilentHandler.bind(this), 500);
 		this.availableFormats = {
 			none: ["break"],
+			header: ["header", "break"],
 			minimal: ["bold", "italic", "underline", "break"],
 			basic: ["bold", "italic", "header", "underline", "break", "script"],
 			full: [
@@ -57,11 +67,21 @@ class TextEditor {
 				"break",
 				"script",
 				"contentlink",
+				"placeholder",
 			],
 		};
 		this.availableToolbarButtons = {
 			none: {
 				container: [],
+			},
+			header: {
+				container: [
+					[
+						{
+							header: this.headerLevels,
+						},
+					],
+				],
 			},
 			minimal: {
 				container: [
@@ -75,7 +95,7 @@ class TextEditor {
 				container: [
 					[
 						{
-							header: [1, 2, 3, 4, false],
+							header: this.headerLevels,
 						},
 					],
 					[{ script: "sub" }, { script: "super" }],
@@ -102,13 +122,13 @@ class TextEditor {
 					],
 					[
 						{
-							header: [1, 2, 3, 4, false],
+							header: this.headerLevels,
 						},
 					],
 					[{ script: "sub" }, { script: "super" }],
 					["bold", "italic", "underline", "blockquote"],
 					["insertNbsp", "replaceAllNbsp"],
-					["customlink", "contentlink"],
+					["customlink", "contentlink", "placeholder"],
 					["clean"],
 				],
 				handlers: quillCustomHandlers,
@@ -130,6 +150,7 @@ class TextEditor {
 				counter: true,
 				contentlink: {},
 				customlink: {},
+				placeholder: {},
 				toolbar: toolbarButtons,
 				clipboard: {
 					matchers: [["BR", lineBreakMatcher]],
@@ -196,10 +217,7 @@ class TextEditor {
 	}
 	addEventHandlers() {
 		this.editor.on("selection-change", this.updateEditorHandler.bind(this));
-		this.editor.on(
-			"text-change",
-			debounce(this.updateSilentHandler.bind(this), 500),
-		);
+		this.editor.on("text-change", this.debouncedUpdate);
 
 		$(this.editor.container)
 			.closest("form")
@@ -234,7 +252,7 @@ class TextEditor {
 		quillHelpers.updateEditors(this.editor.container, true);
 	}
 	updateSilentHandler(..._args) {
-		quillHelpers.updateEditors(this.editor.container, true);
+		quillHelpers.updateEditors(this.editor.container);
 	}
 	updateEditorHandler(range, ..._args) {
 		if (range == null) {

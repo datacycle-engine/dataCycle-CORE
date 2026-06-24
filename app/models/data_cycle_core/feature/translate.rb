@@ -25,7 +25,11 @@ module DataCycleCore
         end
 
         def external_source
-          @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration[:external_source])
+          if instance_variable_defined?(:@external_source)
+            @external_source
+          else
+            @external_source = DataCycleCore::ExternalSystem.find_by(name: configuration[:external_source])
+          end
         end
 
         def endpoint

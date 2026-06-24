@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Attributes
         class ScheduleTest < DataCycleCore::V4::Base
-          test 'api/v4/things schedule attribute with valid schedule' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things schedule attribute with valid schedule' do
             @event_a = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             schedule_a = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 5.days.ago, 1.hour).serialize_schedule_object
             @event_a.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [schedule_a.schedule_object.to_hash] })
@@ -33,7 +33,7 @@ module DataCycleCore
             assert_equal 'Europe/Vienna', schedule['scheduleTimezone']
           end
 
-          test 'api/v4/things schedule attribute with schedule without occurrences' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things schedule attribute with schedule without occurrences' do
             @event_b = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             schedule_b = DataCycleCore::TestPreparations.generate_schedule('2023-05-25T15:00'.in_time_zone, '2023-05-30'.in_time_zone, 1.5.hours, frequency: 'weekly', week_days: [3]).serialize_schedule_object
             @event_b.set_data_hash(prevent_history: true, data_hash: { event_schedule: [schedule_b.schedule_object.to_hash] })
@@ -59,7 +59,7 @@ module DataCycleCore
             assert_equal 'Europe/Vienna', schedule['scheduleTimezone']
           end
 
-          test 'api/v4/things schedule attribute with schedule without duration' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things schedule attribute with schedule without duration' do
             event = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             event_schedule = DataCycleCore::TestPreparations.generate_schedule('2023-05-25T15:00'.in_time_zone, '2023-05-30'.in_time_zone, nil, frequency: 'weekly', week_days: [5]).serialize_schedule_object
             event.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [event_schedule.schedule_object.to_hash] })
@@ -83,7 +83,7 @@ module DataCycleCore
             assert_equal 'Europe/Vienna', schedule['scheduleTimezone']
           end
 
-          test 'api/v4/things schedule attribute with schedule with single occurrence' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things schedule attribute with schedule with single occurrence' do
             event = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             event_schedule = DataCycleCore::TestPreparations.generate_schedule('2023-05-25T15:00'.in_time_zone, '2023-05-25'.in_time_zone, 2.hours, frequency: nil).serialize_schedule_object
             event.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [event_schedule.schedule_object.to_hash] })

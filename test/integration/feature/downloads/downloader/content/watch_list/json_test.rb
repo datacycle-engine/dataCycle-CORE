@@ -40,6 +40,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:json] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get download_watch_list_path(@watch_list), params: { serialize_format: 'json' }, headers: {
@@ -55,6 +56,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:json] = true
+
                 assert DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get "/downloads/watch_lists/#{@watch_list.id}", params: { serialize_format: 'json' }, headers: {

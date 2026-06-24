@@ -65,6 +65,7 @@ module DataCycleCore
                     when 'current_user'
                       allowed_methods = ['present?', 'nil?']
                       raise 'unknown method for current_user' unless allowed_methods.include?(definition['name'])
+
                       current_user.try(definition['name'])
                     else
                       raise 'Unknown type for validation'
@@ -90,7 +91,7 @@ module DataCycleCore
 
             return false if missing_keys.blank?
             return true if checked && missing_keys.present?
-            return true if !force && !datahash.keys.intersect?(content.resolved_computed_dependencies(key, datahash))
+            return true if !force && !datahash.keys.intersect?(content.flat_computed_parameters(key, datahash, true))
 
             load_missing_values(missing_keys, content, datahash, current_user)
 

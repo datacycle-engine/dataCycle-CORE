@@ -132,12 +132,7 @@
                   </div>
                 </div>
 
-                <div class="ohnohny">
-                  <%= f.text_field :user_notes, value: '', autocomplete: 'off', tabindex: '-1', name: 'user_notes' %>
-                </div>
-                <div class="ohnohny">
-                  <%= f.text_field :user_full_name, value: '', autocomplete: 'off', tabindex: '-1', name: 'user_full_name' %>
-                </div>
+                <%= f.invisible_captcha %>
 
                 <% if DataCycleCore::Feature::UserRegistration.terms_conditions_url.present? %>
                   <div class="row login-checkboxes">

@@ -2,7 +2,7 @@
 
 class UpdateTriggerForClassificationTreeLabelsWithExternalKey < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION insert_concept_schemes_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
       INSERT INTO concept_schemes(
           id,
@@ -122,7 +122,7 @@ class UpdateTriggerForClassificationTreeLabelsWithExternalKey < ActiveRecord::Mi
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION insert_concept_schemes_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
       INSERT INTO concept_schemes(
           id,

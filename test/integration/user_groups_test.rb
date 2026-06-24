@@ -16,6 +16,7 @@ module DataCycleCore
       get user_groups_path, params: {
         q: 'test group'
       }
+
       assert_response :success
       assert_select 'li.grid-item > .inner > .title', { count: 1, text: 'TestUserGroup' }
     end
@@ -31,8 +32,9 @@ module DataCycleCore
       }
 
       assert_redirected_to user_groups_path
-      assert_equal I18n.t(:created, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.created', data: 'Benutzergruppe', locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_select 'li.grid-item > .inner > .title', group_name
     end
 
@@ -53,8 +55,9 @@ module DataCycleCore
       }
 
       assert_redirected_to user_groups_path
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.updated', data: 'Benutzergruppe', locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_select 'li.grid-item > .inner > .infoRow > .title', 'Benutzergruppe (1)'
       assert_select 'li.grid-item > .inner > .title', group_name
     end
@@ -67,8 +70,9 @@ module DataCycleCore
       }
 
       assert_redirected_to user_groups_path
-      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.destroyed', data: 'Benutzergruppe', locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_select 'li.grid-item > .inner > .title', { count: 0, text: 'TestUserGroup' }
     end
   end

@@ -30,10 +30,10 @@ Rails.application.configure do
     'Cache-Control' => "public, max-age=#{1.hour.to_i}"
   }
 
-  # Show full error reports and disable caching.
+  # Show full error reports and enable caching for rate-limiting / throttling tests.
   config.consider_all_requests_local = true
-  config.action_controller.perform_caching = false
-  config.cache_store = :null_store
+  config.action_controller.perform_caching = true
+  config.cache_store = :memory_store
 
   # Raise exceptions instead of rendering exception templates.
   config.action_dispatch.show_exceptions = :rescuable
@@ -67,6 +67,12 @@ Rails.application.configure do
 
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true
+
+  if ENV['RAILS_LOG_TO_STDOUT'].present?
+    logger = ActiveSupport::Logger.new($stdout)
+    logger.formatter = config.log_formatter
+    config.logger = ActiveSupport::TaggedLogging.new(logger)
+  end
 
   config.action_mailer.default_url_options = { host: 'localhost:3000', protocol: 'http' } # required for action_mailer (Missing host to link to! Please provide the :host parameter, set default_url_options[:host])
 

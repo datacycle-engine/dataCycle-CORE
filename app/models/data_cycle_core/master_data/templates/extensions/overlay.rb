@@ -25,7 +25,8 @@ module DataCycleCore
             'validations',
             'api',
             'label',
-            'position'
+            'position',
+            'priority'
           ].freeze
           ALLOWED_PROP_OVERRIDES = ['default_value', 'ui'].freeze
 

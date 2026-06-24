@@ -2,14 +2,14 @@
 
 class UpdateForeignKeyForExternalHashes < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE external_hashes DROP CONSTRAINT fk_external_hashes_things;
 
       ALTER TABLE external_hashes
       ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES things (external_source_id, external_key) ON DELETE CASCADE;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE FUNCTION delete_things_external_source_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
       DELETE FROM external_hashes eh
       WHERE eh.external_source_id = OLD.external_source_id
@@ -36,7 +36,7 @@ class UpdateForeignKeyForExternalHashes < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS delete_things_external_source_trigger ON things;
       DROP FUNCTION IF EXISTS delete_things_external_source_trigger_function;
 

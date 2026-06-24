@@ -57,6 +57,21 @@ module DataCycleCore
           key.failure(message)
         end
 
+        register_macro(:duplicate_candidate_module) do
+          next unless key? && (value.is_a?(String) || value.is_a?(Array))
+
+          Array.wrap(value).each do |v|
+            context = "Class: #{v}, Namespace: #{Feature::DuplicateCandidate::MODULE_BASE_PATH}"
+            dc_module = DataCycleCore::ModuleService.load_module(v, Feature::DuplicateCandidate::MODULE_BASE_PATH)
+            key.failure("Class not found (#{context}).") unless dc_module
+
+            key.failure("Class found, but missing required class method 'duplicates' (#{context}).") unless dc_module.respond_to?(:duplicates)
+            key.failure("Class found, but missing required class method 'parameters' (#{context}).") unless dc_module.respond_to?(:parameters)
+          rescue NameError
+            key.failure("Class not found (#{context}).")
+          end
+        end
+
         register_macro(:dc_property_validations) do
           next unless key? && value.is_a?(Hash)
 
@@ -72,7 +87,7 @@ module DataCycleCore
         end
 
         register_macro(:touch_step_required) do
-          next unless key? && value.demodulize.in?(['DownloadBulkMarkDeleted'])
+          next unless key? && value.demodulize.in?(['DownloadBulkMarkDeleted', 'DownloadMarkDeleted'])
 
           source_type = values[:source_type]
 
@@ -80,7 +95,31 @@ module DataCycleCore
 
           next if steps&.values&.any? { |v| v[:source_type] == source_type && v[:download_strategy]&.include?('DownloadBulkTouchFromData') }
 
-          key.failure('DownloadBulkTouchFromData is required if DownloadBulkMarkDeleted is used in combination with DownloadDataFromData')
+          key.failure('DownloadBulkTouchFromData step should be added to prevent deleting all items')
+        end
+
+        # At download time the endpoint instance is invoked as
+        # `endpoint.send(endpoint_method || source_type)` (see
+        # DataCycleCore::Generic::Common::DownloadFunctions). A step whose derived
+        # method name does not exist on the endpoint class fails at runtime with a
+        # NoMethodError, so reject such mismatches up front.
+        #
+        # Skipped in the test environment: the gem's fixtures intentionally pair the
+        # generic Csv endpoint with placeholder source_types that are never actually
+        # downloaded (analogous to the :dc_template_names guard).
+        register_macro(:endpoint_method_exists) do
+          next if Rails.env.test?
+          next unless key? && value.is_a?(String)
+
+          endpoint_class = value.safe_constantize
+          next if endpoint_class.nil? # an unloadable endpoint class is already reported by the :ruby_class? predicate
+
+          endpoint_method = (values[:endpoint_method].presence || values[:source_type].presence)&.to_s
+          next if endpoint_method.blank?
+          next if endpoint_class.method_defined?(endpoint_method) || endpoint_class.private_method_defined?(endpoint_method)
+
+          derived_from = values[:endpoint_method].present? ? 'endpoint_method' : 'source_type'
+          key.failure("endpoint '#{value}' does not define method '#{endpoint_method}' (derived from #{derived_from})")
         end
       end
     end

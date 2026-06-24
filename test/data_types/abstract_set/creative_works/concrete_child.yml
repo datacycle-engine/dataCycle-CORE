@@ -1,0 +1,9 @@
+---
+- :data:
+    :name: ConcreteChild
+    :extends: AbstractParent
+    :properties:
+      :child_prop:
+        :label: ChildProp
+        :type: string
+        :storage_location: value

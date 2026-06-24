@@ -3,7 +3,7 @@
 module DataCycleCore
   class ExternalSystemsController < ApplicationController
     def index
-      @importer_names = DataCycleCore::ExternalSystem.where("config->>'import_config' IS NOT NULL").where(deactivated: false).pluck(:name)
+      @importer_names = DataCycleCore::ExternalSystem.with_import_config.where(deactivated: false).pluck(:name)
     end
 
     def authorize
@@ -55,10 +55,10 @@ module DataCycleCore
         permitted_classes: [Symbol]
       )
 
-      redirect_back(fallback_location: root_path, alert: I18n.t('controllers.error.external_system_already_exists', locale: helpers.active_ui_locale)) && return if DataCycleCore::ExternalSystem.exists?(identifier: data['identifier']) || DataCycleCore::ExternalSystem.exists?(name: data['name'])
+      redirect_back_or_to(root_path, alert: I18n.t('controllers.error.external_system_already_exists', locale: helpers.active_ui_locale)) && return if DataCycleCore::ExternalSystem.exists?(identifier: data['identifier']) || DataCycleCore::ExternalSystem.exists?(name: data['name'])
 
       error = DataCycleCore::MasterData::ImportExternalSystems.validate(data.deep_symbolize_keys)
-      redirect_back(fallback_location: root_path, alert: error) && return if error.present?
+      redirect_back_or_to(root_path, alert: error) && return if error.present?
 
       data['identifier'] ||= data['name']
       external_system = DataCycleCore::ExternalSystem.new(identifier: data['identifier'], name: data['name'])
@@ -70,7 +70,7 @@ module DataCycleCore
         flash[:error] = I18n.with_locale(helpers.active_ui_locale) { external_system.errors.messages.transform_keys { |k| external_system.class.human_attribute_name(k, locale: helpers.active_ui_locale) } }
       end
 
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to(root_path)
     end
 
     def render_new_form
@@ -89,7 +89,7 @@ module DataCycleCore
     private
 
     def external_system_params
-      params.require(:external_system).permit(:identifier)
+      params.expect(external_system: [:identifier])
     end
   end
 end

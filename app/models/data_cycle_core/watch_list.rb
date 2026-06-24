@@ -7,6 +7,8 @@ module DataCycleCore
     has_many :watch_list_data_hashes, dependent: :delete_all
     has_many :things, through: :watch_list_data_hashes, source: :thing
 
+    API_V4_TYPE = 'dc:StaticCollection'
+
     delegate :translated_locales, to: :things
     alias available_locales translated_locales
 
@@ -14,6 +16,8 @@ module DataCycleCore
       clear_thing_cache! if watch_list_data_hashes_changed?
       @thing_ids ||= watch_list_data_hashes.pluck(:thing_id)
     end
+
+    alias thing_ids_nested thing_ids
 
     def reload(options = nil)
       clear_thing_cache!
@@ -60,9 +64,13 @@ module DataCycleCore
     end
 
     def add_things_from_query(contents_query)
-      result = ActiveRecord::Base.connection.exec_query <<-SQL.squish
-        INSERT INTO watch_list_data_hashes (watch_list_id, thing_id)
-        #{contents_query.select("'#{id}', things.id").to_sql}
+      query = contents_query.is_a?(DataCycleCore::Filter::Search) ? contents_query.query : contents_query
+      order_sql = query.arel.orders.map { |o| o.is_a?(String) ? o : o.to_sql }.join(', ')
+      order_sql = "ORDER BY #{order_sql}" if order_sql.present?
+
+      result = ActiveRecord::Base.connection.exec_query <<~SQL.squish
+        INSERT INTO watch_list_data_hashes (watch_list_id, thing_id, order_a)
+        #{query.select("'#{id}', things.id, row_number() over (#{order_sql})").reorder(nil).to_sql}
         ON CONFLICT DO NOTHING
         RETURNING thing_id;
       SQL
@@ -73,7 +81,7 @@ module DataCycleCore
     end
 
     def delete_all_watch_list_data_hashes
-      result = ActiveRecord::Base.connection.exec_query <<-SQL.squish
+      result = ActiveRecord::Base.connection.exec_query <<~SQL.squish
         DELETE FROM watch_list_data_hashes
         WHERE watch_list_data_hashes.watch_list_id = '#{id}'
         RETURNING thing_id;
@@ -97,6 +105,24 @@ module DataCycleCore
 
     def path
       Array.wrap(full_path_names) + [name]
+    end
+
+    def to_stored_filter
+      sort_parameters = if manual_order && persisted?
+                          [{ 'm' => 'collection_manual_order', 'v' => id }]
+                        else
+                          [{ 'm' => 'default' }]
+                        end
+
+      StoredFilter.new(
+        parameters: [{ 't' => 'watch_list_id', 'v' => id }],
+        sort_parameters:,
+        linked_stored_filter_id:
+      )
+    end
+
+    def api_v4_type
+      API_V4_TYPE
     end
 
     private

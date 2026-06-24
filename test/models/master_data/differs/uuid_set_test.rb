@@ -32,6 +32,7 @@ describe DataCycleCore::MasterData::Differs::UuidSet do
       ]
       data_cases.each do |case_item|
         differ = subject.new(case_item[0], case_item[1], nil)
+
         assert_nil(differ.diff_hash)
       end
     end
@@ -48,6 +49,7 @@ describe DataCycleCore::MasterData::Differs::UuidSet do
       ]
       data_cases.each do |case_item|
         differ = subject.new(case_item[0], case_item[1], template_hash)
+
         assert_equal(case_item[2], differ.diff_hash)
       end
     end
@@ -64,6 +66,7 @@ describe DataCycleCore::MasterData::Differs::UuidSet do
       ]
       data_cases.each do |case_item|
         differ = subject.new(case_item[0], case_item[1], template_hash)
+
         assert_equal(case_item[2], differ.diff_hash)
       end
     end
@@ -81,6 +84,7 @@ describe DataCycleCore::MasterData::Differs::UuidSet do
       ]
       data_cases.each do |case_item|
         differ = subject.new(case_item[0], case_item[1], template_hash)
+
         assert_equal(case_item[2], differ.diff_hash)
       end
     end

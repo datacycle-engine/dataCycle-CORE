@@ -6,7 +6,7 @@ module DataCycleCore
       module ImportData
         def delete_data(utility_object:, iterator:, data_processor:, options:)
           init_logging(utility_object) do |logging|
-            init_mongo_db(utility_object) do
+            utility_object.with_mongodb do
               each_locale(utility_object.locales) do |locale|
                 step_label = utility_object.step_label(options.merge({ locales: [locale] }))
 
@@ -19,17 +19,20 @@ module DataCycleCore
                     filter_object = filter_object.with_deleted_since(utility_object.last_successful_try) if utility_object.mode == :incremental && utility_object.last_successful_try.present?
 
                     iterate = filtered_items(iterator, locale, filter_object)
+                    external_key_path = options.dig(:import, :external_key_path)
+                    iterate = iterate.only("dump.#{locale}.#{external_key_path}") if external_key_path.present?
+
                     total = iterate.size
                     data = iterate.to_a
-                    times = [Time.current]
+                    start_time = Time.current
 
-                    data_processor.call(utility_object: utility_object, raw_data: data, locale: locale, options: options)
+                    result = data_processor.call(utility_object: utility_object, raw_data: data, locale: locale, options: options)
+                    total = result if result.is_a?(Numeric)
+                    total = 0 if result.blank?
 
-                    times << Time.current
-
-                    logging.phase_finished(step_label, total.to_s, times[-1] - times[-2])
+                    logging.phase_finished(step_label, total, Time.current - start_time)
                   rescue StandardError => e
-                    logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
+                    logging.phase_failed(e, utility_object.external_source, step_label, utility_object.step_name, 'import_failed.datacycle')
                     raise
                   end
                 end

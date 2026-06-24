@@ -16,6 +16,14 @@ module DataCycleCore
 
             end_dates.compact.max
           end
+
+          def start_date_only_date(**)
+            start_date(**)&.to_date
+          end
+
+          def end_date_only_date(**)
+            end_date(**)&.to_date
+          end
         end
       end
     end

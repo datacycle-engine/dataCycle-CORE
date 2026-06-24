@@ -1,0 +1,10 @@
+---
+- :data:
+    :name: mixin_b
+    :type: mixin
+    :extends: mixin_a
+    :properties:
+      :text_b:
+        :label: Text B
+        :type: string
+        :storage_location: translated_value

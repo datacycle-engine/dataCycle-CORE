@@ -47,25 +47,25 @@
       "note": ""
     },
     {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "9da67047fcc2607c4d7f5d50b8ad22d27b5e002c8900bc474dabd9e1415862a8",
-      "check_name": "SendFile",
-      "message": "Model attribute used in file name",
-      "file": "app/controllers/data_cycle_core/data_links_controller.rb",
-      "line": 93,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key), :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find(params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last)}\"))",
+      "warning_type": "Remote Code Execution",
+      "warning_code": 24,
+      "fingerprint": "78d9129b44fe35e7204353c45ace44cd0859e54be08a6e3b8fce856f59cdc97c",
+      "check_name": "UnsafeReflection",
+      "message": "Unsafe reflection method `safe_constantize` called on model attribute",
+      "file": "app/controllers/data_cycle_core/api/v4/external_systems_export_controller.rb",
+      "line": 16,
+      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
+      "code": "DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(permitted_params[:external_system_id]).first!.export_config[\"transformations\"].safe_constantize",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "DataCycleCore::DataLinksController",
-        "method": "get_text_file"
+        "class": "DataCycleCore::Api::V4::ExternalSystemsExportController",
+        "method": "show"
       },
-      "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key)",
+      "user_input": "DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(permitted_params[:external_system_id]).first!",
       "confidence": "Medium",
       "cwe_id": [
-        22
+        470
       ],
       "note": ""
     },
@@ -91,7 +91,30 @@
         89
       ],
       "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "b225341388fc9af2dd439fbeb4b93a9d567e1bb237947d464d99ab3516fff993",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/data_cycle_core/data_links_controller.rb",
+      "line": 94,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(DataCycleCore::DataLink.find_by(:id => params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find_by(:id => params[:id]).text_file.file.key), :type => DataCycleCore::DataLink.find_by(:id => params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find_by(:id => params[:id]).text_file.name or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find_by(:id => params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find_by(:id => params[:id]).text_file.content_type.split(\"/\").last)}\"))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::DataLinksController",
+        "method": "get_text_file"
+      },
+      "user_input": "DataCycleCore::DataLink.find_by(:id => params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find_by(:id => params[:id]).text_file.file.key)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
     }
   ],
-  "brakeman_version": "7.0.0"
+  "brakeman_version": "8.0.4"
 }

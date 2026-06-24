@@ -11,11 +11,11 @@ module DataCycleCore
 
           def by_name_value_source(content:, property_definition:, **_args)
             value_definition = property_definition.dig('default_value', 'value')
-            if value_definition.is_a?(::Array)
-              values = value_definition
-            else
-              values = (content&.external? ? value_definition['external'] : value_definition['internal']) || []
-            end
+            values = if value_definition.is_a?(::Array)
+                       value_definition
+                     else
+                       (content&.external? ? value_definition['external'] : value_definition['internal']) || []
+                     end
             template_name = Array.wrap(property_definition['template_name'])
             first_template = template_name.first
             templates = DataCycleCore::ThingTemplate

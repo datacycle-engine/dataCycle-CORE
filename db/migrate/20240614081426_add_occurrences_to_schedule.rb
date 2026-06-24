@@ -5,7 +5,7 @@ class AddOccurrencesToSchedule < ActiveRecord::Migration[6.1]
     range_start = 1.year.ago.to_date
     range_end = 5.years.from_now.to_date
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION generate_schedule_occurences_array(
           s_dtstart timestamp WITH time zone,
           s_rrule character varying,
@@ -61,7 +61,8 @@ class AddOccurrencesToSchedule < ActiveRecord::Migration[6.1]
       SELECT range_agg(
           tstzrange(
             occurences.occurence,
-            occurences.occurence + schedule_duration
+            occurences.occurence + schedule_duration,
+            '[]'
           )
         ) INTO schedule_array
       FROM occurences
@@ -93,7 +94,7 @@ class AddOccurrencesToSchedule < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE IF EXISTS schedules DROP COLUMN occurrences;
 
       DROP FUNCTION IF EXISTS generate_schedule_occurences_array(

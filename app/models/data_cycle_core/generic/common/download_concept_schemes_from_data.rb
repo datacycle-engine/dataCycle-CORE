@@ -15,15 +15,16 @@ module DataCycleCore
           )
         end
 
-        def self.load_concept_schemes_from_mongo(options:, locale:, **_keyword_args)
+        def self.load_concept_schemes_from_mongo(options:, locale:, source_filter:, **_keyword_args)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
+
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate(
               [
                 {
-                  '$match' => { "dump.#{locale}.tree_label" => { '$exists' => true } }
+                  '$match' => (source_filter || {}).merge("dump.#{locale}.tree_label" => { '$exists' => true })
                 }, {
                   '$project' => {
                     'data.id' => "$dump.#{locale}.tree_label",

@@ -1,0 +1,9 @@
+# does not work yet if placed in root of project, as it ignores vendor/**/*
+
+linter:
+  enabled: true
+
+formatter:
+  enabled: true
+  indentWidth: 2
+  maxLineLength: 120

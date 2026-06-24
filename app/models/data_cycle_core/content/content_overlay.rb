@@ -5,11 +5,13 @@ module DataCycleCore
     module ContentOverlay
       def overlay?
         return false unless overlay_allowed?
+
         send(overlay_name).size.positive?
       end
 
       def overlay_allowed?
         return false if content_type != 'entity'
+
         respond_to?(overlay_name)
       end
 
@@ -21,6 +23,7 @@ module DataCycleCore
         @overlay_template_name ||= properties_for(overlay_name)&.dig('template_name') if overlay_name.present?
       end
 
+      # legacy version of all property_names with overlay
       def overlay_property_names
         @overlay_property_names ||= overlay_template_name.present? ? Array.wrap(DataCycleCore::ThingTemplate.find_by(template_name: overlay_template_name)&.property_names) : []
       end

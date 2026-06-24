@@ -18,6 +18,7 @@ module DataCycleCore
       get root_path(mode: 'tree', ctl_id: tree_label.id, reset: true), params: {}, headers: {
         referer: root_path
       }
+
       assert_response :success
     end
 

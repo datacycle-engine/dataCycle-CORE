@@ -184,6 +184,7 @@ module DataCycleCore
 
         (hash.keys + add_hash.keys).uniq.each do |key|
           next if add_hash[key].blank?
+
           hash[key] = (hash[key] || []) + add_hash[key]
           hash[key].uniq!
         end

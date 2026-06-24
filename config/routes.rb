@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-CONTENT_TABLES_FALLBACK = ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
-CONTENT_TABLE = ['things'].freeze
-
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
                      controllers: {
@@ -12,6 +9,18 @@ DataCycleCore::Engine.routes.draw do
                        confirmations: 'data_cycle_core/confirmations',
                        omniauth_callbacks: 'data_cycle_core/omniauth'
                      }
+
+  use_doorkeeper do
+    controllers authorizations: 'oauth/authorizations',
+                tokens: 'oauth/tokens',
+                applications: 'oauth/applications',
+                authorized_applications: 'oauth/authorized_applications',
+                token_info: 'oauth/token_info'
+  end
+  use_doorkeeper_openid_connect do
+    controllers userinfo: 'oauth/userinfo',
+                discovery: 'oauth/discovery'
+  end
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
@@ -38,12 +47,15 @@ DataCycleCore::Engine.routes.draw do
 
   scope module: 'static', path: 'docs', as: :docs, defaults: { root_path: 'docs' } do
     get '/', action: :show
-    get '/*path/:file', action: :image, constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
+    get '/*path', action: :show, as: :with
+  end
+
+  scope module: 'static', path: 'guides', as: :guides, defaults: { root_path: 'guides' } do
+    get '/', action: :show
     get '/*path', action: :show, as: :with
   end
 
   scope module: 'static', path: 'static', as: :static, defaults: { root_path: 'static' } do
-    get '/*path/:file', action: :image, constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
     get '/*path', action: :show, as: :with
   end
 
@@ -87,7 +99,7 @@ DataCycleCore::Engine.routes.draw do
       post :validate, on: :collection
       get :consent, on: :collection
       post :update_consent, on: :collection
-      get :become
+      post :become
       match '/index', via: [:get, :post], on: :collection, action: :index
       post :download_user_info_activity, on: :collection
     end
@@ -100,7 +112,7 @@ DataCycleCore::Engine.routes.draw do
     end
 
     scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-      resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things, except: :show) do
+      resources(:things, controller: :things, except: :show) do
         get 'history/:history_id', action: :history, on: :member, as: :history
         post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
         get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
@@ -110,9 +122,9 @@ DataCycleCore::Engine.routes.draw do
         get 'download/(:serialize_format)', on: :member, as: 'download', to: '/data_cycle_core/downloads#download_thing'
         get :download_zip, on: :member, to: '/data_cycle_core/downloads#download_thing_zip'
         get :download_indesign, on: :member, to: '/data_cycle_core/downloads#download_thing_indesign'
-        get :create_duplication, on: :member
-        get :clear_cache, on: :member
-        get :destroy_auto_translate, on: :member
+        post :create_duplication, on: :member
+        delete :clear_cache, on: :member
+        delete :destroy_auto_translate, on: :member
         post :validate, on: :member
         match :geojson_for_map_editor, on: :collection, via: [:get, :post], defaults: { format: 'application/vnd.geo+json' }
         post :validate, on: :collection
@@ -120,6 +132,7 @@ DataCycleCore::Engine.routes.draw do
         get :select_search, on: :collection
         post :render_embedded_object, on: :member
         post :bulk_create, on: :collection
+        post :ai_lector_properties, on: :member
         delete :remove_locks, on: :member
         get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
         post :attribute_value, on: :member
@@ -130,13 +143,15 @@ DataCycleCore::Engine.routes.draw do
         post :create_external_connection, on: :member
         post :elevation_profile, on: :member
         delete :remove_external_connection, on: :member
+        post 'trigger_webhooks/:webhook_action', on: :member, action: :trigger_webhooks, as: 'trigger_webhooks'
+        get :content_classifier_form_body, on: :member
         match '/', on: :member, action: :show, via: [:get, :post], constraints: { id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ }
       end
     end
   end
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things, only: []) do
+    resources :things, controller: :things, only: [] do
       get 'asset/:type', on: :member, action: :asset, constraints: { type: /(content|thumb|original)/ }
     end
   end
@@ -155,6 +170,7 @@ DataCycleCore::Engine.routes.draw do
       post :add_to_watchlist, on: :collection
       get :saved_searches, on: :collection
       get :render_update_form, on: :collection
+      post :rebuild_cache, on: :member
     end
 
     defaults format: :json do
@@ -166,7 +182,6 @@ DataCycleCore::Engine.routes.draw do
     scope('files') do
       resources :assets, only: [:index, :create, :update, :destroy] do
         get :find, on: :collection
-        post :duplicate, on: :member
         delete :delete, action: 'destroy_multiple', on: :collection
         delete :delete_all, action: 'destroy_all', on: :collection
       end
@@ -196,7 +211,7 @@ DataCycleCore::Engine.routes.draw do
   authenticate do
     resources :watch_lists do
       delete :remove_item, on: :member
-      get :add_item, on: :member
+      post :add_item, on: :member
       post :add_related_items, on: :collection
       get :bulk_edit, on: :member
       patch :bulk_update, on: :member
@@ -246,6 +261,7 @@ DataCycleCore::Engine.routes.draw do
 
     namespace :dash_board, path: '/admin', as: :admin do
       get '/', action: :home, as: ''
+      get :pg_stats
       post '/download/:id', action: :download, as: :download
       post '/download_full/:id', action: :download_full, as: :download_full
       post '/download_import/:id', action: :download_import, as: :download_import
@@ -255,7 +271,7 @@ DataCycleCore::Engine.routes.draw do
       get :activities
       get '/activity_details/:type', action: :activity_details, as: :activity_details, defaults: { format: :json }
 
-      get :import_module_partial
+      get :import_module
 
       scope :maintenance do
         post :rebuild_classification_mappings
@@ -300,10 +316,14 @@ DataCycleCore::Engine.routes.draw do
           if DataCycleCore.main_config.dig(:api, :v2, :enabled)
             namespace :v2 do
               scope path: '(/:api_subversion)' do
-                type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+                type_regexp = Regexp.new('organizations|persons|events|places|products|media_objects|creative_works')
                 get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-                resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+                resources(:organizations, :persons, :events, :places, :products, :media_objects, :creative_works, only: [:index, :show]) do
+                  get :gpx, on: :member, to: '/data_cycle_core/downloads#download_gpx'
+                end
+
+                resources :things, only: [:index, :show] do
                   get :gpx, on: :member, to: '/data_cycle_core/downloads#download_gpx'
                 end
 
@@ -327,17 +347,24 @@ DataCycleCore::Engine.routes.draw do
           if DataCycleCore.main_config.dig(:api, :v3, :enabled)
             namespace :v3 do
               scope path: '(/:api_subversion)' do
-                type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+                type_regexp = Regexp.new('organizations|persons|events|places|products|media_objects|creative_works')
                 match 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter', via: [:get, :post]
 
-                resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: []) do
+                resources(:organizations, :persons, :events, :places, :products, :media_objects, :creative_works, only: []) do
                   get :gpx, on: :member, to: '/data_cycle_core/downloads#download_gpx'
                 end
 
-                (CONTENT_TABLES_FALLBACK + CONTENT_TABLE).each do |content_type|
+                resources :things, only: [] do
+                  get :gpx, on: :member, to: '/data_cycle_core/downloads#download_gpx'
+                end
+
+                ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].each do |content_type|
                   match content_type, to: "#{content_type}#index", as: content_type, via: [:get, :post]
                   match "#{content_type}/:id", to: "#{content_type}#show", as: content_type.singularize, via: [:get, :post]
                 end
+
+                match :things, to: 'things#index', via: [:get, :post]
+                match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
 
                 match 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search', via: [:get, :post]
                 match 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted', via: [:get, :post]
@@ -380,6 +407,7 @@ DataCycleCore::Engine.routes.draw do
                   match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
                 end
 
+                post 'endpoints', to: 'stored_filters#create'
                 match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
                 match 'endpoints/:id/suggest_by_title', to: 'contents#typeahead_by_title', as: 'typeahead_by_title', via: [:get, :post]
@@ -407,6 +435,8 @@ DataCycleCore::Engine.routes.draw do
                   post :logout
                 end
 
+                resources :data_links, path: :external_links, only: [:create]
+
                 namespace :users do
                   post :create
                   match '/update', action: :update, via: [:patch, :put]
@@ -419,7 +449,7 @@ DataCycleCore::Engine.routes.draw do
                 end
 
                 scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
-                  match '/:external_key/timeseries(/:attribute)', via: [:put, :patch], to: 'external_systems#timeseries'
+                  match '/:external_key/timeseries(/:attribute)', via: [:put, :patch], to: 'external_systems#timeseries', as: 'external_source_timeseries_bulk'
                   patch '/demote', to: 'external_systems#demote'
                   match '/:external_key/:attribute(/:format)', via: [:put, :patch], to: 'external_systems#timeseries', as: 'external_source_timeseries'
                   match '/concepts(/:external_key)', via: [:get, :post], to: 'classification_trees#by_external_key', as: 'classification_trees_by_external_key'
@@ -430,9 +460,10 @@ DataCycleCore::Engine.routes.draw do
                   delete '(/:external_key)', to: 'external_systems#destroy', as: 'external_sources_delete'
                   match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
                   match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
+                  match '/facets/locations/:type/', via: [:get, :post], to: 'external_systems#facets_feratel_locations', as: 'external_source_facets_feratel_locations'
                 end
 
-                get 'external_systems/:external_system_id/things/:id', to: 'external_systems_export#show'
+                get 'external_systems/:external_system_id/things/(:ids)', to: 'external_systems_export#show'
               end
             end
           end
@@ -504,10 +535,11 @@ DataCycleCore::Engine.routes.draw do
         namespace :xml do
           namespace :v1 do
             scope path: '(/:api_subversion)' do
-              type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+              type_regexp = Regexp.new('organizations|persons|events|places|products|media_objects|creative_works')
               get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-              resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
+              resources(:organizations, :persons, :events, :places, :products, :media_objects, :creative_works, only: [:index, :show])
+              resources :things, only: [:index, :show]
 
               get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
 

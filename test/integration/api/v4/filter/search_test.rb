@@ -25,6 +25,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # find all events
@@ -37,6 +38,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -45,6 +47,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(3)
           end
 
@@ -55,6 +58,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # find all events
@@ -67,6 +71,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -75,6 +80,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(3)
           end
         end

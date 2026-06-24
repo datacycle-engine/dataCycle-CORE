@@ -1,0 +1,170 @@
+de:
+  activerecord:
+    attributes:
+      doorkeeper/application:
+        name: "Name"
+        redirect_uri: "Weiterleitungs-URI"
+    errors:
+      models:
+        doorkeeper/application:
+          attributes:
+            redirect_uri:
+              fragment_present: "kann kein Fragment enthalten."
+              invalid_uri: "muss eine gültige URI sein."
+              unspecified_scheme: "muss ein Schema angeben."
+              relative_uri: "muss eine absolute URI sein."
+              secured_uri: "muss eine HTTPS/SSL-URI sein."
+              forbidden_uri: "ist vom Server nicht erlaubt."
+            scopes:
+              not_match_configured: "stimmt nicht mit der Serverkonfiguration überein."
+
+  doorkeeper:
+    applications:
+      confirmations:
+        destroy: "Sind Sie sicher?"
+      buttons:
+        edit: "Bearbeiten"
+        destroy: "Löschen"
+        submit: "Senden"
+        cancel: "Abbrechen"
+        authorize: "Autorisieren"
+      form:
+        error: "Ups! Überprüfen Sie Ihr Formular auf mögliche Fehler"
+      help:
+        confidential: "Anwendung wird verwendet, wenn das Client-Secret vertraulich behandelt werden kann. Native Mobile Apps und Single Page Apps gelten als nicht vertraulich."
+        redirect_uri: "Verwenden Sie eine Zeile pro URI"
+        blank_redirect_uri: "Lassen Sie es leer, wenn Sie Ihren Provider für Client Credentials, Resource Owner Password Credentials oder einen anderen Grant-Type konfiguriert haben, der keine Weiterleitungs-URI benötigt."
+        scopes: "Trennen Sie Scopes mit Leerzeichen. Lassen Sie es leer, um die Standard-Scopes zu verwenden."
+      edit:
+        title: "Anwendung bearbeiten"
+      index:
+        title: "Ihre Anwendungen"
+        new: "Neue Anwendung"
+        name: "Name"
+        callback_url: "Callback-URL"
+        confidential: "Vertraulich?"
+        actions: "Aktionen"
+        confidentiality:
+          "yes": "Ja"
+          "no": "Nein"
+      new:
+        title: "Neue Anwendung"
+      show:
+        title: "Anwendung: %{name}"
+        application_id: "UID"
+        secret: "Secret"
+        secret_hashed: "Secret gehashed"
+        scopes: "Scopes"
+        confidential: "Vertraulich"
+        callback_urls: "Callback-URLs"
+        actions: "Aktionen"
+        not_defined: "Nicht definiert"
+
+    authorizations:
+      buttons:
+        authorize: "Autorisieren"
+        deny: "Verweigern"
+      error:
+        title: "Ein Fehler ist aufgetreten"
+      new:
+        title: "Autorisierung erforderlich"
+        prompt: "%{client_name} autorisieren, Ihr Konto zu verwenden?"
+        able_to: "Diese Anwendung wird in der Lage sein"
+      show:
+        title: "Autorisierungscode"
+      form_post:
+        title: "Dieses Formular senden"
+
+    authorized_applications:
+      confirmations:
+        revoke: "Sind Sie sicher?"
+      buttons:
+        revoke: "Widerrufen"
+      index:
+        title: "Ihre autorisierten Anwendungen"
+        application: "Anwendung"
+        created_at: "Erstellt am"
+        date_format: "%d.%m.%Y %H:%M:%S"
+
+    pre_authorization:
+      status: "Vorautorisierung"
+
+    errors:
+      messages:
+        # Allgemeine Fehlermeldungen
+        invalid_request:
+          unknown: "Der Anfrage fehlt ein erforderlicher Parameter, enthält einen nicht unterstützten Parameterwert oder ist anderweitig fehlerhaft."
+          missing_param: "Fehlender erforderlicher Parameter: %{value}."
+          request_not_authorized: "Anfrage muss autorisiert werden. Erforderlicher Parameter für die Autorisierung der Anfrage fehlt oder ist ungültig."
+          invalid_code_challenge: "Code-Challenge ist erforderlich."
+        invalid_redirect_uri: "Die angeforderte Weiterleitungs-URI ist fehlerhaft oder stimmt nicht mit der Client-Weiterleitungs-URI überein."
+        unauthorized_client: "Der Client ist nicht autorisiert, diese Anfrage mit dieser Methode durchzuführen."
+        access_denied: "Der Ressourcenbesitzer oder Autorisierungsserver hat die Anfrage verweigert."
+        invalid_scope: "Der angeforderte Scope ist ungültig, unbekannt oder fehlerhaft."
+        invalid_code_challenge_method:
+          zero: "Der Autorisierungsserver unterstützt PKCE nicht, da keine akzeptierten code_challenge_method-Werte vorhanden sind."
+          one: "Die code_challenge_method muss %{challenge_methods} sein."
+          other: "Die code_challenge_method muss eine von %{challenge_methods} sein."
+        server_error: "Der Autorisierungsserver ist auf eine unerwartete Bedingung gestoßen, die ihn daran gehindert hat, die Anfrage zu erfüllen."
+        temporarily_unavailable: "Der Autorisierungsserver kann die Anfrage derzeit aufgrund einer temporären Überlastung oder Wartung des Servers nicht bearbeiten."
+
+        # Konfigurationsfehler
+        credential_flow_not_configured: "Resource Owner Password Credentials Flow fehlgeschlagen aufgrund der nicht konfigurierten Doorkeeper.configure.resource_owner_from_credentials."
+        resource_owner_authenticator_not_configured: "Resource Owner-Suche fehlgeschlagen aufgrund der nicht konfigurierten Doorkeeper.configure.resource_owner_authenticator."
+        admin_authenticator_not_configured: "Zugriff auf Admin-Panel ist verboten aufgrund der nicht konfigurierten Doorkeeper.configure.admin_authenticator."
+
+        # Access Grant-Fehler
+        unsupported_response_type: "Der Autorisierungsserver unterstützt diesen Response-Type nicht."
+        unsupported_response_mode: "Der Autorisierungsserver unterstützt diesen Response-Mode nicht."
+
+        # Access Token-Fehler
+        invalid_client: "Client-Authentifizierung fehlgeschlagen aufgrund unbekannten Clients, fehlender Client-Authentifizierung oder nicht unterstützter Authentifizierungsmethode."
+        invalid_grant: "Die bereitgestellte Autorisierungsberechtigung ist ungültig, abgelaufen, widerrufen, stimmt nicht mit der in der Autorisierungsanfrage verwendeten Weiterleitungs-URI überein oder wurde an einen anderen Client ausgestellt."
+        unsupported_grant_type: "Der Autorisierungs-Grant-Type wird vom Autorisierungsserver nicht unterstützt."
+
+        invalid_token:
+          revoked: "Das Access-Token wurde widerrufen"
+          expired: "Das Access-Token ist abgelaufen"
+          unknown: "Das Access-Token ist ungültig"
+        revoke:
+          unauthorized: "Sie sind nicht autorisiert, dieses Token zu widerrufen"
+
+        forbidden_token:
+          missing_scope: 'Zugriff auf diese Ressource erfordert Scope "%{oauth_scopes}".'
+
+        login_required: "Der Autorisierungsserver erfordert Endbenutzer-Authentifizierung"
+        consent_required: "Der Autorisierungsserver erfordert Endbenutzer-Zustimmung"
+        interaction_required: "Der Autorisierungsserver erfordert Endbenutzer-Interaktion"
+        account_selection_required: "Der Autorisierungsserver erfordert Endbenutzer-Kontenauswahl"
+
+    flash:
+      applications:
+        create:
+          notice: "Anwendung erstellt."
+        destroy:
+          notice: "Anwendung gelöscht."
+        update:
+          notice: "Anwendung aktualisiert."
+      authorized_applications:
+        destroy:
+          notice: "Anwendung widerrufen."
+
+    layouts:
+      admin:
+        title: "Doorkeeper"
+        nav:
+          oauth2_provider: "OAuth2-Provider"
+          applications: "Anwendungen"
+          home: "Startseite"
+      application:
+        title: "OAuth-Autorisierung erforderlich"
+
+    openid_connect:
+      errors:
+        messages:
+          # Configuration error messages
+          resource_owner_from_access_token_not_configured: "Fehler aufgrund der fehlenden Konfiguration von Doorkeeper::OpenidConnect.configure.resource_owner_from_access_token."
+          auth_time_from_resource_owner_not_configured: "Fehler aufgrund der fehlenden Konfiguration von Doorkeeper::OpenidConnect.configure.auth_time_from_resource_owner."
+          reauthenticate_resource_owner_not_configured: "Fehler aufgrund der fehlenden Konfiguration von Doorkeeper::OpenidConnect.configure.reauthenticate_resource_owner."
+          select_account_for_resource_owner_not_configured: "Fehler aufgrund der fehlenden Konfiguration von Doorkeeper::OpenidConnect.configure.select_account_for_resource_owner."
+          subject_not_configured: "Fehler aufgrund der fehlenden Konfiguration von Doorkeeper::OpenidConnect.configure.subject."

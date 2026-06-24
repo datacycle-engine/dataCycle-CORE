@@ -7,6 +7,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         include DataCycleCore::FilterConcern
+        include DataCycleCore::FilterConceptConcern
 
         ALLOWED_FILTER_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dct:deleted', :'skos:broader', :'skos:ancestors'].freeze
         ALLOWED_SORT_ATTRIBUTES = { 'dct:created' => 'created_at', 'dct:modified' => 'updated_at' }.freeze
@@ -33,40 +34,28 @@ module DataCycleCore
 
         def classifications
           @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
-          @classification_id = permitted_params[:classification_id] || nil
 
-          if @classification_id.present?
-            @classification_aliases = @classification_tree_label.classification_aliases.where(id: @classification_id)
-            raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
-          else
-            @classification_aliases = @classification_tree_label.classification_aliases.includes(:classification_tree_label)
+          build_concepts_search_query(@classification_tree_label.classification_aliases) do
+            if permitted_params.dig(:filter, :attribute).present?
+              filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
+              @classification_aliases = @classification_tree_label.classification_aliases_with_deleted if filter.key?(:'dct:deleted')
+              @classification_aliases = apply_filters(@classification_aliases, filter)
+            end
+
+            @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
           end
-
-          if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
-            @classification_aliases = @classification_tree_label.classification_aliases_with_deleted if filter.key?(:'dct:deleted')
-            @classification_aliases = apply_filters(@classification_aliases, filter)
-          end
-
-          @classification_aliases = @classification_aliases.includes(:classification_polygons) if helpers.included_attribute?('geo', @fields_parameters + @include_parameters)
-
-          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
-          @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
-          @classification_aliases = apply_ordering(@classification_aliases)
-          @classification_aliases = apply_paging(@classification_aliases)
         end
 
         def facets
-          @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
+          @classification_tree_label = ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
           query = build_search_query
-
           min_count_without_subtree = (permitted_params[:min_count_without_subtree] || permitted_params[:minCountWithoutSubtree]).to_i
           min_count_without_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_without_subtree)
           min_count_with_subtree = (permitted_params[:min_count_with_subtree] || permitted_params[:minCountWithSubtree]).to_i
           min_count_with_subtree = [min_count_with_subtree, min_count_without_subtree].max
           min_count_with_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_with_subtree)
           join_type = min_count_with_subtree.positive? || min_count_without_subtree.positive? ? 'INNER' : 'LEFT'
-          subquery = query.query.where('things.id = ccc1.thing_id AND ccc1.classification_tree_label_id = ?', @classification_tree_label.id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql
+          subquery = query.query.where('things.id = ccc1.thing_id AND ccc1.classification_tree_label_id = ?', permitted_params[:classification_tree_label_id]).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql
 
           join_sql = <<~SQL.squish
             #{join_type} JOIN LATERAL (SELECT ccc1.classification_alias_id,
@@ -80,7 +69,7 @@ module DataCycleCore
                 AND COALESCE(ccc.thing_count_without_subtree, 0) >= #{min_count_without_subtree_sanitized}
           SQL
 
-          select_sql = <<-SQL.squish
+          select_sql = <<~SQL.squish
             classification_aliases.*,
             COALESCE(ccc.thing_count_with_subtree, 0) AS thing_count_with_subtree,
             COALESCE(ccc.thing_count_without_subtree, 0) AS thing_count_without_subtree
@@ -91,23 +80,15 @@ module DataCycleCore
             .where(
               DataCycleCore::ClassificationTree
                 .where('classification_trees.classification_alias_id = classification_aliases.id')
-                .where(classification_tree_label_id: @classification_tree_label.id)
+                .where(classification_tree_label_id: permitted_params[:classification_tree_label_id])
                 .select(1).arel.exists
             )
             .select(select_sql)
 
-          @classification_id = permitted_params[:classification_id]
-          if @classification_id.present?
-            @classification_aliases = @classification_aliases.where(id: @classification_id)
-            raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
-          elsif permitted_params[:classification_ids].present?
-            @classification_aliases = @classification_aliases.where(id: permitted_params[:classification_ids].split(','))
-          end
-
-          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
-          @classification_aliases = apply_order_query(@classification_aliases, permitted_params[:sort])
-          @classification_aliases = apply_paging(@classification_aliases)
-          @classification_aliases = @classification_aliases.includes(:classification_tree_label)
+          # unset full_text_search for facets, as it interferes with ordering and is not needed
+          @full_text_search = nil
+          @language = Array.wrap(permitted_params[:conceptLanguage]) if permitted_params[:conceptLanguage].present?
+          build_concepts_search_query(@classification_aliases)
 
           # unset classification_trees_filter to render all classifications
           @classification_trees_parameters = []
@@ -140,7 +121,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :classification_id, :classification_ids, :classification_tree_label_id, :min_count_with_subtree, :min_count_without_subtree, :minCountWithSubtree, :minCountWithoutSubtree] + [permitted_filter_parameters]
+          super + [:id, :language, :conceptLanguage, :classification_id, :classification_ids, :classificationIds, :classification_tree_label_id, :min_count_with_subtree, :min_count_without_subtree, :minCountWithSubtree, :minCountWithoutSubtree] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
@@ -233,7 +214,7 @@ module DataCycleCore
         end
 
         def apply_broader_filter(query, attribute_path, k, v)
-          flattened_v = v.flat_map { |v| v.split(',') }.map(&:strip)
+          flattened_v = v.flat_map { |w| w.split(',') }.map(&:strip)
           clean_ids = flattened_v.grep_v(NULL_REGEX)
           query_strings = []
 
@@ -256,7 +237,7 @@ module DataCycleCore
         end
 
         def apply_ancestor_filter(query, attribute_path, k, v)
-          flattened_v = v.flat_map { |v| v.split(',') }.map(&:strip)
+          flattened_v = v.flat_map { |w| w.split(',') }.map(&:strip)
           query = query.joins(:classification_alias_path)
           where_part = ActiveRecord::Base.send(:sanitize_sql_array, ["classification_alias_paths.#{attribute_path} && ARRAY[?]::UUID[]", flattened_v])
 
@@ -271,39 +252,12 @@ module DataCycleCore
           query.search(search)
         end
 
-        def apply_ordering(query)
-          apply_order_query(query, permitted_params[:sort], @full_text_search)
-        end
-
-        def apply_order_query(query, order_params, full_text_search = '')
-          order_query = []
-          order_params&.split(',')&.each do |sort|
-            key, order = key_with_ordering(sort)
-            order_query << transform_sort_param(key, order)
-          end
-          order_query = order_query&.reject(&:blank?)
-
-          if order_query.blank?
-            query = query.reorder(nil)
-            query = query.order_by_similarity(full_text_search) if full_text_search.present?
-            query = case query
-                    when DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_AssociationRelation), DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_Relation)
-                      query.order(order_a: :asc, id: :asc)
-                    else
-                      query.order(updated_at: :desc, id: :asc)
-                    end
-
-            return query
-          end
-
-          query.reorder(nil).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
-        end
-
         def transform_sort_param(key, order)
           allowed_sort_attributes = ALLOWED_SORT_ATTRIBUTES.dup
           allowed_sort_attributes.merge!(ALLOWED_FACET_SORT_ATTRIBUTES) if action_name == 'facets'
 
           return unless allowed_sort_attributes.key?(key)
+
           "#{allowed_sort_attributes[key]} #{order} NULLS LAST, id ASC"
         end
       end

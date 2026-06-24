@@ -16,12 +16,12 @@ module DataCycleCore
       response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
 
       if thing_id.present?
-        oembed_response = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_from_thing_id(thing_id)
+        oembed_response = MasterData::Validators::Oembed.new(validate_now: false).valid_oembed_from_thing_id(thing_id)
         oembed = oembed_response[:oembed]
         render json: oembed.to_json, status: :ok
         return
       else
-        oembed = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_data?(url, maxwidth, maxheight)
+        oembed = MasterData::Validators::Oembed.new(validate_now: false).valid_oembed_data?(url, maxwidth, maxheight)
       end
 
       Rails.logger.debug { "OEMBED DATA: #{oembed.to_json}" }
@@ -32,7 +32,7 @@ module DataCycleCore
 
         localized_errors = errors + warnings
         localized_errors.map! do |error|
-          DataCycleCore::LocalizationService.translate_and_substitute(error.to_h, helpers.active_ui_locale)
+          LocalizationService.translate_and_substitute(error.to_h, helpers.active_ui_locale)
         end
 
         render json: { errors: localized_errors.uniq }, status: :bad_request
@@ -43,10 +43,10 @@ module DataCycleCore
         thing_id = CGI.parse(oembed_uri.query)['thing_id']&.first
 
         if oembed[:oembed_url].include?(Rails.application.config.action_mailer.default_url_options[:host]) && thing_id.present?
-          oembed_response = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_from_thing_id(thing_id)
+          oembed_response = MasterData::Validators::Oembed.new(validate_now: false).valid_oembed_from_thing_id(thing_id)
           response = oembed_response[:oembed]&.to_json
           if response.blank?
-            render json: {errors: [I18n.t('validation.errors.oembed_thing_not_found', locale:)]}, status: :forbidden
+            render json: { errors: [I18n.t('validation.errors.oembed_thing_not_found', locale:)] }, status: :forbidden
             return
           end
         else

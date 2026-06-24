@@ -1,9 +1,9 @@
 import {
-	randomId,
-	inputFieldQuerySelector,
 	getNextSibling,
 	getPreviousSibling,
+	inputFieldQuerySelector,
 	parseDataAttribute,
+	randomId,
 } from "../helpers/dom_element_helpers";
 
 export default class MultiStepForm {

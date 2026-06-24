@@ -2,11 +2,11 @@
 
 json ||= {}
 
-if @linked_stored_filter.present?
-  data = content.send(:"#{key}_overlay", @linked_stored_filter)
-else
-  data = content.send(:"#{key}_overlay")
-end
+data = if @linked_stored_filter.present?
+         content.send(:"#{key}_overlay", @linked_stored_filter)
+       else
+         content.send(:"#{key}_overlay")
+       end
 
 if data.present?
   api_property_definition = api_definition(definition)
@@ -18,16 +18,16 @@ if data.present?
 
   json[key_new] = data.filter_map { |item|
     if options[:field_filter] && new_fields.present?
-      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id), expires_in: 1.year + Random.rand(7.days)) do
+      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters), expires_in: 1.year + Random.rand(7.days)) do
         render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: options[:field_filter] }, options)
       end
     elsif included_attribute?(key_new, options[:include])
-      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id), expires_in: 1.year + Random.rand(7.days)) do
+      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters), expires_in: 1.year + Random.rand(7.days)) do
         render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: false }, options)
       end
     else
       new_fields = [['@id'], ['@type']]
-      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
+      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters), expires_in: 1.year + Random.rand(7.days)) do
         render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: true }, options)
       end
     end

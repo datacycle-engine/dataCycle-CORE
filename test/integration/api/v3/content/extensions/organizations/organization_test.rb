@@ -41,9 +41,10 @@ module DataCycleCore
 
                 # classifications
                 # TODO: (move to generic tests)
-                assert(json_data['classifications'].present?)
+                assert_predicate(json_data['classifications'], :present?)
                 assert_equal(1, json_data['classifications'].size)
                 classification_hash = json_data['classifications'].first
+
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
                 assert_equal('Organisation', classification_hash['name'])
                 assert_equal(1, classification_hash['ancestors'].size)
@@ -65,6 +66,7 @@ module DataCycleCore
                 contact_info = @content.contact_info.to_h.transform_keys { |key| key.camelize(:lower) }
                 address = { '@type' => 'PostalAddress' }.merge(postal_address).merge(contact_info)
                 address['addressCountry'] = 'AT'
+
                 assert_equal(address, json_data['address'])
 
                 # TODO: check image rendering via minimal or linked
@@ -73,31 +75,39 @@ module DataCycleCore
 
               test 'stored item can be found via different endpoints' do
                 get(api_v3_things_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Organization' }
+
                 assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v3_contents_search_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Organization' }
+
                 assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v3_organizations_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].first
+
                 assert_equal(@content.id, json_data['identifier'])
               end
 
               test 'APIv2 json equals APIv3 json result' do
                 get api_v2_thing_path(id: @content)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 api_v2_json = response.parsed_body
 
                 get api_v3_thing_path(id: @content)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 api_v3_json = response.parsed_body

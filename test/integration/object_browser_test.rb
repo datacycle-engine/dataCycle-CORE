@@ -36,7 +36,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert @response.body.include?(@person.title)
+      assert_includes @response.body, @person.title
     end
 
     test 'copy persons in split view' do
@@ -61,7 +61,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert @response.body.include?(@person.title)
+      assert_includes @response.body, @person.title
     end
 
     test 'copy persons in split view with external id' do
@@ -89,7 +89,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert @response.body.include?(@person.title)
+      assert_includes @response.body, @person.title
     end
 
     test 'show person details in object browser' do
@@ -108,7 +108,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert @response.body.include?(@person.title)
+      assert_includes @response.body, @person.title
     end
   end
 end

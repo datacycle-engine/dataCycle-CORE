@@ -5,14 +5,18 @@ require 'test_helper'
 module DataCycleCore
   class DataLinkTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
+    include DataCycleCore::ActiveStorageHelper
     include Engine.routes.url_helpers
 
     setup do
       @routes = Engine.routes
+      @text_file = upload_text_file('test.pdf')
+
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
       @data_link = DataCycleCore::DataLink.find_or_create_by({
         item_id: @content.id,
         item_type: @content.class.name,
+        asset_id: @text_file.id,
         creator_id: User.find_by(email: 'tester@datacycle.at')&.id,
         receiver_id: User.find_by(email: 'guest@datacycle.at')&.id,
         permissions: 'write'
@@ -48,11 +52,13 @@ module DataCycleCore
       logout
 
       get data_link_path(data_link)
+
       assert_redirected_to edit_thing_path(@content)
       follow_redirect!
 
       get edit_polymorphic_path(readonly_content)
-      assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_locales.first), flash[:alert]
+
+      assert_equal I18n.t('unauthorized.manage.all', locale: DataCycleCore.ui_locales.first), flash[:alert]
       assert_redirected_to unauthorized_exception_path
     end
 
@@ -86,11 +92,13 @@ module DataCycleCore
       logout
 
       get data_link_path(data_link)
+
       assert_redirected_to edit_thing_path(@content)
       follow_redirect!
 
       get edit_polymorphic_path(readonly_content)
-      assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_locales.first), flash[:alert]
+
+      assert_equal I18n.t('unauthorized.manage.all', locale: DataCycleCore.ui_locales.first), flash[:alert]
       assert_redirected_to unauthorized_exception_path
     end
 
@@ -119,6 +127,7 @@ module DataCycleCore
       follow_redirect!
 
       data_link = watch_list.data_links.includes(:receiver).find_by(users: { email: user['email'] })
+
       assert data_link
 
       delete remove_item_watch_list_path(watch_list), xhr: true, params: {
@@ -129,7 +138,7 @@ module DataCycleCore
 
       assert_response :ok
 
-      get add_item_watch_list_path(watch_list), xhr: true, params: {
+      post add_item_watch_list_path(watch_list), xhr: true, params: {
         thing_id: watch_list_content.id
       }, headers: {
         referer: root_url
@@ -140,10 +149,12 @@ module DataCycleCore
       logout
 
       get data_link_path(data_link)
+
       assert_redirected_to polymorphic_path(watch_list)
       follow_redirect!
 
       get edit_polymorphic_path(watch_list_content)
+
       assert_response :success
     end
 
@@ -160,6 +171,7 @@ module DataCycleCore
       follow_redirect!
 
       @data_link.reload
+
       assert @content.data_links.includes(:receiver).find_by(users: { email: @data_link.receiver.email })
       assert_equal 'Testkommentar 2', @data_link.comment
     end
@@ -168,12 +180,18 @@ module DataCycleCore
       delete data_link_path(@data_link), params: {}, headers: {
         referer: thing_url(@content)
       }
+
       assert_redirected_to thing_path(@content)
       follow_redirect!
 
       logout
 
       get data_link_path(@data_link)
+
+      assert_redirected_to unauthorized_exception_path
+
+      get get_text_file_data_link_path(@data_link)
+
       assert_redirected_to unauthorized_exception_path
     end
 
@@ -183,6 +201,7 @@ module DataCycleCore
       patch unlock_data_link_path(@data_link), params: {}, headers: {
         referer: thing_url(@content)
       }
+
       assert_redirected_to thing_path(@content)
       follow_redirect!
 
@@ -191,7 +210,12 @@ module DataCycleCore
       logout
 
       get data_link_path(@data_link)
+
       assert_redirected_to edit_thing_path(@content)
+
+      get get_text_file_data_link_path(@data_link)
+
+      assert_response :success
     end
 
     test 'can only edit owned data_links' do
@@ -221,6 +245,7 @@ module DataCycleCore
     test 'set external link to readonly after finishing' do
       sign_out(@current_user)
       get data_link_path(@data_link)
+
       assert_redirected_to edit_thing_path(@content)
       follow_redirect!
 
@@ -234,7 +259,7 @@ module DataCycleCore
       }
 
       assert_redirected_to thing_path(@content, locale: I18n.locale)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t('controllers.success.updated', data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal 'read', @data_link.reload.permissions
     end
   end

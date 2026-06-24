@@ -34,22 +34,26 @@ module DataCycleCore
 
         test 'set memoized plain_property_names' do
           @content.set_memoized_attribute('name', 'test-string-0')
+
           assert_equal('test-string-0', @content.send(:name))
         end
 
         test 'set memoized linked_property_names and embedded_property_names' do
           value1 = DataCycleCore::Thing.limit(1).offset(0)
           @content.set_memoized_attribute('image', value1)
+
           assert_equal(value1, @content.send(:image))
 
           value2 = DataCycleCore::Thing.limit(1).offset(1)
           @content.set_memoized_attribute('potential_action', value2)
+
           assert_equal(value2, @content.send(:potential_action))
         end
 
         test 'set memoized classification_property_names' do
           value = DataCycleCore::Classification.limit(1).offset(0)
           @content.set_memoized_attribute('tags', value)
+
           assert_equal(value, @content.send(:tags))
         end
       end

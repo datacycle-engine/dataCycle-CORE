@@ -109,6 +109,16 @@ module DataCycleCore
         "#{config.key?('import_strategy') ? 'i_' : 'd_'}#{name}"
       end
 
+      def type_and_name_for_step_key(key)
+        match = key.match(/\A([di])_(.+)\z/)
+        return if match.blank?
+
+        type = match[1] == 'd' ? :download : :import
+        name = match[2]
+
+        return type, name
+      end
+
       def sorted_step_times
         sorted_times = []
 
@@ -187,8 +197,8 @@ module DataCycleCore
         step_options = (default_options(type)&.dc_deep_dup || {}).deep_symbolize_keys
         step_options.deep_merge!(
           type.to_sym => config.deep_symbolize_keys
-                               .except(:sorting)
-                               .merge({ name: name.to_s })
+            .except(:sorting)
+            .merge({ name: name.to_s })
         )
         step_options.deep_merge!(options.deep_symbolize_keys)
 
@@ -213,6 +223,7 @@ module DataCycleCore
         if credential_key.present? && options[:credentials_index].blank?
           credentials_index = creds.index { |item| item['credential_key'] == credential_key }
           raise "Error: credential not found for key: #{credential_key}!" if credentials_index.nil?
+
           options[:credentials_index] = credentials_index
         end
 
@@ -234,6 +245,7 @@ module DataCycleCore
 
       def import_step(name, options = {}, config = {})
         raise "missing config for name: #{name}" if config.blank?
+
         last_start = Time.zone.now
         type = step_type(config)
         full_options = options_for_step(name, options, config, type)
@@ -244,7 +256,7 @@ module DataCycleCore
         strategy_method = strategy.respond_to?(:import_data) ? :import_data : :download_content
         utility_object = utility_object_for_step(type, full_options)
 
-        update_step_timestamp_start(last_start, name, json_key)
+        update_step_timestamp_start(last_start, json_key)
 
         success = strategy.send(strategy_method, utility_object:, options: full_options)
         success = true unless success.is_a?(FalseClass) # download strategies return true/false, import strategies dont return a normalized value
@@ -252,23 +264,29 @@ module DataCycleCore
         success = false
         raise
       ensure
-        update_step_timestamp_end(last_start, name, json_key, success)
+        update_step_timestamp_end(last_start, json_key, success)
       end
 
       def import_one(name, external_key, options = {}, mode = 'full')
         raise 'no external key given' if external_key.blank?
+
         import_single(name, options.deep_merge({ mode:, import: { source_filter: { external_id: external_key } } }))
       end
 
       private
 
-      def update_step_timestamp_start(timestamp, name, step_key)
-        merge_last_import_step_time_info(step_key, {last_try: timestamp, status: 'running'})
-        update_columns(last_import_step_time_info: last_import_step_time_info)
-        broadcast_step_update(name, step_key)
+      def update_step_info(step_key, info)
+        set_import_step_time_info(step_key, info)
+        save if persisted?
+        invalidate_last_download_and_import
       end
 
-      def update_step_timestamp_end(timestamp, name, step_key, success)
+      def update_step_timestamp_start(timestamp, step_key)
+        update_step_info(step_key, { last_try: timestamp, status: 'running' })
+        broadcast_step_update
+      end
+
+      def update_step_timestamp_end(timestamp, step_key, success)
         duration = Time.zone.now - timestamp
         update_info = {
           last_try_time: duration,
@@ -282,9 +300,8 @@ module DataCycleCore
           })
         end
 
-        merge_last_import_step_time_info(step_key, update_info)
-        update_columns(last_import_step_time_info: last_import_step_time_info)
-        broadcast_step_update(name, step_key)
+        update_step_info(step_key, update_info)
+        broadcast_step_update
       end
 
       def broadcast_update(type, status = nil)
@@ -306,16 +323,12 @@ module DataCycleCore
         )
       end
 
-      def broadcast_step_update(name, step_key)
-        value = step_info_for(step_key)
-        value['name'] = name
-        value['key'] = step_key
-
-        TurboService.broadcast_localized_replace_to(
+      def broadcast_step_update
+        TurboService.broadcast_localized_update_to(
           'admin_dashboard_import_modules',
-          target: "step-timestamp-#{id}-#{step_key}",
-          partial: 'data_cycle_core/dash_board/import_timestamps_step',
-          locals: { value:, external_source_id: id }
+          target: "import-steps-#{id}",
+          partial: 'data_cycle_core/dash_board/import_steps',
+          locals: { times: sorted_step_times, external_source_id: id }
         )
       end
     end

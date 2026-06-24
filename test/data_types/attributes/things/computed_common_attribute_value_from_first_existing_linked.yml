@@ -46,7 +46,6 @@
       :geographic_value:
         :label: Geographic Value
         :type: geographic
-        :storage_location: value
       :slug_value:
         :label: Slug Value
         :type: slug

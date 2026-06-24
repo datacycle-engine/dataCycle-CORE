@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/parallel_helper'
+
 namespace :dc do
   namespace :cache do
     desc 'basic cache warmup (for api_v4)'
@@ -14,15 +16,11 @@ namespace :dc do
         pages = json_data.dig('meta', 'pages').to_i
         (2..pages).to_a.each do |page|
           break if page > 10
+
           puts "loading endpoint: #{filter.name} #{filter.id} (page #{page})"
           session.get("/api/v4/endpoints/#{filter.id}?token=#{api_token}&page[number]=#{page}")
         end
       end
-    end
-
-    desc 'clear rails cache'
-    task clear_rails_cache: :environment do
-      Rails.cache.clear
     end
 
     desc 'cache warmup for geocoder'
@@ -38,7 +36,7 @@ namespace :dc do
       abort('endpoint not found!') if stored_filter.nil? && watch_list.nil?
 
       contents = stored_filter.nil? ? watch_list.things : stored_filter.apply.query
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Geocoder Cache Warmup')
+      progressbar = ProgressBar.create(total: contents.size, title: 'Geocoder Cache Warmup')
 
       contents.find_each do |content|
         I18n.with_locale(content.first_available_locale) do
@@ -68,7 +66,7 @@ namespace :dc do
       cache_config = DataCycleCore.cache_warmup[args.identifier]
       tstart = Time.zone.now
       logger = Logger.new('log/cache_warmup.log')
-      logger.info("Started Warmup for #{args.identifier} ...")
+      logger.info("[#{args.identifier}] Started Warmup ...")
 
       params = cache_config['parameters']&.symbolize_keys || {}
 
@@ -82,12 +80,36 @@ namespace :dc do
         params[:contents] = stored_filter.nil? ? watch_list.things : stored_filter.apply.query
         contents_count = params[:contents].size
         params[:contents] = params[:contents].page(1).per(contents_count)
+        logger.info("[#{args.identifier}] Warmup running for #{contents_count} contents ...")
       end
 
-      renderer = cache_config['renderer'].classify.safe_constantize&.new(**params)
-      renderer.render
+      ParallelHelper.with_asynchronous_queries_session do
+        renderer = cache_config['renderer'].classify.safe_constantize&.new(**params)
+        renderer.render
+      end
 
-      logger.info("[DONE] Finished Warmup for #{args.identifier} (#{contents_count.to_i} items) in #{(Time.zone.now - tstart).round(2)}s.")
+      logger.info("[#{args.identifier}] Finished Warmup for #{args.identifier} (#{contents_count.to_i} items) in #{(Time.zone.now - tstart).round(2)}s.")
+    end
+
+    desc 'rebuild caches for all cachable collections'
+    task rebuild_collection_caches: :environment do
+      logger = Logger.new('log/stored_filter_cache_rebuild.log')
+      tstart = Time.zone.now
+      queue = DataCycleCore::WorkerPool.new
+      collections = DataCycleCore::StoredFilter.with_stale_cache
+      logger.info("Started Rebuilding Stored Filter Caches (#{collections.size} collections, #{queue.num_workers} workers)...")
+
+      collections.find_each do |stored_filter|
+        queue.append do
+          stored_filter.rebuild_cache!
+        rescue StandardError => e
+          logger.error("[ERROR] Cache rebuild failed for ##{stored_filter.id}: #{e.message}")
+        end
+      end
+
+      queue.wait!
+
+      logger.info("Finished Rebuilding Stored Filter Caches in #{(Time.zone.now - tstart).round(2)}s.")
     end
   end
 end

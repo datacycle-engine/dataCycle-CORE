@@ -30,6 +30,7 @@ module DataCycleCore
             additional_information = []
             Array.wrap(types).each do |type|
               next if data[type].blank?
+
               additional_information << {
                 'type' => type,
                 'type_of_info' => type,

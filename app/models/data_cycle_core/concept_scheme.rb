@@ -6,7 +6,7 @@ module DataCycleCore
 
     belongs_to :external_system
 
-    has_many :concepts, dependent: :delete_all
+    has_many :concepts
     belongs_to :classification_tree_label, foreign_key: :id, inverse_of: :concept_scheme
 
     has_many :things, -> { unscope(:order).distinct }, through: :concepts
@@ -16,6 +16,15 @@ module DataCycleCore
 
     delegate :insert_all_classifications_by_path, to: :classification_tree_label
     delegate :upsert_all_external_classifications, to: :classification_tree_label
+
+    VISIBILITY_GROUPS = {
+      contents: ['show', 'show_more', 'edit', 'compact'],
+      dashboard_views: ['tile', 'list', 'tree_view'],
+      dashboard_filters: ['filter'],
+      interfaces: ['api', 'xml'],
+      classification_administration: ['classification_overview', 'classification_administration'],
+      content_tools: ['content_classifier']
+    }.freeze
 
     # keep readonly until reverse triggers are defined and working
     def readonly?
@@ -102,6 +111,10 @@ module DataCycleCore
 
     def self.to_sync_data
       includes(:external_system).map(&:to_sync_data)
+    end
+
+    def self.grouped_visibilities
+      VISIBILITY_GROUPS
     end
   end
 end

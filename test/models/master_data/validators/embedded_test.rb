@@ -55,6 +55,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
     it 'successfully validates embedded Bild' do
       uuid = bild1.id
       validator = subject.new([{ 'id' => uuid }], template_hash, 'Bilder')
+
       assert_equal(0, validator.error[:error].size)
     end
 
@@ -63,6 +64,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       new_template_hash['validations'] = { 'maxi' => 2 }
       item_case = [{ 'id' => SecureRandom.uuid }]
       validator = subject.new(item_case, new_template_hash)
+
       assert_equal(0, validator.error[:error].size)
     end
 
@@ -71,6 +73,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       new_template_hash['template_name'] = 'maxi'
       item_case = [{ 'id' => SecureRandom.uuid }]
       validator = subject.new(item_case, new_template_hash)
+
       assert_equal(1, validator.error[:error].size)
     end
 
@@ -85,6 +88,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, new_template_hash)
+
         assert_equal(0, validator.error[:error].size)
       end
     end
@@ -95,6 +99,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       uuid2 = bild2.id
       item_case = [{ 'id' => uuid }, { 'id' => uuid2 }]
       validator = subject.new(item_case, new_template_hash)
+
       assert_equal(1, validator.error[:error].size)
     end
 
@@ -104,6 +109,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       uuid = bild1.id
       item_case = [{ 'id' => uuid }]
       validator = subject.new(item_case, new_template_hash)
+
       assert_equal(1, validator.error[:error].size)
     end
 
@@ -119,6 +125,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, new_template_hash)
+
         assert_equal(1, validator.error[:error].size)
       end
     end
@@ -135,6 +142,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
         { 'output_channel' => [output_channel2] }
       ]
       validator = subject.new(data_hash1, template_class_hash)
+
       assert_equal(0, validator.error[:error].size)
 
       data_hash2 = [
@@ -142,6 +150,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
         { 'output_channel' => [output_channel1, output_channel2] }
       ]
       validator = subject.new(data_hash2, template_class_hash)
+
       assert_equal(1, validator.error[:error].size)
 
       DataCycleCore.features[:publication_schedule][:classification_keys] = old_class
@@ -162,6 +171,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
         { 'markets' => [market1], 'output_channel' => [output_channel2] }
       ]
       validator = subject.new(data_hash1, template_class_hash)
+
       assert_equal(0, validator.error[:error].size)
 
       data_hash2 = [
@@ -169,6 +179,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
         { 'markets' => [market2], 'output_channel' => [output_channel2] }
       ]
       validator = subject.new(data_hash2, template_class_hash)
+
       assert_equal(0, validator.error[:error].size)
 
       data_hash3 = [
@@ -176,6 +187,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
         { 'markets' => [market2], 'output_channel' => [output_channel1, output_channel2] }
       ]
       validator = subject.new(data_hash3, template_class_hash)
+
       assert_equal(1, validator.error[:error].size)
 
       DataCycleCore.features[:publication_schedule][:classification_keys] = old_class

@@ -18,19 +18,21 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 3.2.2'
+  s.required_ruby_version = '>= 3.3'
 
   # rails
-  s.add_dependency 'rails', '~> 7.1.0'
+  s.add_dependency 'connection_pool', '~> 2.5.5' # wait for fix: https://github.com/mperham/connection_pool/issues/210
+  s.add_dependency 'rails', '~> 8.0.0'
   s.add_dependency 'turbo-rails'
   # Translations
   s.add_dependency 'mobility', '>= 1.3.1'
   # Frontend Asset Handling
-  s.add_dependency 'vite_rails', '>= 3.0.19' # , '3.0.15' # lock version, as newer version have problems with finding assets
-  s.add_dependency 'vite_ruby', '>= 3.9.2' # , '3.3.4' # lock version, as newer version have problems with finding assets
+  s.add_dependency 'vite_rails', '>= 3.0.19'
+  s.add_dependency 'vite_ruby', '>= 3.9.2'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
+  s.add_dependency 'neighbor' # https://github.com/pgvector/pgvector-ruby For Rails, check out Neighbor
   s.add_dependency 'pg'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
@@ -40,20 +42,24 @@ Gem::Specification.new do |s|
   s.add_dependency 'mongoid', '~> 8.1.3'
   # REST Client
   s.add_dependency 'faraday'
-  s.add_dependency 'faraday_middleware'
+  s.add_dependency 'faraday-follow_redirects'
+  s.add_dependency 'faraday-retry'
   # JSON Parser
   s.add_dependency 'multi_json'
   # XML Parser
   s.add_dependency 'nokogiri'
   # authentication
   s.add_dependency 'devise'
-  s.add_dependency 'jwt', '~> 2.10.0' # omniauth does not work with jwt 3.x
+  s.add_dependency 'invisible_captcha'
+  s.add_dependency 'jwt'
   # authorization
   s.add_dependency 'cancancan', '>= 3.3.0'
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
   s.add_dependency 'amazing_print'
+  # request-throttling middleware
+  s.add_dependency 'rack-attack'
   # validator for json data
   s.add_dependency 'json-schema'
   # background-jobs
@@ -76,10 +82,14 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_mime'
 
   # File Upload
-  s.add_dependency 'mini_magick', '>= 4.13.2'
+  s.add_dependency 'image_processing', '~> 1.2'
+  s.add_dependency 'mini_exiftool_vendored'
   s.add_dependency 'pdf-reader'
+  s.add_dependency 'ruby-vips'
   s.add_dependency 'streamio-ffmpeg'
-  s.add_dependency 'taglib-ruby', '~> 1.1.3' # taglib-ruby 2.0 requires taglib 2.x
+
+  # phash
+  s.add_dependency 'phash-rb'
 
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # rufus scheduler
@@ -92,9 +102,6 @@ Gem::Specification.new do |s|
 
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'
-
-  # phash
-  s.add_dependency 'pHash'
 
   # progress bar
   s.add_dependency 'ruby-progressbar'
@@ -113,10 +120,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'dotiw'
 
   s.add_dependency 'holidays'
-
-  s.add_dependency 'mini_exiftool_vendored'
-
-  s.add_dependency 'image_processing', '>= 1.2'
 
   s.add_dependency 'zip_tricks'
 
@@ -139,4 +142,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'fastimage'
 
   s.post_install_message = 'run `bundle update & rails dc:upgrade` after updating this gem.'
+  s.metadata['rubygems_mfa_required'] = 'true'
 end

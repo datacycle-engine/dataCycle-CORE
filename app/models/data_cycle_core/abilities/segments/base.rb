@@ -7,6 +7,7 @@ module DataCycleCore
         # dynamic scopes or permissions have to be implemented as instance methods, as user and session are nil during initialization (can't be used in initialize method)
 
         attr_accessor :ability
+
         delegate :user, :session, to: :ability
 
         MODEL_NAME_MAPPINGS = {
@@ -51,11 +52,10 @@ module DataCycleCore
           Array.wrap(try(:subject)).to_h do |v|
             value = MODEL_NAME_MAPPINGS[v] || v
 
-            case value
-            when Symbol
-              [value, I18n.t("abilities.model_names.#{value}", locale:)]
-            else
+            if value.respond_to?(:model_name)
               [value, value.model_name.human(locale:, count: 2)]
+            else
+              [value, I18n.t("abilities.model_names.#{value}", locale:)]
             end
           end
         end

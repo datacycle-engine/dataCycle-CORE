@@ -25,21 +25,24 @@ module DataCycleCore
 
         test 'successfully validates collection without validation' do
           validator = subject.new([@stored_filter.id], validation_hash)
-          assert validator.error[:error].blank?
-          assert validator.error[:warning].blank?
+
+          assert_predicate validator.error[:error], :blank?
+          assert_predicate validator.error[:warning], :blank?
         end
 
         test 'successfully validates collection without api flag with soft_api validation' do
           validator = subject.new([@stored_filter.id], validation_hash.merge({ 'validations' => { 'soft_api' => true } }))
-          assert validator.error[:error].blank?
-          assert validator.error[:warning].present?
+
+          assert_predicate validator.error[:error], :blank?
+          assert_predicate validator.error[:warning], :present?
         end
 
         test 'successfully validates collection with api flag with soft_api validation' do
           @stored_filter.update(api: true)
           validator = subject.new([@stored_filter.id], validation_hash.merge({ 'validations' => { 'soft_api' => true } }))
-          assert validator.error[:error].blank?
-          assert validator.error[:warning].blank?
+
+          assert_predicate validator.error[:error], :blank?
+          assert_predicate validator.error[:warning], :blank?
         end
       end
     end

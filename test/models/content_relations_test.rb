@@ -3,8 +3,8 @@
 require 'test_helper'
 
 module DataCycleCore
-  class ContentRelationsTest < ActiveSupport::TestCase
-    def setup
+  class ContentRelationsTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    before(:all) do
       I18n.with_locale(:de) do
         @organization = DataCycleCore::TestPreparations.create_content(
           template_name: 'Organization',
@@ -73,20 +73,20 @@ module DataCycleCore
       assert_equal 0, @aggregate_offer2.embedded_contents.size
     end
 
-    test 'method: has_cached_related_contents?' do
-      assert_equal false, @aggregate_offer.has_cached_related_contents?
-      assert_equal false, @aggregate_offer2.has_cached_related_contents?
-      assert_equal true, @organization.has_cached_related_contents?
-      assert_equal true, @person.has_cached_related_contents?
-      assert_equal true, @bild.has_cached_related_contents?
+    test 'method: cached_related_contents?' do
+      assert_not @aggregate_offer.cached_related_contents?
+      assert_not @aggregate_offer2.cached_related_contents?
+      assert_predicate @organization, :cached_related_contents?
+      assert_predicate @person, :cached_related_contents?
+      assert_predicate @bild, :cached_related_contents?
     end
 
     test 'method: cached_related_contents' do
-      assert_equal 0, @aggregate_offer.cached_related_contents.size
-      assert_equal 0, @aggregate_offer2.cached_related_contents.size
-      assert_equal 5, @organization.cached_related_contents.size
-      assert_equal 5, @person.cached_related_contents.size
-      assert_equal 1, @bild.cached_related_contents.size
+      assert_equal 1, @aggregate_offer.with_cached_related_contents.size
+      assert_equal 1, @aggregate_offer2.with_cached_related_contents.size
+      assert_equal 6, @organization.with_cached_related_contents.size
+      assert_equal 6, @person.with_cached_related_contents.size
+      assert_equal 2, @bild.with_cached_related_contents.size
     end
 
     test 'method: depending_contents' do

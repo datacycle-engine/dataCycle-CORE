@@ -35,7 +35,7 @@ namespace :dc do
       end
       overlays = bad_overlays.select { |i| i[1].blank? }.pluck(0)
       items = DataCycleCore::Thing.where(id: overlays)
-      progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: 'remove Overlays without translations')
+      progressbar = ProgressBar.create(total: items.size, title: 'remove Overlays without translations')
 
       items.find_each do |item|
         item.destroy_content(save_history: false)
@@ -79,6 +79,7 @@ namespace :dc do
           en_overlay_data_hash = en_overlay.get_data_hash
 
           next if en_overlay.blank?
+
           en_overlay_data_hash['id'] = de_overlay_data_hash['id']
         end
 
@@ -86,9 +87,9 @@ namespace :dc do
           if de_overlay_data_hash[embedded_property].size == 1 && en_overlay_data_hash[embedded_property].size == 1
             en_overlay_data_hash[embedded_property][0]['id'] = de_overlay_data_hash[embedded_property][0]['id']
           elsif de_overlay_data_hash[embedded_property].empty? && en_overlay_data_hash[embedded_property].empty?
-
+            # do nothing
           elsif de_overlay_data_hash[embedded_property].size == 1 && en_overlay_data_hash[embedded_property].empty?
-
+            # do nothing
           elsif (de_overlay_data_hash[embedded_property].size == en_overlay_data_hash[embedded_property].size) && embedded_property == 'opening_hours_specification'
             en_overlay_data_hash[embedded_property] = de_overlay_data_hash[embedded_property]
           else

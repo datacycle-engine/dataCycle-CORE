@@ -25,7 +25,7 @@ module DataCycleCore
 
         self.parameters ||= []
         applicable_filters = user_filters_from_hash(user, filter_options)
-        parameters.each { |f| f['c'] = 'a' if f['c'].in?(['u', 'uf']) && applicable_filters.none? { |af| filter_equal?(af, f, false) } }
+        parameters.each { |f| f['c'] = 'a' if f['c'].in?(['u', 'uf']) && applicable_filters.none? { |af| filter_equal?(af, f, consider_context: false) } }
 
         self.parameters = user.default_filter(parameters, filter_options) # keep for backwards compatibility
 
@@ -37,8 +37,8 @@ module DataCycleCore
       private
 
       def apply_specific_user_filter(filter)
-        parameters.reject! { |f| filter_equal?(f, filter, false) } if filter['c'] == 'uf'
-        parameters.push(filter) unless parameters.any? { |f| filter_equal?(f, filter, false) }
+        parameters.reject! { |f| filter_equal?(f, filter, consider_context: false) } if filter['c'] == 'uf'
+        parameters.push(filter) unless parameters.any? { |f| filter_equal?(f, filter, consider_context: false) }
       end
 
       def user_filters_from_hash(user, filter_options)

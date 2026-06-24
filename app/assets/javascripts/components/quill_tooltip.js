@@ -1,4 +1,5 @@
 import Quill from "quill";
+
 const Tooltip = Quill.import("ui/tooltip");
 
 class QuillTooltip extends Tooltip {
@@ -68,9 +69,10 @@ class QuillTooltip extends Tooltip {
 				this.quill.root.scrollTop = scrollTop;
 				break;
 			}
+			// biome-ignore lint/suspicious/noFallthroughSwitchClause: only changes the value
 			case "video": {
 				value = extractVideoUrl(value);
-			} // eslint-disable-next-line no-fallthrough
+			}
 			case "formula": {
 				if (!value) break;
 				const range = this.quill.getSelection(true);
@@ -105,8 +107,8 @@ function extractVideoUrl(url) {
 	if (match) {
 		return `${match[1] || "https"}://www.youtube.com/embed/${match[2]}?showinfo=0`;
 	}
-	// eslint-disable-next-line no-cond-assign
-	if ((match = url.match(/^(?:(https?):\/\/)?(?:www\.)?vimeo\.com\/(\d+)/))) {
+	match = url.match(/^(?:(https?):\/\/)?(?:www\.)?vimeo\.com\/(\d+)/);
+	if (match) {
 		return `${match[1] || "https"}://player.vimeo.com/video/${match[2]}/`;
 	}
 	return url;

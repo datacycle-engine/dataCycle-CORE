@@ -4,7 +4,7 @@ class FixTriggersForNullValues < ActiveRecord::Migration[5.2]
   disable_ddl_transaction!
 
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER update_classification_alias_paths_trigger ON classification_trees;
 
       CREATE TRIGGER update_classification_alias_paths_trigger

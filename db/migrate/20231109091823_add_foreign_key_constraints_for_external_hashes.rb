@@ -2,7 +2,7 @@
 
 class AddForeignKeyConstraintsForExternalHashes < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE external_hashes
       ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES things (external_source_id, external_key) ON DELETE CASCADE NOT VALID;
 
@@ -34,7 +34,7 @@ class AddForeignKeyConstraintsForExternalHashes < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE external_hashes DROP CONSTRAINT fk_external_hashes_things;
 
       DROP TRIGGER IF EXISTS delete_external_hashes_trigger ON thing_translations;

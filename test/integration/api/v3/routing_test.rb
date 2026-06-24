@@ -21,11 +21,12 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.count
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
-          assert_equal true, json_data['links'].present?
+          assert_predicate json_data['links'], :present?
         end
 
         test '/api/v3/contents/search with available API params' do
@@ -35,23 +36,27 @@ module DataCycleCore
           included_params = DataCycleCore::Api::V3::ContentsController::ALLOWED_INCLUDE_PARAMETERS
           included_params.each do |param|
             get api_v3_contents_search_path(include: param)
+
             assert_response :success
-            assert_equal response.content_type, 'application/json; charset=utf-8'
+            assert_equal 'application/json; charset=utf-8', response.content_type
             json_data = response.parsed_body
+
             assert_equal count, json_data['data'].length
             assert_equal count, json_data['meta']['total'].to_i
-            assert_equal true, json_data['links'].present?
+            assert_predicate json_data['links'], :present?
           end
 
           mode_params = DataCycleCore::Api::V3::ContentsController::ALLOWED_MODE_PARAMETERS
           mode_params.each do |param|
             get api_v3_contents_search_path(mode: param)
+
             assert_response :success
-            assert_equal response.content_type, 'application/json; charset=utf-8'
+            assert_equal 'application/json; charset=utf-8', response.content_type
             json_data = response.parsed_body
+
             assert_equal count, json_data['data'].length
             assert_equal count, json_data['meta']['total'].to_i
-            assert_equal true, json_data['links'].present?
+            assert_predicate json_data['links'], :present?
           end
         end
 
@@ -59,11 +64,12 @@ module DataCycleCore
           get api_v3_contents_deleted_path
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal 0, json_data['data'].length
           assert_equal 0, json_data['meta']['total'].to_i
-          assert_equal true, json_data['links'].present?
+          assert_predicate json_data['links'], :present?
         end
 
         test '/api/v3/creative_works' do
@@ -71,11 +77,12 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('CreativeWork').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
-          assert_equal true, json_data['links'].present?
+          assert_predicate json_data['links'], :present?
         end
 
         test '/api/v3/places' do
@@ -83,11 +90,12 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('Place').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
-          assert_equal true, json_data['links'].present?
+          assert_predicate json_data['links'], :present?
         end
 
         test '/api/v3/events' do
@@ -95,11 +103,12 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('Event').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
-          assert_equal true, json_data['links'].present?
+          assert_predicate json_data['links'], :present?
         end
 
         test '/api/v3/persons' do
@@ -107,11 +116,12 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('Person').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
-          assert_equal true, json_data['links'].present?
+          assert_predicate json_data['links'], :present?
         end
 
         test '/api/v3/organizations' do
@@ -119,11 +129,12 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('Organization').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
-          assert_equal true, json_data['links'].present?
+          assert_predicate json_data['links'], :present?
         end
 
         test '/api/v3/classification_trees' do
@@ -137,25 +148,30 @@ module DataCycleCore
           count = DataCycleCore::ClassificationTreeLabel.where(internal: false).count
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
-          assert_equal true, json_data['links'].present?
+          assert_predicate json_data['links'], :present?
 
           test_classification = json_data['data'].detect { |a| a['name'] == 'Tags' }['id']
 
           get api_v3_classification_tree_path(id: test_classification)
+
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal test_classification, json_data['data']['id']
 
           get classifications_api_v3_classification_tree_path(id: test_classification)
+
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
-          assert_equal true, json_data['meta']['total'].positive?
+
+          assert_predicate json_data['meta']['total'], :positive?
         end
       end
     end

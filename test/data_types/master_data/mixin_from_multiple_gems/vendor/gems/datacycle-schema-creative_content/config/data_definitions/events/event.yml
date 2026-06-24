@@ -1,0 +1,7 @@
+---
+- :data:
+    :name: Event-Same-Name-Event
+    :extends: Event-Same-Name-Event
+    :properties:
+      :base_property:
+        :label: From main set

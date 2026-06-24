@@ -6,7 +6,7 @@ module DataCycleCore
       module ContentLock
         extend ActiveSupport::Concern
 
-        included do
+        prepended do
           has_one :lock, -> { where(activity_type: 'content_lock').where(activities: { updated_at: DataCycleCore::Feature::ContentLock.lock_length.seconds.ago.. }) }, class_name: 'DataCycleCore::ContentLock', as: :activitiable, inverse_of: :activitiable
         end
 
@@ -26,7 +26,7 @@ module DataCycleCore
           def create_locks(user:)
             content_query = all.select("'DataCycleCore::Thing', things.id, '#{user.id}', 'content_lock', NOW(), NOW()")
 
-            ActiveRecord::Base.connection.exec_query <<-SQL.squish
+            ActiveRecord::Base.connection.exec_query <<~SQL.squish
               INSERT INTO activities (activitiable_type, activitiable_id, user_id, activity_type, created_at, updated_at)
               #{content_query.to_sql}
               ON CONFLICT DO NOTHING

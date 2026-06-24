@@ -7,7 +7,6 @@ module DataCycleCore
     module V4
       module Classifications
         class ClassificationFilterTest < DataCycleCore::V4::Base
-          # rubocop:disable Minitest/MultipleAssertions
           before(:all) do
             DataCycleCore::Thing.delete_all
             @tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
@@ -327,6 +326,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(6)
 
             params = {
@@ -335,6 +335,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -343,6 +344,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(6)
 
             params = {
@@ -351,6 +353,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(2)
           end
 
@@ -798,8 +801,6 @@ module DataCycleCore
 
             assert_api_count_result(3)
           end
-
-          # rubocop:enable Minitest/MultipleAssertions
         end
       end
     end

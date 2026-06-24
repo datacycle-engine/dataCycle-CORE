@@ -43,13 +43,16 @@ module DataCycleCore
           'external_content_score',
           'web_url',
           'linked_in_text',
-          'linked_to_text'
+          'linked_to_text',
+          'dc_ext_key_priority',
+          'dummy'
         ].freeze
 
       def assert_api_count_result(count)
         assert_response :success
-        assert_equal(response.content_type, 'application/json; charset=utf-8')
+        assert_equal('application/json; charset=utf-8', response.content_type)
         json_data = JSON.parse(response.body)
+
         assert_equal(2, json_data['@context'].size)
         assert_equal(count, json_data['@graph'].size)
         assert_equal(count, json_data['meta']['total'].to_i)
@@ -58,10 +61,11 @@ module DataCycleCore
 
       def assert_api_default_sections
         assert_response :success
-        assert_equal(response.content_type, 'application/json; charset=utf-8')
+        assert_equal('application/json; charset=utf-8', response.content_type)
         json_data = JSON.parse(response.body)
+
         assert_equal(2, json_data['@context'].size)
-        assert(json_data['@graph'].size.positive?)
+        assert_predicate(json_data['@graph'].size, :positive?)
         assert(json_data.key?('meta'))
         assert(json_data.key?('links'))
       end
@@ -69,6 +73,7 @@ module DataCycleCore
       def assert_full_thing_datahash(thing)
         filled_keys = thing.get_data_hash.compact_blank.keys
         excluded_keys = EXCLUDED_PROPERTIES + DataCycleCore.internal_data_attributes + excluded_properties_for(thing) + thing.virtual_property_names
+
         assert_equal([], thing.property_names - filled_keys - excluded_keys)
       end
 
@@ -77,7 +82,7 @@ module DataCycleCore
       end
 
       def assert_translated_thing(thing, locale)
-        assert(thing.available_locales.include?(locale.to_sym))
+        assert_includes(thing.available_locales, locale.to_sym)
       end
 
       def assert_attributes(json_validate, required_attributes, attributes, &)
@@ -102,6 +107,7 @@ module DataCycleCore
       def assert_json_attributes(json_validate)
         compare_json = yield
         json = json_validate.dup.slice(*compare_json.keys)
+
         assert_equal(compare_json, json)
         compare_json.each_key { |a| json_validate.delete(a) }
       end
@@ -109,12 +115,14 @@ module DataCycleCore
       def assert_translated_json_attributes(json_validate)
         compare_json = sort_translated_attributes(yield)
         json = sort_translated_attributes(json_validate.dup.slice(*compare_json.keys))
+
         assert_equal(compare_json, json)
         compare_json.each_key { |a| json_validate.delete(a) }
       end
 
       def assert_classifications(json_validate, classifications)
         json_classifications = json_validate['dc:classification'].sort_by { |c| c['@id'] }
+
         assert_equal(json_classifications, classifications.sort_by { |c| c['@id'] })
         json_validate.delete('dc:classification')
       end
@@ -133,6 +141,7 @@ module DataCycleCore
         assert_equal(2, json_context.size)
         assert_equal('https://schema.org/', json_context.first)
         validator = DataCycleCore::V4::Validation::Context.context(language)
+
         assert_equal({}, validator.call(json_context.second).errors.to_h)
       end
 
@@ -156,6 +165,7 @@ module DataCycleCore
       def api_enabled?(definition)
         return true if definition.dig('api', 'v4', 'disabled') == false && definition.dig('api', 'v4')&.key?('disabled')
         return true if definition.dig('api', 'disabled') == false && definition['api']&.key?('disabled')
+
         false
       end
 

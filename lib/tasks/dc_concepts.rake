@@ -10,12 +10,28 @@ namespace :dc do
       importer.import
       importer.render_errors
 
-      importer.valid? ? puts(AmazingPrint::Colors.green("[✔] ... looks good 🚀 (Duration: #{(Time.zone.now - before_import).round} sec, #{importer.counts[:concept_schemes]}/#{importer.counts[:concepts]}/#{importer.counts[:concept_mappings]})")) : exit(-1)
+      importer.valid? ? puts(AmazingPrint::Colors.green("[✔] ... looks good 🚀 (Duration: #{(Time.zone.now - before_import).round} sec, #{format('%+d', importer.counts[:concept_schemes])}/#{format('%+d', importer.counts[:concepts])}/#{format('%+d', importer.counts[:concept_mappings])})")) : exit(-1)
+    end
+
+    desc 'import new concept mappings from path'
+    task :import_mappings, [:path] => :environment do |_, args|
+      before_import = Time.zone.now
+      path = args.path
+      abort('Please provide a path to folder with classification_mappings.yml inside') if path.blank?
+
+      full_path = Rails.root.join(path)
+
+      puts "importing new concept_mappings from #{full_path}"
+      importer = DataCycleCore::MasterData::Concepts::ConceptImporter.new(paths: full_path, import_concepts: false)
+      importer.import
+      importer.render_errors
+
+      importer.valid? ? puts(AmazingPrint::Colors.green("[✔] ... looks good 🚀 (Duration: #{(Time.zone.now - before_import).round} sec, #{format('%+d', importer.counts[:concept_mappings])})")) : exit(-1)
     end
 
     desc 'merge duplicate system classifications'
     task merge_system_duplicates: :environment do
-      duplicates = ActiveRecord::Base.connection.exec_query <<-SQL.squish
+      duplicates = ActiveRecord::Base.connection.exec_query <<~SQL.squish
         WITH duplicates AS (
           SELECT id,
             concept_scheme_id,

@@ -2,6 +2,7 @@
 
 def external_identifier(content)
   return {} if content.external_source.blank?
+
   {
     'identifier' => [
       {
@@ -34,6 +35,7 @@ def render_pref_label(content, languages)
     languages.each do |language|
       I18n.with_locale(language) do
         next if content.name.blank?
+
         value_container << { '@language' => language, '@value' => content.name }
       end
     end
@@ -57,6 +59,7 @@ def render_description(content, languages)
     languages.each do |language|
       I18n.with_locale(language) do
         next if content.description.blank?
+
         value_container << { '@language' => language, '@value' => content.description }
       end
     end
@@ -101,11 +104,11 @@ end
 
 json.merge!(external_identifier(content)) if attribute_visible?('identifier', options)
 
-include_fields = options[:include] + options[:fields]
-json['dc:color'] = content.color if included_attribute_not_full?('dc:color', include_fields) && content.color?
-json['dc:icon'] = content.icon if included_attribute_not_full?('dc:icon', include_fields) && content.icon?
+json['dc:color'] = content.color if attribute_visible?('dc:color', options, false) && content.color?
+json['dc:icon'] = content.icon if attribute_visible?('dc:icon', options, false) && content.icon?
+json['dc:slugifiedName'] = render_slugified_name(content, options[:languages]) if attribute_visible?('dc:slugifiedName', options, false)
 
-if included_attribute_not_full?('geo', include_fields) &&
+if attribute_visible?('geo', options, false) &&
    (geom = geoshape_as_json(content.classification_polygons&.first&.geom)).present?
   json['geo'] = {
     '@id' => generate_uuid(content.id, 'geo'),

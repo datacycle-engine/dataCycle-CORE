@@ -8,7 +8,13 @@ module DataCycleCore
       end
 
       def sort_default(_ordering = 'DESC')
-        reflect(apply_default_sorting(query_without_order))
+        reflect(
+          query_without_order.order(
+            thing[:boost].desc,
+            thing[:updated_at].desc,
+            thing[:id].desc
+          )
+        )
       end
 
       def sort_collection_manual_order(ordering, watch_list_id)
@@ -30,22 +36,15 @@ module DataCycleCore
         )
       end
 
+      # setseed does not work, if postgres spawns parallel workers for subqueries, so we use md5 hashing for random sorting with seed to ensure consistent results.
       def sort_random(_ordering = nil, seed = nil)
-        unless seed.nil?
-          random_seed_sql = <<-SQL.squish
-            CROSS JOIN (SELECT :seed_value AS seed_value from setseed(:seed_value)) seed_values
-          SQL
+        order_string = if seed.present?
+                         sanitize_sql_for_order([Arel.sql('md5(things.id || ?::TEXT)'), seed.to_s])
+                       else
+                         sanitize_sql_for_order('random()')
+                       end
 
-          random_join_query = sanitize_sql([random_seed_sql, {seed_value: seed}])
-        end
-
-        # TODO: fix random sorting with moving active query into exists subquery
-
-        reflect(
-          query_without_order
-            .joins(random_join_query)
-            .order(Arel.sql(sanitize_sql_for_order('random()')))
-        )
+        reflect(query_without_order.order(order_string))
       end
 
       def sort_boost(ordering)
@@ -121,18 +120,19 @@ module DataCycleCore
       def sort_proximity_in_time(_ordering = '', value = {})
         date = Time.zone.now
         if value.present? && value.is_a?(::Hash) && value['q'] == 'relative'
-          date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
+          date = relative_to_absolute_arel_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
+          date = relative_to_absolute_arel_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
         elsif value.present? && value.is_a?(::Hash)
           date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
         end
 
+        date = Arel::Nodes.build_quoted(date.iso8601) unless date.is_a?(Arel::Nodes::Node)
         reflect(
           query_without_order
             .order(
-              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'end_date')), Arel::Nodes.build_quoted(date.iso8601)),
-              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'start_date')), Arel::Nodes.build_quoted(date.iso8601)),
+              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'end_date')), date),
+              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'start_date')), date),
               cast_ts(in_json(thing[:metadata], 'start_date')),
               thing[:id].desc
             )
@@ -141,30 +141,27 @@ module DataCycleCore
 
       # TODO: get the sort value for relation dynamically via data definitions
       def sort_by_proximity(ordering = '', value = {})
-        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
-        return self if start_date.nil? && end_date.nil?
+        from_node, to_node = arel_date_from_filter_object(value['in'] || value['v']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
+        return self if from_node.nil? && to_node.nil?
 
-        relation_value = find_relation(value)
-        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
+        relation_filter = schedule_relation_filter(value, "AND schedules.relation != 'validity_range'")
         joined_table_name = "so#{SecureRandom.hex(10)}"
-        order_parameter_join = <<-SQL.squish
+        order_parameter_join = <<~SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT schedules.thing_id,
               MIN(LOWER(so.occurrence)) AS "min_start_date"
             FROM schedules,
-              UNNEST(schedules.occurrences) so(occurrence)
+              UNNEST(schedules.occurrences_array) so(occurrence)
             WHERE things.id = schedules.thing_id
-              AND so.occurrence && TSTZRANGE(?, ?)
+              AND so.occurrence && #{tstzrange(from_node, to_node, '[]').to_sql}
               #{relation_filter}
             GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
-        query_args = [start_date, end_date]
         reflect(
           query_without_order
-            .joins(sanitize_sql([order_parameter_join, *query_args]))
+            .joins(sanitize_sql([order_parameter_join]))
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               thing[:updated_at].desc,
@@ -176,8 +173,8 @@ module DataCycleCore
       alias sort_by_schedule_proximity sort_by_proximity
       alias sort_proximity_occurrence sort_by_proximity
 
-      def sort_proximity_geographic(ordering = '', value = {})
-        return self if value&.first.blank? || value&.second.blank?
+      def sort_proximity_geographic(ordering = '', value = [])
+        return self if value&.[](0).blank? || value&.[](1).blank?
 
         join_query, order_query = order_params_for_geom(value)
         reflect(
@@ -213,6 +210,7 @@ module DataCycleCore
 
       def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true)
         return self if !value.is_a?(::Array) || value.first.blank?
+
         geo = value.first
         schedule = value.second
         return self if geo&.first.blank? || geo&.second.blank?
@@ -224,22 +222,20 @@ module DataCycleCore
           end_date = 1.week.from_now.end_of_week
         end
 
-        if sort_by_date
-          min_start_date = 'MIN(LOWER(so.occurrence))'
-        else
-          min_start_date = '1'
-        end
+        min_start_date = if sort_by_date
+                           'MIN(LOWER(so.occurrence))'
+                         else
+                           '1'
+                         end
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
         end_of_day = Time.zone.now.end_of_day
         end_date_extended = [end_date, 1.month.from_now.end_of_month].max
 
         # [TODO] @Samuel: check if it works as intended
-        relation_value = find_relation(schedule)
-        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation = 'opening_hours_specification'"
+        relation_filter = schedule_relation_filter(schedule, "AND schedules.relation = 'opening_hours_specification'")
 
-        order_parameter_join = <<-SQL.squish
+        order_parameter_join = <<~SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT schedules.thing_id,
               CASE
@@ -250,7 +246,7 @@ module DataCycleCore
               END as occurrence_exists,
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
             FROM schedules
-            LEFT OUTER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
+            LEFT OUTER JOIN UNNEST(schedules.occurrences_array) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
             WHERE things.id = schedules.thing_id
             #{relation_filter}
             GROUP BY schedules.thing_id
@@ -291,6 +287,7 @@ module DataCycleCore
 
       def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true)
         return self if !value.is_a?(::Array) || value.first.blank?
+
         geo = value.first
         schedule = value.second
         return self if geo&.first.blank? || geo&.second.blank?
@@ -302,25 +299,23 @@ module DataCycleCore
           end_date = Time.zone.now.end_of_day
         end
 
-        if sort_by_date
-          min_start_date = 'MIN(LOWER(so.occurrence))'
-        else
-          min_start_date = '1'
-        end
+        min_start_date = if sort_by_date
+                           'MIN(LOWER(so.occurrence))'
+                         else
+                           '1'
+                         end
 
         # [TODO] @Samuel: check if it works as intended
-        relation_value = find_relation(schedule)
-        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
+        relation_filter = schedule_relation_filter(schedule, "AND schedules.relation != 'validity_range'")
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
-        order_parameter_join = <<-SQL.squish
+        order_parameter_join = <<~SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT schedules.thing_id,
               1 AS "occurrence_exists",
               CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
             FROM schedules
-            LEFT OUTER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
+            LEFT OUTER JOIN UNNEST(schedules.occurrences_array) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
             WHERE things.id = schedules.thing_id
             #{relation_filter}
             GROUP BY schedules.thing_id
@@ -350,25 +345,23 @@ module DataCycleCore
           start_date = Time.zone.now
           end_date = Time.zone.now.end_of_day
         end
-        if sort_by_date
-          min_start_date = 'MIN(LOWER(so.occurrence))'
-        else
-          min_start_date = '1'
-        end
+        min_start_date = if sort_by_date
+                           'MIN(LOWER(so.occurrence))'
+                         else
+                           '1'
+                         end
 
         # [TODO] @Samuel: check if it works as intended
-        relation_value = find_relation(value)
-        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation_filter = relation.present? ? "AND schedules.relation = '#{relation}'" : "AND schedules.relation != 'validity_range'"
+        relation_filter = schedule_relation_filter(value, "AND schedules.relation != 'validity_range'")
 
         joined_table_name = "sch#{SecureRandom.hex(10)}"
-        order_parameter_join = <<-SQL.squish
+        order_parameter_join = <<~SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT schedules.thing_id,
               1 AS "occurrence_exists",
               #{min_start_date} AS "min_start_date"
             FROM schedules
-            INNER JOIN UNNEST(schedules.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
+            INNER JOIN UNNEST(schedules.occurrences_array) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
             WHERE things.id = schedules.thing_id
             #{relation_filter}
             GROUP BY schedules.thing_id
@@ -387,13 +380,15 @@ module DataCycleCore
         )
       end
 
-      def sort_fulltext_search(ordering, value)
+      def sort_legacy_fulltext_search(ordering, value)
         return self if value.blank?
+
         locale = @locale&.first || I18n.default_locale.to_s
         normalized_value = DataCycleCore::MasterData::DataConverter.string_to_string(value)
         return self if normalized_value.blank?
+
         search_string = normalized_value.split.join('%')
-        order_sql = <<-SQL.squish
+        order_sql = <<~SQL.squish
           things.boost * (
             8 * similarity(searches.classification_string, :search_string) +
             4 * similarity(searches.headline, :search_string) +
@@ -402,7 +397,7 @@ module DataCycleCore
           )
         SQL
 
-        order_string = sanitize_sql([order_sql, {search_string: "%#{search_string}%", search: normalized_value}])
+        order_string = sanitize_sql([order_sql, { search_string: "%#{search_string}%", search: normalized_value }])
 
         reflect(
           query_without_order
@@ -416,9 +411,11 @@ module DataCycleCore
       end
 
       def sort_ts_rank_fulltext_search(ordering, value)
+        value, fields = value.values_at(:value, :fields) if value.is_a?(Hash)
         return self if value.blank?
 
         q = text_to_websearch_tsquery(value)
+        weights = fulltext_fields_to_weights(fields)
         locale = @locale&.first || I18n.default_locale.to_s
         order_string = Feature::TsQueryFulltextSearch.sorting_string
 
@@ -426,14 +423,29 @@ module DataCycleCore
           query_without_order
             .joins(sanitize_sql(['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
             .order(
-              sanitized_order_string(sanitize_sql([order_string, { q:}]), ordering, true),
+              sanitized_order_string(sanitize_sql([order_string, { q:, weights: }]), ordering, true),
               thing[:id].desc
             )
         )
       end
 
-      alias sort_fulltext_search sort_ts_rank_fulltext_search if Feature::TsQueryFulltextSearch.enabled?
-      alias sort_similarity sort_fulltext_search
+      def sort_type(ordering, value)
+        return self if value.blank?
+
+        order_string = sanitize_sql(["array_position(ARRAY[?]::varchar[], CONCAT('dcls:', things.template_name))", value])
+        # second variant to match parent types via array intersection, but performance is worse than the first one, so currently not used
+        # order_string = sanitize_sql(['array_position(ARRAY[:value]::varchar[], (array_intersect(ARRAY [:value]::varchar [], thing_templates.api_schema_types))[1])', value])
+
+        reflect(
+          query_without_order
+            # .joins(:thing_template)
+            .order(
+              sanitized_order_string(order_string, ordering, true),
+              thing[:updated_at].desc,
+              thing[:id].desc
+            )
+        )
+      end
 
       def sanitized_ordering(ordering)
         ordering = ordering&.downcase
@@ -451,22 +463,27 @@ module DataCycleCore
         Arel.sql(sanitize_sql_for_order("#{order_string} #{ordering}#{order_nulls}"))
       end
 
+      # used to alias the fulltext search method based on feature flag without class reloading
+      def self.alias_fulltext_search_method!
+        if Feature::TsQueryFulltextSearch.enabled?
+          alias_method :sort_fulltext_search, :sort_ts_rank_fulltext_search
+        else
+          alias_method :sort_fulltext_search, :sort_legacy_fulltext_search
+        end
+      end
+
+      alias_fulltext_search_method!
+      alias sort_similarity sort_fulltext_search
+
       private
 
       def query_without_order
         @query.reorder(nil).except(:joins)
       end
 
-      def apply_default_sorting(query)
-        query.order(
-          thing[:boost].desc,
-          thing[:updated_at].desc,
-          thing[:id].desc
-        )
-      end
-
       def find_relation(value)
         return if value.blank?
+
         if value['relation']
           value['relation'].to_s.underscore
         elsif value.dig('v', 'relation')
@@ -474,12 +491,20 @@ module DataCycleCore
         end
       end
 
+      def schedule_relation_filter(value, default_filter)
+        relation_value = find_relation(value)
+        return '' if relation_value == 'all'
+
+        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
+        relation.present? ? "AND schedules.relation = #{ActiveRecord::Base.connection.quote(relation)}" : default_filter
+      end
+
       def order_params_for_geom(value)
-        order_parameter_join = <<-SQL.squish
+        order_parameter_join = <<~SQL.squish
           LEFT OUTER JOIN geometries ON geometries.thing_id = things.id AND geometries.is_primary = true
         SQL
 
-        order_string = "geometries.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+        order_string = "geometries.geom_simple::geography <-> 'SRID=4326;POINT (#{value[0]} #{value[1]})'::geography"
 
         return order_parameter_join, order_string
       end

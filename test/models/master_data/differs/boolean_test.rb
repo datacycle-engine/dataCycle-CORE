@@ -40,6 +40,7 @@ describe DataCycleCore::MasterData::Differs::Boolean do
     it 'recognizes a deleted value' do
       [true, false, 'true', 'false'].each do |item|
         bool_item = DataCycleCore::MasterData::DataConverter.string_to_boolean(item)
+
         assert_equal(['-', bool_item], subject.new(item, nil, template_hash).diff_hash)
         assert_equal(['-', bool_item], subject.new(item, nil).diff_hash)
       end
@@ -48,6 +49,7 @@ describe DataCycleCore::MasterData::Differs::Boolean do
     it 'recognizes an inserted value' do
       [true, false, 'true', 'false'].each do |item|
         bool_item = DataCycleCore::MasterData::DataConverter.string_to_boolean(item)
+
         assert_equal(['+', bool_item], subject.new(nil, item, template_hash).diff_hash)
         assert_equal(['+', bool_item], subject.new(nil, item).diff_hash)
       end

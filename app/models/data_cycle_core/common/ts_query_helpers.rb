@@ -3,7 +3,7 @@
 module DataCycleCore
   module Common
     module TsQueryHelpers
-      TS_QUERY_EXCEPTIONS = %r{[\&\|\<\>/\\\(\)\{\}\[\]\s:!]|(?<!\s)-}
+      TS_QUERY_EXCEPTIONS = %r{[&|<>/\\()\{\}\[\]\s:!]|(?<!\s)-}
 
       def text_to_tsquery(name, separator = '&', weights = '*')
         normalized_name = name.unicode_normalize(:nfkc)

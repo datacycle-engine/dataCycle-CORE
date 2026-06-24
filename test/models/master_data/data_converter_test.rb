@@ -20,6 +20,7 @@ describe DataCycleCore::MasterData::DataConverter do
     it 'does not touch key items' do
       assert_nil(subject.convert_to_type('key', nil))
       uuid = SecureRandom.uuid
+
       assert_equal(uuid, subject.convert_to_type('key', uuid))
     end
   end
@@ -29,7 +30,8 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = [true, false, 'true', 'false', '    true     ']
       test_cases.each do |test_case|
         converted_data = subject.boolean_to_string(test_case)
-        assert(['true', 'false'].include?(converted_data))
+
+        assert_includes(['true', 'false'], converted_data)
       end
     end
 
@@ -37,7 +39,8 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = [true, false, 'true', 'false', '    true     ']
       test_cases.each do |test_case|
         converted_data = subject.string_to_boolean(test_case)
-        assert([true.class, false.class].include?(converted_data.class))
+
+        assert_includes([true.class, false.class], converted_data.class)
       end
     end
 
@@ -51,6 +54,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'throws an exception when a string fails to be converted to a boolean' do
       test_cases = ['XXX', 503, 59.0]
+
       test_cases.each do |test_case|
         assert_raises(ArgumentError) { subject.string_to_boolean(test_case) }
       end
@@ -58,6 +62,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'string_to_boolean can be called again and gives the same result' do
       test_cases = [true, false, 'true', 'false']
+
       test_cases.each do |test_case|
         assert_equal(subject.string_to_boolean(test_case), subject.string_to_boolean(subject.string_to_boolean(test_case)))
       end
@@ -65,6 +70,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'boolean_to_string can be called again and gives the same result' do
       test_cases = [true, false, 'true', 'false']
+
       test_cases.each do |test_case|
         assert_equal(subject.boolean_to_string(test_case), subject.boolean_to_string(subject.boolean_to_string(test_case)))
       end
@@ -72,6 +78,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'throws an exception when a boolean can not be converted to a string' do
       test_cases = ['XXX', 503, 59.0]
+
       test_cases.each do |test_case|
         assert_raises(ArgumentError) { subject.boolean_to_string(test_case) }
       end
@@ -88,7 +95,8 @@ describe DataCycleCore::MasterData::DataConverter do
       wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         converted_data = subject.string_to_geographic(test_case)
-        assert(converted_data.methods.include?(:geometry_type))
+
+        assert_includes(converted_data.methods, :geometry_type)
         assert(implies(test_case.instance_of?(converted_data.class), test_case == converted_data))
         assert(implies(test_case.class != converted_data.class, test_case == converted_data.to_s))
       end
@@ -103,6 +111,7 @@ describe DataCycleCore::MasterData::DataConverter do
       wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         converted_data = subject.geographic_to_string(test_case)
+
         assert_equal(test_case.to_s, converted_data)
       end
     end
@@ -119,6 +128,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'throws an exception when wkt_string can not be converted to a geographic object' do
       test_cases = ['POINT (10.0 47.0', 'POINT (10.0 47.X0', 'POINT (10.0)', 'POINT Z (10.0)', 'POINT (10.0, 10.0, 200.0)', 5]
+
       test_cases.each do |test_case|
         assert_raises(RGeo::Error::ParseError) { subject.string_to_geographic(test_case) }
       end
@@ -126,6 +136,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'throws an exception when geographic object is not valid' do
       test_cases = ['POINT (10.0 47.0', 'POINT (10.0 47.X0', 'POINT (10.0)', 'POINT Z (10.0)', 'POINT (10.0, 10.0, 200.0)', 6]
+
       test_cases.each do |test_case|
         assert_raises(RGeo::Error::ParseError) { subject.geographic_to_string(test_case) }
       end
@@ -139,6 +150,7 @@ describe DataCycleCore::MasterData::DataConverter do
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
       wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
+
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         assert_equal(subject.string_to_geographic(test_case), subject.string_to_geographic(subject.string_to_geographic(test_case)))
       end
@@ -152,6 +164,7 @@ describe DataCycleCore::MasterData::DataConverter do
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
       wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
+
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         assert_equal(subject.geographic_to_string(test_case), subject.geographic_to_string(subject.geographic_to_string(test_case)))
       end
@@ -163,6 +176,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
       test_cases.each do |test_case|
         converted_data = subject.string_to_datetime(test_case)
+
         assert(converted_data.acts_like?(:time))
         assert(implies(test_case.instance_of?(converted_data.class), test_case == converted_data))
       end
@@ -172,6 +186,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
       test_cases.each do |test_case|
         converted_data = subject.datetime_to_string(test_case)
+
         assert_equal(test_case.to_s, converted_data)
       end
     end
@@ -186,6 +201,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'throws an exception when string can not be converted to a datetime object' do
       test_cases = ['servas', 5, 5.5]
+
       test_cases.each do |test_case|
         assert_raises(ArgumentError) { subject.string_to_datetime(test_case) }
       end
@@ -193,6 +209,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'throws an exception when datetime object is not valid' do
       test_cases = ['servas', 5, 5.5]
+
       test_cases.each do |test_case|
         assert_raises(ArgumentError) { subject.datetime_to_string(test_case) }
       end
@@ -200,6 +217,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'string_to_datetime can be called again and gives the same result' do
       test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
+
       test_cases.each do |test_case|
         assert_equal(subject.string_to_datetime(test_case), subject.string_to_datetime(subject.string_to_datetime(test_case)))
       end
@@ -207,6 +225,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'datetime_to_string can be called again and gives the same result' do
       test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
+
       test_cases.each do |test_case|
         assert_equal(subject.datetime_to_string(test_case), subject.datetime_to_string(subject.datetime_to_string(test_case)))
       end
@@ -218,6 +237,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = [Date.current, Time.current.to_date, Date.current.to_s, '01.01.2018', '1-1-2018']
       test_cases.each do |test_case|
         converted_data = subject.string_to_date(test_case)
+
         assert(converted_data.acts_like?(:date))
         assert(implies(test_case.instance_of?(converted_data.class), test_case == converted_data))
       end
@@ -227,6 +247,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = [Date.current, Time.current.to_date, Date.current.to_s, '01.01.2018', '1-1-2018']
       test_cases.each do |test_case|
         converted_data = subject.date_to_string(test_case)
+
         assert_equal(test_case.to_s, converted_data)
       end
     end
@@ -241,6 +262,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'throws an exception when string can not be converted to a date object' do
       test_cases = ['servas', 5, 5.5]
+
       test_cases.each do |test_case|
         assert_raises(ArgumentError) { subject.string_to_date(test_case) }
       end
@@ -248,6 +270,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'throws an exception when date object is not valid' do
       test_cases = ['servas', 5, 5.5]
+
       test_cases.each do |test_case|
         assert_raises(ArgumentError) { subject.date_to_string(test_case) }
       end
@@ -255,6 +278,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'string_to_date can be called again and gives the same result' do
       test_cases = [Date.current, Time.current.to_date, Date.current.to_s, '01.01.2018', '1-1-2018']
+
       test_cases.each do |test_case|
         assert_equal(subject.string_to_date(test_case), subject.string_to_date(subject.string_to_date(test_case)))
       end
@@ -262,6 +286,7 @@ describe DataCycleCore::MasterData::DataConverter do
 
     it 'date_to_string can be called again and gives the same result' do
       test_cases = [Date.current, Time.current.to_date, Date.current.to_s, '01.01.2018', '1-1-2018']
+
       test_cases.each do |test_case|
         assert_equal(subject.date_to_string(test_case), subject.date_to_string(subject.date_to_string(test_case)))
       end
@@ -272,11 +297,76 @@ describe DataCycleCore::MasterData::DataConverter do
     it 'normalizes unicode' do
       a = "Henry\u2163"
       b = 'HenryIV'
-      assert subject.string_to_string(a) != subject.string_to_string(b)
+
+      assert_not_equal subject.string_to_string(a), subject.string_to_string(b)
+    end
+
+    it 'normalizes html entites' do
+      a = '<p>Gr&uuml;&szlig;e aus M&uuml;nchen &amp; K&ouml;ln! Caf&eacute; &agrave; la carte kostet 12&nbsp;&euro;. Temperatur: 23&deg;C. &mdash; Mathe: 5 &lt; 10 &amp;&amp; 10 &gt; 5. Copyright &copy; 2026.</p>'
+      b = "<p>Grüße aus München & Köln! Café à la carte kostet 12\u00A0€. Temperatur: 23°C. — Mathe: 5 < 10 && 10 > 5. Copyright © 2026.</p>"
+
+      assert_equal subject.string_to_string(a, 'full'), subject.string_to_string(b)
+    end
+
+    it 'convert surrogate pair entities to utf8 character' do
+      input = '&#55357;&#56787; &#55357;&#56525; &#55357;&#57037;'
+
+      assert_equal '🗓 📍 🛍', subject.string_to_string(input)
+    end
+
+    it 'convert multiple surrogate pairs inside text' do
+      input = '<p>&#55357;&#56787; 14. Mai<br>&#55357;&#56525; Ort</p>'
+
+      assert_equal '<p>🗓 14. Mai<br>📍 Ort</p>', subject.string_to_string(input)
+    end
+
+    it 'works with html entities and surrogate pairs together' do
+      input = '<p>Genie&szlig;t &#55357;&#56787; den Tag</p>'
+
+      assert_equal '<p>Genießt 🗓 den Tag</p>', subject.string_to_string(input)
+    end
+
+    it 'keeps string valid utf8' do
+      input = '&#55357;&#56787;'
+      output = subject.string_to_string(input)
+
+      assert_predicate output, :valid_encoding?
+      assert_equal Encoding::UTF_8, output.encoding
+    end
+
+    it 'converts NFD to NFC correctly' do
+      nfd_string = "Fa\u0308hre u\u0308ber O\u0308l bringt su\u0308ße Cre\u0300me bru\u0302le\u0301e fu\u0308r Sen\u0303or Mun\u0303oz nach Sa\u0303o Paulo."
+      expected_nfc = 'Fähre über Öl bringt süße Crème brûlée für Señor Muñoz nach São Paulo.'
+
+      normalized = subject.string_to_string(nfd_string)
+
+      assert_equal normalized, expected_nfc
+      assert_equal normalized.bytes, expected_nfc.bytes
+    end
+
+    it 'keeps NFC unchanged when normalized again' do
+      nfc_string = 'Fähre über Öl bringt süße Crème brûlée für Señor Muñoz nach São Paulo.'
+      expected_nfc = 'Fähre über Öl bringt süße Crème brûlée für Señor Muñoz nach São Paulo.'
+
+      normalized = subject.string_to_string(nfc_string)
+
+      assert_equal normalized, expected_nfc
+      assert_equal normalized.bytes, expected_nfc.bytes
+    end
+
+    it 'normalizes mixed NFD/NFC to NFC correctly' do
+      mixed = "Fähre u\u0308ber Öl bringt su\u0308ße Crème bru\u0302lée für Señor Muñoz nach São Paulo."
+      expected_nfc = 'Fähre über Öl bringt süße Crème brûlée für Señor Muñoz nach São Paulo.'
+
+      normalized = subject.string_to_string(mixed)
+
+      assert_equal normalized, expected_nfc
+      assert_equal normalized.bytes, expected_nfc.bytes
     end
 
     it 'keep specific unicode characters' do
       a = 'm²'
+
       assert_equal a, subject.string_to_string(a)
     end
 
@@ -301,11 +391,34 @@ describe DataCycleCore::MasterData::DataConverter do
       assert_equal b, subject.string_to_string(a)
     end
 
-    it 'normalizes multiple &nbsp; whitespaces to a single one' do
+    it 'normalizes multiple &nbsp; whitespaces to a single one with sanitization disabled' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = false
+      DataCycleCore::Feature['StringSanitizer'].reload
+      a = '  Henry&nbsp;&nbsp;  V&nbsp;&nbsp;&nbsp;I         '
+      b = "Henry\u00A0V\u00A0I" # Keep like this for better readability and understanding, that No-Break Space should remain
+
+      assert_equal b, subject.string_to_string(a)
+      assert_equal b.bytes, subject.string_to_string(a).bytes
+    ensure
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+    end
+  end
+
+  describe 'convert string to strings with html_sanitization enabled' do
+    it 'normalizes multiple &nbsp; whitespaces to a single one  with html sanitization enabled' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
       a = '  Henry&nbsp;&nbsp;  V&nbsp;&nbsp;&nbsp;I         '
       b = 'Henry&nbsp;V&nbsp;I'
 
       assert_equal b, subject.string_to_string(a)
+      assert_equal b.bytes, subject.string_to_string(a).bytes
+    end
+
+    after do
+      DataCycleCore.features[:string_sanitizer][:enabled] = false
+      DataCycleCore::Feature['StringSanitizer'].reload
     end
   end
 
@@ -314,6 +427,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = ['3', '4.9', '5,7']
       test_cases.each do |test_case|
         converted_data = subject.convert_to_type('number', test_case)
+
         assert(converted_data.is_a?(Float))
         assert_equal(test_case.to_f, converted_data)
       end
@@ -327,6 +441,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = ['3', '4.9', '5,7']
       test_cases.each do |test_case|
         converted_data = subject.convert_to_type('number', test_case, definition)
+
         assert(converted_data.is_a?(Float))
         assert_equal(test_case.to_f, converted_data)
       end
@@ -340,223 +455,238 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = ['3', '4.9', '5,7']
       test_cases.each do |test_case|
         converted_data = subject.convert_to_type('number', test_case, definition)
+
         assert(converted_data.is_a?(Integer))
         assert_equal(test_case.to_i, converted_data)
       end
     end
+  end
 
-    describe 'sanitize html strings ' do
-      sanitization_html = <<~TEXT.squish
+  describe 'sanitize html strings ' do
+    sanitization_html = <<~TEXT.squish
+      <p>paragraph</p><p class="ql-align-center">paragraph center</p><p class="ql-align-right">paragraph right</p><p class="ql-align-justify">paragraph justify</p>
+      <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
+      <ol><li>ordered listitem 1</li><li>ordered listitem 2</li></ol>
+      <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4><h5>headline5</h5><h6>headline6</h6><p>something<sub>sub</sub></p>
+      <a href="#" onclick="alert('Test')" ;="">a tag with onclick event</a><p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+      <p>something<em>cursive</em></p><p>something<u>underlined</u></p><blockquote>blockquoted</blockquote><p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+      <p><a href="asdfasdf" rel="noopener noreferrer" target="_blank">external link</a></p>
+      <p><span class="dc--contentlink dcjs-tooltip" data-href="#" data-dc-tooltip="dataCycle: reference" data-dc-tooltip-id="1">Internal Link</span></p><p>paragraph</p>
+      <script>alert('alert from scripttag')</script>
+    TEXT
+
+    it 'sanitize html for data-size none' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      expected = <<~TEXT.squish
+        <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+        unordered listitem 1unordered listitem 2
+        ordered listitem 1ordered listitem 2
+        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4headline5headline6<p>somethingsub</p>
+        a tag with onclick event<p>somethingsup</p><p>somethingstrong</p>
+        <p>somethingcursive</p><p>somethingunderlined</p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+        <p>external link</p>
+        <p>Internal Link</p><p>paragraph</p>
+        alert('alert from scripttag')
+      TEXT
+
+      assert_equal expected, subject.sanitize_html_string(sanitization_html, 'none')
+    end
+
+    it 'sanitize html for data-size minimal' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      expected = <<~TEXT.squish
+        <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+        unordered listitem 1unordered listitem 2
+        ordered listitem 1ordered listitem 2
+        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4headline5headline6<p>somethingsub</p>
+        a tag with onclick event<p>somethingsup</p><p>something<strong>strong</strong></p>
+        <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+        <p>external link</p>
+        <p>Internal Link</p><p>paragraph</p>
+        alert('alert from scripttag')
+      TEXT
+
+      assert_equal expected, subject.sanitize_html_string(sanitization_html, 'minimal')
+    end
+
+    it 'sanitize html for data-size basic' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      expected = <<~TEXT.squish
+        <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+        unordered listitem 1unordered listitem 2
+        ordered listitem 1ordered listitem 2
+        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4>headline5headline6<p>something<sub>sub</sub></p>
+        a tag with onclick event<p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+        <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+        <p>external link</p>
+        <p>Internal Link</p><p>paragraph</p>
+        alert('alert from scripttag')
+      TEXT
+
+      assert_equal expected, subject.sanitize_html_string(sanitization_html, 'basic')
+    end
+
+    it 'sanitize html for data-size full' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      expected = <<~TEXT.squish
         <p>paragraph</p><p class="ql-align-center">paragraph center</p><p class="ql-align-right">paragraph right</p><p class="ql-align-justify">paragraph justify</p>
         <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
         <ol><li>ordered listitem 1</li><li>ordered listitem 2</li></ol>
-        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4><h5>headline5</h5><h6>headline6</h6><p>something<sub>sub</sub></p>
-        <a href="#" onclick="alert('Test')" ;="">a tag with onclick event</a><p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
+        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4>headline5headline6<p>something<sub>sub</sub></p>
+        <a href="#">a tag with onclick event</a><p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
         <p>something<em>cursive</em></p><p>something<u>underlined</u></p><blockquote>blockquoted</blockquote><p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
         <p><a href="asdfasdf" rel="noopener noreferrer" target="_blank">external link</a></p>
         <p><span class="dc--contentlink dcjs-tooltip" data-href="#" data-dc-tooltip="dataCycle: reference" data-dc-tooltip-id="1">Internal Link</span></p><p>paragraph</p>
-        <script>alert('alert from scripttag')</script>
+        alert('alert from scripttag')
       TEXT
-
-      it 'sanitize html for data-size none' do
-        DataCycleCore.features[:string_sanitizer][:enabled] = true
-        DataCycleCore::Feature['StringSanitizer'].reload
-
-        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'none'}}}}
-        expected = <<~TEXT.squish
-          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
-          unordered listitem 1unordered listitem 2
-          ordered listitem 1ordered listitem 2
-          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4headline5headline6<p>somethingsub</p>
-          a tag with onclick event<p>somethingsup</p><p>somethingstrong</p>
-          <p>somethingcursive</p><p>somethingunderlined</p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
-          <p>external link</p>
-          <p>Internal Link</p><p>paragraph</p>
-          alert('alert from scripttag')
-        TEXT
-
-        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
-      end
-
-      it 'sanitize html for data-size minimal' do
-        DataCycleCore.features[:string_sanitizer][:enabled] = true
-        DataCycleCore::Feature['StringSanitizer'].reload
-
-        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'minimal'}}}}
-        expected = <<~TEXT.squish
-          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
-          unordered listitem 1unordered listitem 2
-          ordered listitem 1ordered listitem 2
-          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4headline5headline6<p>somethingsub</p>
-          a tag with onclick event<p>somethingsup</p><p>something<strong>strong</strong></p>
-          <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
-          <p>external link</p>
-          <p>Internal Link</p><p>paragraph</p>
-          alert('alert from scripttag')
-        TEXT
-
-        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
-      end
-
-      it 'sanitize html for data-size basic' do
-        DataCycleCore.features[:string_sanitizer][:enabled] = true
-        DataCycleCore::Feature['StringSanitizer'].reload
-
-        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'basic'}}}}
-        expected = <<~TEXT.squish
-          <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
-          unordered listitem 1unordered listitem 2
-          ordered listitem 1ordered listitem 2
-          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4>headline5headline6<p>something<sub>sub</sub></p>
-          a tag with onclick event<p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
-          <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
-          <p>external link</p>
-          <p>Internal Link</p><p>paragraph</p>
-          alert('alert from scripttag')
-        TEXT
-
-        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
-      end
-
-      it 'sanitize html for data-size full' do
-        DataCycleCore.features[:string_sanitizer][:enabled] = true
-        DataCycleCore::Feature['StringSanitizer'].reload
-
-        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
-        expected = <<~TEXT.squish
-          <p>paragraph</p><p class="ql-align-center">paragraph center</p><p class="ql-align-right">paragraph right</p><p class="ql-align-justify">paragraph justify</p>
-          <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
-          <ol><li>ordered listitem 1</li><li>ordered listitem 2</li></ol>
-          <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p><h1>headline 1</h1><h2>headline 2</h2><h3>headline 3</h3><h4>headline4</h4>headline5headline6<p>something<sub>sub</sub></p>
-          <a href="#">a tag with onclick event</a><p>something<sup>sup</sup></p><p>something<strong>strong</strong></p>
-          <p>something<em>cursive</em></p><p>something<u>underlined</u></p><blockquote>blockquoted</blockquote><p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
-          <p><a href="asdfasdf" rel="noopener noreferrer" target="_blank">external link</a></p>
-          <p><span class="dc--contentlink dcjs-tooltip" data-href="#" data-dc-tooltip="dataCycle: reference" data-dc-tooltip-id="1">Internal Link</span></p><p>paragraph</p>
-          alert('alert from scripttag')
-        TEXT
-        assert_equal expected, subject.sanitize_html_string(sanitization_html, definition)
-      end
-
-      it 'sanitize html sanitize=true but no data-size' do
-        DataCycleCore.features[:string_sanitizer][:enabled] = true
-        DataCycleCore::Feature['StringSanitizer'].reload
-
-        definition = {}
-        html_string = <<~TEXT.squish
-          paragraphparagraph centerparagraph rightparagraph justify
-          unordered listitem 1unordered listitem 2
-          ordered listitem 1ordered listitem 2
-          paragraph before multiple breaksheadline 1headline 2headline 3headline4headline5headline6somethingsub
-          a tag with onclick eventsomethingsupsomethingstrong
-          somethingcursivesomethingunderlinedblockquotedsome&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspacessome         blankspaces
-          external link
-          Internal Linkparagraph
-          alert('alert from scripttag')
-        TEXT
-        assert_equal html_string, subject.sanitize_html_string(sanitization_html, definition)
-      end
-
-      it 'sanitize html sanitize=false' do
-        definition = { 'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
-        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html, definition)
-      end
-
-      it 'sanitize html no sanitize attribute' do
-        definition = {'ui' => {'edit' => {'options' => {'data-size' => 'full'}}}}
-        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html, definition)
-      end
-
-      it 'sanitize html without definition' do
-        assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html)
-      end
-
-      after do
-        DataCycleCore.features[:string_sanitizer][:enabled] = false
-        DataCycleCore::Feature['StringSanitizer'].reload
-      end
+      assert_equal expected, subject.sanitize_html_string(sanitization_html, 'full')
     end
 
-    describe '.truncate_ignoring_blank_spaces' do
-      limit = 5
+    it 'sanitize html without sanitization_mode falls back to the safe default mode' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
 
-      it 'truncates visible characters only, ignoring spaces' do
-        input = 'a b  c   d e f g'
-        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
-        assert_equal('a b  c   d e...', text)
-        assert_equal(5, count)
-      end
-
-      it 'returns full string if visible characters are under limit' do
-        input = 'ab c'
-        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
-        assert_equal('ab c', text)
-        assert_equal(3, count)
-      end
-
-      it 'removes trailing spaces before omission' do
-        input = '   abc   def   '
-        text, count = subject.truncate_ignoring_blank_spaces(input, limit)
-        assert_equal('abc   de...', text)
-        assert_equal(5, count)
-      end
+      # an unsized field keeps basic inline formatting (DEFAULT_SANITIZATION_MODE)
+      # instead of being stripped to plain text, while scripts/handlers are removed
+      html_string = <<~TEXT.squish
+        <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+        unordered listitem 1unordered listitem 2
+        ordered listitem 1ordered listitem 2
+        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4headline5headline6<p>somethingsub</p>
+        a tag with onclick event<p>somethingsup</p><p>something<strong>strong</strong></p>
+        <p>something<em>cursive</em></p><p>something<u>underlined</u></p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+        <p>external link</p>
+        <p>Internal Link</p><p>paragraph</p>
+        alert('alert from scripttag')
+      TEXT
+      assert_equal html_string, subject.sanitize_html_string(sanitization_html)
     end
 
-    describe '.truncate_node' do
-      limit = 5
-      char_count = 0
+    it 'sanitize html for feature disabled' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = false
+      DataCycleCore::Feature['StringSanitizer'].reload
 
-      it 'truncates plain text node correctly without ignoring whitespace' do
-        node = Nokogiri::HTML::DocumentFragment.parse('abc def').children.first
-        result_node, count = subject.truncate_node(node, char_count, limit, ignore_whitespace: false)
-
-        assert_equal('abc d...', result_node.text)
-        assert_equal(5, count)
-      end
-
-      it 'truncates plain text node correctly' do
-        node = Nokogiri::HTML::DocumentFragment.parse('abc defg').children.first
-        result_node, count = subject.truncate_node(node, char_count, limit)
-
-        assert_equal(5, count)
-        assert_equal('abc de...', result_node.text)
-      end
-
-      it 'preserves html structure and truncates inner text' do
-        node = Nokogiri::HTML::DocumentFragment.parse('<strong>abc def ghi</strong>').children.first
-        result_node, count = subject.truncate_node(node, char_count, limit)
-
-        assert_equal(5, count)
-        assert_equal('strong', result_node.name)
-        assert_equal('abc de...', result_node.text)
-      end
-
-      it 'returns nil when limit already exceeded' do
-        node = Nokogiri::HTML::DocumentFragment.parse('extra').children.first
-        result_node, count = subject.truncate_node(node, 10, limit)
-
-        assert_equal('', result_node)
-        assert_equal(10, count)
-      end
+      assert_equal sanitization_html, subject.sanitize_html_string(sanitization_html)
     end
 
-    describe '.truncate_html_preserving_structure' do
-      it 'preserves structure and truncates visible content' do
-        html = '<p>Hallo <strong>Welt!</strong> Das ist <em>ein Test</em>.</p>'
-        limit = 10
-        assert_equal('<p>Hallo <strong>Welt!...</strong></p>', subject.truncate_html_preserving_structure(html, limit))
-      end
+    it 'strips script and event-handler XSS payloads while keeping safe formatting in the default mode' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
 
-      it 'returns original html if under limit' do
-        html = '<p>Hi!</p>'
-        limit = 10
-        assert_equal('<p>Hi!</p>', subject.truncate_html_preserving_structure(html, limit))
-      end
+      payload = '<p>hello <b>world</b></p><script>alert(1)</script><img src=x onerror=alert(1)><a href="javascript:alert(1)">x</a>'
+      sanitized = subject.sanitize_html_string(payload, nil)
 
-      it 'truncates correctly with many spaces between words' do
-        html = '<div>Hello     world</div>'
-        limit = 6
-        assert_equal('<div>Hello     w...</div>', subject.truncate_html_preserving_structure(html, limit))
-      end
+      assert_includes sanitized, '<p>hello <b>world</b></p>'
+      # minitest/spec context (see top of file) does not provide Rails'
+      # assert_not_includes, so the minitest-native refute_includes is required.
+      # rubocop:disable Rails/RefuteMethods
+      refute_includes sanitized, '<script'
+      refute_includes sanitized, 'onerror'
+      refute_includes sanitized, 'javascript:'
+      refute_includes sanitized, '<img'
+      # rubocop:enable Rails/RefuteMethods
+    end
+
+    after do
+      DataCycleCore.features[:string_sanitizer][:enabled] = false
+      DataCycleCore::Feature['StringSanitizer'].reload
+    end
+  end
+
+  describe '.truncate_ignoring_blank_spaces' do
+    limit = 5
+
+    it 'truncates visible characters only, ignoring spaces' do
+      input = 'a b  c   d e f g'
+      text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+
+      assert_equal('a b  c   d e...', text)
+      assert_equal(5, count)
+    end
+
+    it 'returns full string if visible characters are under limit' do
+      input = 'ab c'
+      text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+
+      assert_equal('ab c', text)
+      assert_equal(3, count)
+    end
+
+    it 'removes trailing spaces before omission' do
+      input = '   abc   def   '
+      text, count = subject.truncate_ignoring_blank_spaces(input, limit)
+
+      assert_equal('abc   de...', text)
+      assert_equal(5, count)
+    end
+  end
+
+  describe '.truncate_node' do
+    limit = 5
+    char_count = 0
+
+    it 'truncates plain text node correctly without ignoring whitespace' do
+      node = Nokogiri::HTML::DocumentFragment.parse('abc def').children.first
+      result_node, count = subject.truncate_node(node, char_count, limit, ignore_whitespace: false)
+
+      assert_equal('abc d...', result_node.text)
+      assert_equal(5, count)
+    end
+
+    it 'truncates plain text node correctly' do
+      node = Nokogiri::HTML::DocumentFragment.parse('abc defg').children.first
+      result_node, count = subject.truncate_node(node, char_count, limit)
+
+      assert_equal(5, count)
+      assert_equal('abc de...', result_node.text)
+    end
+
+    it 'preserves html structure and truncates inner text' do
+      node = Nokogiri::HTML::DocumentFragment.parse('<strong>abc def ghi</strong>').children.first
+      result_node, count = subject.truncate_node(node, char_count, limit)
+
+      assert_equal(5, count)
+      assert_equal('strong', result_node.name)
+      assert_equal('abc de...', result_node.text)
+    end
+
+    it 'returns nil when limit already exceeded' do
+      node = Nokogiri::HTML::DocumentFragment.parse('extra').children.first
+      result_node, count = subject.truncate_node(node, 10, limit)
+
+      assert_equal('', result_node)
+      assert_equal(10, count)
+    end
+  end
+
+  describe '.truncate_html_preserving_structure' do
+    it 'preserves structure and truncates visible content' do
+      html = '<p>Hallo <strong>Welt!</strong> Das ist <em>ein Test</em>.</p>'
+      limit = 10
+
+      assert_equal('<p>Hallo <strong>Welt!...</strong></p>', subject.truncate_html_preserving_structure(html, limit))
+    end
+
+    it 'returns original html if under limit' do
+      html = '<p>Hi!</p>'
+      limit = 10
+
+      assert_equal('<p>Hi!</p>', subject.truncate_html_preserving_structure(html, limit))
+    end
+
+    it 'truncates correctly with many spaces between words' do
+      html = '<div>Hello     world</div>'
+      limit = 6
+
+      assert_equal('<div>Hello     w...</div>', subject.truncate_html_preserving_structure(html, limit))
     end
   end
 end

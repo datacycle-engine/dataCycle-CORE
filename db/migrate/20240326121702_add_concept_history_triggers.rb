@@ -2,7 +2,7 @@
 
 class AddConceptHistoryTriggers < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION delete_concepts_to_histories_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
       INSERT INTO concept_histories
       SELECT * FROM old_concepts;
@@ -45,7 +45,7 @@ class AddConceptHistoryTriggers < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS delete_concepts_to_histories_trigger ON concepts;
       DROP TRIGGER IF EXISTS delete_concept_schemes_to_histories_trigger ON concept_schemes;
       DROP TRIGGER IF EXISTS delete_concept_links_to_histories_trigger ON concept_links;

@@ -2,7 +2,7 @@
 
 class FixClassificationAliasLinksAgain < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE VIEW classification_alias_links AS (
         WITH primary_classification_groups AS (
           SELECT DISTINCT classification_groups.classification_id,

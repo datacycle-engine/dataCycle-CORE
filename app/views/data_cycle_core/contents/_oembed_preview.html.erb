@@ -1,6 +1,6 @@
 <%
   url = local_assigns.deep_merge({ options: options.merge({ 'class' => Array.wrap(options['class']).push('string').compact_blank.join(' ') }) }).dig(:value)
-  oembed = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_data?(url) || {}
+  oembed = DataCycleCore::MasterData::Validators::Oembed.new(validate_now: false).valid_oembed_data?(url) || {}
   viewer = local_assigns[:viewer]
 
   oembed_id_base = local_assigns[:key].gsub('[', '_').gsub(']', '')
@@ -12,7 +12,7 @@
     thing_id = CGI.parse(oembed_uri.query).dig('thing_id')&.first
 
     if oembed[:oembed_url].include?(Rails.application.config.action_mailer.default_url_options.dig(:host)) && thing_id.present?
-      oembed_response = DataCycleCore::MasterData::Validators::Oembed.valid_oembed_from_thing_id(thing_id)
+      oembed_response = DataCycleCore::MasterData::Validators::Oembed.new(validate_now: false).valid_oembed_from_thing_id(thing_id)
       response_body = oembed_response[:oembed].to_json
     else
       response_body = Rails.cache.fetch(oembed[:oembed_url], expires_in: 1.hour) do
@@ -24,7 +24,6 @@
     html = JSON.parse(response_body)&.dig('html')
   end
 %>
-
 
 <div class="oembed-preview-wrapper row clearfix <%= 'detail-type' if viewer == 'view' %>">
   <% if viewer == 'view' %>

@@ -1,6 +1,11 @@
-import isEqual from 'lodash/isEqual';
-import pick from 'lodash/pick';
-import ObserverHelpers from '../../helpers/observer_helpers';
+import isEqual from "lodash/isEqual";
+import pick from "lodash/pick";
+import ConfirmationModal from "../../components/confirmation_modal";
+import {
+	getFormDataAsObject,
+	isVisible,
+} from "../../helpers/dom_element_helpers";
+import ObserverHelpers from "../../helpers/observer_helpers";
 
 class AdditionalValuesFilterControl {
 	constructor(editor) {
@@ -27,43 +32,43 @@ class AdditionalValuesFilterControl {
 		this._removeGeoJsonSource();
 	}
 	_setupControls() {
-		this.container = document.createElement('div');
+		this.container = document.createElement("div");
 		this.container.className =
-			'maplibregl-ctrl maplibregl-ctrl-group mapboxgl-ctrl-group additional-values-overlay-control';
+			"maplibregl-ctrl maplibregl-ctrl-group mapboxgl-ctrl-group additional-values-overlay-control";
 
-		this.controlButton = document.createElement('button');
+		this.controlButton = document.createElement("button");
 		this.controlButton.className =
-			'dc-additional-values-overlay-button dc-map-control-button';
-		this.controlButton.type = 'button';
-		I18n.translate('frontend.map.filter.button_title').then((text) => {
+			"dc-additional-values-overlay-button dc-map-control-button";
+		this.controlButton.type = "button";
+		I18n.translate("frontend.map.filter.button_title").then((text) => {
 			this.controlButton.title = text;
 		});
 		this.container.appendChild(this.controlButton);
 
-		const icon = document.createElement('i');
-		icon.className = 'fa fa-map-marker';
+		const icon = document.createElement("i");
+		icon.className = "fa fa-map-marker";
 		this.controlButton.appendChild(icon);
 	}
 	_setupOverlay() {
-		this.controlOverlay = document.createElement('div');
+		this.controlOverlay = document.createElement("div");
 		this.controlOverlay.className =
-			'dc-additional-values-overlay remote-render';
+			"dc-additional-values-overlay remote-render";
 		this.controlOverlay.dataset.remotePath =
-			'data_cycle_core/contents/editors/geographic/additional_values_overlay';
+			"data_cycle_core/contents/editors/geographic/additional_values_overlay";
 		this.controlOverlay.dataset.remoteOptions = JSON.stringify({
 			additional_values: this.config,
 		});
 
 		this.map.getContainer().appendChild(this.controlOverlay);
 
-		this._initOverlayData();
+		this.#initOverlayData();
 	}
-	_initOverlayData() {
+	#initOverlayData() {
 		for (const [key, value] of Object.entries(this.config)) {
 			this.activeFilters[key] = {
 				enabled: false,
 				filter: [],
-				definition: pick(value.definition, ['template_name', 'stored_filter']),
+				definition: pick(value.definition, ["template_name", "stored_filter"]),
 			};
 
 			this.geojsonValues[key] = this.editor._createFeatureCollection();
@@ -72,43 +77,104 @@ class AdditionalValuesFilterControl {
 	}
 	_addEventHandlers() {
 		this.controlButton.addEventListener(
-			'click',
+			"click",
 			this._toggleOverlay.bind(this),
 		);
 	}
-	_initializeOverlay(_event) {
-		this._initClickableFeatures();
+	#initGroupCheckboxes() {
+		const groupCheckboxes = this.controlOverlay.querySelectorAll(
+			"input.dc-additional-values-filter-group",
+		);
+		for (const checkbox of groupCheckboxes) {
+			checkbox.addEventListener("change", this.#groupChanged.bind(this));
+			const groupItem = checkbox.closest(".dc-additional-values-filter-item");
+			const config = this.activeFilters[groupItem.dataset.groupKey];
+			config.enabled = checkbox.checked;
+			config.element = checkbox;
+			config.groupElement = groupItem;
+		}
 
-		if (
-			this.controlOverlay.querySelector('.dc-additional-values-filter-item')
-		) {
-			for (const group of this.controlOverlay.querySelectorAll(
-				'.dc-additional-values-filter-item',
-			)) {
-				group
-					.querySelector('input.dc-additional-values-filter-group')
-					.addEventListener('change', this._groupChanged.bind(this));
-
-				if (group.querySelector('input.dc-additional-values-filter-specific')) {
-					for (const specificFilter of group.querySelectorAll(
-						'input.dc-additional-values-filter-specific',
-					)) {
-						specificFilter.addEventListener(
-							'change',
-							this._specificFilterChanged.bind(this),
-						);
-					}
-				}
-			}
+		const addAllButtons =
+			this.controlOverlay.querySelectorAll(".dc-add-all-button");
+		for (const button of addAllButtons) {
+			button.addEventListener(
+				"click",
+				this.#handleAddAllButtonClick.bind(this),
+			);
 		}
 	}
-	_initClickableFeatures() {
-		this._addClickableFeatures();
+	async #handleAddAllButtonClick(event) {
+		event.stopPropagation();
+		event.preventDefault();
+		const target = event.currentTarget;
+		const groupKey = target.dataset.groupKey;
+
+		DataCycle.disableElement(target);
+
+		const features = this.map.queryRenderedFeatures({
+			layers: Object.values(this.editor.additionalLayers[groupKey]).flat(),
+		});
+		await this.#selectFeatures(features, groupKey);
+		this.editor._setSelectedAdditionalDataForSource(groupKey);
+		DataCycle.enableElement(target);
+	}
+	#initSpecificCheckboxes() {
+		const specificCheckboxes = this.controlOverlay.querySelectorAll(
+			"input.dc-additional-values-filter-specific",
+		);
+		for (const checkbox of specificCheckboxes) {
+			checkbox.addEventListener(
+				"change",
+				this.#specificFilterChanged.bind(this),
+			);
+		}
+	}
+	#initGeoRadius() {
+		const geoFilter = this.controlOverlay.querySelectorAll(
+			".geo-radius-filter-container input[type='number'], .geo-radius-filter-container select",
+		);
+		for (const checkbox of geoFilter) {
+			checkbox.addEventListener("change", this.#geoFilterChanged.bind(this));
+		}
+	}
+	#initVisibilityUpdate() {
+		for (const [key, target] of Object.entries(
+			this.editor.additionalValueTargets,
+		)) {
+			const element = target[0].closest(".form-element");
+			if (!element) continue;
+
+			this.#updateFilterVisibilityForKey(key, element);
+			// observe visibility changes of the filter target to update the filter visibility accordingly
+			const observer = new MutationObserver(() =>
+				this.#updateFilterVisibilityForKey(key, element),
+			);
+			observer.observe(element, ObserverHelpers.changedClassConfig);
+		}
+	}
+	#updateFilterVisibilityForKey(key, target) {
+		if (isVisible(target)) this.#showOverlayFilterForKey(key);
+		else this.#hideOverlayFilterForKey(key);
+	}
+	#showOverlayFilterForKey(key) {
+		this.activeFilters[key].groupElement?.classList?.remove("hidden");
+	}
+	#hideOverlayFilterForKey(key) {
+		this.activeFilters[key].element.checked = false;
+		this.activeFilters[key].element.dispatchEvent(new Event("change"));
+		this.activeFilters[key].groupElement?.classList?.add("hidden");
+	}
+	#initializeOverlay(_event) {
+		this.#addClickableFeatures();
+		this.#initGroupCheckboxes();
+		this.#initSpecificCheckboxes();
+		this.#initGeoRadius();
+		this.#initVisibilityUpdate();
 	}
 	_addGeoJsonSource(key, data) {
 		const { sourceId } = this.editor._addAdditionalSourceAndLayers(key, data);
 
-		this.map.on('sourcedata', (d) => {
+		this.map.on("sourcedata", (d) => {
 			if (
 				this.enabled &&
 				d.sourceId === sourceId &&
@@ -118,37 +184,64 @@ class AdditionalValuesFilterControl {
 					.querySelector(
 						`.dc-additional-values-filter-item[data-group-key="${key}"]`,
 					)
-					.classList.remove('source-loading');
+					.classList.remove("source-loading");
 		});
 	}
-	_unselectFeature(feature, key) {
-		const index = this.editor
-			._additionalValuesByKey(key)
-			.features.findIndex(
-				(f) => f.properties['@id'] === feature.properties['@id'],
+	#unselectFeatures(features, key) {
+		if (!features) return;
+
+		const ids = features.map((f) => f.properties["@id"]);
+		if (ids.length === 0) return;
+
+		const config = this.editor._additionalValuesByKey(key);
+		config.features = config.features.filter(
+			(f) => !ids.includes(f.properties["@id"]),
+		);
+
+		this.editor.additionalValueTargets[key].trigger("dc:remove:data", {
+			value: ids,
+		});
+	}
+	async #triggerImport(ids, key) {
+		const $element = this.editor.additionalValueTargets[key];
+
+		return new Promise((resolve) => {
+			$element.one("dc:import:data:complete", () => resolve());
+
+			this.editor.additionalValueTargets[key].trigger("dc:import:data", {
+				value: ids,
+			});
+		});
+	}
+	async #selectFeatures(features, key) {
+		const featureIds = features.map((feature) => feature.properties["@id"]);
+
+		if (featureIds.length >= 100) {
+			const text = await I18n.t(
+				"frontend.map.additional_values_overlay.confirm_text",
+				{ count: featureIds.length },
 			);
 
-		if (index === -1) return;
-
-		this.editor._additionalValuesByKey(key).features.splice(index, 1)[0];
-
-		$(this.editor.additionalValueTargets[key])
-			.find(
-				`ul.object-thumbs li.item[data-id="${feature.properties['@id']}"] .delete-thumbnail`,
-			)
-			.trigger('click', { preventDefault: true });
+			return new Promise((resolve) => {
+				new ConfirmationModal({
+					text: text,
+					confirmationCallback: () => {
+						this.editor._additionalValuesByKey(key).features.push(...features);
+						resolve(this.#triggerImport(featureIds, key));
+					},
+					cancelable: true,
+					cancelCallback: resolve,
+				});
+			});
+		} else {
+			this.editor._additionalValuesByKey(key).features.push(...features);
+			return this.#triggerImport(featureIds, key);
+		}
 	}
-	_selectFeature(feature, key) {
-		this.editor._additionalValuesByKey(key).features.push(feature);
-
-		this.editor.additionalValueTargets[key].trigger('dc:import:data', {
-			value: [feature.properties['@id']],
-		});
-	}
-	_findFeatureAndKey(features) {
+	#findFeatureAndKey(features) {
 		const keys = [];
 		let feature = features.find(
-			this._checkFeature.bind(
+			this.#checkFeature.bind(
 				this,
 				this.editor.selectedAdditionalSources,
 				keys,
@@ -156,12 +249,12 @@ class AdditionalValuesFilterControl {
 		);
 		if (!feature)
 			feature = features.find(
-				this._checkFeature.bind(this, this.editor.additionalSources, keys),
+				this.#checkFeature.bind(this, this.editor.additionalSources, keys),
 			);
 
 		return [feature, keys.pop()];
 	}
-	_checkFeature(sources, keys, feature) {
+	#checkFeature(sources, keys, feature) {
 		for (const [k, v] of Object.entries(sources)) {
 			if (feature.source !== v) continue;
 
@@ -171,47 +264,37 @@ class AdditionalValuesFilterControl {
 
 		return false;
 	}
-	_addClickableFeatures() {
-		this.map.on('click', (e) => {
+	#addClickableFeatures() {
+		this.map.on("click", (e) => {
 			if (!this.enabled) return;
 
-			const [feature, key] = this._findFeatureAndKey(
+			const [feature, key] = this.#findFeatureAndKey(
 				this.map.queryRenderedFeatures(e.point),
 			);
 
 			if (!(feature && key)) return;
 
-			if (feature.source.includes('_selected'))
-				this._unselectFeature(feature, key);
-			else this._selectFeature(feature, key);
+			if (feature.source.includes("_selected"))
+				this.#unselectFeatures([feature], key);
+			else this.#selectFeatures([feature], key);
 
 			this.editor._setSelectedAdditionalDataForSource(key);
 		});
 	}
 	_removeGeoJsonSource(key) {
-		this.map.removeLayer(this.editor.additionalLayers[key].point);
-		this.map.removeLayer(this.editor.additionalLayers[key].line);
-		this.editor.allRenderedLayers = this.editor.allRenderedLayers.filter(
-			(l) =>
-				l !== this.editor.additionalLayers[key].point &&
-				l !== this.editor.additionalLayers[key].line,
-		);
-
-		this.map.removeSource(this.editor.additionalSources[key]);
-		this.editor.additionalSources[key] = undefined;
-		this.editor.additionalLayers[key] = undefined;
+		this.editor.removeAdditionalSource(key);
 	}
 	_showOverlay() {
 		this.enabled = true;
-		this.controlOverlay.classList.add('active');
-		this.controlButton.classList.add('active');
+		this.controlOverlay.classList.add("active");
+		this.controlButton.classList.add("active");
 
 		if (this.editor.draw) {
-			this.editor.draw.changeMode('simple_select', {});
-			this.editor.map.fire('draw.modechange', { mode: 'simple_select' });
+			this.editor.draw.changeMode("simple_select", {});
+			this.editor.map.fire("draw.modechange", { mode: "simple_select" });
 		}
 
-		if (this.controlOverlay.classList.contains('remote-render')) {
+		if (this.controlOverlay.classList.contains("remote-render")) {
 			const changeObserver = new MutationObserver(
 				this._checkForChangedFormData.bind(this),
 			);
@@ -221,7 +304,7 @@ class AdditionalValuesFilterControl {
 			);
 
 			this.controlOverlay.dispatchEvent(
-				new CustomEvent('dc:remote:render', {
+				new CustomEvent("dc:remote:render", {
 					bubbles: true,
 				}),
 			);
@@ -229,131 +312,159 @@ class AdditionalValuesFilterControl {
 	}
 	_hideOverlay() {
 		this.enabled = false;
-		this.controlOverlay.classList.remove('active');
-		this.controlButton.classList.remove('active');
+		this.controlOverlay.classList.remove("active");
+		this.controlButton.classList.remove("active");
 	}
 	_toggleOverlay(event) {
 		event.preventDefault();
 		event.stopPropagation();
 
-		if (this.controlOverlay.classList.contains('active')) this._hideOverlay();
+		if (this.controlOverlay.classList.contains("active")) this._hideOverlay();
 		else this._showOverlay();
 	}
 	_checkForChangedFormData(mutations, observer) {
 		if (
 			mutations.some(
 				(m) =>
-					m.type === 'attributes' &&
-					m.target.classList.contains('remote-rendered') &&
-					(!m.oldValue || m.oldValue.includes('remote-rendering')),
+					m.type === "attributes" &&
+					m.target.classList.contains("remote-rendered") &&
+					(!m.oldValue || m.oldValue.includes("remote-rendering")),
 			)
 		) {
 			observer.disconnect();
-			this._initializeOverlay();
+			this.#initializeOverlay();
 		}
 	}
-	async _groupChanged(event) {
+	async #groupChanged(event) {
+		event.stopPropagation();
 		const target = event.currentTarget;
 
-		this.activeFilters[target.value].enabled = target.checked;
+		for (const [key, value] of Object.entries(this.activeFilters)) {
+			value.enabled = key === target.value ? target.checked : false;
+			await this.#reloadData(key);
+			this._updateLayerVisibilities(key);
 
-		await this._reloadData(target.value);
-
-		this._updateLayerVisibilities(target.value);
+			if (target !== value.element) value.element.checked = false;
+		}
 	}
 	_updateLayerVisibilities(key) {
-		const visibility = this.activeFilters[key].enabled ? 'visible' : 'none';
+		const visibility = this.activeFilters[key].enabled ? "visible" : "none";
+		const layerGroups = this.editor.additionalLayers[key];
+		if (!layerGroups) return;
 
-		this._setLayerVisibility(
-			this.editor.additionalLayers[key].point,
-			visibility,
-		);
-		this._setLayerVisibility(
-			`${this.editor.additionalLayers[key].point}_hover`,
-			visibility,
-		);
+		for (const layerId of Object.values(layerGroups)) {
+			const layers = this.editor.renderedLayers[layerId];
+			if (!layers) continue;
 
-		this._setLayerVisibility(
-			this.editor.additionalLayers[key].line,
-			visibility,
-		);
-		this._setLayerVisibility(
-			`${this.editor.additionalLayers[key].line}_hover`,
-			visibility,
-		);
-		this._setLayerVisibility(
-			`${this.editor.additionalLayers[key].line}_hover_foreground`,
-			visibility,
-		);
-		this._setLayerVisibility(
-			`${this.editor.additionalLayers[key].line}_hover_start`,
-			visibility,
-		);
+			for (const id of layers) this.#setLayerVisibility(id, visibility);
+		}
 	}
-	_setLayerVisibility(layedId, visibility) {
-		this.map.setLayoutProperty(layedId, 'visibility', visibility);
+	#setLayerVisibility(layedId, visibility) {
+		this.map.setLayoutProperty(layedId, "visibility", visibility);
 	}
-	_updateParentsRecursive(target) {
+	#updateParentsRecursive(target) {
 		const parent = target
-			.closest('ul')
-			.closest('li')
-			.querySelector(':scope > .overlay-filter-label > input[type="checkbox"]');
+			.closest("ul.additional-map-values-filter-items")
+			?.closest("li.additional-map-values-filter-item")
+			?.querySelector(
+				':scope > .overlay-filter-label > input[type="checkbox"]',
+			);
 
-		if (!parent.classList.contains('dc-additional-values-filter-specific'))
+		if (!parent?.classList.contains("dc-additional-values-filter-specific"))
 			return;
 
 		const siblings = parent
-			.closest('li')
-			.querySelector('ul')
+			.closest("li.additional-map-values-filter-item")
+			.querySelector("ul")
 			.querySelectorAll('input[type="checkbox"]');
 		const status = Array.from(siblings).map((cb) => cb.checked);
 
 		parent.checked = status.every(Boolean);
 		parent.indeterminate = !parent.checked && status.some(Boolean);
 	}
-	_updateAllChildren(target) {
+	#updateAllChildren(target) {
 		const children = target
-			.closest('li')
+			.closest("li")
 			.querySelectorAll('input[type="checkbox"]');
 		for (const child of children) child.checked = target.checked;
 	}
-	_specificFilterChanged(event) {
+	#addActiveFilter(key, filter) {
+		this.activeFilters[key].filter ||= [];
+		const existingFilter = this.activeFilters[key].filter.find(
+			(f) => f.t === filter.t,
+		);
+		if (existingFilter) {
+			existingFilter.m = filter.m;
+			existingFilter.v = filter.v;
+		} else {
+			this.activeFilters[key].filter.push(filter);
+		}
+	}
+	#geoFilterChanged(event) {
+		event.stopPropagation();
 		const target = event.currentTarget;
+		const formData = getFormDataAsObject(
+			target.closest(".geo-radius-filter-container"),
+		);
+		const value = {
+			...formData.additional_values_filter?.geo_radius?.v,
+			geom: this.editor.getCurrentValueAsGeoJSON(),
+		};
 
-		this._updateAllChildren(target);
-		this._updateParentsRecursive(target);
-
-		this.activeFilters[target.dataset.groupKey].filter = Array.from(
-			target
-				.closest('.dc-additional-values-filter-item')
-				.querySelectorAll('input.dc-additional-values-filter-specific:checked'),
-		).map((v) => v.value);
+		this.#addActiveFilter(target.dataset.groupKey, {
+			t: "geo_radius",
+			m: "i",
+			v: value,
+		});
 
 		if (this.activeFilters[target.dataset.groupKey].enabled)
-			this._reloadData(target.dataset.groupKey);
+			this.#reloadData(target.dataset.groupKey);
 	}
-	async _reloadData(key) {
+	#specificFilterChanged(event) {
+		event.stopPropagation();
+		const target = event.currentTarget;
+
+		this.#updateAllChildren(target);
+		this.#updateParentsRecursive(target);
+
+		const ids = Array.from(
+			target
+				.closest(".dc-additional-values-filter-item")
+				.querySelectorAll("input.dc-additional-values-filter-specific:checked"),
+		).map((v) => v.value);
+
+		this.#addActiveFilter(target.dataset.groupKey, {
+			t: "classification_alias_ids",
+			m: "i",
+			v: ids,
+		});
+
+		if (this.activeFilters[target.dataset.groupKey].enabled)
+			this.#reloadData(target.dataset.groupKey);
+	}
+	async #reloadData(key) {
 		if (!this.activeFilters[key].enabled) return;
 
 		this.controlOverlay
 			.querySelector(
 				`.dc-additional-values-filter-item[data-group-key="${key}"]`,
 			)
-			.classList.add('source-loading');
+			.classList.add("source-loading");
 
 		if (!isEqual(this.activeFilters[key].filter, this.lastLoadedFilter[key]))
-			await this._reloadGeoJson(key);
+			await this.#reloadGeoJson(key);
 	}
 
-	async _reloadGeoJson(key) {
+	async #reloadGeoJson(key) {
 		const data = await this.editor._loadGeojson(
 			Object.assign({}, this.activeFilters[key].definition, {
 				filter: this.activeFilters[key].filter,
 			}),
 		);
 
-		this.lastLoadedFilter[key] = this.activeFilters[key].filter.slice();
-
+		this.lastLoadedFilter[key] = structuredClone(
+			this.activeFilters[key].filter,
+		);
 		this.geojsonValues[key] = data;
 
 		await this.map

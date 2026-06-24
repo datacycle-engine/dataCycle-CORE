@@ -47,9 +47,10 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
 
     [:de, :en].each do |locale|
       I18n.with_locale(locale) do
-        value[locale] = subject.concat(virtual_definition: { 'virtual' => {'key' => 'name'} }.with_indifferent_access, content:, virtual_parameters: ['my_classification', 'my_classification_two'])
+        value[locale] = subject.concat(virtual_definition: { 'virtual' => { 'key' => 'name' } }.with_indifferent_access, content:, virtual_parameters: ['my_classification', 'my_classification_two'])
       end
     end
+
     assert_equal('One, Two', value[:en])
     assert_equal('Eins, Zwei', value[:de])
   end
@@ -60,7 +61,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
       my_classification_two: []
     })
 
-    value = subject.concat(virtual_definition: { 'virtual' => {'key' => 'name'} }.with_indifferent_access, content:, virtual_parameters: ['my_classification', 'my_classification_two'])
+    value = subject.concat(virtual_definition: { 'virtual' => { 'key' => 'name' } }.with_indifferent_access, content:, virtual_parameters: ['my_classification', 'my_classification_two'])
 
     assert_nil(value)
   end
@@ -85,7 +86,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
     value = {}
     [:de, :en].each do |locale|
       I18n.with_locale(locale) do
-        value[locale] = subject.concat(virtual_definition: { 'virtual' => {'key' => 'name'} }.with_indifferent_access, content:, virtual_parameters: ['my_classification', 'my_classification_two'])
+        value[locale] = subject.concat(virtual_definition: { 'virtual' => { 'key' => 'name' } }.with_indifferent_access, content:, virtual_parameters: ['my_classification', 'my_classification_two'])
       end
     end
 
@@ -98,7 +99,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
       my_classification: []
     })
 
-    value = subject.concat(virtual_definition: { 'virtual' => {'key' => 'name'} }.with_indifferent_access, content:, virtual_parameters: ['my_classification'])
+    value = subject.concat(virtual_definition: { 'virtual' => { 'key' => 'name' } }.with_indifferent_access, content:, virtual_parameters: ['my_classification'])
 
     assert_nil(value)
   end
@@ -135,9 +136,10 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
 
     [:de, :en].each do |locale|
       I18n.with_locale(locale) do
-        value[locale] = subject.concat(virtual_definition: { 'virtual' => {'key' => 'name'} }.with_indifferent_access, content:, virtual_parameters: ['my_classification'])
+        value[locale] = subject.concat(virtual_definition: { 'virtual' => { 'key' => 'name' } }.with_indifferent_access, content:, virtual_parameters: ['my_classification'])
       end
     end
+
     assert_equal('One, Two', value[:en])
     assert_equal('Eins, Zwei', value[:de])
   end
@@ -163,9 +165,10 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
 
     [:de, :en].each do |locale|
       I18n.with_locale(locale) do
-        value[locale] = subject.concat(virtual_definition: { 'virtual' => {'key' => 'name'} }.with_indifferent_access, content:, virtual_parameters: ['my_classification'])
+        value[locale] = subject.concat(virtual_definition: { 'virtual' => { 'key' => 'name' } }.with_indifferent_access, content:, virtual_parameters: ['my_classification'])
       end
     end
+
     assert_equal('One', value[:en])
     assert_equal('Eins', value[:de])
   end

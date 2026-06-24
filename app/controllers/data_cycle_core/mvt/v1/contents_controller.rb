@@ -26,7 +26,7 @@ module DataCycleCore
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
 
             query = DataCycleCore::Thing
-              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+              .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
               .where(id: uuid)
 
             render(json: query.to_bbox) && return if permitted_params[:bbox]
@@ -42,7 +42,7 @@ module DataCycleCore
 
         def show
           @content = DataCycleCore::Thing
-            .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+            .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
             .find(permitted_params[:id])
 
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
@@ -93,7 +93,7 @@ module DataCycleCore
         end
 
         def check_feature_enabled
-          raise ActiveRecord::RecordNotFound if DataCycleCore.features.dig(:serialize, :serializers, :mvt) != true && !request.referer&.start_with?(Rails.application.config.action_mailer.default_url_options.slice(:protocol, :host)&.values&.join('://'))
+          raise ActiveRecord::RecordNotFound unless DataCycleCore::Feature::Serialize.enabled_serializer?(['mvt']) || !request.referer&.start_with?(root_url.chomp('/'))
         end
       end
     end

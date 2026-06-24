@@ -17,9 +17,9 @@ module DataCycleCore
             end
           end
 
-          def transformation_with_args(transformation_method:, utility_object:, config: {})
+          def transformation_with_args(transformation_method:, utility_object:, config: {}, **additional_kwargs)
             transform_opts = transformation_args(transformation_method:, utility_object:, config:)
-            transform_kwargs = transformation_keyword_args(transformation_method:, utility_object:, config:)
+            transform_kwargs = transformation_keyword_args(transformation_method:, utility_object:, config:, **additional_kwargs)
 
             transformation_method.call(*transform_opts, **transform_kwargs)
           end
@@ -47,7 +47,7 @@ module DataCycleCore
             transform_opts
           end
 
-          def transformation_keyword_args(transformation_method:, utility_object:, config:)
+          def transformation_keyword_args(transformation_method:, utility_object:, config:, **additional_kwargs)
             transform_kwargs = {}
             transform_keyreq_params = transformation_method.parameters.select { |param| param[0].in?([:key, :keyreq]) }
 
@@ -59,6 +59,8 @@ module DataCycleCore
                 transform_kwargs[param[1]] = utility_object.external_source
               when :config
                 transform_kwargs[param[1]] = transformation_config(config:, utility_object:)
+              when *additional_kwargs&.keys
+                transform_kwargs[param[1]] = additional_kwargs[param[1]]
               end
             end
 

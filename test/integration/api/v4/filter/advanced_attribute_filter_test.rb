@@ -19,7 +19,8 @@ module DataCycleCore
               'amperage' => 3,
               'voltage' => 4,
               'power' => 11,
-              'dc_nominal_capacity' => 15
+              'dc_nominal_capacity' => 15,
+              'dcls_active' => true
             })
 
             @cs_b = DataCycleCore::V4::DummyDataHelper.create_data('charging_station')
@@ -29,7 +30,8 @@ module DataCycleCore
               'amperage' => 6,
               'voltage' => 8,
               'power' => 22,
-              'dc_nominal_capacity' => 30
+              'dc_nominal_capacity' => 30,
+              'dcls_active' => false
             })
             @cs_c = DataCycleCore::V4::DummyDataHelper.create_data('charging_station')
             @cs_c.set_data_hash(partial_update: true, prevent_history: true, data_hash: {
@@ -38,7 +40,8 @@ module DataCycleCore
               'amperage' => 9,
               'voltage' => 12,
               'power' => 33,
-              'dc_nominal_capacity' => 45
+              'dc_nominal_capacity' => 45,
+              'dcls_active' => false
             })
           end
 
@@ -46,7 +49,7 @@ module DataCycleCore
             post_params = {
               filter: {
                 attribute: {
-                  'dc:capacity': {
+                  'dcls:capacity': {
                     in: {
                       equals: '4'
                     }
@@ -56,21 +59,7 @@ module DataCycleCore
             }
             post api_v4_things_path(post_params)
             json_data = response.parsed_body
-            assert_api_count_result(1)
-            assert_equal(@cs_b.id, json_data['@graph'].first['@id'])
 
-            post_params = {
-              filter: {
-                attribute: {
-                  amperage: {
-                    in: {
-                      equals: '6'
-                    }
-                  }
-                }
-              }
-            }
-            post api_v4_things_path(post_params)
             assert_api_count_result(1)
             assert_equal(@cs_b.id, json_data['@graph'].first['@id'])
 
@@ -86,6 +75,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
             assert_equal(@cs_b.id, json_data['@graph'].first['@id'])
 
@@ -101,6 +91,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
             assert_equal(@cs_b.id, json_data['@graph'].first['@id'])
 
@@ -116,8 +107,140 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(post_params)
+
             assert_api_count_result(1)
             assert_equal(@cs_b.id, json_data['@graph'].first['@id'])
+
+            post_params = {
+              filter: {
+                attribute: {
+                  dcAmperage: {
+                    in: {
+                      equals: '6'
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            json_data = response.parsed_body
+
+            assert_api_count_result(1)
+            assert_equal(@cs_b.id, json_data['@graph'].first['@id'])
+
+            post_params = {
+              filter: {
+                attribute: {
+                  amperage: {
+                    in: {
+                      equals: '6'
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            json_data = response.parsed_body
+
+            assert_api_count_result(1)
+            assert_equal(@cs_b.id, json_data['@graph'].first['@id'])
+          end
+
+          test 'api/v4/things with filter for boolean attribute' do
+            post_params = {
+              filter: {
+                attribute: {
+                  'dcls:active': {
+                    in: {
+                      bool: nil
+                    }
+                  }
+                }
+              }
+            }
+
+            post api_v4_things_path(post_params)
+            json_data = response.parsed_body
+
+            assert_predicate(json_data['errors'], :present?)
+            assert_equal('Invalid Query Parameter', json_data['errors'].first['title'])
+
+            post_params = {
+              filter: {
+                attribute: {
+                  'dcls:active': {
+                    in: {
+                      bool: 12
+                    }
+                  }
+                }
+              }
+            }
+
+            post api_v4_things_path(post_params)
+            json_data = response.parsed_body
+
+            assert_predicate(json_data['errors'], :present?)
+            assert_equal('Invalid Query Parameter', json_data['errors'].first['title'])
+
+            post_params = {
+              filter: {
+                attribute: {
+                  'dcls:active': {
+                    in: {
+                      bool: 'true'
+                    }
+                  }
+                }
+              }
+            }
+
+            post api_v4_things_path(post_params)
+            json_data = response.parsed_body
+
+            assert_predicate(json_data['errors'], :present?)
+            assert_equal('Invalid Query Parameter', json_data['errors'].first['title'])
+
+            post_params = {
+              filter: {
+                attribute: {
+                  'dcls:active': {
+                    in: {
+                      bool: true
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path,
+                 params: post_params,
+                 as: :json
+
+            json_data = response.parsed_body
+
+            assert_api_count_result(1)
+            assert_equal(@cs_a.id, json_data['@graph'].first['@id'])
+
+            post_params = {
+              filter: {
+                attribute: {
+                  'dcls:active': {
+                    in: {
+                      bool: false
+                    }
+                  }
+                }
+              }
+            }
+
+            post api_v4_things_path,
+                 params: post_params,
+                 as: :json
+
+            json_data = response.parsed_body
+
+            assert_api_count_result(2)
+            assert_equal([@cs_b.id, @cs_c.id].sort, json_data['@graph'].pluck('@id').sort)
           end
         end
       end

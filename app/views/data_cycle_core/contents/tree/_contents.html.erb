@@ -16,7 +16,7 @@
   <% end %>
 <% end %>
 
-<% if @page < @total_pages %>
+<% if page < total_pages %>
   <li class="content-row button-row pagination-container">
     <div class="inner-item">
       <%= link_to t('common.load_more', locale: active_ui_locale), '#',
@@ -28,7 +28,8 @@
                       con_id: local_assigns[:container]&.id,
                       ctl_id: classification_tree_label&.id,
                       cpt_id: local_assigns[:classification_parent_tree]&.id,
-                      page: (@page + 1)
+                      link_type: link_type.presence || 'direct',
+                      page: (page + 1)
                     }.compact.to_json
                   } %>
     </div>

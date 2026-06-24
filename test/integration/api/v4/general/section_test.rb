@@ -24,247 +24,269 @@ module DataCycleCore
 
           test 'GET default' do
             get api_v4_things_path
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(3, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta']['total'].present?)
-            assert(json_data['meta']['pages'].present?)
+            assert_predicate(json_data['meta']['total'], :present?)
+            assert_predicate(json_data['meta']['pages'], :present?)
             assert(json_data.key?('links'))
-            assert(json_data['links'].blank?)
+            assert_predicate(json_data['links'], :blank?)
           end
 
           test 'GET page size: 1' do
             get api_v4_things_path(page: { size: 1 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta']['total'].present?)
-            assert(json_data['meta']['pages'].present?)
-            assert(json_data['links']['next'].present?)
+            assert_predicate(json_data['meta']['total'], :present?)
+            assert_predicate(json_data['meta']['pages'], :present?)
+            assert_predicate(json_data['links']['next'], :present?)
           end
 
           test 'GET section meta: 0' do
             get api_v4_things_path(section: { meta: 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(3, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta'].blank?)
+            assert_predicate(json_data['meta'], :blank?)
             assert(json_data.key?('links'))
           end
 
           test 'GET page size: 1 section meta: 0' do
             get api_v4_things_path(page: { size: 1 }, section: { meta: 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta'].blank?)
-            assert(json_data['links']['next'].present?)
+            assert_predicate(json_data['meta'], :blank?)
+            assert_predicate(json_data['links']['next'], :present?)
           end
 
           test 'GET page size: 1 section links: 0 ' do
             get api_v4_things_path(page: { size: 1 }, section: { links: 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].blank?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :blank?)
           end
 
           test 'GET page size: 1 section context: 0 ' do
             get api_v4_things_path(page: { size: 1 }, section: { '@context': 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
-            assert(json_data['@context'].blank?)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].present?)
+            assert_predicate(json_data['@context'], :blank?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :present?)
           end
 
           test 'GET page size: 1 section graph: 0 ' do
             get api_v4_things_path(page: { size: 1 }, section: { '@graph': 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
-            assert(json_data['@graph'].blank?)
-            assert(json_data['@context'].present?)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].present?)
+            assert_predicate(json_data['@graph'], :blank?)
+            assert_predicate(json_data['@context'], :present?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :present?)
           end
 
           test 'POST default' do
             post api_v4_things_path
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(3, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta']['total'].present?)
-            assert(json_data['meta']['pages'].present?)
+            assert_predicate(json_data['meta']['total'], :present?)
+            assert_predicate(json_data['meta']['pages'], :present?)
             assert(json_data.key?('links'))
-            assert(json_data['links'].blank?)
+            assert_predicate(json_data['links'], :blank?)
           end
 
           test 'POST page size: 1' do
             post api_v4_things_path(page: { size: 1 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta']['total'].present?)
-            assert(json_data['meta']['pages'].present?)
-            assert(json_data['links']['next'].present?)
+            assert_predicate(json_data['meta']['total'], :present?)
+            assert_predicate(json_data['meta']['pages'], :present?)
+            assert_predicate(json_data['links']['next'], :present?)
           end
 
           test 'POST section meta: 0' do
             post api_v4_things_path(section: { meta: 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(3, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta'].blank?)
+            assert_predicate(json_data['meta'], :blank?)
             assert(json_data.key?('links'))
           end
 
           test 'POST page size: 1 section meta: 0' do
             post api_v4_things_path(page: { size: 1 }, section: { meta: 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta'].blank?)
-            assert(json_data['links']['next'].present?)
+            assert_predicate(json_data['meta'], :blank?)
+            assert_predicate(json_data['links']['next'], :present?)
           end
 
           test 'POST page size: 1 section links: 0 ' do
             post api_v4_things_path(page: { size: 1 }, section: { links: 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].blank?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :blank?)
           end
 
           test 'POST page size: 1 section context: 0 ' do
             post api_v4_things_path(page: { size: 1 }, section: { '@context': 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
-            assert(json_data['@context'].blank?)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].present?)
+            assert_predicate(json_data['@context'], :blank?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :present?)
           end
 
           test 'POST page size: 1 section graph: 0 ' do
             post api_v4_things_path(page: { size: 1 }, section: { '@graph': 0 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
-            assert(json_data['@graph'].blank?)
-            assert(json_data['@context'].present?)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].present?)
+            assert_predicate(json_data['@graph'], :blank?)
+            assert_predicate(json_data['@context'], :present?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :present?)
           end
 
           test 'POST page offset with paging or limit ' do
             post api_v4_things_path
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data_full = response.parsed_body
 
             second = json_data_full['@graph'].second
             third = json_data_full['@graph'].third
 
             post api_v4_things_path(page: { size: 1, offset: 1 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first['@id'], second['@id'])
-            assert(json_data['@context'].present?)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].present?)
+            assert_predicate(json_data['@context'], :present?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :present?)
 
             post api_v4_things_path(page: { size: 1, offset: 1, number: 2 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first['@id'], third['@id'])
-            assert(json_data['@context'].present?)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].present?)
+            assert_predicate(json_data['@context'], :present?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :present?)
 
             post api_v4_things_path(page: { offset: 2, limit: 1 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first['@id'], third['@id'])
-            assert(json_data['@context'].present?)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].blank?)
+            assert_predicate(json_data['@context'], :present?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :blank?)
           end
 
           test 'POST page limit: 1 ' do
             post api_v4_things_path(page: { limit: 1 })
+
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
-            assert(json_data['@context'].present?)
-            assert(json_data['meta'].present?)
-            assert(json_data['links'].blank?)
+            assert_predicate(json_data['@context'], :present?)
+            assert_predicate(json_data['meta'], :present?)
+            assert_predicate(json_data['links'], :blank?)
           end
         end
       end

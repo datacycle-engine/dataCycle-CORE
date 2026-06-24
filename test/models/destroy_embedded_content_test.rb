@@ -183,14 +183,48 @@ module DataCycleCore
       })
 
       I18n.with_locale(:de) do
-        assert(@translated_content.embedded_creative_work.blank?)
-        assert(@translated_content.embedded_translated_creative_work.blank?)
+        assert_predicate(@translated_content.embedded_creative_work, :blank?)
+        assert_predicate(@translated_content.embedded_translated_creative_work, :blank?)
       end
 
       I18n.with_locale(:en) do
-        assert(@translated_content.embedded_creative_work.present?)
-        assert(@translated_content.embedded_translated_creative_work.blank?)
+        assert_predicate(@translated_content.embedded_creative_work, :present?)
+        assert_predicate(@translated_content.embedded_translated_creative_work, :blank?)
       end
+    end
+
+    test 'nested embedded only gets deleted, after all parent relations get destroyed' do
+      content1 = DataCycleCore::TestPreparations.create_content(
+        template_name: 'Embedded-With-Translations',
+        data_hash: {
+          name: 'Test Dummy 1 with nested',
+          embedded_translated_creative_work: [{
+            name: 'Test Action',
+            embedded_translated_creative_work: [{
+              name: 'Nested Test Action'
+            }]
+          }]
+        }
+      )
+      content2 = DataCycleCore::TestPreparations.create_content(
+        template_name: 'Embedded-With-Translations',
+        data_hash: {
+          name: 'Test Dummy 2 with nested',
+          embedded_translated_creative_work: [{
+            id: content1.embedded_translated_creative_work.first.id
+          }]
+        }
+      )
+
+      assert_predicate(content1.embedded_translated_creative_work.first.embedded_translated_creative_work.first, :persisted?)
+      assert_predicate(content2.embedded_translated_creative_work.first.embedded_translated_creative_work.first, :persisted?)
+
+      content1.set_data_hash(data_hash: {
+        embedded_translated_creative_work: nil
+      })
+
+      assert_nil(content1.embedded_translated_creative_work.first)
+      assert_predicate(content2.embedded_translated_creative_work.first.reload.embedded_translated_creative_work.first, :present?)
     end
   end
 end

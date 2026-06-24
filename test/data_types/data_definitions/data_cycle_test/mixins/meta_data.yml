@@ -5,7 +5,6 @@
     :properties:
       :universal_classifications:
         :type: classification
-        :external: true
         :universal: true
         :ui:
           :show:
@@ -60,6 +59,15 @@
         :type: string
         :storage_location: column
         :visible: false
+      :dc_ext_key_priority:
+        :label: Priorität externer Identifier
+        :storage_location: value
+        :type: number
+        :visible: false
+        :condition:
+          :not_content_type?: embedded
+        :validations:
+          :format: integer
       :schema_types:
         :label: SchemaTypes
         :type: classification
@@ -98,3 +106,8 @@
         :validations:
           :min: 0
           :max: 100
+      :dummy:
+        :type: string
+        :storage_location: translated_value
+        :default_value: do_not_show
+        :visible: false

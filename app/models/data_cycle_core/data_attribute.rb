@@ -3,21 +3,21 @@
 module DataCycleCore
   DataAttribute = Struct.new(:key, :definition, :options, :content, :scope, :specific_scope) do
     def initialize(key, definition, options, content, scope, specific_scope = nil)
-      if options.is_a?(ActionController::Parameters)
-        options = options.permit!.to_h
-      elsif options.is_a?(::Hash)
-        options = options.dc_deep_dup.with_indifferent_access
-      else
-        options = {}
-      end
+      options = if options.is_a?(ActionController::Parameters)
+                  options.to_unsafe_h
+                elsif options.is_a?(::Hash)
+                  options.dc_deep_dup.with_indifferent_access
+                else
+                  {}
+                end
 
-      if definition.is_a?(ActionController::Parameters)
-        definition = definition.permit!.to_h
-      elsif definition.is_a?(::Hash)
-        definition = definition.dc_deep_dup.with_indifferent_access
-      else
-        definition = {}
-      end
+      definition = if definition.is_a?(ActionController::Parameters)
+                     definition.to_unsafe_h
+                   elsif definition.is_a?(::Hash)
+                     definition.dc_deep_dup.with_indifferent_access
+                   else
+                     {}
+                   end
 
       specific_scope ||= scope
 

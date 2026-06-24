@@ -4,13 +4,6 @@ module DataCycleCore
   module Generic
     module Common
       module ImportFunctionsHelper
-        def init_mongo_db(utility_object)
-          Mongoid.override_database("#{utility_object.source_type.database_name}_#{utility_object.external_source.id}")
-          yield
-        ensure
-          Mongoid.override_database(nil)
-        end
-
         def each_locale(locales)
           locales.each do |locale|
             yield(locale.to_sym)

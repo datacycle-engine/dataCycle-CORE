@@ -84,6 +84,17 @@ $fa-font-path: '/assets';
       }
     }
 
+    &.dc--placeholder-tooltip {
+      &::before {
+        display: none;
+      }
+
+      .dc--placeholder-tooltip-label {
+        margin-right: 0.3rem;
+        color: $dark-gray;
+      }
+    }
+
     .dc--external-link-label {
       position: relative;
       top: 0;
@@ -219,6 +230,21 @@ $fa-font-path: '/assets';
       }
     }
 
+    .ql-placeholder {
+      >span {
+        position: relative;
+        display: block;
+
+        &::after {
+          content: '';
+          visibility: hidden;
+          float: none;
+          clear: both;
+          display: block;
+        }
+      }
+    }
+
     .ql-insertNbsp,
     .ql-replaceAllNbsp {
       display: flex;
@@ -335,6 +361,13 @@ $fa-font-path: '/assets';
   color: #e6007e;
   border-bottom: 1px dotted;
   cursor: help;
+}
+
+span[data-dc-placeholder] {
+  background: rgba($primary-color, 0.07);
+  border-bottom: 1px dotted rgba($primary-color, 0.5);
+  border-radius: 2px;
+  padding: 0 0.15rem;
 }
 
 .quill-editor {

@@ -38,9 +38,10 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal response.content_type, 'application/json; charset=utf-8'
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert json_data['error'].present?
+
+      assert_predicate json_data['error'], :present?
     end
 
     test 'reload_required after external changes to content' do
@@ -55,9 +56,10 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal response.content_type, 'application/json; charset=utf-8'
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = response.parsed_body
-      assert json_data['error'].present?
+
+      assert_predicate json_data['error'], :present?
     end
   end
 end

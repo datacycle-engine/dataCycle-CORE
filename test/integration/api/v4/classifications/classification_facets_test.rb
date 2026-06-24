@@ -59,7 +59,7 @@ module DataCycleCore
               classification_tree_label_id: @tree_label.id,
               token: @current_user.access_token,
               filter: {
-                search: @tag1.id
+                search: @tag2.id
               },
               page: {
                 size: 100
@@ -68,8 +68,35 @@ module DataCycleCore
 
             post api_v4_facets_path(params)
             json_data = response.parsed_body
+
+            assert_equal(@aliases.pluck(:id), json_data['@graph'].pluck('@id'))
             json_data['@graph'].each do |item|
-              assert_equal(item['@id'] == @tag1.id ? 1 : 0, item['dc:thingCountWithSubtree'])
+              assert_equal(item['@id'] == @tag2.id ? 1 : 0, item['dc:thingCountWithSubtree'])
+            end
+          end
+
+          test 'api/v4/endpoints/:endpoint/facets with fulltext search and fields' do
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              filter: {
+                search: {
+                  value: @tag2.id,
+                  fields: 'name,dc:classification'
+                }
+              },
+              page: {
+                size: 100
+              }
+            }
+
+            post api_v4_facets_path(params)
+            json_data = response.parsed_body
+
+            assert_equal(@aliases.pluck(:id), json_data['@graph'].pluck('@id'))
+            json_data['@graph'].each do |item|
+              assert_equal(item['@id'] == @tag2.id ? 1 : 0, item['dc:thingCountWithSubtree'])
             end
           end
 
@@ -106,8 +133,49 @@ module DataCycleCore
 
             post api_v4_facets_path(params)
             json_data = response.parsed_body
+
             json_data['@graph'].each do |item|
               assert_equal(tmp_mapping[item['@id']].size, item['dc:thingCountWithSubtree'])
+            end
+          end
+
+          test 'api/v4/endpoints/:endpoint/facets with language for things and conceptLanguage for concepts' do
+            I18n.with_locale(:en) do
+              @tag2.update(name: 'Tag 2 - EN')
+            end
+
+            translated_thing = DataCycleCore::Thing.find(@count_mapping[@tag2.id].first)
+            I18n.with_locale(:en) do
+              translated_thing.set_data_hash(data_hash: { name: "#{translated_thing.name} - EN" })
+            end
+
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              language: 'en',
+              conceptLanguage: 'de',
+              fields: 'skos:prefLabel',
+              page: {
+                size: 100
+              }
+            }
+
+            post api_v4_facets_path(params)
+            json_data = response.parsed_body
+            tag2_item = json_data['@graph'].find { |item| item['@id'] == @tag2.id }
+
+            assert_predicate(tag2_item, :present?)
+            pref_label = tag2_item['skos:prefLabel']
+            pref_label_value = pref_label.is_a?(Array) ? pref_label.find { |entry| entry['@language'] == 'de' }&.dig('@value') : pref_label
+
+            assert_equal('Tag 2', pref_label_value)
+
+            translated_thing_ids = DataCycleCore::Thing.where(id: @contents.pluck(:id)).with_locale('en').pluck(:id)
+            json_data['@graph'].each do |item|
+              expected_count = (@count_mapping[item['@id']] & translated_thing_ids).size
+
+              assert_equal(expected_count, item['dc:thingCountWithSubtree'])
             end
           end
         end

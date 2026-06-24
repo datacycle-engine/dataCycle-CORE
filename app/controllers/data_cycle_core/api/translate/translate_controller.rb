@@ -12,7 +12,7 @@ module DataCycleCore
 
           translate_params = permitted_params.slice(*TRANSLATE_PARAMS)
 
-          [:source_locale, :target_locale].each { |key| translate_params[key].downcase! if translate_params[key].present? }
+          [:source_locale, :target_locale].each { |key| translate_params[key].presence&.downcase! }
 
           errors = check_params translate_params
 

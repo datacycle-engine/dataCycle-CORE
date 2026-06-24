@@ -3,10 +3,13 @@
 module DataCycleCore
   module MasterData
     module Templates
+      # Loads, validates, and imports template definitions from YAML files into the database,
+      # handling template inheritance, mixins, aggregates, and property transformations.
       class TemplateImporter
         include Extensions::Position
         include Extensions::Visible
         include Extensions::Geographic
+        include Extensions::Required
 
         CONTENT_SETS = [:creative_works, :events, :media_objects, :organizations, :persons, :places, :products, :things, :intangibles].freeze
 
@@ -15,6 +18,7 @@ module DataCycleCore
         def initialize(validation: true, template_paths: nil)
           @validation = validation
           @template_paths = template_paths.presence || [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+          @template_paths = @template_paths.flat_map { |p| [p, p.join(Rails.env)] }
           @duplicates = {}
           @errors = []
           @mixin_paths = []
@@ -36,6 +40,8 @@ module DataCycleCore
         end
 
         def import
+          return unless valid?
+
           @validator.validate
 
           return @errors.concat(@validator.errors) unless @validator.valid?
@@ -45,6 +51,8 @@ module DataCycleCore
               ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
               update_templates
               update_schema_types
+
+              refresh_materialized_views
             rescue StandardError => e
               @errors.push("import error => #{e}")
             end
@@ -54,6 +62,8 @@ module DataCycleCore
         end
 
         def validate
+          return unless valid?
+
           @validator.validate
 
           @errors.concat(@validator.errors)
@@ -116,7 +126,7 @@ module DataCycleCore
 
         def update_schema_types
           schema_types = []
-          tree_label = DataCycleCore::ClassificationTreeLabel.create_with(internal: true).find_or_create_by!(name: 'SchemaTypes')
+          tree_label = DataCycleCore::ClassificationTreeLabel.create_with(internal: true, external_key: 'SchemaTypes').find_or_create_by!(name: 'SchemaTypes')
 
           DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').find_each do |thing_template|
             thing_template.schema_types.each do |types|
@@ -174,7 +184,10 @@ module DataCycleCore
               template = data_template[:data]
 
               unless template_dependencies_ready?(template)
-                additional_templates = @template_definitions.extract! { |dt| dt.dig(:data, :name) == template[:name] }
+                additional_templates = @template_definitions.extract! do |dt|
+                  dt.dig(:data, :name) == template[:name]
+                end
+
                 @template_definitions.push(data_template, *additional_templates)
                 next
               end
@@ -192,24 +205,28 @@ module DataCycleCore
         def transform_template_definitions!
           extend_templates!
 
-          @extended_templates.each do |data_template|
-            template = data_template[:data]
-            data = transform_template_data(template:, data_template:)
-            next if data.nil?
+          @extended_templates.each { |dt| append_transformed_template!(dt[:data], dt) }
 
-            add_aggregate_template!(data:, data_template:)
-            append_template!(data:)
-          rescue StandardError => e
-            append_error!(e, data_template, template)
-          end
-
-          add_inverse_aggregate_property!
+          add_aggregate_templates!
+          add_inverse_aggregate_properties!
           add_inverse_linked_to_text_properties!
           disable_original_property_for_overlays!
           check_priorities_for_geographic_properties!
+          add_required_properties!
 
           add_sorting!
           transform_visibilities!
+        end
+
+        def append_transformed_template!(template, data_template)
+          return if template[:abstract]
+
+          data = transform_template_data(template:, data_template:)
+          return if data.nil?
+
+          append_template!(data:)
+        rescue StandardError => e
+          append_error!(e, data_template, template)
         end
 
         def append_template!(data:)
@@ -217,18 +234,18 @@ module DataCycleCore
           @mixin_paths.concat(data[:mixins])
         end
 
-        def add_aggregate_template!(data:, data_template:)
+        def add_aggregate_templates!
           return unless DataCycleCore.features.dig(:aggregate, :enabled)
-          return unless data.dig(:data, :features, :aggregate, :allowed)
 
-          aggregate_template = AggregateTemplate.new(data: data[:data])
-          aggregate_data = transform_template_data(template: aggregate_template.import, data_template:)
-          return if aggregate_data.nil?
+          @templates.each do |data_template|
+            next unless data_template.dig(:data, :features, :aggregate, :allowed)
 
-          append_template!(data: aggregate_data)
+            aggregate_template = AggregateTemplate.new(data: data_template[:data], templates: @templates)
+            append_transformed_template!(aggregate_template.import, data_template)
+          end
         end
 
-        def add_inverse_aggregate_property!
+        def add_inverse_aggregate_properties!
           @templates.each do |template|
             next unless template.dig(:data, :features, :aggregate, :aggregate)
 
@@ -305,7 +322,9 @@ module DataCycleCore
           end
         end
 
-        def base_templates_exist?(template_names)
+        def base_templates_exist?(template, template_names)
+          raise TemplateError.new('extends'), "BaseTemplate missing for #{template[:name]}, possibly wrong order of templates" if extends_self_base_missing?(template, template_names)
+
           template_names.each do |t_name|
             next if @extended_templates.any? { |v| v[:name] == t_name }
 
@@ -315,6 +334,20 @@ module DataCycleCore
           end
 
           true
+        end
+
+        def template_name(template)
+          template[:name].presence ||
+            Array.wrap(template[:extends]).first
+        end
+
+        def extends_self_base_missing?(template, extends_names)
+          t_name = template_name(template)
+          extends_self = Array.wrap(extends_names).include?(t_name)
+
+          return false unless extends_self
+
+          @extended_templates.none? { |v| v[:name] == t_name }
         end
 
         def base_template?(base_name)
@@ -330,9 +363,10 @@ module DataCycleCore
         def overrides_in_queue?(template_name)
           @template_definitions.any? do |v|
             e_names = Array.wrap(v.dig(:data, :extends))
+            t_name = template_name(v[:data])
 
             e_names.include?(template_name) &&
-              (v.dig(:data, :name).blank? || e_names.include?(v.dig(:data, :name)))
+              e_names.include?(t_name)
           end
         end
 
@@ -342,7 +376,7 @@ module DataCycleCore
           extends_templates = Array.wrap(template[:extends]).dup
 
           # check if all BaseTemplates for extends templates exist
-          return false unless base_templates_exist?(extends_templates)
+          return false unless base_templates_exist?(template, extends_templates)
 
           # remove extends_templates, if template overrides one of its extends templates
           extends_templates.pop if template[:name].blank?
@@ -364,6 +398,14 @@ module DataCycleCore
           duplicate[:paths].concat(data[:paths])
           duplicate[:paths].uniq!
           duplicate.merge!(data.slice(:data, :set))
+        end
+
+        def refresh_materialized_views
+          views = ActiveRecord::Base.connection.exec_query('SELECT schemaname, matviewname FROM pg_matviews')
+          views.each do |v|
+            qualified_name = ActiveRecord::Base.connection.quote_table_name("#{v['schemaname']}.#{v['matviewname']}")
+            ActiveRecord::Base.connection.exec_query("REFRESH MATERIALIZED VIEW #{qualified_name}")
+          end
         end
       end
     end

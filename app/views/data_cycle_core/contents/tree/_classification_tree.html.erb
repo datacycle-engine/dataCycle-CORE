@@ -10,27 +10,48 @@
                   }.compact.to_json
                 } do %>
       <%= classification_tree.sub_classification_alias.try(:internal_name) %>
-      <span class="children-count">(
-        <span class="child-count-direct result-count loading"
-        id="tree-direct-child-count-<%= classification_tree.id %>"
-        data-additional-form-parameters="<%= to_query_params({
-          content_class: local_assigns[:content_class] || 'things',
-          count_mode: 'classification_alias',
-          ctl_id: classification_tree_label&.id,
-          ct_id: classification_tree.id
-        }).to_json %>"
-        ></span>
+      <span class="children-count">
+        (<%= tag.span(
+          class: "child-count-direct result-count loading",
+          id: "tree-direct-child-count-#{classification_tree.id}",
+          'data-additional-form-parameters': to_query_params({
+            content_class: local_assigns[:content_class] || 'things',
+            count_mode: 'classification_alias',
+            ctl_id: classification_tree_label&.id,
+            ct_id: classification_tree.id
+          }).to_json,
+          data: {
+            dc_tooltip: I18n.t('classifications.direct', locale: active_ui_locale)
+          }
+        )%>
         /
-        <span class="child-count-full result-count loading"
-        id="tree-child-count-<%= classification_tree.id %>"
-        data-additional-form-parameters="<%= to_query_params({
-          content_class: local_assigns[:content_class] || 'things',
-          count_mode: 'ca_recursive',
-          ctl_id: classification_tree_label&.id,
-          ct_id: classification_tree.id
-        }).to_json %>"
-        ></span>
-        )
+        <%= tag.span(
+          class: "child-count-direct-and-related result-count loading",
+          id: "tree-direct-and-related-child-count-#{classification_tree.id}",
+          'data-additional-form-parameters': to_query_params({
+            content_class: local_assigns[:content_class] || 'things',
+            count_mode: 'ca_related',
+            ctl_id: classification_tree_label&.id,
+            ct_id: classification_tree.id
+          }).to_json,
+          data: {
+            dc_tooltip: I18n.t('classifications.direct_mapped', locale: active_ui_locale)
+          }
+        )%>
+        /
+        <%= tag.span(
+          class: "child-count-full result-count loading",
+          id: "tree-child-count-#{classification_tree.id}",
+          'data-additional-form-parameters': to_query_params({
+            content_class: local_assigns[:content_class] || 'things',
+            count_mode: 'ca_recursive',
+            ctl_id: classification_tree_label&.id,
+            ct_id: classification_tree.id
+          }).to_json,
+          data: {
+            dc_tooltip: I18n.t('classifications.direct_mapped_child', locale: active_ui_locale)
+          }
+        )%>)
       </span>
     <% end %>
   </span>

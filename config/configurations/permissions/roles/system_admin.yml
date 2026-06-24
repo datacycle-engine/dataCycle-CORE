@@ -1,0 +1,41 @@
+manage_system_subjects:
+  actions: manage
+  segment: SubjectByConditions
+  parameters:
+    - - DataCycleCore::ClassificationTreeLabel
+      - DataCycleCore::ConceptScheme
+      - DataCycleCore::ClassificationAlias
+      - DataCycleCore::Classification
+      - DataCycleCore::ClassificationTree
+      - DataCycleCore::Concept
+
+read_api_configs:
+  actions: read
+  segment: SubjectByConditions
+  parameters:
+    - - :api_config_schema
+      - :api_config_features
+      - :api_config_common
+
+user_actions:
+  actions: manage
+  segment: SubjectByConditions
+  parameters: DataCycleCore::User
+
+role_filter:
+  actions: filter
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Role
+
+watch_list_bulk_actions:
+  actions:
+    - show
+    - bulk_edit
+    - bulk_delete
+    - update
+    - change_owner
+    - create_api
+    - update_description
+    - show_description
+  segment: SubjectByConditions
+  parameters: DataCycleCore::WatchList

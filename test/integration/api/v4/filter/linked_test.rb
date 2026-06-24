@@ -62,6 +62,7 @@ module DataCycleCore
           test 'api/v4/things parameter filter[:linked]' do
             params = {}
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # all events
@@ -77,6 +78,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             # all images
@@ -94,6 +96,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(8)
 
             # all pois
@@ -109,6 +112,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             # all pois with box filter
@@ -129,6 +133,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             # all events with box
@@ -153,11 +158,13 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             json_data['@graph'].each do |res|
-              assert('Event', res['@type'])
+              assert_equal(['Event', 'dcls:Event'], res['@type'])
             end
 
             # all images with cc0
@@ -174,6 +181,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(6)
 
             # all events with images + license cc0
@@ -198,11 +206,13 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             json_data['@graph'].each do |res|
-              assert('Event', res['@type'])
+              assert_equal(['Event', 'dcls:Event'], res['@type'])
             end
 
             # events
@@ -236,11 +246,13 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(0)
 
             json_data = response.parsed_body
+
             json_data['@graph'].each do |res|
-              assert('Event', res['@type'])
+              assert_equal(['Event', 'dcls:Event'], res['@type'])
             end
 
             # events
@@ -274,11 +286,13 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             json_data['@graph'].each do |res|
-              assert('Event', res['@type'])
+              assert_equal(['Event', 'dcls:Event'], res['@type'])
             end
 
             # events from today
@@ -319,11 +333,13 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             json_data['@graph'].each do |res|
-              assert('Event', res['@type'])
+              assert_equal(['Event', 'dcls:Event'], res['@type'])
             end
 
             # events start in 2days today
@@ -364,9 +380,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             json_data = response.parsed_body
+
             assert_equal(@event_b.id, json_data['@graph'].first['@id'])
 
             # validate linked with 'dct:modified'
@@ -407,11 +425,66 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             json_data = response.parsed_body
+
             assert_equal(@event_c.id, json_data['@graph'].first['@id'])
             image_test.update_column(:updated_at, orig_ts)
+          end
+
+          # property_name and api_name - to contain "old" functionality
+          test 'api/v4/things filter[:linked] with property name or api name' do
+            params = {
+              filter: {
+                classifications: {
+                  in: {
+                    withSubtree: [
+                      @event_data_type.id
+                    ]
+                  }
+                },
+                linked: {
+                  location: {
+                    geo: {
+                      in: {
+                        box: ['1', '3', '7', '12']
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            post api_v4_things_path(params)
+
+            assert_api_count_result(2)
+
+            params = {
+              filter: {
+                classifications: {
+                  in: {
+                    withSubtree: [
+                      @event_data_type.id
+                    ]
+                  }
+                },
+                linked: {
+                  content_location: {
+                    geo: {
+                      in: {
+                        box: ['1', '3', '7', '12']
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            post api_v4_things_path(params)
+
+            assert_api_count_result(2)
           end
 
           def create_test_event(schedule, classification_id, lat_long)

@@ -20,8 +20,8 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path) }
-        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
+        format.html { redirect_back_or_to(root_path) }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content.reload }).strip, **flash.discard.to_h } }
       end
     end
 
@@ -30,11 +30,11 @@ module DataCycleCore
 
       authorize! :demote_primary_external_system, @content
 
-      @content.external_source_to_external_system_syncs('duplicate')
+      @content.external_source_to_external_system_syncs(ExternalSystemSync::SYNC_TYPES[:duplicate])
       flash[:success] = I18n.t('external_connections.demote_to_sync.success', locale: helpers.active_ui_locale)
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path) }
+        format.html { redirect_back_or_to(root_path) }
         format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
@@ -55,7 +55,7 @@ module DataCycleCore
       flash.now[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: flash[:success]) }
+        format.html { redirect_back_or_to(root_path, notice: flash[:success]) }
         format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end

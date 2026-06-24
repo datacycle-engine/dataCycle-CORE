@@ -30,9 +30,10 @@ module DataCycleCore
 
             assert_response :unprocessable_entity
 
-            assert response.content_type.include?('application/json')
+            assert_includes response.content_type, 'application/json'
             json_data = response.parsed_body
-            assert json_data.dig('errors', 'reset_password_token').present?
+
+            assert_predicate json_data.dig('errors', 'reset_password_token'), :present?
           end
 
           test 'PATCH /api/v4/users/password - change password for user - invalid token' do
@@ -47,9 +48,10 @@ module DataCycleCore
 
             assert_response :unprocessable_entity
 
-            assert response.content_type.include?('application/json')
+            assert_includes response.content_type, 'application/json'
             json_data = response.parsed_body
-            assert json_data.dig('errors', 'reset_password_token').present?
+
+            assert_predicate json_data.dig('errors', 'reset_password_token'), :present?
           end
 
           test 'PATCH /api/v4/users/password - change password for user - missing password' do
@@ -63,9 +65,10 @@ module DataCycleCore
 
             assert_response :unprocessable_entity
 
-            assert response.content_type.include?('application/json')
+            assert_includes response.content_type, 'application/json'
             json_data = response.parsed_body
-            assert json_data.dig('errors', 'password').present?
+
+            assert_predicate json_data.dig('errors', 'password'), :present?
           end
 
           test 'PATCH /api/v4/users/password - change password for user - ok with single password' do
@@ -81,9 +84,10 @@ module DataCycleCore
 
             assert_response :success
 
-            assert response.content_type.include?('application/json')
+            assert_includes response.content_type, 'application/json'
             json_data = response.parsed_body
-            assert json_data['token'].present?
+
+            assert_predicate json_data['token'], :present?
           end
 
           test 'PATCH /api/v4/users/password - change password for user - ok with password and confirmation' do
@@ -100,9 +104,10 @@ module DataCycleCore
 
             assert_response :success
 
-            assert response.content_type.include?('application/json')
+            assert_includes response.content_type, 'application/json'
             json_data = response.parsed_body
-            assert json_data['token'].present?
+
+            assert_predicate json_data['token'], :present?
           end
 
           test 'PUT /api/v4/users/password - change password for user - ok with single password' do
@@ -118,9 +123,50 @@ module DataCycleCore
 
             assert_response :success
 
-            assert response.content_type.include?('application/json')
+            assert_includes response.content_type, 'application/json'
             json_data = response.parsed_body
-            assert json_data['token'].present?
+
+            assert_predicate json_data['token'], :present?
+          end
+
+          test 'POST /api/v4/users/password - allowed forwardToUrl is used in the reset mail link (DC-11)' do
+            ActionMailer::Base.deliveries.clear
+
+            post api_v4_users_password_path, headers: {
+              Authorization: "Bearer #{@current_user.access_token}"
+            }, params: {
+              email: @new_user.email,
+              forwardToUrl: 'https://app.dummy.com/reset'
+            }
+
+            assert_response :success
+
+            mail = ActionMailer::Base.deliveries.last
+
+            assert_not_nil mail
+            assert_includes (mail.html_part || mail).body.decoded, 'https://app.dummy.com/reset'
+          end
+
+          test 'POST /api/v4/users/password - disallowed forwardToUrl falls back to first-party link (DC-11)' do
+            ActionMailer::Base.deliveries.clear
+
+            post api_v4_users_password_path, headers: {
+              Authorization: "Bearer #{@current_user.access_token}"
+            }, params: {
+              email: @new_user.email,
+              forwardToUrl: 'https://evil.com/capture'
+            }
+
+            assert_response :success
+
+            mail = ActionMailer::Base.deliveries.last
+
+            assert_not_nil mail
+            body = (mail.html_part || mail).body.decoded
+
+            assert_not_includes body, 'evil.com'
+            # token is sent to the first-party devise edit_password url instead
+            assert_includes body, 'localhost:3000'
           end
         end
       end

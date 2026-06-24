@@ -3,8 +3,9 @@
 module DataCycleCore
   class ReportMailer < ApplicationMailer
     def notify(identifier, format, recipients, params = {})
-      report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(identifier)
+      report_class, report_params = DataCycleCore::Feature::ReportGenerator.by_identifier(identifier)
       params[:key] = identifier
+      params.reverse_merge!(report_params.symbolize_keys) if report_params.present?
       data, options = report_class.constantize.new(params:, locale: 'de').send(:"to_#{format}")
 
       attachments[options[:filename]] = {
@@ -14,6 +15,7 @@ module DataCycleCore
       }
 
       @identifier = identifier
+
       mail(to: recipients, subject: t("feature.report_generator.mailer.subject.#{params[:key] || 'downloads_popular'}", locale: DataCycleCore.ui_locales.first)) && return
     end
   end

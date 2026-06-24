@@ -32,13 +32,13 @@ module DataCycleCore
               content_title = "#{try(:file_name_prefix, content)}#{content_title}" if respond_to?(:file_name_prefix)
               content_title += "_#{options[:language]}" if translatable? && options[:language].present?
               content_title += "-#{options[:version]}" if options[:version].present?
-              return content_title.parameterize(separator: '_').to_s
+              return ActiveStorage::Filename.new(content_title.to_s).sanitized
             end
 
             if content.try(:asset)&.file&.path.present?
-              File.basename(content.try(:asset)&.file&.path)
+              ActiveStorage::Filename.new(File.basename(content.try(:asset)&.file&.path)).sanitized
             else
-              "#{content.try(:template_name)}_#{SecureRandom.uuid}"
+              ActiveStorage::Filename.new("#{content.try(:template_name)}_#{SecureRandom.uuid}").sanitized
             end
           end
 

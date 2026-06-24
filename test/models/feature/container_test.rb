@@ -12,6 +12,7 @@ module DataCycleCore
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash:, prevent_history: true, user: current_user)
 
       returned_data_hash = data_set.get_data_hash
+
       assert_equal(data_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(current_user.id, data_set.updated_by)
       assert_equal(0, data_set.errors.messages.size)
@@ -82,9 +83,9 @@ module DataCycleCore
       DataCycleCore::Thing::History.find_each do |item|
         assert_equal(current_user.id, item.updated_by)
         assert_equal(current_user.id, item.updated_by_user.id)
-        assert_equal(true, item.updated_at.present?)
+        assert_predicate(item.updated_at, :present?)
         assert_equal(current_user.id, item.deleted_by)
-        assert_equal(true, item.deleted_at.present?)
+        assert_predicate(item.deleted_at, :present?)
       end
     end
   end

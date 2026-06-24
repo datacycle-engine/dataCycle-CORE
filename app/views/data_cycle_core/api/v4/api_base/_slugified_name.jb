@@ -1,0 +1,5 @@
+# frozen_string_literal: true
+
+json ||= {}
+json['dc:slugifiedName'] ||= render_slugified_name(content, options[:languages])
+json.compact

@@ -29,7 +29,7 @@ module DataCycleCore
           rsa_private
         end
 
-        test '/api/v4/auth/login - login without email returns 404' do
+        test '/api/v4/auth/login - login without email returns 401' do
           post api_v4_authentication_login_path, params: {}, headers: {}
 
           assert_response :unauthorized
@@ -43,10 +43,10 @@ module DataCycleCore
           }, headers: {}
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
 
-          assert json_data['token'].present?
+          assert_predicate json_data['token'], :present?
           assert_equal @user_data['email'], json_data.dig('user', 'email')
 
           new_token = json_data['token']
@@ -59,10 +59,10 @@ module DataCycleCore
           }
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
 
-          assert json_data['token'].present?
+          assert_predicate json_data['token'], :present?
           assert_equal @user_data['email'], json_data.dig('user', 'email')
         end
 
@@ -75,25 +75,26 @@ module DataCycleCore
             email: @user_data[:email],
             password: @user_data[:password]
           }
+
           assert_response :success
 
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
 
-          assert json_data['token'].present?
+          assert_predicate json_data['token'], :present?
           assert_equal @user_data['email'], json_data.dig('user', 'email')
         end
 
         test '/api/v4/auth/login - login with token in header as Authorization Bearer -> Unauthorized' do
-          get api_v4_users_path, headers: {
+          post api_v4_authentication_login_path, headers: {
             Authorization: "Bearer #{@current_user.access_token}"
           }, params: {}
 
-          assert_response :success
+          assert_response :unauthorized
         end
 
         test '/api/v4/auth/login - login with token in header as Authorization -> Unauthorized' do
-          get api_v4_users_path, headers: {
+          post api_v4_authentication_login_path, headers: {
             Authorization: @current_user.access_token
           }, params: {}
 
@@ -101,7 +102,7 @@ module DataCycleCore
         end
 
         test '/api/v4/auth/login - login with token in header as Token -> Unauthorized' do
-          get api_v4_users_path, headers: {
+          post api_v4_authentication_login_path, headers: {
             Token: @current_user.access_token
           }, params: {}
 
@@ -121,10 +122,10 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
 
-          assert json_data['token'].present?
+          assert_predicate json_data['token'], :present?
           assert_equal @user_data['email'], json_data.dig('user', 'email')
 
           DataCycleCore.features[:user_api].delete(:public_keys)
@@ -141,10 +142,10 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
 
-          assert json_data['token'].present?
+          assert_predicate json_data['token'], :present?
           assert_equal @current_user.email, json_data.dig('user', 'email')
 
           travel 23.hours
@@ -152,18 +153,20 @@ module DataCycleCore
         end
 
         test '/api/v4/users/create - create new user' do
-          user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
-            email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at",
-            confirmed_at: 1.day.ago
-          })
+          user_data = DataCycleCore::TestPreparations
+            .load_dummy_data_hash('users', 'user')
+            .with_indifferent_access.merge({
+              email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at",
+              confirmed_at: 1.day.ago
+            })
 
           post api_v4_users_create_path, params: user_data.merge(token: @current_user.access_token).deep_transform_keys { |k| k.to_s.camelize(:lower) }, headers: {}
 
           assert_response :created
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
 
-          assert json_data['token'].present?
+          assert_predicate json_data['token'], :present?
           assert_equal user_data['email'], json_data['email']
 
           new_token = json_data['token']
@@ -173,7 +176,7 @@ module DataCycleCore
           }, params: {}
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
 
           user_data['email'] = "tester_3_#{Time.now.getutc.to_i}@datacycle.at"
 
@@ -193,10 +196,10 @@ module DataCycleCore
           }
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
 
-          assert json_data['token'].present?
+          assert_predicate json_data['token'], :present?
           assert_equal 'Test', json_data['givenName']
           assert_equal 'Er', json_data['familyName']
         end
@@ -215,8 +218,9 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
           assert DataCycleCore::User.exists?(email: user_data['email'])
 
@@ -229,8 +233,9 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
           assert_equal user_data['family_name'], DataCycleCore::User.find_by(email: user_data['email']).family_name
 
@@ -249,7 +254,7 @@ module DataCycleCore
 
           assert_response :success
 
-          assert @new_user.reload.reset_password_period_valid?
+          assert_predicate @new_user.reload, :reset_password_period_valid?
         end
 
         test '/api/v4/auth/check_credentials - login with token in header' do

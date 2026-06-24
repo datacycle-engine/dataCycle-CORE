@@ -4,8 +4,8 @@ module DataCycleCore
   module Report
     module Downloads
       module WidgetUsageBase
-        def self.raw_report_data_sql
-          <<-SQL.squish
+        def self.raw_report_data_sql(exclude_current_week: false)
+          <<~SQL.squish
             SELECT SUBSTRING(
                     data->>'middlewareOrigin',
                     0,
@@ -46,131 +46,132 @@ module DataCycleCore
                     'unknown'
                 ) AS domain
             FROM activities
-            WHERE data->>'middlewareOrigin' IS NOT NULL
+            WHERE activities.data->>'middlewareOrigin' IS NOT NULL
+            #{"AND activities.created_at < date_trunc('week', NOW())" if exclude_current_week}
           SQL
         end
 
         def self.overview_sql
-          <<-SQL.squish
-                overview_data AS (
-                    SELECT 'OVERVIEW' AS domain,
-                        NULL AS url,
-                        '0' AS sort_key,
-                        0 AS sort_key_2,
-                        week,
-                        widget_type,
-                        SUM(access_count) AS access_count,
-                        SUM(true_count) AS true_count,
-                        SUM(retention_count) AS retention_count,
-                        SUM(combined_count) AS combined_count,
-                        COUNT(DISTINCT domain) AS unique_domains
-                    FROM aggregated_data
-                    GROUP BY week,
-                        widget_type
-                    UNION ALL
-                    SELECT 'OVERVIEW' AS domain,
-                        NULL AS url,
-                        '0' AS sort_key,
-                        0 AS sort_key_2,
-                        week,
-                        'all' AS widget_type,
-                        SUM(access_count) AS access_count,
-                        SUM(true_count) AS true_count,
-                        SUM(retention_count) AS retention_count,
-                        SUM(combined_count) AS combined_count,
-                        COUNT(DISTINCT domain) AS unique_domains
-                    FROM aggregated_data
-                    GROUP BY week
-                ),
-                overview_data_domains AS (
-                    SELECT domain,
-                        CONCAT('OVERVIEW: ', domain) AS sort_key,
-                        0 AS sort_key_2,
-                        NULL AS url,
-                        week,
-                        widget_type,
-                        SUM(access_count) AS access_count,
-                        SUM(true_count) AS true_count,
-                        SUM(retention_count) AS retention_count,
-                        SUM(combined_count) AS combined_count,
-                        0 AS unique_domains
-                    FROM aggregated_data
-                    GROUP BY week,
-                        domain,
-                        widget_type
-                    UNION ALL
-                    SELECT domain,
-                        CONCAT('OVERVIEW: ', domain) AS sort_key,
-                        0 AS sort_key_2,
-                        NULL AS url,
-                        week,
-                        'all' AS widget_type,
-                        SUM(access_count) AS access_count,
-                        SUM(true_count) AS true_count,
-                        SUM(retention_count) AS retention_count,
-                        SUM(combined_count) AS combined_count,
-                        0 AS unique_domains
-                    FROM aggregated_data
-                    GROUP BY week,
-                        domain
-                ),
+          <<~SQL.squish
+            overview_data AS (
+                SELECT 'OVERVIEW' AS domain,
+                    NULL AS url,
+                    '0' AS sort_key,
+                    0 AS sort_key_2,
+                    week,
+                    widget_type,
+                    SUM(access_count) AS access_count,
+                    SUM(true_count) AS true_count,
+                    SUM(retention_count) AS retention_count,
+                    SUM(combined_count) AS combined_count,
+                    COUNT(DISTINCT domain) AS unique_domains
+                FROM aggregated_data
+                GROUP BY week,
+                    widget_type
+                UNION ALL
+                SELECT 'OVERVIEW' AS domain,
+                    NULL AS url,
+                    '0' AS sort_key,
+                    0 AS sort_key_2,
+                    week,
+                    'all' AS widget_type,
+                    SUM(access_count) AS access_count,
+                    SUM(true_count) AS true_count,
+                    SUM(retention_count) AS retention_count,
+                    SUM(combined_count) AS combined_count,
+                    COUNT(DISTINCT domain) AS unique_domains
+                FROM aggregated_data
+                GROUP BY week
+            ),
+            overview_data_domains AS (
+                SELECT domain,
+                    CONCAT('OVERVIEW: ', domain) AS sort_key,
+                    0 AS sort_key_2,
+                    NULL AS url,
+                    week,
+                    widget_type,
+                    SUM(access_count) AS access_count,
+                    SUM(true_count) AS true_count,
+                    SUM(retention_count) AS retention_count,
+                    SUM(combined_count) AS combined_count,
+                    0 AS unique_domains
+                FROM aggregated_data
+                GROUP BY week,
+                    domain,
+                    widget_type
+                UNION ALL
+                SELECT domain,
+                    CONCAT('OVERVIEW: ', domain) AS sort_key,
+                    0 AS sort_key_2,
+                    NULL AS url,
+                    week,
+                    'all' AS widget_type,
+                    SUM(access_count) AS access_count,
+                    SUM(true_count) AS true_count,
+                    SUM(retention_count) AS retention_count,
+                    SUM(combined_count) AS combined_count,
+                    0 AS unique_domains
+                FROM aggregated_data
+                GROUP BY week,
+                    domain
+            ),
           SQL
         end
 
         def self.data_sql(is_overview:)
           if is_overview
-            <<-SQL.squish
-                SELECT week,
-                    domain,
-                    sort_key,
-                    sort_key_2,
-                    url,
-                    widget_type,
-                    access_count,
-                    true_count,
-                    retention_count,
-                    combined_count,
-                    unique_domains
-                FROM overview_data
-                UNION ALL
-                SELECT week,
-                    domain,
-                    sort_key,
-                    sort_key_2,
-                    url,
-                    widget_type,
-                    access_count,
-                    true_count,
-                    retention_count,
-                    combined_count,
-                    unique_domains
-                FROM overview_data_domains
+            <<~SQL.squish
+              SELECT week,
+                  domain,
+                  sort_key,
+                  sort_key_2,
+                  url,
+                  widget_type,
+                  access_count,
+                  true_count,
+                  retention_count,
+                  combined_count,
+                  unique_domains
+              FROM overview_data
+              UNION ALL
+              SELECT week,
+                  domain,
+                  sort_key,
+                  sort_key_2,
+                  url,
+                  widget_type,
+                  access_count,
+                  true_count,
+                  retention_count,
+                  combined_count,
+                  unique_domains
+              FROM overview_data_domains
             SQL
           else
-            <<-SQL.squish
-                SELECT week,
-                    domain,
-                    sort_key,
-                    sort_key_2,
-                    url,
-                    widget_type,
-                    access_count,
-                    true_count,
-                    retention_count,
-                    combined_count,
-                    0 AS unique_domains
-                FROM aggregated_data
+            <<~SQL.squish
+              SELECT week,
+                  domain,
+                  sort_key,
+                  sort_key_2,
+                  url,
+                  widget_type,
+                  access_count,
+                  true_count,
+                  retention_count,
+                  combined_count,
+                  0 AS unique_domains
+              FROM aggregated_data
             SQL
           end
         end
 
-        def self.base_query(is_overview:)
+        def self.base_query(is_overview:, exclude_current_week: false)
           data_sql = data_sql(is_overview:)
           overview_sql = is_overview ? overview_sql() : ''
 
-          <<-SQL.squish
+          <<~SQL.squish
             WITH raw_report_data AS (
-                #{raw_report_data_sql}
+                #{raw_report_data_sql(exclude_current_week:)}
             ),
             aggregated_data AS (
                 SELECT domain,

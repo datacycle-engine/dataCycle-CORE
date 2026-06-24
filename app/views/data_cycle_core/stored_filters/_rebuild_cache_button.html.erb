@@ -1,0 +1,22 @@
+<% if can?(:rebuild_cache, stored_search) %>
+  <%= button_to(
+        safe_join(['CACHED', tag.i(class: 'fa fa-refresh', aria: { hidden: true })], ' '),
+        rebuild_cache_stored_filter_path(stored_search),
+        class: "button small hollow",
+        method: :post,
+        form: {
+          id: "rebuild_cache_stored_search_#{stored_search.id}",
+          data: {
+            turbo: true,
+            turbo_stream: true,
+            turbo_confirm: t('data_cycle_core.stored_searches.cache_ttl.confirm_rebuild_cache', locale: active_ui_locale),
+            dc_tooltip: cached_update_tooltip(stored_search),
+          }
+        },
+        data: {
+          turbo_submits_with: safe_join(['CACHED', tag.i(class: 'fa fa-refresh fa-spin fa-fw', aria: { hidden: true })], ' ')
+        }
+      ) %>
+<% else %>
+  <span class="tag hollow" data-dc-tooltip="<%= cached_tooltip(stored_search) %>">CACHED</span>
+<% end %>

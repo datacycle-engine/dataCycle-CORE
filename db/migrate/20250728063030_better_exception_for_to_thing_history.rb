@@ -2,7 +2,7 @@
 
 class BetterExceptionForToThingHistory < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.to_thing_history(
           content_id uuid,
           current_locale character varying,

@@ -12,7 +12,7 @@ namespace :dc do
     abort('endpoint not found!') if stored_filter.nil? && watch_list.nil?
 
     contents = stored_filter.nil? ? watch_list.things : stored_filter.apply.query
-    progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'AutoTranslate')
+    progressbar = ProgressBar.create(total: contents.size, title: 'AutoTranslate')
     source_locale = DataCycleCore::Feature::AutoTranslation.configuration['source_lang'] || I18n.locale
 
     contents.find_each do |content|

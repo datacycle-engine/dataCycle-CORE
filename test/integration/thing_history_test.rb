@@ -27,8 +27,9 @@ module DataCycleCore
       history_date_string = I18n.l(history_date, locale: DataCycleCore.ui_locales.first, format: :history) if history_date.present?
 
       post restore_history_version_thing_path(id: @content.id, history_id: history_entry.id)
+
       assert_redirected_to thing_path(@content)
-      assert_equal I18n.t(:restored, scope: [:history, :restore, :version], locale: DataCycleCore.ui_locales.first, date: history_date_string), flash[:success]
+      assert_equal I18n.t('history.restore.version.restored', locale: DataCycleCore.ui_locales.first, date: history_date_string), flash[:success]
 
       assert_equal 'TestArtikel', @content.reload.name
     end
@@ -50,8 +51,9 @@ module DataCycleCore
       history_date_string = I18n.l(history_date, locale: DataCycleCore.ui_locales.first, format: :history) if history_date.present?
 
       post restore_history_version_thing_path(id: @organization.id, history_id: history_entry.id)
+
       assert_redirected_to thing_path(@organization)
-      assert_equal I18n.t(:restored, scope: [:history, :restore, :version], locale: DataCycleCore.ui_locales.first, date: history_date_string), flash[:success]
+      assert_equal I18n.t('history.restore.version.restored', locale: DataCycleCore.ui_locales.first, date: history_date_string), flash[:success]
 
       assert_equal 'TestOrganization', I18n.with_locale(:de) { @organization.reload.name }
       assert_equal 'update en 1', I18n.with_locale(:en) { @organization.reload.name }

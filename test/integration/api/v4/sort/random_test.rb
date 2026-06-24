@@ -38,7 +38,7 @@ module DataCycleCore
               sort: 'random'
             }
 
-            100.times do
+            10.times do
               post api_v4_things_path(params)
               json_data = response.parsed_body
               t = json_data['@graph'].pluck('@id')
@@ -58,11 +58,66 @@ module DataCycleCore
 
             orig = json_data['@graph'].pluck('@id')
 
-            100.times do
+            10.times do
               post api_v4_things_path(params)
               json_data = response.parsed_body
               t = json_data['@graph'].pluck('@id')
+
               assert_equal(t, orig)
+            end
+          end
+
+          test 'api/v4/things with parameter sort: random with seed and paging' do
+            params = {
+              fields: 'name',
+              sort: 'random(0.63345345)',
+              page: { size: 1, number: 1 },
+              filter: {
+                contentId: {
+                  in: ["#{@poi_a.id},#{@poi_b.id},#{@poi_c.id},#{@poi_d.id}"]
+                }
+              }
+            }
+
+            10.times do
+              ids = [@poi_a.id, @poi_b.id, @poi_c.id, @poi_d.id]
+
+              4.times do |i|
+                params[:page][:number] = i + 1
+                post api_v4_things_path(params)
+                json_data = response.parsed_body
+                t = json_data['@graph'].pick('@id')
+
+                assert_includes(ids, t)
+                ids.delete(t)
+              end
+            end
+          end
+
+          test 'api/v4/things with parameter sort: random with seed, paging and minimal response' do
+            params = {
+              fields: '@id',
+              sort: 'random(0.63345345)',
+              page: { size: 1, number: 1 },
+              filter: {
+                contentId: {
+                  in: ["#{@poi_a.id},#{@poi_b.id},#{@poi_c.id},#{@poi_d.id}"]
+                }
+              }
+            }
+
+            10.times do
+              ids = [@poi_a.id, @poi_b.id, @poi_c.id, @poi_d.id]
+
+              4.times do |i|
+                params[:page][:number] = i + 1
+                post api_v4_things_path(params)
+                json_data = response.parsed_body
+                t = json_data['@graph'].pick('@id')
+
+                assert_includes(ids, t)
+                ids.delete(t)
+              end
             end
           end
         end

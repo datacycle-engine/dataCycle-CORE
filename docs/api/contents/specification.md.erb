@@ -1,0 +1,166 @@
+# Inhalt (content) Spezifikation
+
+```json
+{
+  "apiSubversion": "String",
+  "fields": "String",
+  "classificationTrees": "UUID,...",
+  "filter": {
+    "contentId": {
+      "in": ["UUID,..."], // multiple strings = AND; one comma-separated string = OR
+      "notIn": ["UUID,..."] // multiple strings = AND; one comma-separated string = OR
+    },
+    "endpointId": {
+      "in": ["UUID"],
+      "notIn": ["UUID"]
+    },
+    "filterId": {
+      "in": ["UUID"],
+      "notIn": ["UUID"]
+    },
+    "watchListId": {
+      "in": ["UUID"],
+      "notIn": ["UUID"]
+    },
+    "classificationTreeId": {
+      "in": ["UUID"],
+      "notIn": ["UUID"]
+    },
+    "attribute": {
+      "{attributeName}": {
+        "in": {
+          "max": "Integer|Float|Date|DateTime",
+          "min": "Integer|Float|Date|DateTime",
+          "equals": "Integer|Float|String",
+          "like": "String",
+          "bool": "Boolean"
+        },
+        "notIn": {
+          "max": "Integer|Float|Date|DateTime",
+          "min": "Integer|Float|Date|DateTime",
+          "equals": "Integer|Float|String",
+          "like": "String",
+          "bool": "Boolean"
+        }
+      }
+    },
+    "schedule": {
+      "in": { // filters over schedule relations except the configured schedule_filter_exceptions (currently: <%= DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions.presence&.join(', ') || 'none' %>)
+        "min": "Date|DateTime",
+        "max": "Date|DateTime"
+      },
+      "all": { // filters over ALL schedule relations, ignoring schedule_filter_exceptions
+        "in": {
+          "min": "Date|DateTime",
+          "max": "Date|DateTime"
+        }
+      }
+    },
+    "classifications|dc:classification": {
+      "in": {
+        "withSubtree": ["UUID"], // multiple strings = AND; one comma-separated string = OR
+        "withoutSubtree": ["UUID"] // multiple strings = AND; one comma-separated string = OR
+      },
+      "notIn": {
+        "withSubtree": ["UUID"], // multiple strings = AND; one comma-separated string = OR
+        "withoutSubtree": ["UUID"] // multiple strings = AND; one comma-separated string = OR
+      }
+    },
+    "geo": {
+      "in": {
+        "box": ["swLon", "swLat", "neLon", "neLat"],
+        "perimeter": ["lon", "lat", "distance"],
+        "shapes": ["UUID"],
+        "geoShape": {
+          "polygon": "Google Polyline|WKT|GeoJSON String",
+          "line": "Google Polyline|WKT|GeoJSON String"
+        }
+      },
+      "notIn": {
+        "box": ["swLon", "swLat", "neLon", "neLat"],
+        "perimeter": ["lon", "lat", "distance"],
+        "shapes": ["UUID"],
+        "geoShape": {
+          "polygon": "Google Polyline|WKT|GeoJSON String",
+          "line": "Google Polyline|WKT|GeoJSON String"
+        }
+      },
+      "withGeometry": "Boolean"
+    },
+    "creator": {
+      "in": ["UUID"],
+      "notIn": ["UUID"]
+    },
+    "search": "String",
+    "search": {<%= ' // Feature nicht freigeschalten!' unless DataCycleCore::Feature::TsQueryFulltextSearch.enabled? %>
+      "value": "String",
+      "fields": "name,dc:slug,dc:classification"
+    },
+    "q": "String",
+    "q": {<%= ' // Feature nicht freigeschalten!' unless DataCycleCore::Feature::TsQueryFulltextSearch.enabled? %>
+      "value": "String",
+      "fields": "name,dc:slug,dc:classification"
+    },
+    "graph": {
+      "{attributeName}": {
+        "...": "..." // Hier können wieder alle Filter verwendet werden
+      }
+    },
+    "linked": { // DEPRECATED: es sollte stattdessen "graph" benutzt werden
+      "{attributeName}": {
+        "...": "..." // Hier können wieder alle Filter verwendet werden
+      }
+    },
+    "union": [
+      {
+        "...": "..." // Hier können wieder alle Filter verwendet werden
+      }
+    ]
+  },
+  "language": "String: de",
+  "include": "String",
+  "page": {
+    "size": "Integer: 25",
+    "number": "Integer: 1",
+    "offset": "Integer: 0",
+    "limit": "Integer: 0"
+  },
+  "section": {
+    "@graph": "Integer [1,0]: 1",
+    "@context": "Integer [1,0]: 1",
+    "meta": "Integer [1,0]: 1",
+    "links": "Integer [1,0]: 1"
+  },
+  "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, proximity.geographic_with(lon,lat), *proximity.inTime, proximity.occurrence, proximity.occurrence(startDate,endDate,sortAttribute), random): **default",
+  "token": "String"
+}
+```
+
+\* = implicit sorting
+
+\*\* = default sorting defined within project
+
+/classification_trees = classification_tree_label_id / experimental
+
+## Available attributes for "attributeName"
+
+```json
+{
+  "attributeName": [
+    "dct:created",
+    "dct:modified",
+    "dct:deleted",
+    "schedule|eventSchedule|openingHoursSpecification|dc:diningHoursSpecification|hoursAvailable|validitySchedule"
+  ]
+}
+```
+
+## Available attributes for "sortAttribute"
+
+```json
+{
+  "sortAttribute": [
+    "eventSchedule|openingHoursSpecification|dc:diningHoursSpecification|hoursAvailable|validitySchedule"
+  ]
+}
+```

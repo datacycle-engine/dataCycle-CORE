@@ -12,7 +12,7 @@ module DataCycleCore
 
           return nil if dzt_sys_id.blank?
 
-          raw_query = <<-SQL.squish
+          raw_query = <<~SQL.squish
             SELECT
                 syncable_id AS "thing_id",
                 status,
@@ -38,7 +38,7 @@ module DataCycleCore
             ORDER BY last_sync_at DESC;
           SQL
 
-          @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, { dzt_sys_id:, filter_date_start:}]))
+          @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, { dzt_sys_id:, filter_date_start: }]))
         end
       end
     end

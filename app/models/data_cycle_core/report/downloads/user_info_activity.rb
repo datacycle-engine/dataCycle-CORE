@@ -5,7 +5,7 @@ module DataCycleCore
     module Downloads
       class UserInfoActivity < Base
         def apply(params)
-          raw_query = <<-SQL.squish
+          raw_query = <<~SQL.squish
             WITH latest_activity_timestamps AS (
               SELECT user_id, MAX(updated_at) AS latest_api_access
               FROM activities
@@ -24,7 +24,7 @@ module DataCycleCore
             LEFT JOIN activities ua ON u.id = ua.user_id AND lat.latest_api_access = ua.updated_at
             LEFT JOIN user_groups_agg uga ON u.id = uga.user_id
             LEFT JOIN roles ur ON u.role_id = ur.id
-            WHERE u.id IN (\'#{params[:user_ids].join("', '")}\');
+            WHERE u.id IN ('#{params[:user_ids].join("', '")}');
           SQL
 
           @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql, raw_query))

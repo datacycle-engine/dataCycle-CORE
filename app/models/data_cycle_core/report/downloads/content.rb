@@ -8,7 +8,8 @@ module DataCycleCore
           thing_id = params&.dig(:thing_id)
           date_time_format = 'DD.MM.YYYY HH24:MI:SS'
           raise DataCycleCore::Error::RecordNotFoundError "#{thing_id} not found!" if DataCycleCore::Thing.find(thing_id).blank?
-          raw_query = <<-SQL.squish
+
+          raw_query = <<~SQL.squish
             SELECT "things"."id",
               "thing_translations"."content"->>'name' AS "name",
               to_char("activities"."created_at", :date_time_format) AS date_created,
@@ -29,7 +30,7 @@ module DataCycleCore
             ORDER BY date_created DESC
           SQL
 
-          @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, {thing_id:, locale: @locale, date_time_format:}]))
+          @data = ActiveRecord::Base.connection.select_all(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, { thing_id:, locale: @locale, date_time_format: }]))
         end
       end
     end

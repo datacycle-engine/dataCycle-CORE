@@ -2,7 +2,7 @@
 
 class AddColumnsToSearches < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE searches
       ADD COLUMN slug varchar;
 
@@ -94,7 +94,7 @@ class AddColumnsToSearches < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS dict_insert_in_searches_trigger ON searches;
       DROP TRIGGER IF EXISTS dict_update_in_searches_trigger ON searches;
       DROP FUNCTION IF EXISTS update_dict_in_searches();

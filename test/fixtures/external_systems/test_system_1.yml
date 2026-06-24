@@ -1,0 +1,28 @@
+---
+name: Test-System-1
+identifier: test-system-1
+credentials:
+  host: HOST
+  token: TOKEN
+  api_version: API_VERSION
+  api_subversion: API_SUBVERSION
+default_options:
+  export:
+    external_url: EXTERNAL_URL
+config:
+  download_config:
+    images:
+      sorting: 1
+      source_type: contents
+      endpoint: DataCycleCore::Generic::Csv::Endpoint
+      download_strategy: DataCycleCore::Generic::Common::DownloadFunctions
+  import_config:
+    images:
+      sorting: 1
+      source_type: content
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Content - Tags
+      tag_id_path: "keywords"
+      tag_name_path: "keywords"
+      external_id_prefix: "Content - keyword - "
+  api_strategy: DataCycleCore::Generic::ExternalLink::Webhook

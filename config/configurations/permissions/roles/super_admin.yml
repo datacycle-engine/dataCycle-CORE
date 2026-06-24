@@ -8,19 +8,23 @@ manage_subjects:
       - :object_browser
       - :cache
       - :report
-      - DataCycleCore::ClassificationTreeLabel
-      - DataCycleCore::ConceptScheme
-      - DataCycleCore::ClassificationAlias
-      - DataCycleCore::Concept
-      - DataCycleCore::User
       - DataCycleCore::UserGroup
-      - DataCycleCore::DataLink
       - DataCycleCore::Permission
 
-role_index:
-  actions: read
+data_link_actions:
+  actions: manage
   segment: SubjectByConditions
-  parameters: DataCycleCore::Role
+  parameters: DataCycleCore::DataLink
+
+role_index:
+  actions: [index, filter]
+  segment: RolesExcept
+  parameters: system_admin
+
+user_actions:
+  actions: manage
+  segment: UsersExceptRoles
+  parameters: system_admin
 
 asset_read:
   actions: read
@@ -105,6 +109,13 @@ stored_filter_actions:
   segment: SubjectByConditions
   parameters: DataCycleCore::StoredFilter
 
+stored_filter_cache_actions:
+  actions:
+    - rebuild_cache
+    - update_cache_ttl
+  segment: SubjectByConditions
+  parameters: DataCycleCore::StoredFilter
+
 watch_list_subscribe:
   actions: subscribe
   segment: SubjectByConditions
@@ -145,6 +156,12 @@ watch_list_group_shares:
 watch_list_role_shares:
   actions: [add_item, remove_item]
   segment: WatchListByRoleShares
+
+attribute_internal_name:
+  actions: show_internal_name
+  segment: SubjectByConditions
+  parameters:
+    - - :attribute
 
 data_attribute_read:
   actions: read
@@ -244,12 +261,54 @@ report_content:
   actions: download_content_report
   segment: ContentByReportGenerator
 
+classification_overview:
+  actions: read
+  segment: TreeLabelByVisibility
+  parameters:
+    - classification_overview
+    - classification_administration
+
 classification_actions:
   actions: manage
   segment: SubjectNotExternal
   parameters:
     - DataCycleCore::Classification
     - DataCycleCore::ClassificationTree
+
+classification_tree_label_actions:
+  actions: [download, create, edit, link_contents, unlink_contents]
+  segment: SubjectByConditions
+  parameters: DataCycleCore::ClassificationTreeLabel
+
+classification_tree_label_update:
+  actions: update
+  segment: SubjectNotExternal
+  parameters: DataCycleCore::ClassificationTreeLabel
+
+classification_alias_actions:
+  actions: [create, update, view_all]
+  segment: SubjectNotExternalAndNotInternal
+  parameters: DataCycleCore::ClassificationAlias
+
+classification_alias_map_and_color:
+  actions: [map_classifications, set_color]
+  segment: SubjectNotInternal
+  parameters: DataCycleCore::ClassificationAlias
+
+classification_tree_label_destroy:
+  actions: destroy
+  segment: ClassificationTreeLabelAndClassificationAliasesNotExternalAndNotInternal
+
+classification_alias_destroy:
+  actions: destroy
+  segment: ClassificationAliasAndChildrenNotExternalAndNotInternal
+
+classification_administration_copy:
+  actions: [copy_api_link, copy_to_clipboard]
+  segment: SubjectByConditions
+  parameters:
+    - - DataCycleCore::ClassificationTreeLabel
+      - DataCycleCore::ClassificationAlias
 
 thing_history_actions:
   actions: [show, restore_version]
@@ -289,3 +348,30 @@ translate_feature_api:
   segment: SubjectByConditions
   parameters:
     - - DataCycleCore::Feature::Translate
+
+manage_oauth_apps:
+  actions: manage
+  segment: SubjectByConditions
+  parameters: Doorkeeper::Application
+  condition:
+    segment: UsersByRoleAndProvider
+    parameters:
+      - pixelpoint_aad_v2
+
+grafana_dashboards:
+  actions: read
+  segment: SubjectByConditions
+  parameters: :grafana_dashboards
+  condition:
+    segment: UsersByRoleAndProvider
+    parameters:
+      - pixelpoint_aad_v2
+
+live_logs:
+  actions: show
+  segment: SubjectByConditions
+  parameters: :live_logs
+  condition:
+    segment: UsersByRoleAndProvider
+    parameters:
+      - pixelpoint_aad_v2

@@ -2,7 +2,7 @@
 
 class FixNullValuesInClassificationAndConceptDescriptionAndName < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE classification_aliases
       SET description_i18n = '{}'
       WHERE classification_aliases.description_i18n IS NULL;

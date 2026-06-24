@@ -83,6 +83,7 @@ describe DataCycleCore::MasterData::Validators::Asset do
       data_cases = [nil, '', ['']]
       data_cases.each do |case_item|
         validator = subject.new(case_item, template_hash_length_w_error) # byebug
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -92,6 +93,7 @@ describe DataCycleCore::MasterData::Validators::Asset do
       data_cases = ['00000000-xxxx-0000-0000-000000000001', ['test']]
       data_cases.each do |case_item|
         validator = subject.new(case_item, template_hash)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -104,6 +106,7 @@ describe DataCycleCore::MasterData::Validators::Asset do
       ]
       data_cases.each do |case_item|
         validator = subject.new(case_item, template_hash)
+
         assert_equal(no_error_hash, validator.error)
       end
     end
@@ -111,6 +114,7 @@ describe DataCycleCore::MasterData::Validators::Asset do
     it 'no warnings for invalid validation key' do
       uuids = asset1.id
       validator = subject.new(uuids, template_hash_length_w_error)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -118,6 +122,7 @@ describe DataCycleCore::MasterData::Validators::Asset do
     it 'add warnings for invalid asset_type' do
       uuids = image1.id
       validator = subject.new(uuids, template_hash)
+
       assert_equal(0, validator.error[:error].size)
       assert_equal(1, validator.error[:warning].size)
     end

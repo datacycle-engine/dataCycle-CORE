@@ -45,14 +45,14 @@ end
 
 ActiveSupport::Notifications.subscribe(/(download|dump|mark_deleted)_failed.datacycle/) do |_name, _started, _finished, _unique_id, data|
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'download') do |logger|
-    data[:external_system]&.check_for_repeated_failure('download', data[:exception])
+    data[:external_system]&.check_for_repeated_failure('download', data[:exception], data[:step_name])
     logger.dc_log(:error, data)
   end
 end
 
 ActiveSupport::Notifications.subscribe('import_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'import') do |logger|
-    data[:external_system]&.check_for_repeated_failure('import', data[:exception])
+    data[:external_system]&.check_for_repeated_failure('import', data[:exception], data[:step_name])
     logger.dc_log(:error, data)
   end
 end
@@ -104,5 +104,23 @@ ActiveSupport::Notifications.subscribe(/(download|import|export)_faulty_items_pr
       text = faulty_item[:log_message].presence || faulty_item.to_json
       logger.dc_log(:warn, text)
     end
+  end
+end
+
+ActiveSupport::Notifications.subscribe('object_browser.stored_filter.unknown') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'datacycle') do |logger|
+    logger.dc_log(:error, data)
+  end
+end
+
+ActiveSupport::Notifications.subscribe('feratel_deskline_organisation_access_denied.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'datacycle') do |logger|
+    logger.dc_log(:warn, data)
+  end
+end
+
+ActiveSupport::Notifications.subscribe('migration_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'datacycle') do |logger|
+    logger.dc_log(:error, data)
   end
 end

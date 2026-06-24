@@ -106,9 +106,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@event_count)
 
             json_data = response.parsed_body
+
             assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
 
             # default = proximity.inTime
@@ -127,9 +129,11 @@ module DataCycleCore
               sort: 'proximity.inTime'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@event_count)
 
             json_data = response.parsed_body
+
             assert_equal(['A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
           end
 
@@ -150,9 +154,11 @@ module DataCycleCore
               sort: 'proximity.occurrence'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@event_count)
 
             json_data = response.parsed_body
+
             assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
           end
 
@@ -170,6 +176,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
             assert_api_count_result(@thing_count)
             assert_equal(['D', 'C', 'B', 'A', 'POI'], json_data['@graph'].pluck('name'))
 
@@ -187,6 +194,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
             assert_api_count_result(@thing_count)
             assert_equal(['D', 'C', 'B', 'A', 'POI'], json_data['@graph'].pluck('name'))
           end
@@ -208,6 +216,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
             assert_api_count_result(@event_count)
             assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
 
@@ -224,6 +233,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
             assert_api_count_result(@thing_count)
             assert_equal(['D', 'C', 'B', 'A', 'POI'], json_data['@graph'].pluck('name'))
 
@@ -240,6 +250,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
             assert_api_count_result(@thing_count)
             assert_equal(['POI', 'A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
           end
@@ -268,6 +279,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
             assert_api_count_result(@thing_count)
             assert_equal(['POI', 'A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
           end
@@ -280,6 +292,27 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
+            assert_equal(['POI', 'A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
+          end
+
+          test 'api/v4/things with sort with prefixed params' do
+            from = Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601)
+            to = Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+            params = {
+              sort: "proximity.occurrence(start:#{from},end:#{to},attr:openingHoursSpecification)"
+            }
+            post api_v4_things_path(params)
+            json_data = response.parsed_body
+
+            assert_equal(['POI', 'A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
+
+            params = {
+              sort: "proximity.occurrence(end:#{to},start:#{from},attr:openingHoursSpecification)"
+            }
+            post api_v4_things_path(params)
+            json_data = response.parsed_body
+
             assert_equal(['POI', 'A', 'B', 'C', 'D'], json_data['@graph'].pluck('name'))
           end
 
@@ -291,7 +324,38 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
             assert_equal(['D', 'C', 'B', 'A', 'POI'], json_data['@graph'].pluck('name'))
+          end
+
+          test 'api/v4/things filter[schedule][all] includes excepted relation in default sort' do
+            original_exceptions = DataCycleCore.features[:advanced_filter][:config][:schedule_exceptions]
+            DataCycleCore.features[:advanced_filter][:config][:schedule_exceptions] = ['opening_hours_specification']
+            DataCycleCore::Feature::AdvancedFilter.reload
+
+            from = Time.zone.now.beginning_of_week.beginning_of_day.to_fs(:iso8601)
+            to = Time.zone.now.end_of_week.beginning_of_day.to_fs(:iso8601)
+
+            post api_v4_things_path({
+              fields: 'name',
+              filter: { schedule: { in: { min: from, max: to } } }
+            })
+            json_data = response.parsed_body
+
+            assert_api_count_result(@event_count)
+            assert_equal(['D', 'C', 'B', 'A'], json_data['@graph'].pluck('name'))
+
+            post api_v4_things_path({
+              fields: 'name',
+              filter: { schedule: { all: { in: { min: from, max: to } } } }
+            })
+            json_data = response.parsed_body
+
+            assert_api_count_result(@thing_count)
+            assert_includes(json_data['@graph'].pluck('name'), 'POI')
+          ensure
+            DataCycleCore.features[:advanced_filter][:config][:schedule_exceptions] = original_exceptions
+            DataCycleCore::Feature::AdvancedFilter.reload
           end
 
           test 'api/v4/things with sort union filter' do
@@ -315,6 +379,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             json_data = response.parsed_body
+
             assert_api_count_result(@thing_count)
             assert_equal(['A', 'B', 'C', 'D', 'POI'], json_data['@graph'].pluck('name'))
           end

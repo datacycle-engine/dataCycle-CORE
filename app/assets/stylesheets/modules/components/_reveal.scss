@@ -9,6 +9,10 @@
     text-align: right;
   }
 
+  &:not(.full) {
+    max-width: 80vw;
+  }
+
   &:has(.reveal-header),
   &:has(.reveal-footer),
   &:has(.reveal-body) {

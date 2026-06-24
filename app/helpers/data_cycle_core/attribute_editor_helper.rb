@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 module DataCycleCore
+  # Provides view helper methods for rendering content attribute editors,
+  # including translatable fields, nested structures, and HTML attribute generation.
   module AttributeEditorHelper
     ATTRIBUTE_DATAHASH_PREFIX = '[datahash]'
     ATTRIBUTE_DATAHASH_REGEX = /.*\K(#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}|\[translations\]\[[^\]]*\])/
     ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}".freeze
+    REQUIRED_VALIDATIONS_KEYS = ['required', 'min', 'soft_required', 'soft_min', 'conditional_required'].freeze
 
     DURATION_UNITS = {
       months: 12,
@@ -18,6 +21,23 @@ module DataCycleCore
       duration_hash = DURATION_UNITS.to_h { |k, v| [k, { max: v, value: duration[k] }] }
       duration_hash[:months][:value] = duration_hash[:months][:value].to_i + (12 * duration[:years]) if duration.key?(:years)
       duration_hash
+    end
+
+    # Renders stored rich-text safely, using the field's configured
+    # sanitization mode (``ui.edit.options.data-size``) so the editor keeps
+    # the tags the field allows. Unsized fields fall back to the safe default
+    # mode. Returns an HTML-safe string (escapes anything outside the allowlist).
+    def sanitized_rich_text(value, definition = nil)
+      return if value.blank?
+
+      mode = DataCycleCore::MasterData::DataConverter.get_sanitization_mode(definition)&.to_sym
+      mode = DataCycleCore::MasterData::DataConverter::DEFAULT_SANITIZATION_MODE unless DataCycleCore::MasterData::DataConverter::SANITIZE_TAGS.key?(mode)
+
+      sanitize(
+        value,
+        tags: DataCycleCore::MasterData::DataConverter::SANITIZE_TAGS[mode],
+        attributes: DataCycleCore::MasterData::DataConverter::SANITIZED_ATTRIBUTES[mode]
+      )
     end
 
     def ai_lector_allowed?(key:, definition:, options:, content:, scope: :update, **args)
@@ -46,6 +66,7 @@ module DataCycleCore
 
       return unless options.attribute_allowed?
       return render(*options.attribute_group_params) if options.attribute_group?
+
       options.add_editor_attributes!
 
       if (attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)) || object_has_translatable_attributes?(options.content, options.definition)
@@ -68,6 +89,7 @@ module DataCycleCore
 
         return unless options.attribute_allowed?
         return render(*options.attribute_group_params) if options.attribute_group?
+
         options.add_editor_attributes!
 
         render_untranslatable_attribute_editor(options)
@@ -112,6 +134,12 @@ module DataCycleCore
       new_options
     end
 
+    def attribute_validation_classes(definition)
+      return [] unless definition.key?('validations')
+
+      ['validation-container'] + Array.wrap(definition&.dig('validations')&.keys).map { |k| "validate-#{k}" }
+    end
+
     def attribute_editor_html_classes(key:, definition:, options:, content: nil, parent: nil, html_classes: nil, **_args)
       html_classes = Array.wrap(html_classes)
       html_classes.push('clearfix')
@@ -122,7 +150,7 @@ module DataCycleCore
       html_classes.push(options&.dig('class'))
 
       html_classes.push('disabled') unless attribute_editable?(key, definition, options, content)
-      html_classes.push('validation-container') if definition.key?('validations')
+      html_classes.push(*attribute_validation_classes(definition))
       html_classes.push(definition.dig('ui', 'edit', 'type')&.underscore) if definition&.dig('ui', options[:edit_scope], 'partial').blank?
       html_classes.push('is-embedded-title') if parent.is_a?(DataCycleCore::Thing) && parent.title_property_name.present? && key.attribute_name_from_key == parent.title_property_name
 
@@ -163,7 +191,7 @@ module DataCycleCore
           )
           concat tag.div(
             safe_join([
-              group_title.present? && DataCycleCore::Feature::GeoKeyFigure.allowed_child_attribute_key?(content, definition) ? render('data_cycle_core/contents/editors/features/geo_key_figure_all') : nil
+              group_title.present? && DataCycleCore::Feature['GeoKeyFigure']&.allowed_child_attribute_key?(content, definition) ? render('data_cycle_core/contents/editors/features/geo_key_figure_all') : nil
             ].compact),
             class: 'buttons'
           )
@@ -184,11 +212,11 @@ module DataCycleCore
       ]
         .intersection(versions)
         .map do |v|
-        CollectionHelper::CheckBoxStruct.new(
-          v.delete_prefix('_'),
-          t("common.bulk_update.check_box_labels.#{v.delete_prefix('_')}", locale: active_ui_locale)
-        )
-      end
+          CollectionHelper::CheckBoxStruct.new(
+            v.delete_prefix('_'),
+            t("common.bulk_update.check_box_labels.#{v.delete_prefix('_')}", locale: active_ui_locale)
+          )
+        end
     end
 
     def aggregate_types(_prop)
@@ -204,7 +232,21 @@ module DataCycleCore
     end
 
     def additional_attribute_partial_type_key(content, key)
-      content.translatable_property?(key) ? "thing[translations][#{I18n.locale}][#{key}]" : "thing[datahash][#{key}]"
+      content.attribute_translatable?(key) ? "thing[translations][#{I18n.locale}][#{key}]" : "thing[datahash][#{key}]"
+    end
+
+    # Safely merges a new CSS class into the options hash without mutating the original.
+    def merge_class_in_options(options, new_class)
+      options = options.dup || {}
+      options['class'] = [options['class'], new_class].compact.join(' ')
+      options
+    end
+
+    def required_field_marker?(definition)
+      validations = definition&.dig('validations')
+      return false unless validations
+
+      REQUIRED_VALIDATIONS_KEYS.any? { |key| validations.key?(key) }
     end
   end
 end

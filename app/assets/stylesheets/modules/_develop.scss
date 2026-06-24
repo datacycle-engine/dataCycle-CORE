@@ -2099,10 +2099,28 @@ select {
       overflow: auto;
       max-width: calc(100% - 100px);
 
+      .loading-spinner {
+        display: none;
+        position: absolute;
+        background: rgba(255, 255, 255, 0.8);
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        z-index: 1;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+
+        .fa {
+          font-size: 2rem;
+        }
+      }
+
       .dc-additional-values-filter-container {
         max-height: 100%;
         max-width: 100%;
-        overflow: auto;
+        overflow: hidden;
         padding: 1px;
         width: 100%;
         height: 100%;
@@ -2122,7 +2140,7 @@ select {
         display: flex;
       }
 
-      * {
+      *:not(.dc-add-all-button, .dc-add-all-button .fa, .loading-spinner) {
         color: $black;
         background: transparent;
         border: none;
@@ -2130,6 +2148,33 @@ select {
 
       .dc-additional-values-filter {
         margin: 0;
+
+        .geo-radius-filter-container {
+          display: flex;
+          flex-flow: row nowrap;
+          align-items: stretch;
+          gap: 0.5rem;
+
+          input[type='number'] {
+            min-width: 2rem;
+            width: auto;
+            flex: auto;
+            border: 1px solid var(--dark-gray);
+            padding: 0.1rem 0.3rem;
+            font-size: 0.9rem;
+          }
+
+          select {
+            padding: 0.1rem 0.3rem;
+            font-size: 0.9rem;
+            margin: 0;
+            height: auto;
+            width: auto;
+            flex: 0;
+            border: 1px solid var(--dark-gray);
+            appearance: auto;
+          }
+        }
 
         .overlay-filter-label {
           display: flex;
@@ -2179,40 +2224,34 @@ select {
           justify-content: center;
           position: relative;
 
+          &.hidden {
+            display: none;
+          }
+
+          .filter-group-label {
+            display: inline-flex;
+            font-weight: 300;
+            font-size: 0.9rem;
+            margin: 0;
+            text-overflow: ellipsis;
+          }
+
           &:not(:last-of-type) {
             margin-bottom: 0.2rem;
           }
 
-          .loading-spinner {
-            display: none;
-            position: absolute;
-            background: rgba(255, 255, 255, 0.8);
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            z-index: 1;
-            align-items: start;
-            justify-content: start;
-            overflow: hidden;
+          .accordion {
+            position: relative;
 
-            .fa {
-              font-size: 1rem;
+            .accordion-item>.filter-group-label {
+              margin-right: 1.2rem;
             }
           }
 
-          &.source-loading {
-            pointer-events: none;
-
-            .loading-spinner {
-              display: flex;
-            }
-          }
-
-          &.dc-additional-values-filter-item:not(:last-of-type) {
-            border-bottom: 1px solid $light-gray;
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
+          &.dc-additional-values-filter-item:not(.hidden)+.dc-additional-values-filter-item:not(.hidden) {
+            border-top: 1px solid $light-gray;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
           }
 
           label {
@@ -2224,7 +2263,6 @@ select {
             flex: auto;
             display: flex;
             align-items: center;
-            margin-right: 1.5rem;
             margin-left: 0;
 
             input {
@@ -2237,15 +2275,19 @@ select {
             }
           }
 
+          label+.dc-add-all-button {
+            margin-right: 1.5rem
+          }
+
           .accordion-title {
             position: absolute;
             right: 0;
             top: 0;
-            width: 1rem;
+            width: 1.4rem;
             flex: 0;
             padding: 0;
             display: block;
-            height: 1rem;
+            height: 1.4rem;
 
             &::before {
               position: relative;
@@ -2253,18 +2295,27 @@ select {
               right: 0;
               margin-top: 0;
               display: flex;
-              height: 1rem;
-              width: 1rem;
+              height: 1.4rem;
+              width: 1.4rem;
               align-items: center;
               justify-content: center;
-              font-size: 1rem;
+              font-size: 1.4rem;
             }
           }
 
           .accordion-content {
+            position: relative;
             width: 100%;
             padding: 0.5rem 0 0.5rem 1rem;
           }
+        }
+      }
+
+      &:has(.source-loading) {
+        pointer-events: none;
+
+        .loading-spinner {
+          display: flex;
         }
       }
     }
@@ -2624,6 +2675,7 @@ select {
   .save-content-button,
   .button-prime.small.translate,
   .button-prime.translate-all,
+  .demote-primary-external-system-link,
   .button-prime.copy-all)>.fa {
   font-size: inherit;
   line-height: inherit;
@@ -2881,15 +2933,6 @@ input.normalized {
 
       &.expanded {
         display: block;
-      }
-
-      button {
-        background-color: none;
-        border: 1px solid $primary-color;
-        color: $primary-color;
-        display: flex;
-        align-items: center;
-        justify-content: center;
       }
 
       span.admin-clipboard-notice {
@@ -3341,7 +3384,7 @@ section.duplicate-candidates {
     position: relative;
     padding-bottom: 1rem;
     flex-flow: row wrap;
-    min-width: min-content;
+    min-width: fit-content;
   }
 
   .external-source-icon {
@@ -3486,10 +3529,6 @@ button.button-prime.small.bulk-delete-button {
     .progress-bar {
       visibility: visible;
       width: 20rem;
-    }
-
-    .fa.fa-trash::before {
-      content: '\f1e2';
     }
   }
 }
@@ -4275,5 +4314,49 @@ form {
 
   &.visible {
     display: block;
+  }
+}
+
+.slider {
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 2px;
+    height: 1rem;
+    background: var(--medium-gray);
+    transform: translateY(-50%);
+  }
+
+  &::before {
+    left: calc(0.7rem - 1px);
+  }
+
+  &::after {
+    right: calc(0.7rem - 1px);
+  }
+
+  .slider-labels {
+    position: absolute;
+    top: 100%;
+    display: grid;
+    width: 100%;
+    grid-auto-flow: column;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-top: 0.4rem;
+    pointer-events: none;
+
+    .slider-label-min {
+      text-align: left;
+    }
+
+    .slider-label-max {
+      text-align: right;
+    }
   }
 }

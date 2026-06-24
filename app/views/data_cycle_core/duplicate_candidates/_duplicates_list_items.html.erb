@@ -1,26 +1,27 @@
 <% items&.each do |item| %>
+  <% candidates = item.duplicate_candidates.filter { |dc| dc.duplicate_id == content.id } %>
   <% content_for :tile_bottom_buttons, flush: true do %>
     <div class="duplicate-info-separator"></div>
     <div class="duplicate-info">
-      <div class="duplicate-score"><%= t('duplicate.score', locale: active_ui_locale) %>: <b data-duplicate-method="<%= item.duplicate_method %>" data-dc-tooltip="<%= item.duplicate_method.presence&.then { |d| t("feature.duplicate_candidate.duplicate_methods.#{d}", default: d, locale: active_ui_locale) } %>"><%= item.score.to_i %></b></div>
+      <div class="duplicate-score"><%= t('duplicate.score', locale: active_ui_locale) %>: <%= duplicate_score_tag(candidates) %></div>
       <div class="duplicate-buttons">
-        <%= link_to t('duplicate.merge', locale: active_ui_locale), merge_with_duplicate_thing_path(content, source_id: item.duplicate.id, locale: @locale), class: 'button small' %>
-        <%= link_to t('duplicate.mark_false_positive', locale: active_ui_locale), false_positive_duplicate_thing_path(id: content.id, source_id: item.duplicate.id), method: :post, class: 'button secondary small' %>
+        <%= link_to t('duplicate.merge', locale: active_ui_locale), merge_with_duplicate_thing_path(content, source_id: item.id, locale: @locale), class: 'button small' %>
+        <%= link_to t('duplicate.mark_false_positive', locale: active_ui_locale), false_positive_duplicate_thing_path(id: content.id, source_id: item.id), method: :post, class: 'button secondary small' %>
       </div>
     </div>
   <% end %>
 
   <%= render_linked_partial(
-        key: "duplicate_candidate_#{item.duplicate.id}",
+        key: "duplicate_candidate_#{item.id}",
         definition: {
-          template_name: item.duplicate.template_name,
+          template_name: item.template_name,
           type: 'linked'
         }.with_indifferent_access,
         content: content,
         parameters: {
           options: {},
-          object: item.duplicate,
-          object_id: [item.duplicate.id],
+          object: item,
+          object_id: [item.id],
           prefix: local_assigns[:prefix],
           tile_links: true
         }

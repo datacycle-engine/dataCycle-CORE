@@ -5,7 +5,7 @@ class AddProvidersToUserTable < ActiveRecord::Migration[7.1]
     add_column :users, :providers, :jsonb
     add_index :users, :providers, using: :gin
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       SET LOCAL statement_timeout = 0;
 
       UPDATE users

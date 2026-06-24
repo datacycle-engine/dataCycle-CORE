@@ -4,7 +4,4 @@
     class: "required-field-marker #{'warning-color' if local_assigns[:definition]&.dig('validations')&.keys&.any?{ |k| k.start_with?('soft_') }}".strip,
     data: {
       dc_tooltip: t('common.required_field', locale: active_ui_locale)
-    } if local_assigns[:definition]&.dig('validations', 'required') ||
-    local_assigns[:definition]&.dig('validations', 'min') ||
-    local_assigns[:definition]&.dig('validations', 'soft_required') ||
-    local_assigns[:definition]&.dig('validations', 'soft_min') %>
+    } if required_field_marker?(local_assigns[:definition]) %>

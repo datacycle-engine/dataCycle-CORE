@@ -40,9 +40,10 @@ module DataCycleCore
                 # validity period
 
                 # classifications
-                assert(json_data['classifications'].present?)
+                assert_predicate(json_data['classifications'], :present?)
                 assert_equal(1, json_data['classifications'].size)
                 classification_hash = json_data['classifications'].first
+
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
                 assert_equal('POI', classification_hash['name'])
                 assert_equal(2, classification_hash['ancestors'].size)
@@ -68,6 +69,7 @@ module DataCycleCore
                   'latitude' => @content.latitude,
                   'elevation' => @content.elevation
                 }.compact
+
                 assert_equal(geo, json_data['geo'])
 
                 # TODO: (move to Transformations tests)
@@ -86,6 +88,7 @@ module DataCycleCore
 
                 # Validate OpeningHoursSpecification
                 expected_opening_hours_specification_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification_result')
+
                 assert_equal(expected_opening_hours_specification_hash, json_data['openingHoursSpecification'])
               end
 
@@ -120,21 +123,27 @@ module DataCycleCore
 
               test 'stored item can be found via different endpoints' do
                 get(api_v2_things_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].detect { |item| Array.wrap(item['@type']).last == 'TouristAttraction' }
+
                 assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_contents_search_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].detect { |item| Array.wrap(item['@type']).last == 'TouristAttraction' }
+
                 assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_places_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].first
+
                 assert_equal(@content.id, json_data['identifier'])
               end
             end

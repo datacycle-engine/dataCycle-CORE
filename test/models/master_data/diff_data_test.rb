@@ -49,12 +49,14 @@ describe DataCycleCore::MasterData::DiffData do
 
     it 'checks that template a is given' do
       differ = subject.new.diff(a: data, schema_a: nil, b: data, schema_b: data_template.deep_stringify_keys)
-      assert differ.errors[:error].size == 1
+
+      assert_equal 1, differ.errors[:error].size
     end
 
     it 'uses template a as template b if it is not given' do
       differ = subject.new.diff(a: data, schema_a: data_template.deep_stringify_keys, b: data, schema_b: nil)
-      assert differ.errors[:error].empty?
+
+      assert_empty differ.errors[:error]
     end
 
     it 'checks that both templates have the same name' do
@@ -62,7 +64,8 @@ describe DataCycleCore::MasterData::DiffData do
       schema_b = data_template.deep_dup
       schema_b['name'] = 'test'
       differ = subject.new.diff(a: data, schema_a: schema_a.deep_stringify_keys, b: data, schema_b: schema_b.deep_stringify_keys)
-      assert differ.errors[:error].size == 1
+
+      assert_equal 1, differ.errors[:error].size
     end
 
     it 'checks that both templates have the same content' do
@@ -78,8 +81,9 @@ describe DataCycleCore::MasterData::DiffData do
         validations: { minLength: 1 }
       }
       differ = subject.new.diff(a: data, schema_a: schema_a.deep_stringify_keys, b: data, schema_b: schema_b.deep_stringify_keys)
-      assert differ.errors[:error].size == 1
-      assert differ.errors[:info].size == 1
+
+      assert_equal 1, differ.errors[:error].size
+      assert_equal 1, differ.errors[:info].size
     end
   end
 end

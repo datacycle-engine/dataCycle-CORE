@@ -23,6 +23,7 @@ describe DataCycleCore::MasterData::Differs::Datetime do
 
     it 'properly diffs equal datetimes' do
       a = '2018-01-01'.in_time_zone
+
       [
         [a, a],
         [a.to_s, a],
@@ -36,6 +37,7 @@ describe DataCycleCore::MasterData::Differs::Datetime do
 
     it 'recognizes a deleted value' do
       a = '2018-01-01'.in_time_zone
+
       [a, a.to_s, a.inspect, a.send(:to_time), a.to_datetime].each do |item|
         assert_equal(['-', a], subject.new(item, nil).diff_hash)
       end

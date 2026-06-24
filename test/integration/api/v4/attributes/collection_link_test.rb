@@ -17,7 +17,7 @@ module DataCycleCore
             )
           end
 
-          test 'api/v4/things collection attribute order' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things collection attribute order' do
             post api_v4_thing_path(id: @content.id)
             json_data = response.parsed_body
             collections = json_data.dig('@graph', 0, 'collections')
@@ -28,7 +28,7 @@ module DataCycleCore
             assert_equal 'dcls:WatchList', collections.last['@type'].last
           end
 
-          test 'api/v4/things collection attribute' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things collection attribute' do
             post api_v4_thing_path(id: @content.id)
             json_data = response.parsed_body
             collections = json_data.dig('@graph', 0, 'collections')
@@ -42,7 +42,7 @@ module DataCycleCore
             end
           end
 
-          test 'api/v4/things collection attribute with fields @id' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things collection attribute with fields @id' do
             post api_v4_thing_path(id: @content.id), params: { fields: 'collections.@id' }
             json_data = response.parsed_body
             collections = json_data.dig('@graph', 0, 'collections')
@@ -56,7 +56,7 @@ module DataCycleCore
             end
           end
 
-          test 'api/v4/things collection attribute with fields name' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things collection attribute with fields name' do
             post api_v4_thing_path(id: @content.id), params: { fields: 'collections.name' }
             json_data = response.parsed_body
             collections = json_data.dig('@graph', 0, 'collections')
@@ -70,7 +70,7 @@ module DataCycleCore
             end
           end
 
-          test 'api/v4/things collection attribute with fields url' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things collection attribute with fields url' do
             post api_v4_thing_path(id: @content.id), params: { fields: 'collections.url' }
             json_data = response.parsed_body
             collections = json_data.dig('@graph', 0, 'collections')
@@ -84,7 +84,7 @@ module DataCycleCore
             end
           end
 
-          test 'api/v4/things collection attribute with fields dc:slug' do # rubocop:disable Minitest/MultipleAssertions
+          test 'api/v4/things collection attribute with fields dc:slug' do
             post api_v4_thing_path(id: @content.id), params: { fields: 'collections.dc:slug' }
             json_data = response.parsed_body
             collections = json_data.dig('@graph', 0, 'collections')

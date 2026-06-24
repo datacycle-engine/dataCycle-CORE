@@ -2,7 +2,7 @@
 
 class TransformToAdditionalDescription < ActiveRecord::Migration[5.2]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       UPDATE content_contents
       SET relation_a = 'additional_information'
       FROM things

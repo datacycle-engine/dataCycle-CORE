@@ -15,6 +15,7 @@ module DataCycleCore
 
       test 'admin dashboard' do
         get admin_path
+
         assert_response :success
       end
     end

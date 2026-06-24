@@ -1,10 +1,11 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge({ 'class' => Array.wrap(options['class']).push('object embedded_object').compact_blank.join(' ') }), content: content, parent: local_assigns[:parent] do %>
-
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: merge_class_in_options(options, 'object embedded_object'), content: content, parent: local_assigns[:parent] do %>
   <% objects = value.presence&.group_by { |s| [s.dtstart.strftime('%Y-%m-%d'), s.rrule&.gsub(/T\d+Z/, '')] }&.values %>
 
   <%= embedded_editor_header(**local_assigns) %>
 
-  <div class="embedded-object" id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"
+  <div
+    class="embedded-object"
+    id="<%= local_assigns.dig(:options, :prefix) %><%= sanitize_to_id(key) %>"
     data-locale="<%= I18n.locale.to_s %>"
     data-key="<%= key %>"
     data-label="<%= translated_attribute_label(key, definition, content, options) %>"
@@ -22,8 +23,8 @@
     data-write="<%= attribute_editable?(key, definition, options, content) %>"
     data-accordion
     data-allow-all-closed="true"
-    data-multi-expand="true">
-
+    data-multi-expand="true"
+  >
     <% if objects.present? %>
       <% objects.each_with_index do |object, index| %>
         <%= render_embedded_object_partial(key: key,
@@ -40,10 +41,8 @@
           content: content
         ) %>
       <% end %>
-
     <% else %>
       <%= hidden_field_tag key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>
     <% end %>
   </div>
-
 <% end %>

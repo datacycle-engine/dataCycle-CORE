@@ -13,6 +13,7 @@ module DataCycleCore
 
     test 'info path always available' do
       get info_path
+
       assert_response :success
     end
 

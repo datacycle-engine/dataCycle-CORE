@@ -10,7 +10,7 @@ module DataCycleCore
 
         if child_keys.present?
           child_keys.each do |ck|
-            additional_map_values(c.try(ck)&.includes(:translations), paths[ck], values, [key_prefix, ck].compact.join('_'))
+            additional_map_values(c.try(ck)&.includes(:translations, :geometries), paths[ck], values, [key_prefix, ck].compact.join('_'))
           end
         end
 
@@ -86,14 +86,27 @@ module DataCycleCore
       end
     end
 
-    def additional_map_values_filter(tree_label)
-      return {} if tree_label.blank?
+    def add_map_value_filter_groups!(values)
+      values.each_value do |value|
+        value[:filter_groups] = additional_map_values_filter(value.dig('definition', 'ui', 'edit', 'filters'))
+      end
+    end
 
-      DataCycleCore::ClassificationAlias
-        .includes(:classification_tree_label, :parent_classification_alias)
-        .where(classification_tree_labels: { name: tree_label })
-        .order(created_at: :asc)
-        .group_by { |c| c.parent_classification_alias&.id }
+    def additional_map_values_filter(filters)
+      return {} if filters.blank?
+
+      filter_groups = {}
+
+      filters.each do |key, value|
+        next unless respond_to?("#{key}_filter", true)
+
+        config = send("#{key}_filter", value)
+        next if config.blank?
+
+        filter_groups[key] = config
+      end
+
+      filter_groups
     end
 
     def map_filter_layers(filters)
@@ -116,6 +129,23 @@ module DataCycleCore
       end
 
       return filter_layers, filter_bbox
+    end
+
+    private
+
+    def classification_tree_filter(tree_label)
+      {
+        label: tree_label,
+        value: DataCycleCore::ClassificationAlias
+          .includes(:classification_tree_label, :parent_classification_alias)
+          .where(classification_tree_labels: { name: tree_label })
+          .order(created_at: :asc)
+          .group_by { |c| c.parent_classification_alias&.id }
+      }
+    end
+
+    def geo_radius_filter(_attribute)
+      { label: t('filter.geo_radius', locale: active_ui_locale) }
     end
   end
 end

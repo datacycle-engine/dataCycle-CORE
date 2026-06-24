@@ -3,6 +3,15 @@
 module DataCycleCore
   module MasterData
     module Templates
+      # Transforms templates into aggregate templates that consolidate data from multiple linked sources.
+      #
+      # Aggregate templates create computed properties that pull data from linked base templates,
+      # enabling a single content item to aggregate information from multiple related items.
+      #
+      # Notable behaviors:
+      # - Merges classification properties from all base templates into universal_classifications
+      # - Applies special handling for slug and universal_classifications properties
+      # - Preserves certain features like life_cycle on properties
       class AggregateTemplate
         BASE_AGGREGATE_POSTFIX = '_aggregate_for_override'
         AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute', 'sorting', 'inverse_of'].freeze
@@ -10,30 +19,31 @@ module DataCycleCore
         AGGREGATE_INVERSE_PROPERTY_NAME = 'belongs_to_aggregate'
         ADDITIONAL_BASE_TEMPLATES_KEY = 'additional_base_templates'
         AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze # keys that should not be included in the aggregate definition
-        PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type', 'slug'].freeze # keys that should not be aggregated
+        PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type', 'slug', 'dummy'].freeze # keys that should not be aggregated
         ALLOWED_PROP_OVERRIDES = ['features', 'ui'].freeze
         AGGREGATE_TEMPLATE_SUFFIX = ' (Aggregate)'
         KEEP_PROP_FEATURES = ['life_cycle'].freeze # features that should be kept on the property
 
-        def initialize(data:)
+        def initialize(data:, templates: [])
           @data = data
+          @templates = templates
           @aggregate = @data.dc_deep_dup.with_indifferent_access
         end
 
         def self.merge_belongs_to_aggregate_property!(data:, aggregate_name:)
-          if data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym]
-            data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym][:template_name] = (Array.wrap(data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym][:template_name]) + [aggregate_name]).uniq
-          else
-            data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym] = {
-              type: 'linked',
-              inverse_of: AGGREGATE_PROPERTY_NAME,
-              link_direction: 'inverse',
-              template_name: aggregate_name,
-              api: {
-                name: 'dc:belongsToAggregate'
-              }
+          value = data.dig(:properties, AGGREGATE_INVERSE_PROPERTY_NAME.to_sym) || {}
+          merged_value = {
+            type: 'linked',
+            inverse_of: AGGREGATE_PROPERTY_NAME,
+            link_direction: 'inverse',
+            template_name: aggregate_name,
+            api: {
+              name: 'dc:belongsToAggregate'
             }
-          end
+          }.with_indifferent_access.deep_merge(value)
+          merged_value[:template_name] = (Array.wrap(value[:template_name]) + [aggregate_name]).uniq if value.key?(:template_name)
+
+          data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym] = merged_value
         end
 
         def import
@@ -42,6 +52,7 @@ module DataCycleCore
           transform_aggregate_properties!
           transform_override_properties!
           transform_inverse_properties!
+          remove_forbidden_properties!
           add_aggregate_property!
 
           @aggregate
@@ -98,23 +109,64 @@ module DataCycleCore
         def transform_inverse_properties!
           @aggregate[:properties].each_value do |prop|
             next unless prop[:type] == 'linked' && prop[:link_direction] == 'inverse'
+
             prop.except!(:inverse_of, :link_direction)
           end
         end
 
+        def remove_forbidden_properties!
+          @aggregate[:properties].except!(AGGREGATE_INVERSE_PROPERTY_NAME)
+        end
+
         def slug_definition(key:, prop:)
-          new_prop = prop.dc_deep_dup
+          new_prop = prop.dc_deep_dup.with_indifferent_access
           new_prop[:compute] = {
             module: 'Slug',
             method: 'slug_value_from_first_existing_linked',
             fallback: false,
-            parameters: [
-              "#{self.class.aggregate_property_key(key)}.#{key}",
-              "#{AGGREGATE_PROPERTY_NAME}.#{key}"
-            ]
+            parameters: ["#{AGGREGATE_PROPERTY_NAME}.#{key}"]
           }
 
           [[key, new_prop]]
+        end
+
+        def universal_classifications_definition(key:, prop:)
+          base_keys = [key]
+          base_keys.concat(missing_classification_keys)
+          base_keys.uniq!
+          new_prop = prop.dc_deep_dup.with_indifferent_access
+          parameters = base_keys.map { |k| "#{AGGREGATE_PROPERTY_NAME}.#{k}" }
+
+          new_prop[:compute] = {
+            module: 'Classification',
+            method: 'universal_from_first_existing_linked',
+            fallback: false,
+            parameters:
+          }
+
+          [[key, new_prop]]
+        end
+
+        def missing_classification_keys
+          abtn = additional_base_template_names
+          missing_keys = []
+          return missing_keys if abtn.blank?
+
+          existing_keys = @aggregate['properties']&.filter { |_, v| v[:type] == 'classification' }&.keys
+          return missing_keys if existing_keys.blank?
+
+          abtn.each do |template_name|
+            template = @templates.find { |t| t[:name] == template_name }
+            next if template.blank?
+
+            classification_keys = template.dig(:data, :properties)
+              &.filter { |_, v| v&.dig(:type) == 'classification' }&.keys
+            next if classification_keys.blank?
+
+            missing_keys.concat(classification_keys - existing_keys)
+          end
+
+          missing_keys.uniq
         end
 
         def transform_aggregate_property(key:, prop:)
@@ -122,6 +174,7 @@ module DataCycleCore
           return [] if AGGREGATE_KEY_EXCEPTIONS.include?(key)
           return [] if prop.dig(:features, :overlay)&.key?(:overlay_for) || prop.dig(:features, :aggregate)&.key?(:aggregate_for)
           return slug_definition(key:, prop:) if key == 'slug'
+          return universal_classifications_definition(key:, prop:) if key == 'universal_classifications'
           return [[key, prop]] unless self.class.key_allowed_for_aggregate?(key:, prop:)
 
           prop.except!(*AGGREGATE_PROP_EXCEPTIONS)
@@ -148,8 +201,6 @@ module DataCycleCore
         end
 
         def aggregate_property_definition(key:, prop:)
-          # embedded should use plural for labels
-
           {
             label: { key:, key_prefix: 'aggregate_for_override', count: prop['type'] == 'embedded' ? 2 : nil },
             type: 'linked',
@@ -173,12 +224,20 @@ module DataCycleCore
           }.deep_reject { |_, v| DataHashService.blank?(v) }.with_indifferent_access
         end
 
-        def aggregate_base_template_name
+        def additional_base_template_names
           if @data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY).present?
-            ([@data[:name]] + Array.wrap(@data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY))).uniq
+            Array.wrap(@data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY)).uniq
           else
-            @data[:name]
+            []
           end
+        end
+
+        def aggregate_base_template_name
+          abtn = additional_base_template_names
+
+          return @data[:name] if abtn.blank?
+
+          ([@data[:name]] + abtn).uniq
         end
 
         def add_prop_ui_definition!(prop:)

@@ -9,8 +9,6 @@ module DataCycleCore
     after_create_commit :enqueue_extract_text_content_job, if: -> { DataCycleCore.features.dig(:cancel_pdf_full_text_search, :enabled) != true }
 
     cattr_reader :versions, default: { thumb_preview: {} }
-    attr_accessor :remote_file_url
-    before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
 
     def self.extension_white_list
       DataCycleCore.uploader_validations.dig(:pdf, :format).presence || ['pdf']
@@ -19,12 +17,12 @@ module DataCycleCore
     private
 
     def metadata_from_blob
-      if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable[:io].present?
-        # import from local disc
-        tempfile = attachment_changes['file'].attachable[:io]
-      else
-        tempfile = attachment_changes['file'].attachable.to_io
-      end
+      tempfile = if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable[:io].present?
+                   # import from local disc
+                   attachment_changes['file'].attachable[:io]
+                 else
+                   attachment_changes['file'].attachable.to_io
+                 end
 
       reader = PDF::Reader.new(tempfile)
 

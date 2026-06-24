@@ -42,6 +42,7 @@ module DataCycleCore
 
           if variant == 'dynamic'
             return unless image_processing.is_a?(::Hash) && !image_processing.empty?
+
             preset = image_processing['preset'] || 'default'
             target_url += [
               preset,
@@ -92,6 +93,7 @@ module DataCycleCore
           end
           return if ext_name.blank?
           return 'jpeg' unless SUPPORTED_FILE_EXTENSIONS.include?(ext_name)
+
           ext_name
         end
 

@@ -17,10 +17,8 @@ describe DataCycleCore::ExternalSystem do
         key: 'testkey'
       },
       config: {
-        export_config: {
-        },
-        refresh_config: {
-        },
+        export_config: {},
+        refresh_config: {},
         download_config: {
           places: {
             sorting: 1,
@@ -71,10 +69,10 @@ describe DataCycleCore::ExternalSystem do
       subject.import_step('places', {}, subject.download_config['places'])
     end
 
-    assert(subject.last_try('places', :download).present?)
-    assert(subject.last_try_time('places', :download).present?)
-    assert(subject.last_successful_try('places', :download).present?)
-    assert(subject.last_successful_try_time('places', :download).present?)
+    assert_predicate(subject.last_try('places', :download), :present?)
+    assert_predicate(subject.last_try_time('places', :download), :present?)
+    assert_predicate(subject.last_successful_try('places', :download), :present?)
+    assert_predicate(subject.last_successful_try_time('places', :download), :present?)
   end
 
   it 'import step fails' do
@@ -86,10 +84,10 @@ describe DataCycleCore::ExternalSystem do
       subject.import_step('places', {}, subject.download_config['places'])
     end
 
-    assert(subject.last_try('places', :download).present?)
-    assert(subject.last_try_time('places', :download).present?)
-    assert(subject.last_successful_try('places', :download).nil?)
-    assert(subject.last_successful_try_time('places', :download).nil?)
+    assert_predicate(subject.last_try('places', :download), :present?)
+    assert_predicate(subject.last_try_time('places', :download), :present?)
+    assert_nil(subject.last_successful_try('places', :download))
+    assert_nil(subject.last_successful_try_time('places', :download))
   end
 
   it 'import step error' do
@@ -104,10 +102,10 @@ describe DataCycleCore::ExternalSystem do
       end
     end
 
-    assert(subject.last_try('places', :download).present?)
-    assert(subject.last_try_time('places', :download).present?)
-    assert(subject.last_successful_try('places', :download).nil?)
-    assert(subject.last_successful_try_time('places', :download).nil?)
+    assert_predicate(subject.last_try('places', :download), :present?)
+    assert_predicate(subject.last_try_time('places', :download), :present?)
+    assert_nil(subject.last_successful_try('places', :download))
+    assert_nil(subject.last_successful_try_time('places', :download))
   end
 
   it 'download successful' do
@@ -119,10 +117,10 @@ describe DataCycleCore::ExternalSystem do
       subject.download
     end
 
-    assert(subject.last_try('places', :download).present?)
-    assert(subject.last_try_time('places', :download).present?)
-    assert(subject.last_successful_try('places', :download).present?)
-    assert(subject.last_successful_try_time('places', :download).present?)
+    assert_predicate(subject.last_try('places', :download), :present?)
+    assert_predicate(subject.last_try_time('places', :download), :present?)
+    assert_predicate(subject.last_successful_try('places', :download), :present?)
+    assert_predicate(subject.last_successful_try_time('places', :download), :present?)
   end
 
   it 'import successful' do
@@ -134,9 +132,9 @@ describe DataCycleCore::ExternalSystem do
       subject.import
     end
 
-    assert(subject.last_try('keywords', :import).present?)
-    assert(subject.last_try_time('keywords', :import).present?)
-    assert(subject.last_successful_try('keywords', :import).present?)
-    assert(subject.last_successful_try_time('keywords', :import).present?)
+    assert_predicate(subject.last_try('keywords', :import), :present?)
+    assert_predicate(subject.last_try_time('keywords', :import), :present?)
+    assert_predicate(subject.last_successful_try('keywords', :import), :present?)
+    assert_predicate(subject.last_successful_try_time('keywords', :import), :present?)
   end
 end

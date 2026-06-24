@@ -20,7 +20,8 @@ module DataCycleCore
       }, headers: {
         referer: root_path
       }
-      assert response.body.include?('thing[datahash][name]')
+
+      assert_includes response.body, 'thing[datahash][name]'
     end
 
     test 'remote render' do
@@ -33,7 +34,8 @@ module DataCycleCore
       }, headers: {
         referer: root_path
       }
-      assert response.body.include?('Container')
+
+      assert_includes response.body, 'Container'
 
       article_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel').template_thing
       post remote_render_path, xhr: true, params: {
@@ -56,7 +58,8 @@ module DataCycleCore
       }, headers: {
         referer: edit_thing_path(@content)
       }
-      assert response.body.include?('thing[datahash][name]')
+
+      assert_includes response.body, 'thing[datahash][name]'
     end
   end
 end

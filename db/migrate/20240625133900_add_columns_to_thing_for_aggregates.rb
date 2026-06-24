@@ -2,7 +2,7 @@
 
 class AddColumnsToThingForAggregates < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE TYPE aggregate_type AS ENUM ('default', 'aggregate', 'belongs_to_aggregate');
     SQL
 
@@ -13,7 +13,7 @@ class AddColumnsToThingForAggregates < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TYPE aggregate_type;
     SQL
 

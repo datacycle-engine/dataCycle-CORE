@@ -18,9 +18,11 @@ module DataCycleCore
               fields: ''
             }
             post api_v4_things_path(params)
+
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
@@ -30,6 +32,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be filled'
             }
+
             assert_equal(error_object, json_data['errors'].first)
           end
 
@@ -40,9 +43,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
@@ -52,6 +57,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be an integer'
             }
+
             assert_equal(error_object, json_data['errors'].first)
 
             params = {
@@ -60,9 +66,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
@@ -72,6 +80,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be greater than or equal to 1'
             }
+
             assert_equal(error_object, json_data['errors'].first)
           end
 
@@ -82,9 +91,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
@@ -94,6 +105,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
+
             assert_equal(error_object, json_data['errors'].first)
 
             params = {
@@ -102,9 +114,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
@@ -114,6 +128,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
+
             assert_equal(error_object, json_data['errors'].first)
 
             params = {
@@ -128,9 +143,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
@@ -140,6 +157,7 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
+
             assert_equal(error_object, json_data['errors'].first)
           end
 
@@ -161,18 +179,21 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'filter[linked][contentLocation][attribute][mod2ifiedAt][in][min]'
+                'parameter' => 'filter[attribute][mod2ifiedAt]'
               },
               'title' => 'Invalid Query Parameter',
-              'detail' => 'is not allowed'
+              'detail' => 'attribute is unknown'
             }
+
             assert_equal(error_object, json_data['errors'].first)
 
             # invalid value
@@ -192,9 +213,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
@@ -204,10 +227,11 @@ module DataCycleCore
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be a string or must be an integer or must be a float'
             }
+
             assert_equal(error_object, json_data['errors'].first)
           end
 
-          test 'api/v4/things test multiple nested linked filter are not possible' do
+          test 'api/v4/things test multiple nested linked filter are possible' do
             # invalid parameter
             params = {
               filter: {
@@ -229,18 +253,217 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
-            assert_response :bad_request
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+
+            assert_response :success
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
+            assert_equal(4, json_data.size)
+            assert_nil(json_data['errors'])
+          end
+
+          test 'api/v4/things test linked nested in graph filter are possible' do
+            # invalid parameter
+            params = {
+              filter: {
+                linked: {
+                  contentLocation: {
+                    graph: {
+                      image: {
+                        attribute: {
+                          'dct:modified': {
+                            in: {
+                              min: '2020-07-07'
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+
+            assert_response :success
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data = response.parsed_body
+
+            assert_equal(4, json_data.size)
+            assert_nil(json_data['errors'])
+          end
+
+          test 'api/v4/things test graph nested in linked filter is possible' do
+            # invalid parameter
+            params = {
+              filter: {
+                graph: {
+                  contentLocation: {
+                    linked: {
+                      image: {
+                        attribute: {
+                          'dct:modified': {
+                            in: {
+                              min: '2020-07-07'
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+
+            assert_response :success
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data = response.parsed_body
+
+            assert_equal(4, json_data.size)
+            assert_nil(json_data['errors'])
+          end
+
+          test 'api/v4/things test graph nested in graph filter ist possible' do
+            # invalid parameter
+            params = {
+              filter: {
+                graph: {
+                  contentLocation: {
+                    graph: {
+                      image: {
+                        attribute: {
+                          'dct:modified': {
+                            in: {
+                              min: '2020-07-07'
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+
+            assert_response :success
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data = response.parsed_body
+
+            assert_equal(4, json_data.size)
+            assert_nil(json_data['errors'])
+          end
+
+          test 'api/v4/things test linked/attribute/graph nested in attribute filter are not possible' do
+            # invalid parameter
+            params = {
+              filter: {
+                attribute: {
+                  contentLocation: {
+                    linked: {
+                      image: {
+                        attribute: {
+                          'dct:modified': {
+                            in: {
+                              min: '2020-07-07'
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+
+            assert_response :bad_request
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'filter[linked][contentLocation][linked][image][attribute][dct:modified][in][min]'
+                'parameter' => 'filter[attribute][contentLocation][linked][image][attribute][dct:modified][in][min]'
               },
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
+
+            assert_equal(error_object, json_data['errors'].first)
+
+            # invalid parameter
+            params = {
+              filter: {
+                attribute: {
+                  contentLocation: {
+                    attribute: {
+                      'dct:modified': {
+                        in: {
+                          min: '2020-07-07'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+
+            assert_response :bad_request
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data = response.parsed_body
+
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            error_object = {
+              'source' => {
+                'parameter' => 'filter[attribute][contentLocation][attribute][dct:modified][in][min]'
+              },
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'is not allowed'
+            }
+
+            assert_equal(error_object, json_data['errors'].first)
+
+            # invalid parameter
+            params = {
+              filter: {
+                attribute: {
+                  contentLocation: {
+                    graph: {
+                      image: {
+                        attribute: {
+                          'dct:modified': {
+                            in: {
+                              min: '2020-07-07'
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(params)
+
+            assert_response :bad_request
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data = response.parsed_body
+
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            error_object = {
+              'source' => {
+                'parameter' => 'filter[attribute][contentLocation][graph][image][attribute][dct:modified][in][min]'
+              },
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'is not allowed'
+            }
+
             assert_equal(error_object, json_data['errors'].first)
           end
 
@@ -249,9 +472,11 @@ module DataCycleCore
               id: @content.id
             }
             post api_v4_thing_path(params)
+
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
@@ -261,6 +486,7 @@ module DataCycleCore
               'title' => 'Content is expired',
               'detail' => 'is expired'
             }
+
             assert_equal(error_object, json_data['errors'].first)
           end
 
@@ -275,17 +501,21 @@ module DataCycleCore
               },
               'detail' => 'Not found'
             }
+
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             assert_equal(error_object, json_data['errors'].first)
 
             post api_v4_thing_path(params)
+
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             assert_equal(error_object, json_data['errors'].first)
@@ -303,17 +533,21 @@ module DataCycleCore
               },
               'detail' => 'Not found'
             }
+
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             assert_equal(error_object, json_data['errors'].first)
 
             post api_v4_stored_filter_path(params)
+
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             assert_equal(error_object, json_data['errors'].first)
@@ -332,18 +566,22 @@ module DataCycleCore
               },
               'detail' => 'Not found'
             }
+
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             assert_equal(error_object, json_data['errors'].first)
 
             post api_v4_collection_path(params)
             follow_redirect!
+
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             assert_equal(error_object, json_data['errors'].first)
@@ -362,17 +600,21 @@ module DataCycleCore
               },
               'detail' => 'invalid or missing authentication token'
             }
+
             assert_response :unauthorized
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             assert_equal(error_object, json_data['errors'].first)
 
             post api_v4_collection_path(params)
+
             assert_response :unauthorized
-            assert_equal(response.content_type, 'application/json; charset=utf-8')
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = response.parsed_body
+
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             assert_equal(error_object, json_data['errors'].first)

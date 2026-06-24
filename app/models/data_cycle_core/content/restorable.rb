@@ -12,8 +12,21 @@ module DataCycleCore
           restore_content_contents
           restore_schedules
           restore_geometries
+          restore_embedding_histories
+          restore_content_collection_links
 
           content.search_languages(true)
+        end
+      end
+
+      def restore_version(current_user: nil)
+        I18n.with_locale(first_available_locale) do
+          history_hash = get_data_hash
+          history_date = updated_at&.in_time_zone
+          ui_locale = current_user&.ui_locale || DataCycleCore.ui_locales.first
+          history_date_string = I18n.l(history_date, locale: ui_locale, format: :history) if history_date.present?
+
+          thing.set_data_hash(data_hash: history_hash, version_name: I18n.t('history.restore.version.restored_version_name', locale: ui_locale, date: history_date_string))
         end
       end
 
@@ -23,7 +36,9 @@ module DataCycleCore
         content = DataCycleCore::Thing.create!(attributes.slice(*DataCycleCore::Thing.column_names).merge(
                                                  'id' => thing_id,
                                                  'version_name' => I18n.t('history.restored', date: I18n.l(Time.zone.now, format: :edit)),
-                                                 'created_at' => DataCycleCore::Thing::History.order(created_at: :asc).find_by(thing_id:)&.created_at
+                                                 'created_at' => DataCycleCore::Thing::History.order(created_at: :asc).find_by(thing_id:)&.created_at,
+                                                 'deleted_at' => nil,
+                                                 'deleted_by' => nil
                                                ))
 
         translations.each do |translated_entry|
@@ -74,6 +89,22 @@ module DataCycleCore
       def restore_geometries
         geometry_histories.each do |geometry_history|
           DataCycleCore::Geometry.create!(geometry_history.attributes.slice(*DataCycleCore::Geometry.column_names.except('id')).merge('thing_id' => thing_id))
+        rescue ActiveRecord::RecordNotUnique
+          nil
+        end
+      end
+
+      def restore_content_collection_links
+        content_collection_link_histories.each do |cclh|
+          DataCycleCore::ContentCollectionLink.create!(cclh.attributes.slice(*DataCycleCore::ContentCollectionLink.column_names.except('id')).merge('thing_id' => thing_id))
+        rescue ActiveRecord::RecordNotUnique
+          nil
+        end
+      end
+
+      def restore_embedding_histories
+        embedding_histories.each do |embedding_history|
+          DataCycleCore::Embedding.create!(embedding_history.attributes.slice(*DataCycleCore::Embedding.column_names.except('id')).merge('thing_id' => thing_id))
         rescue ActiveRecord::RecordNotUnique
           nil
         end

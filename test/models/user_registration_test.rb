@@ -25,11 +25,11 @@ module DataCycleCore
     end
 
     test 'terms_conditions_changed? false' do
-      assert_equal(false, DataCycleCore::Feature::UserRegistration.terms_conditions_changed?(@user.additional_attributes&.dig('terms_conditions_at')))
+      assert_not(DataCycleCore::Feature::UserRegistration.terms_conditions_changed?(@user.additional_attributes&.dig('terms_conditions_at')))
     end
 
     test 'privacy_policy_changed? false' do
-      assert_equal(false, DataCycleCore::Feature::UserRegistration.privacy_policy_changed?(@user.additional_attributes&.dig('privacy_policy_at')))
+      assert_not(DataCycleCore::Feature::UserRegistration.privacy_policy_changed?(@user.additional_attributes&.dig('privacy_policy_at')))
     end
 
     test 'users_outside_grace_period false' do
@@ -49,7 +49,7 @@ module DataCycleCore
         'terms_conditions_at' => 1.week.ago.iso8601
       })
 
-      assert_equal(true, DataCycleCore::Feature::UserRegistration.terms_conditions_changed?(@user.additional_attributes&.dig('terms_conditions_at')))
+      assert(DataCycleCore::Feature::UserRegistration.terms_conditions_changed?(@user.additional_attributes&.dig('terms_conditions_at')))
     end
 
     test 'privacy_policy_changed? true' do
@@ -61,7 +61,7 @@ module DataCycleCore
         'privacy_policy_at' => 1.week.ago.iso8601
       })
 
-      assert_equal(true, DataCycleCore::Feature::UserRegistration.privacy_policy_changed?(@user.additional_attributes&.dig('privacy_policy_at')))
+      assert(DataCycleCore::Feature::UserRegistration.privacy_policy_changed?(@user.additional_attributes&.dig('privacy_policy_at')))
     end
 
     test 'users_outside_grace_period true' do

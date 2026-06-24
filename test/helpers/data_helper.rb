@@ -6,6 +6,7 @@ module DataCycleCore
       before = thing_counts
       yield
       after = thing_counts
+
       assert_thing_counts(before, after, diff)
     end
 

@@ -1,10 +1,14 @@
 import Quill from "quill";
+
 const QuillModule = Quill.import("core/module");
 const InlineBlot = Quill.import("blots/inline");
+
 import { QuillTooltip, Range } from "./quill_tooltip";
+
 const icons = Quill.import("ui/icons");
 icons.contentlink =
 	'<span data-dc-tooltip="dataCycle-Referenz"><svg id="Ebene_1" viewBox="0 0 118.46 76.680002" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"><path class="cls-1" d="m 91.35,11.23 v 0 c -7.48,0 -14.26,3.03 -19.17,7.94 l 7.19,7.19 c 3.07,-3.07 7.3,-4.96 11.98,-4.96 9.36,0 16.94,7.59 16.94,16.94 0,9.35 -7.58,16.94 -16.94,16.94 -4.68,0 -8.92,-1.9 -11.98,-4.96 l -7.19,7.19 c 4.91,4.9 11.68,7.94 19.17,7.94 14.97,0 27.11,-12.14 27.11,-27.11 0,-14.97 -12.14,-27.11 -27.11,-27.11" id="path1" /><path class="cls-1" d="M 14.38,38.34 38.34,14.38 62.3,38.34 38.34,62.3 Z M 38.34,0 0,38.34 38.34,76.68 76.68,38.34 Z" id="path2" /></svg></span>';
+
 import { nanoid } from "nanoid";
 
 class ContentLinkTooltip extends QuillTooltip {
@@ -35,7 +39,9 @@ class ContentLinkTooltip extends QuillTooltip {
 					edit_buttons: true,
 				},
 			};
-			selectedIds += `<li class="item remote-render" data-id="${value}" data-remote-render-function="render_linked_partial" data-remote-strategy="replaceSelf" data-remote-render-params='${JSON.stringify(params)}'><input type="hidden" name="${this.key}[]" value="${value}"></li>`;
+			selectedIds += `<li class="item remote-render" data-id="${value}" data-remote-render-function="render_linked_partial" data-remote-strategy="replaceSelf" data-remote-render-params='${JSON.stringify(
+				params,
+			)}'><input type="hidden" name="${this.key}[]" value="${value}"></li>`;
 		}
 
 		return selectedIds;
@@ -57,6 +63,7 @@ class ContentLinkTooltip extends QuillTooltip {
                data-hidden-field-id="${editorId}_default"
                data-definition='${JSON.stringify(definition)}'
                data-max="1"
+               data-editable="true"
                data-objects='${JSON.stringify(value ? [value] : [])}'
                data-template-name="${this.contentTemplateName}"
                data-template='${this.contentTemplate}'
@@ -216,8 +223,8 @@ ContentLinkTooltip.TEMPLATE = [
 
 class ContentlinkBlot extends InlineBlot {
 	static create(value) {
-		// biome-ignore lint/complexity/noThisInStatic: <explanation>
-		const node = super.create();
+		// biome-ignore lint/complexity/noThisInStatic: Parchment's create() reads this.className/tagName from the subclass
+		const node = super.create(value);
 		node.dataset.href = value;
 		node.dataset.dcTooltip = `dataCycle: ${value}`;
 		return node;
@@ -259,4 +266,4 @@ class QuillContentlinkModule extends QuillModule {
 	}
 }
 
-export { QuillContentlinkModule, ContentlinkBlot, ContentLinkTooltip };
+export { ContentLinkTooltip, ContentlinkBlot, QuillContentlinkModule };

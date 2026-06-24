@@ -15,7 +15,7 @@ module DataCycleCore
         # check consistency of data in DB
         assert_equal(1, DataCycleCore::Video.count)
         # check video data
-        assert(@video.file_size.positive?)
+        assert_predicate(@video.file_size, :positive?)
         assert_equal(file_name, @video.name)
         assert_equal('DataCycleCore::Video', @video.type)
         assert(@video.metadata.is_a?(Hash))
@@ -40,7 +40,7 @@ module DataCycleCore
 
         assert_not(@video.persisted?)
         assert_not(@video.valid?)
-        assert(@video.errors.present?)
+        assert_predicate(@video.errors, :present?)
       end
     end
   end

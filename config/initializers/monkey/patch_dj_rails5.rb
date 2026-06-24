@@ -7,6 +7,7 @@
 module DelayedWorkerPatches
   def reload!
     return unless self.class.reload_app?
+
     if defined?(ActiveSupport::Reloader)
       Rails.application.reloader.reload!
     else
@@ -16,8 +17,4 @@ module DelayedWorkerPatches
   end
 end
 
-module Delayed
-  class Worker
-    prepend DelayedWorkerPatches
-  end
-end
+Delayed::Worker.prepend(DelayedWorkerPatches)

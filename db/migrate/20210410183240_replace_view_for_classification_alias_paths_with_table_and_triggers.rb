@@ -94,7 +94,7 @@ class ReplaceViewForClassificationAliasPathsWithTableAndTriggers < ActiveRecord:
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER generate_classification_alias_paths_trigger ON classification_tree_labels;
       DROP FUNCTION generate_classification_alias_paths_trigger_3;
 

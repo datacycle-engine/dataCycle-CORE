@@ -9,7 +9,7 @@ module DataCycleCore
       DataCycleCore.features[:transitive_classification_path][:enabled] = true
       DataCycleCore::Feature::TransitiveClassificationPath.reload
       DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
-      DataCycleCore::RunTaskJob.perform_now('db:configure:rebuild_transitive_tables')
+      DataCycleCore::Feature::TransitiveClassificationPath.rebuild_transitive_tables!
 
       @tags = DataCycleCore::ClassificationTreeLabel.find_by!(name: 'Tags')
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TEST 1 ARTIKEL', tags: DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(@tags.name, 'Tag 1') })
@@ -39,7 +39,7 @@ module DataCycleCore
       DataCycleCore.features[:transitive_classification_path][:enabled] = @before_state
       DataCycleCore::Feature::TransitiveClassificationPath.reload
       DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
-      DataCycleCore::RunTaskJob.perform_now('db:configure:rebuild_transitive_tables')
+      DataCycleCore::Feature::TransitiveClassificationPath.rebuild_transitive_tables!
     end
 
     test 'recursion in mappings works without infinite loop' do
@@ -52,7 +52,11 @@ module DataCycleCore
         ActiveRecord::Base.connection.execute(ActiveRecord::Base.sanitize_sql_for_conditions(['SET LOCAL statement_timeout = ?', timeout * 1000]))
         Timeout.timeout(timeout) do
           mapped1.update!(classification_ids: [mapped1.primary_classification.id, mapped2.primary_classification.id])
+
+          assert_equal([mapped1.primary_classification.id, mapped2.primary_classification.id].to_set, mapped1.reload.classification_ids.to_set)
           mapped2.update!(classification_ids: [mapped2.primary_classification.id, mapped1.primary_classification.id])
+
+          assert_equal([mapped2.primary_classification.id, mapped1.primary_classification.id].to_set, mapped2.reload.classification_ids.to_set)
         end
       end
     end
@@ -77,6 +81,7 @@ module DataCycleCore
       items = DataCycleCore::Filter::Search.new(locale: :de).classification_alias_ids_without_subtree(
         DataCycleCore::ClassificationAlias.for_tree(@tree3.name).with_internal_name('mapped 2').pluck(:id)
       )
+
       assert_equal(0, items.query.size)
     end
 

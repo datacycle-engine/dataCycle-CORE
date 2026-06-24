@@ -24,19 +24,23 @@ module DataCycleCore
 
           # don't retry inline jobs (enqueued_at is nil)
           if enqueued_at.present? && executions < self.class::ATTEMPTS
-            ActiveSupport::Notifications.instrument 'background_exception.datacycle', {
-              exception: exception,
-              job_class: self.class.name,
-              executions: executions,
-              priority: priority,
-              arguments: arguments,
-              queue: queue_name,
-              delayed_reference_id: delayed_reference_id,
-              delayed_reference_type: delayed_reference_type
+            ActiveSupport::Notifications.instrument 'error.active_job', {
+              adapter: queue_adapter,
+              job: self,
+              error: exception,
+              exception: [exception.class.name, exception.message],
+              exception_object: exception
             }
             run_callbacks :error
             retry_job wait: determine_delay(seconds_or_duration_or_algorithm: self.class::WAIT, executions:), priority: priority + 1, error: exception
           else
+            ActiveSupport::Notifications.instrument 'failure.active_job', {
+              adapter: queue_adapter,
+              job: self,
+              error: exception,
+              exception: [exception.class.name, exception.message],
+              exception_object: exception
+            }
             run_callbacks :failure
             raise exception unless try(:discard_on_failure?)
           end

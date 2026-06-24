@@ -1,17 +1,18 @@
 <div class="dc-additional-values-filter-container">
-  <ul class="dc-additional-values-filter accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+  <div class="loading-spinner"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></div>
+  <% add_map_value_filter_groups!(additional_values) %>
+  <% has_filter_groups = additional_values.any?{ |k,v| v[:filter_groups].present? } %>
+  <%= tag.ul(class: "dc-additional-values-filter #{'accordion' if has_filter_groups}", data: { accordion: has_filter_groups ? true : nil, allow_all_closed: true, multi_expand: true }) do %>
     <% additional_values.each do |key, value| %>
-      <% tree_label = value.dig('definition', 'ui', 'edit', 'filters', 'classification_tree') %>
-      <% items = additional_map_values_filter(tree_label) %>
+      <% filter_groups = value[:filter_groups] %>
       <%= tag.li(
-      class: "dc-additional-values-filter-item #{'accordion-item' if items.present?}",
+      class: "dc-additional-values-filter-item #{'accordion-item' if filter_groups.present?}",
       data: {
-        accordion_item: items.present? ? true: nil,
+        accordion_item: filter_groups.present?,
         group_key: key,
         definition: value['definition']&.to_json
       }
     ) do %>
-        <div class="loading-spinner"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></div>
         <% random_id = SecureRandom.hex(10) %>
         <div class="overlay-filter-label">
           <%= check_box_tag "#{random_id}_dc_map_additional_value_#{key}",
@@ -21,18 +22,24 @@
           <%= label_tag "#{random_id}_dc_map_additional_value_#{key}", class: 'dc-additional-values-filter-title' do %>
             <%= tag.span(value['label'], class: 'attribute-label-text', title: value['label']) %>
           <% end %>
+          <button type="button" class="dc-add-all-button button primary small" data-group-key="<%= key %>" data-dc-tooltip="<%= t('frontend.map.additional_values_overlay.add_all_button', locale: active_ui_locale) %>">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+          </button>
         </div>
 
-        <% if items.present? %>
+        <% if filter_groups.present? %>
           <a href="#" class="accordion-title"></a>
-
-          <%= render 'data_cycle_core/contents/editors/geographic/overlay_classification_tree_level',
-                    items: items,
-                    random_id: random_id,
-                    key: key %>
-
+          <div class="accordion-content" data-tab-content>
+            <% filter_groups&.each do |g_key, g_config| %>
+              <%= render "data_cycle_core/contents/editors/geographic/overlay_#{g_key}_filter",
+                      config: g_config,
+                      random_id: random_id,
+                      show_title: filter_groups.many?,
+                      key: key %>
+            <% end %>
+          </div>
         <% end %>
       <% end %>
     <% end %>
-  </ul>
+  <% end %>
 </div>

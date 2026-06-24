@@ -11,7 +11,7 @@
       <div class="v-select white">
         <% external_systems = DataCycleCore::ExternalSystem.all.order(:name) %>
         <%= f.select :external_system_id,
-                  options_for_select(external_systems.map { |e| [e.name_with_types, e.id] }, external_systems.first.id),
+                  options_for_select(external_systems.map { |e| [e.name_with_types, e.id] }, external_systems.first&.id),
                   {},
                   {
                     required: true,

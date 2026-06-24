@@ -31,13 +31,29 @@ module DataCycleCore
 
     def processed
       id = permitted_params[:id]
-      processed_asset_path = Rails.root.join("public/uploads#{request.path}")
+
+      # create a path relative to base_dir to avoid absolute-path joins
+      base_dir = Rails.public_path.join('uploads')
+      relative_path = request.path.to_s.sub(%r{\A/+}, '') # sub leading slashes
+      relative_path = relative_path.sub(RejectEncodedPathTraversalMiddleware::ENCODED_TRAVERSAL_REGEX, '')
+
+      # canonicalize with realpath
+      begin
+        base_real = base_dir.realpath
+        requested = base_real.join(relative_path)
+        requested_real = requested.realpath
+      rescue Errno::ENOENT, Errno::EACCES
+        raise ActiveRecord::RecordNotFound
+      end
+
+      # and verify the final path remains inside the intended base directory
+      raise ActiveRecord::RecordNotFound unless requested_real.to_s.start_with?("#{base_real}/") || requested_real == base_real
 
       @asset = DataCycleCore::Thing.find(id)&.try(:asset)
 
-      raise ActiveRecord::RecordNotFound unless @asset.file.attached?
+      raise ActiveRecord::RecordNotFound unless @asset&.file&.attached?
 
-      send_file processed_asset_path, disposition: 'inline'
+      send_file requested_real, disposition: 'inline'
     rescue StandardError => e
       not_found(e)
     end
@@ -47,6 +63,7 @@ module DataCycleCore
 
       image_processing = permitted_params[:transformation]&.slice(:resize_type, :width, :height, :enlarge, :gravity, :extension)&.to_h
       render(json: { error: 'Missing required parameters' }, status: :bad_request) && return if image_processing.blank?
+
       image_processing[:width] ||= image_processing[:height]
       image_processing[:height] ||= image_processing[:width]
 
@@ -69,7 +86,7 @@ module DataCycleCore
       )
       render(json: { url: }, status: :ok) && return
     rescue StandardError => e
-      render(json: { error: e.message }, status: :unprocessable_entity) && return
+      render(json: { error: e.message }, status: :unprocessable_content) && return
     end
 
     private

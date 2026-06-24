@@ -17,10 +17,8 @@ describe DataCycleCore::ExternalSystem do
         key: 'testkey'
       },
       config: {
-        export_config: {
-        },
-        refresh_config: {
-        },
+        export_config: {},
+        refresh_config: {},
         download_config: {
           places: {
             sorting: 1,
@@ -63,46 +61,49 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'produces a export_config' do
-    assert(subject.export_config, subject.config['export_config'].symbolize_keys)
+    assert_equal(subject.export_config, subject.config['export_config'].symbolize_keys)
   end
 
   it 'returns nil if no export_config is defined' do
     subject.config = nil
     subject.reset_memoized_variables!
+
     assert_nil(subject.export_config)
   end
 
   it 'produces a refresh_config' do
-    assert(subject.refresh_config, subject.config['refresh_config'].symbolize_keys)
+    assert_equal(subject.refresh_config, subject.config['refresh_config'].symbolize_keys)
   end
 
   it 'returns nil if no refresh_config is defined' do
     subject.config = nil
     subject.reset_memoized_variables!
+
     assert_nil(subject.refresh_config)
   end
 
   it 'produces a import_config' do
-    assert(subject.import_config, subject.config['import_config'].symbolize_keys)
+    assert_equal(subject.import_config, subject.config['import_config'])
   end
 
   it 'returns nil if no import_config is defined' do
     subject.config = nil
     subject.reset_memoized_variables!
+
     assert_nil(subject.import_config)
     assert_nil(subject.import_list)
   end
 
   it 'produces a list of available import steps' do
-    assert(subject.import_list, [:keywords, :places])
+    assert_equal([:keywords, :places], subject.import_list)
   end
 
   it 'produces a download_config' do
-    assert(subject.download_config, subject.config['download_config'].symbolize_keys)
+    assert_equal(subject.download_config, subject.config['download_config'])
   end
 
   it 'produces a list of available download steps' do
-    assert(subject.download_list, [:places, :places_detail])
+    assert_equal([:places, :places_detail], subject.download_list)
   end
 
   it 'throws an exception if import_single can not find its config' do
@@ -114,12 +115,13 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'produces a download_config' do
-    assert(subject.download_config, subject.config['download_config'].symbolize_keys)
+    assert_equal(subject.download_config, subject.config['download_config'])
   end
 
   it 'returns nil if no download_config is defined' do
     subject.config = nil
     subject.reset_memoized_variables!
+
     assert_nil(subject.download_config)
     assert_nil(subject.download_list)
   end
@@ -133,7 +135,7 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'produces a name_with_types string' do
-    assert("#{subject.name} (import)", subject.name_with_types)
+    assert_equal("#{subject.name} [import]", subject.name_with_types)
   end
 
   it 'is not deactivated (default)' do

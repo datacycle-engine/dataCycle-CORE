@@ -4,9 +4,10 @@ module DataCycleCore
   module Api
     module Config
       class FeatureController < ::DataCycleCore::Api::Config::ApiBaseController
-        before_action :authorize_user, :prepare_url_parameters
+        before_action :prepare_url_parameters
 
         def index
+          authorize! :index, :api_config_features
           features = DataCycleCore.features.deep_reject { |k, _| k == 'public_keys' }
           features = Array.wrap(features)
           render json: api_response_format(features) { features }.to_json
@@ -21,10 +22,6 @@ module DataCycleCore
               total: contents.count
             }
           }
-        end
-
-        def authorize_user
-          render json: { error: 'Forbidden' }, layout: false, status: :forbidden unless current_user&.is_role?('super_admin')
         end
       end
     end

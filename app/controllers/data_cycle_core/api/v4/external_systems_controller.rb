@@ -4,9 +4,9 @@ module DataCycleCore
   module Api
     module V4
       class ExternalSystemsController < ApiBaseController
-        PUMA_MAX_TIMEOUT = 60
-        include DataCycleCore::FilterConcern
         include DataCycleCore::ApiHelper
+        include DataCycleCore::FilterConcern
+        include DataCycleCore::FilterConceptConcern
 
         before_action :prepare_url_parameters
 
@@ -32,6 +32,12 @@ module DataCycleCore
         def search_additional_service
           @pagination_url = method(:api_v4_external_source_search_additional_service_url)
           search_feratel_api(:search_additional_services)
+        end
+
+        def facets_feratel_locations
+          @pagination_url = method(:api_v4_external_source_facets_feratel_locations_url)
+
+          facets_feratel_api
         end
 
         def create
@@ -60,11 +66,14 @@ module DataCycleCore
           content = DataCycleCore::Thing.first_by_external_key_or_id(permitted_params[:external_key], external_system.id)
 
           render(json: { error: 'content not found' }, status: :not_found) && return if content.blank?
+
           render(json: { error: 'attribute_name missing' }, status: :not_found) && return if permitted_params[:attribute].present? && content.timeseries_property_names.exclude?(permitted_params[:attribute])
 
           data = data_from_request(content)
 
           head(:no_content) && return if data.blank?
+
+          data = TimeseriesTransformation.new(external_system.transformations).apply(data)
 
           response = Timeseries.create_all(content, data)
 
@@ -79,13 +88,18 @@ module DataCycleCore
 
         private
 
-        def csv_request?
-          permitted_params[:format].to_sym == :csv || Mime::Type.parse(request.content_type.to_s)&.first&.to_sym == :csv
+        def permitted_parameter_keys
+          super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
+                   :days, :units, :from, :to, :page_size, :start_index, :attribute, :language, :classification_id, :classification_ids, :min_count_with_subtree, :min_count_without_subtree, :minCountWithSubtree, :minCountWithoutSubtree,
+                   { occupation: [:adults, :children, :units], filter: {} }]
         end
 
         def data_from_request(content)
           to_timeseries = ->(s) { { thing_id: content.id, property: s[0], timestamp: s[1], value: s[2] } }
-          mapper = ->(s, a) { s&.map { |v| to_timeseries.call(v.unshift(a)) } }
+          mapper = lambda { |s, a|
+            s = [s] unless s&.first.is_a?(Array)
+            s&.map { |v| to_timeseries.call(v.unshift(a)) }
+          }
 
           if csv_request?
             csv = CSV.parse(request.body)
@@ -93,12 +107,19 @@ module DataCycleCore
           elsif permitted_params[:attribute].present?
             mapper.call(params[:data], permitted_params[:attribute])
           else
-            timeseries_params(content).to_h.flat_map { |k, v| mapper.call(v, k) }
+            timeseries_params(content).flat_map { |k, v| mapper.call(v, k) }
           end
         end
 
+        # Extracts timeseries data from the incoming request parameters,
+        # ensuring that only valid properties defined for the content are processed.
+        # The format for each entry in the data should be [[timestamp, value], ...], and the property name is determined by the key in the parameters. The Rest is ignored to prevent forwarding of any attacker-supplied keys.
         def timeseries_params(content)
-          params.slice(*content.timeseries_property_names).permit!
+          params.slice(*content.timeseries_property_names).to_unsafe_h
+        end
+
+        def csv_request?
+          permitted_params[:format].to_sym == :csv || Mime::Type.parse(request.content_type.to_s)&.first&.to_sym == :csv
         end
 
         def content_request(type: :update)
@@ -111,7 +132,7 @@ module DataCycleCore
           }
 
           if strategy.nil?
-            return_value = { error: 'endpoint not active'}
+            return_value = { error: 'endpoint not active' }
             status = :not_found
             return_logger.call(status, return_value)
             return return_value, status
@@ -142,11 +163,40 @@ module DataCycleCore
               return_logger.call(status, return_value)
               return return_value, status
             end
-            status = responses.first[:status].present? ? responses.first[:status] : error_present ? :bad_request : :ok
+            status = if responses.first[:status].present?
+                       responses.first[:status]
+                     else
+                       error_present ? :bad_request : :ok
+                     end
             responses.first.delete(:status)
             return_logger.call(status, return_value)
             return return_value, status
           end
+        end
+
+        # Checks if the external system has an allowed API strategy and initializes it with the necessary parameters.
+        # This strategy determines how the incoming data should be processed based on the external system's configuration.
+        def api_strategy
+          external_system = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
+          api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_system.config['api_strategy'] }
+
+          return api_strategy&.constantize&.new(external_system, permitted_params[:type], permitted_params[:external_key], permitted_params[:token]), external_system
+        end
+
+        # permit!s flexible data structures in the incoming payload.
+        #
+        # As the structure of the incoming data can vary significantly between different external systems,
+        # we allow for a flexible approach to parameter handling.
+        # The content_params method extracts the relevant data from the request,
+        # permitting all parameters within the @graph key (or the entire payload if @graph is not present)
+        # without strict schema validation.
+        # This allows for maximum flexibility in handling diverse data formats and structures
+        # that may be sent by different external systems.
+        #
+        # The API strategy handles the validation and processing of the data,
+        # according to the specific requirements of the external system.
+        def content_params
+          Array.wrap(params.fetch(:@graph) { params }).map(&:to_unsafe_h)
         end
 
         def search_feratel_api(search_method)
@@ -210,21 +260,51 @@ module DataCycleCore
           end
         end
 
-        def content_params
-          Array.wrap(params.fetch(:@graph) { params }).map { |p| p.permit!.to_h }
+        def facets_feratel_api
+          external_system = DataCycleCore::ExternalSystem.find_by(id: permitted_params[:external_source_id])
+
+          type = feratel_facets_params[:type]
+          if type.blank? || !type.in?(Datacycle::Connector::FeratelDeskline::Facets::Locations::ALLOWED_TYPES)
+            error = 'Invalid or missing type parameter. Allowed types are: accommodations, addservices.'
+            render json: { error: }, status: :bad_request
+            return
+          end
+
+          min_count_without_subtree = (permitted_params[:min_count_without_subtree] || permitted_params[:minCountWithoutSubtree]).to_i
+          min_count_with_subtree = (permitted_params[:min_count_with_subtree] || permitted_params[:minCountWithSubtree]).to_i
+          @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find_by!(name: 'Feratel - Orte')
+          facets = Datacycle::Connector::FeratelDeskline::Facets::Locations.new(external_system, type, @classification_tree_label)
+          facets_data = facets.facetted_locations || {}
+          @classification_aliases = build_concepts_search_query(@classification_tree_label.classification_aliases)
+
+          if min_count_without_subtree.positive?
+            filtered_facets_data = facets_data.select { |_, v| v[:countWithoutSubtree] >= min_count_without_subtree }
+            @classification_aliases = @classification_aliases.where(id: filtered_facets_data.keys)
+          end
+
+          if min_count_with_subtree.positive?
+            filtered_facets_data = facets_data.select { |_, v| v[:count] >= min_count_with_subtree }
+            @classification_aliases = @classification_aliases.where(id: filtered_facets_data.keys)
+          end
+
+          @classification_aliases.each do |c|
+            c.thing_count_without_subtree = facets_data.dig(c.id, :countWithoutSubtree)
+            c.thing_count_with_subtree = facets_data.dig(c.id, :count)
+          end
+          @classification_trees_parameters = []
+          @classification_trees_filter = false
+
+          if error.present?
+            render json: { error: }, status: :bad_request
+          else
+            render template: 'data_cycle_core/api/v4/classification_trees/facets', content_type: 'application/json', status: :ok
+          end
+        rescue StandardError => e
+          render json: { error: e.message }, status: :bad_request
         end
 
-        def permitted_parameter_keys
-          super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
-                   :days, :units, :from, :to, :page_size, :start_index, :attribute,
-                   {occupation: [:adults, :children, :units], filter: {}}]
-        end
-
-        def api_strategy
-          external_system = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
-          api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_system.config['api_strategy'] }
-
-          return api_strategy&.constantize&.new(external_system, permitted_params[:type], permitted_params[:external_key], permitted_params[:token]), external_system
+        def feratel_facets_params
+          params.permit(:type)
         end
       end
     end

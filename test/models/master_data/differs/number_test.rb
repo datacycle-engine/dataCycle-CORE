@@ -49,6 +49,7 @@ describe DataCycleCore::MasterData::Differs::Number do
     it 'recognizes integer format' do
       integer_template = template_hash.deep_dup
       integer_template['validations'] = { 'format' => 'integer' }
+
       [[10, 10.001], ['10', '10.001'], ['10', 10.1], [10.1, 10.3245], [10, 10.999999999]].each do |item|
         assert_nil(subject.new(item[0], item[1], integer_template).diff_hash)
       end
@@ -57,6 +58,7 @@ describe DataCycleCore::MasterData::Differs::Number do
     it 'recognizes float format' do
       integer_template = template_hash.deep_dup
       integer_template['validations'] = { 'format' => 'float' }
+
       [[10, 10.00101], ['10', '10.00101'], ['10', 10.1], [10.1, 10.3245], [10, 10.999999999]].each do |item|
         assert_equal(['~', item[0].to_f, item[1].to_f], subject.new(item[0], item[1], integer_template).diff_hash)
       end
@@ -65,6 +67,7 @@ describe DataCycleCore::MasterData::Differs::Number do
     it 'recognizes delta epsilon for float format' do
       float_template = template_hash.deep_dup
       float_template['validations'] = { 'format' => 'float' }
+
       assert_nil(subject.new(10, 10.0001, float_template).diff_hash)
     end
   end

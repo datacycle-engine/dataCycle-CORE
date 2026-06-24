@@ -6,6 +6,18 @@ module DataCycleCore
       module LifeCycle
         attr_accessor :life_cycle_changed
 
+        def archive(user = nil)
+          archive_id = DataCycleCore::Feature::LifeCycle.archive_id(self)
+          return false if archive_id.nil?
+
+          set_life_cycle_classification(
+            DataCycleCore::Feature::LifeCycle.archive_id(self),
+            user,
+            false,
+            true
+          )
+        end
+
         def before_save_data_hash(options)
           super
 

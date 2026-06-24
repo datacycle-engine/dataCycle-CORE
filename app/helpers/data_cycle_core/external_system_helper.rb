@@ -19,26 +19,39 @@ module DataCycleCore
       syncs = {}
 
       unless content.external_source.nil?
-        syncs[content.external_source.name] = [{
-          primary: true,
+        syncs[content.external_source] = {}
+        syncs[content.external_source]['meta'] = {}
+        syncs[content.external_source]['meta']['status'] = ['success']
+        syncs[content.external_source]['meta']['count'] = 1
+        syncs[content.external_source]['meta']['primary'] = true
+        syncs[content.external_source]['import'] = [{
           status: 'success',
           sync_type: 'import',
+          primary: true,
           date: [content.updated_at, content.external_source.last_successful_import].compact.min,
           external_key: content.external_key || content.id,
           external_detail_url: content.external_source.external_detail_url(content),
           external_edit_url: content.external_source.external_url(content),
-          title: "#{t('common.external_key', locale: active_ui_locale)}: #{content.external_key || content.id}",
+          title: "#{DataCycleCore::ExternalSystemSync.human_attribute_name(:external_key, locale: active_ui_locale)}: #{content.external_key || content.id}",
           external_system_id: content.external_source.id
         }]
       end
 
       content.external_system_syncs.includes(:external_system).find_each do |sync|
-        (syncs[sync.external_system.name] ||= []).push({
+        syncs[sync.external_system] ||= {}
+        syncs[sync.external_system][sync.sync_type] ||= []
+        syncs[sync.external_system]['meta'] ||= {}
+        syncs[sync.external_system]['meta']['count'] ||= 0
+        syncs[sync.external_system]['meta']['count'] += 1
+        syncs[sync.external_system]['meta']['status'] ||= []
+        syncs[sync.external_system]['meta']['status'] << sync.status if sync.status.present?
+        syncs[sync.external_system][sync.sync_type] << {
           id: sync.id,
           external_system_id: sync.external_system.id,
           status: sync.status,
           sync_type: sync.sync_type,
-          date: sync.last_successful_sync_at,
+          date: sync.last_sync_at,
+          successful_date: sync.last_successful_sync_at,
           external_key: sync.external_key || content.id,
           external_edit_url: sync.external_url,
           external_detail_url: sync.external_detail_url,
@@ -50,10 +63,15 @@ module DataCycleCore
             sync.data&.dig('pull_data', 'inLanguage').present? ? "#{t('common.external_locale', locale: active_ui_locale)}: #{t("locales.#{sync.data.dig('pull_data', 'inLanguage')}", locale: active_ui_locale)}" : nil,
             "#{t('common.external_key', locale: active_ui_locale)}: #{sync.external_key || content.id}"
           ].compact.join("\n\n")
-        })
+        }
       end
 
-      syncs
+      syncs.each_value do |v|
+        v['meta']['status'].uniq!
+        v.except('meta').each_value do |sync_list|
+          sync_list.sort_by! { |s| s[:name] || s[:external_key] }
+        end
+      end
     end
 
     def external_sync_status_icon(status, sync_type, include_status_message = false)
@@ -75,7 +93,11 @@ module DataCycleCore
 
       return icon unless include_status_message
 
-      tag.span(icon, data: { dc_tooltip: ("#{t('common.status', locale: active_ui_locale)}: #{t("external_connection_states.#{status}", locale: active_ui_locale)}" if status.present?) })
+      messages = []
+      messages << "<b>#{t('common.status', locale: active_ui_locale)}</b>: #{t("external_connection_states.#{status}", locale: active_ui_locale)}" if status.present?
+      messages << "<b>#{t('external_connections.type', locale: active_ui_locale)}</b>: #{t("common.#{sync_type}", locale: active_ui_locale)}"
+
+      tag.span(icon, data: { dc_tooltip: messages.join('<br>') })
     end
 
     def external_system_template_paths
@@ -102,26 +124,33 @@ module DataCycleCore
       'error'
     end
 
-    def last_step_icon(last_status)
-      icon_class = case last_status
-                   when 'running'
-                     'fa-spinner fa-spin'
-                   when 'finished'
-                     'fa-check'
-                   when 'error'
-                     'fa-times'
+    def last_step_icon(key)
+      icon_class = if key&.start_with?('d_')
+                     'fa-long-arrow-down'
+                   elsif key&.start_with?('i_')
+                     'fa-long-arrow-right'
                    else
                      'fa-circle'
                    end
 
-      tag.i(class: "fa #{icon_class}")
+      tag.i(class: "fa #{icon_class} step-type-icon")
     end
 
     def last_step_duration(duration, last_status = nil)
-      return tag.span('(-)', class: 'duration-running') if last_status == 'running'
-      return if duration.blank?
+      if last_status != 'finished' || duration.blank?
+        icon_class = case last_status
+                     when 'running'
+                       'fa-spinner fa-spin'
+                     when 'error'
+                       'fa-times'
+                     else
+                       'fa-circle'
+                     end
 
-      duration = duration.to_i
+        return tag.i(class: "fa #{icon_class} step-duration-icon")
+      end
+
+      duration = duration.to_f
       duration_unit = 's'
       duration_size = 'duration-s'
 
@@ -137,7 +166,7 @@ module DataCycleCore
         duration_size = 'duration-xl'
       end
 
-      tag.span("(#{duration}#{duration_unit})", class: duration_size)
+      tag.span("#{duration.round}#{duration_unit}", class: duration_size)
     end
 
     def last_step_tooltip(data, last_status = nil)
@@ -152,7 +181,7 @@ module DataCycleCore
         concat(tag.b("#{t('import_steps.last_try', locale: active_ui_locale)}: "))
         concat(import_data_time(Time.zone.parse(last_try)))
         concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_try_time, locale: active_ui_locale)})") if last_try_time.present? && last_status != 'running'
-        concat(' (-)') if last_status == 'running'
+        concat(' (<i class="fa fa-spinner fa-spin"></i>)') if last_status == 'running'
 
         if last_successful_try.present? && last_successful_try != last_try
           concat(tag.br)

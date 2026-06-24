@@ -4,12 +4,8 @@ module DataCycleCore
   module Content
     module ExternalData
       def add_external_system_data(external_system, data = nil, status = nil, sync_type = 'export', external_key = nil, use_key = true)
-        external_data =
-          if use_key
-            external_system_syncs.find_or_initialize_by(external_system_id: external_system.id, sync_type:, external_key: external_key.presence)
-          else
-            external_system_syncs.find_or_initialize_by(external_system_id: external_system.id, sync_type:)
-          end
+        external_data = external_system_sync_by_system(external_system:, sync_type:, external_key:, use_key:)
+
         external_data.attributes = { data:, status:, external_key: external_key.presence }.compact
         external_data.save
         external_data
@@ -23,12 +19,20 @@ module DataCycleCore
       end
 
       def external_system_sync_by_system(external_system:, sync_type: 'export', external_key: nil, use_key: false)
-        find_by_hash = { external_system_id: external_system.id, sync_type: }
-        find_by_hash[:external_key] = external_key if use_key && external_key.present?
+        attr_hash = { external_system_id: external_system.id }
+        attr_hash[:external_key] = external_key if use_key && external_key.present?
 
-        external_system_syncs.find_or_create_by(**find_by_hash) do |s|
-          s.external_key = external_key
-        end
+        external_sync =
+          external_system_syncs.find_by(**attr_hash, sync_type:) ||
+          external_system_syncs.find_by(**attr_hash) ||
+          external_system_syncs.create!(**attr_hash, external_key:, sync_type:)
+
+        update_data = {}
+        update_data[:external_key] = external_key if external_key.present?
+        update_data[:sync_type] = sync_type
+        external_sync.update!(**update_data)
+
+        external_sync
       rescue ActiveRecord::RecordNotUnique
         nil
       end
@@ -49,7 +53,7 @@ module DataCycleCore
         external_system_syncs.find_by(external_system_id: external_system.id, sync_type:, external_key:)&.data
       end
 
-      def external_source_to_external_system_syncs(sync_type = 'import')
+      def external_source_to_external_system_syncs(sync_type = ExternalSystemSync::SYNC_TYPES[:import])
         return if external_source_id.nil?
 
         begin
@@ -60,7 +64,15 @@ module DataCycleCore
           nil
         end
 
-        update_columns(external_key: nil, external_source_id: nil)
+        update_columns(external_key: nil, external_source_id: nil, cache_valid_since: Time.zone.now)
+
+        data_hash = {}
+        properties_with_imported_flag.each do |property|
+          key = "#{property}_imported"
+          data_hash[key] = false if respond_to?(key)
+        end
+
+        set_data_hash(data_hash:, prevent_history: true) if data_hash.present?
       end
 
       def view_all_external_data
@@ -91,7 +103,11 @@ module DataCycleCore
           add_external_system_data(external_source, { external_key: }, 'success', 'duplicate', external_key) if external_source_id.present? && external_key.present?
 
           if external_system_sync.external_key.present? && external_system_sync.external_system_id.present?
-            update_columns(external_source_id: external_system_sync.external_system_id, external_key: external_system_sync.external_key)
+            update_columns(
+              external_source_id: external_system_sync.external_system_id,
+              external_key: external_system_sync.external_key,
+              cache_valid_since: Time.zone.now
+            )
 
             external_system_sync.destroy
           end
@@ -100,7 +116,7 @@ module DataCycleCore
 
       def change_primary_system(new_external_system, new_external_key)
         external_system_syncs.detect { |s|
-          s.external_system_id == new_external_system.id &&
+          s.external_system_id == new_external_system&.id &&
             s.external_key == new_external_key
         }&.mark_for_destruction
 
@@ -118,7 +134,7 @@ module DataCycleCore
         end
 
         self.external_key = new_external_key
-        self.external_source_id = new_external_system.id
+        self.external_source_id = new_external_system&.id
       end
     end
   end

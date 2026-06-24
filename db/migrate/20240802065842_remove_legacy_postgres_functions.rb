@@ -2,7 +2,7 @@
 
 class RemoveLegacyPostgresFunctions < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP FUNCTION IF EXISTS public.generate_classification_alias_paths(uuid[]);
     SQL
   end

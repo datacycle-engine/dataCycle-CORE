@@ -2,7 +2,7 @@
 
 class RemoveLegacyOrderAResetForClassificationAliases < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.update_classification_trees_order_a_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM public.update_classification_aliases_order_a (ARRAY_AGG(classification_tree_label_id))
       FROM (
           SELECT DISTINCT new_classification_trees.classification_tree_label_id

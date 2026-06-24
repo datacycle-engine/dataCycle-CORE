@@ -37,9 +37,10 @@ module DataCycleCore
                 assert_equal(root_url[0...-1] + thing_path(@content), json_data['url'])
 
                 # classifications
-                assert(json_data['classifications'].present?)
+                assert_predicate(json_data['classifications'], :present?)
                 assert_equal(1, json_data['classifications'].size)
                 classification_hash = json_data['classifications'].first
+
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
                 assert_equal('Tour', classification_hash['name'])
                 assert_equal(2, classification_hash['ancestors'].size)
@@ -61,21 +62,27 @@ module DataCycleCore
 
               test 'stored item can be found via different endpoints' do
                 get(api_v2_things_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Place' }
+
                 assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_contents_search_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].detect { |item| item['@type'] == 'Place' }
+
                 assert_equal(@content.id, json_data['identifier'])
 
                 get(api_v2_places_path)
+
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = response.parsed_body['data'].first
+
                 assert_equal(@content.id, json_data['identifier'])
               end
             end

@@ -48,6 +48,7 @@ module DataCycleCore
           else
             classification_ids = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), search_values)
             return classification_ids if classification_ids.present?
+
             DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), default_value) if default_value.present?
           end
         end
@@ -89,6 +90,7 @@ module DataCycleCore
             search_value = meta_data[meta_key]
 
             next if search_value.blank?
+
             search_value = search_value.join(', ') if search_value.is_a?(Array)
 
             stored_filter = DataCycleCore::StoredFilter.new.parameters_from_hash(property_definition['stored_filter'])
@@ -98,6 +100,7 @@ module DataCycleCore
             return Array.wrap(query.first.id) if query.first.present?
           end
           return default_value if default_value.present?
+
           nil
         end
       end

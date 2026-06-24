@@ -10,6 +10,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
   data = content.send(property)
 
   next if data.blank?
+
   json.set! property.pluralize.camelize(:lower) do
     json.array! Array(data), partial: 'asset', as: :asset
   end

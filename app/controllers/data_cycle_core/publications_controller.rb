@@ -12,7 +12,7 @@ module DataCycleCore
         .find_by(template_name: 'Publikations-Plan')
         &.schema
         &.dig('properties')
-        &.select { |_, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive? }
+        &.select { |_, v| v['type'] == 'classification' && Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility).intersect?(['show', 'show_more']) }
         .to_h { |k, v| [k, v['tree_label']] }
 
       @stored_filter ||= DataCycleCore::StoredFilter.new
@@ -74,7 +74,7 @@ module DataCycleCore
 
         render json: { html: helpers.result_count(@count_mode, @total_count, @content_class || 'things') }
       else
-        @contents = query2.order(Arel.sql("(things.metadata ->> 'publish_at')::date ASC")).page(params[:page]).per(25).includes(:classifications, content_content_b: [content_a: :translations]).without_count
+        @contents = query2.order(Arel.sql("(things.metadata ->> 'publish_at')::date ASC")).page(params[:page]).per(25).includes(:classifications, content_content_b: [{ content_a: :translations }]).without_count
 
         @last_page = @contents.last_page?
 

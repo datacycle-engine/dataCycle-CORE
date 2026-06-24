@@ -18,9 +18,9 @@ describe 'DataCycleCore::Generic::Common::Functions#location' do
 
     transformed_data = subject.location(data)
 
-    assert(transformed_data['location'].present?)
-    assert_equal(5.0, transformed_data['location'].x)
-    assert_equal(5.0, transformed_data['location'].y)
+    assert_predicate(transformed_data['location'], :present?)
+    assert_in_delta(5.0, transformed_data['location'].x)
+    assert_in_delta(5.0, transformed_data['location'].y)
   end
 
   it 'should accept longitude and latitude as integers' do
@@ -31,9 +31,9 @@ describe 'DataCycleCore::Generic::Common::Functions#location' do
 
     transformed_data = subject.location(data)
 
-    assert(transformed_data['location'].present?)
-    assert_equal(5.0, transformed_data['location'].x)
-    assert_equal(5.0, transformed_data['location'].y)
+    assert_predicate(transformed_data['location'], :present?)
+    assert_in_delta(5.0, transformed_data['location'].x)
+    assert_in_delta(5.0, transformed_data['location'].y)
   end
 
   it 'should accept longitude and latitude as nil values' do

@@ -17,12 +17,14 @@ module DataCycleCore
 
         def order_change(a, b)
           return if a.blank? || b.blank?
+
           x = a.dup
           y = b.dup
           change = []
           (0..(x.size - 1)).each do |i|
             j = y.find_index(x[i])
             next if j.nil? || j == i
+
             change << ['<', x[i], i, j] if j < i
             change << ['>', x[i], i, j] if j > i
           end

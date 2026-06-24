@@ -73,11 +73,11 @@ module DataCycleCore
             permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).compact_blank
             }.reject(&:empty?).each do |classifications|
-              if @mode_parameters.include?('strict')
-                query = query.classification_alias_ids_without_subtree(classifications)
-              else
-                query = query.classification_alias_ids_with_subtree(classifications)
-              end
+              query = if @mode_parameters.include?('strict')
+                        query.classification_alias_ids_without_subtree(classifications)
+                      else
+                        query.classification_alias_ids_with_subtree(classifications)
+                      end
             end
           end
           query = query.content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
@@ -86,11 +86,11 @@ module DataCycleCore
         end
 
         def apply_event_query_filters(query)
-          if permitted_params&.dig(:filter, :from).present?
-            query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
-          else
-            query = query.event_from_time(Time.zone.now)
-          end
+          query = if permitted_params&.dig(:filter, :from).present?
+                    query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
+                  else
+                    query.event_from_time(Time.zone.now)
+                  end
 
           query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to).present?
           query
@@ -114,6 +114,7 @@ module DataCycleCore
           excluded_controller_names = ['things', 'contents']
           return permitted_params[:type]&.classify if permitted_params[:type].present?
           return controller_name.classify unless excluded_controller_names.include?(controller_name)
+
           nil
         end
       end

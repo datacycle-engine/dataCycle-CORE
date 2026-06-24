@@ -161,7 +161,6 @@
               :placeholder: "tt.mm.jjjj --:--"
       :line:
         :label: Pisten/Lifte
-        :storage_location: column
         :type: geographic
         :priority: 1
         :ui:

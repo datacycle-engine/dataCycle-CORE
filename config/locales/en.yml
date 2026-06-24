@@ -1,5 +1,9 @@
 ---
 en:
+  environment_name:
+    development: Development
+    staging: Staging
+    production: Production
   i18n:
     transliterate:
       rule:
@@ -53,6 +57,7 @@ en:
 
     # embedded
     ContentBlockTextImage: Text with Image
+    ContentBlockFaq: FAQ
     ContentBlockAccordion: Accordion
     ContentBlockAccordionItem: Accordion - content
     ContentBlockButton: Button
@@ -131,6 +136,7 @@ en:
     ExternalVideo:
       text: Text
     key_figures_container: Key figures
+    seo_container: SEO
     universal_classifications: Classifications
     copyright_attributes_group: Copyright
     content_classifications_group: Classifications
@@ -193,6 +199,7 @@ en:
     fax_number: Fax
     file_format: File format
     file_type: File type - Classification
+    footer_menu: Footer menu
     gender: Gender
     given_name: First name
     gravity: Gravity
@@ -214,6 +221,7 @@ en:
     location: GPS coordinates
     logo: Logo
     longitude: Longitude
+    main_menu: Main menu
     member: Members
     member_of: Organization
     nationality: Nationality
@@ -241,6 +249,7 @@ en:
     sd_license: License URL
     sd_publisher: Owner / Publisher
     street_address: Street
+    sub_menu: Submenu
     subject_of: Theme of
     tags: Tags
     telephone: Phone
@@ -314,6 +323,7 @@ en:
     ne: Nepali
 
   roles:
+    system_admin: System Administrator (DataCycle)
     super_admin: Administrator (DataCycle)
     admin: Administrator
     user: User
@@ -373,9 +383,13 @@ en:
     tooltip_translations: Translations
     new_classification_tree_label: create new classificationtree
     new_classification: create new classification
+    direct: All directly assigned content
+    direct_mapped: All directly and indirectly assigned content
+    direct_mapped_child: All directly and indirectly assigned content + content assigned to children
 
   version_names:
-    mapped_concepts_to_property: "mapped classifications for %{data} have been assigned to the corresponding attribute"
+    mapped_concepts_to_property: "mapped classifications for %{data} have been
+      assigned to the corresponding attribute"
     remove_concepts_by_scheme: "assigned classifications for #{data} have been removed"
 
   user:
@@ -399,12 +413,15 @@ en:
 
   frontend:
     load_error: Error loading content.
-    update_browser: "Your web browser does not yet support all necessary features!<br>Please update your web browser."
+    update_browser: "Your web browser does not yet support all necessary
+      features!<br>Please update your web browser."
     text_editor:
       insertNbsp: Insert protected space
       replaceAllNbsp: replace all protected spaces with normal spaces
       replaced_all_nbsp: replaced all protected spaces with normal spaces!
       inlineTranslator: translate text automatically
+      placeholder: Insert placeholder
+      placeholder_label: Placeholder
     override_warning: Should the field %{data} be overwritten?
     override_focus: highlight fields
     reload_page: Reload page
@@ -432,12 +449,10 @@ en:
     cancel: Cancel
     ok: Okay
     content_lock:
-      renew_lock:
-        The content will be released again in %{min}min.<br><br>Do you want
+      renew_lock: The content will be released again in %{min}min.<br><br>Do you want
         to extend the lock by %{renew}min?
       released: The content has been released again and can no longer be saved.
-    update_stored_filter:
-      "Update filter parameters?<br><br>Warning: Also affects
+    update_stored_filter: "Update filter parameters?<br><br>Warning: Also affects
       saved searches that use this search."
     maximum_embedded: "Maximum number: %{data}"
     minimum_embedded: "Minimum number: %{data}"
@@ -487,6 +502,9 @@ en:
         draw_polygon: area
       routing:
         error: error calculating route
+      additional_values_overlay:
+        add_all_button: select and add all visible
+        confirm_text: Really add all %{count}?
     remote_render:
       error: Error loading content.
       reload: Reload
@@ -500,21 +518,41 @@ en:
         overlay_text: Copy all available languages?
         confirmation_text: "yes"
         cancel_text: no, only current language
+    content_classifier:
+      classification_error_title: Classification Error
+      apply_error_title: Apply Error
+      applied_title: Classifications Applied
+      results_title: Classification Results
+      unknown_label: Unknown
+      not_available: n/a
+      no_classifications: No classifications returned.
+      clear_selection: Clear selection
+      apply_selected: Apply Selected
+      classifications_suggested: "%{count} classifications suggested."
+      apply_missing_data: Missing data for applying classifications.
+      apply_select_one: Select at least one classification to apply.
+      applied_message: Classifications applied.
+      apply_failed: Failed to apply classifications.
+      missing_content_id: Missing content id for classification request.
+      select_tree: Please select a classification tree.
+      classify_failed: Failed to fetch classifications.
       copy_linked_error: "attribute could not be copied: "
     validate:
       save_and_change_language: Do you want to save and switch to the new language?
       agbs: AGBs must be accepted!
       error: "Error:"
       warning: "Warning:"
-      ignore_warnings:
-        Warnings are present (%{data}).<br>Should the content be saved
-        anyway?</br>
+      warnings_header: "Warnings"
+      warnings_intro: "There are warnings:"
+      ignore_warnings: "Should the content still be saved?"
+      save_with_warnings: "Save anyway"
       final_save: The content is finally sent and <br>cannot be edited afterwards</br>.
       errors:
         no_data: No data specified for %{data}
         key_figure_not_found: Key Figure not found
         endpoint_error: Error while retreiving data.
-        gip_no_plausible_route: No Route for Key Figures found. Please select one Hauptroute in Richtung.
+        gip_no_plausible_route: No Route for Key Figures found. Please select one
+          Hauptroute in Richtung.
     word_counter:
       chars:
         one: Character
@@ -526,7 +564,8 @@ en:
       min: "(still min. %{data} %{label})"
     image_editor:
       edit_image: edit image
-      unsupported_format: The image will be converted to a supported file format by the image editor.
+      unsupported_format: The image will be converted to a supported file format by
+        the image editor.
       save_error: The image could not be saved
     gravity_editor:
       success_set: "Gravity was successfully set to %{data}"
@@ -629,9 +668,11 @@ en:
 
   content_external_data:
     primary_external_system_tooltip: This system is the primary external system
+    primary_external_key_tooltip: This is the primary external identifier
     toolip: Use this external system as the primary external system
     primary_system_switched: The primary external system was successfully switched
-    duplicate_record_html: There is already a <a href="%{url}" target="_blank">content</a> in the target external system
+    duplicate_record_html: There is already a <a href="%{url}"
+      target="_blank">content</a> in the target external system
     warning_html: Use this external system as the primary external system?
 
   common:
@@ -727,8 +768,8 @@ en:
     height: Height
     width: Wide
     exclude: Exception
-    children_present_html: "<b>Attention.</b><p>There are linked contents,
-      these are also deleted!</p>"
+    children_present_html: "<b>Attention.</b><p>There are linked contents, these are
+      also deleted!</p>"
     creator: Creator
     abo_changed_title:
       one: A subscribed content (%{title}) was changed
@@ -770,11 +811,11 @@ en:
     cant_create_duplicate: File cannot be imported because it is a duplicate
     related_items: Linked contents
     generated_value_placeholder: This value is set automatically
+    uri_placeholder: 'Should be a real URI, or start with a valid namespace, e.g. "https://example.com/my-content", "dc:my-content" or "dcls:my-content".'
     merge_warning_html: The duplicate is deleted.<br>Continue?</br>
     additional_classifications: further classifications
-    bulk_edit_locked_html:
-      "<br><br>At least one content cannot be edited by you,
-      so bulk editing is blocked."
+    bulk_edit_locked_html: "<br><br>At least one content cannot be edited by you, so
+      bulk editing is blocked."
     bulk_update:
       check_box_labels:
         override: overwrite
@@ -782,18 +823,14 @@ en:
         remove: remove selected
       button:
         limited: A maximum of %{data} Contents can be edited at the same time.
-    watch_list_external_things_locked_html:
-      "<br><br><i>At least one content is imported
-      from an external system and cannot be deleted!</i>"
-    content_locked_html:
-      The content is currently being edited by %{user} and is available
-      for editing again in <span class="locked-until">%{data}</span>.
-    content_locked_with_name_html:
-      '%{name} is currently being edited by %{user} and
-      is available for editing again in <span class="locked-until">%{data}</span>.'
-    multiple_content_locks_html:
-      <span class="lock-count">%{data}</span> Contents
-      are currently being edited
+    watch_list_external_things_locked_html: "<br><br><i>At least one content is
+      imported from an external system and cannot be deleted!</i>"
+    content_locked_html: The content is currently being edited by %{user} and is
+      available for editing again in <span class="locked-until">%{data}</span>.
+    content_locked_with_name_html: '%{name} is currently being edited by %{user} and
+      is available for editing again in <span
+      class="locked-until">%{data}</span>.'
+    multiple_content_locks_html: <span class="lock-count">%{data}</span> Contents are currently being edited
     download:
       available_formats: Available formats
       available_versions: Available file versions
@@ -805,6 +842,7 @@ en:
       indesign: Adobe InDesign
       pdf: PDF
       content_score: Content scores (zip)
+      id_mapping: ID-Mappings (csv)
       version:
         original: Original
         default: Default
@@ -839,12 +877,10 @@ en:
       gallery: Gallery Widget
       statistics: Statistics Widget
     user_registration:
-      terms_conditions:
-        I accept the <a href="%{url}" target="_blank">general terms
+      terms_conditions: I accept the <a href="%{url}" target="_blank">general terms
         and conditions</a>.
-      privacy_policy:
-        I agree with the processing of my data according to the <a href="%{url}"
-        target="_blank">privacy policy</a>.
+      privacy_policy: I agree with the processing of my data according to the <a
+        href="%{url}" target="_blank">privacy policy</a>.
     no_selection: no selection
     external_name: Title
     external_alternate_name: Alternative title
@@ -871,8 +907,12 @@ en:
     delete_all_translations_info: "All translations will be deleted.<br>This action cannot be undone."
     delete_thing_linked_info: "Linked contents are not deleted."
     delete_thing_translation_info_html: "Only the translation <b>(%{data})</b> is deleted."
-    delete_collection_info_html: "Only the %{type} is deleted.<br>The contents are NOT deleted from the system."
-    delete_collection_things_html: "This action cannot be undone.<br>The content is permanently deleted from the system."
+    delete_collection_info_html: "Only the %{type} is deleted.<br>The contents are
+      NOT deleted from the system."
+    delete_collection_things_html: "This action cannot be undone.<br>The content is
+      permanently deleted from the system."
+    internal_identifier: intern
+    api_identifier: API
 
   embedded:
     move_down: move down
@@ -881,9 +921,8 @@ en:
     close_all: Close all
     button_title: Add %{title}
   upload:
-    drag_and_drop_html:
-      "<p><b>Just drop one or more %{type} here!</b></p><p>or</p><p><u><b>select
-      via system dialog</b></u></p>"
+    drag_and_drop_html: "<p><b>Just drop one or more %{type}
+      here!</b></p><p>or</p><p><u><b>select via system dialog</b></u></p>"
     system_dialog: Select images via system dialog
     or: or
     select_from_datacycle: Use %{data} already uploaded
@@ -901,6 +940,11 @@ en:
     export: External system
 
   external_connections:
+    type: Type
+    filter:
+      all_warning: 'The option "all" can degrade perfomance,
+
+        use a more specific option if possible.'
     new_form:
       title: Create link to external system
       created: Link to external system was created
@@ -908,11 +952,14 @@ en:
     remove_external_system_sync:
       tooltip: Remove link to external system
       success: Link to external system was removed
-      warning_html: '<p>Remove link to external system?</p><div class="callout alert">This may affect the function of an importer!</div>'
+      warning_html: '<p>Remove link to external system?</p><div class="callout
+        alert">This may affect the function of an importer!</div>'
     demote_to_sync:
       tooltip: Convert primary external system into external link
       success: Primary external system has been converted to external link
-      warning_html: '<p>Convert primary external system to external link?</p><div class="callout alert">This may affect the function of an importer!</div>'
+      warning_html: '<p>Convert primary external system to external link?</p><div
+        class="callout alert">This may affect the function of an
+        importer!</div>'
 
   duplicate:
     candidates: Possible duplicates
@@ -924,9 +971,14 @@ en:
     switch: Swap original and duplicate
     duplicate: Duplicate
     original: Original
-    merge_warning_html: 'The <span class="alert-color">duplicate</span> (created manually) will be deleted,<br>the <span class="success-color">original</span> (imported) will remain.<br>Continue?'
+    merge_warning_html: 'The <span class="alert-color">duplicate</span> (created
+      manually) will be deleted,<br>the <span
+      class="success-color">original</span> (imported) will
+      remain.<br>Continue?'
     duplicate_tooltip: This content is the duplicate and will be deleted when merging
     original_tooltip: This content is the original and will remain when merging
+    with_score: "with Score:"
+    with_method: "with Rule:"
 
   tile_links:
     details: to the detailed view
@@ -977,8 +1029,10 @@ en:
         remind_receiver:
           subject: "Reminder: Finalize content editing"
           first_line:
-            one: The following content has not been edited for more than a week and has not been finalized yet.
-            other: The following contents have not been edited for more than a week and have not been finalized yet.
+            one: The following content has not been edited for more than a week and has not
+              been finalized yet.
+            other: The following contents have not been edited for more than a week and have
+              not been finalized yet.
           second_line: Please add missing content and finalize the editing!
     named_version:
       input_label: Version name
@@ -1010,15 +1064,18 @@ en:
         external_key: ID in Source system
         dc_link: URL
     geo_key_figure:
-      button_title: Determination of the value for %{data} via a web service on the basis of the underlying geo-data
-      button_title_all: Determination of the values via a web service on the basis of the underlying geo-data
+      button_title: Determination of the value for %{data} via a web service on the
+        basis of the underlying geo-data
+      button_title_all: Determination of the values via a web service on the basis of
+        the underlying geo-data
     user_api:
       mailer:
         subject: A new user has been created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Edit user
         unlocked_subject: User unlocked
-        unlocked_html: You can now log in with your login data and use the released content! If you have any questions, please contact us directly.
+        unlocked_html: You can now log in with your login data and use the released
+          content! If you have any questions, please contact us directly.
     translate:
       inline_success: The text was translated from %{source_locale} to %{target_locale}.
       error_code:
@@ -1058,6 +1115,7 @@ en:
       widget_usage: Usage of widgets
       widget_usage_detail: Usage of widgets (Overview)
       dzt_report: Failed syncs to DZT knowledge graph
+      my_watch_lists_overview: My content collections (Overview)
       headings:
         id: ID
         name: Name
@@ -1106,7 +1164,8 @@ en:
           dzt_report: DZT-Sync - Error report
         text_html:
           downloads_popular: Attached you will find the TOP 50 image downloads.
-          dzt_report: Please find attached a list of all items, for which recently the synchronization to the DZT knowledge graph failed
+          dzt_report: Please find attached a list of all items, for which recently the
+            synchronization to the DZT knowledge graph failed
       download_form:
         type: Format
 
@@ -1128,11 +1187,13 @@ en:
     active_target: target version
     use_as_source: use as source version in comparison
     use_as_target: use as target version in comparison
-    different_locales: The two versions were edited in different languages, changes to translated attributes are not considered
+    different_locales: The two versions were edited in different languages, changes
+      to translated attributes are not considered
     restore:
       version:
         title: restore this version
-        confirmation_html: Restore version <i>%{history_version_html}</i> as current version?<br><br>The current version will be overwritten.
+        confirmation_html: Restore version <i>%{history_version_html}</i> as current
+          version?<br><br>The current version will be overwritten.
         restored_version_name: restored version from %{date}.
         restored: The version from %{date} was successfully restored.
 
@@ -1158,7 +1219,7 @@ en:
     external_source: External source
     external_system: External systems
     creator: Creator
-    classification_tree_ids: Classification tree
+    classification_tree_ids: Select classification tree
     created_at: Creation date
     updated_at: Update date
     validity_period: Validity period
@@ -1166,6 +1227,7 @@ en:
     upload_date: Upload date
     duplicate_candidates: Potential duplicates present
     not_duplicate_candidates: no potential duplicates available
+    duplicate_candidate_filter: potential duplicates
     bookable: bookable
     not_bookable: not bookable
     width: Wide
@@ -1217,6 +1279,7 @@ en:
       equal: equals
       not_equal: not equals
       placeholder:
+        attribute: all attributes
         thing: content
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
     graph_filter:
@@ -1252,6 +1315,8 @@ en:
     related_to_method:
       related: contingent on
       not_related: not related to
+      related_exists: linked
+      related_not_exists: not linked
     max_number_of_people: max. number of persons
     total_number_of_beds: Total number of beds
     number_of_rooms: Total number of units
@@ -1308,6 +1373,7 @@ en:
     inactive_things: filter for expired content ...
     graph_filter: filter via linked content...
     aggregate_filter: filter by aggregates...
+    duplicate_candidate_filter: filter by potential duplicates...
 
   sortable:
     default: Standard
@@ -1317,7 +1383,10 @@ en:
     width: Width
     height: Height
     upload_date: Upload date
+    publication_date: Publication date
+    live_date_from: Live date (from)
     internal_content_score: Content Score (dataCycle)
+    proximity_geographic: Geographical proximity
     users_context:
       given_name: Given name
       family_name: Family name
@@ -1339,6 +1408,7 @@ en:
     limited_by:
       filter_warning: The number of displayed contents has been limited by "Aggregat für"
       create_button_warning: New contents can only be created at "Aggregat für"
+    remove_all_button: remove all
 
   terms:
     valid: valid
@@ -1356,18 +1426,60 @@ en:
       one: my
       other: my
   classification_visibilities:
-    backend: Dashboard
-    show: Detail view
-    api: API
-    tile: Tile
-    show_more: Detail view (collapsed by default)
-    edit: Editing view
-    filter: Advanced Dashboard Filters
-    list: List view
-    tree_view: Root in the tree view
-    xml: XML
-    classification_overview: Classification overview
-    classification_administration: Classification administration
+    groups:
+      contents: Contents
+      dashboard_views: Dashboard views
+      dashboard_filters: Dashboard filters
+      interfaces: Interfaces
+      classification_administration: Classification administration
+      content_tools: Content tools
+    group_tooltips:
+      contents: Visibility at certain places within a content
+      dashboard_views: Visibility within the dashboard views
+      dashboard_filters: Visibility as filter options in the dashboard
+      interfaces: Visibility via interfaces
+      classification_administration: "Visibility within the classification
+        administration<br>Depending on the user's permissions, only
+        classification trees that are enabled<br>for the classification overview
+        are displayed in the classification administration"
+      content_tools: Visibility within content-related tools
+    entries:
+      backend: Dashboard
+      show: Detail view (always visible)
+      show_more: Detail view (collapsed by default)
+      edit: Editing view
+      api: API
+      tile: Tile
+      compact: Compact tiles
+      filter: Advanced Dashboard filters
+      list: List view
+      tree_view: Root in the tree view
+      xml: XML (Legacy)
+      classification_overview: Classification overview
+      classification_administration: Classification administration
+      content_classifier: Content classifier
+    entry_tooltips:
+      backend: Classifications are displayed in the dashboard
+      show: Classifications are always displayed expanded in the detail view
+      show_more: Classifications are displayed in the detail view but are collapsed by
+        default
+      edit: Classifications can be selected and edited in the editing view (This also
+        depends on the user's permissions for the respective attribute)
+      api: Classifications are delivered via the API interface
+      tile: Classifications are displayed in the tiles
+      compact: Classifications are displayed in the compact tiles (e.g. in the object
+        browser)
+      filter: Classifications are available as advanced filter options in the dashboard
+      list: Classifications are displayed in the list view
+      tree_view: Classification tree is available as a root element for the tree view
+      xml: Classifications are delivered via the XML interface (Legacy)
+      classification_overview: Classifications are visible in the classification
+        administration if the user's current role has the corresponding
+        permissions
+      classification_administration: Classifications are visible and manageable in the
+        classification administration if the user's current role has the
+        corresponding permissions
+      content_classifier: Classification tree is available in selection for content classifier
 
   classification_administration:
     move:
@@ -1437,6 +1549,7 @@ en:
     upload: Upload files
     become: Log in as %{data}
     create_from_existing: Create content using this template
+    classify_thing: "Classify content"
     move_to_container: Move content
     move: move
     geocode: Take over %{target} from %{source}
@@ -1462,9 +1575,9 @@ en:
     uploaded: Uploaded
     back_to_select: Back to the selection
     delete_translation: delete translation
-    delete_with_translated_html:
-      <p>Delete embedded record?</p><div class="callout warning">Existing translations
-      of this embedded record will also be deleted!</div>
+    delete_with_translated_html: <p>Delete embedded record?</p><div class="callout
+      warning">Existing translations of this embedded record will also be
+      deleted!</div>
     discard_changes: discard changes
     save_changes: Save and close
     merge_with_duplicate: Save changes, delete duplicate and close view
@@ -1477,9 +1590,13 @@ en:
     bulk_edit: process in bulk
     add_items_to_watch_list: add to %{data}
     add: add
-    delete_items_in_watch_list_tooltip: Delete all contents from this content collection
-    delete_items_in_watch_list: "Do you really want to <b>delete all</b> contents from this content collection?<br><b>This action cannot be undone and will permanently delete the contents from the system.</b>"
+    delete_items_in_watch_list_tooltip: permanently delete all contents in this content collection
+    delete_items_in_watch_list: "Do you really want to <b>permanently delete all</b>
+      contents in this content collection?"
     delete_items_in_watch_list_confirmation_text: "Delete all contents permanently"
+    watch_list_select_things: select contents
+    remove_selected_from_watch_list: remove
+    remove_selected_from_watch_list_tooltip: "Remove selected content from %{data}"
     save_without_redirect: Save
     set_and_next: take over and continue
     set_all_attributes: apply for all
@@ -1496,51 +1613,78 @@ en:
     deactivate_gravity_editor: "End editing"
     download_user_info_activity: "Download user activity"
     cancel: cancel
-    delete_translation_confirmation_html: "really delete translation <b>(%{data})</b> from %{template} <b>%{title}</b>?"
+    delete_translation_confirmation_html: "really delete translation
+      <b>(%{data})</b> from %{template} <b>%{title}</b>?"
     delete_confirmation_html: "really delete %{type} <b>%{name}</b>?"
+    set: set
+    trigger_webhook_action: "trigger %{data}"
+
+  webhooks:
+    actions:
+      deploy: Deployment
+    trigger_confirmation:
+      title: "trigger %{data}"
+      text: "%{data} will be triggered. Continue?"
 
   concept_scheme_unlink:
     link_title: Remove direct assignment to contents
     submit_button: remove assignment
     warning_html:
-      zero: "There are no directly assigned classifications from <b>%{name}</b> to contents from the selected %{collection} <b>%{collection_name}</b>."
-      one: "<p>The following, directly assigned classifications will be removed!</p><p>Please check the information:</p>"
-      other: "<p>The following, directly assigned classifications will be removed!</p><p>Please check the information:</p>"
+      zero: "There are no directly assigned classifications from <b>%{name}</b> to
+        contents from the selected %{collection} <b>%{collection_name}</b>."
+      one: "<p>The following, directly assigned classifications will be
+        removed!</p><p>Please check the information:</p>"
+      other: "<p>The following, directly assigned classifications will be
+        removed!</p><p>Please check the information:</p>"
     error: The assignment could not be removed
     finished:
-      one: The assignment of <b>%{name}</b> to <b>%{count}</b> content from %{collection} <b>%{collection_name}</b> has been removed
-      other: The assignment of <b>%{name}</b> to <b>%{count}</b> contents from %{collection} <b>%{collection_name}</b> has been removed
+      one: The assignment of <b>%{name}</b> to <b>%{count}</b> content from
+        %{collection} <b>%{collection_name}</b> has been removed
+      other: The assignment of <b>%{name}</b> to <b>%{count}</b> contents from
+        %{collection} <b>%{collection_name}</b> has been removed
     enqueued: A job to remove the assignment has been created
     version_name: assigned classifications for %{data} have been removed
-    info_html: all direct assignments of classifications from <b>%{name}</b> to contents from the selected <b>%{collection}</b> will be removed.
+    info_html: all direct assignments of classifications from <b>%{name}</b> to
+      contents from the selected <b>%{collection}</b> will be removed.
     disconnected: The connection to the server has been interrupted. Please try again.
-    post_submit_info_html: "The removal of the assignment is carried out in the background.<br>It may take a moment until the job is started."
+    post_submit_info_html: "The removal of the assignment is carried out in the
+      background.<br>It may take a moment until the job is started."
 
   concept_scheme_link:
     link_title: directly assign mapped classifications to contents
     submit_button: assign classifications
     warning_html:
-      zero: "no classifications from <b>%{name}</b> are indirectly assigned to contents from the selected %{collection} <b>%{collection_name}</b>."
-      one: <p>The following classifications, which are linked to the content via mappings, will be directly assigned to the content!</p><p>Please check the information:</p>
-      other: <p>The following classifications, which are linked to contents via mappings, will be directly assigned to the contents!</p><p>Please check the information:</p>
-    version_name: "mapped classifications for %{data} have been directly assigned to the corresponding attribute"
+      zero: "no classifications from <b>%{name}</b> are indirectly assigned to
+        contents from the selected %{collection} <b>%{collection_name}</b>."
+      one: <p>The following classifications, which are linked to the content via
+        mappings, will be directly assigned to the content!</p><p>Please check
+        the information:</p>
+      other: <p>The following classifications, which are linked to contents via
+        mappings, will be directly assigned to the contents!</p><p>Please check
+        the information:</p>
+    version_name: "mapped classifications for %{data} have been directly assigned to
+      the corresponding attribute"
     error: The classifications could not be assigned
     finished:
-      one: The classifications from <b>%{name}</b> have been directly assigned to <b>%{count}</b> content from %{collection} <b>%{collection_name}</b>
-      other: The classifications from <b>%{name}</b> have been directly assigned to <b>%{count}</b> contents from %{collection} <b>%{collection_name}</b>
-    info_html: All classifications of the classification tree <b>%{name}</b>, which are linked to contents via mappings with the selected <b>%{collection}</b>, will be directly assigned to the contents.
+      one: The classifications from <b>%{name}</b> have been directly assigned to
+        <b>%{count}</b> content from %{collection} <b>%{collection_name}</b>
+      other: The classifications from <b>%{name}</b> have been directly assigned to
+        <b>%{count}</b> contents from %{collection} <b>%{collection_name}</b>
+    info_html: All classifications of the classification tree <b>%{name}</b>, which
+      are linked to contents via mappings with the selected
+      <b>%{collection}</b>, will be directly assigned to the contents.
     disconnected: The connection to the server has been interrupted. Please try again.
-    post_submit_info_html: "The assignment of the classifications is carried out in the background.<br>It may take a moment until the job is started."
+    post_submit_info_html: "The assignment of the classifications is carried out in
+      the background.<br>It may take a moment until the job is started."
 
   validation:
     errors:
       slug: "%{data} is already the slug of another record."
-      min:
-        "%{data} too short, should be at least %{min} long, but is only %{length}
+      min: "%{data} is too short, should be at least %{min} long, but is only %{length}
         long."
-      max: "%{data} too long, should be at most %{max} long, but is %{length} long."
-      min_number: "%{data} too small, should be %{value}, but is only %{data}."
-      max_number: "%{data} too high, should be %{value}, but is %{data}."
+      max: "%{data} is too long, should be at most %{max} long, but is %{length} long."
+      min_number: "%{data} is too small, should be at least %{value}, but is only %{data}."
+      max_number: "%{data} is too large, should be at most %{value}, but is %{data}."
       min_datetime: Time %{data} should be after %{min}.
       min_date: Date %{data} should be after %{min}.
       match: "%{data} does not match %{expression}."
@@ -1561,59 +1705,48 @@ en:
       oembed_no_url: "Url parameter missing!"
       oembed_unsupported_url: "%{oembed_url} is not a valid url."
       oembed_no_provider: "Could not find an oembed provider for url %{oembed_url}."
-      oembed_too_many_providers: "Could not find unique Oembed-Provider for URL %{oembed_url}. Possible providers: %{oembed_found}."
-      oembed_thing_not_found: "Could not display dataCycle thing as oembed: Either thing id is invalid/does not support oembed or thing was not found."
-      geo:
-        Incorrect data type specified for %{template} (%{data}). Expect Geometric/Geographical
-        type, or a WKT formatted string.
+      oembed_too_many_providers: "Could not find unique Oembed-Provider for URL
+        %{oembed_url}. Possible providers: %{oembed_found}."
+      oembed_thing_not_found: "Could not display dataCycle thing as oembed: Either
+        thing id is invalid/does not support oembed or thing was not found."
+      geo: Incorrect data type specified for %{template} (%{data}). Expect
+        Geometric/Geographical type, or a WKT formatted string.
       geo_no_linestring: At least two points must be specified for this type
       schedule:
-        general:
-          Incorrect data type specified for %{template} (%{data}). Expect DataCycleCore::Schedule,
-          or a valid hash.
-        time:
-          "DateTime format incorrect for %{template} (%{data}), expect a hash
-          with { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
-        date_time_array:
-          DateTimeArray format incorrect for %{template} (%{data}),
+        general: Incorrect data type specified for %{template} (%{data}). Expect
+          DataCycleCore::Schedule, or a valid hash.
+        time: "DateTime format incorrect for %{template} (%{data}), expect a hash with {
+          time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
+        date_time_array: DateTimeArray format incorrect for %{template} (%{data}),
           expect an array of ActiveSupport::TimeWithZone
         rrule: RRULE format false for %{template} { "data".
         thing_id: thing_id is a required field.
         relation: relation is a mandatory field.
         invalid: The entry with start time %{data} does not contain valid dates
-        until_missing:
-          An end time must be specified for the entry with start time
-          %{data}.
-        until_too_far: "The end time for the entry with start time %{data} is too far in the future, this could create performance problems on save (max: %{max})."
+        until_missing: An end time must be specified for the entry with start time %{data}.
+        until_too_far: "The end time for the entry with start time %{data} is too far in
+          the future, this could create performance problems on save (max:
+          %{max})."
       number: "%{template} is not a numeric value, but %{class} (value: %{data})."
       no_data: No data given.
       no_validation: No validation data specified.
-      data_type:
-        Wrong data type specified for %{template} %{data}. UUID or UUID array
+      data_type: Wrong data type specified for %{template} %{data}. UUID or UUID array
         was expected.
-      data_format_embedded:
-        Data specified in wrong fromat for %{template} %{data}.
-        A hash or array of hashes was expected.
-      data_array_format:
-        Elements of the data array for %{template} have wrong format
-        %{key}.
-      classification:
-        "No classification found for %{key} in classification_tree with
+      data_format_embedded: Data specified in wrong fromat for %{template} %{data}. A
+        hash or array of hashes was expected.
+      data_array_format: Elements of the data array for %{template} have wrong format %{key}.
+      classification: "No classification found for %{key} in classification_tree with
         label: '%{label}' and tree_label '%{tree_label}'."
       asset_upload: File could not be uploaded
       asset_convert: File could not be processed
       min_ref: Too few references specified, %{data} should be at least %{value}.
       max_ref: Too many references specified, %{data} should be at most %{value}.
-      data_format:
-        Elements of the link array for %{template} have the wrong format
-        %{key}.
+      data_format: Elements of the link array for %{template} have the wrong format %{key}.
       not_found: Data for %{template} with uuid %{key} not found in table %{table}.
       integer: "%{data} is not an integer."
       float: "%{data} is not a float."
       object_type: Wrong data type for %{data}. Type %{type} is not defined.
-      wrong_object_type:
-        Object Type %{data} is not an embedded data type and has
-        no 'properties'.
+      wrong_object_type: Object Type %{data} is not an embedded data type and has no 'properties'.
       no_template: No matching data type template found for %{name}.
       no_fields: No fields specified for 'from-date' and/or 'to-date'.
       convert_date: Date could not be converted to validate time span.
@@ -1627,9 +1760,11 @@ en:
       unknown_activity_type: Unknown type for Activity
       unknown: unknown error
       geocoding_endpoint_error: "GeoCoding: The endpoint does not deliver any data"
+      geocoding_forbidden_error: "GeoCoding: Access to the endpoint is forbidden"
 
     warnings:
-      string: "%{key} is not a valid keyword for string. Found for %{data} in %{template}"
+      string: "%{key} is not a valid keyword for string. Found for %{data} in
+        %{template}"
       no_data: No data specified for %{data}
       no_evaluate: "%{data} not specified in the evaluation data."
       keyword: "%{key} is not a valid keyword for %{type}"
@@ -1638,12 +1773,12 @@ en:
       start_date: No start date given, set to 1970-01-01.
       address_not_found: Address not found
       address_ambiguous: Address not unique
-      telephone_din5008:
-        The format of the telephone number is not according to DIN
+      telephone_din5008: The format of the telephone number is not according to DIN
         5008, valid example +43 1 123456
       required: "should be filled in."
       schedule:
-        duration_too_long: "The schedule with start time %{data} lasts longer than %{max} (This could probably also be achieved via repeating schedules)"
+        duration_too_long: "The schedule with start time %{data} lasts longer than
+          %{max} (This could probably also be achieved via repeating schedules)"
       collection:
         no_api: '"%{data}" is not accessible via the API'
   controllers:
@@ -1664,20 +1799,23 @@ en:
       token_invalid: The session has expired, please reload the page.
       no_shared_attributes: There are no attributes that occur with all content
       no_selected_attributes: No attributes were selected for overwriting
-      external_items:
-        At least one content is imported from an external system and
+      external_items: At least one content is imported from an external system and
         cannot be deleted!
       no_watchlist: No content collection was chosen
       content_duplication_invalid: The duplicate could not be created!
       bulk_update_error: An error occurred while saving, please try again
-      definition_mismatch: the versions cannot be compared, because the data-definitions of these versions don't match
-      user_locked: A user with this email already exists and is locked. Please contact an administrator to unlock the user.
+      definition_mismatch: the versions cannot be compared, because the
+        data-definitions of these versions don't match
+      user_locked: A user with this email already exists and is locked. Please contact
+        an administrator to unlock the user.
       classification_mappings_error: An error occurred while updating the classification mappings
       external_system_already_exists: There already exists a configuration for this external system
       bulk_created:
         one: "<b>%{count}</b> Content could not be created!"
         other: "<b>%{count}</b> Contents could not be created!"
       feature_not_enabled: Feature not enabled
+      cache_update_failed: Cache could not be updated
+      webhooks_failed: "%{data} could not be triggered"
     success:
       created: "%{data} was successfully created."
       ready_to_send: "%{data} has been successfully created and can now be sent."
@@ -1713,33 +1851,44 @@ en:
       confirmed: "%{data} has been confirmed."
       classification_mappings_queued: classification mappings are updated in the background
       external_system_created: The configuration for the external system has been created
+      cache_updated: Cache has been updated
+      webhooks_triggered: "%{data} was successfully triggered"
     warning:
       no_changes: No new version was created because no changes were made to the content.
     info:
       not_modified: "%{data} has not been changed."
       created_duplication: "%{data} was successfully duplicated."
-      content_updated:
-        The content has been changed.<br>Please reload the page to
+      content_updated: The content has been changed.<br>Please reload the page to
         ensure that these changes are not overwritten.</br>
-      bulk_updated_skipped_html: "<br>No translations were created if a content does not exist in the language: %{counts}"
+      bulk_updated_skipped_html: "<br>No translations were created if a content does
+        not exist in the language: %{counts}"
       bulk_deleted_external_html:
-        one:
-          "<br><b>%{count}</b> Content was not deleted because it was imported
-          from an external system."
-        other:
-          "<br><b>%{count}</b> Content was not deleted because it was imported
-          from an external system."
+        one: "<br><b>%{count}</b> Content was not deleted because it was imported from
+          an external system."
+        other: "<br><b>%{count}</b> Content was not deleted because it was imported from
+          an external system."
       bulk_deleted_not_allowed_html:
-        one:
-          "<br><b>%{count}</b> Content was not deleted because you do not have
+        one: "<br><b>%{count}</b> Content was not deleted because you do not have
           permission to do so."
-        other:
-          "<br><b>%{count}</b> Content was not deleted because you do not have
+        other: "<br><b>%{count}</b> Content was not deleted because you do not have
           permission to do so."
     job:
       added: "%{data}/%{uuid} added to the job queue."
       imported: "'%{data}' were imported from YAML file."
       running: Job is already in the job queue.
+
+  activemodel:
+    models:
+      data_cycle_core/permission:
+        one: Permission
+        other: Permissions
+      data_cycle_core/utility/duplicate_candidate/data_metric_hamming: Geographical Proximity
+      data_cycle_core/utility/duplicate_candidate/only_title: Exact Match (Title)
+      data_cycle_core/utility/duplicate_candidate/imported_duplicate: External Id
+      data_cycle_core/utility/duplicate_candidate/bild_phash: Hash (Image)
+      data_cycle_core/utility/duplicate_candidate/name_similarity: Similarity (Name)
+      data_cycle_core/utility/duplicate_candidate/only_name_and_locality: Exact Match (Name, Locality)
+
   activerecord:
     errors:
       messages:
@@ -1781,6 +1930,8 @@ en:
               blank: E-mail must not be empty.
               taken: A user already exists for this e-mail.
               invalid: Not a valid email.
+            role_id:
+              system_admin_requires_oauth: System admin role can only be assigned to OAuth users.
         data_cycle_core/user_group:
           attributes:
             name:
@@ -1789,6 +1940,10 @@ en:
           attributes:
             ui_configs:
               color_format: wrong format for color.
+        data_cycle_core/stored_filter:
+          attributes:
+            parameters:
+              self_referential: A stored filter cannot filter on itself.
     models:
       data_cycle_core/user:
         one: User
@@ -1854,12 +2009,18 @@ en:
       data_cycle_core/classification_tree_label:
         one: Classification tree
         other: Classification trees
-      data_cycle_core/permission:
-        one: Permission
-        other: Permissions
+      data_cycle_core/concept_scheme:
+        one: Classification scheme
+        other: Classification schemes
+      data_cycle_core/concept:
+        one: Classification
+        other: Classifications
       data_cycle_core/feature/translate:
         one: Translation
         other: Translations
+      doorkeeper/application:
+        one: Oauth client
+        other: Oauth clients
     attributes:
       data_cycle_core/watch_list:
         manual_order: Use manual order as default order
@@ -1882,6 +2043,7 @@ en:
         ui_configs/color: Color
         ui_configs/icon: Icon
         internal: internal (system classification)
+        full_path: Path
       data_cycle_core/user_group:
         name: Name
         user_ids: User
@@ -1897,6 +2059,7 @@ en:
         new_password: New password
         current_password: Current password
         email: Email
+        unconfirmed_email: Email (unconfirmed)
         role_id: Role
         user_group_ids: User groups
         external: SSO
@@ -1961,7 +2124,8 @@ en:
         name: Name
       data_cycle_core/external_system_sync:
         external_system_id: External System
-        external_key: External Identifier
+        external_key: External Id
+        last_successful_sync_at: Last successful synchronization
       data_cycle_core/collection:
         description: Description
         name: Name
@@ -1973,6 +2137,7 @@ en:
         api: Retrievable via API
         linked_stored_filter: Filter for linked content
         concept_schemes: Limit to classification trees
+        cache_ttl: Cache result (Update interval in minutes)
 
   unauthorized:
     manage:
@@ -1986,15 +2151,16 @@ en:
     user_links: User links
     classifications: Classifications
     dashboard: Dashboard
+    grafana: Grafana
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient
       download_tree_csv: download classification tree as CSV
-      download_tree: Classification tree without contents (csv)
-      download_tree_with_contents: Classification tree with contents (csv)
-      download_tree_for_mappings: Classification tree for defining mappings (csv)
-      download_tree_with_mappings: Classification tree with mappings (csv)
-      download_tree_with_inverse_mappings: Classification tree with ivnerse mappings (csv)
+      download_tree: Classification tree - without contents (csv)
+      download_tree_with_contents: Classification tree - with contents (csv)
+      download_tree_for_mappings: Classification tree - for defining mappings (csv)
+      download_tree_with_mappings: Classification tree - only mappings (csv)
+      download_tree_with_inverse_mappings: Classification tree - only ivnerse mappings (csv)
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}
@@ -2007,19 +2173,15 @@ en:
     autotranslate:
       clear: Delete manual translations
       auto: All translations were automatically generated
-    classification_tree_relations:
-      "ATTENTION: There are contents linked to this classification
-      tree!"
+    classification_tree_relations: "ATTENTION: There are contents linked to this classification tree!"
     classification_relations_html:
       one: "ATTENTION: <b>1</b> content is linked to this classification!"
       other: "ATTENTION: <b>%{count}</b> contents are linked to this classification!"
     child_classification_relations_html:
-      one:
-        "ATTENTION: <b>1</b> classification is assigned to %{data}. This is also
+      one: "ATTENTION: <b>1</b> classification is assigned to %{data}. This is also
         deleted!"
-      other:
-        "ATTENTION: %{data} are assigned to <b>%{count}</b> classifications.<br>These
-        are also deleted!</br>"
+      other: "ATTENTION: %{data} are assigned to <b>%{count}</b>
+        classifications.<br>These are also deleted!</br>"
     concept_scheme_stored_filter_html:
       one: "ACHTUNG: This %{data} is used in the following %{search}:"
       other: "ACHTUNG: This %{data} is used in the following %{search}:"
@@ -2042,13 +2204,30 @@ en:
         zero: "<b>No</b> searches"
         one: "<b>%{count}</b> searches"
         other: "<b>%{count}</b> searches"
+      update_params: save and apply search parameters
+      cache_ttl:
+        disabled: disabled
+        one_day: 1 day
+        rebuild_cache: rebuild cache
+        tooltip: "Cache updated: %{time}<br>update interval: %{interval}</i>"
+        confirm_rebuild_cache: Rebuild cache now?
       form:
         api: API
         shares: Shares
-      update_params: save and apply search parameters
+        cache_ttl:
+          tooltip: "The results of this search are cached to speed up loading
+            times.<br><i>An interval of <b>0</b> means that the cache is
+            disabled.</i>"
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)
-      clear_warning: <p>Do you really want to delete all contents from this collection?</p><div class="callout primary">This action will NOT delete the contents from the system.</div>
+      clear_warning: <p>Do you really want to delete all contents from this
+        collection?</p><div class="callout primary">This action will NOT delete
+        the contents from the system.</div>
+      remove_selected_warning: '<p>Do you really want to remove all selected contents
+        from this collection?</p><div class="callout primary">This action will
+        NOT delete the contents from the system.</div>'
+      remove_one: "content to remove"
+      remove_many: "contents to remove"
       mailer:
         subject:
           one: "Contents were added/removed to/from a %{type}."
@@ -2058,31 +2237,34 @@ en:
           other: "The following contents were added/removed to/from %{link}:"
     upload: Upload new media
     data_links:
-      write_link_html:
-        '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
-        Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
-        has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
-        font-weight: bold;font-style: italic">%{title}</span></a>" with you and asks
-        for your additions and feedback. <br><br>Please make any changes to text,
-        images and videos directly in the form.</span>'
-      read_link_html:
-        '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
-        Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
-        has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
-        font-weight: bold;font-style: italic">%{title}</span></a>" with you and asks
-        for your feedback.</span>'
-      download_link_html:
-        '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
-        Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
-        has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
-        font-weight: bold;font-style: italic">%{title}</span></a>" with you.<br><br>%{n_type}
-        is now available for download.</span>'
-      updated_watchlist_html:
-        '<span style="font-size:12pt; font-family: ''Lato'',
-        ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} "<a
-        href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
-        font-weight: bold;font-style: italic">%{title}</span></a>" has been updated.
-        Content has been added or removed.</span>'
+      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida
+        Grande', 'Segoe', Arial,
+        sans-serif;color:#333333\"><strong>%{user}</strong> has shared %{a_type}
+        \"<a href=\"%{url}\" target=\"_blank\"><span
+        style=\"color:#333333;text-decoration:underline;text-underline:underlin\
+        e; font-weight: bold;font-style: italic\">%{title}</span></a>\" with you
+        and asks for your additions and feedback. <br><br>Please make any
+        changes to text, images and videos directly in the form.</span>"
+      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida
+        Grande', 'Segoe', Arial,
+        sans-serif;color:#333333\"><strong>%{user}</strong> has shared %{a_type}
+        \"<a href=\"%{url}\" target=\"_blank\"><span
+        style=\"color:#333333;text-decoration:underline;text-underline:underlin\
+        e; font-weight: bold;font-style: italic\">%{title}</span></a>\" with you
+        and asks for your feedback.</span>"
+      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida
+        Grande', 'Segoe', Arial,
+        sans-serif;color:#333333\"><strong>%{user}</strong> has shared %{a_type}
+        \"<a href=\"%{url}\" target=\"_blank\"><span
+        style=\"color:#333333;text-decoration:underline;text-underline:underlin\
+        e; font-weight: bold;font-style: italic\">%{title}</span></a>\" with
+        you.<br><br>%{n_type} is now available for download.</span>"
+      updated_watchlist_html: "<span style=\"font-size:12pt; font-family: 'Lato',
+        'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\">%{a_type}
+        \"<a href=\"%{url}\" target=\"_blank\"><span
+        style=\"color:#333333;text-decoration:underline;text-underline:underlin\
+        e; font-weight: bold;font-style: italic\">%{title}</span></a>\" has been
+        updated. Content has been added or removed.</span>"
       create_link: create new link
     static:
       imprint: Imprint
@@ -2094,6 +2276,7 @@ en:
       architecture: System architecture
       data_structure: Data structure
       classifications: Classifications
+      external_references: External references
       api:
         root: Data interface
         classifications: Classifications
@@ -2107,6 +2290,11 @@ en:
           root: Geodata
           geojson: GeoJSON
           mvt: Mapbox Vector Tiles
+        external_links: External links
+        endpoints: Data endpoints
+    guides:
+      root: Developer Guides
+      overview: Overview
 
     schema:
       root: Scheme
@@ -2169,6 +2357,8 @@ en:
       text: Detailed description
       shortDesc: Short description
       longDesc: Detailed description
+      htmlHeadTitle: SEO title
+      htmlHeadMetaDescription: SEO description
       startingPointDescr: Starting point description
       destination: Destination
       gettingThere: Getting there
@@ -2216,30 +2406,6 @@ en:
         soilNumber: Soil number
     gem2go:
       description: Description
-    toubiz:
-      abstract: Abstract
-      description: Description
-      additionalBookingInformation: Additional booking information
-      currentInformation: Current information
-      additionalLocationInformation: Additional location information
-      additionalHostInformation: Additional host information
-      additionalMeetingPointInformation: Additional meeting point information
-      directions: Directions
-      publicTransit: Public transit
-      parking: Parking
-      literature: Literature
-      authorTip: Tip
-      endPoint: End point
-      endPointParking: Parking end point
-      endPointToStartPoint: End point to start point
-      gear: Gear
-      moreInformation: More information
-      safetyInformation: Safety information
-      startPoint: Start point
-      startpointGettingThere: Start point getting there
-      seasonDescription: Sesion
-      price: Price information
-      intro: Short description
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement
@@ -2405,11 +2571,11 @@ en:
       geometry_source_organization: Geometry source
       legal_doc: Legal document
   media_archive:
-    allowed_html:
-      '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
-      <ul> <li>Formats: %{image_types}</li> <li>Dimensions: %{image_dimensions}</li>
-      </ul> </li> <li><b>Video:</b> <ul> <li>Formats: %{video_types}</li> <li>Codecs:
-      h264 (audio: mp3/aac)</li> </ul> </li> </ul>'
+    allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
+      <ul> <li>Formats: %{image_types}</li> <li>Dimensions:
+      %{image_dimensions}</li> </ul> </li> <li><b>Video:</b> <ul> <li>Formats:
+      %{video_types}</li> <li>Codecs: h264 (audio: mp3/aac)</li> </ul> </li>
+      </ul>'
   uploader:
     restrictions: Restrictions
     validation:
@@ -2419,21 +2585,30 @@ en:
       content_type_not_supported: Unsupported MIME-Type (%{data})
       dimensions:
         exclude:
-          format: 'The following formats are allowed in any size: <span class="value">%{data}</span>'
+          format: 'The following formats are allowed in any size: <span
+            class="value">%{data}</span>'
         landscape:
           min:
-            width: 'Minimum width for media in landscape format: <span class="value">%{data}px</span>'
-            height: 'Minimum height for media in landscape format: <span class="value">%{data}px</span>'
+            width: 'Minimum width for media in landscape format: <span
+              class="value">%{data}px</span>'
+            height: 'Minimum height for media in landscape format: <span
+              class="value">%{data}px</span>'
           max:
-            width: 'Maximum width for media in landscape format: <span class="value">%{data}px</span>'
-            height: 'Maximum height for media in landscape format: <span class="value">%{data}px</span>'
+            width: 'Maximum width for media in landscape format: <span
+              class="value">%{data}px</span>'
+            height: 'Maximum height for media in landscape format: <span
+              class="value">%{data}px</span>'
         portrait:
           min:
-            width: 'Minimum width for portrait media: <span class="value">%{data}px</span>'
-            height: 'Minimum height for portrait media: <span class="value">%{data}px</span>'
+            width: 'Minimum width for portrait media: <span
+              class="value">%{data}px</span>'
+            height: 'Minimum height for portrait media: <span
+              class="value">%{data}px</span>'
           max:
-            width: 'Maximum width for portrait media: <span class="value">%{data}px</span>'
-            height: 'Maximum height for portrait media: <span class="value">%{data}px</span>'
+            width: 'Maximum width for portrait media: <span
+              class="value">%{data}px</span>'
+            height: 'Maximum height for portrait media: <span
+              class="value">%{data}px</span>'
         logo:
           max:
             height: 'Maximum height for logos: <span class="value">%{data}px</span>'
@@ -2447,9 +2622,9 @@ en:
         max: 'Maximum Resolution (Width x Height): <span class="value">%{data}</span>'
         min: 'Minimum Resolution (Width x Height): <span class="value">%{data}</span>'
 
-    close_warning_html:
-      "<p>This window must remain open during the upload!<br>However,
-      you can continue working in parallel in a new tab.</br> </p>"
+    close_warning_html: "<p>This window must remain open during the
+      upload!<br>However, you can continue working in parallel in a new
+      tab.</br> </p>"
     continue_in_new_tab: Continue working in new tab
   date:
     abbr_day_names:
@@ -2643,12 +2818,8 @@ en:
     messages:
       extension_white_list_error: Invalid file type
   exceptions:
-    action_controller/invalid_authenticity_token:
-      Invalid or missing CSRF token, please
-      log in again
-    data_cycle_core/error/download/invalid_serialization_format_error:
-      The selected
-      download method is not supported
+    action_controller/invalid_authenticity_token: Invalid or missing CSRF token, please log in again
+    data_cycle_core/error/download/invalid_serialization_format_error: The selected download method is not supported
     data_cycle_core/error/download/serialization_error: An error occurred during the download
     data_cycle_core/error/api/bad_request_error:
       unknown_parameter: Unknown Query Parameter
@@ -2657,9 +2828,13 @@ en:
       expired_content: Content is expired
     active_record/record_not_found: Not found
     active_record/record_not_unique: Conflict
-    data_cycle_core/error/filter/date_filter_range_error: "error in filter params: end date must be equal or greater then start date in date filters"
-    data_cycle_core/error/filter/union_filter_recursion_error: "error in filter params: stored filters cannot filter on themselves inside union filters (infinite recursion)"
-
+    data_cycle_core/error/filter/date_filter_range_error: "error in filter params:
+      end date must be equal or greater then start date in date filters"
+    data_cycle_core/error/filter/union_filter_recursion_error: "error in filter
+      params: stored filters cannot filter on themselves inside union filters
+      (infinite recursion)"
+    active_record/statement_invalid: Invalid request
+    data_cycle_core/error/bad_request_error: Invalid request
   details:
     bild:
       open_url: Open URL
@@ -2672,3 +2847,7 @@ en:
     internal_server_error: An unexpected error has occurred
     unauthorized: You do not have permission to open the desired page
     conflict: The request could not be completed due to a conflict
+
+  invisible_captcha:
+    sentence_for_humans: Please leave this field blank if you are human.
+    timestamp_error_message: Your form was submitted too quickly. Please try again.

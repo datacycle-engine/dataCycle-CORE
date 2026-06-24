@@ -7,11 +7,16 @@ module DataCycleCore
 
     CONTENT_TABLES = [:creative_works, :events, :intangibles, :media_objects, :organizations, :persons, :places, :products, :things, :users].freeze
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
+    # Fixture directories the dummy-data hash is populated from on first access (see dummy_data_hash).
+    DUMMY_DATA_PATHS = [
+      Rails.root.join('..', 'fixtures', 'data'),
+      Rails.root.join('..', 'v4', 'fixtures', 'data')
+    ].freeze
     EXCEPTED_ATTRIBUTES =
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id',
                  'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification',
-                 'universal_classifications', 'slug', 'schema_types', 'linked_in_text', 'linked_to_text'],
+                 'universal_classifications', 'slug', 'schema_types', 'linked_in_text', 'linked_to_text', 'dummy', 'external_key'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel', 'author', 'about', 'keywords', 'topic',
                         'video', 'potential_action', 'slug', 'work_translation', 'translation_of_work'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags', 'feratel_owners', 'feratel_locations', 'feratel_status', 'slug',
@@ -28,21 +33,18 @@ module DataCycleCore
         products: ['slug']
       }.freeze
 
-    @dummy_data_hash =
-      {
-        creative_works: {},
-        events: {},
-        intangibles: {},
-        media_objects: {},
-        organizations: {},
-        places: {},
-        persons: {},
-        products: {},
-        things: {},
-        users: {}
-      }
-
+    # The dummy-data fixtures are an in-memory, per-process cache (raw JSON used as source
+    # hashes for create_content) — they never hit the database, so unlike prepare_database!
+    # they can't be loaded once in the setup process; each test process needs them locally.
+    # Rather than eagerly load on every boot, populate lazily from DUMMY_DATA_PATHS on first
+    # access so test files that never touch dummy data skip the file read entirely. The
+    # @dummy_data_loaded guard makes the default load happen exactly once (and lets
+    # load_dummy_data reference @dummy_data_hash directly without recursing through here).
     def self.dummy_data_hash
+      unless @dummy_data_loaded
+        @dummy_data_loaded = true
+        load_dummy_data(DUMMY_DATA_PATHS)
+      end
       @dummy_data_hash
     end
 
@@ -63,6 +65,7 @@ module DataCycleCore
       # map classifications (Test1 mapped to Tag 1, Test2 mapped to Tag 2)
       test_alias = DataCycleCore::ClassificationAlias.find_by(name: 'Test1')
       return if test_alias.nil?
+
       unless test_alias.classifications.count == 2
         test_classification = DataCycleCore::Classification.find_by(name: 'Test1')
         test_classification1 = DataCycleCore::Classification.find_by(name: 'Test Veranstaltung geplant')
@@ -70,6 +73,7 @@ module DataCycleCore
       end
       test_alias2 = DataCycleCore::ClassificationAlias.find_by(name: 'Test2')
       return if test_alias2.nil? || test_alias2.classifications.count == 2
+
       test_classification2 = DataCycleCore::Classification.find_by(name: 'Test2')
       test_classification3 = DataCycleCore::Classification.find_by(name: 'Test Veranstaltung abgesagt')
       test_alias2.update(classification_ids: [test_classification2.id, test_classification3.id])
@@ -79,7 +83,6 @@ module DataCycleCore
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(template_paths: paths)
       template_importer.import
 
-      template_importer.render_duplicates
       template_importer.render_mixin_errors
       template_importer.render_errors
     end
@@ -93,7 +96,11 @@ module DataCycleCore
       Rails.logger.debug errors
     end
 
+    # Populate the in-memory dummy-data hash from the given fixture paths. Normally invoked
+    # lazily by dummy_data_hash with DUMMY_DATA_PATHS; references @dummy_data_hash directly
+    # (initializing it if needed) so it doesn't recurse back through the lazy getter.
     def self.load_dummy_data(paths)
+      @dummy_data_hash ||= CONTENT_TABLES.index_with { {} }
       paths.each do |path|
         CONTENT_TABLES.each do |content_table_name|
           files = path.join(content_table_name.to_s, '*.json')
@@ -117,13 +124,14 @@ module DataCycleCore
       DataCycleCore::Role.where(rank: 5).first_or_create({ name: 'super_editor' })
       DataCycleCore::Role.where(rank: 10).first_or_create({ name: 'admin' })
       DataCycleCore::Role.where(rank: 99).first_or_create({ name: 'super_admin' })
+      DataCycleCore::Role.where(rank: 100).first_or_create({ name: 'system_admin' })
     end
 
     def self.create_users
       @admin = DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
         given_name: 'Administrator',
         password: 'PME_jeh0nek4tbf8mea',
-        role_id: DataCycleCore::Role.order('rank DESC').first.id,
+        role_id: DataCycleCore::Role.order(rank: :desc).first.id,
         confirmed_at: 1.day.ago
       })
       @guest = DataCycleCore::User.where(email: 'guest@datacycle.at').first_or_create({
@@ -131,7 +139,8 @@ module DataCycleCore
         family_name: 'User',
         password: 'vdr5pmx@juv9BMJ6ujt',
         role_id: DataCycleCore::Role.find_by(name: 'guest')&.id,
-        confirmed_at: 1.day.ago
+        confirmed_at: 1.day.ago,
+        access_token: SecureRandom.hex
       })
     end
 
@@ -145,8 +154,33 @@ module DataCycleCore
       )
     end
 
+    # Populate a database with everything the test suite expects to already exist before any
+    # test runs: classifications, external systems, templates, user roles, the default users and
+    # the admin user group, plus the postgres dictionary mappings. This used to run inline in
+    # test_helper.rb on every boot; it now runs once per worker database during `dc:test:setup`
+    # so the test processes boot without redoing it. Idempotent (first_or_create / importers).
+    # Note: load_dummy_data is intentionally NOT here — it only fills an in-memory, per-process
+    # hash (discarded when this setup process exits), so it must run in each test process. It now
+    # does so lazily on first access (see dummy_data_hash), not as a setup or boot step.
+    def self.prepare_database!(root = Rails.root)
+      load_classifications([root.join('..', 'data_types', 'data_definitions', 'data_cycle_test')])
+      load_external_systems([root.join('..', 'fixtures', 'external_systems')])
+      load_templates(
+        [
+          root.join('..', 'data_types', 'data_definitions', 'data_cycle_test'),
+          root.join('..', 'data_types', 'attributes'),
+          root.join('..', 'data_types', 'models')
+        ]
+      )
+      load_user_roles
+      create_users
+      create_user_group
+      DataCycleCore::PgDictMapping.upsert_missing
+    end
+
     def self.create_content(template_name:, data_hash:, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil, source: nil)
       return if template_name.blank? || data_hash.blank?
+
       data_hash = data_hash.dup.with_indifferent_access
 
       @content  = DataCycleCore::Thing
@@ -210,11 +244,12 @@ module DataCycleCore
 
     def self.excepted_attributes(model = nil)
       return EXCEPTED_ATTRIBUTES[:common] + EXCEPTED_ATTRIBUTES[model.to_sym] if model.present?
+
       EXCEPTED_ATTRIBUTES[:common]
     end
 
     def self.load_dummy_data_hash(model, name)
-      @dummy_data_hash.dig(model.to_sym, name.to_sym).dup
+      dummy_data_hash.dig(model.to_sym, name.to_sym).dup
     end
   end
 end

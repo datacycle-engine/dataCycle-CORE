@@ -17,7 +17,13 @@ module DataCycleCore
         import Dry::Transformer::Recursion
 
         def self.strip_all(data_hash)
-          data_hash.to_a.to_h { |k, v| [k, v.is_a?(Hash) ? strip_all(v) : (v.is_a?(String) ? v.strip : v)] }
+          data_hash.to_a.to_h do |k, v|
+            [k, if v.is_a?(Hash)
+                  strip_all(v)
+                else
+                  (v.is_a?(String) ? v.strip : v)
+                end]
+          end
         end
 
         def self.deep_stringify_keys(data_hash)

@@ -1,8 +1,8 @@
 // import TextEditor from '../components/text_editor';
 const TextEditorLoader = () => import("../components/text_editor");
-import InlineTranslator from "../components/inline_translator";
-import AiLectorTips from "../components/ai_lector/ai_lector_tips";
+
 import AiLector from "../components/ai_lector/ai_lector";
+import InlineTranslator from "../components/inline_translator";
 
 function initTextEditor(item) {
 	TextEditorLoader()
@@ -21,12 +21,6 @@ export default function () {
 		".translate-inline-button",
 		"inline-translator",
 		(e) => new InlineTranslator(e),
-	);
-
-	DataCycle.registerAddCallback(
-		".ai-lector-tips-button",
-		"ai-lector-tips",
-		(e) => new AiLectorTips(e),
 	);
 
 	DataCycle.registerAddCallback(".ai-lector-dropdown", "ai-lector", () => {

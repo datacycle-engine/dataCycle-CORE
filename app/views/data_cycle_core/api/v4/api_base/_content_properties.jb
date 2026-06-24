@@ -10,12 +10,16 @@ unless content.schema.nil?
     next if options[:combined_attributes].include?(key)
 
     property_name = api_property_definition.dig('transformation', 'name')
+    api_name = content.api_name_for(key, prop)
+
+    # skip optional properties unless they are explicitly included via fields or include parameters
+    next if api_property_definition['optional'] && !attribute_visible?(api_name, options)
 
     if options[:field_filter].present?
       is_valid_key = false
       is_valid_key = true if ['nest', 'merge_object'].include?(api_property_definition.dig('transformation', 'method')) && property_name.present? && attribute_visible?(property_name, options)
 
-      validation_keys = [attribute_key(key, prop)]
+      validation_keys = [api_name]
       validation_keys += options.dig(:transformation_mapping, key) if options.dig(:transformation_mapping, key).present?
       validation_keys += [api_property_definition.dig('transformation', 'name')] if api_property_definition.dig('transformation', 'method') == 'append'
 
@@ -60,6 +64,7 @@ unless content.schema.nil?
     elsif api_property_definition.dig('transformation', 'method') == 'append'
       # TODO: add more types for append transformation
       next unless ['embedded', 'linked', 'string', 'number'].include?(prop['type'])
+
       json[property_name] ||= []
       if ['embedded', 'linked'].include?(prop['type'])
         json[property_name] += (render(*partial_params)&.dig(property_name) || [])&.reject(&:blank?) unless partial_params.nil?

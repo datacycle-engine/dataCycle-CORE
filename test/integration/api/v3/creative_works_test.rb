@@ -26,6 +26,7 @@ module DataCycleCore
             template: 'Artikel',
             locale: 'de'
           }
+
           assert_equal 'Artikel wurde erfolgreich erstellt.', flash[:success]
 
           content = DataCycleCore::Thing.where_translated_value(name:).first
@@ -33,8 +34,9 @@ module DataCycleCore
           get api_v3_thing_path(id: content)
 
           assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
+          assert_equal 'application/json; charset=utf-8', response.content_type
           json_data = response.parsed_body
+
           assert_equal name, json_data['headline']
         end
       end

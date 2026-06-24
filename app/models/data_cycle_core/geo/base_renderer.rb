@@ -92,8 +92,9 @@ module DataCycleCore
                   INNER JOIN concept_schemes ON concept_schemes.id = concepts.concept_scheme_id
                   #{'INNER JOIN classification_alias_paths ON classification_alias_paths.id = concepts.id' if fields_parameters.blank? || fields_parameters.include?('dc:path')}
                 WHERE 'api' = ANY(concept_schemes.visibility)
-                  #{"AND concepts.concept_scheme_id IN (\'#{@classification_trees_parameters.join('\',\'')}\')" if @classification_trees_parameters.present?}
+                  #{"AND concepts.concept_scheme_id IN ('#{@classification_trees_parameters.join('\',\'')}')" if @classification_trees_parameters.present?}
                   AND ccc.thing_id = #{base_table}.id
+                  AND ccc.link_type IN ('direct', 'related')
               ) AS tmp1 ON TRUE"
         }
       end

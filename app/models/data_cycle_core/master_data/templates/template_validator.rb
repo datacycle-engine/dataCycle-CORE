@@ -28,7 +28,7 @@ module DataCycleCore
           @templates.each do |template|
             prefix = [template[:set], template[:name]]
             result_header = @template_header_contract.call(template)
-            merge_errors!(result_header, prefix + [:header])
+            merge_errors!(result_header, prefix)
 
             validate_properties!(template[:data], prefix)
             validate_translatable_embedded!(template, prefix)
@@ -88,13 +88,14 @@ module DataCycleCore
           template[:properties].each do |key, definition|
             contract.property_name = key
             result_property = contract.call(definition)
-            merge_errors!(result_property, prefix + [:properties, key])
+            error_path = [*prefix, :data, :properties, key]
+            merge_errors!(result_property, error_path)
 
-            validate_properties!(definition, prefix + [:properties, key], @object_property_contract) if definition.key?(:properties)
+            validate_properties!(definition, error_path, @object_property_contract) if definition.key?(:properties)
 
-            validate_linked_template!(definition, prefix + [:properties, key]) if definition.key?(:template_name)
+            validate_linked_template!(definition, error_path) if definition.key?(:template_name)
 
-            @errors.push("#{[*prefix, :properties, key].join('.')} => must be underscored") if key.to_s != key.to_s.underscore_blanks
+            @errors.push("#{error_path.join('.')} => must be underscored") if key.to_s != key.to_s.underscore_blanks
           end
         end
 

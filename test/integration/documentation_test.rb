@@ -13,6 +13,7 @@ module DataCycleCore
 
     test 'docs path' do
       get '/docs/classifications'
+
       assert_response :success
     end
   end

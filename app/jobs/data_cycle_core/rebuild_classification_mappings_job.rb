@@ -15,16 +15,12 @@ module DataCycleCore
     end
 
     def delayed_reference_id
-      'db:configure:rebuild_transitive_tables'
+      'DataCycleCore::Feature::TransitiveClassificationPath#rebuild_transitive_tables!'
     end
 
     def perform
-      Rake::Task.clear
-      Rails.application.load_tasks
-
       broadcast_update(rebuilding: true)
-      Rake::Task['db:configure:rebuild_transitive_tables'].invoke
-      Rake::Task['db:configure:rebuild_transitive_tables'].reenable
+      DataCycleCore::Feature::TransitiveClassificationPath.rebuild_transitive_tables!
     ensure
       broadcast_update(rebuilding: false)
     end

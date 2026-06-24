@@ -3,14 +3,24 @@
 module DataCycleCore
   module MasterData
     module Validators
+      # Validator for classification values.
+      #
+      # Ensures that provided classification IDs are correctly formatted UUIDs
+      # and exist in the configured concept tree. Supports array and string inputs
+      # and applies min/max constraints on the number of references.
       class Classification < BasicValidator
+        # Validates classification data against the provided template.
+        #
+        # Accepts blank values, arrays, or string inputs. Normalizes input and
+        # validates both structure and referenced concepts.
+        #
+        # @param data [Array<String>, String, nil] Classification identifiers
+        # @param template [Hash] Validation template containing rules and metadata
+        # @param _strict [Boolean] Unused strict mode flag
+        # @return [Hash] Collected validation errors and warnings
         def validate(data, template, _strict = false)
-          if blank?(data)
-            check_reference_array(data, template)
-          elsif data.is_a?(::Array)
-            check_reference_array(data, template)
-          elsif data.is_a?(::String)
-            check_reference_array([data], template)
+          if blank?(data) || data.is_a?(::Array) || data.is_a?(::String)
+            check_reference_array(Array.wrap(data), template)
           else
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.data_type',
@@ -26,15 +36,24 @@ module DataCycleCore
 
         private
 
-        def check_reference_array(data, template)
-          # check given validations
-          if template.key?('validations')
-            template['validations'].each_key do |key|
-              validate_with_method(key, data, template['validations'][key])
-            end
-          end
+        # Extends validations that are allowed on blank values.
+        #
+        # @return [Array<String>] List of validation keys allowed on blank data
+        def validations_on_blank
+          (super + ['min', 'max']).uniq
+        end
 
-          # validate references themself
+        # Validates and normalizes an array of classification identifiers.
+        #
+        # Ensures UUID format correctness before validating existence in the
+        # configured concept tree.
+        #
+        # @param data [Array<String>] Input classification IDs
+        # @param template [Hash] Validation template
+        # @return [void]
+        def check_reference_array(data, template)
+          run_validations(data, template)
+
           return if blank?(data)
 
           uuids = []
@@ -54,6 +73,11 @@ module DataCycleCore
           check_references(uuids, template)
         end
 
+        # Validates that classification IDs exist in the database and match the expected tree.
+        #
+        # @param data [Array<String>] UUIDs to validate
+        # @param template [Hash] Validation template
+        # @return [void]
         def check_references(data, template)
           uniq_data = data.uniq
           concepts = DataCycleCore::Concept.where(classification_id: uniq_data)
@@ -72,6 +96,11 @@ module DataCycleCore
           }
         end
 
+        # Validates minimum number of classifications.
+        #
+        # @param data [Array<String>, Object] Input values
+        # @param value [Integer] Minimum required count
+        # @return [void]
         def min(data, value)
           return unless Array.wrap(data).size < value
 
@@ -84,6 +113,11 @@ module DataCycleCore
           }
         end
 
+        # Validates maximum number of classifications.
+        #
+        # @param data [Array<String>, Object] Input values
+        # @param value [Integer] Maximum allowed count
+        # @return [void]
         def max(data, value)
           return unless data.present? && data.size > value
 

@@ -2,7 +2,7 @@
 
 class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION public.to_geometry_history (content_id UUID, new_history_id UUID) RETURNS void LANGUAGE PLPGSQL AS $$
       DECLARE insert_query TEXT;
 
@@ -68,7 +68,7 @@ class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
       $$;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE VIEW public.geometries_primary AS
       SELECT id,
         thing_id,
@@ -132,7 +132,7 @@ class UpdateToHistoryForGeometryTable < ActiveRecord::Migration[7.1]
       AFTER DELETE ON public.geometries REFERENCING OLD TABLE AS changed_geometries FOR EACH STATEMENT EXECUTE FUNCTION public.update_geometries_is_primary_trigger2();
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE VIEW public.geometries_changed_priorities AS
       SELECT geometries.id,
         (

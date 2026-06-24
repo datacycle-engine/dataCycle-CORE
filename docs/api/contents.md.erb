@@ -1,0 +1,705 @@
+# Abfragen von Inhalten über die Datenschnittstelle
+
+In dataCycle gibt es zwei Möglichkeiten, wie Inhalte über die Datenschnittstelle verfügbar gemacht werden können. Für eine von Hand ausgewählte Selektion von Inhalten können (statische) Inhaltssammlungen genutzt werden. Sollen Inhalte auf Basis von unterschiedlichen Filterkriterien automatisch ausgewählt werden, können gespeicherte Suchen bzw. "dynamische" Inhaltssammlungen verwendet werden. Über die Datenschnittstelle werden statische und dynamische Inhaltssammlungen über ein einheitliches URL-Schema (_**/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG**_) bereitgestellt. Die konkrete URL kann über die Benutzeroberfläche direkt bei der jeweiligen Inhaltssammlung bzw. bei der gespeicherten Suche in die Zwischenablage übernommen werden.
+
+## Sprachbehandlung
+Die ausgegebene Sprache kann über den ```language``` Parameter gesteuert werden.
+Wenn der Parameter nicht übergeben wird, werden die Inhalte in **<%= I18n.default_locale.to_s %>** ausgegeben.
+Es können auch mehrere Sprachen angefordert werden mit z.B. ```"language": "de,en"```
+
+#### Inhaltsarten
+* **übersetzbare Inhalte** (Bild, POI, ...), in der API als ```"dc:multilingual": true```
+* **nicht übersetzbare Inhalte** (Artikel, ...), in der API als ```"dc:multilingual": false```
+
+Zusätzlich wird über ```dc:translation``` ausgegeben, in welchen Sprachen der Inhalt vorhanden ist.
+
+#### Fehlende Übersetzung
+Wenn keine Übersetzung für die angeforderte Sprache verfügbar ist:
+* werden bei **übersetzbarer Inhalten** alle **sprachunabhängigen** Attribute ausgespielt.
+* werden bei **nicht übersetzbarer Inhalten** nur die folgenden Attribute ausgespielt:
+  * ```@id```
+  * ```@type```
+  * ```dc:multilingual```
+  * ```dc:translation```
+
+#### Arten von Attributen
+* **übersetzbare Attribute** gelten nur für eine Sprache, und sind im UI mit dem <i class="fa fa-language translatable-attribute-icon"></i> Icon gekennzeichnet.
+* **sprachunabhängige Attribute** sind Attribute, die für alle Sprachen verfügbar sind.
+
+## Filtern von Inhalten
+
+Häufig ist es so, dass neben der Einschränkung von Inhalten im Zuge der Erstellung eines Datenendpunkts auch eine nachträgliche Filterung direkt beim Abrufen der Inhalte wünschenswert bzw. notwendig ist. Bei dataCycle stehen deshalb unterschiedliche Filter zur Verfügung, die direkt über die API genutzt werden können.
+
+Um unterschiedliche Anwendungsfälle möglichst gut abdecken zu können, stehen unterschiedliche Typen von Filtern zur Verfügung. Folgend werden die meisten Filtertypen abgedeckt, in der [Spezifikation](/docs/api/contents/specification) können alle Filtertypen nachgesehen werden.
+
+Der grundsätzliche Aufbau der unterschiedlichen Filtertypen ist immer sehr ähnlich: Alle Filter beginnen mit `filter[TYPE]`. Je nach ausgewähltem Filtertyp unterscheidet sich die restliche Filterkonfiguration und ist auf den jeweiligen Filter abgestimmt.
+
+Die API unterstützt das Abfragen und auch das Filtern von Inhalten sowohl über **HTTP-GET** als auch über **HTTP-POST**, im Falle einer POST-Abfrage müssen die Parameter im **JSON**-Format an dataCycle übermittelt werden. Die folgenden Abfragen sind damit also äquivalent und liefern auch exakt die gleichen Inhalte aus:
+
+#### HTTP-GET:
+
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN&filter[classifications][in][withSubtree][]=3b9b4787-99e5-47c1-8d09-db65c1db43cc_
+
+#### HTTP-POST:
+
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc_
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "classifications": {
+      "in": {
+        "withSubtree": ["3b9b4787-99e5-47c1-8d09-db65c1db43cc"]
+      }
+    }
+  }
+}
+```
+
+**_ACHTUNG: Bei der Übergabe von Filterparametern sowohl über HTTP-GET als auch über HTTP-POST ist es wichtig, darauf zu achten, dass die einzelnen Komponenten je nach verwendetem Filter exakt den Vorgaben entsprechend entweder als Array oder als String übergeben werden!_**
+
+Die Nutzung von HTTP-POST bringt vor allem im Zusammenhang mit komplexen Abfragen einen Vorteil, weil diese in der Regel sehr viel übersichtlicher gestaltet werden können. Außerdem unterliegen sie nicht der Längenbeschränkung von URLs, die bei sehr komplexen bzw. umfangreichen Abfragen Probleme verursachen kann. Die folgende komplexe Abfrage kann in Form eines JSON-Snippets im Gegensatz zu einer fast 1000 Zeichen langen URL immer noch sehr übersichtlich dargestellt werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "q": "Sommer",
+    "classifications": {
+      "in": {
+        "withSubtree": [
+          "b482d10a-8101-45aa-80e7-1a74884f5401,28505016-25d9-4ed8-a8ab-fc432a46e1af",
+          "a1a626c2-3324-4118-b71b-aaecd10bd775"
+        ]
+      },
+      "notIn": {
+        "withSubtree": ["cae91ec2-7b32-44e2-ad99-26c5d1fe7ff5"]
+      }
+    },
+    "attribute": {
+      "dct:created": {
+        "in": {
+          "min": "2020-03-16",
+          "max": "2020-05-14"
+        },
+        "notIn": {
+          "min": "2020-04-06",
+          "max": "2020-04-13"
+        }
+      }
+    },
+    "schedule": {
+      "in": {
+        "min": "2020-06-21",
+        "max": "2020-09-20"
+      }
+    },
+    "geo": {
+      "in": {
+        "box": [
+          9.53074836730957, 46.37226867675781, 17.160776138305664,
+          49.020530700683594
+        ]
+      }
+    }
+  }
+}
+```
+
+### Volltextsuche - **filter\[q\]**
+
+Ein sehr häufiger Anwendungsfall um Inhalte einzuschränken ist eine Volltextsuche. Natürlich steht auch innerhalb von dataCycle über den Filterparameter **filter\[q\]** eine Volltextsuche zur Verfügung. Um beispielsweise nach Inhalten mit dem Suchwort "Musik" zu suchen, kann die folgende Suchanfrage an dataCycle übermittelt werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "q": "Musik"
+  }
+}
+```
+
+Alternativ kann diese Anfrage auch über **HTTP-GET** umgesetzt werden:
+
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN&filter[q]=Musik_
+
+#### Einschränkung der Volltextsuche auf bestimmte Felder (`fields`)
+
+<%= '**!!! Feature nicht freigeschalten !!!**' unless DataCycleCore::Feature::TsQueryFulltextSearch.enabled? %>
+
+Die Volltextsuche kann auf bestimmte Felder eingeschränkt werden. Es werden dann nur diese Felder durchsucht.
+Keine bzw. leere `fields` entsprechen einer Volltextsuche über alle indizierten Felder.
+
+Mögliche Felder für die Einschränkung:
+
+- `name`
+- `dc:slug`
+- `dc:classification`
+
+**Beispiel** (nur `name` und `dc:slug` werden durchsucht):
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "q": {
+      "value": "Musik",
+      "fields": "name,dc:slug"
+    }
+  }
+}
+```
+
+### Klassifizierungen - **filter\[classifications\]**
+
+Eine Option, um die über den Datenendpunkt vordefinierte Filterung weiter zu verfeinern, ist durch das Einschränken der Inhalte auf Basis von Klassifizierungen. Sie können dabei sowohl als notwendiges als auch als ausschließendes Kriterium verwendet werden. Wird die Klassifizierung als notwendiges Kriterium übergeben, werden nur Inhalte ausgeliefert, die mit einer bestimmten Klassifizierung wie z.B. "Inhaltstypen > Ort > Öffentliche Einrichtung > Museum" verknüpft sind. Im Fall einer ausschließenden Verwendung werden eben diese Inhalte ausgeschlossen. Außerdem kann festgelegt werden ob Sub-Klassifizierungen bei der Filterung berücksichtigt werden sollen oder nicht. Im Detail ergeben sich damit die folgenden Kombinationsmöglichkeiten:
+
+#### filter\[classifications\]\[in\]\[withSubtree\]\[\]:
+
+Inhalte müssen mit einer der übergebenen Klassifizierungen oder einer zugehörigen Sub-Klassifizierung verknüpft sein, um bei der Abfrage berücksichtigt zu werden.
+
+#### filter\[classifications\]\[in\]\[withoutSubtree\]\[\]:
+
+Inhalte müssen mit einer der übergebenen Klassifizierungen verknüpft sein. Eine indirekte Verknüpfung über eine Sub-Klassifizierung wird bei dieser Art der Abfrage nicht berücksichtigt. (_Sehr wohl berücksichtigt werden aber indirekte Verknüpfungen, die sich aufgrund eines Klassifizierungs-Mappings ergeben._)
+
+#### filter\[classifications\]\[notIn\]\[withSubtree\]\[\]:
+
+Inhalte dürfen nicht mit einer der übergebenen Klassifizierungen oder einer zugehörigen Sub-Klassifizierung verknüpft sein.
+
+#### filter\[classifications\]\[notIn\]\[withoutSubtree\]\[\]:
+
+Inhalte dürfen nicht mit einer der übergebenen Klassifizierungen verknüpft sein. Eine indirekte Verknüpfung über eine Sub-Klassifizierung wird bei dieser Art der Abfrage nicht berücksichtigt. (_Sehr wohl berücksichtigt werden aber indirekte Verknüpfungen, die sich aufgrund eines Klassifizierungs-Mappings ergeben._)
+
+Um die Flexibilität des Klassifizierungsfilters noch weiter zu steigern, können die einzelnen Filterbausteine beliebig kombiniert werden, um eine maximale Flexibilität zu erlauben. Außerdem ist es möglich, die übergebenen Klassifizierungen sowohl mit **UND** als auch mit einem **ODER** zu verknüpfen. Für eine **UND**-Verknüpfung müssen die Klassifizierungen als separate Elemente eines Arrays übergeben werden, für eine **ODER**-Verknüpfung in Form einer kommagetrennten Liste innerhalb eines einzelnen Strings. Um beispielsweise nach Galerien oder Museen zu suchen, die barrierefrei zugänglich sind und die derzeit keinen Schwerpunkt auf moderne Kunst gesetzt haben, könnte die folgende Abfrage verwendet werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "classifications": {
+      "in": {
+        "withSubtree": [
+          "b482d10a-8101-45aa-80e7-1a74884f5401,28505016-25d9-4ed8-a8ab-fc432a46e1af", // Gallerie ODER Museum
+          "a1a626c2-3324-4118-b71b-aaecd10bd775" // UND barrierefrei
+        ]
+      },
+      "notIn": {
+        "withSubtree": [
+          "cae91ec2-7b32-44e2-ad99-26c5d1fe7ff5" // Moderne Kunst
+        ]
+      }
+    }
+  }
+}
+```
+
+### Attribute - **filter\[attribute\]**
+
+Eine weitere Option, um Inhalte zu filtern, ist auf Basis von ausgewählten Attributen. Welche Attribute bei dieser Art der Filterung unterstützt werden, kann individuell pro dataCycle-Instanz konfiguriert werden. Insbesondere bei sehr individuellen Konfigurationen kann also nicht davon ausgegangen werden, dass alle Attribute uneingeschränkt unterstützt werden.
+
+Derzeit können unterschiedliche Arten von numerischen Attributen für die Filterung von Inhalten herangezogen werden. Beispiele dafür sind das Erstellungsdatum, ein Veranstaltungstermin oder die Breite eines Bildes. Da all diese numerischen Attribute als skalare Werte interpretiert werden können, stehen für alle Attribute die gleichen Filtermöglichkeiten zur Verfügung. Im Prinzip kann man sich diese Attribute immer als Wert auf einer Zahlengerade vorstellen. Möchte man nun eine Filterung durchführen, kann der relevante Bereich auf dieser Zahlengerade durch einen entsprechenden Filter eingeschränkt werden.
+
+Unterstützt werden an dieser Stelle sowohl beschränkte Intervalle mit einer unteren (**filter\[attribute\]\[_ATTRIBUTE_NAME_\]\[in\]\[min\]**) und einer oberen Schranke ((**filter\[attribute\]\[_ATTRIBUTE_NAME_\]\[in\]\[max\]**)) als auch einseitig unbeschränkte Intervalle mit entweder nur einer oberen oder nur einer unteren Schranke. Außerdem ist es möglich, das Intervall zu invertieren, sprich den Wertebereich außerhalb des angegebenen Intervalls auszuwählen (**filter\[attribute\]\[_ATTRIBUTE_NAME_\]\[notIn\]\[min\]** bzw. **filter\[attribute\]\[_ATTRIBUTE_NAME_\]\[notIn\]\[max\]**). Die übergebenen Intervalle werden von dataCycle immer als geschlossene Intervalle interpretiert, das heißt, die angegebenen Intervallgrenzen werden bei den damit festgelegten Wertebereichen eingeschlossen.
+
+Um beispielsweise alle Veranstaltungen im Herbst und im Winter außer den Veranstaltungen zwischen den Weihnachtsfeiertagen auszuwählen, könnte folgende Filterkonfiguration genutzt werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "eventSchedule": {
+        "in": {
+          "min": "2020-09-23",
+          "max": "2021-03-20"
+        },
+        "notIn": {
+          "min": "2020-12-24",
+          "max": "2021-01-06"
+        }
+      }
+    }
+  }
+}
+```
+
+#### Aktualisierungen - **filter\[attribute\]\[dct:created|dct:modified|dct:deleted\]**
+
+Für einige Anwendungsfälle kann es hilfreich sein, herausfinden zu können, welche Datensätze innerhalb einer vorgegebenen Zeitspanne erstellt, geändert oder gelöscht worden sind. Zu diesem Zweck können bei allen API-Endpunkten, die sich aus statischen bzw. dynamischen Inhaltssammlungen ergeben, spezielle _Attribut-Filter_ genutzt werden. Dadurch kann die Anzahl der Datensätze, die geladen werden muss, erheblich reduziert werden. Außerdem muss die Prüfung, ob es seit dem letzten Update neue Änderungen gegeben hat, nicht client-seitig durchgeführt werden, wodurch die auf dataCycle aufbauenden Anwendungen noch einmal deutlich entlastet werden können. Für diese Art der Filterung werden die folgenden Attribute unterstützt:
+
+- **dct:created**
+- **dct:modified**
+- **dct:deleted** (_ACHTUNG: Dieser Filter steht nur über den speziellen Endpunkt [/api/v4/things/deleted](/api/v4/things/deleted) zur Verfügung!_)
+
+Bei der Verwendung von Zeitpunkten im Rahmen eines Filterkriteriums müssen die Zeitpunkte entsprechend den Vorgaben von [RFC 3339](https://tools.ietf.org/html/rfc3339) übergeben werden, damit sie von dataCycle korrekt interpretiert werden können.
+
+Sollen beispielsweise alle Inhalte ermittelt werden, die am [21. Oktober 2015](https://de.wikipedia.org/wiki/Zur%C3%BCck_in_die_Zukunft_II#Mittwoch,_21._Oktober_2015) erstellt worden sind, könnte der Filter folgendermaßen übergeben werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "dct:created": {
+        "in": {
+          "min": "2015-10-21",
+          "max": "2015-10-21"
+        }
+      }
+    }
+  }
+}
+```
+
+_Die Attribute `dct:created` bzw. `dct:modified` können bei Bedaf auch direkt bei den einzelnen Inhalten ausgegeben werden indem sie explizit beim Parameter `fields` angegeben werden._
+
+#### Termine - **filter\[attribute\]\[eventSchedule\]**
+
+Sind Veranstaltungen im Datenbestand einer dataCycle-Instanz vorhanden, ist es in der Regel notwendig, diese Veranstaltungen auf Basis des Veranstaltungstermins zu filtern. Da in dataCycle wiederkehrende Veranstaltungstermine in Form von Regelsätzen hinterlegt und nicht als Einzeltermine erfasst werden, gibt es einen speziellen _Attribut-Filter_ für diesen Anwendungsfall. Es ist zwar auch bei diesem Filter möglich ein bzw. mehrere Intervalle zu übergeben. Im Gegensatz zu einfachen Zeitpunkten wird bei der Verwendung dieses Filters aber auch eine spezielle Sortierung verwendet, die spezifisch auf Termine abgestimmt worden ist. Dabei werden Veranstaltungen nach dem ersten Termin im angegeben Zeitraum sortiert, wobei sehr lange dauernde Veranstaltungen, die oft durch eine fehlerhafte Eingabe entstehen, nach hinten gereiht werden.
+
+[//]: # (\(siehe XXX für Details\))
+
+Um z.B. alle Veranstaltungen im Zeitraum der letzten Weltraummission eines Space Shuttles abzufragen, könnte der folgende Filter verwendet werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "eventSchedule": {
+        "in": {
+          "min": "2011-07-10",
+          "max": "2011-07-19"
+        }
+      }
+    }
+  }
+}
+```
+
+##### Terminfilter mit einem Zeitpunkt
+
+Termine werden mit einem **exklusiven Ende** gespeichert. Das bedeutet: Der Endzeitpunkt gehört nicht mehr zum Termin.
+
+Wenn ein Termin z.B. um `10:00:00` endet, wird er bei einer Abfrage mit genau diesem Zeitpunkt nicht gefunden.
+
+Beispiel (liefert **keine** Treffer für Termine, die exakt um 10:00 enden):
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "eventSchedule": {
+        "in": {
+          "min": "2011-07-10T10:00:00",
+          "max": "2011-07-10T10:00:00"
+        }
+      }
+    }
+  }
+}
+```
+
+Um diese Termine zu finden, sollte ein kleines Intervall verwendet werden, das den Endzeitpunkt noch umfasst, z.B.:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "eventSchedule": {
+        "in": {
+          "min": "2011-07-10T09:59:59",
+          "max": "2011-07-10T10:00:00"
+        }
+      }
+    }
+  }
+}
+```
+
+
+#### Termine (schedule) - **filter\[schedule\]**
+
+Während **filter\[attribute\]\[eventSchedule\]** ausschließlich auf die Verknüpfung `eventSchedule` filtert, ermöglicht **filter\[schedule\]** ein Filtern über mehrere Termin-Verknüpfungen gleichzeitig (z.B. `eventSchedule`, `openingHoursSpecification`, `hoursAvailable`, `validitySchedule`, …). Dabei werden standardmäßig jene Verknüpfungen ausgenommen, die in der Konfiguration als `schedule_filter_exceptions` hinterlegt sind (z.B. `validity_range`).
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "schedule": {
+      "in": {
+        "min": "2020-06-21",
+        "max": "2020-09-20"
+      }
+    }
+  }
+}
+```
+
+##### Filtern über alle Termin-Verknüpfungen - **filter\[schedule\]\[all\]**
+
+Soll wirklich über **alle** Termin-Verknüpfungen gefiltert werden – inklusive jener, die über `schedule_filter_exceptions` normalerweise ausgenommen sind – kann statt `in` der Schlüssel `all` verwendet werden. Die Angabe des Intervalls erfolgt dabei wie gewohnt über `in` mit `min` und/oder `max`. Diese Einstellung wirkt sich auch auf die Sortierung aus, sodass ebenfalls über alle Verknüpfungen hinweg sortiert wird.
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "schedule": {
+      "all": {
+        "in": {
+          "min": "2020-06-21",
+          "max": "2020-09-20"
+        }
+      }
+    }
+  }
+}
+```
+
+#### ContentScore (dataCycle) - **filter\[attribute\]\[internalContentScore\]**
+
+Gibt es Inhalte mit einem ContentScore (dataCycle), können diese auch darüber gefiltert werden. Hier wird der "identifier" aus dem "dc:contentScore" als Attribut-Namen verwendet.
+
+Beispiel der API Ausgabe:
+
+```json
+{
+  "dc:contentScore": [
+    {
+      "@id": "4b0c9895-65b1-44d5-87bc-79863fe93c72",
+      "@type": "PropertyValue",
+      "identifier": "internalContentScore",
+      "name": "Interner Content Score",
+      "value": 90,
+      "minValue": 0,
+      "maxValue": 100
+    }
+  ]
+}
+```
+
+Dadurch ergibt sich dann folgende Definition für den Filter:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "internalContentScore": {
+        "in": {
+          "min": 80,
+          "max": 100
+        }
+      }
+    }
+  }
+}
+```
+
+### Geobasierte Filterung - **filter\[geo\]**
+
+dataCycle wird in vielen Fällen verwendet, um geografisch verortete Inhalte zu verwalten. Um diese geografischen Eigenschaften auch bei der Filterung von Inhalten nutzen zu können, stehen spezielle Filter für das Einschränken von Inhalten auf Basis ihrer geografischen Lage zur Verfügung.
+
+#### Bounding-Box - **filter\[geo\]\[in\]\[box\]**
+
+Eine grundlegende Möglichkeit, um Inhalte auf Basis ihrer Position zu filtern, nutzt eine sogenannte _Bounding-Box_. Eine _Bounding-Box_ ist über vier Eckpunkte eines Rechtecks festgelegt, von denen der Eckpunkt im Süd–Westen und der Eckpunkt im Nord-Osten übergeben werden müssen (die beiden anderen Eckpunkte ergeben sich aus denen, die übergeben werden müssen). Um Inhalte innerhalb einer passenden Bounding-Box für Österreich abzurufen, könnten die folgenden Filterparameter verwendet werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "box": [
+          9.53074836730957, 46.37226867675781, 17.160776138305664,
+          49.020530700683594
+        ]
+      }
+    }
+  }
+}
+```
+
+#### Umkreissuche - **filter\[geo\]\[in\]\[perimeter\]**
+
+In einigen Anwendungsfällen ist es wünschenswert, Inhalte in einem definierten Umkreis zu suchen. Genau dafür kann in dataCycle eine sogenannte _Umkreissuche_ genutzt werden. Dieser Filter erwartet sich die folgenden drei Werte in genau dieser Reihenfolge:
+
+- Längengrad
+- Breitengrad
+- Radius (in m)
+
+Um Inhalte im Umkreis von 50 km um den Großglockner abzufragen, kann beispielsweise die folgende Filterkonfiguration genutzt werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "perimeter": [12.6939, 47.07453, 50000] // Längengrad, Breitengrad, Radius (in m)
+      }
+    }
+  }
+}
+```
+
+#### Geo-Shapes (Klassifizierungen) - **filter\[geo\]\[in\]\[shapes\]**
+
+Neben einer Filterung auf Basis einer Bounding-Box bzw. eines Umkreises bietet dataCycle auch die Möglichkeit, beliebige andere Geo-Shapes für eine Einschränkung der ausgelieferten Inhalte zu verwenden. Diese Geo-Shapes sind innerhalb von dataCycle als spezielle Klassifizierungen abgebildet, die z.B. Regions-, Gemeinde- oder Bezirksgrenzen enthalten können. Bei der Verwendung dieses Filters müssen dementsprechend auch die jeweiligen IDs der Klassifizierungen, bei denen die gewünschten Geo-Shapes hinterlegt sind, übergeben werden. Eine Abfrage für alle Orte innerhalb der Landeshauptstädte von Österreich könnte z.B. folgendermaßen realisiert werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "shapes": [
+          "f49c4cc4-229a-4421-bf7f-9e1919b93482", // Wien
+          "13e7efe2-2c2a-49a8-a5d9-44f3c279716a", // Sankt Pölten
+          "2a13f3d3-914e-4a73-a7e9-32fe76ab7e2a", // Eisenstadt
+          "044b50ba-28f6-4e9a-9fc3-7f13ac4edb57", // Graz
+          "e0cbd09e-c532-4663-b731-5fd99049307a", // Klagenfurt
+          "01f13679-cded-4307-af50-4d0184674ed9", // Linz
+          "b8d838c0-221d-4d74-b73a-df52df5b3c9c", // Salzburg
+          "d7108f09-7467-4699-a4fa-51b4ed0bab29", // Innsbruck
+          "f0e38258-c919-4676-ab1c-3729bea85f8e" // Bregenz
+        ]
+      }
+    }
+  }
+}
+```
+
+#### Geo-Shapes (Shapes) - **filter\[geo\]\[in\]\[geoShape\]**
+
+Es können auch beliebige Geo-Shapes in Form von Google Polyline, WKT oder GeoJSON für eine Einschränkung der ausgelieferten Inhalte verwendet werden. Es wird hier unterschieden, um welchen Typ von Geo-Shape es sich handelt:
+
+- `polygon`
+- `line`
+
+Beispiel für Google Polyline:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "geoShape": {
+          "polygon": "w}q~Goyc{@w@CeCgAsBYyBCs@Q_Bc@?oAu@aAAM_CwDVk@A}CM_ADU\\[Vi@BWH_@Hm@Dk@Cq@Ig@AO@UFMN[Bm@AU@sA@_BBq@C[D[AUF]Do@L_AMg@AgAO]Co@Bk@C{@Ig@@_@b@uAWAWu@B}BGQo@Co@TETWk@QgAc@iCmEc^kAyKmAaLi@mAOMQaACq@UEs@Gg@k@e@eBRG`@SDS?q@s@qAw@[DQNWASSe@SEODOb@?ZYXYNWB_@Y@YB]Ka@E]Hg@H}@Ac@SWa@s@KeAIuABc@FQLBJGDYGs@@WJq@LMPUCw@c@E]GBu@Ay@BqAPa@A[GW?c@@a@Pk@]m@SOOAOk@G[AU@]?OKSEY?WBi@EUAg@E[GSAOFc@Pq@HIHQFo@TEFOBSAUFYC_@DSLQF?LDLGHBDSA]HEJODM?KCOGUIICOJMHI\\k@FQ?YAQBUISJKHAHOBWDILEH@AJHFREDEHDL?L\\F@HQHMV@FIN_@Ra@JGFORq@\\i@Li@JQHWHOBy@|\\fb@xCvODPfBvAjAxCZjARr@`@MtA`B`AdA|@h@f@vEc@lCXxB?DyClCa@zCJxAi@nH|@t@z@r@v@r@bB`@hAu@~CkDjB_GlAoErCsLVdCCfIFlARlEaAdITFbAc@lCpDnA`B~@W`CoBVhDt@Pz@Pf@Tl@RbA@f@KP^FzAr@EfBJvATRr@b@ZzAX~AhB\\~AZbAu@r@e@nAWHMd@IDeBPN|@n@lCv@`Af@bAb@r@nDBpAApEeAzBApA_@|DGLnGj@|HFzANdAJ`AaB^eBLcD]iCWgDV_Ad@eBv@aCbAeDdCuAfA{AlAiAbA{ApAaEjAyCn@gCLgDr@aDxAyBDwAB_Bn@}AzD}@|ByBrCoAtDqApDsDtCeBH"
+        }
+      }
+    }
+  }
+}
+```
+
+Beispiel für WKT:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "geoShape": {
+          "polygon": "MULTIPOLYGON(((9.855116799999996 47.11916489606331,9.855144100000002 47.11944159606341,9.855497600000001 47.12011279606361,9.855627399999996 47.12069249606379,9.855645699999995 47.121296296063996,9.855740099999997 47.121557996064034,9.855917599999996 47.122036896064174,9.856323000000005 47.12204179606418,9.856654799999996 47.12231259606429,9.856723900000002 47.122317796064344,9.857640700000005 47.12296089606452,9.8578594 47.12284089606449,9.858654100000006 47.12285239606447,9.858966800000001 47.122920896064514,9.859078300000004 47.12288669606453,9.859224699999999 47.122744596064464,9.859425399999997 47.122622796064434,9.859550399999998 47.12259999606441,9.859710100000004 47.12255459606445,9.859938199999998 47.12250219606439,9.860161199999999 47.12246519606436,9.8604101 47.12249109606439,9.860612100000004 47.12254179606442,9.860690800000006 47.12255199606439,9.860796500000006 47.12253999606439,9.860865699999993 47.12249939606439,9.861008099999994 47.12242189606436,9.861238599999997 47.12239789606436,9.861353499999998 47.12240509606431,9.861771400000006 47.12240339606438,9.862248699999997 47.12238769606433,9.862503599999997 47.12237389606434,9.862640600000006 47.122387696064344,9.862780199999996 47.12235549606432,9.862892799999997 47.12237479606434,9.863037900000005 47.12233419606434,9.863275200000002 47.12230469606433,9.863603300000003 47.122229096064274,9.863803700000002 47.12229799606434,9.864161599999994 47.12230909606432,9.864309000000004 47.122385996064345,9.864547100000005 47.12241479606435,9.864772099999994 47.12239419606437,9.865073099999996 47.122410796064344,9.865268400000003 47.122458796064414,9.865431099999995 47.12244959606435,9.865856200000003 47.12226589606427,9.865870400000004 47.122386796064355,9.866136099999999 47.12251229606439,9.866767999999995 47.12249389606442,9.866860199999998 47.12253079606439,9.866876500000004 47.12276509606451,9.866771900000002 47.123012096064535,9.8666591 47.123042296064526,9.866876500000004 47.12315899606464,9.8672381 47.123251196064594,9.867929600000005 47.12343479606469,9.872913599999999 47.12446329606502,9.874960999999997 47.124843496065125,9.877047700000002 47.12522729606527,9.877443399999995 47.125444696065344,9.877506999999996 47.12551739606536,9.877843599999995 47.125608996065395,9.878090499999999 47.12563449606541,9.878124900000001 47.12573629606544,9.878157800000006 47.126003996065485,9.878384099999998 47.12620339606559,9.878893000000001 47.12639129606566,9.878932100000004 47.12628699606558,9.8790295 47.12611989606557,9.879131000000001 47.12609259606556,9.879379599999995 47.126093196065526,9.879789200000003 47.12635429606566,9.879926699999999 47.12662779606571,9.880021599999996 47.12660219606575,9.880141300000007 47.12651719606567,9.880237800000003 47.1265344960657,9.8804263 47.126630696065746,9.880459200000006 47.126731496065766,9.880433799999995 47.12680989606578,9.880254999999996 47.1268948960658,9.880109800000005 47.12689029606578,9.879975399999998 47.12702079606586,9.8798966 47.12715079606589,9.879881799999998 47.12727459606589,9.880012999999993 47.12742719606596,9.880135700000006 47.127418196066,9.880285900000004 47.12739559606596,9.8804611 47.127456496065996,9.880613200000003 47.12749069606602,9.880807500000001 47.127437996065986,9.881121000000002 47.127388696065935,9.881303499999994 47.12739529606598,9.881417999999996 47.127498096066006,9.881680600000003 47.12767269606606,9.8820322 47.127725096066065,9.8824631 47.12778009606609,9.882636700000006 47.127761796066125,9.882733199999999 47.12771599606607,9.882711500000005 47.127650796066014,9.882752600000002 47.12758559606604,9.8828791 47.127557696066035,9.883137899999998 47.12760399606606,9.883257600000006 47.127586696066025,9.883513499999994 47.127533696066024,9.883580800000004 47.127455296066,9.883685599999996 47.12737289606595,9.883970399999997 47.12739059606597,9.883995500000005 47.127573996066005,9.884039900000001 47.12772089606609,9.884308999999996 47.12769529606606,9.884602800000003 47.12771079606605,9.885005799999997 47.127691996066076,9.885182300000004 47.12760239606605,9.885321200000005 47.12761159606605,9.885442300000001 47.127652696066036,9.885618399999998 47.127654396066106,9.885794100000004 47.127644596066055,9.886007800000002 47.127553896066004,9.886242699999999 47.12770359606608,9.886316799999992 47.12779719606615,9.886325299999998 47.127884996066186,9.886552800000006 47.127962296066215,9.886689200000003 47.12799539606621,9.886802499999996 47.128007796066164,9.886945699999995 47.127995996066176,9.887027799999998 47.12800259606616,9.8871254 47.12805779606618,9.887261600000002 47.12809329606616,9.887377999999995 47.12809329606617,9.8875886 47.1280665960662,9.8876988 47.12809699606618,9.887903799999998 47.128110596066236,9.888044600000004 47.12813789606623,9.888142999999998 47.12818329606624,9.888223400000003 47.128193296066215,9.888396900000004 47.128148696066184,9.888651000000001 47.128057196066166,9.888695700000001 47.128006696066144,9.888792800000004 47.12796379606617,9.889030600000003 47.12792049606618,9.889056 47.127811796066126,9.8891386 47.12776649606612,9.889244800000005 47.12775199606608,9.889351399999997 47.12776369606606,9.889482400000006 47.12771969606604,9.889640100000006 47.12774129606608,9.889741599999995 47.12771179606609,9.8898319 47.127639996066044,9.889832699999998 47.12759749606603,9.889797700000004 47.12753109606602,9.889843900000002 47.12746169606602,9.889823099999996 47.127412996065985,9.889916199999998 47.12737759606595,9.8900694 47.12738679606596,9.890098300000004 47.127344496065966,9.890180700000004 47.12727699606595,9.890250299999995 47.12724879606593,9.890309799999995 47.12724679606594,9.890392299999997 47.127269096065945,9.890497499999999 47.127307796065935,9.890552099999999 47.12736159606597,9.890628300000003 47.12738389606598,9.890698300000004 47.12732299606591,9.890747799999994 47.12726549606594,9.890972100000006 47.1271171960659,9.891056700000007 47.127082596065854,9.891188000000007 47.12707789606586,9.891275999999996 47.12709269606589,9.891388399999997 47.12707079606584,9.8914887 47.127117096065874,9.891554599999997 47.12705709606584,9.891560699999998 47.127013196065825,9.8916436 47.126963196065816,9.891762299999995 47.12693979606583,9.8918061 47.126909096065845,9.891835200000001 47.12684209606577,9.891825100000005 47.126791396065784,9.891767900000001 47.12679629606576,9.891734799999995 47.126747696065785,9.891764900000002 47.12664579606573,9.891789899999996 47.126615096065706,9.891764699999992 47.126572896065724,9.891762400000005 47.126498196065654,9.891613000000001 47.12642719606569,9.891604200000003 47.12639199606562,9.891693900000002 47.126344896065646,9.891759100000003 47.126292596065596,9.891745399999998 47.12617499606556,9.891799399999996 47.12613039606557,9.891958599999999 47.12605109606555,9.892130199999995 47.1259490960655,9.892167600000006 47.12589339606552,9.892254900000001 47.12584649606545,9.892504000000002 47.1257473960654,9.8927135 47.12560269606538,9.892920700000005 47.12553189606535,9.893008500000004 47.125467596065334,9.893134900000003 47.12541859606533,9.893214000000004 47.125371596065335,9.893496000000003 47.12534879606528,9.887856599999994 47.120558596063724,9.885184500000001 47.119794196063516,9.885091400000002 47.119757196063475,9.884649400000006 47.119235996063345,9.883879800000006 47.118864896063194,9.883495399999994 47.118715696063134,9.883239000000003 47.118622496063125,9.8833079 47.118448496063074,9.8828198 47.1180191960629,9.8824654 47.11768889606284,9.882257300000004 47.11738409606274,9.881184099999997 47.11718019606266,9.880465300000004 47.11736429606274,9.879856700000001 47.11723169606267,9.8798283 47.11723369606267,9.879117199999996 47.118003496062926,9.878335600000005 47.118173696063,9.877893300000002 47.118106296062955,9.876374099999994 47.11832219606303,9.876101099999998 47.11801049606294,9.875838000000003 47.117709496062815,9.875577799999997 47.1174347960627,9.875409099999995 47.11693469606258,9.875677799999998 47.116558896062436,9.876542800000005 47.11575629606219,9.877816900000001 47.11521839606205,9.878860299999998 47.114829396061864,9.881040099999996 47.11408649606164,9.8803712 47.1139666960616,9.878728599999999 47.113985896061635,9.878336399999998 47.11395379606162,9.877306200000005 47.113850096061576,9.875676199999997 47.11417589606165,9.8756387 47.11406839606165,9.875818099999998 47.11372739606151,9.874929799999997 47.1130207960613,9.874438699999997 47.112615196061185,9.874558800000008 47.112301996061085,9.875123699999998 47.11165119606083,9.874269699999996 47.111525396060834,9.874176300000004 47.11125509606076,9.874088700000005 47.1109569960606,9.8739836 47.11076229606055,9.873877 47.110532996060485,9.873874999999993 47.11019199606039,9.873925200000002 47.10999129606035,9.873773300000003 47.109895896060266,9.873311999999999 47.10985609606024,9.873335300000008 47.10960169606014,9.873276899999993 47.10907709606002,9.873171799999998 47.10863989605988,9.872909000000005 47.10854049605983,9.8727747 47.10836169605977,9.8726355 47.107897296059626,9.8721086 47.10741509605947,9.8716341 47.107266296059414,9.871293400000006 47.10712929605939,9.871028599999997 47.1074037960595,9.870631499999995 47.10758659605956,9.870579 47.107705896059564,9.870390099999995 47.107784096059625,9.870357100000003 47.10782509605963,9.870273700000002 47.10833809605981,9.869961799999999 47.10826329605973,9.869249399999998 47.10802279605972,9.868916799999997 47.10773649605954,9.868581799999996 47.1075428960595,9.868319000000001 47.107356096059455,9.868301500000005 47.106481596059176,9.868312999999995 47.10607329605904,9.868657700000005 47.105022896058685,9.868669400000007 47.10440279605853,9.868825899999994 47.10398769605834,9.868869000000004 47.10304049605805,9.867505700000002 47.10296909605805,9.865922599999994 47.10274929605793,9.865462899999995 47.10270519605793,9.865106200000005 47.102630096057936,9.864779199999996 47.102566296057894,9.864615000000006 47.10306019605804,9.8645471 47.10356679605819,9.864701900000002 47.10438969605849,9.864819899999995 47.10507829605873,9.864703799999997 47.105923796058995,9.864510699999997 47.10624269605908,9.864227399999999 47.10675009605928,9.863887499999997 47.107399096059446,9.863215900000002 47.10822709605975,9.862859000000002 47.108661996059865,9.862472499999997 47.10911599606004,9.862129100000002 47.109488196060134,9.861718500000002 47.109945296060275,9.861335500000004 47.11092029606063,9.861098600000007 47.111686396060854,9.861026700000005 47.11236859606105,9.860765500000005 47.113213596061385,9.860315999999997 47.114019496061616,9.860291799999995 47.1146316960618,9.860267700000001 47.11507269606198,9.860030600000005 47.11555439606209,9.859092899999998 47.11602389606227,9.858464700000003 47.11632719606237,9.857719300000001 47.11693869606256,9.8568055 47.11733989606269,9.855920099999999 47.11774759606285,9.855168800000003 47.11865019606313,9.855116799999996 47.11916489606331)))"
+        }
+      }
+    }
+  }
+}
+```
+
+Beispiel für GeoJSON:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "geoShape": {
+          "polygon": "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[9.8551168,47.119164896],[9.8551441,47.119441596],[9.8554976,47.120112796],[9.8556274,47.120692496],[9.8556457,47.121296296],[9.8557401,47.121557996],[9.8559176,47.122036896],[9.856323,47.122041796],[9.8566548,47.122312596],[9.8567239,47.122317796],[9.8576407,47.122960896],[9.8578594,47.122840896],[9.8586541,47.122852396],[9.8589668,47.122920896],[9.8590783,47.122886696],[9.8592247,47.122744596],[9.8594254,47.122622796],[9.8595504,47.122599996],[9.8597101,47.122554596],[9.8599382,47.122502196],[9.8601612,47.122465196],[9.8604101,47.122491096],[9.8606121,47.122541796],[9.8606908,47.122551996],[9.8607965,47.122539996],[9.8608657,47.122499396],[9.8610081,47.122421896],[9.8612386,47.122397896],[9.8613535,47.122405096],[9.8617714,47.122403396],[9.8622487,47.122387696],[9.8625036,47.122373896],[9.8626406,47.122387696],[9.8627802,47.122355496],[9.8628928,47.122374796],[9.8630379,47.122334196],[9.8632752,47.122304696],[9.8636033,47.122229096],[9.8638037,47.122297996],[9.8641616,47.122309096],[9.864309,47.122385996],[9.8645471,47.122414796],[9.8647721,47.122394196],[9.8650731,47.122410796],[9.8652684,47.122458796],[9.8654311,47.122449596],[9.8658562,47.122265896],[9.8658704,47.122386796],[9.8661361,47.122512296],[9.866768,47.122493896],[9.8668602,47.122530796],[9.8668765,47.122765096],[9.8667719,47.123012096],[9.8666591,47.123042296],[9.8668765,47.123158996],[9.8672381,47.123251196],[9.8679296,47.123434796],[9.8729136,47.124463296],[9.874961,47.124843496],[9.8770477,47.125227296],[9.8774434,47.125444696],[9.877507,47.125517396],[9.8778436,47.125608996],[9.8780905,47.125634496],[9.8781249,47.125736296],[9.8781578,47.126003996],[9.8783841,47.126203396],[9.878893,47.126391296],[9.8789321,47.126286996],[9.8790295,47.126119896],[9.879131,47.126092596],[9.8793796,47.126093196],[9.8797892,47.126354296],[9.8799267,47.126627796],[9.8800216,47.126602196],[9.8801413,47.126517196],[9.8802378,47.126534496],[9.8804263,47.126630696],[9.8804592,47.126731496],[9.8804338,47.126809896],[9.880255,47.126894896],[9.8801098,47.126890296],[9.8799754,47.127020796],[9.8798966,47.127150796],[9.8798818,47.127274596],[9.880013,47.127427196],[9.8801357,47.127418196],[9.8802859,47.127395596],[9.8804611,47.127456496],[9.8806132,47.127490696],[9.8808075,47.127437996],[9.881121,47.127388696],[9.8813035,47.127395296],[9.881418,47.127498096],[9.8816806,47.127672696],[9.8820322,47.127725096],[9.8824631,47.127780096],[9.8826367,47.127761796],[9.8827332,47.127715996],[9.8827115,47.127650796],[9.8827526,47.127585596],[9.8828791,47.127557696],[9.8831379,47.127603996],[9.8832576,47.127586696],[9.8835135,47.127533696],[9.8835808,47.127455296],[9.8836856,47.127372896],[9.8839704,47.127390596],[9.8839955,47.127573996],[9.8840399,47.127720896],[9.884309,47.127695296],[9.8846028,47.127710796],[9.8850058,47.127691996],[9.8851823,47.127602396],[9.8853212,47.127611596],[9.8854423,47.127652696],[9.8856184,47.127654396],[9.8857941,47.127644596],[9.8860078,47.127553896],[9.8862427,47.127703596],[9.8863168,47.127797196],[9.8863253,47.127884996],[9.8865528,47.127962296],[9.8866892,47.127995396],[9.8868025,47.128007796],[9.8869457,47.127995996],[9.8870278,47.128002596],[9.8871254,47.128057796],[9.8872616,47.128093296],[9.887378,47.128093296],[9.8875886,47.128066596],[9.8876988,47.128096996],[9.8879038,47.128110596],[9.8880446,47.128137896],[9.888143,47.128183296],[9.8882234,47.128193296],[9.8883969,47.128148696],[9.888651,47.128057196],[9.8886957,47.128006696],[9.8887928,47.127963796],[9.8890306,47.127920496],[9.889056,47.127811796],[9.8891386,47.127766496],[9.8892448,47.127751996],[9.8893514,47.127763696],[9.8894824,47.127719696],[9.8896401,47.127741296],[9.8897416,47.127711796],[9.8898319,47.127639996],[9.8898327,47.127597496],[9.8897977,47.127531096],[9.8898439,47.127461696],[9.8898231,47.127412996],[9.8899162,47.127377596],[9.8900694,47.127386796],[9.8900983,47.127344496],[9.8901807,47.127276996],[9.8902503,47.127248796],[9.8903098,47.127246796],[9.8903923,47.127269096],[9.8904975,47.127307796],[9.8905521,47.127361596],[9.8906283,47.127383896],[9.8906983,47.127322996],[9.8907478,47.127265496],[9.8909721,47.127117196],[9.8910567,47.127082596],[9.891188,47.127077896],[9.891276,47.127092696],[9.8913884,47.127070796],[9.8914887,47.127117096],[9.8915546,47.127057096],[9.8915607,47.127013196],[9.8916436,47.126963196],[9.8917623,47.126939796],[9.8918061,47.126909096],[9.8918352,47.126842096],[9.8918251,47.126791396],[9.8917679,47.126796296],[9.8917348,47.126747696],[9.8917649,47.126645796],[9.8917899,47.126615096],[9.8917647,47.126572896],[9.8917624,47.126498196],[9.891613,47.126427196],[9.8916042,47.126391996],[9.8916939,47.126344896],[9.8917591,47.126292596],[9.8917454,47.126174996],[9.8917994,47.126130396],[9.8919586,47.126051096],[9.8921302,47.125949096],[9.8921676,47.125893396],[9.8922549,47.125846496],[9.892504,47.125747396],[9.8927135,47.125602696],[9.8929207,47.125531896],[9.8930085,47.125467596],[9.8931349,47.125418596],[9.893214,47.125371596],[9.893496,47.125348796],[9.8878566,47.120558596],[9.8851845,47.119794196],[9.8850914,47.119757196],[9.8846494,47.119235996],[9.8838798,47.118864896],[9.8834954,47.118715696],[9.883239,47.118622496],[9.8833079,47.118448496],[9.8828198,47.118019196],[9.8824654,47.117688896],[9.8822573,47.117384096],[9.8811841,47.117180196],[9.8804653,47.117364296],[9.8798567,47.117231696],[9.8798283,47.117233696],[9.8791172,47.118003496],[9.8783356,47.118173696],[9.8778933,47.118106296],[9.8763741,47.118322196],[9.8761011,47.118010496],[9.875838,47.117709496],[9.8755778,47.117434796],[9.8754091,47.116934696],[9.8756778,47.116558896],[9.8765428,47.115756296],[9.8778169,47.115218396],[9.8788603,47.114829396],[9.8810401,47.114086496],[9.8803712,47.113966696],[9.8787286,47.113985896],[9.8783364,47.113953796],[9.8773062,47.113850096],[9.8756762,47.114175896],[9.8756387,47.114068396],[9.8758181,47.113727396],[9.8749298,47.113020796],[9.8744387,47.112615196],[9.8745588,47.112301996],[9.8751237,47.111651196],[9.8742697,47.111525396],[9.8741763,47.111255096],[9.8740887,47.110956996],[9.8739836,47.110762296],[9.873877,47.110532996],[9.873875,47.110191996],[9.8739252,47.109991296],[9.8737733,47.109895896],[9.873312,47.109856096],[9.8733353,47.109601696],[9.8732769,47.109077096],[9.8731718,47.108639896],[9.872909,47.108540496],[9.8727747,47.108361696],[9.8726355,47.107897296],[9.8721086,47.107415096],[9.8716341,47.107266296],[9.8712934,47.107129296],[9.8710286,47.107403796],[9.8706315,47.107586596],[9.870579,47.107705896],[9.8703901,47.107784096],[9.8703571,47.107825096],[9.8702737,47.108338096],[9.8699618,47.108263296],[9.8692494,47.108022796],[9.8689168,47.107736496],[9.8685818,47.107542896],[9.868319,47.107356096],[9.8683015,47.106481596],[9.868313,47.106073296],[9.8686577,47.105022896],[9.8686694,47.104402796],[9.8688259,47.103987696],[9.868869,47.103040496],[9.8675057,47.102969096],[9.8659226,47.102749296],[9.8654629,47.102705196],[9.8651062,47.102630096],[9.8647792,47.102566296],[9.864615,47.103060196],[9.8645471,47.103566796],[9.8647019,47.104389696],[9.8648199,47.105078296],[9.8647038,47.105923796],[9.8645107,47.106242696],[9.8642274,47.106750096],[9.8638875,47.107399096],[9.8632159,47.108227096],[9.862859,47.108661996],[9.8624725,47.109115996],[9.8621291,47.109488196],[9.8617185,47.109945296],[9.8613355,47.110920296],[9.8610986,47.111686396],[9.8610267,47.112368596],[9.8607655,47.113213596],[9.860316,47.114019496],[9.8602918,47.114631696],[9.8602677,47.115072696],[9.8600306,47.115554396],[9.8590929,47.116023896],[9.8584647,47.116327196],[9.8577193,47.116938696],[9.8568055,47.117339896],[9.8559201,47.117747596],[9.8551688,47.118650196],[9.8551168,47.119164896]]]]}"
+        }
+      }
+    }
+  }
+}
+```
+
+### Graphbasierte Filterung - **filter\[linked\]\[RELATION\]\[...\]**
+
+Bei der Filterung von Inhalten auf Basis von Klassifizierungen, Attributen oder der geografischen Lage erfolgt die Filterung immer auf Basis von Eigenschaften des jeweiligen Inhalts. In einigen Fällen ist es aber notwendig, Inhalte auf Basis von anderen, verknüpften Inhalten einzuschränken. Ein konkreter Anwendungsfall dafür wäre etwa die Filterung von Veranstaltungen auf Basis der geografischen Lage des Veranstaltungsortes. Die Veranstaltung ist dabei über die Relation **location** mit dem Veranstaltungsort verknüpft. Um beispielsweise Veranstaltungen rund um Schloss Rotenturm zu filtern, kann der folgende Filter verwendet werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "linked": {
+      "location": {
+        // Name der Relation
+        "geo": {
+          "in": {
+            "perimeter": [16.2448, 47.2509, 3000] // Längengrad, Breitengrad, Radius (in m)
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Der Filter besteht dabei aus einem äußeren und einem inneren Teil. Im inneren Teil können alle Filter verwendet werden, die sich direkt auf einen Inhalt beziehen, es können also alle geobasierten, attributbasierten und klassifizierungsbasierten Filter verwendet werden. Auch eine Kombination von verschiedenen Filtern ist möglich.
+
+Im äußeren Teil wird festgelegt, wie die Inhalte aus dem inneren Filter mit den eigentlich abgefragten Inhalten verknüpft sein müssen. Die Art der Verknüpfung wird dabei über den Namen der Relation festgelegt, also z.B. _filter\[linked\]\[**location**\]\[...\]_.
+
+#### Filterung auf Basis von Verknüpfungen mit einzelnen, ausgewählten Inhalten - **filter\[linked\]\[RELATION\]\[contentId\]**
+
+Oft kann es sinnvoll sein, verknüpfte Inhalte direkt auswählen bzw. ausschließen zu können. Damit können z.B. Veranstaltung ausgewählt werden, die an einem bestimmten Veranstaltungsort stattfinden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "linked": {
+      "location": {
+        // Name der Relation
+        "contentId": {
+          "in": [
+            "d419e7bf-1dc6-4689-8e2b-b6e689f81f73" // Großer Musikvereinssaal
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+Analog dazu können über eine ausschließende Filterung beispielsweise Bilder ausgewählt werden, die **nicht** von einer bestimmten Gruppe von Fotografen gemacht worden sind:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "linked": {
+      "author": {
+        // Name der Relation
+        "contentId": {
+          "notIn": [
+            "9f06a2a1-3413-4d8c-be5d-ebeecdf0b3a6", // Alexandra Baader
+            "98d80f8b-aa85-4437-ad73-e19f30af6aab" // Yannick Steinhauer
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+## Fusionieren von Ergebnissen von unterschiedlichen Filtern
+
+Die bisher vorgestellten Filter ergeben, wenn sie kombiniert werden, immer eine UND-Verknüpfung der unterschiedlichen Filterkriterien. Oft ist es aber wünschenswert, unterschiedliche Filterkriterien über ein logisches ODER miteinander zu verknüpfen. Aus diesem Grund bietet die Datenschnittstelle von dataCycle einen sogenannten _union_-Filter. Damit können z.B. Veranstaltungen kombiniert werden, die an unterschiedlichen, nicht zusammenhängenden Tagen stattfinden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "union": [
+      {
+        "attribute": {
+          "eventSchedule": {
+            "in": {
+              "min": "2021-03-01",
+              "max": "2021-03-01"
+            }
+          }
+        }
+      },
+      {
+        "attribute": {
+          "eventSchedule": {
+            "in": {
+              "min": "2021-03-21",
+              "max": "2021-03-21"
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+Innerhalb des _union_-Filters können alle anderen, bereits bekannten Filter verwendet werden. Wichtig dabei ist, sich im Vorfeld über die möglichen Performance-Implikationen im Klaren zu sein. Da alle Teile eines _union_-Filters unabhängig voneinander verarbeitet werden müssen, um eine maximale Flexibilität zu erreichen, können damit unter Umständen sehr komplexe und damit langsame Filterkombinationen erzeugt werden.
+
+## Sortieren von Inhalten
+
+Neben der Filterung von Inhalten ist es über die Datenschnittstelle von dataCycle auch möglich, Inhalte nach unterschiedlichen Kriterien zu sortieren. Es gibt dabei zwei grundsätzlich unterschiedliche Arten von Sortierungen: implizite (automatische) Sortierungen und explizite (benutzerdefinierte) Sortierungen. Während explizite Sortierungen manuell angewendet werden müssen, werden implizite Sortierungen automatisch verwendet, sobald Inhalte auf eine bestimmte Art und Weise gefiltert werden. Eine implizite Sortierung ergibt sich also auf Basis der verwendeten Filter und kann nicht manuell ausgewählt werden.
+
+### Implizites (automatisches) Sortieren von Inhalten
+
+Je nachdem, welche Filter beim Abfragen von Inhalten verwendet werden, kann in speziellen Fällen automatisch eine passende Sortierung angewendet werden. Sollen beispielsweise Veranstaltungen für einen bestimmten Zeitraum abgefragt werden, können diese auf Basis des Veranstaltungstermins sortiert werden. Ist eine der in weiterer Folge beschriebenen Sortierungen anwendbar, wird diese automatisch verwendet. Eine manuelle Auswahl der impliziten Sortiermethoden ist nicht möglich. Der Grund dafür ist, dass es sich dabei um Sortierungen handelt, die nur in einem sehr speziellen Kontext sinnvoll angewendet werden können und einen oder mehrere Referenzwerte (z.B. einen Zeitraum) benötigen.
+
+#### Relevanzbasierte Sortierung
+
+Bei der Volltextsuche werden verschiedene Attribute mit unterschiedlichen Gewichtungen berücksichtigt. Auf Basis der gefundenen Treffer und der jeweiligen Gewichtungen wird eine relevanzbasierte Sortierung durchgeführt. Neben den offensichtlichen Text-Attributen werden auch Klassifizierungen bei der Volltextsuche berücksichtigt. Außerdem werden alle Attribute und nicht nur diejenigen, die über den Parameter `fields` angefragt werden, sowohl bei der Volltextsuche als auch bei der relevanzbasierten Sortierung berücksichtigt. Diese beiden Punkte sollten immer im Hinterkopf behalten werden, falls eine Sortierung auf den ersten Blick nicht passend erscheint.
+
+#### Terminbasierte Sortierung
+
+Werden Inhalte auf Basis von Terminen gefiltert (z.B. bei Veranstaltungen), erscheint eine Sortierung auf Basis des Startzeitpunktes eines Termins als optimal. Diese Art der Sortierung führt allerdings dazu, dass Termine mit einer sehr langen Dauer (z.B. Wochen oder Monate) und einem Startzeitpunkt in der Vergangenheit nach vorne gereiht werden. Dieses Verhalten ist im Regelfall nicht wünschenswert! Deshalb berücksichtigt die terminbasierte Sortierung neben dem Startzeitpunkt auch das Ende und in gewisser Weise auch die Dauer eines Termins.
+
+#### Manuelle Sortierung für Inhaltssammlungen
+
+Bei Inhaltssammlungen gibt es die Möglichkeit, über die Benutzeroberfläche eine manuelle Sortierung festzulegen. Wenn diese Sortierung ausgewählt wird, werden Inhaltssammlungen standardmäßig in dieser manuellen Reihenfolge ausgegeben.
+
+### Explizites (benutzerdefiniertes) Sortieren von Inhalten
+
+Neben den automatisch angewendeten impliziten Sortierungen, gibt es die Möglichkeit direkt beim Abrufen der Inhalte über die API, eine explizite, benutzerdefinierte Sortierung festzulegen. Soll eine solche explizite Sortierung verwendet werden, weil z.B. für die abgefragten Inhalte keine der verfügbaren impliziten Sortierungen angewendet werden kann oder weil die implizite Sortierung nicht das gewünschte Ergebnis liefert, muss diese über den Parameter `sort` übergeben werden. Inhalte können dabei sowohl auf- als auch absteigend sortiert werden. Die Richtung kann über ein Voranstellen eines **Plus-** bzw. **Minuszeichens** festgelegt werden, wobei die aufsteigende Sortierung (+) als Standard verwendet wird. Eine aufsteigende Sortierung auf Basis des Erstellungsdatums kann bei einer Abfrage über **HTTP-POST** also folgendermaßen angewendet werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "dct:created"
+}
+```
+
+Alternativ kann die Sortierung auch bei einer Abfrage über **HTTP-GET** angewendet werden:
+
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN,sort=dct:created_
+
+Die Attribute, die für die Sortierung nutzbar sind, können pro Installation individuell eingeschränkt werden. Prinzipiell stehen aber die folgenden Attribute zur Verfügung:
+
+- **dct:created**
+- **dct:modified**
+- **name**
+- **default**
+
+### Zufallssortierung
+
+Neben den beiden bereits beschriebenen Möglichkeiten zum Sortieren von Inhalten, gibt es auch eine Möglichkeit um Inhalte in zufälliger Reihenfolge abzufragen. Ein möglicher Anwendungsfall dafür wäre beispielsweise, wenn aus einer großen Anzahl von Inhalten bei jedem Zugriff fünf zufällige Inhalte ausgewählt werden sollen. Über die Datenschnittstelle kann diese Zufallsauswahl folgendermaßen erreicht werden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "random",
+  "page": {
+    "size": 5
+  }
+}
+```
+
+Um sicherzustellen, dass bei mehreren Seiten keine Duplikate ausgeliefert werden, kann bei jeder Seite derselbe Seed-Value übergeben werden ```"sort": "random(0.4356)"```. Der Seed-Value muss sich zwischen -1 und 1 befinden.
+
+### Sortierung nach Typen
+
+Es gibt die Möglichkeit, Inhalte nach dem spezifischsten ```@type``` zu sortieren.
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "@type(dcls:POI, dcls:Event)"
+}
+```

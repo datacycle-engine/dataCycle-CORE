@@ -2,7 +2,7 @@
 
 class AddSchemaTypesColumnToThings < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE things ADD COLUMN computed_schema_types VARCHAR[];
       CREATE INDEX things_computed_schema_types_idx ON things USING gin (computed_schema_types);
 
@@ -68,7 +68,7 @@ class AddSchemaTypesColumnToThings < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS insert_thing_schema_types ON things;
       DROP TRIGGER IF EXISTS update_thing_schema_types ON things;
 

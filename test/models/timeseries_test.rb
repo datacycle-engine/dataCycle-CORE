@@ -28,17 +28,20 @@ module DataCycleCore
       cache_valid_since = @timeseries.cache_valid_since
       updated_at = @timeseries.updated_at
       DataCycleCore::Timeseries.create(thing_id: @timeseries.id, property: 'series', timestamp: Time.zone.now, value: 1)
-      assert(cache_valid_since < @timeseries.reload.cache_valid_since)
+
+      assert_operator(cache_valid_since, :<, @timeseries.reload.cache_valid_since)
       assert_equal(updated_at, @timeseries.reload.updated_at)
     end
 
     test 'Timeseries relation to Thing' do
       item = DataCycleCore::Timeseries.create(thing_id: @timeseries.id, property: 'series', timestamp: Time.zone.now, value: 1)
+
       assert_equal(@timeseries.id, item.thing.id)
     end
 
     test 'Thing relation to Timeseries' do
       item = DataCycleCore::Timeseries.create(thing_id: @timeseries.id, property: 'series', timestamp: Time.zone.now, value: 1)
+
       assert_equal(item.id, @timeseries.timeseries.first.id)
     end
 
@@ -72,7 +75,7 @@ module DataCycleCore
       result = DataCycleCore::Timeseries.create_all(@timeseries, data)
 
       assert result.key?(:error)
-      assert result[:error].present?
+      assert_predicate result[:error], :present?
     end
   end
 end

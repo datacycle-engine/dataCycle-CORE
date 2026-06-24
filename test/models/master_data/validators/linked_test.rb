@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class LinkedTest < ActiveSupport::TestCase
+  class LinkedTest < DataCycleCore::TestCases::ActiveSupportTestCase
     def subject
       DataCycleCore::MasterData::Validators::Linked
     end
@@ -11,10 +11,6 @@ module DataCycleCore
     def setup
       @person1 = create_content('Person', DataCycleCore::TestPreparations.load_dummy_data_hash(:persons, :person1))
       @person2 = create_content('Person', DataCycleCore::TestPreparations.load_dummy_data_hash(:persons, :person2))
-    end
-
-    def create_content(template_name, data = {})
-      DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data)
     end
 
     def creator_hash
@@ -35,6 +31,7 @@ module DataCycleCore
     test 'successfully validates linked User' do
       uuid = @person1.id
       validator = subject.new([uuid], creator_hash)
+
       assert_equal(no_error_hash, validator.error)
     end
 
@@ -49,6 +46,7 @@ module DataCycleCore
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -66,6 +64,7 @@ module DataCycleCore
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -80,6 +79,7 @@ module DataCycleCore
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, template_hash)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -89,6 +89,7 @@ module DataCycleCore
       template_hash = creator_hash.deep_dup
       template_hash['validations'] = { 'maxi' => 5 }
       validator = subject.new(SecureRandom.uuid, template_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -96,6 +97,7 @@ module DataCycleCore
     test 'errors out if an invalid uuid is given in an array' do
       template_hash = creator_hash.deep_dup
       validator = subject.new([SecureRandom.uuid, 5], template_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -114,6 +116,7 @@ module DataCycleCore
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, template_hash)
+
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
@@ -123,6 +126,7 @@ module DataCycleCore
       template_hash = creator_hash.deep_dup
       template_hash['validations'] = { 'required' => true }
       validator = subject.new(nil, template_hash)
+
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
@@ -137,6 +141,7 @@ module DataCycleCore
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(1, validator.error[:warning].size)
       end
@@ -152,6 +157,7 @@ module DataCycleCore
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(1, validator.error[:warning].size)
       end
@@ -169,6 +175,7 @@ module DataCycleCore
       ]
       data_cases.each do |item_case|
         validator = subject.new(item_case, template_hash)
+
         assert_equal(0, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end

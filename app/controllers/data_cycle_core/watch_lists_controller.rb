@@ -46,8 +46,9 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
       return if params[:data_id].blank?
+
       add_remove_data params
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to(root_path)
     end
 
     def create
@@ -57,9 +58,9 @@ module DataCycleCore
       respond_to do |format|
         if !@watch_list.nil? && @watch_list.save
           format.js
-          format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
+          format.html { redirect_back_or_to(root_path, notice: (I18n.t 'controllers.success.created', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
         else
-          format.html { redirect_back(fallback_location: root_path) }
+          format.html { redirect_back_or_to(root_path) }
         end
       end
     end
@@ -69,7 +70,7 @@ module DataCycleCore
       @watch_list.update(watch_list_params)
 
       if @watch_list.save
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
+        flash[:success] = I18n.t 'controllers.success.updated', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
 
         if Rails.env.development?
           redirect_to edit_watch_list_path(@watch_list)
@@ -86,20 +87,25 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       @watch_list.destroy
 
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
+      flash[:success] = I18n.t 'controllers.success.destroyed', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       redirect_to root_path
     end
 
     def remove_item
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-      @content_object = DataCycleCore::Thing.find(params[:thing_id])
-      @content_object.watch_lists.destroy(@watch_list) unless @content_object.nil? || @watch_list.nil?
-
-      @watch_list.notify_subscribers(current_user, [@content_object.id], 'remove')
+      content_objects = DataCycleCore::Thing.where(id: params[:thing_id])
+      content_objects.each do |content_object|
+        @content_object = content_object
+        @content_object.watch_lists.destroy(@watch_list) unless @watch_list.nil?
+      end
+      @watch_list.notify_subscribers(current_user, Array.wrap(content_objects.pluck('id')), 'remove')
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.removed_from', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
+        format.html { redirect_back_or_to(root_path, notice: I18n.t('controllers.success.removed_from', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
+        format.turbo_stream do
+          render turbo_stream: content_objects.map { |item| turbo_stream.remove(item.id) }
+        end
         format.js
       end
     end
@@ -113,7 +119,7 @@ module DataCycleCore
       @watch_list.notify_subscribers(current_user, [@content_object.id], 'add')
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
+        format.html { redirect_back_or_to(root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
         format.js
       end
     end
@@ -132,7 +138,7 @@ module DataCycleCore
       @watch_list.notify_subscribers(current_user, inserted_ids, 'add')
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
+        format.html { redirect_back_or_to(root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
         format.js
       end
     end
@@ -145,7 +151,7 @@ module DataCycleCore
       I18n.with_locale(params[:locale]) do
         @locale = I18n.locale
 
-        redirect_to(watch_list_path(@watch_list), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return unless @watch_list.things.all? { |t| can?(:edit, t) }
+        redirect_to(watch_list_path(@watch_list), alert: (I18n.t 'controllers.error.no_permission', locale: helpers.active_ui_locale)) && return unless @watch_list.things.all? { |t| can?(:edit, t) }
 
         render && return
       end
@@ -165,8 +171,8 @@ module DataCycleCore
       object_params = content_params(@object.schema)
 
       if object_params[:datahash].blank? && object_params[:translations].blank?
-        flash.now[:error] = I18n.t(:no_selected_attributes, scope: [:controllers, :error], locale: helpers.active_ui_locale)
-        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
+        flash[:error] = I18n.t('controllers.error.no_selected_attributes', locale: helpers.active_ui_locale)
+        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list) })
         return head(:ok)
       end
 
@@ -174,8 +180,8 @@ module DataCycleCore
 
       I18n.with_locale(params[:locale]) do
         unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
-          flash.now[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: helpers.active_ui_locale
-          ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
+          flash[:error] = I18n.t 'controllers.error.no_permission', locale: helpers.active_ui_locale
+          ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list) })
           return head(:ok)
         end
 
@@ -213,30 +219,29 @@ module DataCycleCore
         if errors.present?
           error_string = errors.first(5).join('<br>')
           error_string += "<br>+ #{I18n.t('common.more_errors', count: errors.size - 5, locale: helpers.active_ui_locale)}" if errors.size > 5
-          flash.now[:error] = error_string
+          flash[:error] = error_string
         else
-          flash.now[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
+          flash[:success] = I18n.t 'controllers.success.bulk_updated', count: item_count, locale: helpers.active_ui_locale
 
           if skip_update_count.any? { |_k, v| v.positive? }
-            flash.now[:success] += I18n.t :bulk_updated_skipped_html,
-                                          scope: [:controllers, :info],
-                                          counts: skip_update_count
-                                            .select { |_k, v| v.positive? }
-                                            .map { |k, v| "#{k}: <b>#{v}</b>" }
-                                            .join(', '),
-                                          locale: helpers.active_ui_locale
+            flash[:success] += I18n.t 'controllers.info.bulk_updated_skipped_html',
+                                      counts: skip_update_count
+                                        .select { |_k, v| v.positive? }
+                                        .map { |k, v| "#{k}: <b>#{v}</b>" }
+                                        .join(', '),
+                                      locale: helpers.active_ui_locale
           end
         end
 
         @watch_list.watch_list_data_hashes.delete_all if @watch_list.my_selection
 
-        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
+        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list) })
 
         head(:ok)
       end
     rescue StandardError
-      flash.now[:error] = I18n.t :bulk_update_error, scope: [:controllers, :error], locale: helpers.active_ui_locale
-      ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: bulk_edit_watch_list_path(@watch_list, flash: flash.to_hash) })
+      flash[:error] = I18n.t 'controllers.error.bulk_update_error', locale: helpers.active_ui_locale
+      ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: bulk_edit_watch_list_path(@watch_list) })
     end
 
     def bulk_delete
@@ -244,19 +249,21 @@ module DataCycleCore
       authorize!(:bulk_delete, @watch_list)
 
       unless can?(:bulk_delete, @watch_list)
-        flash.now[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: helpers.active_ui_locale
-        ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
+        flash.now[:error] = I18n.t 'controllers.error.no_permission', locale: helpers.active_ui_locale
+        broadcast_bulk_delete_result
         return head(:ok)
       end
 
       delete_items = @watch_list.things
       delete_count = delete_items.size
       cant_delete_count = 0
+      deleted_ids = []
 
       ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { progress: 0, items: delete_count })
       delete_items.find_each.with_index do |content, index|
         if can?(:destroy, content)
           content.destroy_content
+          deleted_ids << content.id
         else
           cant_delete_count += 1
         end
@@ -264,10 +271,10 @@ module DataCycleCore
         ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { progress: index + 1, items: delete_count })
       end
 
-      flash.now[:success] = I18n.t(:bulk_deleted, scope: [:controllers, :success], count: delete_count, locale: helpers.active_ui_locale)
-      flash.now[:success] += I18n.t(:bulk_deleted_not_allowed_html, scope: [:controllers, :info], locale: helpers.active_ui_locale, count: cant_delete_count) if cant_delete_count.positive?
+      flash.now[:success] = I18n.t('controllers.success.bulk_deleted', count: delete_count, locale: helpers.active_ui_locale)
+      flash.now[:success] += I18n.t('controllers.info.bulk_deleted_not_allowed_html', locale: helpers.active_ui_locale, count: cant_delete_count) if cant_delete_count.positive?
 
-      ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
+      broadcast_bulk_delete_result(removed_ids: deleted_ids, emptied: deleted_ids.any? && cant_delete_count.zero?)
       head(:ok)
     end
 
@@ -308,11 +315,9 @@ module DataCycleCore
 
       @watch_list.notify_subscribers(current_user, deleted_ids, 'remove')
 
-      redirect_back(
-        fallback_location: root_path,
-        notice: (
-          I18n.t :cleared_collection,
-                 scope: [:controllers, :success],
+      redirect_back_or_to(
+        root_path, notice: (
+          I18n.t 'controllers.success.cleared_collection',
                  data: @watch_list.name,
                  locale: helpers.active_ui_locale
         )
@@ -347,15 +352,28 @@ module DataCycleCore
 
     private
 
+    def broadcast_bulk_delete_result(removed_ids: [], emptied: false)
+      streams = [turbo_stream.append('flash-messages', partial: 'data_cycle_core/shared/flash', locals: { flash: flash.discard })]
+
+      if emptied
+        # all items were removed: re-render the section so the "no results" state replaces the now-empty list
+        streams << turbo_stream.replace('search-results', partial: 'data_cycle_core/application/results', locals: { contents: [] })
+      else
+        streams.concat(Array.wrap(removed_ids).map { |id| turbo_stream.remove(id) })
+      end
+
+      ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { turbo_stream: streams.join })
+    end
+
     def update_order_params
       params.permit(:id, order: [])
     end
 
     def watch_list_params
-      params.require(:watch_list).permit(:full_path, :description, :user_id, :manual_order, :api, :linked_stored_filter_id, shared_user_group_ids: [], shared_user_ids: [], shared_role_ids: [], classification_tree_labels: [])
+      params.expect(watch_list: [:full_path, :description, :user_id, :manual_order, :api, :linked_stored_filter_id, :slug, { shared_user_group_ids: [], shared_user_ids: [], shared_role_ids: [], classification_tree_labels: [] }])
         .tap do |p|
-        p[:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:description]) if p.key?(:description)
-      end
+          p[:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:description]) if p.key?(:description)
+        end
     end
 
     def create_form_params
@@ -369,7 +387,7 @@ module DataCycleCore
     def bulk_update_type_params
       return {} if params[:bulk_update].blank?
 
-      params.require(:bulk_update).permit(datahash: {}, translations: {})
+      params.expect(bulk_update: [{ datahash: {}, translations: {} }])
     end
 
     def content_template
@@ -379,11 +397,7 @@ module DataCycleCore
     end
 
     def content_params(schema_hash)
-      allowed_content_params = DataCycleCore::DataHashService.get_params_from_hash(schema_hash)
-
-      return {} if params[:thing].blank?
-
-      params.require(:thing).permit(allowed_content_params)
+      DataCycleCore::DataHashService.new.permitted_content_params(schema_hash, params[:thing])
     end
   end
 end

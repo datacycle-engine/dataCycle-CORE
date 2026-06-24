@@ -33,6 +33,7 @@ module DataCycleCore
               fields: 'name'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # ASC
@@ -41,9 +42,11 @@ module DataCycleCore
               sort: 'name'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # ASC
@@ -52,9 +55,11 @@ module DataCycleCore
               sort: '+name'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # DESC
@@ -63,9 +68,11 @@ module DataCycleCore
               sort: '-name'
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_c.id, json_data['@graph'].first['@id'])
           end
 
@@ -78,6 +85,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # ASC
@@ -89,9 +97,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # ASC
@@ -103,9 +113,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # DESC
@@ -117,9 +129,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_b.id, json_data['@graph'].first['@id'])
 
             # DESC
@@ -131,9 +145,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
           end
         end

@@ -2,7 +2,7 @@
 
 class RefactorSomeViewsForProperties < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW IF EXISTS content_property_dependencies;
       DROP VIEW IF EXISTS content_computed_properties;
       DROP VIEW IF EXISTS content_properties;
@@ -55,7 +55,7 @@ class RefactorSomeViewsForProperties < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW IF EXISTS content_property_dependencies;
       DROP VIEW IF EXISTS content_computed_properties;
       DROP VIEW IF EXISTS content_properties;

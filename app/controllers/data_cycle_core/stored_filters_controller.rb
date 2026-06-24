@@ -92,14 +92,23 @@ module DataCycleCore
 
         redirect_to(root_path(stored_filter:), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       elsif stored_filter.save
-        redirect_back(fallback_location: root_path, notice: (I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+        redirect_back_or_to(root_path, notice: (I18n.t 'controllers.success.updated', data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       else
-        redirect_back(fallback_location: root_path, alert: (I18n.t :not_saved, scope: [:controllers, :errors], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+        generic = I18n.t('controllers.errors.not_saved', data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)
+        details = I18n.with_locale(helpers.active_ui_locale) { stored_filter.errors.full_messages }
+        redirect_back_or_to(root_path, alert: [generic, *details].join(' '))
       end
     end
 
     def render_update_form
-      @stored_filter = stored_filter_params[:id].present? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new(user_id: current_user&.id)
+      @stored_filter = if stored_filter_params[:id].present?
+                         DataCycleCore::StoredFilter.find(stored_filter_params[:id])
+                       else
+                         DataCycleCore::StoredFilter.new(
+                           user_id: current_user&.id,
+                           name: stored_filter_params[:name]
+                         )
+                       end
 
       authorize! @stored_filter.new_record? ? :create : :update, @stored_filter
 
@@ -112,9 +121,9 @@ module DataCycleCore
       @stored_filter.filter_uses.update_all(linked_stored_filter_id: nil)
 
       if @stored_filter.update(name: nil)
-        redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+        redirect_back_or_to(root_path, notice: (I18n.t 'controllers.success.destroyed', data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       else
-        redirect_back(fallback_location: root_path, alert: (I18n.t :not_deleted, scope: [:controllers, :errors], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+        redirect_back_or_to(root_path, alert: (I18n.t 'controllers.errors.not_deleted', data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       end
     end
 
@@ -122,17 +131,20 @@ module DataCycleCore
       authorize! :show, DataCycleCore::StoredFilter
 
       stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
-        .includes(:user)
+        .includes(:user_with_deleted)
         .limit(20)
         .order(name: :asc)
 
-      stored_filters = stored_filters.where('name ILIKE ?', "%#{index_params[:q]&.strip}%") if index_params[:q].present?
+      if index_params[:q].present?
+        stored_filters = stored_filters
+          .where('name ILIKE ?', "%#{index_params[:q]&.strip}%")
+          .reorder(Arel.sql("similarity(name, #{ActiveRecord::Base.connection.quote(index_params[:q]&.strip)}) DESC, name ASC"))
+      end
 
       render plain: stored_filters.map { |filter|
         select_option = filter.to_select_option
-
         if filter.user_id != current_user.id
-          suffix = helpers.tag.span(helpers.safe_join([' |', filter.user_with_deleted.full_name_with_status, "<#{filter.user_with_deleted.email}>"], ' '), class: 'stored-filter-creator')
+          suffix = helpers.tag.span(helpers.safe_join([' |', filter.user_with_deleted.full_name_with_status, "<#{filter.user_with_deleted.email}>"], ' '), class: 'stored-filter-creator') unless filter.user_with_deleted.nil?
           select_option.name = helpers.safe_join([select_option.name, suffix])
           select_option.dc_tooltip = helpers.safe_join([select_option.dc_tooltip, suffix])
         end
@@ -153,7 +165,7 @@ module DataCycleCore
     end
 
     def add_to_watchlist
-      redirect_to(root_path, alert: (I18n.t :no_watchlist, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if params[:watch_list_id].blank?
+      redirect_to(root_path, alert: (I18n.t 'controllers.error.no_watchlist', locale: helpers.active_ui_locale)) && return if params[:watch_list_id].blank?
 
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id])
       @watch_list = current_user.watch_lists.create(full_path: params[:watch_list_id]) if @watch_list.nil?
@@ -167,12 +179,37 @@ module DataCycleCore
       redirect_to(root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
+    def rebuild_cache
+      if @stored_filter.cache_result?
+        @stored_filter.rebuild_cache!
+        flash[:success] = I18n.t('controllers.success.cache_updated', locale: helpers.active_ui_locale) # rubocop:disable Rails/ActionControllerFlashBeforeRender
+      else
+        flash[:error] = I18n.t('controllers.error.cache_update_failed', locale: helpers.active_ui_locale) # rubocop:disable Rails/ActionControllerFlashBeforeRender
+      end
+
+      respond_to do |format|
+        format.html do
+          redirect_back_or_to(root_path)
+        end
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash', locals: { flash: flash.discard }),
+            turbo_stream.replace(
+              "rebuild_cache_stored_search_#{@stored_filter.id}",
+              method: :morph,
+              partial: 'data_cycle_core/stored_filters/rebuild_cache_button',
+              locals: { stored_search: @stored_filter }
+            )
+          ]
+        end
+      end
+    end
+
     private
 
     def stored_filter_params
       params
-        .require(:stored_filter)
-        .permit(:id, :name, :api, :user_id, :linked_stored_filter_id, :description, shared_user_ids: [], shared_user_group_ids: [], shared_role_ids: [], classification_tree_labels: [])
+        .expect(stored_filter: [:id, :name, :api, :user_id, :linked_stored_filter_id, :description, :cache_ttl, :slug, { shared_user_ids: [], shared_user_group_ids: [], shared_role_ids: [], classification_tree_labels: [] }])
         .tap do |p|
           p[:name] ||= p.delete(:id) unless p[:id].to_s.uuid?
           p[:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:description]) if p.key?(:description)

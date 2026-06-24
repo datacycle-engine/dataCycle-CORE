@@ -24,6 +24,7 @@ end
 if value.present?
   key_name = attribute_key(key, definition)
 
+  json.set! key_name, []
   json.set! key_name do
     json.array!(value.map do |description|
       serialize_opening_hours_description_v2(description)

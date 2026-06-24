@@ -5,11 +5,12 @@ require 'csv'
 module DataCycleCore
   module Report
     class Base
-      attr_reader :data, :locale, :params
+      attr_reader :data, :locale, :params, :current_user
 
-      def initialize(params: nil, locale: 'de')
+      def initialize(params: nil, locale: 'de', current_user: nil)
         @locale = locale
         @params = params
+        @current_user = current_user
         @data = apply(params)
       end
 

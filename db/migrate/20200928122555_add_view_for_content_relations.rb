@@ -2,7 +2,7 @@
 
 class AddViewForContentRelations < ActiveRecord::Migration[5.2]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE VIEW content_content_relations AS
       SELECT e.content_b_id AS src, e.content_a_id AS dest
       FROM content_contents e
@@ -14,7 +14,7 @@ class AddViewForContentRelations < ActiveRecord::Migration[5.2]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW IF EXISTS content_content_relations;
     SQL
   end

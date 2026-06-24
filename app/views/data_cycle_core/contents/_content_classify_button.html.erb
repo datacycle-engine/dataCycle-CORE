@@ -1,0 +1,12 @@
+<%= button_tag(
+  tag.i(class: 'fa fa-magic'),
+  type: :button,
+  class: "button-prime small",
+  data: {
+    toggle: "content_classifier_#{content.id}",
+    dc_tooltip: t('actions.classify_thing', locale: active_ui_locale)
+  }
+) %>
+
+<%= render 'data_cycle_core/contents/content_classifier_form',
+  local_assigns.merge(content_id: content.id) %>

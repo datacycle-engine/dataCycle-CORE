@@ -5,7 +5,7 @@ class AddSlugToWatchListAndStoredSearch < ActiveRecord::Migration[6.1]
 
   def up
     # regex expressions need to be escaped in execute blocks ('-\\d*$')
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE TABLE collection_configurations (
         id UUID NOT NULL PRIMARY KEY,
         watch_list_id UUID,
@@ -87,13 +87,13 @@ class AddSlugToWatchListAndStoredSearch < ActiveRecord::Migration[6.1]
         ) EXECUTE FUNCTION generate_collection_id_trigger ();
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       VACUUM ANALYZE collection_configurations;
     SQL
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS update_collection_id_trigger ON collection_configurations;
       DROP TRIGGER IF EXISTS generate_collection_id_trigger ON collection_configurations;
       DROP FUNCTION IF EXISTS generate_collection_id_trigger;

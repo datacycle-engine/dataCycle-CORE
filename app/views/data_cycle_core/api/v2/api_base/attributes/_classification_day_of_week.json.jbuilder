@@ -4,7 +4,7 @@ classification_aliases = content.send(key).includes(:classification_aliases).map
 
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 if classification_aliases.present?
-  json.set! key_new, (classification_aliases.map do |classification_alias|
+  json.set! key_new, classification_aliases.map do |classification_alias|
     case classification_alias.internal_name
     when 'Montag'
       'https://schema.org/Monday'
@@ -25,5 +25,5 @@ if classification_aliases.present?
     else
       classification_alias.name
     end
-  end)
+  end
 end

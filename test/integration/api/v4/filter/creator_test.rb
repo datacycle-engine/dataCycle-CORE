@@ -20,6 +20,7 @@ module DataCycleCore
           test 'api/v4/things parameter filter[creator]' do
             params = {}
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -32,6 +33,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(DataCycleCore::Thing.where(created_by: @creator).size)
 
             params = {
@@ -44,6 +46,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(DataCycleCore::Thing.where(created_by: @admin).size)
 
             params = {
@@ -56,6 +59,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(DataCycleCore::Thing.where(created_by: @creator).size)
 
             params = {
@@ -68,6 +72,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             params = {
@@ -81,6 +86,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(0)
           end
         end

@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def include?(attribute)
-          method_names.all? { |m| send(m.first, attribute, *m[1..-1]) }
+          method_names.all? { |m| send(m.first, attribute, *m[1..]) }
         end
 
         def to_proc
@@ -71,6 +71,7 @@ module DataCycleCore
 
         def attribute_not_included_in_publication_schedule?(attribute)
           return true unless DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
+
           !(
             (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
               !DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(attribute.content, attribute.key)

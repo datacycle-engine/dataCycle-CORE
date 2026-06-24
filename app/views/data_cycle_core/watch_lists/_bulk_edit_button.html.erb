@@ -1,3 +1,4 @@
+<% button_class ||= 'button-prime small' %>
 <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? collection.things.locks.includes(:user, activitiable: [:translations]) : nil %>
 
 <%= tag.span(
@@ -9,7 +10,7 @@
   <%= button_to bulk_edit_watch_list_path(collection),
                 method: :get,
                 disabled: content_locks.present? || collection.things.size > DataCycleCore.global_configs[:bulk_update_limit],
-                class: "button-prime small bulk-edit-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked show-pie-text' if content_locks.present?}",
+                class: "#{button_class} bulk-edit-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked show-pie-text' if content_locks.present?}",
                 data: {
                   disable: true
                 }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {

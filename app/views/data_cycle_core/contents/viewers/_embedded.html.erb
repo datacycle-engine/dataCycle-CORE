@@ -34,11 +34,21 @@
             <span class="embedded-type"><%= object.translated_template_name(active_ui_locale) %></span>
             <%= render('data_cycle_core/contents/content_score', key: nil, content: object, definition: object.content_score_definition(nil)) if object.embedded? && object.try(:content_score_allowed?) %>
             <%= thing_content_score(object) unless object.embedded? %>
-            <%= tag.span(object.send(object.title_property_name), title: object.send(object.title_property_name), class: 'embedded-title') if object.title_property_name.present? && object.try(object.title_property_name).present? %>
+            <%= tag.span(object.send(object.title_property_name)&.strip_tags&.squish, data: { dc_tooltip: object.send(object.title_property_name)&.strip_tags&.squish }, class: 'embedded-title') if object.title_property_name.present? && object.try(object.title_property_name).present? %>
           </span>
 
           <% if object.embedded? %>
-            <%= link_to tag.i(class: 'fa fa-pencil'),
+            <% if can?(:clear, :cache) %>
+              <%= tag.span(class: 'clear-cache-icon', data: { dc_tooltip: "#{t('data_cycle_core.cache.clear', locale: active_ui_locale)} (#{l(object.cache_valid_since, format: :edit, locale: active_ui_locale)})" }) do %>
+                <%= tag.i(class: 'fa fa-shield', aria_hidden: true) %>
+              <% end %>
+            <% end %>
+
+            <%= button_tag(type: 'button', class: 'copy-to-clipboard copy-embedded-id-button', data: { value: object.id, dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: "ID (#{object.id})") }) do %>
+              <%= tag.i(class: 'fa fa-hashtag', aria_hidden: true) %>
+            <% end %>
+
+            <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true),
                         edit_thing_path(
                           content,
                           watch_list_id: @watch_list,
@@ -47,7 +57,7 @@
                           anchor: object.related_contents(embedded: true).pluck(:id).reverse.except(content.id).push(object.id).join('+')
                         ),
                         class: 'edit-content-link',
-                        title: t('actions.edit', locale: active_ui_locale) if can?(:edit, object.embedded? ? content : object) %>
+                        title: t('actions.edit', locale: active_ui_locale) if can?(:edit, content) %>
           <% else %>
             <%= tag.div(render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition), class: 'buttons') %>
           <% end %>

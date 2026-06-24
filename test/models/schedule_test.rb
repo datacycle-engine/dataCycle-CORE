@@ -27,16 +27,19 @@ module DataCycleCore
     test 'serialize to hash and self apply --> unchanged' do
       schedule_hash = @schedule.to_h
       @schedule.from_hash(schedule_hash)
-      assert(schedule_hash == @schedule.to_h)
+
+      assert_equal(schedule_hash, @schedule.to_h)
     end
 
     test 'serialize to hash, create from hash' do
       schedule_hash = @schedule.to_h
+
       [:start_time, :end_time, :rrules, :rtimes, :extimes, :dtstart, :dtend].each do |key|
         assert(schedule_hash.key?(key))
       end
       schedule2 = DataCycleCore::Schedule.new.from_hash(schedule_hash)
-      assert(schedule_hash == schedule2.to_h)
+
+      assert_equal(schedule_hash, schedule2.to_h)
     end
 
     test 'save schedule, make sure all table columns are correctly filled' do
@@ -60,7 +63,8 @@ module DataCycleCore
       end
 
       schedule.save
-      assert(schedule.id.present?)
+
+      assert_predicate(schedule.id, :present?)
       assert_equal(dtstart, schedule.dtstart)
       assert_equal(dtend, schedule.dtend)
     end
@@ -71,6 +75,7 @@ module DataCycleCore
       duration = 7.hours
       schedule = create_schedule(dtstart, dtend, duration)
       schedule.save
+
       assert_equal(dtstart, schedule.dtstart)
       assert_equal(dtend, schedule.dtend)
       assert_equal(duration, schedule.duration)
@@ -87,6 +92,7 @@ module DataCycleCore
         'repeatFrequency' => 'P1D',
         'scheduleTimezone' => 'Europe/Vienna'
       }
+
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
@@ -96,6 +102,7 @@ module DataCycleCore
       duration = 7.hours
       schedule = create_schedule(dtstart, dtend, duration)
       schedule.save
+
       assert_equal(dtstart, schedule.dtstart)
       assert_equal(dtend, schedule.dtend)
       assert_equal(duration, schedule.duration)
@@ -112,6 +119,7 @@ module DataCycleCore
         'repeatFrequency' => 'P1D',
         'scheduleTimezone' => 'Europe/Vienna'
       }
+
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
@@ -120,6 +128,7 @@ module DataCycleCore
       duration = 7.hours
       schedule = create_schedule(dtstart, nil, duration)
       schedule.save
+
       assert_equal(dtstart, schedule.dtstart)
       assert_nil(schedule.dtend)
       assert_equal(duration, schedule.duration)
@@ -134,6 +143,7 @@ module DataCycleCore
         'repeatFrequency' => 'P1D',
         'scheduleTimezone' => 'Europe/Vienna'
       }
+
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
@@ -144,6 +154,7 @@ module DataCycleCore
       schedule = DataCycleCore::Schedule.new
       schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: dtend })
       schedule.save
+
       assert_equal(dtstart, schedule.dtstart)
       assert_equal(dtend, schedule.dtend)
       expected_serialization = {
@@ -158,6 +169,7 @@ module DataCycleCore
         'duration' => 'P1M14DT7H',
         'scheduleTimezone' => 'Europe/Vienna'
       }
+
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
@@ -168,6 +180,7 @@ module DataCycleCore
       schedule = DataCycleCore::Schedule.new
       schedule.schedule_object = IceCube::Schedule.new(dtstart, { duration: (dtend - dtstart).to_i })
       schedule.save
+
       assert_equal(dtstart, schedule.dtstart)
       assert_equal(dtend, schedule.dtend)
       expected_serialization = {
@@ -182,6 +195,7 @@ module DataCycleCore
         'duration' => 'P1M14DT7H',
         'scheduleTimezone' => 'Europe/Vienna'
       }
+
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
   end

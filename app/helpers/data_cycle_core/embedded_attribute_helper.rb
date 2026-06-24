@@ -28,11 +28,11 @@ module DataCycleCore
       html << render('data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children')
 
       if editable
-        if definition&.dig('template_name').is_a?(Array)
-          html << render('data_cycle_core/contents/editors/embedded/new_partials/new_content_button', id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", templates: definition['template_name'].map { |t| DataCycleCore::DataHashService.get_internal_template(t) })
-        else
-          html << tag.div(tag.button(tag.i(class: 'fa fa-plus'), id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", type: 'button', class: 'button add-content-object', disabled: !editable, data: { template: definition['template_name'] }), class: 'new-embedded-button-wrapper')
-        end
+        html << if definition&.dig('template_name').is_a?(Array)
+                  render('data_cycle_core/contents/editors/embedded/new_partials/new_content_button', id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", templates: definition['template_name'].map { |t| DataCycleCore::DataHashService.get_internal_template(t) })
+                else
+                  tag.div(tag.button(tag.i(class: 'fa fa-plus'), id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", type: 'button', class: 'button add-content-object', disabled: !editable, data: { template: definition['template_name'] }), class: 'new-embedded-button-wrapper')
+                end
       end
 
       tag.div(html, class: 'embedded-editor-header dc-sticky-bar')
@@ -40,6 +40,34 @@ module DataCycleCore
 
     def embedded_viewer_html_classes(**_args)
       'detail-type embedded-viewer embedded-wrapper'
+    end
+
+    # return locales to be rendered inline for the given key, depending on the type of embedded (translatable or not)
+    def force_render_locales_for_key(object, local_assigns = {})
+      return local_assigns[:force_render_locales] if local_assigns.key?(:force_render_locales)
+
+      content = contextual_content(local_assigns)
+      key = local_assigns[:key]&.attribute_name_from_key
+
+      return [] if content.translatable_property?(key)
+
+      object.available_locales
+    end
+
+    # return locales that are allowed to be rendered for the given key, depending on the type of embedded (translatable or not)
+    def allowed_embedded_locales_for_key(local_assigns = {})
+      content = contextual_content(local_assigns)
+      key = local_assigns[:key]&.attribute_name_from_key
+
+      return [I18n.locale] if content.translatable_property?(key)
+      return local_assigns[:allowed_locales]&.map(&:to_sym) if local_assigns.key?(:allowed_locales)
+
+      I18n.available_locales
+    end
+
+    def parsed_allowed_locales(local_assigns = {})
+      local_assigns.dig(:parameters, :allowed_locales)&.map(&:to_sym).presence ||
+        I18n.available_locales
     end
   end
 end

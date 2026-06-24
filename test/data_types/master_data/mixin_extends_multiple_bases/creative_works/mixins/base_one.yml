@@ -1,0 +1,17 @@
+---
+- :data:
+    :name: base_one
+    :type: mixin
+    :properties:
+      :base_one_text:
+        :label: Base one label
+        :type: string
+        :storage_location: translated_value
+      :shared_text:
+        :label: Base one shared
+        :type: string
+        :storage_location: translated_value
+      :multi_level_shared_text:
+        :label: Base one shared
+        :type: string
+        :storage_location: translated_value

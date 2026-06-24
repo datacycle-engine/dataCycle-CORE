@@ -1,4 +1,5 @@
 <% queued_sum = stat_job_queue[:queued].values.sum %>
+
 <div class="queued-jobs" data-count="<%= queued_sum %>">
   <h5>
     <i class="fa fa-tasks" aria-hidden="true"></i>
@@ -16,6 +17,7 @@
 </div>
 
 <% running_sum = stat_job_queue[:running].values.sum %>
+
 <div class="running-jobs" data-count="<%= running_sum %>">
   <h5>
     <i class="fa fa-spinner <%= 'fa-spin' if running_sum.positive? %>" aria-hidden="true"></i>
@@ -33,6 +35,7 @@
 </div>
 
 <% failed_sum = stat_job_queue[:failed].values.sum %>
+
 <div class="failed-jobs" data-count="<%= failed_sum %>">
   <h5>
     <i class="fa fa-times" aria-hidden="true"></i>
@@ -50,22 +53,26 @@
 </div>
 
 <% importers_sum = stat_job_queue[:importers].size %>
+
 <div class="import-jobs" data-count="<%= importers_sum %>">
   <h5>
     <i class="fa fa-download" aria-hidden="true"></i>
     import/download: <%= number_with_delimiter(importers_sum, locale: active_ui_locale) %>
   </h5>
+
   <% if importers_sum.positive? %>
     <ul>
       <% stat_job_queue[:importers].each do |job| %>
         <li>
-          <%= tag.span(job['status'], class: "job-status #{job['status']}") %>
-          <%= button_to(t('dash_board.delete', locale: active_ui_locale), admin_delete_queue_path(id: job['id']), class: 'import-job-destroy-link alert-color', method: :delete, form: { data: { turbo: true, turbo_stream: true } })%>
-          <br>
-          <b><%= job['external_system_name'] %></b>
-          <i>(<%= job['job'] %>)</i> <br/>
-          <%= l(job['created_at'], locale: active_ui_locale, format: :history) %>
+          <div class="es-name <%= job['status'] %>">
+            <b data-dc-tooltip="<%= job['external_system_name'] %>"><%= job['external_system_name'] %></b>
+            <%= tag.i(class: "job-status fa fa-spinner fa-spin #{job['status']}") if job['status'] == 'running' %>
+            <%= button_to(tag.i(class: 'fa fa-trash'), admin_delete_queue_path(id: job['id']), class: 'import-job-destroy-link alert-color', method: :delete, form: { data: { turbo: true, turbo_stream: true, dc_tooltip: t('dash_board.delete', locale: active_ui_locale) } }) if job['status'] != 'running' %>
+          </div>
+
+          <div><%= l(job['created_at'], locale: active_ui_locale, format: :history) %> <i>(<%= job['job'] %>)</i></div>
         </li>
       <% end %>
     </ul>
   <% end %>
+</div>

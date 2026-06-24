@@ -43,7 +43,7 @@ module DataCycleCore
         end
 
         def focus_point_params
-          params.require(:focus_point).permit(*DataCycleCore::Feature::FocusPointEditor.attribute_keys.map(&:to_sym))
+          params.expect(focus_point: DataCycleCore::Feature::FocusPointEditor.attribute_keys.map(&:to_sym))
         end
       end
     end

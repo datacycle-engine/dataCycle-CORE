@@ -8,3 +8,7 @@
         :additional_base_templates:
           - Entity-Creative-Work-1
           - Entity-Creative-Work-2
+    :properties:
+      :universal_classifications:
+        :type: classification
+        :universal: true

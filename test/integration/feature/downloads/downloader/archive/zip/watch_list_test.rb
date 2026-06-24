@@ -52,11 +52,13 @@ module DataCycleCore
                   json: true,
                   xml: true
                 }
+
                 assert DataCycleCore::Feature::Download.allowed?(@watch_list, [:archive, :zip])
 
                 get download_zip_watch_list_path(@watch_list), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
                   referer: watch_list_path(@watch_list)
                 }
+
                 assert_response :success
                 assert_equal('application/zip', response.headers['Content-Type'])
               end
@@ -72,9 +74,11 @@ module DataCycleCore
                   json: true,
                   xml: true
                 }
+
                 assert DataCycleCore::Feature::Download.allowed?(@watch_list, [:archive, :zip])
 
                 get "/downloads/watch_list_collections/#{@watch_list.id}", params: { serialize_format: 'asset, json, xml' }
+
                 assert_response :success
                 assert_equal('application/zip', response.headers['Content-Type'])
               end

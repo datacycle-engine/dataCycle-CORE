@@ -13,11 +13,11 @@ module DataCycleCore
 
           @content.update_column(:version_name, nil)
 
-          @success_message = I18n.t(:version_name_removed, scope: [:feature, :named_version], locale: helpers.active_ui_locale)
+          @success_message = I18n.t('feature.named_version.version_name_removed', locale: helpers.active_ui_locale)
 
           respond_to do |format|
             format.js
-            format.html { redirect_back(fallback_location: root_path, notice: @success_message) }
+            format.html { redirect_back_or_to(root_path, notice: @success_message) }
           end
         end
 

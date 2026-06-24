@@ -14,11 +14,12 @@ module DataCycleCore
       select(:activity_type, 'count(activity_type) as data_count')
         .where({ created_at: from..to })
         .group(:activity_type)
-        .order('data_count DESC')
+        .order(data_count: :desc)
     end
 
     def self.activities_by_user(user_id, from = nil, to = Time.zone.now)
       raise ArgumentError if user_id.blank?
+
       users = Array.wrap(user_id)
       from ||= Time::LONG_AGO
       select(:activity_type, 'count(activity_type) as data_count')
@@ -31,6 +32,7 @@ module DataCycleCore
 
     def self.user_doing_activity(activity, from = nil, to = Time.zone.now)
       raise ArgumentError if activity.blank?
+
       from ||= Time::LONG_AGO
       select(:activity_type, :user_id, 'count(user_id) as data_count')
         .where(activity_type: activity)
@@ -46,7 +48,7 @@ module DataCycleCore
         .where({ created_at: from..to })
         .joins(:user)
         .group(:user_id, :email, :activity_type)
-        .order('data_count DESC')
+        .order(data_count: :desc)
     end
 
     def self.activity_details(from = nil, to = Time.zone.now)
@@ -95,7 +97,7 @@ module DataCycleCore
           :email,
           :activity_type
         )
-        .order('data_count DESC')
+        .order(data_count: :desc)
     end
 
     def self.used_widgets

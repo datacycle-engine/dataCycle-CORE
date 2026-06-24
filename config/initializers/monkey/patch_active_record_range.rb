@@ -8,10 +8,6 @@ Time::DATE_FORMATS[:only_date] = '%Y-%m-%d'
 Time::DATE_FORMATS[:only_time] = '%H:%M'
 Time::DATE_FORMATS[:compact_datetime] = '%Y-%m-%dT%H-%M'
 
-class Time
-  LONG_AGO = Time.zone.local(1400, 1, 1, 0, 0)
-end
-
 # patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
 # TODO: remove if updated upstream
 module ActiveRecord
@@ -28,6 +24,7 @@ module ActiveRecord
             to = type_cast_single extracted[:to]
 
             raise ArgumentError, "The Ruby Range object does not support excluding the beginning of a Range. (unsupported value: '#{value}')" if !infinity?(from) && extracted[:exclude_start]
+
             if to.instance_of?(::Time) && from.instance_of?(::Float)
               ::Range.new(Time::LONG_AGO, to, extracted[:exclude_end])
             else

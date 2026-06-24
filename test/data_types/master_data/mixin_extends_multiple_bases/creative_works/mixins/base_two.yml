@@ -1,0 +1,17 @@
+---
+- :data:
+    :name: base_two
+    :type: mixin
+    :properties:
+      :base_two_text:
+        :label: Base two label
+        :type: string
+        :storage_location: translated_value
+      :shared_text:
+        :label: Base two overrides
+        :type: string
+        :storage_location: translated_value
+      :multi_level_shared_text:
+        :label: Base two overrides
+        :type: string
+        :storage_location: translated_value

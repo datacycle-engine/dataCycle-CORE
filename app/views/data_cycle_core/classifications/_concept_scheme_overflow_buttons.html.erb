@@ -7,6 +7,15 @@
   </li>
 <% end %>
 
+<% if can?(:copy_to_clipboard, concept_scheme) %>
+  <li>
+    <button type="button" class="copy-to-clipboard" value="<%= concept_scheme.name %>">
+      <i class="fa fa-angle-double-right icon"></i>
+      <span class="text"><%= t('actions.copy_to_clipboard_data', data: 'Name', locale: active_ui_locale) %></span>
+    </button>
+  </li>
+<% end %>
+
 <% if can?(:copy_api_link, concept_scheme) %>
   <li>
     <button type="button" class="copy-to-clipboard" value="<%= api_v4_concept_scheme_url(id: concept_scheme.id) %>">

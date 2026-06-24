@@ -1192,7 +1192,7 @@ $filter-border: #aaa;
           transition: $global-transition;
           font-size: 1.1rem;
           line-height: 1.2;
-          margin-right: 0.5rem;
+          margin-right: 0.3rem;
         }
 
         &:last-child {
@@ -1234,7 +1234,7 @@ $filter-border: #aaa;
           >ul li {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.5rem;
 
             &.search-favorites-list-input {
               background: transparent;
@@ -1502,20 +1502,6 @@ $filter-border: #aaa;
                   font-weight: 600;
                 }
 
-                &.content-title-api {
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  border: 1px solid black;
-                  color: $black;
-                  line-height: 1.2;
-                  font-weight: 600;
-                  padding: 2px 4px;
-                  border-radius: $global-radius;
-                  min-width: 2.2rem;
-                  width: 2.2rem;
-                }
-
                 &.global {
                   font-weight: bold;
                 }
@@ -1667,6 +1653,8 @@ $filter-border: #aaa;
         right: 0;
         left: 0;
         top: 0.5rem;
+        width: 100%;
+        margin-top: -0.5rem;
       }
     }
   }
@@ -2080,4 +2068,13 @@ $filter-border: #aaa;
       }
     }
   }
+}
+
+
+.graph-filter-attribute-placeholder {
+  font-size: 0.9rem;
+}
+
+.tags-container .graph-filter-attribute-placeholder {
+  font-size: 0.8rem;
 }

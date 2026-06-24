@@ -36,6 +36,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # Default sorting for similarity is used with full text search
@@ -46,9 +47,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
 
             # ASC
@@ -60,9 +63,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_b.id, json_data['@graph'].first['@id'])
 
             # ASC
@@ -74,9 +79,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_b.id, json_data['@graph'].first['@id'])
 
             # DESC
@@ -88,9 +95,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             json_data = response.parsed_body
+
             assert_equal(@poi_a.id, json_data['@graph'].first['@id'])
           end
         end

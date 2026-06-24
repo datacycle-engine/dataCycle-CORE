@@ -2,13 +2,13 @@
 
 module DataCycleCore
   module HttpClient
-    DEFAULT_RETRY_STATUSES = [429, 503, 504].freeze
-    DEFAULT_RETRY_EXCEPTIONS = Faraday::Retry::Middleware::DEFAULT_EXCEPTIONS
+    DEFAULT_RETRY_STATUSES = [429, 500, 503, 504].freeze
+    DEFAULT_RETRY_EXCEPTIONS = Faraday::Retry::Middleware::DEFAULT_EXCEPTIONS + [Net::OpenTimeout, Net::ReadTimeout]
     DEFAULT = {
       retry_options: {
         max: 3, interval: 30, backoff_factor: 2, retry_statuses: DEFAULT_RETRY_STATUSES
       },
-      follow_redirects: { limit: 5 },
+      follow_redirects: { limit: 5, standards_compliant: true },
       adapter: Faraday.default_adapter,
       timeout: 30
     }.freeze
@@ -38,9 +38,9 @@ module DataCycleCore
       Faraday.default_connection.dup.tap { |conn|
         conn.adapter config[:adapter] || DEFAULT[:adapter]
         conn.options[:timeout] = config[:timeout] || DEFAULT[:timeout]
-        conn.builder.handlers.delete(Faraday::Request::Retry)
+        conn.builder.handlers.delete(conn.request(:retry))
         conn.request :retry, **DEFAULT[:retry_options], **config[:retry_options] || {}
-        conn.builder.handlers.delete(FaradayMiddleware::FollowRedirects)
+        conn.builder.handlers.delete(conn.response(:follow_redirects))
         conn.response :follow_redirects, **DEFAULT[:follow_redirects], **config[:follow_redirects] || {}
       }.tap do |conn|
         yield conn if block_given?

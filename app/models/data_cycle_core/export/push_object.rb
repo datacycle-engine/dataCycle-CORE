@@ -10,7 +10,7 @@ module DataCycleCore
       }.freeze
 
       attr_reader :external_system, :locale, :filter_checked, :action
-      attr_accessor :type, :path, :endpoint_method, :external_system_sync
+      attr_accessor :type, :path, :endpoint_method, :external_system_sync, :wait_time
 
       def initialize(action:, **kwargs)
         @action = action.to_sym
@@ -32,6 +32,7 @@ module DataCycleCore
 
       def webhook_valid?(item)
         return false if external_system.export_config.blank?
+        return false unless external_system.export_config.key?(action)
 
         allowed_models = Array.wrap(external_system.export_config[:allowed_models] || 'DataCycleCore::Thing')
 
@@ -73,7 +74,10 @@ module DataCycleCore
       end
 
       def webhook
-        external_system.export_config.dig(action, :strategy)&.safe_constantize
+        return unless external_system.export_config.key?(action)
+
+        @webhook ||= external_system.export_config.dig(action, :strategy)&.safe_constantize ||
+                     DataCycleCore::Export::Generic::Base.new(action:)
       end
 
       def http_method

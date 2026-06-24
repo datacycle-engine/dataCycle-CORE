@@ -1,4 +1,5 @@
 import turfFlatten from "@turf/flatten";
+import difference from "lodash/difference";
 import isEmpty from "lodash/isEmpty";
 import { showCallout } from "../helpers/callout_helpers";
 import domElementHelpers from "../helpers/dom_element_helpers";
@@ -17,6 +18,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	constructor(container) {
 		super(container);
 
+		this.readonly = this.$container.data("readonly");
 		this.uploadable = this.$container.data("allowUpload");
 		this.allowShapeFromConcept = this.$container.data("allowShapeFromConcept");
 		this.translateInteraction;
@@ -63,7 +65,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		this.addElevationPath = this.$container.data("addElevationPath");
 		this.thingId = this.value?.properties?.["@id"];
 	}
-	static isAllowedType(_type) {
+	static isAllowedType(_type, _readonly) {
 		return true;
 	}
 	configureMap() {
@@ -72,8 +74,12 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	}
 	async initFeatures() {
 		if (!this.feature && this.value) this.feature = this.value;
-		// to ensure additional features are drawn last, the editor is initiallized here
-		await this.initAdditionalControls();
+		// to ensure additional features are drawn last, the editor is initialized here
+		if (this.readonly) this.drawFeatures();
+		else await this.initAdditionalControls();
+
+		if (!isEmpty(this.additionalValuesOverlay))
+			this.initAdditionalValuesControls();
 		this.drawAdditionalFeatures();
 	}
 	drawAdditionalFeatures() {
@@ -83,32 +89,36 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			...Object.keys(this.additionalValues),
 			...Object.keys(this.additionalValuesOverlay),
 		])) {
-			this.additionalValueTargets[key] = this.$parentContainer
-				.closest(".form-element.geographic")
-				.siblings(`.form-element[data-key*="[${key}]"]`)
-				.find(".object-browser");
+			const target = this.findAdditionalValueElement(key);
+			if (!target.length) continue;
 
-			if (!this.additionalValueTargets[key].length) continue;
-
-			this.additionalValueTargets[key].on(
+			target.on(
 				"dc:objectBrowser:change",
-				this._linkedChangeHandler.bind(this),
+				this.#linkedChangeHandler.bind(this),
 			);
+			this.additionalValueTargets[key] = target;
 		}
 	}
-	async _linkedChangeHandler(event, data) {
+	async #linkedChangeHandler(event, data) {
 		event.preventDefault();
 		event.stopPropagation();
 
 		const key = data.key.attributeNameFromKey();
-		let changedFeatures = [];
-
-		if (data.ids?.length) {
+		const config = this._additionalValuesByKey(key);
+		const existingIds =
+			this._additionalValuesByKey(key).features?.map(
+				(feature) => feature.properties["@id"],
+			) || [];
+		const newIds = difference(data.ids, existingIds);
+		const removedFeatureIds = difference(existingIds, data.ids);
+		if (newIds.length) {
 			const geoJson = await this._loadGeojson({ ids: data.ids });
-			changedFeatures = geoJson.features || [];
+			config.features.push(...geoJson.features);
 		}
 
-		this._additionalValuesByKey(key).features = changedFeatures;
+		config.features = config.features.filter(
+			(feature) => !removedFeatureIds.includes(feature.properties["@id"]),
+		);
 		this._setSelectedAdditionalDataForSource(key);
 	}
 	_additionalValuesByKey(key) {
@@ -181,13 +191,13 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			this.map.addControl(new UploadControl(this), "top-left");
 		}
 
-		if (!isEmpty(this.additionalValuesOverlay)) {
-			this.additionalValuesFilterControl = new AdditionalValuesFilterControl(
-				this,
-			);
-			this.map.addControl(this.additionalValuesFilterControl, "top-left");
-		}
 		await this.initDrawControl();
+	}
+	initAdditionalValuesControls() {
+		this.additionalValuesFilterControl = new AdditionalValuesFilterControl(
+			this,
+		);
+		this.map.addControl(this.additionalValuesFilterControl, "top-left");
 	}
 	availableControlsByType() {
 		if (this.isPoint()) return ["trash", "draw_point"];
@@ -479,6 +489,12 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 				coordinates: coords,
 			},
 		};
+	}
+	getCurrentValueAsGeoJSON() {
+		const geoJSON = this.feature;
+		if (!geoJSON) return null;
+
+		return JSON.stringify(this.normalizeValue(geoJSON)?.geometry);
 	}
 	async setHiddenFieldValue(geoJson) {
 		const normalizedGeoJson = this.normalizeValue(geoJson);

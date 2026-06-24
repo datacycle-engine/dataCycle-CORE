@@ -45,6 +45,7 @@ module DataCycleCore
           test 'api/v4/things parameter filter[attribute][schedule]' do
             params = {}
             post api_v4_things_path(params)
+
             assert_api_count_result(@thing_count)
 
             # find all events
@@ -61,6 +62,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(4)
 
             params = {
@@ -76,6 +78,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -92,6 +95,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             params = {
@@ -107,6 +111,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(3)
 
             params = {
@@ -123,6 +128,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -139,9 +145,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             json_data = response.parsed_body
+
             assert_equal(@event_d.id, json_data['@graph'].first['@id'])
 
             params = {
@@ -158,9 +166,11 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
+
             assert_api_count_result(1)
 
             json_data = response.parsed_body
+
             assert_equal(@event_a.id, json_data['@graph'].first['@id'])
           end
 
@@ -211,6 +221,43 @@ module DataCycleCore
             })
 
             assert_api_count_result(1)
+          end
+
+          test 'api/v4/things parameter filter[schedule][all] ignores schedule_exceptions' do
+            original_exceptions = DataCycleCore.features[:advanced_filter][:config][:schedule_exceptions]
+            DataCycleCore.features[:advanced_filter][:config][:schedule_exceptions] = ['opening_hours_specification']
+            DataCycleCore::Feature::AdvancedFilter.reload
+
+            post api_v4_things_path({
+              fields: 'dct:modified',
+              filter: {
+                schedule: {
+                  in: {
+                    min: 7.days.ago.to_fs(:iso8601)
+                  }
+                }
+              }
+            })
+
+            assert_api_count_result(5)
+
+            post api_v4_things_path({
+              fields: 'dct:modified',
+              filter: {
+                schedule: {
+                  all: {
+                    in: {
+                      min: 7.days.ago.to_fs(:iso8601)
+                    }
+                  }
+                }
+              }
+            })
+
+            assert_api_count_result(6)
+          ensure
+            DataCycleCore.features[:advanced_filter][:config][:schedule_exceptions] = original_exceptions
+            DataCycleCore::Feature::AdvancedFilter.reload
           end
         end
       end

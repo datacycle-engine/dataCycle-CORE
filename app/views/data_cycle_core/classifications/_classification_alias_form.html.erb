@@ -4,13 +4,25 @@
   <%= hidden_field(nil, :classification_tree_label_id, value: classification_tree_label.id) %>
   <%= hidden_field(nil, :classification_tree_id, value: classification_tree.id) if classification_tree %>
   <%= f.hidden_field :id %>
+
   <% active_locale = I18n.locale %>
 
   <div class="ca-buttons">
     <div class="has-dropdown">
-      <a class="button-prime small" data-toggle="locales-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"><i class="fa fa-language" aria-hidden="true"></i></a>
-      <div class="dropdown-pane no-bullet bottom" id="locales-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>" data-dropdown>
+      <a
+        class="button-prime small"
+        data-toggle="locales-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"
+      >
+        <i class="fa fa-language" aria-hidden="true"></i>
+      </a>
+
+      <div
+        class="dropdown-pane no-bullet bottom"
+        id="locales-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"
+        data-dropdown
+      >
         <h5><%= t('common.choose_language', locale: active_ui_locale) %></h5>
+
         <ul class="list-items">
           <% available_locales_with_names.each do |locale| %>
             <li>
@@ -23,7 +35,10 @@
     </div>
 
     <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update submit-button', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', data: { dc_tooltip: t('data_cycle_core.classifications_adminitration.classification.submit_loading_message', locale: active_ui_locale) }) }) %>
-    <button class="button-prime small discard secondary" type="reset"><i aria-hidden="true" class="fa fa-times"></i></button>
+
+    <button class="button-prime small discard secondary" type="reset">
+      <i aria-hidden="true" class="fa fa-times"></i>
+    </button>
   </div>
 
   <% if classification_alias.persisted? %>
@@ -36,22 +51,26 @@
   <div class="ca-input translated">
     <% I18n.available_locales.each do |locale| %>
       <% if locale == active_locale %>
-        <div class="translated-fields <%= locale %> <%= 'active' if locale == active_locale %>" id="translated-field-<%= locale %>-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>">
+        <div
+          class="translated-fields <%= locale %> <%= 'active' if locale == active_locale %>"
+          id="translated-field-<%= locale %>-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"
+        >
           <%= render 'data_cycle_core/classifications/translated_form_fields', locale: locale, classification_alias: classification_alias %>
         </div>
       <% else %>
-        <div class="translated-fields remote-render <%= locale %> <%= 'active' if locale == active_locale %>"
+        <div
+          class="translated-fields remote-render <%= locale %> <%= 'active' if locale == active_locale %>"
           id="translated-field-<%= locale %>-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"
           data-remote-path="data_cycle_core/classifications/translated_form_fields"
-          data-remote-options="<%= to_query_params(classification_alias: classification_alias, locale: locale).to_json %>">
-        </div>
+          data-remote-options="<%= to_query_params(classification_alias: classification_alias, locale: locale).to_json %>"
+        ></div>
       <% end %>
     <% end %>
   </div>
 
   <div class="ca-input">
-    <%= f.label :uri, classification_alias.class.human_attribute_name(:uri, locale: active_ui_locale), class: 'ca-label' %>
-    <%= f.text_field :uri, class: 'ca-input-field', readonly: classification_alias&.persisted? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias), placeholder: t('common.generated_value_placeholder', locale: active_ui_locale) %>
+    <%= f.label :uri, safe_join([classification_alias.class.human_attribute_name(:uri, locale: active_ui_locale), tag.i(class: 'fa fa-info-circle', data: { dc_tooltip: t('common.uri_placeholder', locale: active_ui_locale) })], ' '), class: 'ca-label' %>
+    <%= f.text_field :uri, class: 'ca-input-field', readonly: classification_alias&.persisted? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
   </div>
 
   <div class="ca-input color-picker-container <%= 'no-color' unless classification_alias&.color? %>">
@@ -61,10 +80,7 @@
 
   <% if can?(:update_internal, classification_alias) %>
     <div class="ca-input checkbox">
-      <span class="dc-checkbox">
-        <%= f.check_box :internal %>
-        <%= f.label :internal %>
-      </span>
+      <span class="dc-checkbox"><%= f.check_box :internal %><%= f.label :internal %></span>
     </div>
   <% end %>
 
@@ -81,6 +97,7 @@
     <div class="v-select classification-ids-field">
       <%= f.label :classification_ids do |l| %>
         <%= I18n.with_locale(active_ui_locale){ l.translation } %>
+
         <%= tag.i(
           class: 'fa fa-exclamation-triangle warning-color classification-mappings-queued',
           data: {
@@ -88,6 +105,7 @@
           }
         ) if locked %>
       <% end %>
+
       <%= f.select(:classification_ids,
         async_classification_select_options(classification_alias.additional_classifications.includes(primary_classification_alias: :classification_alias_path), DataCycleCore::Classification),
         {},
@@ -110,13 +128,13 @@
 
   <% if classification_alias.persisted? && can?(:view_all, classification_alias) %>
     <div class="ca-input">
-      <%= f.label :external_keys, classification_alias.class.human_attribute_name(:external_keys, locale: active_ui_locale), class: 'ca-label'%>
+      <%= f.label :external_keys, classification_alias.class.human_attribute_name(:external_keys, locale: active_ui_locale), class: 'ca-label' %>
       <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true %>
     </div>
-
     <%# to show classifications mapped to this ClassificationAlias %>
     <div class="v-select">
       <%= f.label :mapped_to, classification_alias.class.human_attribute_name(:mapped_to, locale: active_ui_locale) %>
+
       <%= f.select(:mapped_to,
         async_classification_select_options(classification_alias.mapped_to),
         {},
@@ -135,5 +153,6 @@
         }) %>
     </div>
   <% end %>
+
   <%= f.submit class: 'success button' %>
 <% end %>

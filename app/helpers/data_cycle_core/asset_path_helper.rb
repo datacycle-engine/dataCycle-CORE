@@ -20,6 +20,22 @@ module DataCycleCore
       "--dc-background-image-url: url('#{dc_image_path(Array.wrap(DataCycleCore.logo['background_images']).sample.to_s)}');"
     end
 
+    def dc_favicon_link_tags
+      return if DataCycleCore.logo['favicons'].blank?
+
+      capture do
+        Array.wrap(DataCycleCore.logo['favicons']).each do |favicon|
+          concat favicon_link_tag(
+            dc_image_path(favicon['src']),
+            rel: 'icon',
+            type: favicon['type'],
+            sizes: favicon['sizes'],
+            nonce: true
+          )
+        end
+      end
+    end
+
     def dc_stylesheet_tag(asset_name)
       asset_path = dc_vite_asset_url("entrypoints/#{asset_name}", true)
 

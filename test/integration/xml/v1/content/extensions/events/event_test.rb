@@ -73,6 +73,7 @@ module DataCycleCore
                     }
                   }
                 end
+
                 assert_equal(sub_events, xml_data.dig('subEvent', 'subEvent'))
               end
 
@@ -166,21 +167,27 @@ module DataCycleCore
 
               test 'stored item can be found via different endpoints' do
                 get(xml_v1_things_path)
+
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
+
                 assert_equal(@content.id, xml_data['identifier'])
 
                 get(xml_v1_contents_search_path)
+
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
+
                 assert_equal(@content.id, xml_data['identifier'])
 
                 get(xml_v1_events_path)
+
                 assert_response(:success)
                 assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
+
                 assert_equal(@content.id, xml_data['identifier'])
               end
             end

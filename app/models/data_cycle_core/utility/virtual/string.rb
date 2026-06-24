@@ -96,6 +96,32 @@ module DataCycleCore
               &.external_key
               &.include?('closed')
           end
+
+          # :virtual:
+          #   :module: String
+          #   :method: slugify
+          #   :parameters:
+          #     - name
+          def slugify(content:, virtual_parameters:, **_args)
+            content.try(virtual_parameters.first).presence&.to_s&.to_slug
+          end
+
+          # Returns a single flat value (external_key by default) of the
+          # classification selected on the content for the given tree_label.
+          # Used to expose single-select classifications as a plain value in the API.
+          # :virtual:
+          #   :module: String
+          #   :method: classification_value
+          #   :tree_label: HeadlineLevels
+          #   :key: external_key
+          def classification_value(content:, virtual_definition:, **_args)
+            tree_label = virtual_definition.dig('virtual', 'tree_label')
+            return if tree_label.blank?
+
+            key = virtual_definition.dig('virtual', 'key').presence || 'external_key'
+
+            content.full_classification_aliases.for_tree(tree_label).pick(key)
+          end
         end
       end
     end

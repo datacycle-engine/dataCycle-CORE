@@ -21,7 +21,8 @@ module DataCycleCore
           raise 'Update Attributes canceled (Last download(s) failed)!' unless utility_object.source_steps_successful?
 
           delete_deadline = eval(options.dig(:import, :last_successful_try)) if options.dig(:import, :last_successful_try).present? # rubocop:disable Security/Eval
-          if delete_deadline.present? && last_success < delete_deadline
+          last_success = utility_object.last_successful_try
+          if delete_deadline.present? && (last_success.blank? || last_success < delete_deadline)
             last_date = last_success.presence || 'never'
             delete_date = delete_deadline.presence || 'not specified'
             raise "No recent successful download detected! Last successful Download: #{last_date}, delete deadline: #{delete_date}"
@@ -39,10 +40,15 @@ module DataCycleCore
               external_key:
             )
 
+            return if update_item.nil?
+
             update_hash = {}
+
             options.dig(:import, :attributes).each do |attribute|
               next unless update_item.respond_to?(attribute[:key]&.to_s)
+
               value = load_value_for_attribute(attribute)
+
               if attribute[:key] == 'universal_classifications' || attribute[:type] == 'classification'
                 delete = attribute[:delete] || false
                 update = false

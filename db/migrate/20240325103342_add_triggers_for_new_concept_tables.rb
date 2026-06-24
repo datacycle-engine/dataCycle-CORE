@@ -2,7 +2,7 @@
 
 class AddTriggersForNewConceptTables < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION insert_concept_schemes_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
       INSERT INTO concept_schemes(
           id,
@@ -410,7 +410,7 @@ class AddTriggersForNewConceptTables < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP TRIGGER IF EXISTS insert_concept_schemes_trigger ON classification_tree_labels;
       DROP TRIGGER IF EXISTS update_concept_schemes_trigger ON classification_tree_labels;
       DROP TRIGGER IF EXISTS delete_concept_schemes_trigger ON classification_tree_labels;

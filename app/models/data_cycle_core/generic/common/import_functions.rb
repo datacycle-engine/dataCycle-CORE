@@ -22,7 +22,7 @@ module DataCycleCore
           last_ext_key = nil
 
           init_logging(utility_object) do |logging|
-            init_mongo_db(utility_object) do
+            utility_object.with_mongodb do
               importer_name = options.dig(:import, :name)
 
               each_locale(utility_object.locales) do |locale|
@@ -62,8 +62,10 @@ module DataCycleCore
 
                       iterate.each do |content|
                         break if options[:max_count].present? && item_count >= options[:max_count]
+
                         item_count += 1
                         next if options[:min_count].present? && item_count < options[:min_count]
+
                         last_ext_key = content[:external_id]
 
                         # access via: to dump, external_system needed to work with reisen_fuer_alle.de - Import (has BSON - Agggregate struct)
@@ -138,9 +140,9 @@ module DataCycleCore
                     end
                   end
 
-                  logging.phase_finished(step_label, item_count.to_s, times.last - times.first)
+                  logging.phase_finished(step_label, item_count.to_s, Time.current - times.first)
                 rescue StandardError => e
-                  logging.phase_failed(e, utility_object.external_source, step_label, 'import_failed.datacycle')
+                  logging.phase_failed(e, utility_object.external_source, step_label, utility_object.step_name, 'import_failed.datacycle')
                   raise
                 end
               end
@@ -150,7 +152,7 @@ module DataCycleCore
 
         def self.import_all(utility_object:, iterator:, data_processor:, options:)
           init_logging(utility_object) do |logging|
-            init_mongo_db(utility_object) do
+            utility_object.with_mongodb do
               step_label = utility_object.step_label(options.merge({ locales: ['all'] }))
               item_count = 0
 
@@ -167,9 +169,18 @@ module DataCycleCore
                   break if options[:max_count].present? && item_count > options[:max_count]
                   next if options[:min_count].present? && item_count < options[:min_count]
 
+                  # access via: to dump, external_system needed to work with reisen_fuer_alle.de - Import (has BSON - Agggregate struct)
+                  # content can either be a DataCycleCore::Generic::Collection or a BSON Aggregate, causing an issue when you try to access .dump as method (BSON Aggregate does not provide many functions)
+                  raw_data = content[:dump]
+                  if !DataCycleCore::DataHashService.deep_blank?(raw_data) && content[:external_system].present? && content[:external_system]['credential_keys'].present?
+                    raw_data.select { |i| i.to_sym.in?(I18n.available_locales) }.each_value do |locale_data|
+                      locale_data['dc_credential_keys'] = content[:external_system]['credential_keys']
+                    end
+                  end
+
                   data_processor.call(
                     utility_object:,
-                    raw_data: content[:dump],
+                    raw_data:,
                     locale: nil,
                     options:
                   )
@@ -182,7 +193,7 @@ module DataCycleCore
                   logging.phase_partial(step_label, item_count, times)
                 end
               ensure
-                logging.phase_finished(step_label, item_count, times.last - times.first)
+                logging.phase_finished(step_label, item_count, Time.current - times.first)
               end
             end
           end
@@ -190,24 +201,23 @@ module DataCycleCore
 
         def self.aggregate_to_collection(utility_object:, iterator:, options:)
           init_logging(utility_object) do |logging|
-            init_mongo_db(utility_object) do
+            utility_object.with_mongodb do
               step_label = utility_object.step_label(options)
               output_collection = options.dig(:import, :output_collection)
+              start_time = Time.current
 
-              item_count = 0
               begin
                 logging.phase_started(step_label)
 
                 utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                   mongo_item.with_session do |_session|
-                    iterate = iterator.call(mongo_item, utility_object.locales, output_collection).to_a
-                    item_count += 1
+                    iterator.call(mongo_item, utility_object.locales, output_collection).to_a
 
-                    logging.info(step_label, "Aggregate collection \"#{output_collection}\" created for languages #{utility_object.locales}, #{iterate}")
+                    logging.info(step_label, "Aggregate collection \"#{output_collection}\" created for languages #{utility_object.locales}")
                   end
                 end
               ensure
-                logging.phase_finished(step_label, item_count)
+                logging.phase_finished(step_label, nil, Time.current - start_time)
                 GC.start
               end
             end
@@ -216,7 +226,8 @@ module DataCycleCore
 
         def self.aggregate_collection(utility_object, aggregation_function, options)
           init_logging(utility_object) do |logging|
-            init_mongo_db(utility_object) do
+            utility_object.with_mongodb do
+              start_time = Time.current
               download_name = options.dig(:download, :name)
               phase_name = utility_object.source_type.collection_name
               step_label = utility_object.step_label(options)
@@ -226,7 +237,7 @@ module DataCycleCore
                 aggregation_function.call(mongo_item, logging, utility_object, options.merge({ download_name:, phase_name: })).to_a
               end
             ensure
-              logging.phase_finished(step_label, 0)
+              logging.phase_finished(step_label, 0, Time.current - start_time)
               GC.start
             end
           end
@@ -234,7 +245,7 @@ module DataCycleCore
 
         def self.import_paging(utility_object:, iterator:, data_processor:, options:)
           init_logging(utility_object) do |logging|
-            init_mongo_db(utility_object) do
+            utility_object.with_mongodb do
               each_locale(utility_object.locales) do |locale|
                 step_label = utility_object.step_label(options.merge({ locales: [locale] }))
                 item_count = 0
@@ -276,11 +287,12 @@ module DataCycleCore
                       logging.phase_partial(step_label, item_count, times, external_id)
 
                       next unless (item_count % 10).zero?
+
                       GC.start
                     end
                   end
                 ensure
-                  logging.phase_finished(step_label, item_count, times.last - times.first)
+                  logging.phase_finished(step_label, item_count, Time.current - times.first)
                 end
               end
             end
@@ -291,12 +303,13 @@ module DataCycleCore
           init_logging(utility_object) do |logging|
             items_count = 0
             step_label = utility_object.step_label(options)
+            start_time = Time.current
 
             begin
               logging.phase_started(step_label)
               items_count = data_processor.call(utility_object, options)
             ensure
-              logging.phase_finished(step_label, items_count)
+              logging.phase_finished(step_label, items_count, Time.current - start_time)
             end
           end
         end

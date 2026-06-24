@@ -5,7 +5,7 @@ class TransformClassificationPolygonsToWgs84 < ActiveRecord::Migration[6.1]
   disable_ddl_transaction!
 
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE classification_polygons
       ADD COLUMN geom_4326 geometry(Geometry, 4326);
 

@@ -1,0 +1,71 @@
+# Datenendpunkte
+
+Es können aus vorhandenen Datenendpunkten und Filtern neue Datenendpunkte erstellt werden.
+
+## Allgemeines
+
+Zur Authentifizierung empfiehlt sich die Verwendung eines API-Token, es können aber prinzipiell alle für die Datenschnittstelle angebotenen [Authentifizierungs-Mechanismen](/docs/api#authentifizierung) genutzt werden.
+
+## Erstellen von Datenendpunkten
+Es können neue Datenendpunkte auf Basis eines existierenden Endpunkts erstellt werden.
+
+### Vollständiges Beispiel
+
+```url
+POST <%= api_v4_endpoints_url %>
+```
+
+JSON-Body
+```json
+{
+  "endpoint": "a5696e01-2024-4e97-8425-5b749660f735",
+  "collection": {
+    "name": "Test Endpunkt mit Filtern"
+  },
+  "filter": {
+    "...": "..."
+  },
+  "sort": "..."
+}
+```
+
+### Antwort
+In der Antwort gibt es wieder ```@graph```, und ```errors``` bei Fehlern.
+
+```json
+{
+  "@context": [
+    "..."
+  ],
+  "@graph": [
+    {
+      "@id": "662a2277-3456-4937-9385-43cb3b72d8ce",
+      "@type": ["Collection", "dc:StaticCollection"],
+      "name": "Test Endpunkt mit Filtern",
+      "dc:slug": "test-endpunkt-mit-filtern"
+    }
+  ]
+}
+```
+
+### Antwort mit Fehler
+
+```json
+{
+  "errors": [
+    "source": {
+      "pointer": "/api/v4/endpoints"
+    },
+    "detail": "Not found"
+  ]
+}
+```
+
+### Parameter
+
+##### ```endpoint``` (required: true)
+ID oder Slug des existierenden Endpunkts, der als Basis verwendet werden soll
+
+##### ```collection[name]```
+Name des neu erstellten Endpunktes.
+Bei fehlendem Namen wird einer generiert.

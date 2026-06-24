@@ -2,7 +2,7 @@
 
 class AddDefaultValuesForTimeStamps < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE classification_contents ALTER COLUMN created_at SET DEFAULT transaction_timestamp();
       ALTER TABLE classification_contents ALTER COLUMN updated_at SET DEFAULT transaction_timestamp();
       ALTER TABLE classification_content_histories ALTER COLUMN created_at SET DEFAULT transaction_timestamp();
@@ -15,7 +15,7 @@ class AddDefaultValuesForTimeStamps < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE classification_contents ALTER COLUMN created_at DROP DEFAULT;
       ALTER TABLE classification_contents ALTER COLUMN updated_at DROP DEFAULT;
       ALTER TABLE classification_content_histories ALTER COLUMN created_at DROP DEFAULT;

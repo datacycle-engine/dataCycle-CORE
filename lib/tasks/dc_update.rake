@@ -124,7 +124,10 @@ namespace :dc do
     puts '----------'
 
     puts 'run data_migrations'
-    Rake::Task['db:migrate:with_data'].invoke
-    Rake::Task['db:migrate:with_data'].reenable
+    Rake::Task['db:migrate:data'].invoke
+    Rake::Task['db:migrate:data'].reenable
+
+    Rake::Task['dc:validate:alloy_adapter_connector'].invoke
+    Rake::Task['dc:validate:alloy_adapter_connector'].reenable
   end
 end

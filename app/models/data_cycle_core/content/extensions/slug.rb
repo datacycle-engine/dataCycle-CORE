@@ -36,11 +36,11 @@ module DataCycleCore
             end
 
             count += 1
-            if count < 10
-              "#{slugified_value}-#{count}"
-            else
-              slug = "#{slugified_value}-#{rand(36**8).to_s(36)}"
-            end
+            slug = if count < 10
+                     "#{slugified_value}-#{count}"
+                   else
+                     "#{slugified_value}-#{rand(36**8).to_s(36).rjust(8, '0')}"
+                   end
           end
 
           uniq_slug

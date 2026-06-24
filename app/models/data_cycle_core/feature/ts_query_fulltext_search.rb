@@ -4,7 +4,7 @@ module DataCycleCore
   module Feature
     class TsQueryFulltextSearch < Base
       SORT_ALGORITHM = 'ts_rank_cd'
-      SORT_BASE = 'searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, :q)'
+      SORT_BASE = 'searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, :q, :weights)'
 
       class << self
         def sort_config
@@ -22,6 +22,14 @@ module DataCycleCore
           end
 
           sorting_array.join(' + ')
+        end
+
+        # needed for tests
+        def reload
+          super
+
+          DataCycleCore::Filter::Common::Fulltext.alias_fulltext_search_method!
+          DataCycleCore::Filter::Sortable.alias_fulltext_search_method!
         end
       end
     end

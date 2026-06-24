@@ -5,28 +5,19 @@ namespace :dc do
     namespace :validate do
       desc 'run bundle audit'
       task :bundle_audit, [:config_file_path] => :environment do |_, args|
-        if args.config_file_path.present?
-          config_file_path = args.config_file_path
-        else
-          config_file_path = DataCycleCore::Engine.root.join('.bundler-audit.yml')
-        end
+        config_file_path = args.config_file_path.presence || DataCycleCore::Engine.root.join('.bundler-audit.yml')
 
         sh "bundle exec bundle audit check --update --config #{config_file_path}"
       end
 
       desc 'run brakeman'
       task brakeman: :environment do
-        sh "bundle exec brakeman -c #{DataCycleCore::Engine.root.join('config', 'brakeman.yml')} -q"
+        sh "bundle exec brakeman -c #{DataCycleCore::Engine.root.join('config', 'brakeman.yml')}"
       end
 
       desc 'run rubocop'
       task rubocop: :environment do
         sh 'bundle exec rubocop'
-      end
-
-      desc 'run fasterer'
-      task fasterer: :environment do
-        sh 'bundle exec fasterer'
       end
 
       desc 'audit JS packages'

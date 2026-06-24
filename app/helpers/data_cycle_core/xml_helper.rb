@@ -51,6 +51,7 @@ module DataCycleCore
 
     def overwritten_properties(content, overlay_name)
       return [] if overlay_name.blank? || content.send(overlay_name).blank?
+
       overlay = content.send(overlay_name).first
       overlay.property_names.select { |item| overlay.try(:send, item).present? }.uniq - ['id']
     end
@@ -62,7 +63,7 @@ module DataCycleCore
     private
 
     def visible_classification_tree?(tree_label, scopes)
-      (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)&.visibility) & Array(scopes)).size.positive?
+      Array(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)&.visibility).intersect?(Array(scopes))
     end
   end
 end

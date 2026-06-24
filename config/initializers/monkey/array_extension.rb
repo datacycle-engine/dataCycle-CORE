@@ -47,6 +47,14 @@ module DataCycleCore
     def to_pg_array
       PG::TextEncoder::Array.new.encode(self)
     end
+
+    def intersperse(value)
+      return self if empty?
+
+      drop(1).inject([first]) do |memo, element|
+        memo.push(value, element)
+      end
+    end
   end
 end
 

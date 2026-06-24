@@ -1,7 +1,9 @@
-class AiLector {
+export default class AiLector {
 	constructor() {
 		this.channelConnected = false;
 		this.channel;
+
+		this.initActionCable();
 	}
 	initActionCable() {
 		window.actionCable.then((cable) => {
@@ -29,5 +31,3 @@ class AiLector {
 		if (target) target.dispatchEvent(new CustomEvent("data", { detail: data }));
 	}
 }
-
-export default AiLector;

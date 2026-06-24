@@ -115,6 +115,7 @@ module DataCycleCore
         test 'delete main object, content_content_history created' do
           data_set = @data_set
           linked_place = data_set.linked_place.first
+
           assert_equal(1, linked_place.linked_tour.count)
 
           count_things(diff: [-1, +1, -5, +5]) do
@@ -143,6 +144,7 @@ module DataCycleCore
 
             deleted_items = linked_item.histories.where.not(deleted_at: nil)
             deleted_linked = deleted_items.first
+
             assert_equal(2, linked_item.histories.count)
             assert_equal(1, deleted_items.count)
             assert_equal(1, deleted_linked.linked_tour.count)

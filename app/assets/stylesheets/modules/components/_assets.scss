@@ -930,3 +930,11 @@ ul.asset-list>li .inner span.asset-file-links {
     }
   }
 }
+
+object.uploader-preview-image {
+  display: flex;
+  max-width: 90vw;
+  max-height: min(40rem, 90vh);
+  align-items: center;
+  justify-content: center;
+}

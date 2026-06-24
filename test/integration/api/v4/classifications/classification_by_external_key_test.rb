@@ -57,7 +57,7 @@ module DataCycleCore
 
             assert_equal(@external_keys.size, json_data['@graph'].size)
             json_data['@graph'].each do |item|
-              assert(@external_keys.include?(item.dig('identifier', 0, 'value')))
+              assert_includes(@external_keys, item.dig('identifier', 0, 'value'))
               assert_equal(@external_system.identifier, item.dig('identifier', 0, 'propertyID'))
             end
           end

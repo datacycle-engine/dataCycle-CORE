@@ -2,11 +2,11 @@
 
 JbuilderTemplate.class_eval do
   def content_partial!(partial, parameters)
-    if parameters[:content].model_name.element == 'thing'
-      content_parameter = parameters[:content].schema_type.underscore
-    else
-      content_parameter = parameters[:content].model_name.element
-    end
+    content_parameter = if parameters[:content].model_name.element == 'thing'
+                          parameters[:content].schema_type.underscore
+                        else
+                          parameters[:content].model_name.element
+                        end
     partials = [
       "#{content_parameter}_#{parameters[:content].template_name.underscore}_#{partial}",
       "#{content_parameter}_#{partial}",

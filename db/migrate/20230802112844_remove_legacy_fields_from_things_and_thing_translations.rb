@@ -2,17 +2,17 @@
 
 class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE thing_translations DROP COLUMN IF EXISTS name,
         DROP COLUMN IF EXISTS description;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE thing_history_translations DROP COLUMN IF EXISTS name,
         DROP COLUMN IF EXISTS description;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE things DROP COLUMN IF EXISTS address_country,
         DROP COLUMN IF EXISTS address_locality,
         DROP COLUMN IF EXISTS elevation,
@@ -30,7 +30,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
         DROP COLUMN IF EXISTS telephone;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE thing_histories DROP COLUMN IF EXISTS address_country,
         DROP COLUMN IF EXISTS address_locality,
         DROP COLUMN IF EXISTS elevation,
@@ -48,13 +48,13 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
         DROP COLUMN IF EXISTS telephone;
     SQL
 
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       CREATE INDEX IF NOT EXISTS thing_translations_name_idx ON thing_translations((content->>'name'));
     SQL
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       ALTER TABLE thing_translations
       ADD COLUMN name varchar,
         ADD COLUMN description text;

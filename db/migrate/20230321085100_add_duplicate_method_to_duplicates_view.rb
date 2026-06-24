@@ -2,7 +2,7 @@
 
 class AddDuplicateMethodToDuplicatesView < ActiveRecord::Migration[6.1]
   def up
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW duplicate_candidates;
 
       CREATE VIEW duplicate_candidates AS
@@ -25,7 +25,7 @@ class AddDuplicateMethodToDuplicatesView < ActiveRecord::Migration[6.1]
   end
 
   def down
-    execute <<-SQL.squish
+    execute <<~SQL.squish
       DROP VIEW duplicate_candidates;
 
       CREATE VIEW duplicate_candidates AS

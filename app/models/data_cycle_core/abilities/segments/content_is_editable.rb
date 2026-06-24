@@ -21,15 +21,16 @@ module DataCycleCore
             kwargs = method_params.select { |param| param[0] == :keyreq }.map { |param| param[1] }
 
             if kwargs.include?(:scope)
-              send(method_name, content, *m[1..-1], scope:)
+              send(method_name, content, *m[1..], scope:)
             else
-              send(method_name, content, *m[1..-1])
+              send(method_name, content, *m[1..])
             end
           end
         end
 
         def by_scope_and_template_name?(content, config, scope:)
           return false if scope.blank?
+
           content.template_name.in? Array.wrap(config[scope])
         end
 
@@ -50,7 +51,7 @@ module DataCycleCore
         end
 
         def to_restrictions(**)
-          Array.wrap(method_names).map { |v| I18n.t("abilities.content_is_editable_method_names.#{v}", locale:) }
+          Array.wrap(method_names).map { |v| I18n.t("abilities.content_is_editable_method_names.#{Array.wrap(v).first}", locale:) }
         end
       end
     end

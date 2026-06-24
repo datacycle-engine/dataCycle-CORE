@@ -3,6 +3,11 @@
 module DataCycleCore
   module MasterData
     module Validators
+      # Validator for object-type data structures.
+      #
+      # Iterates over a schema definition and validates each field using
+      # the appropriate validator based on its type. Supports nested objects
+      # and object-level validations such as date ranges.
       class Object < BasicValidator
         BASIC_TYPES = {
           'object' => Validators::Object,
@@ -24,20 +29,30 @@ module DataCycleCore
           'oembed' => Validators::Oembed
         }.freeze
 
+        # Returns object-level validation keys supported by this validator.
+        #
+        # @return [Array<String>] List of object validation identifiers
         def object_validations
           ['daterange']
         end
 
-        # validate data as specified in the keys of the data template
-        # data hash with key names as specified in the schema
+        # Validates a data hash against a template schema.
+        #
+        # Iterates over each key in the template, validates values using
+        # type-specific validators, and applies object-level validations.
+        #
+        # @param data [Hash] Input data to validate
+        # @param template_data [Hash] Schema definition for validation
+        # @param strict [Boolean] Whether to enforce presence of all keys
+        # @return [Hash, nil] Validation errors and warnings, or nil if data is blank
         def validate(data, template_data, strict = false)
           return if data.blank?
+
           data_keys = data.keys
           template_data.each do |key, key_item|
             @template_key = key
 
             next if !strict && data_keys.exclude?(key)
-
             next if key_item['type'].in?(['slug', 'timeseries'])
 
             unless BASIC_TYPES.include?(key_item['type'])
@@ -58,7 +73,7 @@ module DataCycleCore
               next
             end
 
-            if key_item.key?('validations') # validations for a particular object
+            if key_item.key?('validations')
               key_item['validations'].each do |val_key, val_item|
                 next unless object_validations.include?(val_key)
 
@@ -84,21 +99,31 @@ module DataCycleCore
 
         private
 
+        # Validates a date range defined by two fields in the object.
+        #
+        # Ensures both dates are valid and that the "from" date is not later than the "to" date.
+        #
+        # @param data_hash [Hash, nil] Object data containing date fields
+        # @param template_hash [Hash] Configuration with 'from' and 'to' keys
+        # @return [void]
         def daterange(data_hash, template_hash)
           data_hash = {} if data_hash.nil?
+
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?
             (@error[:error][@template_key] ||= []) << { path: 'validation.errors.no_fields' }
           else
-            if data_hash[template_hash['from']].blank?
-              from_date = date_time('1970-01-01')
-            else
-              from_date = date_time(data_hash[template_hash['from']])
-            end
-            if data_hash[template_hash['to']].blank?
-              to_date = date_time('9999-12-31')
-            else
-              to_date = date_time(data_hash[template_hash['to']])
-            end
+            from_date = if data_hash[template_hash['from']].blank?
+                          date_time('1970-01-01')
+                        else
+                          date_time(data_hash[template_hash['from']])
+                        end
+
+            to_date = if data_hash[template_hash['to']].blank?
+                        date_time('9999-12-31')
+                      else
+                        date_time(data_hash[template_hash['to']])
+                      end
+
             if from_date.nil? || to_date.nil?
               (@error[:error][@template_key] ||= []) << { path: 'validation.errors.convert_date' }
             elsif from_date > to_date
@@ -113,6 +138,10 @@ module DataCycleCore
           end
         end
 
+        # Attempts to convert a value to a DateTime.
+        #
+        # @param data [Object] Input value
+        # @return [DateTime, nil] Parsed DateTime or nil if conversion fails
         def date_time(data)
           data.to_datetime
         rescue StandardError

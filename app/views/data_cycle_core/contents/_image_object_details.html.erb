@@ -1,5 +1,4 @@
 <% if content.present? %>
-
   <% if content.overlay? %>
     <%= render_attribute_viewer key: 'overlay',
                                 definition: content.schema['properties']['overlay'],
@@ -8,15 +7,11 @@
                                 content: content %>
   <% end %>
   <div class="detail-content imageobject">
-
     <div class="row align-center">
-
       <div class="image">
-
         <% thumbnail_url = thing_thumbnail_url(content, nil, ['web_url', 'thumbnail_url']) %>
 
         <% if thumbnail_url.present? %>
-
           <div class="image-container stripes">
             <%= render_attribute_viewer key: 'thumbnail_url',
                                         definition: content.schema['properties']['thumbnail_url'],
@@ -25,11 +20,14 @@
                                         content: content %>
           </div>
         <% end %>
+
         <div class="image-data">
           <h5>Details</h5>
+
           <dl>
             <% ['alternative_headline', 'caption', 'description'].each do |property_name| %>
               <% next if content.properties_for(property_name).blank? %>
+
               <dd>
                 <%= render_attribute_viewer key: property_name,
                                             definition: content.properties_for(property_name),
@@ -41,6 +39,7 @@
 
             <% ['content_location', 'comment', 'source', 'image_id', 'visibility', 'validity_schedule'].each do |property_name| %>
               <% next if content.try(property_name.to_sym).blank? %>
+
               <dd>
                 <%= render_attribute_viewer key: property_name,
                                             definition: content.schema['properties'][property_name],
@@ -52,11 +51,12 @@
 
             <% if ['copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines', 'licensing_agreement', 'attribution_url'].any?{|val| content.try(val.to_sym).present? } %>
               <dt>
-                <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
+                <i class="fa fa-copyright" aria-hidden="true"></i>
+                Copyright
               </dt>
-
               <% ['copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'use_guidelines', 'licensing_agreement', 'attribution_url'].each do |property_name| %>
                 <% next if content.try(property_name.to_sym).blank? %>
+
                 <dd>
                   <%= render_attribute_viewer key: property_name,
                                               definition: content.schema['properties'][property_name],
@@ -65,11 +65,12 @@
                                               content: content %>
                 </dd>
               <% end %>
-
             <% end %>
 
             <% if !content.try(:restrictions).nil? && !content.try(:restrictions).blank? %>
-              <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %></dt>
+              <dt>
+                <i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %>
+              </dt>
               <dd>
                 <%= render_attribute_viewer key: 'restrictions',
                                             definition: content.schema['properties']['restrictions'],
@@ -81,18 +82,26 @@
 
             <% if ['width', 'height', 'content_size', 'file_format', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
               <dt class="detail-property">
-                <i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen
+                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                Bildinformationen
                 <%= render('data_cycle_core/contents/content_score', key: 'asset', content: contextual_content(local_assigns), definition: content.properties_for('asset')) if content.properties_for('asset')&.key?('content_score') %>
               </dt>
               <dd>
                 <% if content.width&.to_i&.positive? ||  content.height&.to_i&.positive? %>
-                  <%= content.width&.to_i %>px/<%= content.height&.to_i %>px
+                  <%= content.width&.to_i %>
+                  px/
+                  <%= content.height&.to_i %>
+                  px
                 <% end %>
+
                 <% if content.content_size&.to_i&.positive? %>
-                  (<%= number_to_human_size(content.content_size) %>)
+                  (
+                  <%= number_to_human_size(content.content_size) %>
+                  )
                 <% end %>
+
                 <% if content.file_format.present? %>
-                  <br />
+                  <br>
                   <div class="string file_format detail-property">
                     <strong>Format:</strong>
                     <%= render('data_cycle_core/contents/content_score', key: 'file_format', content: contextual_content(local_assigns), definition: content.properties_for('file_format')) if content.properties_for('file_format')&.key?('content_score') %>
@@ -100,9 +109,9 @@
                   </div>
                 <% end %>
               </dd>
-
               <% ['date_created', 'date_modified', 'upload_date', 'recording_date'].each do |property_name| %>
                 <% next if content.try(property_name.to_sym).blank? %>
+
                 <dd>
                   <%= render_attribute_viewer key: property_name,
                                               definition: content.schema['properties'][property_name],
@@ -114,49 +123,49 @@
             <% end %>
 
             <% if content.try(:url).present? %>
-
               <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
               <dd>
-                <a class="button button-small" href="<%= content.url %>" target="_blank">
+                <a class="button" href="<%= content.url %>" target="_blank">
                   <i class="fa fa-external-link" aria-hidden="true"></i>
 
                   <%= t('details.bild.open_url', locale: active_ui_locale) %>
                 </a>
               </dd>
-
             <% end %>
-
           </dl>
 
-          <%
-            can_gravity_editor = DataCycleCore::Feature::GravityEditor.user_can_edit?(content, current_user)
-            can_focus_point_editor = DataCycleCore::Feature::FocusPointEditor.user_can_edit?(content, current_user)
-          %>
+          <% can_gravity_editor = DataCycleCore::Feature::GravityEditor.user_can_edit?(content, current_user)
+            can_focus_point_editor = DataCycleCore::Feature::FocusPointEditor.user_can_edit?(content, current_user) %>
 
           <% if can_gravity_editor || can_focus_point_editor %>
-            <% if can_gravity_editor %>
-              <button
-                class="button change-gravity-ui"
-                data-thing-id="<%= content.id %>"
-                data-gravity-info="<%= DataCycleCore::Concept.for_tree("Gravity").map { |ca| I18n.with_locale(ca.first_available_locale){ { gravity: URI(ca.uri).fragment, id: ca.classification_id, name: ca.name } } }.to_json %>"
-                data-gravity="<%= content.try(DataCycleCore::Feature::GravityEditor.attribute_keys.first)&.first&.id %>"
-                data-editor-active-text="<%= t('actions.deactivate_gravity_editor',  locale: active_ui_locale) %>">
-                <%= t('feature.gravity_editor.button_title',  locale: active_ui_locale) %>
-              </button>
-            <% end %>
+            <div class="focus-feature-buttons">
+              <% if can_gravity_editor %>
+                <button
+                  class="button change-gravity-ui"
+                  data-thing-id="<%= content.id %>"
+                  data-gravity-info="<%= DataCycleCore::Concept.for_tree("Gravity").map { |ca| I18n.with_locale(ca.first_available_locale){ { gravity: URI(ca.uri).fragment, id: ca.classification_id, name: ca.name } } }.to_json %>"
+                  data-gravity="<%= content.try(DataCycleCore::Feature::GravityEditor.attribute_keys.first)&.first&.id %>"
+                  data-editor-active-text="<%= t('actions.deactivate_gravity_editor',  locale: active_ui_locale) %>"
+                >
+                  <i class="fa fa-pencil" aria-hidden="true"></i>
+                  <%= t('feature.gravity_editor.button_title',  locale: active_ui_locale) %>
+                </button>
+              <% end %>
 
-            <% if can_focus_point_editor %>
-              <button
-                class="button change-focus-point-ui"
-                data-thing-id="<%= content.id %>"
-                data-focus-point-x-key="<%= DataCycleCore::Feature::FocusPointEditor.attribute_keys[0] %>"
-                data-focus-point-y-key="<%= DataCycleCore::Feature::FocusPointEditor.attribute_keys[1] %>"
-                data-focus-point-x="<%= content.try(DataCycleCore::Feature::FocusPointEditor.attribute_keys[0]) %>"
-                data-focus-point-y="<%= content.try(DataCycleCore::Feature::FocusPointEditor.attribute_keys[1]) %>">
-                <%= t('feature.focus_point_editor.button_title',  locale: active_ui_locale) %>
-              </button>
-            <% end %>
-
+              <% if can_focus_point_editor %>
+                <button
+                  class="button change-focus-point-ui"
+                  data-thing-id="<%= content.id %>"
+                  data-focus-point-x-key="<%= DataCycleCore::Feature::FocusPointEditor.attribute_keys[0] %>"
+                  data-focus-point-y-key="<%= DataCycleCore::Feature::FocusPointEditor.attribute_keys[1] %>"
+                  data-focus-point-x="<%= content.try(DataCycleCore::Feature::FocusPointEditor.attribute_keys[0]) %>"
+                  data-focus-point-y="<%= content.try(DataCycleCore::Feature::FocusPointEditor.attribute_keys[1]) %>"
+                >
+                  <i class="fa fa-pencil" aria-hidden="true"></i>
+                  <%= t('feature.focus_point_editor.button_title',  locale: active_ui_locale) %>
+                </button>
+              <% end %>
+            </div>
             <p class="gravity-editor-hint">
               <%= t("feature.gravity_editor.hint", locale: active_ui_locale) %>
               <%= tag.br + t("feature.focus_point_editor.hint", locale: active_ui_locale) if can_gravity_editor && can_focus_point_editor %>
@@ -171,31 +180,36 @@
                    definition: content.properties_for('encoding'),
                    value: content.try(:encoding),
                    options: {},
-                   content: content
-        %>
+                   content: content %>
       <% end %>
 
       <% if can? :show_exif_data, content %>
-        <div class="<%= embedded_viewer_html_classes(**local_assigns) %>" data-accordion="true" data-allow-all-closed="true">
+        <div
+          class="<%= embedded_viewer_html_classes(**local_assigns) %>"
+          data-accordion="true"
+          data-allow-all-closed="true"
+        >
           <div class="detail-property embedded accordion-item" data-accordion-item="true">
             <div class="accordion-title">
               <h3>
                 <span class="title">
-                  <span title="<%= t('details.bild.exif_data', locale: active_ui_locale) %>"><%= t('details.bild.exif_data', locale: active_ui_locale) %></span>
+                  <span title="<%= t('details.bild.exif_data', locale: active_ui_locale) %>">
+                    <%= t('details.bild.exif_data', locale: active_ui_locale) %>
+                  </span>
                 </span>
               </h3>
             </div>
+
             <div class="accordion-content" data-tab-content>
               <% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
-              <div id="exif-details" data-exif="<%= meta_data.to_json %>">
-              </div>
+
+              <div id="exif-details" data-exif="<%= meta_data.to_json %>"></div>
             </div>
           </div>
         </div>
       <% end %>
     </div>
   </div>
-
   <div class="detail-content detail-content-wrapper">
     <div class="row align-center">
       <div class="type properties">
@@ -228,5 +242,4 @@
       </div>
     </div>
   </div>
-
 <% end %>
