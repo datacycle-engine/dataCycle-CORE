@@ -1,5 +1,9 @@
-<% I18n.with_locale(content.first_available_locale(local_assigns[:locale])) do %>
-  <code class="formatted-json" data-json="<%= (content.thing_history_links.includes(:thing_history).map{ |thl|
-    { thing_id: thl.thing_history.thing_id, thing_history_id: thl.thing_history.id }
-  } || []).to_json %>"></code>
+<%# SECURITY (DC-01): only callers allowed to view a content's admin panel may render this %>
+<%# remote_render partial (mirrors _datahash/_schema/_template_path). %>
+<% if content.present? && can?(:show_admin_panel, content) %>
+  <% I18n.with_locale(content.first_available_locale(local_assigns[:locale])) do %>
+    <code class="formatted-json" data-json="<%= (content.thing_history_links.includes(:thing_history).map{ |thl|
+      { thing_id: thl.thing_history.thing_id, thing_history_id: thl.thing_history.id }
+    } || []).to_json %>"></code>
+  <% end %>
 <% end %>

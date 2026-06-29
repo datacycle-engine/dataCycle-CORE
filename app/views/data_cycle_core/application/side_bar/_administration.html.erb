@@ -114,7 +114,7 @@
     </div>
   <% end %>
 
-  <% if can? :manage, :dash_board %>
+  <% if can? :home, :dash_board %>
     <div>
       <%= link_to admin_path, class: 'admin-link' do %>
         <span class="icon">
@@ -136,7 +136,7 @@
     <% end %>
   </div>
 
-  <% if can? :manage, :dash_board %>
+  <% if can? :home, :dash_board %>
     <div>
       <%= link_to guides_path, class: 'guides-link' do %>
         <span class="icon">

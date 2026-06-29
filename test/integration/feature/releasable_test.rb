@@ -9,7 +9,7 @@ module DataCycleCore
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
         @data_link = DataCycleCore::DataLink.find_or_create_by({
           item_id: @content.id,
-          item_type: @content.class.name,
+          item_type: @content.class.base_class.name,
           creator_id: User.find_by(email: 'tester@datacycle.at')&.id,
           receiver_id: User.find_by(email: 'guest@datacycle.at')&.id,
           permissions: 'write'
@@ -26,7 +26,7 @@ module DataCycleCore
             receiver: user,
             permissions: 'write',
             item_id: @content.id,
-            item_type: @content.class.name
+            item_type: @content.class.base_class.name
           }
         }, headers: {
           referer: thing_path(@content)

@@ -28,7 +28,7 @@ module DataCycleCore
           icon_type = super
           base_type = icon_type.gsub("_#{MasterData::Templates::AggregateTemplate::AGGREGATE_TEMPLATE_SUFFIX.underscore_blanks}", '')
 
-          "#{self.class.name.demodulize.underscore_blanks}-aggregate-icon #{icon_type} #{base_type}"
+          "#{self.class.base_class.name.demodulize.underscore_blanks}-aggregate-icon #{icon_type} #{base_type}"
         end
 
         def translated_template_name(locale)

@@ -1,0 +1,34 @@
+---
+# Minimal template exercising the import & edit control flags `global:` and `local:`
+# documented in guides/overview.md ("Import & edit control"). Used by
+# test/models/content/attributes/import_edit_control_test.rb (Redmine #49247).
+- :data:
+    :name: ImportEditControl
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :default_attr:
+        :label: Default Attribute
+        :type: string
+        :storage_location: value
+      :global_attr:
+        :label: Global Attribute
+        :type: string
+        :storage_location: value
+        :global: true
+      :local_attr:
+        :label: Local Attribute
+        :type: string
+        :storage_location: value
+        :local: true

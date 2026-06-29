@@ -242,6 +242,8 @@ module DataCycleCore
         'options' => nil
       }
       OpenStruct.new(Mongoid.client(id).collections.index_by(&:name))
+    ensure
+      Mongoid.override_database(nil)
     end
 
     def collection(name)

@@ -27,7 +27,7 @@ module DataCycleCore
     test 'object_from_definition builds an unpersisted Thing for the given template_name' do
       object = object_from_definition({ 'template_name' => 'Artikel' })
 
-      assert_instance_of DataCycleCore::Thing, object
+      assert_kind_of DataCycleCore::Thing, object
       assert_equal 'Artikel', object.template_name
       assert_predicate object, :new_record?
     end

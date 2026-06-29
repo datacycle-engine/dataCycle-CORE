@@ -36,17 +36,15 @@ namespace :dc do
         exit(-1)
       end
 
-      index = 0
+      progressbar = ProgressBar.create(total: items_to_delete, title: 'Deleting')
 
       has_no_relation.find_each do |data_item|
-        ShellHelper.progress_bar(items_to_delete, index)
-        index += 1
-
         data_item.destroy_content
+        progressbar.increment
       end
-      ShellHelper.progress_bar(items_to_delete, items_to_delete)
+      progressbar.finish
 
-      if index.positive? && initial_external_contents_count != external_contents.size
+      if items_to_delete.positive? && initial_external_contents_count != external_contents.size
         Rake::Task['dc:clean_up:external_source_data'].reenable
         Rake::Task['dc:clean_up:external_source_data'].invoke(external_source.id)
       end
@@ -198,15 +196,13 @@ namespace :dc do
       orphans = CleanupHelper.orphaned_embedded(main_templates, embedded_template)
       items_to_delete = orphans.count
       puts "#{"embedded: #{embedded_template}".ljust(25)} used in:  #{main_templates.map(&:to_s)}"
-      puts "Deleting #{items_to_delete.to_s.rjust(6)} #{' ' * 88} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
 
-      index = 0
+      progressbar = ProgressBar.create(total: items_to_delete, title: 'Deleting')
       orphans.each do |orphan|
-        ShellHelper.progress_bar(items_to_delete, index)
-        index += 1
         orphan.destroy_content(save_history: false)
+        progressbar.increment
       end
-      ShellHelper.progress_bar(items_to_delete, items_to_delete)
+      progressbar.finish
     end
 
     desc 'find_orphaned_things in mongodb'

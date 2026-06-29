@@ -36,31 +36,6 @@ module DataCycleCore
       end
     end
 
-    def self.create!(attributes = nil, &)
-      if attributes.is_a?(Array)
-        attributes.collect { |attr| create!(attr, &) }
-      else
-        if attributes[:linkt_type] == 'broader'
-          attributes[:parent_classification_alias_id] = attributes.delete(:parent_id) if attributes.key?(:parent_id)
-          attributes[:parent_classification_alias] = attributes.delete(:parent)&.classification_alias if attributes.key?(:parent)
-          attributes[:classification_alias_id] = attributes.delete(:child_id) if attributes.key?(:child_id)
-          attributes[:classification_alias] = attributes.delete(:child)&.classification_alias if attributes.key?(:child)
-          attributes[:classification_tree_label] = attributes.key?(:classification_alias) ? attributes[:classification_alias].classification_tree_label : ClassificationAlias.find_by(id: attributes[:classification_alias_id])&.classification_tree_label
-
-          object = ClassificationTree.create!(attributes.slice(:parent_classification_alias_id, :parent_classification_alias, :classification_alias_id, :classification_alias, :classification_tree_label), &)
-        elsif attributes[:linkt_type] == 'related'
-          attributes[:classification_alias_id] = attributes.delete(:parent_id) if attributes.key?(:parent_id)
-          attributes[:classification_alias] = attributes.delete(:parent)&.classification_alias if attributes.key?(:parent)
-          attributes[:classification_id] = Concept.find_by(id: attributes.delete(:child_id))&.classification_id if attributes.key?(:child_id)
-          attributes[:classification] = attributes.delete(:child)&.classification if attributes.key?(:child)
-
-          object = ClassificationGroup.create!(attributes, &)
-        end
-
-        find(object.id)
-      end
-    end
-
     def self.insert_all(attributes, returning: nil, **)
       new_classification_groups = attributes.select { _1[:link_type] == 'related' }
       new_classification_trees = attributes.select { _1[:link_type] == 'broader' }

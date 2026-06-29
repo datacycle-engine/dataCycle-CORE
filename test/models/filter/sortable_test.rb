@@ -46,14 +46,36 @@ module DataCycleCore
       sql = search.sort_proximity_geographic('ASC', ['10', '47']).to_sql
 
       assert_includes(sql, 'LEFT OUTER JOIN geometries ON geometries.thing_id = things.id AND geometries.is_primary = true')
-      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10 47)'::geography asc NULLS LAST")
+      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10.0 47.0)'::geography asc NULLS LAST")
       assert_includes(search.sort_proximity_geographic('DESC', ['10', '47']).to_sql, 'desc NULLS LAST')
     end
 
     test 'sort_proximity_geographic_with delegates to sort_proximity_geographic' do
       sql = search.sort_proximity_geographic_with('ASC', ['10', '47']).to_sql
 
-      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10 47)'::geography asc NULLS LAST")
+      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10.0 47.0)'::geography asc NULLS LAST")
+    end
+
+    # DC-19: the ORDER BY geom literal interpolates the coordinates; non-numeric input must be
+    # rejected (return self / unsorted) so it can never break out of the WKT literal.
+    SQLI_COORD_PAYLOAD = "0 0)'::geography ASC, (SELECT 1 FROM pg_sleep(3)) ASC, 'SRID=4326;POINT (0"
+
+    test 'sort_proximity_geographic returns self for non-numeric (SQL injection) coordinates' do
+      base = search
+
+      assert_same(base, base.sort_proximity_geographic('ASC', [SQLI_COORD_PAYLOAD, '0']))
+      assert_same(base, base.sort_proximity_geographic('ASC', ['0', SQLI_COORD_PAYLOAD]))
+      assert_same(base, base.sort_proximity_geographic_with('ASC', [SQLI_COORD_PAYLOAD, '0']))
+      assert_same(base, base.sort_proximity_occurrence_with_distance('ASC', [[SQLI_COORD_PAYLOAD, '0']]))
+    end
+
+    test 'sort_proximity_geographic never emits an injected payload and coerces coordinates to float' do
+      assert_not_includes(search.sort_proximity_geographic('ASC', [SQLI_COORD_PAYLOAD, '0']).to_sql, 'pg_sleep')
+      assert_not_includes(search.sort_proximity_geographic('ASC', [SQLI_COORD_PAYLOAD, '0']).to_sql, 'geom_simple::geography <->')
+
+      sql = search.sort_proximity_geographic('ASC', ['10.5', '47.25']).to_sql
+
+      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10.5 47.25)'::geography asc NULLS LAST")
     end
 
     test 'sort_by_proximity returns self without parseable dates' do
@@ -113,7 +135,7 @@ module DataCycleCore
       assert_includes(sql, '1 AS "occurrence_exists"')
       assert_includes(sql, 'MIN(LOWER(so.occurrence))')
       assert_includes(sql, "schedules.relation != 'validity_range'")
-      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10 47)'::geography asc NULLS LAST")
+      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10.0 47.0)'::geography asc NULLS LAST")
       assert_includes(sql, '.min_start_date asc NULLS LAST')
       assert_includes(sql, '.occurrence_exists asc NULLS LAST')
     end
@@ -135,7 +157,7 @@ module DataCycleCore
       sql = search.sort_proximity_in_occurrence_with_distance('ASC', [['10', '47'], { 'in' => { 'min' => '2026-07-01', 'max' => '2026-07-31' } }]).to_sql
 
       assert_includes(sql, 'ELSE 1 END as min_start_date')
-      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10 47)'::geography asc NULLS LAST")
+      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10.0 47.0)'::geography asc NULLS LAST")
     end
 
     test 'sort_proximity_in_occurrence orders by occurrences in given range' do
@@ -171,7 +193,7 @@ module DataCycleCore
       assert_includes(sql, 'ELSE 1 END as min_start_date')
       assert_includes(sql, "schedules.relation = 'event_schedule'")
       assert_includes(sql, '.occurrence_exists asc NULLS LAST')
-      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10 47)'::geography asc NULLS LAST")
+      assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10.0 47.0)'::geography asc NULLS LAST")
     end
 
     test 'sort_proximity_in_occurrence_with_distance_pia defaults to opening_hours_specification relation' do

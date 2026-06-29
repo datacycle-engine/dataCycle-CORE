@@ -13,7 +13,7 @@ module DataCycleCore
         key = key.to_sym if symbolize_keys
         value = parse_json_string(value) if value.is_a?(String)
 
-        if resolve_instances && value.is_a?(::Hash) && value.key?('class') && !(class_name = value['class'].classify.safe_constantize).nil?
+        if resolve_instances && value.is_a?(::Hash) && value.key?('class') && !(class_name = value['class'].safe_constantize).nil?
           if value.key?(class_name.try(:primary_key)) && value[:type] == 'Collection'
             return_hash[key] = class_name.by_ordered_values(value[class_name.primary_key])
           elsif value.key?(class_name.try(:primary_key))
@@ -24,7 +24,7 @@ module DataCycleCore
             return_hash[key] = value
           end
         elsif value.is_a?(::Hash) && value.key?('value') && value.key?('class')
-          return_hash[key] = value['class'].classify.safe_constantize.new(value['value'])
+          return_hash[key] = value['class'].safe_constantize.new(value['value'])
         elsif value.is_a?(::Hash) && value.key?('class') && value.except('class').blank?
           return_hash[key] = nil
         elsif value.is_a?(::Hash)

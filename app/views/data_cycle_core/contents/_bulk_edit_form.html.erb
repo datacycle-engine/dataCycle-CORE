@@ -2,8 +2,12 @@
   <div class="row expanded">
     <div class="column edit-header-functions">
       <div class="edit-name">
-        <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) + ' ' + t('actions.bulk_edit', locale: active_ui_locale) %> (<%= I18n.locale %>)
+        <i class="fa fa-pencil" aria-hidden="true"></i>
+
+        <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) + ' ' + t('actions.bulk_edit', locale: active_ui_locale) %>
+        (<%= I18n.locale %>)
       </div>
+
       <ul>
         <% content = generic_content(watch_list) %>
 
@@ -53,6 +57,7 @@
         <div class="detail-header editor">
           <% ordered_props = ordered_validation_properties(validation: content.schema, scope: :edit) %>
           <%= tag.span(t('controllers.error.no_shared_attributes', locale: active_ui_locale), class: 'bulk-no-attributes') if ordered_props.blank? %>
+
           <% ordered_props.presence&.each do |key, prop| %>
             <%= render_attribute_editor key: key,
                                         prefix: key_prefix,

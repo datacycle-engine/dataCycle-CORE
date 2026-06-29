@@ -16,7 +16,7 @@ module DataCycleCore
     test 'subscribe article' do
       post create_subscriptions_path, xhr: true, params: {
         subscribable_id: @content.id,
-        subscribable_type: @content.class.name
+        subscribable_type: @content.class.base_class.name
       }, headers: {
         referer: thing_path(@content)
       }
@@ -37,7 +37,11 @@ module DataCycleCore
       user = User.find_by(email: 'admin@datacycle.at')
       sign_in(user)
 
-      DataCycleCore::Subscription.find_or_create_by(subscribable_id: @content.id, subscribable_type: @content.class.name, user_id: user.id)
+      DataCycleCore::Subscription.find_or_create_by(
+        subscribable_id: @content.id,
+        subscribable_type: @content.class.base_class.name,
+        user_id: user.id
+      )
 
       get subscriptions_path
 

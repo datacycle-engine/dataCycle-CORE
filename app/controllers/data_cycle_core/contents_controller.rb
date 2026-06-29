@@ -8,6 +8,7 @@ module DataCycleCore
 
     before_action :set_watch_list, except: [:asset]
     before_action :set_return_to, only: [:show, :edit]
+    before_action :authorize_bulk_create!, only: [:bulk_create]
 
     DataCycleCore.features.each_key do |key|
       feature = DataCycleCore::Feature[key]
@@ -536,6 +537,7 @@ module DataCycleCore
 
     def attribute_value
       content = DataCycleCore::Thing.find(attribute_value_params[:id])
+      authorize! :show, content
 
       values = {}
 
@@ -567,7 +569,7 @@ module DataCycleCore
       stored_filter = DataCycleCore::StoredFilter.new
         .parameters_from_hash(filter_hash)
         .apply_user_filter(current_user, { scope: 'object_browser', template_name: filter_hash.blank? ? template_name : nil })
-      stored_filter.parameters.concat Array.wrap(map_editor_params[:filter]) if map_editor_params[:filter].present?
+      stored_filter.parameters.concat(sanitize_request_filters(map_editor_params[:filter])) if map_editor_params[:filter].present?
 
       query = stored_filter.apply
       query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
@@ -646,6 +648,7 @@ module DataCycleCore
 
     def elevation_profile
       content = DataCycleCore::Thing.find(elevation_profile_params[:id])
+      authorize! :show, content
       @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:, locale: helpers.active_ui_locale)
 
       begin
@@ -695,6 +698,14 @@ module DataCycleCore
     end
 
     private
+
+    # bulk_create mirrors create's authorization: a restricted creatable scope (e.g. guest = asset-only)
+    # must not be bypassed by posting to bulk_create. Runs as a before_action so a denial returns the
+    # standard 403 instead of being swallowed by bulk_create's method-level `rescue StandardError`.
+    def authorize_bulk_create!
+      template = DataCycleCore::Thing.new(template_name: params[:template])
+      authorize!(:create, template, resolve_params(params, false)[:scope])
+    end
 
     def trigger_webhooks_params
       params.permit(:id, :webhook_action)

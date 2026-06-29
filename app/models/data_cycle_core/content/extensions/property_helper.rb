@@ -19,7 +19,7 @@ module DataCycleCore
 
         def geo_property?(property_name, definition = nil)
           property_exists?(property_name, definition) do |prop|
-            DataCycleCore::Content::Content::GEO_PROPERTY_TYPES.include?(prop['type'])
+            DataCycleCore::ThingTemplateExtensions::PropertyTypes::GEO_PROPERTY_TYPES.include?(prop['type'])
           end
         end
 

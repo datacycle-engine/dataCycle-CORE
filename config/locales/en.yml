@@ -371,6 +371,17 @@ en:
         started: started rebuilding classification_mappings
         finished: finished rebuilding classification_mappings
         error: an error occurred while rebuilding classification_mappings!
+      computed_attributes:
+        title: update computed attributes
+        scope_label: templates or collections
+        scope_hint: pipe-separated template names or collection UUIDs
+        attributes_label: computed attributes
+        attributes_placeholder: select computed attributes
+        webhooks_label: trigger webhooks
+        button: queue update
+        queued: queued job to update computed attributes
+        missing_input: please provide a scope and select at least one computed attribute
+        warning: This can take a long time and update many contents.
 
   notification:
     frequency:

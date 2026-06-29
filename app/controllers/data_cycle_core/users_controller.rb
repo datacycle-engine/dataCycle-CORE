@@ -30,6 +30,7 @@ module DataCycleCore
       @user = DataCycleCore::User.new(permitted_params.merge(creator: current_user))
       @user.raw_password = permitted_params[:password] if permitted_params[:password].present?
 
+      authorize_role_assignment!(permitted_params[:role_id]) if permitted_params[:role_id].present?
       authorize! :generate_access_token, @user if permitted_params[:access_token].present?
 
       if @user.save
@@ -46,7 +47,12 @@ module DataCycleCore
 
     def update
       @permitted_params = permitted_params
-      authorize! :set_role, @user if @permitted_params[:role_id].present?
+
+      if @permitted_params[:role_id].present?
+        authorize! :set_role, @user
+        authorize_role_assignment!(@permitted_params[:role_id])
+      end
+
       authorize! :generate_access_token, @user if params.dig(:user, :access_token).present?
 
       method = current_user == @user && @permitted_params[:password].present? ? 'update_with_password' : 'update'
@@ -171,6 +177,20 @@ module DataCycleCore
     end
 
     private
+
+    # DC-20: role_id is mass-assignable and the :set_role ability only checks the *target's current*
+    # role, never the role being granted — so an admin could assign super_admin (or, for an oauth user,
+    # system_admin) and escalate above their own tier. Restrict assignable roles to the actor's own rank
+    # or below. This matches the intent of the UsersExceptRoles ability config (admin excludes
+    # super_admin/system_admin, super_admin excludes system_admin); the difference is the gate is now
+    # applied to the role being *assigned* rather than the target's existing role.
+    def authorize_role_assignment!(role_id)
+      assigned_role = DataCycleCore::Role.find_by(id: role_id)
+
+      return if assigned_role.present? && current_user.role.present? && assigned_role.rank.to_i <= current_user.role.rank.to_i
+
+      raise CanCan::AccessDenied.new(nil, :set_role, DataCycleCore::User)
+    end
 
     def consent_params
       params.permit(:type)

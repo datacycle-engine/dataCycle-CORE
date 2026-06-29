@@ -1,1 +1,8 @@
-<code class="formatted-json" data-json="<%= content.to_json %>"></code>
+<%# SECURITY (DC-01): reached via remote_render, where ParamsResolver turns attacker-supplied %>
+<%# {class,id} params into arbitrary records. The legitimate content here is always the DZT %>
+<%# data_send/job_result Hash passed by _default, so only ever serialize a Hash — never an %>
+<%# ActiveRecord record, or this becomes a "dump any row (e.g. a User's access_token) by %>
+<%# class+id" primitive. %>
+<% if content.is_a?(::Hash) %>
+  <code class="formatted-json" data-json="<%= content.to_json %>"></code>
+<% end %>

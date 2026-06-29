@@ -1,2 +1,6 @@
-<% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
-<code class="formatted-json" data-json="<%= meta_data.to_json %>"></code>
+<%# SECURITY (DC-01): only callers allowed to view a content's admin panel may render this %>
+<%# remote_render partial (mirrors _datahash/_schema/_template_path). %>
+<% if content.present? && can?(:show_admin_panel, content) %>
+  <% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
+  <code class="formatted-json" data-json="<%= meta_data.to_json %>"></code>
+<% end %>

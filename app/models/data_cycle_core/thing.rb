@@ -7,12 +7,16 @@ module DataCycleCore
     include Content::Extensions::OptimizedContentContents
     include Content::ExternalData
     prepend Content::ContentOverlay
+    include Content::Extensions::TemplateModels
+    include Content::Extensions::TemplateConversion
 
     class History < Content::Content
       include Content::ContentRelations
       include Content::ContentHistoryLoader
       include Content::Restorable
       prepend Content::ContentOverlay
+      include Content::Extensions::TemplateModels
+      include Content::Extensions::TemplateConversion
 
       extend ::Mobility
 
@@ -34,11 +38,11 @@ module DataCycleCore
       has_many :scheduled_history_data, class_name: 'DataCycleCore::Schedule::History', foreign_key: 'thing_history_id', inverse_of: :thing_history
 
       belongs_to :thing
-      has_many :content_collection_link_histories, foreign_key: :thing_history_id, inverse_of: :thing_history
+      has_many :content_collection_link_histories, class_name: 'DataCycleCore::ContentCollectionLinkHistory', foreign_key: :thing_history_id, inverse_of: :thing_history
       # :nullify must stay: it runs before the delete and preempts the FK ON DELETE CASCADE
-      has_many :thing_history_links, dependent: :nullify, foreign_key: :thing_history_id, inverse_of: :thing_history
-      has_many :geometry_histories, inverse_of: :thing_history
-      has_many :embedding_histories, inverse_of: :thing_history
+      has_many :thing_history_links, class_name: 'DataCycleCore::ThingHistoryLink', dependent: :nullify, foreign_key: :thing_history_id, inverse_of: :thing_history
+      has_many :geometry_histories, class_name: 'DataCycleCore::GeometryHistory', inverse_of: :thing_history
+      has_many :embedding_histories, class_name: 'DataCycleCore::EmbeddingHistory', inverse_of: :thing_history
       # rubocop:enable Rails/HasManyOrHasOneDependent
 
       def available_locales
@@ -109,20 +113,20 @@ module DataCycleCore
       end
     end
 
-    has_many :property_dependencies, class_name: 'PropertyDependency', inverse_of: :thing, foreign_key: :content_id
-    has_many :dependent_properties, class_name: 'PropertyDependency', inverse_of: :dependent_thing, foreign_key: :dependent_content_id
+    has_many :property_dependencies, class_name: 'DataCycleCore::Thing::PropertyDependency', inverse_of: :thing, foreign_key: :content_id
+    has_many :dependent_properties, class_name: 'DataCycleCore::Thing::PropertyDependency', inverse_of: :dependent_thing, foreign_key: :dependent_content_id
 
     has_many :histories, -> { joins(:translations).order(updated_at: :desc, created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
     # deleted by FK ON DELETE CASCADE (thing_id)
     has_many :scheduled_data, class_name: 'DataCycleCore::Schedule', inverse_of: :thing
 
-    has_many :duplicate_candidates, -> { where(false_positive: false).order(score: :desc) }, class_name: 'DuplicateCandidate', foreign_key: :original_id, inverse_of: :original
+    has_many :duplicate_candidates, -> { where(false_positive: false).order(score: :desc) }, class_name: 'DataCycleCore::Thing::DuplicateCandidate', foreign_key: :original_id, inverse_of: :original
     has_many :duplicates, through: :duplicate_candidates, source: :duplicate
-    has_many :thing_duplicates
+    has_many :thing_duplicates, class_name: 'DataCycleCore::ThingDuplicate'
     has_many :thing_originals, class_name: 'DataCycleCore::ThingDuplicate', foreign_key: :thing_duplicate_id, inverse_of: :original
 
     # deleted by FK ON DELETE CASCADE (content_data_id)
-    has_many :searches, foreign_key: :content_data_id, inverse_of: :content_data
+    has_many :searches, class_name: 'DataCycleCore::Search', foreign_key: :content_data_id, inverse_of: :content_data
 
     has_many :thing_history_links, class_name: 'DataCycleCore::ThingHistoryLink', inverse_of: :thing
 
@@ -140,22 +144,22 @@ module DataCycleCore
     default_scope { i18n.includes(:thing_template) }
 
     # polymorphic, no FK possible => :delete_all (single query, no callbacks to run)
-    has_many :external_system_syncs, as: :syncable, dependent: :delete_all, inverse_of: :syncable, autosave: true
-    has_many :external_systems, through: :external_system_syncs
+    has_many :external_system_syncs, as: :syncable, dependent: :delete_all, inverse_of: :syncable, autosave: true, class_name: 'DataCycleCore::ExternalSystemSync'
+    has_many :external_systems, through: :external_system_syncs, class_name: 'DataCycleCore::ExternalSystem'
 
     # polymorphic, no FK possible => :delete_all (single query, no callbacks to run)
-    has_many :activities, as: :activitiable, dependent: :delete_all
+    has_many :activities, as: :activitiable, dependent: :delete_all, class_name: 'DataCycleCore::Activity'
     has_many :timeseries, class_name: 'DataCycleCore::Timeseries', inverse_of: :thing
 
-    has_many :schedules
-    has_many :collected_classification_contents
+    has_many :schedules, class_name: 'DataCycleCore::Schedule'
+    has_many :collected_classification_contents, class_name: 'DataCycleCore::CollectedClassificationContent'
     has_many :related_classification_contents, -> { related }, inverse_of: false, class_name: 'DataCycleCore::CollectedClassificationContent'
     has_many :full_classification_contents, -> { without_broader }, inverse_of: false, class_name: 'DataCycleCore::CollectedClassificationContent'
     has_many :full_classification_aliases, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationAlias', source: :classification_alias
     has_many :full_classification_tree_labels, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationTreeLabel', source: :classification_tree_label
-    has_many :content_collection_links
-    has_many :geometries, inverse_of: :thing, autosave: true
-    has_many :embeddings, inverse_of: :thing
+    has_many :content_collection_links, class_name: 'DataCycleCore::ContentCollectionLink'
+    has_many :geometries, class_name: 'DataCycleCore::Geometry', inverse_of: :thing, autosave: true
+    has_many :embeddings, class_name: 'DataCycleCore::Embedding', inverse_of: :thing
     has_one :primary_geometry, -> { primary }, class_name: 'DataCycleCore::Geometry', inverse_of: false, foreign_key: :thing_id
 
     has_many :content_content_links_a, -> { with_relation }, class_name: 'DataCycleCore::ContentContent::Link', foreign_key: :content_a_id, inverse_of: :content_a

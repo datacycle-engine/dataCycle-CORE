@@ -9,6 +9,8 @@
     :features:
       :geocode:
         :allowed: true
+      :auto_geocode:
+        :allowed: true
       :overlay:
         :allowed: true
       :translatable:

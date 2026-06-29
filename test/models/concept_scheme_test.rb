@@ -57,5 +57,29 @@ module DataCycleCore
       assert_equal ['show'], concept_scheme1.visibility
       assert_equal ['trigger_webhooks'], concept_scheme1.change_behaviour
     end
+
+    test 'readonly?, visibility and the api / sync / select serializers' do
+      scheme = ConceptScheme.create(name: 'cov', external_system_id: @es_id, internal: true, visibility: ['show'])
+
+      assert_predicate scheme, :readonly?
+      assert_equal :de, scheme.first_available_locale
+      assert scheme.visible?('show')
+      assert_not scheme.visible?('edit')
+      assert_equal scheme.id, scheme.to_api_default_values['@id']
+      assert_equal 'DataCycleCore::ConceptScheme', scheme.to_hash['class_type']
+      assert_kind_of DataCycleCore::Filter::SelectOption, scheme.to_select_option
+      assert_kind_of Hash, scheme.to_sync_data
+      assert_kind_of ActiveRecord::Relation, scheme.stored_filters
+    end
+
+    test 'create and create! accept an array of attribute hashes' do
+      assert_equal [], ConceptScheme.create([])
+      assert_equal [], ConceptScheme.create!([])
+    end
+
+    test 'class-level select options and sync data map over all schemes' do
+      assert_kind_of Array, ConceptScheme.to_select_options
+      assert_kind_of Array, ConceptScheme.to_sync_data
+    end
   end
 end

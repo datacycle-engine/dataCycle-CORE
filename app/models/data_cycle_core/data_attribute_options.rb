@@ -74,7 +74,9 @@ module DataCycleCore
 
     def contextual_content
       is_thing = lambda { |item|
-        item.class.in?([DataCycleCore::Thing, DataCycleCore::Thing::History, DataCycleCore::OpenStructHash])
+        item.is_a?(DataCycleCore::Thing) ||
+          item.is_a?(DataCycleCore::Thing::History) ||
+          item.is_a?(DataCycleCore::OpenStructHash)
       }
 
       return parameters[:parent] if is_thing.call(parameters[:parent])
@@ -250,6 +252,7 @@ module DataCycleCore
         }
       end
 
+      parameters[:options][:class] = css_class.uniq.join(' ') if css_class.present?
       parameters[:options][:additional_attribute_partials] = additional_attribute_partials
     end
 

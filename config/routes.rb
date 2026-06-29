@@ -275,6 +275,8 @@ DataCycleCore::Engine.routes.draw do
 
       scope :maintenance do
         post :rebuild_classification_mappings
+        get :computed_attributes_form
+        post :update_computed_attributes
       end
     end
 

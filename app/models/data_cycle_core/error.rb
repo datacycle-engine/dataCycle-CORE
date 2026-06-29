@@ -37,16 +37,17 @@ module DataCycleCore
     end
 
     module Import
-      class TemplateMismatchError < StandardError
-        attr_reader :template_name, :expected_template_name, :external_source, :external_key
+      class TemplateConversionError < StandardError
+        attr_reader :template_name, :expected_template_name, :external_source, :external_key, :validation_errors
 
         def initialize(options)
           @template_name = options[:template_name]
           @expected_template_name = options[:expected_template_name]
           @external_source = options[:external_source]
           @external_key = options[:external_key]
+          @validation_errors = Array.wrap(options[:validation_errors])
 
-          super("Template mismatch: #{template_name} != #{expected_template_name} (#{@external_source&.name} -> #{@external_key})")
+          super("Template conversion not feasible: #{template_name} -> #{expected_template_name} (#{@external_source&.name} -> #{@external_key}): #{@validation_errors.join('; ')}")
         end
       end
 

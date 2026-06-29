@@ -239,5 +239,62 @@ module DataCycleCore
       assert_equal 7, phase_finished[2]
       assert_equal [:close], logger.calls.last
     end
+
+    test 'import_sequential supports the aggregate iterator type' do
+      object = utility_object('ift_seq_aggregate')
+      seed_item(object, 'agg-1', { 'de' => { 'id' => 'agg-1', 'name' => 'eins' } })
+      processed = []
+      aggregate_iterator = ->(mongo_item, _locale, _source_filter) { mongo_item.collection.aggregate([{ '$match' => {} }]) }
+
+      SUBJECT.import_sequential(
+        utility_object: object,
+        iterator: aggregate_iterator,
+        data_processor: collecting_processor(processed),
+        options: { import: { name: 'sequential', iterator_type: 'aggregate' } }
+      )
+
+      assert_equal 1, processed.size
+    end
+
+    test 'import_sequential logs a failed phase and re-raises processor errors' do
+      object = utility_object('ift_seq_error')
+      seed_item(object, 'serr-1', { 'de' => { 'id' => 'serr-1', 'name' => 'eins' } })
+      failing = ->(**) { raise 'processor boom' }
+
+      ActiveSupport::Notifications.stub(:instrument, ->(*_args, **_kwargs, &block) { block&.call }) do
+        assert_raises(RuntimeError) do
+          SUBJECT.import_sequential(utility_object: object, iterator: legacy_iterator, data_processor: failing, options: { import: { name: 'sequential' } })
+        end
+      end
+    end
+
+    test 'import_all injects credential keys and logs partial progress' do
+      object = utility_object('ift_all_credentials')
+      object.with_mongodb do
+        object.source_object.with(object.source_type) do |mongo_item|
+          item = mongo_item.find_or_initialize_by(external_id: 'creds-1')
+          item.dump = { 'de' => { 'id' => 'creds-1', 'name' => 'eins' } }
+          item.external_system = { 'credential_keys' => ['k1'] }
+          item.save!
+        end
+      end
+      processed = []
+
+      SUBJECT.stub(:logging_delta, 1) do
+        SUBJECT.import_all(utility_object: object, iterator: legacy_iterator, data_processor: collecting_processor(processed), options: { import: { name: 'all' } })
+      end
+
+      assert_equal(['k1'], processed.first[:raw_data].dig('de', 'dc_credential_keys'))
+    end
+
+    test 'import_paging triggers garbage collection every ten items' do
+      object = utility_object('ift_paging_gc')
+      (1..10).each { |i| seed_item(object, "pgc-#{i}", { 'de' => { 'id' => "pgc-#{i}", 'name' => "name #{i}" } }) }
+      processed = []
+
+      SUBJECT.import_paging(utility_object: object, iterator: legacy_iterator, data_processor: collecting_processor(processed), options: { import: { name: 'paging' } })
+
+      assert_equal 10, processed.size
+    end
   end
 end

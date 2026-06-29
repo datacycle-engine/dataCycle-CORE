@@ -324,7 +324,15 @@ module DataCycleCore
       render json: flash.discard.to_h
     end
 
+    # Usage: backs the geographic content editor's "shape from concept" overlay
+    # (views/.../contents/editors/geographic/_shape_from_concept_overlay). That form posts the selected
+    # classification concept alias_ids (concepts[]) to geometry_classifications_path; this returns the
+    # combined ClassificationPolygon GeoJSON, rendered into the "<id>-geometry" turbo frame, so an editor
+    # can set a content's geometry from concept boundaries (e.g. region/municipality/protected-area shapes)
+    # instead of drawing it by hand. Backend-only via authorize! :index, :backend (DC-24).
     def geometry
+      authorize! :index, :backend
+
       geojson = DataCycleCore::ClassificationPolygon
         .where(classification_alias_id: geometry_params[:concepts])
         .combined_geojson

@@ -299,7 +299,7 @@ module DataCycleCore
               next if endpoint['formats'].present? && endpoint['formats'].exclude?('json')
 
               hit = endpoint['schemes'].any? do |scheme|
-                next if scheme.class.name != 'String' || data.class.name != 'String'
+                next unless scheme.is_a?(::String) && data.is_a?(::String)
 
                 Regexp.new("^#{Regexp.escape(scheme).gsub('\*', '.*')}", Regexp::IGNORECASE).match?(data)
               end
@@ -326,6 +326,7 @@ module DataCycleCore
               json_data.index_by { |provider| provider['provider_url'] }
             rescue StandardError => e
               Rails.logger.error "Failed to fetch or parse JSON: #{e.message}"
+              {}
             end
           end
 

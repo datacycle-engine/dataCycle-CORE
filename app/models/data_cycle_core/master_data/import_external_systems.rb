@@ -259,23 +259,29 @@ module DataCycleCore
           position = sortable_steps[key]['position']
           next unless position.is_a?(Hash)
 
-          step_to_sort = ordered_steps.select { |(step_key, _)| step_key == key }
-          ordered_steps.reject! { |(step_key, _)| step_key == key }
-          ordered_keys = ordered_steps.map(&:first)
+          # Resolve the insertion anchor first, WITHOUT mutating the list, so a position
+          # that cannot be resolved (neither after/before, or one referencing a missing
+          # step) leaves the step in its declared order instead of silently dropping it.
+          other_keys = ordered_steps.map { |(step_key, _)| step_key } - [key]
 
           if position.key?('after')
             after_key = position['after']&.to_s
-            next unless ordered_keys.include?(after_key)
-
-            new_index = ordered_steps.rindex { |(step_key, _)| step_key == after_key } + 1
+            next unless other_keys.include?(after_key)
           elsif position.key?('before')
             before_key = position['before']&.to_s
-            next unless ordered_keys.include?(before_key)
-
-            new_index = ordered_steps.index { |(step_key, _)| step_key == before_key }
+            next unless other_keys.include?(before_key)
           else
             next
           end
+
+          step_to_sort = ordered_steps.select { |(step_key, _)| step_key == key }
+          ordered_steps.reject! { |(step_key, _)| step_key == key }
+
+          new_index = if position.key?('after')
+                        ordered_steps.rindex { |(step_key, _)| step_key == after_key } + 1
+                      else
+                        ordered_steps.index { |(step_key, _)| step_key == before_key }
+                      end
 
           ordered_steps.insert(new_index, *step_to_sort)
         end

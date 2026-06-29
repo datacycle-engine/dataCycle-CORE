@@ -328,4 +328,55 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       end
     end
   end
+
+  describe 'parsing external opening times (import)' do
+    let(:external_source_id) { DataCycleCore::ExternalSystem.first.id }
+
+    let(:string_item) do
+      {
+        'TimeFrom' => '08:00:00',
+        'TimeTo' => '12:00:00',
+        'DateFrom' => '2024-01-06',
+        'DateTo' => '2024-01-20',
+        'WeekDays' => [0, 1, 2],
+        'Holiday' => false
+      }
+    end
+
+    it 'returns nil for blank data' do
+      assert_nil(subject.parse_opening_times(nil, external_source_id, 'k'))
+      assert_nil(subject.parse_opening_times_reference(nil, external_source_id, 'k'))
+    end
+
+    it 'parses opening times and skips blank/incomplete items' do
+      result = subject.parse_opening_times([string_item, {}, { 'TimeFrom' => '08:00:00' }], external_source_id, 'opening-key-1')
+
+      assert_equal 1, result.size
+      assert_kind_of Hash, result.first
+    end
+
+    it 'parses time-with-zone values on a holiday' do
+      time_from = Time.zone.parse('2024-01-06 08:00:00')
+      tz_item = {
+        'TimeFrom' => time_from,
+        'DateFrom' => time_from,
+        'TimeTo' => Time.zone.parse('2024-01-06 12:00:00'),
+        'DateTo' => '2024-01-20',
+        'WeekDays' => [3],
+        'Holiday' => true
+      }
+
+      result = subject.parse_opening_times([tz_item], external_source_id, 'opening-key-2')
+
+      assert_equal 1, result.size
+      assert_kind_of Hash, result.first
+    end
+
+    it 'parses opening time references with a day transformation' do
+      result = subject.parse_opening_times_reference([string_item], external_source_id, 'ref-key-1', ->(d) { d['WeekDays'] })
+
+      assert_equal 1, result.size
+      assert_kind_of Hash, result.first
+    end
+  end
 end

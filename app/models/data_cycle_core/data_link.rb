@@ -84,7 +84,7 @@ module DataCycleCore
     private
 
     def set_release_status
-      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Thing) && creator != receiver
+      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.base_class.name) if item.is_a?(DataCycleCore::Thing) && creator != receiver
 
       release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 

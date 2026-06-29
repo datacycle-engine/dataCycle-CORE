@@ -28,7 +28,6 @@ module DataCycleCore
       TABLE_PROPERTY_TYPES = ['table'].freeze
       OEMBED_PROPERTY_TYPES = ['oembed'].freeze
       SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
-      GEO_PROPERTY_TYPES = ['geographic'].freeze
       SLUG_PROPERTY_TYPES = ['slug'].freeze
       ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, :single_embedded_locale, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
@@ -572,14 +571,6 @@ module DataCycleCore
         name_property_selector { |definition| definition['type'] == 'classification' && definition['advanced_search'] == true }
       end
 
-      def geo_properties(include_overlay = false)
-        property_selector(include_overlay) { |definition| GEO_PROPERTY_TYPES.include?(definition['type']) }
-      end
-
-      def geo_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| GEO_PROPERTY_TYPES.include?(definition['type']) }
-      end
-
       def global_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition['global'] == true }
       end
@@ -770,6 +761,7 @@ module DataCycleCore
       delegate :convert_to_type, to: :'DataCycleCore::MasterData::DataConverter'
       delegate :convert_to_string, to: :'DataCycleCore::MasterData::DataConverter'
       delegate :string_to_geographic, to: :'DataCycleCore::MasterData::DataConverter'
+      delegate :geo_properties, :geo_property_names, to: :thing_template
 
       def parent_templates
         DataCycleCore::ThingTemplate
@@ -806,23 +798,31 @@ module DataCycleCore
       def self.shared_ordered_properties(user)
         contents = includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
 
-        ordered_properties = all.thing_templates.template_things
-          .map { |t|
-            t.schema['properties'].dc_deep_dup
-              .except!(*(DataCycleCore.internal_data_attributes + ['id']))
-              .keep_if { |k, v|
-                !k.in?(t.computed_property_names + t.virtual_property_names + t.asset_property_names) &&
-                  (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
-                  t.allowed_feature_attribute?(k.attribute_name_from_key) &&
-                  v.dig('ui', 'bulk_edit', 'disabled').to_s != 'true'
-              }
-              .sort_by { |_, v| v['sorting'] }
-              .map! do |(k, v)|
-              [k, v.except('api', 'content_score').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }]
-            end
-          }
-          .reduce(:&)
-          .to_h
+        template_properties = all.thing_templates.template_things.map do |t|
+          t.schema['properties'].dc_deep_dup
+            .except!(*(DataCycleCore.internal_data_attributes + ['id']))
+            .keep_if { |k, v|
+              !k.in?(t.computed_property_names + t.virtual_property_names + t.asset_property_names) &&
+                (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
+                t.allowed_feature_attribute?(k.attribute_name_from_key) &&
+                v.dig('ui', 'bulk_edit', 'disabled').to_s != 'true'
+            }
+            .transform_values! { |v| v.except('api', 'content_score').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) } }
+        end
+
+        return {} if template_properties.empty?
+
+        # A property is shared when every selected template defines it (by key) with a
+        # compatible editor: same type and same target (classification tree / linked
+        # template / filter). Cosmetic and positional differences (sorting, ui,
+        # validations, …) are ignored — the first template's definition is used as the
+        # representative editor, and each item is re-validated against its own template
+        # on save. Intersecting whole definitions would drop almost everything, since
+        # templates routinely differ in sorting/ui/validations for the same property.
+        signature_keys = ['type', 'tree_label', 'template_name', 'stored_filter']
+        ordered_properties = template_properties.first.select { |k, v|
+          template_properties.all? { |props| props.key?(k) && props[k].slice(*signature_keys) == v.slice(*signature_keys) }
+        }.sort_by { |_, v| v['sorting'] }.to_h
 
         tree_label_names = ordered_properties.values.pluck('tree_label').compact.uniq
         tree_labels = DataCycleCore::ClassificationTreeLabel.where(name: tree_label_names).index_by(&:name) if tree_label_names.present?
@@ -946,13 +946,6 @@ module DataCycleCore
 
       def move_changes_to_previous_changes
         self.previous_datahash_changes = datahash_changes&.deep_dup
-      end
-
-      def update_template_properties
-        reload_template_definition
-
-        self.boost = thing_template.boost
-        self.content_type = thing_template.content_type
       end
 
       def update_template_defaults

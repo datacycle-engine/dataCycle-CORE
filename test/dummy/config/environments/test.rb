@@ -2,6 +2,16 @@
 
 require 'active_support/core_ext/integer/time'
 
+# Register the :pixelpoint_aad_v2 omniauth provider in the test suite by supplying dummy
+# AAD credentials when none are set (e.g. CI, fresh checkouts), so omniauth-dependent code
+# stays exercised consistently (User.from_omniauth, the provider's `*_uid` store accessor).
+# Must run before the engine's config/initializers/devise.rb, which registers the provider
+# from these ENV vars — this environment file loads before engine initializers. EntraId
+# resolves endpoints lazily, so placeholder credentials never trigger network calls.
+ENV['PIXELPOINT_AAD_V2_CLIENT_ID'] ||= 'test-client-id'
+ENV['PIXELPOINT_AAD_V2_CLIENT_SECRET'] ||= 'test-client-secret'
+ENV['PIXELPOINT_AAD_V2_TENANT_ID'] ||= 'test-tenant-id'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 

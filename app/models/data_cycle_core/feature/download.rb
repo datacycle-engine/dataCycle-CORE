@@ -11,13 +11,13 @@ module DataCycleCore
           return false unless configuration.dig(:downloader, *download_scopes, content&.model_name&.param_key, :enabled)
           return false unless enabled_serializers_for_download(content, download_scopes).size.positive?
 
-          return configuration(content)['allowed'] && dependencies_allowed?(content) if content.instance_of?(::DataCycleCore::Thing) && download_scopes&.first == :content
+          return configuration(content)['allowed'] && dependencies_allowed?(content) if content.is_a?(DataCycleCore::Thing) && download_scopes&.first == :content
 
           true
         end
 
         def enabled_serializers_for_download(content, download_scopes = [:content])
-          available_serializers = if content.instance_of?(::DataCycleCore::Thing) && download_scopes&.first == :content
+          available_serializers = if content.is_a?(DataCycleCore::Thing) && download_scopes&.first == :content
                                     DataCycleCore::Feature::Serialize.available_serializers(content)
                                   else
                                     DataCycleCore::Feature::Serialize.available_serializers

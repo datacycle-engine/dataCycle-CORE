@@ -32,7 +32,11 @@ Devise.setup do |config|
       client_secret: ENV['PIXELPOINT_AAD_V2_CLIENT_SECRET'],
       tenant_id: ENV['PIXELPOINT_AAD_V2_TENANT_ID'],
       strategy_class: OmniAuth::Strategies::EntraId,
-      default_role: 'system_admin'
+      default_role: 'system_admin',
+      # DC-25: restrict OAuth provisioning/sign-in to these email domains (comma/space separated,
+      # ENV-overridable). The EntraId app is single-tenant, so this stops tenant guests / B2B
+      # accounts from self-provisioning a (system_admin) account via the default_role above.
+      allowed_email_domains: ENV['PIXELPOINT_AAD_V2_ALLOWED_EMAIL_DOMAINS'].presence || 'pixelpoint.at,datacycle.info'
     }
   end
 

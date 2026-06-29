@@ -32,11 +32,11 @@ module DataCycleCore
           computed_types = api_schema_types&.reject { |t| t.start_with?('dcls:') }
           return computed_types.first if computed_types&.size == 1
 
-          computed_types.presence || schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize
+          computed_types.presence || schema.dig('api', 'type') || try(:schema_type) || self.class.base_class.name.demodulize
         end
 
         def api_type
-          api_types = api_schema_types.presence || [try(:schema_type) || self.class.name.demodulize, "dcls:#{template_name}"].flatten
+          api_types = api_schema_types.presence || [try(:schema_type) || self.class.base_class.name.demodulize, "dcls:#{template_name}"].flatten
           api_types.concat(Array.wrap(schema.dig('api', 'type'))).uniq! if schema.dig('api', 'type').present?
           api_types
         end

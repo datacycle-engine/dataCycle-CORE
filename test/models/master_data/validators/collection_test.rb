@@ -44,6 +44,24 @@ module DataCycleCore
           assert_predicate validator.error[:error], :blank?
           assert_predicate validator.error[:warning], :blank?
         end
+
+        test 'rejects a value that is not an array, relation or string' do
+          validator = subject.new(42, validation_hash)
+
+          assert_includes validator.error[:error].values.flatten.pluck(:path), 'validation.errors.data_type'
+        end
+
+        test 'rejects references that are not uuid strings' do
+          validator = subject.new(['not-a-uuid'], validation_hash)
+
+          assert_includes validator.error[:error].values.flatten.pluck(:path), 'validation.errors.data_format'
+        end
+
+        test 'reports references that do not resolve to a collection' do
+          validator = subject.new([@watch_list.id, SecureRandom.uuid], validation_hash)
+
+          assert_includes validator.error[:error].values.flatten.pluck(:path), 'validation.errors.not_found'
+        end
       end
     end
   end

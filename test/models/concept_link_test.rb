@@ -79,5 +79,47 @@ module DataCycleCore
       assert_equal @concept2.id, cl.parent_id
       assert_equal concept1.id, cl.child_id
     end
+
+    test 'concept links are readonly' do
+      assert_predicate ConceptLink.new, :readonly?
+    end
+
+    test 'create with an array maps over each entry' do
+      concept = Concept.create(name: SecureRandom.hex(10), external_system_id: @es_id, internal: true, concept_scheme: @ctl1.concept_scheme)
+      results = ConceptLink.create([{ parent: @concept2, child: concept, link_type: 'related' }])
+
+      assert_kind_of Array, results
+      assert_equal 1, results.size
+      assert results.first.is_a?(ConceptLink)
+    end
+
+    test 'create with link_type broader links a child alias under a parent' do
+      parent_ca = create_classification(@ctl1, SecureRandom.hex(10), nil, @es_id)
+      # a bare alias without an existing tree row (an alias may be a child only once)
+      child_ca = ClassificationAlias.create(name: SecureRandom.hex(10), external_source_id: @es_id)
+
+      ConceptLink.create(parent_id: parent_ca.id, child_id: child_ca.id, link_type: 'broader')
+
+      assert ClassificationTree.exists?(classification_alias_id: child_ca.id, parent_classification_alias_id: parent_ca.id)
+    end
+
+    test 'insert_all creates classification groups and trees from concept links' do
+      group_parent = create_classification(@ctl1, SecureRandom.hex(10), nil, @es_id)
+      tree_parent = create_classification(@ctl1, SecureRandom.hex(10), nil, @es_id)
+      # a bare alias without an existing tree row (an alias may be a child only once)
+      tree_child = ClassificationAlias.create(name: SecureRandom.hex(10), external_source_id: @es_id)
+
+      result = ConceptLink.insert_all(
+        [
+          { link_type: 'related', parent_id: group_parent.id, child_id: @concept1.id },
+          { link_type: 'broader', parent_id: tree_parent.id, child_id: tree_child.id }
+        ],
+        returning: :id,
+        unique_by: :index_concept_links_on_parent_id_and_child_id
+      )
+
+      assert_kind_of Array, result
+      assert_equal 2, result.size
+    end
   end
 end

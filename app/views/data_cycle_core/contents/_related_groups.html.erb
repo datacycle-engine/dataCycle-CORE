@@ -1,17 +1,15 @@
 <% grouped_objects = related_objects.includes(:external_source, :external_system_syncs).group_by(&:template_name) %>
-<% grouped_objects&.each do |group| %>
 
+<% grouped_objects&.each do |group| %>
   <li class="grouped_by <%= group.first.underscore_blanks %>">
-    <span>
-      <%= render 'data_cycle_core/contents/lists/attributes/type', item: group.second.first %>
-    </span>
+    <span><%= render 'data_cycle_core/contents/lists/attributes/type', item: group.second.first %></span>
 
     <ul>
       <% group.second.presence&.each do |item| %>
         <%= tag.li(class: [
           'list-item',
           'content',
-          item.class.name.demodulize.underscore.dasherize,
+          item.class.base_class.name.demodulize.underscore.dasherize,
           item.schema_type&.underscore&.dasherize,
           item.template_name.underscore.dasherize,
           thing_content_score_class(item),
@@ -24,14 +22,11 @@
                                                 "data_cycle_core/contents/viewers/lists/#{item.template_name.underscore_blanks}",
                                                 "data_cycle_core/contents/viewers/lists/#{item.schema_type.underscore_blanks}",
                                                 'data_cycle_core/contents/viewers/lists/default'
-                                            ], local_assigns.merge({content: item})
-                %>
+                                            ], local_assigns.merge({content: item}) %>
         <% end %>
       <% end %>
     </ul>
-
   </li>
-
 <% end %>
 
 <% if related_objects.try(:total_pages)&.positive? && !related_objects&.last_page? %>

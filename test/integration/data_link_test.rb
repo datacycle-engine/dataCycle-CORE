@@ -15,7 +15,7 @@ module DataCycleCore
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
       @data_link = DataCycleCore::DataLink.find_or_create_by({
         item_id: @content.id,
-        item_type: @content.class.name,
+        item_type: @content.class.base_class.name,
         asset_id: @text_file.id,
         creator_id: User.find_by(email: 'tester@datacycle.at')&.id,
         receiver_id: User.find_by(email: 'guest@datacycle.at')&.id,
@@ -37,7 +37,7 @@ module DataCycleCore
           valid_until: Time.zone.tomorrow,
           permissions: 'write',
           item_id: @content.id,
-          item_type: @content.class.name,
+          item_type: @content.class.base_class.name,
           comment: 'Testkommentar'
         }
       }, headers: {
@@ -77,7 +77,7 @@ module DataCycleCore
           valid_until: Time.zone.tomorrow,
           permissions: 'write',
           item_id: @content.id,
-          item_type: @content.class.name,
+          item_type: @content.class.base_class.name,
           comment: 'Testkommentar'
         }
       }, headers: {

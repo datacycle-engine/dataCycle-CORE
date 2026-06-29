@@ -67,8 +67,10 @@ module DataCycleCore
       classlist << "key-#{key.attribute_name_from_key}" if key.present?
 
       if definition&.dig('type').present?
-        classlist << "type-#{definition['type']}"
-        classlist << "type-#{definition['type']}-#{definition.dig('ui', type.to_s, 'type')}" if definition&.dig('ui', type.to_s, 'type').present?
+        a_type = definition['type']
+        a_type = 'linked-inverse' if a_type == 'linked' && definition['link_direction'] == 'inverse'
+        classlist << "type-#{a_type}"
+        classlist << "type-#{a_type}-#{definition.dig('ui', type.to_s, 'type')}" if definition&.dig('ui', type.to_s, 'type').present?
       end
 
       tag.i(class: classlist.join(' '), data: { dc_tooltip: attribute_type_tooltip(content, key, definition) })
@@ -78,27 +80,20 @@ module DataCycleCore
       attr_path = key.attribute_path_from_key if key.present?
       internal_name = attr_path&.last
       internal_name = 'mapped concept' if key.blank? && definition&.dig('type') == 'classification'
-      dc_tooltip = nil
+      api_name = nil
 
       if attr_path.present? && content.respond_to?(:api_name_for) &&
          (definition.dig('features', 'overlay').present? || api_definition(definition, '4', 'api')['disabled'] != true)
-        dc_tooltip = content.api_name_for(attr_path, definition).to_s
+        api_name = content.api_name_for(attr_path, definition).to_s
       elsif attr_path.blank? && definition&.dig('type') == 'classification' && DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], 'api')
-        dc_tooltip = 'dc:classification'
+        api_name = 'dc:classification'
       end
 
-      if can?(:show_internal_name, :attribute) && dc_tooltip.present?
-        dc_tooltip = safe_join(
-          [
-            safe_join([tag.b("#{t('common.api_identifier', locale: active_ui_locale)}:"), dc_tooltip], ' '),
-            safe_join([tag.b("#{t('common.internal_identifier', locale: active_ui_locale)}:"), internal_name], ' ')
-          ], tag.br
-        )
-      elsif can?(:show_internal_name, :attribute)
-        dc_tooltip = safe_join([tag.b("#{t('common.internal_identifier', locale: active_ui_locale)}:"), internal_name], ' ')
-      end
+      tooltip = []
+      tooltip << safe_join([tag.b("#{t('common.api_identifier', locale: active_ui_locale)}:"), api_name], ' ') if api_name.present?
+      tooltip << safe_join([tag.b("#{t('common.internal_identifier', locale: active_ui_locale)}:"), internal_name], ' ') if can?(:show_internal_name, :attribute)
 
-      dc_tooltip
+      safe_join(tooltip, tag.br).presence
     end
 
     def attribute_viewer_label_tag(key:, definition:, content:, options: nil, accordion_controls: false, i18n_count: 1, **args, &block)

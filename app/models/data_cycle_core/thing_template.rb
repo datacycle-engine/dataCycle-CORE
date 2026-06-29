@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class ThingTemplate < ApplicationRecord
+    include ThingTemplateExtensions::PropertyTypes
+
     has_many :things, inverse_of: :thing_template, foreign_key: :template_name, primary_key: :template_name
     has_many :content_properties, inverse_of: :thing_template, foreign_key: :template_name, primary_key: :template_name, class_name: 'DataCycleCore::ContentProperties'
 
@@ -47,7 +49,16 @@ module DataCycleCore
 
     scope :without_embedded, -> { where.not(content_type: 'embedded') }
 
-    delegate :properties_for, to: :template_thing
+    # distinct, sorted top-level computed property names across all templates
+    # (nested properties are excluded as bulk recompute only operates on top-level keys)
+    def self.computed_property_names
+      DataCycleCore::ContentProperties
+        .where("property_definition -> 'compute' IS NOT NULL")
+        .where("property_name NOT LIKE '%.%'")
+        .distinct
+        .order(:property_name)
+        .pluck(:property_name)
+    end
 
     def readonly?
       true

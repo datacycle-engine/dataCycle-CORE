@@ -154,5 +154,25 @@ module DataCycleCore
     def clear_previous_page
       session.delete(:return_to)
     end
+
+    # DC-23: object_browser#show and geojson_for_map_editor concatenate raw request filter hashes onto a
+    # stored filter *after* apply_user_filter. Two request-supplied controls can then escape the user
+    # scope: a forged control code ('u'/'uf') lets a filter masquerade as a trusted user-scope filter,
+    # and the `union` combinator runs a sub-filter with no user scope at all. Live advanced filters are
+    # always plain `c: 'a'` attribute/classification filters (union is only ever built from saved stored
+    # filters, which take the validated parameters_from_hash path), so force the control code to 'a' and
+    # drop any union before the request filters reach the query.
+    def sanitize_request_filters(filters)
+      Array.wrap(filters).filter_map do |filter|
+        filter = filter.to_unsafe_h if filter.is_a?(ActionController::Parameters)
+        next unless filter.is_a?(::Hash)
+
+        filter = filter.deep_stringify_keys
+        next if filter['t'].to_s == 'union'
+
+        filter['c'] = 'a'
+        filter
+      end
+    end
   end
 end

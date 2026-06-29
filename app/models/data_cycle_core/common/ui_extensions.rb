@@ -4,7 +4,7 @@ module DataCycleCore
   module Common
     module UiExtensions
       def icon_class
-        self.class.name.demodulize.underscore_blanks
+        self.class.base_class.name.demodulize.underscore_blanks
       end
     end
   end

@@ -89,6 +89,43 @@ module DataCycleCore
       end
     end
 
+    def computed_attributes_form
+    end
+
+    def update_computed_attributes
+      computed_names = Array.wrap(update_computed_attributes_params[:computed_name]).compact_blank
+      scope = update_computed_attributes_params[:templates_or_collection_id].presence
+
+      if computed_names.blank? || scope.blank?
+        message = I18n.t('dash_board.maintenance.computed_attributes.missing_input', locale: helpers.active_ui_locale)
+
+        respond_to do |format|
+          format.html { redirect_to(admin_path, alert: message) }
+          format.turbo_stream do
+            flash.now[:error] = message
+            render turbo_stream: turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash')
+          end
+        end
+      else
+        webhooks = ActiveModel::Type::Boolean.new.cast(update_computed_attributes_params[:webhooks]).present?
+        DataCycleCore::RunTaskJob.perform_later('dc:update_data:computed_attributes', [scope, webhooks, computed_names.join('|')])
+        message = I18n.t('dash_board.maintenance.computed_attributes.queued', locale: helpers.active_ui_locale)
+
+        respond_to do |format|
+          format.html { redirect_to(admin_path, notice: message) }
+          format.turbo_stream do
+            flash.now[:success] = message
+            stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list
+            render turbo_stream: [
+              turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash'),
+              turbo_stream.update(:jobs_queue_title, partial: 'data_cycle_core/dash_board/job_queue_title', locals: { stat_job_queue: }),
+              turbo_stream.update(:jobs_queue_body, partial: 'data_cycle_core/dash_board/job_queue_body', locals: { stat_job_queue: })
+            ]
+          end
+        end
+      end
+    end
+
     def import_module
       @external_source_id = import_module_partial_params[:id]
       @data = DataCycleCore::StatsDatabase.new.load_mongo_stats(@external_source_id)
@@ -113,6 +150,10 @@ module DataCycleCore
     end
 
     private
+
+    def update_computed_attributes_params
+      @update_computed_attributes_params ||= params.permit(:templates_or_collection_id, :webhooks, computed_name: [])
+    end
 
     def respond_to_admin_path_actions
       respond_to do |format|

@@ -229,7 +229,7 @@ module DataCycleCore
       end
 
       def add_related_cache_invalidation_job
-        DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_related_cache')
+        DataCycleCore::CacheInvalidationJob.perform_later(self.class.base_class.name, id, 'invalidate_related_cache')
       end
 
       def add_update_exif_values_job
@@ -374,7 +374,7 @@ module DataCycleCore
           set_schedule(value, key)
         when *COLLECTION_PROPERTY_TYPES
           set_collection_links(key, value)
-        when *GEO_PROPERTY_TYPES
+        when *ThingTemplateExtensions::PropertyTypes::GEO_PROPERTY_TYPES
           set_geographic(key, value, properties)
         when *TIMESERIES_PROPERTY_TYPES
           set_timeseries(key, value)

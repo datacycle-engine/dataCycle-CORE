@@ -67,7 +67,7 @@ module DataCycleCore
 
       module ClassMethods
         def data_links
-          return DataCycleCore::DataLink.none if self == DataCycleCore::Thing::History
+          return DataCycleCore::DataLink.none if self <= DataCycleCore::Thing::History
 
           DataCycleCore::DataLink.where(item_id: all.select(:id))
         end
@@ -81,31 +81,31 @@ module DataCycleCore
         end
 
         def classification_contents(preload: false)
-          return DataCycleCore::ClassificationContent.none if self == DataCycleCore::Thing::History
+          return DataCycleCore::ClassificationContent.none if self <= DataCycleCore::Thing::History
 
           load_relation(relation_name: :classification_contents, preload:)
         end
 
         def collected_classification_contents(preload: false)
-          return DataCycleCore::CollectedClassificationContent.none if self == DataCycleCore::Thing::History
+          return DataCycleCore::CollectedClassificationContent.none if self <= DataCycleCore::Thing::History
 
           load_relation(relation_name: :collected_classification_contents, preload:)
         end
 
         def asset_contents(preload: false)
-          return DataCycleCore::AssetContent.none if self == DataCycleCore::Thing::History
+          return DataCycleCore::AssetContent.none if self <= DataCycleCore::Thing::History
 
           load_relation(relation_name: :asset_contents, preload:)
         end
 
         def schedules(preload: false)
-          return DataCycleCore::Schedule.none if self == DataCycleCore::Thing::History
+          return DataCycleCore::Schedule.none if self <= DataCycleCore::Thing::History
 
           load_relation(relation_name: :schedules, preload:)
         end
 
         def timeseries(preload: false)
-          return DataCycleCore::Timeseries.none if self == DataCycleCore::Thing::History
+          return DataCycleCore::Timeseries.none if self <= DataCycleCore::Thing::History
 
           load_relation(relation_name: :timeseries, preload:)
         end
@@ -216,7 +216,7 @@ module DataCycleCore
             { id:, content_type_embedded: CONTENT_TYPE_EMBEDDED }
           ]
         )
-        query = self.class.where("#{self.class.table_name}.id IN (#{sanitized_base})")
+        query = self.class.base_class.where("#{self.class.table_name}.id IN (#{sanitized_base})")
         query = query.where.not(content_type: CONTENT_TYPE_EMBEDDED) unless embedded
         query
       end
@@ -241,7 +241,7 @@ module DataCycleCore
           WHERE content_dependencies.id != :id::UUID
         SQL
 
-        self.class
+        self.class.base_class
           .where.not(content_type: 'embedded')
           .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, { id: }])})")
       end
@@ -266,7 +266,7 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
+        self.class.base_class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
           :sanitize_sql_array, [
             tree_query,
             { id:,
@@ -294,7 +294,7 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
+        self.class.base_class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(
           :sanitize_sql_array, [
             tree_query,
             { id:,
@@ -310,26 +310,7 @@ module DataCycleCore
       end
 
       def with_cached_related_contents
-        self.class.where(id: id).with_cached_related_contents
-      end
-
-      def template_name=(value)
-        super
-
-        return if new_record? || !template_name_changed?
-
-        validate_template!
-        update_template_properties
-      end
-
-      def thing_template=(value)
-        super
-
-        return if new_record? || !thing_template_changed?
-
-        validate_template!
-        self.template_name = thing_template.template_name
-        update_template_properties
+        self.class.base_class.where(id: id).with_cached_related_contents
       end
 
       private

@@ -232,8 +232,6 @@ module DataCycleCore
         User.find_by(access_token: token[:token])
       elsif token[:user_id].present?
         User.find_by(id: token[:user_id])
-      elsif token[:external_user_id].present?
-        User.find_by(uid: token[:external_user_id])
       elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore::Feature::UserApi.enabled?
         User.find_or_initialize_by(email: token.dig(:user, :email).downcase).update_with_token(token)
       end
@@ -262,8 +260,23 @@ module DataCycleCore
       user
     end
 
+    # DC-25: only provision/sign in OAuth identities whose email domain is allowlisted for the
+    # provider (config option :allowed_email_domains, comma/space separated). A blank allowlist
+    # imposes no restriction. The EntraId app is single-tenant, so this keeps tenant guests / B2B
+    # accounts from self-provisioning a (system_admin) account via the provider's default_role.
+    def self.omniauth_email_allowed?(auth)
+      allowed = Devise.omniauth_configs[auth&.provider&.to_sym]&.options&.[](:allowed_email_domains)
+      allowed = allowed.split(/[\s,]+/) if allowed.is_a?(::String)
+      allowed = Array.wrap(allowed).filter_map { |d| d.to_s.strip.downcase.presence }
+      return true if allowed.blank?
+
+      domain = auth&.info&.email.to_s.split('@').last&.strip&.downcase
+      domain.present? && allowed.include?(domain)
+    end
+
     def self.from_omniauth(auth, &)
       return if auth&.info&.email.blank?
+      return unless omniauth_email_allowed?(auth) # DC-25: reject identities outside the provider's email-domain allowlist
 
       user = find_or_initialize_by_omniauth(auth)
 
@@ -273,7 +286,7 @@ module DataCycleCore
         user.given_name = auth.info.first_name.to_s
         user.family_name = auth.info.last_name.to_s
         user.role = DataCycleCore::Role.find_by(name: Devise.omniauth_configs[auth.provider.to_sym].options[:default_role]) if Devise.omniauth_configs[auth.provider.to_sym]&.options&.[](:default_role).present?
-        user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserRegistration.enabled? && user.confirmed_at.blank?
+        user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserConfirmation.enabled? && user.confirmed_at.blank?
         user.external = true
       end
 
@@ -351,6 +364,14 @@ module DataCycleCore
       transaction(joinable: true) do
         activities.create(activity_type: type, data:, activitiable:)
       end
+    rescue StandardError => e
+      # Best-effort logging: this usually runs in an `after_action`, i.e. after the
+      # response has already been rendered. A raised error here would be re-handled
+      # by `rescue_from`, which tries to render/respond again and blows up with
+      # RespondToMismatchError (pbf request, json body) or DoubleRenderError. An
+      # activity-log write must never break an already-sent response.
+      Rails.logger.error("[log_request_activity] #{e.class}: #{e.message}")
+      nil
     end
 
     alias log_activity log_request_activity

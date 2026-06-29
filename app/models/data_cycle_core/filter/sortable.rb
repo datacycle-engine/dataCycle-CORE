@@ -174,7 +174,7 @@ module DataCycleCore
       alias sort_proximity_occurrence sort_by_proximity
 
       def sort_proximity_geographic(ordering = '', value = [])
-        return self if value&.[](0).blank? || value&.[](1).blank?
+        return self unless valid_geographic_coordinates?(value)
 
         join_query, order_query = order_params_for_geom(value)
         reflect(
@@ -213,7 +213,7 @@ module DataCycleCore
 
         geo = value.first
         schedule = value.second
-        return self if geo&.first.blank? || geo&.second.blank?
+        return self unless valid_geographic_coordinates?(geo)
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
@@ -290,7 +290,7 @@ module DataCycleCore
 
         geo = value.first
         schedule = value.second
-        return self if geo&.first.blank? || geo&.second.blank?
+        return self unless valid_geographic_coordinates?(geo)
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
@@ -504,9 +504,22 @@ module DataCycleCore
           LEFT OUTER JOIN geometries ON geometries.thing_id = things.id AND geometries.is_primary = true
         SQL
 
-        order_string = "geometries.geom_simple::geography <-> 'SRID=4326;POINT (#{value[0]} #{value[1]})'::geography"
+        # SECURITY (DC-19): the coordinates are interpolated into a raw WKT literal inside the
+        # ORDER BY clause, which sanitized_order_string wraps in Arel.sql (trusted). Coerce both
+        # to Float so attacker-supplied sort values can never break out of the literal. Callers
+        # guard with valid_geographic_coordinates? so this only raises if validation is bypassed.
+        longitude = Float(value[0])
+        latitude = Float(value[1])
+
+        order_string = "geometries.geom_simple::geography <-> 'SRID=4326;POINT (#{longitude} #{latitude})'::geography"
 
         return order_parameter_join, order_string
+      end
+
+      # True only when both coordinates parse as numbers. Callers return self (unsorted) on
+      # invalid input so non-numeric values never reach the interpolated literal above (DC-19).
+      def valid_geographic_coordinates?(value)
+        !Float(value&.[](0), exception: false).nil? && !Float(value&.[](1), exception: false).nil?
       end
     end
   end

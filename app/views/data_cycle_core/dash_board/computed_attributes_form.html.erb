@@ -1,0 +1,51 @@
+<%= turbo_frame_tag "admin_dashboard_computed_attributes_form" do %>
+  <div class="reveal-header">
+    <i class="fa fa-cogs" aria-hidden="true"></i>
+    <%= t('dash_board.maintenance.computed_attributes.title', locale: active_ui_locale) %>
+  </div>
+
+  <%= form_with url: admin_update_computed_attributes_path, method: :post, class: 'update-computed-attributes-form', data: { turbo_stream: true } do %>
+    <div class="reveal-body">
+      <div class="callout warning">
+        <%= t('dash_board.maintenance.computed_attributes.warning', locale: active_ui_locale) %>
+      </div>
+
+      <div class="form-element">
+        <%= label_tag :templates_or_collection_id do %>
+          <%= t('dash_board.maintenance.computed_attributes.scope_label', locale: active_ui_locale) %>
+          <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+        <% end %>
+
+        <%= text_field_tag :templates_or_collection_id, nil, required: true, placeholder: 'Bild|PDF', data: { dc_tooltip: t('dash_board.maintenance.computed_attributes.scope_hint', locale: active_ui_locale) } %>
+      </div>
+
+      <div class="form-element">
+        <%= label_tag 'computed_name' do %>
+          <%= t('dash_board.maintenance.computed_attributes.attributes_label', locale: active_ui_locale) %>
+          <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+        <% end %>
+
+        <div class="v-select white">
+          <%= select_tag 'computed_name[]',
+            options_for_select(DataCycleCore::ThingTemplate.computed_property_names),
+            multiple: true,
+            id: 'computed_name',
+            class: 'multi-select',
+            data: { placeholder: t('dash_board.maintenance.computed_attributes.attributes_placeholder', locale: active_ui_locale) } %>
+        </div>
+      </div>
+
+      <div class="form-element">
+        <%= check_box_tag :webhooks, 'true' %>
+        <%= label_tag :webhooks, t('dash_board.maintenance.computed_attributes.webhooks_label', locale: active_ui_locale) %>
+      </div>
+    </div>
+
+    <div class="buttons reveal-footer">
+      <%= button_tag safe_join([
+          tag.i(class: 'fa fa-cogs'),
+          t('dash_board.maintenance.computed_attributes.button', locale: active_ui_locale)
+        ], ' '), type: :submit, class: 'button primary update_computed_attributes', data: { disable: true } %>
+    </div>
+  <% end %>
+<% end %>

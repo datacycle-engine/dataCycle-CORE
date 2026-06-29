@@ -12,6 +12,9 @@ module DataCycleCore
     # active_ui_locale reads current_user; define it so it can be stubbed per test.
     def current_user = nil
 
+    # api_definition comes from ApiHelper in real views; empty definitions enable the api name path.
+    def api_definition(*) = {}
+
     test 'active_ui_locale falls back to the first configured ui locale' do
       assert_equal DataCycleCore.ui_locales.first, active_ui_locale
     end
@@ -89,6 +92,22 @@ module DataCycleCore
       assert_includes html, 'key-name'
       assert_includes html, 'type-string'
       assert_includes html, 'type-string-date'
+    end
+
+    test 'attribute_type_tooltip labels the api name even without internal name permission' do
+      content = Object.new
+      def content.api_name_for(_path, _definition) = 'dc:name'
+
+      tooltip = attribute_type_tooltip(content, 'name', {})
+
+      assert_includes tooltip, "<b>#{t('common.api_identifier', locale: active_ui_locale)}:</b>"
+      assert_includes tooltip, 'dc:name'
+      # the internal identifier stays hidden because can? is stubbed to false
+      assert_not_includes tooltip, t('common.internal_identifier', locale: active_ui_locale)
+    end
+
+    test 'attribute_type_tooltip is nil without an api name or internal name permission' do
+      assert_nil attribute_type_tooltip(Object.new, 'name', {})
     end
 
     test 'collection_model_name_human builds a localized placeholder label' do

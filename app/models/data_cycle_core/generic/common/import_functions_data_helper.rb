@@ -125,17 +125,26 @@ module DataCycleCore
             return content
           end
 
-          check_template_match!(content:, template:, utility_object:)
+          if (template_changed = template_changed?(content:, template:))
+            previous_template_name = content.template_name
+
+            unless content.can_become?(template, data:)
+              raise DataCycleCore::Error::Import::TemplateConversionError.new(
+                template_name: content.template_name,
+                expected_template_name: template.template_name,
+                external_source: utility_object&.external_source,
+                external_key: content.external_key,
+                validation_errors: content.template_conversion_errors(template, data:)
+              )
+            end
+          end
 
           created = false
           content.webhook_source = utility_object&.external_source&.name
-          # 'id' is only used to look up existing content (see #find_thing) and is not a writable
-          # schema property, so exclude it here (like 'external_key' below) to keep it out of set_data_hash.
-          global_data = data.except(*content.local_property_names, 'overlay', 'id')
-          external_key = global_data['external_key']
-          add_properties_with_imported_flag!(content, global_data)
+          external_key = data['external_key']
           current_user = User.find_by(id: data['updated_by']) if data['updated_by'].present?
           invalidate_related_cache = step_config['invalidate_related_cache'] != false
+          global_data = nil
           valid = false
 
           # wrap in transaction to ensure atomicity when creating new content
@@ -147,10 +156,18 @@ module DataCycleCore
               content.created_by = data['created_by']
               created = true
               content.save!
+            elsif template_changed
+              # STI: the cast returns a NEW instance of the target subclass; the old `content` ref is stale. Reassign.
+              content = content.update_template!(target_template: template, data:)
             elsif content.changed?
               content.save!
             end
 
+            # computed after a possible conversion, so local properties reflect the (new) template
+            # 'id' is only used to look up existing content (see #find_thing) and is not a writable
+            # schema property, so exclude it here (like 'external_key' below) to keep it out of set_data_hash.
+            global_data = data.except(*content.local_property_names, 'overlay', 'id')
+            add_properties_with_imported_flag!(content, global_data)
             global_data.except!('external_key') unless created
 
             valid = content.set_data_hash(
@@ -166,6 +183,8 @@ module DataCycleCore
           end
 
           if valid
+            instrument_template_conversion(content:, utility_object:, item_id: external_key, previous_template_name:) if template_changed
+
             ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle.counter', {
               external_system: utility_object.external_source,
               step_name: utility_object.step_name,
@@ -180,7 +199,7 @@ module DataCycleCore
 
             errors = content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', ')
             error_keys = content.errors.messages.keys.map(&:to_s)
-            error_hash = { 'external_key' => external_key }.merge(global_data.slice(*error_keys))
+            error_hash = { 'external_key' => external_key }.merge((global_data || {}).slice(*error_keys))
             utility_object.logger.validation_error(step_label, error_hash, errors)
 
             return
@@ -189,11 +208,13 @@ module DataCycleCore
           add_external_system_data!(content:, data:, step_config:, utility_object:, update: true)
 
           content
-        rescue DataCycleCore::Error::Import::TemplateMismatchError => e
-          ActiveSupport::Notifications.instrument 'object_import_failed_template.datacycle', {
+        rescue DataCycleCore::Error::Import::TemplateConversionError => e
+          ActiveSupport::Notifications.instrument 'object_template_conversion_failed.datacycle', {
             exception: e,
             namespace: 'importer',
-            external_system: utility_object&.external_source
+            external_system: utility_object&.external_source,
+            item_id: data['external_key'],
+            template_name: template&.template_name
           }
           content.reload if content&.persisted? # needed to successfully link this content in dc_sync
           content
@@ -212,6 +233,10 @@ module DataCycleCore
 
           content.reload if content&.persisted? # needed to successfully link this content in dc_sync
           content
+        end
+
+        def template_changed?(content:, template:)
+          content.template_name != template.template_name && !content.new_record?
         end
 
         def find_thing(data:, utility_object:)
@@ -270,15 +295,15 @@ module DataCycleCore
           true
         end
 
-        def check_template_match!(content:, template:, utility_object:)
-          return if content.template_name == template.template_name
-
-          raise DataCycleCore::Error::Import::TemplateMismatchError.new(
+        def instrument_template_conversion(content:, utility_object:, item_id:, previous_template_name:)
+          ActiveSupport::Notifications.instrument 'object_template_converted.datacycle', {
+            namespace: 'importer',
+            external_system: utility_object.external_source,
+            step_name: utility_object.step_name,
+            item_id:,
             template_name: content.template_name,
-            expected_template_name: template.template_name,
-            external_source: utility_object&.external_source,
-            external_key: content.external_key
-          )
+            previous_template_name:
+          }
         end
 
         def full_external_system_data(data, utility_object)
@@ -332,7 +357,7 @@ module DataCycleCore
             next if content.external_source_id == external_system.id && content.external_key == es['external_key']
 
             es_upsert << {
-              syncable_type: content.class.name,
+              syncable_type: content.class.base_class.name,
               syncable_id: content.id,
               external_system_id: external_system.id,
               external_key: es['external_key'],

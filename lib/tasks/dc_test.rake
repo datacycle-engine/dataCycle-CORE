@@ -37,7 +37,7 @@ namespace :dc do
       # rewrite structure.sql regardless. Run the steps ourselves, minus the dump. The flag below
       # still suppresses the post-migrate db:_dump.
       ActiveRecord.dump_schema_after_migration = false
-      ['db:drop', 'db:create', 'db:migrate', 'db:seed', 'dc:test:prepare_database'].each do |t|
+      ['db:drop', 'db:create', 'db:migrate:reset', 'db:seed', 'dc:test:prepare_database'].each do |t|
         Rake::Task[t].invoke
         Rake::Task[t].reenable
       end

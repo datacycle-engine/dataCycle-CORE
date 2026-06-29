@@ -59,6 +59,8 @@ module DataCycleCore
 
             raise ActiveRecord::Rollback if @errors.present?
           end
+
+          trigger_code_reload! if Rails.env.development? && valid?
         end
 
         def validate
@@ -104,6 +106,13 @@ module DataCycleCore
         # rubocop:enable Rails/Output
 
         private
+
+        # touch file for DataCycleCore::Thing to trigger reload of STI subclasses
+        def trigger_code_reload!
+          thing_file = DataCycleCore::Engine.root.join('app', 'models', 'data_cycle_core', 'thing.rb')
+
+          FileUtils.touch(thing_file) if thing_file.present?
+        end
 
         def update_templates
           # Get Mapping of Rails Engines and their root paths
@@ -304,14 +313,6 @@ module DataCycleCore
             mixins: transformer.mixin_paths,
             api_schema_types: transformer.api_schema_types
           }
-        end
-
-        def template_complete?(template, template_definitions)
-          name = template[:name].nil? ? template[:extends] : template[:name]
-
-          template_definitions.none? do |v|
-            v.dig(:data, :name).nil? ? v.dig(:data, :extends) == name : v.dig(:data, :name) == name
-          end
         end
 
         def append_extended_template!(data:)

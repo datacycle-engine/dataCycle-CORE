@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class StoredFilterTest < DataCycleCore::TestCases::ActiveSupportTestCase
+  class SortParamTransformationsTest < DataCycleCore::TestCases::ActiveSupportTestCase
     test 'sort_by_in_occurrence_with_distance with format (lon,lat,start_date,end_date,sortAttr)' do
       order_string = '14,46,2025-05-01,2025-05-31,eventSchedule'
       expected = [['14', '46'], { 'in' => { 'min' => '2025-05-01', 'max' => '2025-05-31' }, 'relation' => 'eventSchedule' }]

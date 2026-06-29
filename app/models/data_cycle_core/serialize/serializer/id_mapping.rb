@@ -57,11 +57,13 @@ module DataCycleCore
 
           def concept_scheme_sql
             concept_scheme_config = config_hash['concept_scheme_ids']
-            concept_scheme_ids = if concept_scheme_config.is_a?(Hash)
-                                   Array.wrap(concept_scheme_config['ids'])
-                                 else
-                                   Array.wrap(concept_scheme_config)
-                                 end
+            if concept_scheme_config.is_a?(Hash)
+              concept_scheme_ids = Array.wrap(concept_scheme_config['ids'])
+              attribute = concept_scheme_config['attribute'] || 'external_key'
+            else
+              concept_scheme_ids = Array.wrap(concept_scheme_config)
+              attribute = 'external_key'
+            end
 
             return [] if concept_scheme_ids.blank?
 
@@ -71,7 +73,7 @@ module DataCycleCore
                     'concept_scheme',
                     cs.name,
                     'external_key',
-                    c.#{concept_scheme_config['attribute'] || 'external_key'}
+                    c.#{attribute}
                   )
                 ) FILTER (
                   WHERE c.external_key IS NOT NULL

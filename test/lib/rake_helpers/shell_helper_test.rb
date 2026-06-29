@@ -43,29 +43,5 @@ module DataCycleCore
 
       assert_equal 'answer', result
     end
-
-    test 'progress_bar prints a full bar once the index reaches the total' do
-      out, = capture_io { ShellHelper.progress_bar(10, 10) }
-
-      assert_includes out, '100%'
-    end
-
-    test 'progress_bar prints the current fraction on interval ticks' do
-      out, = capture_io { ShellHelper.progress_bar(100, 50, 1) }
-
-      assert_includes out, '50%'
-    end
-
-    test 'progress_bar skips non interval indices' do
-      out, = capture_io { ShellHelper.progress_bar(100, 3, 5) }
-
-      assert_equal '', out
-    end
-
-    test 'progress_bar computes a default interval' do
-      out, = capture_io { ShellHelper.progress_bar(100, 0) }
-
-      assert_includes out, '0%'
-    end
   end
 end

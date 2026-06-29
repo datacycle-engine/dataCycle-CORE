@@ -43,6 +43,8 @@ module DataCycleCore
     end
 
     def bad_request_api_error(exception)
+      return if performed?
+
       api_errors = Array.wrap(exception.data).map do |error|
         {
           source: {
@@ -56,6 +58,8 @@ module DataCycleCore
     end
 
     def bad_request_error(e)
+      return if performed?
+
       respond_to do |format|
         format.json do
           render json: { errors: e.formatted_errors }, layout: false, status: :bad_request
@@ -65,6 +69,8 @@ module DataCycleCore
     end
 
     def expired_content_api_error(exception)
+      return if performed?
+
       api_errors = exception.data.map do |error|
         {
           source: {
@@ -89,16 +95,22 @@ module DataCycleCore
     end
 
     def user_interface_error(exception)
+      return if performed?
+
       redirect_back_or_to(root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false) && return if is_a?(ApplicationController)
 
       bad_request(exception)
     end
 
     def not_acceptable
+      return if performed?
+
       head :not_acceptable
     end
 
     def bad_request(exception)
+      return if performed?
+
       respond_to do |format|
         format.json do
           api_errors = [{ title: I18n.t("exceptions.#{exception.class.name.underscore}", locale: :en) }] if I18n.exists?("exceptions.#{exception.class.name.underscore}", locale: :en)
@@ -114,10 +126,14 @@ module DataCycleCore
     end
 
     def too_many_requests
+      return if performed?
+
       head :too_many_requests, { 'Retry-After': 60 }
     end
 
     def not_found(exception)
+      return if performed?
+
       respond_to do |format|
         format.html { render 'data_cycle_core/exceptions/not_found_exception', status: :not_found } if is_a?(ApplicationController)
         format.json { render status: :not_found, json: { errors: content_api_error(exception) } }
@@ -127,6 +143,8 @@ module DataCycleCore
     end
 
     def conflict(exception)
+      return if performed?
+
       respond_to do |format|
         format.html { render 'data_cycle_core/exceptions/conflict_exception', status: :conflict } if is_a?(ApplicationController)
         format.json { render status: :conflict, json: { errors: content_api_error(exception) } }
@@ -136,6 +154,8 @@ module DataCycleCore
     end
 
     def redirect_to_root_with_error(exception, status_code, root_path_params = {})
+      return if performed?
+
       respond_to do |format|
         format.html { redirect_to authorized_root_path(nil, root_path_params), alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false } if is_a?(ApplicationController)
         format.json { render status: status_code, json: { errors: content_api_error(exception) } }

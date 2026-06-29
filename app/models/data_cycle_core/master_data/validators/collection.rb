@@ -46,6 +46,7 @@ module DataCycleCore
         # @return [void]
         def check_reference_array(data, template)
           converted_data = convert_data(data, template)
+          return if converted_data == false
 
           if template.key?('validations')
             template['validations'].each_key do |key|

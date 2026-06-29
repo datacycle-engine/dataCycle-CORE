@@ -42,6 +42,32 @@ module DataCycleCore
         assert_not(@video.valid?)
         assert_predicate(@video.errors, :present?)
       end
+
+      test 'custom_validators dispatches to the configured per-validator methods' do
+        DataCycleCore.stub(:uploader_validations, { 'video' => { 'foo' => {} } }) do
+          assert_nothing_raised { DataCycleCore::Video.new.custom_validators }
+        end
+      end
+
+      test 'validate_video_codec adds an error when the codec is excluded' do
+        movie = Object.new
+        movie.define_singleton_method(:video_codec) { 'h264' }
+        video = DataCycleCore::Video.new
+
+        video.send(:validate_video_codec, movie, { video: ['vp9'] })
+
+        assert_predicate(video.errors, :present?)
+      end
+
+      test 'validate_audio_codec adds an error when the codec is excluded' do
+        movie = Object.new
+        movie.define_singleton_method(:audio_codec) { 'aac' }
+        video = DataCycleCore::Video.new
+
+        video.send(:validate_audio_codec, movie, { audio: ['opus'] })
+
+        assert_predicate(video.errors, :present?)
+      end
     end
   end
 end

@@ -44,7 +44,13 @@ module DataCycleCore
         def show
           @content = DataCycleCore::Thing.find(permitted_params[:id])
 
+          # Resolve expiry first: the api visibility filter includes in_validity_period, so an expired
+          # item would otherwise read as "not authorized" (401) here instead of the explicit 404 below.
+          # On a valid item the validity part of the filter is satisfied, so authorize_api_content! then
+          # gates only the caller's access scope (DC-14).
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
+
+          authorize_api_content!(@content)
 
           depth = @include_parameters&.map(&:size)&.max
           @content.instance_variable_set(:@_recursive_preload_depth, 1 + depth) if depth
@@ -66,7 +72,7 @@ module DataCycleCore
         def timeseries
           content = DataCycleCore::Thing.find(timeseries_params[:content_id] || timeseries_params[:id])
 
-          raise CanCan::AccessDenied unless DataCycleCore::StoredFilter.new.apply_user_filter(current_user, { scope: 'api' }).apply(skip_ordering: true).query.exists?(id: content.id)
+          authorize_api_content!(content)
 
           @renderer = DataCycleCore::ApiRenderer::TimeseriesRenderer.new(content:, **timeseries_params.slice(:timeseries, :group_by, :time, :data_format).to_h.deep_symbolize_keys)
 
@@ -136,7 +142,9 @@ module DataCycleCore
           @uuids = permitted_params[:uuids]
           uuid = @uuid || @uuids&.split(',')
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
-            query = DataCycleCore::Thing
+            # scope through the user's api filter (mirrors select_by_external_keys) so a UUID list
+            # can only resolve content the caller may access — closes the object-level IDOR (DC-14).
+            query = build_search_query.query
               .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
               .where(id: uuid)
 
@@ -234,6 +242,16 @@ module DataCycleCore
         end
 
         private
+
+        # Enforce the caller's api-scope visibility (StoredFilter user filters) on a single content fetched
+        # by id. No-op when the user has no api-scope filters: apply_user_filter then leaves the query
+        # unscoped so the exists? check would always pass, and is skipped to avoid a needless query (DC-14).
+        def authorize_api_content!(content)
+          api_user_filter = DataCycleCore::StoredFilter.new.apply_user_filter(current_user, { scope: 'api' })
+          return if api_user_filter.parameters.blank?
+
+          raise CanCan::AccessDenied unless api_user_filter.things(skip_ordering: true).exists?(id: content.id)
+        end
 
         def thing_renderer_v4_params
           DataCycleCore::ApiRenderer::ThingRendererV4::JSON_RENDER_PARAMS

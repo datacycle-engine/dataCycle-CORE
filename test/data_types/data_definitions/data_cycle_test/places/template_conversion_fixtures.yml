@@ -1,0 +1,311 @@
+---
+# Minimal, self-contained templates used only by ContentTemplateConversionTest to assert attribute handling
+# during an in-place type conversion: local preservation, removal of obsolete attributes of every
+# storage type, purging of orphaned source-required attributes, and incoming/outgoing relation checks.
+- :data:
+    :name: TemplateConversionSource
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+      - TouristAttraction
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :required: true
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: POI
+      :local_note:
+        :label: Local Note
+        :type: string
+        :storage_location: value
+        :local: true
+        :api:
+          :disabled: true
+      :removable_note:
+        :label: Removable Note
+        :type: string
+        :storage_location: value
+        :api:
+          :disabled: true
+      # required on the source but absent from the target -> must be purged (cannot be set blank while required)
+      :mandatory_note:
+        :label: Mandatory Note
+        :type: string
+        :storage_location: value
+        :validations:
+          :required: true
+        :api:
+          :disabled: true
+      :table_data:
+        :label: Table Data
+        :type: table
+        :storage_location: value
+        :api:
+          :disabled: true
+      :series:
+        :label: Series
+        :type: timeseries
+        :api:
+          :disabled: true
+      :geo_area:
+        :label: Geo Area
+        :type: geographic
+        :api:
+          :disabled: true
+      # preserved (global) outgoing relations with different constraint kinds
+      :out_typed:
+        :label: Outgoing (template_name)
+        :type: linked
+        :global: true
+        :template_name: POI
+        :api:
+          :disabled: true
+      :out_filtered:
+        :label: Outgoing (stored_filter)
+        :type: linked
+        :global: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :disabled: true
+      :out_combined:
+        :label: Outgoing (template_name + stored_filter)
+        :type: linked
+        :global: true
+        :template_name:
+          - POI
+          - Organization
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :disabled: true
+      # global outgoing relation EXCLUDING Lift via a not_-prefixed filter the pre-check does not parse;
+      # used to prove the outgoing post-conversion StoredFilter check catches a break the pre-check misses.
+      :out_not_lift:
+        :label: Outgoing (excludes Lift)
+        :type: linked
+        :global: true
+        :stored_filter:
+          - :not_with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Lift
+        :api:
+          :disabled: true
+- :data:
+    :name: TemplateConversionTarget
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+      - TouristAttraction
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :required: true
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: POI
+      :local_note:
+        :label: Local Note
+        :type: string
+        :storage_location: value
+        :local: true
+        :api:
+          :disabled: true
+      :out_typed:
+        :label: Outgoing (template_name)
+        :type: linked
+        :global: true
+        :template_name: POI
+        :api:
+          :disabled: true
+      :out_filtered:
+        :label: Outgoing (stored_filter)
+        :type: linked
+        :global: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :disabled: true
+      :out_combined:
+        :label: Outgoing (template_name + stored_filter)
+        :type: linked
+        :global: true
+        :template_name:
+          - POI
+          - Organization
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :disabled: true
+      :out_not_lift:
+        :label: Outgoing (excludes Lift)
+        :type: linked
+        :global: true
+        :stored_filter:
+          - :not_with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Lift
+        :api:
+          :disabled: true
+# Two neutral templates (no data_type → not in any Inhaltstypen subtree) with a global outgoing
+# relation constrained to Inhaltstypen/Ort. Used to verify that the stored_filter constraint on
+# outgoing relations is enforced based on the RELATED content's type, not the converting content's type.
+- :data:
+    :name: TemplateConversionNeutralSource
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :required: true
+      :out_ort:
+        :label: Outgoing to Ort
+        :type: linked
+        :global: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :disabled: true
+- :data:
+    :name: TemplateConversionNeutralTarget
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :required: true
+      :out_ort:
+        :label: Outgoing to Ort
+        :type: linked
+        :global: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :disabled: true
+# Embedded content type: only ever created/updated/destroyed as a child of an embedding parent (no own
+# import item, external_key or history). It is embedded via TemplateConversionContainer#embedded_child below.
+# Used to verify that an in-place conversion is refused for embedded children rather than silently
+# producing a child that the next parent import would orphan/recreate.
+- :data:
+    :name: TemplateConversionEmbedded
+    :type: object
+    :content_type: embedded
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :required: true
+# Links TO the converting content, with a single property carrying BOTH constraints (incoming combined).
+- :data:
+    :name: TemplateConversionContainer
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :required: true
+      :member_combined:
+        :label: Member (template_name + stored_filter)
+        :type: linked
+        :template_name:
+          - TemplateConversionSource
+          - Organization
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :disabled: true
+      # incoming relation whose stored_filter EXCLUDES Lift via a not_-prefixed (exclusion) filter. The
+      # pre-conversion check only parses with_classification_aliases_and_treename, so it does not see this
+      # constraint; the real StoredFilter post-conversion check does -> used to prove the post-check
+      # catches a break (POI passes "not Lift", a converted Lift does not) the pre-check misses.
+      :member_not_lift:
+        :label: Member (excludes Lift)
+        :type: linked
+        :stored_filter:
+          - :not_with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Lift
+        :api:
+          :disabled: true
+      # embedded child managed entirely by this parent (set_embedded): created/updated/destroyed here,
+      # never through an import item of its own.
+      :embedded_child:
+        :label: Embedded Child
+        :type: embedded
+        :template_name: TemplateConversionEmbedded
+        :api:
+          :disabled: true

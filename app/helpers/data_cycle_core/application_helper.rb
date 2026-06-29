@@ -346,7 +346,7 @@ module DataCycleCore
     end
 
     def render_content_partial(partial, parameters)
-      raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['data_cycle_core/thing', 'data_cycle_core/thing/history'].include?(parameters[:content].class.name.underscore)
+      raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless parameters[:content].is_a?(DataCycleCore::Thing)
 
       partials = [
         'content'

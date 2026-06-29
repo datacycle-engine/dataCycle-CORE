@@ -4,7 +4,7 @@
 
 <% content_for(:tile_header_buttons, link_to(tag.i(class: 'fa fa-info-circle'), '#', class: 'show-sidebar-details', data: { dc_tooltip: t('object_browser.details.button', locale: active_ui_locale) })) %>
 
- <% if object.try(:archived?) %>
+<% if object.try(:archived?) %>
   <% content_for(:tile_header_buttons, tag.span(tag.i(class: 'fa fa-archive'))) %>
 <% end %>
 
@@ -12,7 +12,7 @@
   'item',
   'content',
   'copy-single',
-  object.class.name.demodulize.underscore_blanks.dasherize,
+  object.class.base_class.name.demodulize.underscore_blanks.dasherize,
   object.schema_type&.underscore&.dasherize,
   object.template_name.underscore.dasherize,
   changes_class(local_assigns.dig(:options, :item_diff), object.id),
@@ -38,6 +38,7 @@ data: {
     <% unless tile_classes.include?('asset') %>
       <%= render 'data_cycle_core/contents/grid/compact/attributes/tags', local_assigns if object.try(:display_classification_aliases, 'tile').present? %>
     <% end %>
+
     <%= yield_content!(:tile_bottom_buttons) if content_for?(:tile_bottom_buttons) %>
   </div>
 <% end %>

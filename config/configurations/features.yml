@@ -330,6 +330,11 @@
     :enabled: false
     :attribute_keys:
 
+:auto_geocode:
+  :enabled: false
+  :dependencies:
+    - geocode
+
 :translate:
   :enabled: false
 

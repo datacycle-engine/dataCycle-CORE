@@ -4,9 +4,10 @@ require 'rake_helpers/content_helper'
 
 namespace :dc do
   namespace :migrate do
-    desc 'move external_source_id and external_key from things to external_system_syncs'
-    task :external_source_to_system, [:external_system_or_stored_filter_id] => :environment do |_, args|
+    desc 'move external_source_id and external_key from things to external_system_syncs (also downloads external assets unless skip_asset_download is true)'
+    task :external_source_to_system, [:external_system_or_stored_filter_id, :skip_asset_download] => :environment do |_, args|
       external_system_or_stored_filter_id = args.external_system_or_stored_filter_id
+      skip_asset_download = args.skip_asset_download.to_s == 'true'
 
       abort('ExternalSystem- or StoredFilter-Id missing!') if external_system_or_stored_filter_id.blank?
 
@@ -71,6 +72,12 @@ namespace :dc do
       end
 
       puts 'MIGRATION SUCCESSFUL'
+
+      unless skip_asset_download
+        puts 'DOWNLOADING EXTERNAL ASSETS...'
+        Rake::Task['dc:migrate:download_external_assets'].invoke(external_system&.id, stored_filter&.id)
+        Rake::Task['dc:migrate:download_external_assets'].reenable
+      end
     end
 
     desc 'remove external_source_id and external_key from things to external_system_syncs'

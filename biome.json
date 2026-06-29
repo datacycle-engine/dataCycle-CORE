@@ -1,8 +1,18 @@
 {
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "includes": [
       "app/assets/**/*.{js,mjs,cjs,jsx,ts,tsx,css,scss}",
-      "vendor/gems/data-cycle-core/app/assets/**/*.{js,mjs,cjs,jsx,ts,tsx,css,scss}"
+      "vendor/gems/data-cycle-core/app/assets/**/*.{js,mjs,cjs,jsx,ts,tsx,css,scss}",
+      "!!**/public",
+      "!!**/tmp",
+      "!!**/log",
+      "!!**/node_modules",
+      "!!**/.git"
     ]
   },
   "javascript": {

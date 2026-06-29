@@ -196,7 +196,8 @@ filter:
       - :collection
 
 advanced_filter:
-  actions: advanced_filter
+  actions:
+    - advanced_filter
   segment: AdvancedFilterExceptType
   parameters:
     - - :backend
@@ -349,3 +350,8 @@ download_user_info_activity:
   actions: download_user_info_activity
   segment: SubjectByConditions
   parameters: DataCycleCore::User
+
+grafana_dashboards:
+  actions: read
+  segment: SubjectByConditions
+  parameters: :grafana_dashboards

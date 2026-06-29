@@ -273,6 +273,22 @@ module DataCycleCore
       end
     end
 
+    test 'shared_ordered_properties keeps properties common to mixed templates' do
+      # Watch list spanning two different templates whose common properties (e.g.
+      # name) carry cosmetically-different definitions (sorting/ui/validations).
+      # Regression: intersecting whole definitions dropped them all and returned {}.
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @organization.id)
+
+      assert_operator @watch_list.things.thing_templates.template_things.map(&:template_name).uniq.size, :>=, 2
+
+      shared = @watch_list.things.shared_ordered_properties(@current_user)
+
+      assert_not_empty shared
+      assert_includes shared.keys, 'name'
+      assert(shared.values.all?(Hash))
+    end
+
     test 'bulk update all watch_list items' do
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
       bulk_name = 'Test Artikel Bulk Update 1'

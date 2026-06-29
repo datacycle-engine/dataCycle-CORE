@@ -213,6 +213,8 @@ module DataCycleCore
     end
 
     def serializer_method_for_content(content)
+      return :serialize_thing if content.is_a?(DataCycleCore::Thing)
+
       :"serialize_#{content.class.to_s.demodulize.underscore}"
     end
   end

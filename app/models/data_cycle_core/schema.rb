@@ -132,18 +132,6 @@ module DataCycleCore
       )
     end
 
-    def self.count_templates(path)
-      YAML.safe_load(File.open(path), permitted_classes: [Symbol]).count
-    end
-
-    def self.load_schema(paths)
-      new(
-        Array(paths).map { |path|
-          (0..(count_templates(path) - 1)).map { |template_index| Template.load_template(path, template_index) }
-        }.flatten
-      )
-    end
-
     attr_reader :templates
 
     def content_types

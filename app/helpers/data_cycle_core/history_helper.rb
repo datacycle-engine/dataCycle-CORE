@@ -230,7 +230,7 @@ module DataCycleCore
           DataCycleCore::Content::HistoryListEntry.new(
             user: current_user,
             id: SecureRandom.uuid,
-            class_name: content.class.name,
+            class_name: content.class.base_class.name,
             updated_at: [created_translation.created_at, created_translation.updated_at - 1.second, content.updated_at - 1.second].min,
             locale: created_translation.locale,
             can_remove_version_name: false,

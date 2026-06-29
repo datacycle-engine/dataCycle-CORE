@@ -111,7 +111,9 @@ module DataCycleCore
 
     def contextual_content(local_assigns)
       is_thing = lambda { |item|
-        item.class.in?([DataCycleCore::Thing, DataCycleCore::Thing::History, DataCycleCore::OpenStructHash])
+        item.is_a?(DataCycleCore::Thing) ||
+          item.is_a?(DataCycleCore::Thing::History) ||
+          item.is_a?(DataCycleCore::OpenStructHash)
       }
 
       return local_assigns[:parent] if is_thing.call(local_assigns[:parent])

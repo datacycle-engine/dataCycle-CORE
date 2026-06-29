@@ -37,7 +37,13 @@ ActiveSupport::Notifications.subscribe(/.*job_failed.datacycle/) do |_name, _sta
   end
 end
 
-ActiveSupport::Notifications.subscribe('object_import_failed_template.datacycle') do |_name, _started, _finished, _unique_id, data|
+ActiveSupport::Notifications.subscribe('object_template_converted.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'import') do |logger|
+    logger.dc_log(:info, data)
+  end
+end
+
+ActiveSupport::Notifications.subscribe('object_template_conversion_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'import') do |logger|
     logger.dc_log(:error, data)
   end

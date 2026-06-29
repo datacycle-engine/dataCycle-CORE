@@ -343,6 +343,99 @@ module DataCycleCore
       assert_equal(expected, result)
     end
 
+    test 'updated_since_flat filters by the thing\'s own updated_at' do
+      total = DataCycleCore::Filter::Search.new(locale: :de).count
+
+      assert_equal(total, DataCycleCore::Filter::Search.new(locale: :de).updated_since_flat(1.year.ago).count)
+      assert_equal(0, DataCycleCore::Filter::Search.new(locale: :de).updated_since_flat(1.year.from_now).count)
+      assert_equal(total, DataCycleCore::Filter::Search.new(locale: :de).updated_since_flat(nil).count)
+    end
+
+    test 'valid_since filters by the cache_valid_since lower bound' do
+      total = DataCycleCore::Filter::Search.new(locale: :de).count
+
+      assert_operator(DataCycleCore::Filter::Search.new(locale: :de).valid_since(1.year.ago).count, :<=, total)
+      assert_equal(total, DataCycleCore::Filter::Search.new(locale: :de).valid_since(nil).count)
+    end
+
+    test 'exclude_ids removes the given ids from the result set' do
+      search = DataCycleCore::Filter::Search.new(locale: :de)
+      total = search.count
+      id = search.query.first.id
+
+      assert_equal(total - 1, DataCycleCore::Filter::Search.new(locale: :de).exclude_ids([id]).count)
+      assert_equal(total, DataCycleCore::Filter::Search.new(locale: :de).exclude_ids([]).count)
+    end
+
+    test 'with_geom toggles between with and without geometry' do
+      total = DataCycleCore::Filter::Search.new(locale: :de).count
+
+      assert_equal(2, DataCycleCore::Filter::Search.new(locale: :de).with_geom('true').count)
+      assert_equal(total - 2, DataCycleCore::Filter::Search.new(locale: :de).with_geom('false').count)
+    end
+
+    test 'with_external_source toggles between with and without an external system' do
+      total = DataCycleCore::Filter::Search.new(locale: :de).count
+
+      assert_equal(1, DataCycleCore::Filter::Search.new(locale: :de).with_external_source('true').count)
+      assert_equal(total - 1, DataCycleCore::Filter::Search.new(locale: :de).with_external_source('false').count)
+    end
+
+    test 'boolean returns self for an unknown filter method' do
+      search = DataCycleCore::Filter::Search.new(locale: :de)
+
+      assert_same(search, search.boolean('true', 'not_a_real_filter_method'))
+    end
+
+    test 'related_through_attribute switches between exists and not-exists relation filters' do
+      total = DataCycleCore::Filter::Search.new(locale: :de).count
+      present = DataCycleCore::Filter::Search.new(locale: :de).related_through_attribute('true', 'image')
+      absent = DataCycleCore::Filter::Search.new(locale: :de).related_through_attribute('false', 'image')
+
+      assert_kind_of(DataCycleCore::Filter::Search, present)
+      assert_kind_of(DataCycleCore::Filter::Search, absent)
+      assert_equal(total, present.count + absent.count)
+    end
+
+    test 'relation filters traverse content links in both directions' do
+      image = create_content('Bild', { name: 'Linked Bild Direction' })
+      create_content('Artikel', { name: 'Linking Artikel Direction', image: [image.id] })
+      total = DataCycleCore::Filter::Search.new(locale: :de).count
+
+      # forward (A -> B): only the linking article references the image
+      assert_equal(1, DataCycleCore::Filter::Search.new(locale: :de).relation_filter([image.id], 'image').count)
+      assert_equal(total - 1, DataCycleCore::Filter::Search.new(locale: :de).not_relation_filter([image.id], 'image').count)
+
+      # inverse (B -> A) and (B <- A) variants partition the base set with their negations
+      assert_equal(total, DataCycleCore::Filter::Search.new(locale: :de).relation_filter_inv([image.id], 'image').count +
+        DataCycleCore::Filter::Search.new(locale: :de).not_relation_filter_inv([image.id], 'image').count)
+      assert_equal(total, DataCycleCore::Filter::Search.new(locale: :de).related_to([image.id]).count +
+        DataCycleCore::Filter::Search.new(locale: :de).not_related_to([image.id]).count)
+      assert_equal(total, DataCycleCore::Filter::Search.new(locale: :de).exists_related_to.count +
+        DataCycleCore::Filter::Search.new(locale: :de).not_exists_related_to.count)
+    end
+
+    test 'deprecated methods raise DeprecatedMethodError' do
+      search = DataCycleCore::Filter::Search.new(locale: :de)
+
+      assert_raises(DataCycleCore::Error::DeprecatedMethodError) { search.modified_since }
+      assert_raises(DataCycleCore::Error::DeprecatedMethodError) { search.created_since }
+      assert_raises(DataCycleCore::Error::DeprecatedMethodError) { search.exclude_templates_embedded }
+      assert_raises(DataCycleCore::Error::DeprecatedMethodError) { DataCycleCore::Filter::Search.get_order_by_query_string('AAA') }
+      assert_raises(DataCycleCore::Error::DeprecatedMethodError) { search.distinct_by_content_id }
+      assert_raises(DataCycleCore::Error::DeprecatedMethodError) { search.count_distinct }
+    end
+
+    test 'related_to_filter_query converts a SystemStackError into a FilterRecursionError' do
+      search = DataCycleCore::Filter::Search.new(locale: :de)
+
+      DataCycleCore::StoredFilter.stub(:find_by, ->(*, **) { raise SystemStackError }) do
+        assert_raises(DataCycleCore::Error::Filter::FilterRecursionError) do
+          search.send(:related_to_filter_query, 'some-filter-id')
+        end
+      end
+    end
+
     private
 
     def find_alias_ids(tree_name, *alias_names)

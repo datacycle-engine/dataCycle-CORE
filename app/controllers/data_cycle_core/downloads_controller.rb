@@ -10,7 +10,7 @@ module DataCycleCore
     after_action :reset_watch_list, only: :watch_list_collections, if: -> { params[:reset].present? }
 
     def things
-      @object = DataCycleCore::Thing.find_by(id: permitted_download_params[:id])
+      @object = DataCycleCore::Thing.find(permitted_download_params[:id])
       @serialize_format = permitted_download_params[:serialize_format] ||
                           DataCycleCore::Feature::Download
                             .enabled_serializers_for_download(@object, [:content])
@@ -18,6 +18,7 @@ module DataCycleCore
                             .first
       version = permitted_download_params[:version]
       languages = permitted_download_params[:language]
+
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{@serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@object, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@object, :content, @serialize_format)
 
       download_content(@object, @serialize_format, Array.wrap(languages), version)

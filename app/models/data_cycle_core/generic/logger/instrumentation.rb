@@ -70,7 +70,7 @@ module DataCycleCore
         end
 
         def phase_failed(exception, external_system, step_label, step_name = '', channel = 'download_failed.datacycle')
-          error_instrument(exception:, external_system:, step_label:, step_name:, channel:, namespace: 'background')
+          error_instrument(exception:, external_system:, step_label:, step_name:, channel:, namespace: 'background_jobs')
         end
 
         def validation_error(label, data, error_text)

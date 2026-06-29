@@ -9,6 +9,16 @@ manage_system_subjects:
       - DataCycleCore::ClassificationTree
       - DataCycleCore::Concept
 
+# only system_admin may recompute computed attributes from the admin dashboard
+# (super_admin's dash_board whitelist deliberately excludes these actions)
+dash_board_computed_attributes:
+  actions:
+    - computed_attributes_form
+    - update_computed_attributes
+  segment: SubjectByConditions
+  parameters:
+    - - :dash_board
+
 read_api_configs:
   actions: read
   segment: SubjectByConditions

@@ -28,6 +28,7 @@ de:
     Article: Artikel
     StructuredArticle: Strukturierter Artikel
     AdditionalDescription: Beschreibungstext
+    AdditionalInformation: Ergänzende Information
     AudioObject: Audio
     ImageObject: Bild
     VideoObject: Video
@@ -191,6 +192,18 @@ de:
         started: Generieren der Klassifizierungsmappings wurde gestartet
         finished: Generieren der Klassifizierungsmappings wurde abgeschlossen
         error: Beim Generieren der Klassifizierungsmappings ist ein Fehler aufgetreten!
+      computed_attributes:
+        title: Computed Attribute aktualisieren
+        scope_label: Templates oder Collections
+        scope_hint: Template-Namen oder Collection-UUIDs, getrennt durch „|“
+        attributes_label: Computed Attribute
+        attributes_placeholder: Computed Attribute auswählen
+        webhooks_label: Webhooks auslösen
+        button: Aktualisierung einreihen
+        queued: Job zum Aktualisieren der Computed Attribute wurde in die Queue eingefügt
+        missing_input: Bitte einen Geltungsbereich angeben und mindestens ein Computed
+          Attribut auswählen
+        warning: Dies kann lange dauern und viele Inhalte aktualisieren.
 
   notification:
     frequency:

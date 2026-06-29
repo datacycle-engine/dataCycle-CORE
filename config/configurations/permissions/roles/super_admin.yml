@@ -2,14 +2,32 @@ manage_subjects:
   actions: manage
   segment: SubjectByConditions
   parameters:
-    - - :dash_board
-      - :backend
+    - - :backend
       - :user_api
       - :object_browser
       - :cache
       - :report
       - DataCycleCore::UserGroup
       - DataCycleCore::Permission
+
+# whitelist of dash_board actions for super_admin (no :manage so the
+# computed-attribute recompute stays reserved for system_admin, see system_admin.yml)
+dash_board_actions:
+  actions:
+    - home
+    - pg_stats
+    - download
+    - download_import
+    - import
+    - delete_queue
+    - import_module
+    - activities
+    - activity_details
+    - show_admin_activities
+    - rebuild_classification_mappings
+  segment: SubjectByConditions
+  parameters:
+    - - :dash_board
 
 data_link_actions:
   actions: manage

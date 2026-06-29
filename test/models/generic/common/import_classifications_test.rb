@@ -135,5 +135,144 @@ module DataCycleCore
       assert_not_nil(calls.first[:mongo_item])
       assert_not_nil(calls.first[:logging])
     end
+
+    test 'import_classifications imports root classifications and their children' do
+      load_root = ->(_mongo_item, locale, _options) { [{ 'dump' => { locale => { 'id' => 'icp-root', 'name' => 'ICP Root', 'key' => 'icp-root' } } }] }
+      load_child = lambda do |_mongo_item, raw, locale|
+        raw['key'] == 'icp-root' ? [{ 'dump' => { locale => { 'id' => 'icp-child', 'name' => 'ICP Child', 'key' => 'icp-child' } } }] : []
+      end
+      load_parent = ->(_raw, _external_source_id, _options) {}
+      extract = ->(_options, raw) { { name: raw['name'], external_key: raw['key'] } }
+
+      @subject.import_classifications(pipeline_import_object('icp_step'), 'ICP Tree', load_root, load_child, load_parent, extract, { import: {} })
+
+      assert_not_nil(DataCycleCore::Classification.find_by(external_key: 'icp-root', external_source_id: @local_system.id))
+      assert_not_nil(DataCycleCore::Classification.find_by(external_key: 'icp-child', external_source_id: @local_system.id))
+    end
+
+    test 'import_classifications_with_filter enables filters, locale-aware extraction and respects max_count' do
+      load_root = ->(_mongo_item, _locale, _options, _source_filter) { [{ 'dump' => { de: { 'name' => 'WF Root', 'key' => 'wf-root' } } }] }
+      load_child = ->(_mongo_item, _raw, _locale, _source_filter) { [] }
+      load_parent = ->(_raw, _external_source_id, _options) {}
+      extract = ->(_options, raw, locale:) { { name: "#{raw['name']} #{locale}", external_key: raw['key'] } }
+      options = { import: { source_filter: { 'foo' => 'bar' } }, max_count: 1 }
+
+      @subject.import_classifications_with_filter(pipeline_import_object('wf_step'), 'WF Tree', load_root, load_child, load_parent, extract, options)
+
+      assert_not_nil(DataCycleCore::Classification.find_by(external_key: 'wf-root', external_source_id: @local_system.id))
+    end
+
+    test 'import_classifications supports filter_object iterators' do
+      # keyword names must stay literal: filter_object? detects a param named :filter_object
+      load_root = ->(filter_object:, options:) { [{ 'dump' => { de: { 'name' => 'FO Root', 'key' => 'fo-root' } } }] } # rubocop:disable Lint/UnusedBlockArgument
+      load_child = ->(filter_object:, data:, options:) { [] } # rubocop:disable Lint/UnusedBlockArgument
+      load_parent = ->(_raw, _external_source_id, _options) {}
+      extract = ->(_options, raw) { { name: raw['name'], external_key: raw['key'] } }
+
+      @subject.import_classifications(pipeline_import_object('fo_step'), 'FO Tree', load_root, load_child, load_parent, extract, { import: {} })
+
+      assert_not_nil(DataCycleCore::Classification.find_by(external_key: 'fo-root', external_source_id: @local_system.id))
+    end
+
+    test 'import_classifications skips items below min_count' do
+      load_root = ->(_mongo_item, locale, _options) { [{ 'dump' => { locale => { 'name' => 'Skipped', 'key' => 'mc-skip' } } }] }
+      load_child = ->(_mongo_item, _raw, _locale) { [] }
+      load_parent = ->(_raw, _external_source_id, _options) {}
+      extract = ->(_options, raw) { { name: raw['name'], external_key: raw['key'] } }
+
+      @subject.import_classifications(pipeline_import_object('mc_step'), 'MC Tree', load_root, load_child, load_parent, extract, { import: {}, min_count: 5 })
+
+      assert_nil(DataCycleCore::Classification.find_by(external_key: 'mc-skip', external_source_id: @local_system.id))
+    end
+
+    test 'import_classifications rescues per-item errors and fails the phase' do
+      load_root = ->(_mongo_item, locale, _options) { [{ 'dump' => { locale => { 'id' => 'err-id', 'name' => 'Boom', 'key' => 'err-key' } } }] }
+      load_child = ->(_mongo_item, _raw, _locale) { [] }
+      load_parent = ->(_raw, _external_source_id, _options) {}
+      extract = ->(_options, _raw) { raise 'boom' }
+
+      ActiveSupport::Notifications.stub(:instrument, ->(*_args, **_kwargs, &block) { block&.call }) do
+        assert_nothing_raised do
+          @subject.import_classifications(pipeline_import_object('err_step'), 'ERR Tree', load_root, load_child, load_parent, extract, { import: {} })
+        end
+      end
+
+      assert_nil(DataCycleCore::Classification.find_by(external_key: 'err-key', external_source_id: @local_system.id))
+    end
+
+    test 'import_classifications2 imports parents with their extracted children' do
+      load_root = ->(_mongo_item, locale, _options) { [{ 'dump' => { locale => { 'name' => 'IC2 Parent', 'key' => 'ic2-parent' } } }] }
+      load_parent = ->(_data, _external_source_id, _options) {}
+      extract_parent = ->(_options, data) { { name: data['name'], external_key: data['key'] } }
+      extract_child = ->(_options, _data) { [{ name: 'IC2 Child', external_key: 'ic2-child' }] }
+
+      @subject.import_classifications2(pipeline_import_object('ic2_step'), 'IC2 Tree', load_root, load_parent, extract_parent, extract_child, { import: {} })
+
+      assert_not_nil(DataCycleCore::Classification.find_by(external_key: 'ic2-parent', external_source_id: @local_system.id))
+      assert_not_nil(DataCycleCore::Classification.find_by(external_key: 'ic2-child', external_source_id: @local_system.id))
+    end
+
+    test 'import_classifications2 stops at max_count' do
+      load_root = lambda do |_mongo_item, locale, _options|
+        [
+          { 'dump' => { locale => { 'name' => 'IC2M A', 'key' => 'ic2m-a' } } },
+          { 'dump' => { locale => { 'name' => 'IC2M B', 'key' => 'ic2m-b' } } }
+        ]
+      end
+      load_parent = ->(_data, _external_source_id, _options) {}
+      extract_parent = ->(_options, data) { { name: data['name'], external_key: data['key'] } }
+      extract_child = ->(_options, _data) { [] }
+
+      @subject.import_classifications2(pipeline_import_object('ic2m_step'), 'IC2M Tree', load_root, load_parent, extract_parent, extract_child, { import: {}, max_count: 1 })
+
+      assert_not_nil(DataCycleCore::Classification.find_by(external_key: 'ic2m-a', external_source_id: @local_system.id))
+      assert_nil(DataCycleCore::Classification.find_by(external_key: 'ic2m-b', external_source_id: @local_system.id))
+    end
+
+    test 'import_classification reuses an existing polygon id when updating' do
+      polygon = polygon_attributes
+      @subject.import_classification(
+        utility_object: @utility_object,
+        classification_data: { name: 'Poly One', external_key: 'poly-1', tree_name: 'Poly Tree', classification_polygons_attributes: [polygon] }
+      )
+      updated_alias = @subject.import_classification(
+        utility_object: @utility_object,
+        classification_data: { name: 'Poly One', external_key: 'poly-1', tree_name: 'Poly Tree', classification_polygons_attributes: [polygon_attributes] }
+      )
+
+      assert_equal(1, updated_alias.classification_polygons.count)
+    end
+
+    test 'import_classifications logs partial progress every 100 items' do
+      roots = (1..100).map { |i| { 'dump' => { de: { 'name' => "Batch #{i}", 'key' => "batch-#{i}" } } } }
+      load_root = ->(_mongo_item, _locale, _options) { roots }
+      load_child = ->(_mongo_item, _raw, _locale) { [] }
+      load_parent = ->(_raw, _external_source_id, _options) {}
+      extract = ->(_options, raw) { { name: raw['name'], external_key: raw['key'] } }
+
+      @subject.import_classifications(pipeline_import_object('batch_step'), 'Batch Tree', load_root, load_child, load_parent, extract, { import: {} })
+
+      assert_not_nil(DataCycleCore::Classification.find_by(external_key: 'batch-1', external_source_id: @local_system.id))
+    end
+
+    private
+
+    def pipeline_import_object(name)
+      DataCycleCore::Generic::ImportObject.new(
+        external_source: @local_system,
+        locales: [:de],
+        import: {
+          import_strategy: 'DataCycleCore::Generic::Common::ImportContents',
+          source_type: 'things',
+          name:
+        }
+      )
+    end
+
+    def polygon_attributes
+      factory = RGeo::Geographic.spherical_factory(srid: 4326)
+      ring = factory.linear_ring([factory.point(11.0, 46.0), factory.point(11.2, 46.0), factory.point(11.2, 46.2), factory.point(11.0, 46.2), factory.point(11.0, 46.0)])
+      { geom: factory.polygon(ring) }
+    end
   end
 end

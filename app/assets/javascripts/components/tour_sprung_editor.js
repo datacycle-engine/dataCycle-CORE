@@ -129,6 +129,16 @@ class TourSprungEditor extends MapLibreGlEditor {
 		this.elevationProfilePromise = (async () => {
 			if (!this.elevationProfile) await this._renderElevationProfile();
 
+			// MTK's setPolyline() logs an error for polylines with fewer than two
+			// points or zero length (e.g. a just-cleared or empty route).
+			const lngLats = this.featurePolyLine?.lngLats;
+			if (
+				!lngLats ||
+				lngLats.length < 2 ||
+				this.featurePolyLine.getDistance() === 0
+			)
+				return;
+
 			return new Promise((resolve, _reject) => {
 				this.elevationProfile.setPolyline(this.featurePolyLine, () =>
 					resolve(),
@@ -187,6 +197,26 @@ class TourSprungEditor extends MapLibreGlEditor {
 		await geojsonPromise;
 
 		this.featurePolyLine = this.editorGui.editor.getPolyline();
+	}
+	// the inherited updateFeature() drives MapboxDraw (this.draw), which the
+	// MapToolKit editor does not use. Clear the current route, then load the
+	// imported feature into the MTK editor instead; its "update" event (see
+	// initMtkEvents) then syncs the hidden field, polyline and elevation profile.
+	updateFeature(geoJson) {
+		this.editorGui.editor.reset();
+		this.feature = geoJson;
+
+		this.editorGui.editor.loadGeoJSON(
+			this._createFeatureCollection([geoJson]),
+			(err) => {
+				if (err) {
+					console.error("failed to import data into MapToolKit editor!", err);
+					return;
+				}
+
+				this.updateMapPosition();
+			},
+		);
 	}
 	iconOptions(type = "default", hover = false, color = "default") {
 		const iconId = `marker-icon-${type}-${color}-${

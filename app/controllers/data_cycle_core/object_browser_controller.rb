@@ -27,7 +27,7 @@ module DataCycleCore
             template_name: stored_filter.blank? ? template_names : nil
           })
         filter.language = @language
-        filters = Array.wrap(permitted_params.dig(:filter, :f)&.values)
+        filters = sanitize_request_filters(permitted_params.dig(:filter, :f)&.values)
         filter.parameters.concat(filters)
         filter.apply_sorting_from_parameters(filters: filters, sort_params: Array.wrap(permitted_params.dig(:filter, :s, :v)))
 
@@ -64,9 +64,9 @@ module DataCycleCore
 
       I18n.with_locale(permitted_params[:locale]) do
         @objects = if permitted_params[:external]
-                     DataCycleCore::Thing.where(external_key: permitted_params[:ids])
+                     DataCycleCore::Thing.in_order_of(:external_key, permitted_params[:ids])
                    else
-                     DataCycleCore::Thing.where(id: permitted_params[:ids])
+                     DataCycleCore::Thing.in_order_of(:id, permitted_params[:ids])
                    end
 
         render json: { html: render_to_string(formats: [:html], layout: false, locals: ob_params).strip, ids: @objects.pluck(:id) }

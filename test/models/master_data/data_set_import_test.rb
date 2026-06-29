@@ -832,6 +832,112 @@ module DataCycleCore
       assert_equal('translated_value', event.dig(:data, :properties, :base_property, :storage_location))
     end
 
+    test 'import writes templates, schema types and refreshes materialized views' do
+      template_importer = subject.new(template_paths: [import_path])
+
+      assert_predicate template_importer, :valid?
+      assert_nothing_raised { template_importer.import }
+      assert_empty template_importer.errors
+      assert DataCycleCore::ThingTemplate.exists?(template_name: 'Entity-Creative-Work-1')
+    end
+
+    test 'import returns early when the importer is already invalid' do
+      template_importer = subject.new(template_paths: [non_existent_path])
+      template_importer.errors.push('forced error')
+
+      assert_nil template_importer.import
+    end
+
+    test 'import collects validator errors without writing when validation fails' do
+      template_importer = subject.new(template_paths: [import_path_missing_template])
+
+      template_importer.import
+
+      assert_predicate template_importer.errors, :present?
+    end
+
+    test 'import rescues errors raised inside the transaction and rolls back' do
+      template_importer = subject.new(template_paths: [import_path])
+
+      template_importer.stub(:update_templates, ->(*) { raise 'boom' }) do
+        template_importer.import
+      end
+
+      assert(template_importer.errors.any? { |e| e.include?('import error => ') })
+    end
+
+    test 'render helpers stay silent when nothing was collected and print otherwise' do
+      template_importer = subject.new(template_paths: [non_existent_path])
+
+      assert_silent do
+        template_importer.render_duplicates
+        template_importer.render_mixin_errors
+        template_importer.render_errors
+        template_importer.render_mixin_paths
+      end
+
+      template_importer.instance_variable_set(:@duplicates, { 'creative_works.Entity' => ['path'] })
+      template_importer.instance_variable_set(:@mixin_errors, ['mixin error'])
+      template_importer.errors.push('import error')
+      template_importer.instance_variable_set(:@mixin_paths, ['mixin/b', 'mixin/a'])
+
+      capture_io do
+        template_importer.render_duplicates
+        template_importer.render_mixin_errors
+        template_importer.render_errors
+        template_importer.render_mixin_paths
+      end
+    end
+
+    test 'load_templates_from_path records an error for unparseable YML files' do
+      template_importer = subject.new(template_paths: [non_existent_path])
+      template_importer.instance_variable_set(:@errors, [])
+
+      YAML.stub(:safe_load, ->(*, **) { raise 'invalid yml' }) do
+        template_importer.send(:load_templates_from_path, import_path, :creative_works)
+      end
+
+      assert(template_importer.errors.any? { |e| e.include?('error loading YML File') })
+    end
+
+    test 'append_error! formats non-TemplateError errors with set and template name' do
+      template_importer = subject.new(template_paths: [non_existent_path])
+      template_importer.instance_variable_set(:@errors, [])
+
+      template_importer.send(:append_error!, StandardError.new('plain error'), { set: :things }, { name: 'SomeTemplate' })
+
+      assert_includes template_importer.errors, 'things.SomeTemplate => plain error'
+    end
+
+    test 'append_transformed_template! rescues transformation errors' do
+      template_importer = subject.new(template_paths: [non_existent_path])
+      template_importer.instance_variable_set(:@errors, [])
+
+      template_importer.stub(:transform_template_data, ->(*, **) { raise 'transform boom' }) do
+        template_importer.send(:append_transformed_template!, { name: 'BrokenTemplate' }, { set: :things })
+      end
+
+      assert(template_importer.errors.any? { |e| e.include?('transform boom') })
+    end
+
+    test 'add_inverse_aggregate_properties! records missing base templates' do
+      template_importer = subject.new(template_paths: [non_existent_path])
+      template_importer.instance_variable_set(:@errors, [])
+      template_importer.instance_variable_set(:@templates, [
+                                                {
+                                                  name: 'AggregateTemplate',
+                                                  data: {
+                                                    features: { aggregate: { aggregate: true } },
+                                                    properties: { DataCycleCore::MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME => { template_name: 'MissingBaseTemplate' } }
+                                                  }
+                                                }
+                                              ])
+
+      template_importer.send(:add_inverse_aggregate_properties!)
+
+      assert(template_importer.errors.any? { |e| e.include?('BaseTemplate missing for MissingBaseTemplate') })
+    end
+
     private
 
     def subject
