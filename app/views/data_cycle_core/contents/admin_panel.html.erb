@@ -1,0 +1,8 @@
+<%# SECURITY (DC-01): shared response for the admin_panel_* actions (DataCycleCore::AdminPanelActions). %>
+<%# Each action authorizes :show_admin_panel and builds @admin_panel_data_json itself, so this view %>
+<%# only renders the prepared payload — no record loading or data logic lives here. %>
+<%= turbo_frame_tag @admin_panel_frame do %>
+  <% if @admin_panel_data_json.present? %>
+    <code class="formatted-json" data-json="<%= @admin_panel_data_json %>"></code>
+  <% end %>
+<% end %>

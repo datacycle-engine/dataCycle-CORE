@@ -2979,7 +2979,8 @@ input.normalized {
         background: $light-gray;
       }
 
-      pre {
+      pre,
+      .admin-panel-frame {
         overflow: auto;
         display: block;
         width: 100%;

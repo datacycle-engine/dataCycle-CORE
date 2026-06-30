@@ -3,6 +3,7 @@
 module DataCycleCore
   class ApplicationController < ActionController::Base
     include ParamsResolver
+    include RemoteRenderGuard
     include DryParams
     include ErrorHandler
     include ActiveStorage::SetCurrent
@@ -55,8 +56,14 @@ module DataCycleCore
     end
 
     def remote_render
-      @partial = remote_render_params[:partial]
-      @render_function = remote_render_params[:render_function]
+      @partial = remote_render_params[:partial].presence
+      @render_function = remote_render_params[:render_function].presence
+
+      # SECURITY (DC-01): constrain both attacker-reachable strings to an allowlist before they
+      # reach `render` / `try` (see DataCycleCore::RemoteRenderGuard).
+      return head(:forbidden) if @render_function.present? && !remote_render_function_allowed?(@render_function)
+      return head(:forbidden) if @partial.present? && !remote_render_partial_allowed?(@partial)
+
       @render_params = resolve_params(remote_render_params[:render_params])
       @options = resolve_params(remote_render_params[:options])
       @force_recursive_load = remote_render_params[:force_recursive_load]

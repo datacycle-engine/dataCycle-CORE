@@ -1,5 +1,0 @@
-<%# SECURITY (DC-01): only callers allowed to view a content's admin panel may render this %>
-<%# remote_render partial (mirrors _datahash/_schema/_template_path). %>
-<% if content.present? && can?(:show_admin_panel, content) %>
-  <code class="formatted-json" data-json="<%= content.external_system_syncs.export.includes(:external_system).to_json(only: [:exported_data, :exception_data, :status, :last_sync_at, :last_successful_sync_at, :job_id, :job_status, :seen_at], include: { external_system: { only: [:id, :name, :identifier] } }) %>"></code>
-<% end %>

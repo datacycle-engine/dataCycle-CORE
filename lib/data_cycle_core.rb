@@ -136,6 +136,18 @@ module DataCycleCore
   mattr_accessor :features
   self.features = {}
 
+  # SECURITY (DC-01): host-app extensions to the remote_render allowlist
+  # (see DataCycleCore::RemoteRenderGuard). Keep these tight — every entry widens an
+  # authenticated "render this partial / call this helper" primitive.
+  mattr_accessor :additional_remote_render_partials
+  self.additional_remote_render_partials = []
+
+  mattr_accessor :additional_remote_render_partial_prefixes
+  self.additional_remote_render_partial_prefixes = []
+
+  mattr_accessor :additional_remote_render_functions
+  self.additional_remote_render_functions = []
+
   mattr_accessor :data_definition_mapping
   self.data_definition_mapping = {}
 

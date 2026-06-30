@@ -4,7 +4,7 @@ workbook = xlsx_package.workbook
 
 def render_template(sheet, template)
   rows = template.schema['properties'].map { |key, definition|
-    convert_attribute_to_row(key, definition)
+    convert_attribute_to_row(key, definition, Set[template.template_name])
   }.reduce([]) do |all, next_element|
     all + (next_element.all?(Array) ? next_element : [next_element])
   end
@@ -28,7 +28,7 @@ def render_template(sheet, template)
   end
 end
 
-def convert_attribute_to_row(key, definition)
+def convert_attribute_to_row(key, definition, visited = Set.new)
   case definition['type']
   when 'key'
     convert_string_attribute_to_row(key, definition)
@@ -39,9 +39,9 @@ def convert_attribute_to_row(key, definition)
   when 'classification'
     convert_classification_attribute_to_row(key, definition)
   when 'object'
-    convert_object_attribute_to_rows(key, definition)
+    convert_object_attribute_to_rows(key, definition, visited)
   when 'embedded'
-    convert_embedded_attribute_to_rows(key, definition)
+    convert_embedded_attribute_to_rows(key, definition, visited)
   when 'linked'
     convert_linked_attribute_to_rows(key, definition)
   else
@@ -65,23 +65,26 @@ def convert_classification_attribute_to_row(key, definition)
   [definition['label'], key, definition['type'].capitalize, " => siehe Klassifizierungsbaum '#{definition['tree_label']}'"]
 end
 
-def convert_object_attribute_to_rows(key, definition)
+def convert_object_attribute_to_rows(key, definition, visited = Set.new)
   [[definition['label'], key, nil, nil]] + definition['properties'].map do |property_key, property_definition|
-    [nil] + convert_attribute_to_row(property_key, property_definition)
+    [nil] + convert_attribute_to_row(property_key, property_definition, visited)
   end
 end
 
-def convert_embedded_attribute_to_rows(key, definition)
+def convert_embedded_attribute_to_rows(key, definition, visited = Set.new)
+  return [definition['label'], key, nil, ' => rekursiv'] if visited.include?(definition['template_name'])
+
+  visited += [definition['template_name']]
   embedded_template = DataCycleCore::ThingTemplate.find_by(template_name: definition['template_name'])
 
   # rubocop:disable Performance/FlatMap
   [[definition['label'], key, nil, nil]] + embedded_template.schema['properties'].map { |property_key, property_definition|
-    nested_attributes = convert_attribute_to_row(property_key, property_definition)
+    nested_attributes = convert_attribute_to_row(property_key, property_definition, visited)
 
     if nested_attributes.all?(Array)
       nested_attributes.map { |attribute| [nil] + attribute }
     else
-      [[nil] + convert_attribute_to_row(property_key, property_definition)]
+      [[nil] + nested_attributes]
     end
   }.flatten(1)
   # rubocop:enable Performance/FlatMap

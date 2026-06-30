@@ -129,7 +129,7 @@ module DataCycleCore
 
         <<~SQL.squish
           #{base_contents_subquery}, mvtgeom AS (
-            SELECT ST_AsMVTGeom(MAX(t.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})) AS geom,
+            SELECT ST_AsMVTGeom((array_agg(t.geometry))[1], ST_TileEnvelope(#{@z}, #{@x}, #{@y})) AS geom,
               t.id as "@id"
               #{includes.map { |c| "#{c[:select]} AS #{c[:identifier]}" }.join(', ').presence&.prepend(', ')}
             FROM contents as t
@@ -175,7 +175,7 @@ module DataCycleCore
 
         <<~SQL.squish
           UNION ALL
-          SELECT ST_AsMVTGeom(MAX(contents.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})),
+          SELECT ST_AsMVTGeom((array_agg(contents.geometry))[1], ST_TileEnvelope(#{@z}, #{@x}, #{@y})),
             contents.id AS "@id"
             #{includes.map { |c| "#{c[:select]} AS #{c[:identifier]}" }.join(', ').presence&.prepend(', ')}
           FROM contents
@@ -259,7 +259,7 @@ module DataCycleCore
           ),
           items AS (
             SELECT ST_AsMVTGeom(
-                MAX(mvtgeom.geom),
+                (array_agg(mvtgeom.geom))[1],
                 ST_TileEnvelope(#{@z}, #{@x}, #{@y})
               ),
               mvtgeom.id as "@id"

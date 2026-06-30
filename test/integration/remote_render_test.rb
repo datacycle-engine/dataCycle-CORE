@@ -3,23 +3,19 @@
 require 'test_helper'
 
 module DataCycleCore
-  # DC-01: /remote_render renders in-tree partials with objects resolved from attacker-supplied
-  # {class,id} params (ParamsResolver) and no per-partial authorization. The admin_panel partials
-  # must not let a low-privileged user dump arbitrary ActiveRecord rows — e.g. another user's API
-  # access_token — which previously allowed a one-request account takeover.
+  # DC-01: /remote_render formerly rendered ANY in-tree partial (and invoked ANY helper via `try`)
+  # with objects resolved from attacker-supplied {class,id} params (ParamsResolver) and no
+  # per-partial authorization — letting a low-privileged user dump arbitrary ActiveRecord rows
+  # (e.g. another user's API access_token) through the admin_panel partials, a one-request takeover.
+  #
+  # The endpoint now rejects anything outside an allowlist (DataCycleCore::RemoteRenderGuard). The
+  # admin_panel partials are no longer reachable here at all — they are served only through the
+  # authorized ContentsController#admin_panel action (see AdminPanelTest).
   class RemoteRenderTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
 
     VICTIM_TOKEN = 'dc01-secret-access-token-value'
-
-    UNGUARDED_ADMIN_PANEL_PARTIALS = [
-      'data_cycle_core/application/admin_panel/data_send',
-      'data_cycle_core/application/admin_panel/json_api',
-      'data_cycle_core/application/admin_panel/meta_data',
-      'data_cycle_core/application/admin_panel/data_export',
-      'data_cycle_core/application/admin_panel/thing_history_links'
-    ].freeze
 
     setup do
       @routes = Engine.routes
@@ -38,27 +34,42 @@ module DataCycleCore
       sign_in(@standard_user)
     end
 
-    test 'remote_render admin_panel partials do not dump a user record (access_token) by class+id' do
-      UNGUARDED_ADMIN_PANEL_PARTIALS.each do |partial|
+    test 'rejects admin_panel partials (the record-dump vector) with 403 and leaks nothing' do
+      ['schema', 'template_path', 'datahash', 'thing_history_links', 'json_api', 'meta_data', 'data_export', 'data_send'].each do |panel|
         get remote_render_path, params: {
-          partial:,
+          partial: "data_cycle_core/application/admin_panel/#{panel}",
           options: { content: { class: 'DataCycleCore::User', id: @victim.id } }
         }
 
-        assert_response :success
-        assert_not_includes response.body, VICTIM_TOKEN, "#{partial} leaked the user's access_token"
-        assert_not_includes response.body, 'access_token', "#{partial} leaked user record fields"
+        assert_response :forbidden, "admin_panel/#{panel} must not be reachable via remote_render"
+        assert_not_includes response.body, VICTIM_TOKEN
+        assert_not_includes response.body, 'access_token'
       end
     end
 
-    test 'remote_render data_send still renders legitimate plain (non-record) data' do
-      get remote_render_path, params: {
-        partial: 'data_cycle_core/application/admin_panel/data_send',
-        options: { content: { example_key: 'example_value' } }
-      }
+    test 'rejects an arbitrary in-tree partial with 403' do
+      get remote_render_path, params: { partial: 'data_cycle_core/contents/show' }
+
+      assert_response :forbidden
+    end
+
+    test 'rejects path traversal with 403' do
+      get remote_render_path, params: { partial: '../../../../etc/passwd' }
+
+      assert_response :forbidden
+    end
+
+    test 'rejects an arbitrary render_function (try-invoked helper) with 403' do
+      get remote_render_path, params: { render_function: 'destroy' }
+
+      assert_response :forbidden
+    end
+
+    test 'still serves an allowlisted partial (no regression)' do
+      get remote_render_path, params: { partial: 'data_cycle_core/stored_filters/search_history_short' }
 
       assert_response :success
-      assert_includes response.body, 'example_value'
+      assert_not_equal 403, response.status
     end
   end
 end

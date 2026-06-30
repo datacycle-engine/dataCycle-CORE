@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    data_cycle_core (26.06.01.pre.develop.89895ec)
+    data_cycle_core (26.06.11)
       activerecord-postgis-adapter
       acts_as_paranoid
       acts_as_tree
@@ -509,7 +509,7 @@ GEM
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
       rack (>= 3.0.0, < 4)
-    rack-proxy (0.8.2)
+    rack-proxy (0.8.3)
       rack
     rack-session (2.1.2)
       base64 (>= 0.1.0)
@@ -743,4 +743,4 @@ RUBY VERSION
   ruby 3.3.10
 
 BUNDLED WITH
-  4.0.14
+  4.0.15

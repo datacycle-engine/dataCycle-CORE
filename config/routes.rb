@@ -145,6 +145,10 @@ DataCycleCore::Engine.routes.draw do
         delete :remove_external_connection, on: :member
         post 'trigger_webhooks/:webhook_action', on: :member, action: :trigger_webhooks, as: 'trigger_webhooks'
         get :content_classifier_form_body, on: :member
+        # SECURITY (DC-01): one authorized Turbo-frame action per admin-panel tab (DataCycleCore::AdminPanelActions)
+        DataCycleCore::AdminPanelActions::PANELS.each do |panel|
+          get "admin_panel/#{panel}", on: :member, action: :"admin_panel_#{panel}", as: :"admin_panel_#{panel}"
+        end
         match '/', on: :member, action: :show, via: [:get, :post], constraints: { id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ }
       end
     end

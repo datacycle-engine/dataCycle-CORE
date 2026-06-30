@@ -1,3 +1,5 @@
+<%# SECURITY (DC-01): each tab loads through its own authorized Turbo-frame action %>
+<%# (DataCycleCore::AdminPanelActions), not the generic remote_render endpoint. %>
 <% has_export_syncs = content.try(:external_system_syncs)&.export&.exists? %>
 <section id="admin-panel">
   <section id="admin-inner" data-tabs-content="admin-icons">
@@ -5,31 +7,31 @@
       <section class="schema-nav">
         <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.schema', locale: active_ui_locale)) %>
       </section>
-      <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+      <%= turbo_frame_tag "admin_panel_schema_#{content.id}", src: admin_panel_schema_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
     </section>
     <section id="template-paths" class="tabs-panel">
       <section class="template-paths-nav">
         <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.template_paths', locale: active_ui_locale)) %>
       </section>
-      <pre id="admin_template_paths" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/template_path" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+      <%= turbo_frame_tag "admin_panel_template_path_#{content.id}", src: admin_panel_template_path_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
     </section>
     <section id="datahash" class="tabs-panel">
       <section class="datahash-nav">
         <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.datahash', locale: active_ui_locale)) %>
       </section>
-      <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
+      <%= turbo_frame_tag "admin_panel_datahash_#{content.id}", src: admin_panel_datahash_thing_path(content, locale: I18n.locale), loading: 'lazy', class: 'admin-panel-frame' %>
     </section>
     <section id="thing_history_links" class="tabs-panel">
       <section class="datahash-nav">
         <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.thing_history_links', locale: active_ui_locale)) %>
       </section>
-      <pre id="admin_thing_history_links" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/thing_history_links" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
+      <%= turbo_frame_tag "admin_panel_thing_history_links_#{content.id}", src: admin_panel_thing_history_links_thing_path(content, locale: I18n.locale), loading: 'lazy', class: 'admin-panel-frame' %>
     </section>
     <section id="json-api" class="tabs-panel">
       <section class="json-api-nav">
         <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('JSON') + tag.h6('APIv4') %>
       </section>
-      <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+      <%= turbo_frame_tag "admin_panel_json_api_#{content.id}", src: admin_panel_json_api_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
     </section>
     <% dzt_data = content.external_system_syncs.joins(:external_system).find_by("external_systems.identifier = 'dzt' OR external_systems.identifier ILIKE 'onlim%' OR external_systems.identifier ILIKE 'dzt%'") %>
     <% if dzt_data&.try(:data)&.dig('data_send').present? %>
@@ -37,7 +39,7 @@
         <section class="data-send-nav">
           <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('DZT') + tag.h6(dzt_data&.try(:data)&.dig('data_send_at')) %>
         </section>
-        <pre id="admin_data-send" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_send" data-remote-options="<%= to_query_params(content: dzt_data&.try(:data)&.dig('data_send')).to_json %>"></pre>
+        <%= turbo_frame_tag "admin_panel_data_send_#{content.id}", src: admin_panel_data_send_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
       </section>
     <% end %>
     <% if dzt_data&.try(:data)&.dig('job_result').present? %>
@@ -45,7 +47,7 @@
         <section class="data-job-nav">
           <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('DZT') + tag.h6('export status') %>
         </section>
-        <pre id="admin_data-job" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_send" data-remote-options="<%= to_query_params(content: dzt_data&.try(:data)&.dig('job_result')).to_json %>"></pre>
+        <%= turbo_frame_tag "admin_panel_data_job_#{content.id}", src: admin_panel_data_job_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
       </section>
     <% end %>
     <% if has_export_syncs %>
@@ -53,7 +55,7 @@
         <section class="data-export-nav">
           <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('Exported Data') %>
         </section>
-        <pre id="admin_data-export" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_export" data-remote-options="<%= to_query_params(content:).to_json %>"></pre>
+        <%= turbo_frame_tag "admin_panel_data_export_#{content.id}", src: admin_panel_data_export_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
       </section>
     <% end %>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
@@ -61,7 +63,7 @@
         <section class="meta-data-nav">
           <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.meta-data', locale: active_ui_locale)) %>
         </section>
-        <pre id="admin_meta-data" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/meta_data" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+        <%= turbo_frame_tag "admin_panel_meta_data_#{content.id}", src: admin_panel_meta_data_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
       </section>
     <% end %>
   </section>

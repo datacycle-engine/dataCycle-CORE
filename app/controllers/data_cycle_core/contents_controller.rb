@@ -5,6 +5,7 @@ module DataCycleCore
     include DataCycleCore::FilterConcern
     include DataCycleCore::ExternalConnectionsConcern
     include DataCycleCore::ContentByIdOrTemplate
+    include DataCycleCore::AdminPanelActions
 
     before_action :set_watch_list, except: [:asset]
     before_action :set_return_to, only: [:show, :edit]

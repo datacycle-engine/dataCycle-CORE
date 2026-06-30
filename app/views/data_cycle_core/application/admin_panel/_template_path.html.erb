@@ -1,3 +1,0 @@
-<% if content.present? && can?(:show_admin_panel, content) %>
-  <code class="formatted-json" data-json="<%= content.thing_template.template_paths.to_json %>"></code>
-<% end %>
