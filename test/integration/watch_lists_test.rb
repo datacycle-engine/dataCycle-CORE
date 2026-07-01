@@ -514,5 +514,96 @@ module DataCycleCore
 
       assert_equal(0, @watch_list.things.count)
     end
+
+    # ---------- index ----------
+    test 'index lists the current users watch lists' do
+      get watch_lists_path
+
+      assert_response :success
+    end
+
+    # ---------- show (json view-mode branches) ----------
+    test 'show as json without a mode redirects to the api collection endpoint' do
+      get watch_list_path(@watch_list, format: :json)
+
+      assert_response :redirect
+    end
+
+    test 'show as json with count_only renders the count partial' do
+      get watch_list_path(@watch_list, format: :json, count_only: '1', target: 'results')
+
+      assert_response :success
+      assert response.parsed_body.key?('html')
+    end
+
+    # ---------- edit form ----------
+    test 'edit renders the watch list form' do
+      get edit_watch_list_path(@watch_list)
+
+      assert_response :success
+    end
+
+    # ---------- create / update failures ----------
+    test 'create with a blank name redirects back without persisting' do
+      assert_no_difference -> { DataCycleCore::WatchList.count } do
+        post watch_lists_path, params: { watch_list: { full_path: '' } }, headers: { referer: root_path }
+      end
+
+      assert_response :redirect
+    end
+
+    test 'update with a blank name re-renders the edit form' do
+      patch watch_list_path(@watch_list), params: { watch_list: { full_path: '' } }, headers: { referer: edit_watch_list_path(@watch_list) }
+
+      assert_response :success
+    end
+
+    # ---------- remove_item via turbo_stream ----------
+    test 'remove_item responds with a turbo stream' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
+
+      delete remove_item_watch_list_path(@watch_list),
+             params: { thing_id: @content.id },
+             headers: { referer: root_path, 'Accept' => 'text/vnd.turbo-stream.html' }
+
+      assert_response :success
+      assert_equal 'text/vnd.turbo-stream.html', response.media_type
+    end
+
+    # ---------- bulk_update with nothing selected ----------
+    test 'bulk_update with no selected attributes flashes an error and returns ok' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
+
+      patch bulk_update_watch_list_path(@watch_list), params: {
+        locale: 'de',
+        content_template: to_query_params(thing_template: generic_content(@watch_list).thing_template).to_json
+      }, headers: { referer: bulk_edit_watch_list_path(@watch_list) }
+
+      assert_response :success
+    end
+
+    # ---------- search ----------
+    test 'search returns accessible watch lists as json' do
+      get search_watch_lists_path(format: :json)
+
+      assert_response :success
+      assert_kind_of Array, response.parsed_body
+    end
+
+    test 'search filters watch lists by query' do
+      get search_watch_lists_path(format: :json), params: { q: @watch_list.name }
+
+      assert_response :success
+      assert_kind_of Array, response.parsed_body
+    end
+
+    # ---------- update_order ----------
+    test 'update_order persists a manual order' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
+
+      patch update_order_watch_list_path(@watch_list), params: { order: [@content.id] }, headers: { referer: watch_list_path(@watch_list) }
+
+      assert_response :success
+    end
   end
 end

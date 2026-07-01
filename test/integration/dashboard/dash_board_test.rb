@@ -108,6 +108,131 @@ module DataCycleCore
 
         assert_not enqueued
       end
+
+      test 'pg_stats renders the database statistics' do
+        get admin_pg_stats_path
+
+        assert_response :success
+      end
+
+      # Enqueuing/destroying jobs fires after_enqueue/after_destroy_commit dashboard
+      # broadcasts (Turbo::Throttler) that loop/raise inside the test harness; stub them out.
+      def without_job_broadcasts(&)
+        DataCycleCore::StatsJobQueue.stub(:broadcast_throttled_jobs_reload, nil) do
+          DataCycleCore::StatsJobQueue.stub(:broadcast_jobs_reload, nil, &)
+        end
+      end
+
+      # The import jobs run inline in the test adapter and their #perform requires keyword
+      # args the controller doesn't pass; stub the job builder with a no-op double so only
+      # the controller's enqueue branch is exercised.
+      def fake_dashboard_job
+        job = Object.new
+        def job.queue_name = 'importers'
+        def job.delayed_reference_type = 'DataCycleCore::ExternalSystem'
+        def job.delayed_reference_id = SecureRandom.uuid
+        # enqueue's return value is unused by the controller
+        def job.enqueue = nil
+        job
+      end
+
+      test 'download enqueues a download job and redirects' do
+        external_source = DataCycleCore::ExternalSystem.first
+
+        DataCycleCore::DownloadJob.stub(:new, fake_dashboard_job) do
+          post admin_download_path(external_source.id), params: { mode: 'full' }
+        end
+
+        assert_response :redirect
+      end
+
+      test 'download reports a running job when one is already queued' do
+        external_source = DataCycleCore::ExternalSystem.first
+
+        DataCycleCore::DownloadJob.stub(:new, fake_dashboard_job) do
+          Delayed::Job.stub(:exists?, true) do
+            post admin_download_path(external_source.id), params: { mode: 'full' }
+          end
+        end
+
+        assert_response :redirect
+      end
+
+      test 'import enqueues an import-only job and refreshes via turbo_stream' do
+        external_source = DataCycleCore::ExternalSystem.first
+
+        DataCycleCore::ImportOnlyJob.stub(:new, fake_dashboard_job) do
+          post admin_import_path(external_source.id), params: { mode: 'incremental' }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+        end
+
+        assert_response :success
+        assert_equal 'text/vnd.turbo-stream.html', response.media_type
+        assert_includes response.body, 'target="jobs_queue_title"'
+      end
+
+      test 'download_import enqueues a combined job and redirects' do
+        external_source = DataCycleCore::ExternalSystem.first
+
+        DataCycleCore::ImportJob.stub(:new, fake_dashboard_job) do
+          post admin_download_import_path(external_source.id), params: { mode: 'full' }
+        end
+
+        assert_response :redirect
+      end
+
+      test 'delete_queue destroys a delayed job' do
+        wrapper = ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper.new(DataCycleCore::RebuildClassificationMappingsJob.new.serialize)
+        job = Delayed::Job.create!(handler: wrapper.to_yaml, queue: 'default')
+
+        without_job_broadcasts do
+          delete admin_delete_queue_path(job.id)
+        end
+
+        assert_response :redirect
+        assert_not Delayed::Job.exists?(job.id)
+      end
+
+      test 'rebuild_classification_mappings queues a job and redirects (html)' do
+        DataCycleCore::RebuildClassificationMappingsJob.stub(:perform_later, nil) do
+          post admin_rebuild_classification_mappings_path
+        end
+
+        assert_redirected_to admin_path
+      end
+
+      test 'rebuild_classification_mappings queues a job and refreshes via turbo_stream' do
+        DataCycleCore::RebuildClassificationMappingsJob.stub(:perform_later, nil) do
+          post admin_rebuild_classification_mappings_path, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+        end
+
+        assert_response :success
+        assert_equal 'text/vnd.turbo-stream.html', response.media_type
+        assert_includes response.body, 'target="flash-messages"'
+      end
+
+      test 'import_module renders mongo statistics for an external source' do
+        external_source = DataCycleCore::ExternalSystem.first
+
+        get admin_import_module_path, params: { id: external_source.id }
+
+        assert_response :success
+      end
+
+      test 'activity_details returns json for each supported type' do
+        ['summary', 'user_summary', 'details'].each do |type|
+          get admin_activity_details_path(type)
+
+          assert_response :success
+          assert response.parsed_body.key?('data')
+        end
+      end
+
+      test 'activity_details returns an error for an unknown type' do
+        get admin_activity_details_path('bogus')
+
+        assert_response :success
+        assert response.parsed_body.key?('error')
+      end
     end
   end
 end

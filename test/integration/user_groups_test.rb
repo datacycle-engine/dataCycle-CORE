@@ -75,5 +75,42 @@ module DataCycleCore
 
       assert_select 'li.grid-item > .inner > .title', { count: 0, text: 'TestUserGroup' }
     end
+
+    test 'index with filters, sorting and count_only via json' do
+      get user_groups_path(format: :json), params: {
+        # an unresolved filter name exercises the filter-building loop then skips via `next`
+        f: { '0' => { 'c' => 'd', 'n' => 'zzz_no_such_scope', 'm' => 'i', 'v' => 'Test' } },
+        s: { '0' => { 'm' => 'name', 'o' => 'asc' } },
+        count_only: '1',
+        target: 'results',
+        count_mode: 'all',
+        content_class: 'UserGroup',
+        mode: 'list'
+      }
+
+      assert_response :success
+      assert response.parsed_body.key?('html')
+    end
+
+    test 'create with a blank name surfaces the validation error' do
+      post create_user_groups_path, params: {
+        user_group: { name: '' }
+      }, headers: { referer: user_groups_path }
+
+      assert_redirected_to user_groups_path
+      assert_nil flash[:success]
+      assert_predicate flash[:error], :present?
+      assert_nil DataCycleCore::UserGroup.find_by(name: '')
+    end
+
+    test 'update with a blank name re-renders the edit form' do
+      user_group = DataCycleCore::UserGroup.find_by(name: 'TestUserGroup')
+
+      patch user_group_path(user_group), params: {
+        user_group: { name: '' }
+      }, headers: { referer: edit_user_group_path(user_group) }
+
+      assert_response :success
+    end
   end
 end

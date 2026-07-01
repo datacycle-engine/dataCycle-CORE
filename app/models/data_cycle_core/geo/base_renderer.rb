@@ -92,7 +92,7 @@ module DataCycleCore
                   INNER JOIN concept_schemes ON concept_schemes.id = concepts.concept_scheme_id
                   #{'INNER JOIN classification_alias_paths ON classification_alias_paths.id = concepts.id' if fields_parameters.blank? || fields_parameters.include?('dc:path')}
                 WHERE 'api' = ANY(concept_schemes.visibility)
-                  #{"AND concepts.concept_scheme_id IN ('#{@classification_trees_parameters.join('\',\'')}')" if @classification_trees_parameters.present?}
+                  #{concept_scheme_filter_sql}
                   AND ccc.thing_id = #{base_table}.id
                   AND ccc.link_type IN ('direct', 'related')
               ) AS tmp1 ON TRUE"
@@ -130,6 +130,16 @@ module DataCycleCore
           joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = #{base_table}.id
                       AND thing_translations.locale = '#{I18n.locale}'"
         }
+      end
+
+      # Safely-quoted "AND <column> IN (...)" fragment for the requested classification
+      # trees, or nil when none were requested. Values come from a request parameter, so
+      # they must be quoted (not raw-interpolated) to prevent SQL injection.
+      def concept_scheme_filter_sql(column = 'concepts.concept_scheme_id')
+        return if @classification_trees_parameters.blank?
+
+        quoted = @classification_trees_parameters.map { |id| ActiveRecord::Base.connection.quote(id) }
+        "AND #{column} IN (#{quoted.join(', ')})"
       end
 
       def cache_key

@@ -72,6 +72,81 @@ module DataCycleCore
             end
             mock_method.verify
           end
+
+          # ---- timeseries guard branches ----
+          test 'timeseries returns not found for an unknown external key' do
+            patch api_v4_external_source_timeseries_path(external_source_id: @external_system.id, external_key: 'does-not-exist', attribute: 'series'),
+                  params: { 'series' => [['2026-04-30T12:00:00Z', 42]] }, as: :json
+
+            assert_response :not_found
+          end
+
+          test 'timeseries returns not found for an attribute the content does not have' do
+            patch api_v4_external_source_timeseries_path(external_source_id: @external_system.id, external_key: @content.external_key, attribute: 'notaproperty'),
+                  params: { 'notaproperty' => [['2026-04-30T12:00:00Z', 42]] }, as: :json
+
+            assert_response :not_found
+          end
+
+          test 'timeseries returns no content when no data is supplied' do
+            patch api_v4_external_source_timeseries_bulk_path(external_source_id: @external_system.id, external_key: @content.external_key),
+                  params: {}, as: :json
+
+            assert_response :no_content
+          end
+
+          # ---- content_request guard branches (create / demote) ----
+          test 'create returns endpoint not active when the external system has no api strategy' do
+            es = DataCycleCore::ExternalSystem.create!(name: 'Cov No Strategy', identifier: 'cov-no-strategy', config: {})
+
+            post api_v4_path(external_source_id: es.id), params: { '@graph' => [{ 'name' => 'x' }] }, as: :json
+
+            assert_response :not_found
+            assert_equal 'endpoint not active', response.parsed_body['error']
+          end
+
+          test 'demote returns endpoint not active when the external system has no api strategy' do
+            es = DataCycleCore::ExternalSystem.create!(name: 'Cov No Strategy Demote', identifier: 'cov-no-strategy-demote', config: {})
+
+            patch api_v4_demote_path(external_source_id: es.id), params: { '@graph' => [{ 'name' => 'x' }] }, as: :json
+
+            assert_response :not_found
+          end
+
+          test 'content request rejects an invalid locale' do
+            es = DataCycleCore::ExternalSystem.find_by(identifier: 'test-system-1') # configured with an api_strategy
+
+            post api_v4_path(external_source_id: es.id),
+                 params: { '@context' => { '@language' => 'xx' }, '@graph' => [{ 'name' => 'x' }] }, as: :json
+
+            assert_response :bad_request
+          end
+
+          # ---- feratel-only endpoints reject non-feratel / invalid input ----
+          test 'search_availability is only available for feratel data' do
+            es = DataCycleCore::ExternalSystem.create!(name: 'Cov Search', identifier: 'cov-search')
+
+            get api_v4_external_source_search_availability_path(external_source_id: es.id)
+
+            assert_response :bad_request
+            assert_equal 'Only available for Feratel data.', response.parsed_body['error']
+          end
+
+          test 'search_additional_service is only available for feratel data' do
+            es = DataCycleCore::ExternalSystem.create!(name: 'Cov Search AS', identifier: 'cov-search-as')
+
+            get api_v4_external_source_search_additional_service_path(external_source_id: es.id)
+
+            assert_response :bad_request
+          end
+
+          test 'facets_feratel_locations rejects an invalid type' do
+            es = DataCycleCore::ExternalSystem.create!(name: 'Cov Facets', identifier: 'cov-facets')
+
+            get api_v4_external_source_facets_feratel_locations_path(external_source_id: es.id, type: 'invalid')
+
+            assert_response :bad_request
+          end
         end
       end
     end

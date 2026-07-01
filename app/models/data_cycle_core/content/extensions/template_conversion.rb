@@ -232,6 +232,11 @@ module DataCycleCore
         # Outgoing links that survive the conversion (preserved global/local relations) must be valid
         # in the target template - each related content must satisfy the target relation's template_name
         # and classification stored_filter constraint(s).
+        #
+        # loads related contents directly (without applying the property's own stored_filter),
+        # so the check can actually see contents that fall outside it.
+        # an empty preserved relation carries no data, so a target that does not define it (or whose
+        # constraints it would violate) cannot orphan anything - it must not block the conversion (#43079).
         def invalid_outgoing_relation_errors(target_template)
           return [] unless persisted?
 
@@ -239,12 +244,13 @@ module DataCycleCore
           preserved_relation_names = preserved_property_names & (linked_property_names + embedded_property_names)
 
           preserved_relation_names.flat_map do |relation|
+            related_contents = content_content_a.where(relation_a: relation).includes(:content_b).filter_map(&:content_b)
+            next [] if related_contents.empty?
+
             definition = target_content.property_definitions[relation]
             next ["preserved relation '#{relation}' is not defined in target template '#{target_template.template_name}'"] if definition.blank?
 
-            # loads related contents directly (without applying the property's own stored_filter),
-            # so the check can actually see contents that fall outside it
-            content_content_a.where(relation_a: relation).includes(:content_b).filter_map(&:content_b).filter_map do |related|
+            related_contents.filter_map do |related|
               next if template_name_allows?(definition, related.template_name) &&
                       outgoing_classification_filters_satisfied?(definition, content_type_names(related.thing_template))
 

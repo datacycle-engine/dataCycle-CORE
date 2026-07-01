@@ -590,6 +590,44 @@ module DataCycleCore
         assert_equal 'Gastronomischer Betrieb', events.first[:template_name]
       end
 
+      test '[#43079] regression: an empty preserved relation the target does not define does not block the conversion, and the conversion takes place' do
+        target_template = DataCycleCore::ThingTemplate.find_by(template_name: 'TemplateConversionTarget')
+        source = create_content('TemplateConversionSource', { name: 'No Appended Info', mandatory_note: 'x', external_key: 'tc-empty-preserved', external_source_id: @external_system.id })
+
+        # guard: appended_info is a preserved (local) relation defined on the source but absent from the target,
+        # exactly like TouristAttraction#appended_additional_information (VTG-only) vs FoodEstablishment in #43079
+        assert_includes source.preserved_property_names, 'appended_info', 'guard: appended_info is preserved (local)'
+        assert_not_includes target_template.property_names, 'appended_info', 'guard: the target does not define appended_info'
+        assert_empty source.content_content_a.where(relation_a: 'appended_info'), 'guard: the relation is empty'
+
+        # because the relation holds no data, there is nothing to orphan -> the conversion is feasible
+        assert_empty source.template_conversion_errors(target_template, data: { 'name' => 'x' }), 'an empty preserved relation must not block the conversion'
+        assert source.can_become?(target_template, data: { 'name' => 'x' })
+
+        create_or_update_content(
+          utility_object: @utility_object,
+          template: target_template,
+          data: { 'external_key' => 'tc-empty-preserved', 'name' => 'No Appended Info' }
+        )
+        source = DataCycleCore::Thing.find(source.id)
+
+        assert_equal 'TemplateConversionTarget', source.template_name, 'the conversion takes place'
+      end
+
+      test '[#43079] a preserved relation the target does not define still blocks the conversion when it actually holds data' do
+        target_template = DataCycleCore::ThingTemplate.find_by(template_name: 'TemplateConversionTarget')
+        source = create_content('TemplateConversionSource', { name: 'Has Appended Info', mandatory_note: 'x', external_key: 'tc-full-preserved', external_source_id: @external_system.id })
+        linked = create_content('POI', { name: 'Appended Block', external_key: 'tc-full-preserved-linked', external_source_id: @external_system.id })
+        DataCycleCore::ContentContent.create!(content_a_id: source.id, relation_a: 'appended_info', content_b_id: linked.id, order_a: 0)
+        source.reload
+
+        assert_equal 1, source.content_content_a.where(relation_a: 'appended_info').count, 'guard: the relation holds linked data'
+        assert_not_includes target_template.property_names, 'appended_info', 'guard: the target does not define appended_info'
+
+        assert_not source.can_become?(target_template, data: { 'name' => 'x' }), 'data in a relation the target cannot hold would be orphaned -> conversion is rejected'
+        assert(source.template_conversion_errors(target_template, data: { 'name' => 'x' }).any? { |e| e.include?('appended_info') && e.include?('not defined') }, 'the error names the undefined preserved relation')
+      end
+
       test 'an attribute the target still defines (e.g. price_range for POI -> FoodEstablishment) is not carried over implicitly - re-supplying it (or not) is the importer\'s responsibility (QA, AK4)' do
         gastronomy_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Gastronomischer Betrieb')
 

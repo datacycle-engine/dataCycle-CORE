@@ -27,11 +27,11 @@ module DataCycleCore
       struct_double(definition:, content:, scope:, key:, options:)
     end
 
-    def segment(method_names = [], except_list = {})
+    def segment(method_names = [], except_list = {}, klass = DataCycleCore::Abilities::Segments::DataAttribute)
       # captured as a local: a Proc double body runs with self bound to the double,
       # so the value has to be built outside and closed over.
       scheme = make_double(external_source_id: 'ext-1')
-      seg = DataCycleCore::Abilities::Segments::DataAttribute.new(method_names, except_list)
+      seg = klass.new(method_names, except_list)
       seg.ability = make_double(
         user: make_double(id: 'user-1', ui_locale: :de),
         session: nil,
@@ -76,6 +76,54 @@ module DataCycleCore
 
       assert seg.attribute_tree_label_visible?(match)
       assert_not seg.attribute_tree_label_visible?(mismatch)
+    end
+
+    test 'attribute_tree_label_visible? is always true for global, local, or tree-label-less attributes' do
+      seg = segment
+      # a content whose external source would NOT match the tree-label source (ability.concept_scheme -> 'ext-1'),
+      # so visibility can only come from the global/local short-circuits.
+      mismatched = make_double(external_source_id: 'other')
+
+      assert seg.attribute_tree_label_visible?(attr_dbl(definition: { 'global' => true, 'tree_label' => 'Keywords' }, content: mismatched))
+      assert seg.attribute_tree_label_visible?(attr_dbl(definition: { 'local' => true, 'tree_label' => 'Keywords' }, content: mismatched))
+      # non-classification attributes have no tree_label -> always visible (content is never consulted)
+      assert seg.attribute_tree_label_visible?(attr_dbl(definition: {}))
+    end
+
+    # Import & edit control editability gate for Redmine #49247: `external` attributes are
+    # not manually editable, while `global`/`local` always are. Wired into every role config
+    # (config/configurations/permissions/roles/*.yml) via :attribute_not_external?.
+    test 'attribute_not_external? (DataAttribute) blocks external-only attributes, allows global/local/plain' do
+      seg = segment
+
+      assert seg.attribute_not_external?(attr_dbl(definition: {})), 'plain attribute is editable'
+      assert seg.attribute_not_external?(attr_dbl(definition: { 'external' => false })), 'external:false is editable'
+      assert seg.attribute_not_external?(attr_dbl(definition: { 'global' => true })), 'global is editable'
+      assert seg.attribute_not_external?(attr_dbl(definition: { 'local' => true })), 'local is editable'
+      # global/local win over external
+      assert seg.attribute_not_external?(attr_dbl(definition: { 'external' => true, 'global' => true })), 'global overrides external'
+      # external-only attributes can not be manually edited
+      assert_not seg.attribute_not_external?(attr_dbl(definition: { 'external' => true })), 'external-only is not editable'
+    end
+
+    test 'attribute_not_external? (DataAttributeAllowedForUpdate) also gates on content source and overlay' do
+      seg = segment([], {}, DataCycleCore::Abilities::Segments::DataAttributeAllowedForUpdate)
+      # A stateless double for external content. external? is stubbed false so attribute_is_in_overlay?
+      # short-circuits before the real Feature::Overlay collaborator; the overlay branch below is
+      # instead reached through overlay_attribute? (which reads the definition/properties_for).
+      external_content = make_double(external_source_id: 'ext-1', external?: false, properties_for: ->(_key) {})
+
+      # global/local are always editable, even on external content
+      assert seg.attribute_not_external?(attr_dbl(definition: { 'global' => true }, content: external_content))
+      assert seg.attribute_not_external?(attr_dbl(definition: { 'local' => true }, content: external_content))
+      # locally created content (no external source) + non-external attribute -> editable
+      assert seg.attribute_not_external?(attr_dbl(definition: {}, content: make_double(external_source_id: nil)))
+      # external attribute on external content, not an overlay -> not editable
+      assert_not seg.attribute_not_external?(attr_dbl(definition: { 'external' => true }, content: external_content))
+      # ...unless it is an overlay attribute
+      overlay_definition = { 'external' => true, 'features' => { 'overlay' => { 'overlay_for' => 'name' } } }
+
+      assert seg.attribute_not_external?(attr_dbl(definition: overlay_definition, content: external_content))
     end
 
     test 'template and attribute (and-template) whitelist predicates' do

@@ -12,7 +12,9 @@ module DataCycleCore
 
     NULL_BYTE_REGEX = /\x00|\\u0000/
 
-    UUID_REGEX = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i
+    # \A...\z (not ^...$) so the whole string must be a UUID; line anchors would let a
+    # multiline value pass validation on its first line and smuggle a payload past it.
+    UUID_REGEX = /\A[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\z/i
 
     def attribute_name_from_key
       self[/\[?([^\[\]]+)\]?(\[\])?$/, 1]

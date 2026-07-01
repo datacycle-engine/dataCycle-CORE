@@ -124,6 +124,28 @@ module DataCycleCore
         test 'from_string_for_path returns nil for a blank tree label' do
           assert_nil(subject.from_string_for_path(computed_parameters: {}, computed_definition: { 'compute' => { 'parameters' => ['a'] } }))
         end
+
+        test 'from_string_for_path creates concepts on first use and reuses them afterwards' do
+          definition = { 'tree_label' => 'Tags', 'compute' => { 'parameters' => ['root.value'] } }
+          parameters = { 'root' => { 'value' => 'Compute Coverage Tag' } }
+
+          created = subject.from_string_for_path(computed_parameters: parameters, computed_definition: definition)
+
+          assert_equal(1, created.size)
+
+          # second call finds the concept created above instead of creating a new one
+          found = subject.from_string_for_path(computed_parameters: parameters, computed_definition: definition)
+
+          assert_equal(created, found)
+        end
+
+        test 'get_values_from_embedded resolves id references and passes scalars through' do
+          # hash without the requested key but with an id => Thing lookup branch (missing id => nil)
+          assert_nil(subject.send(:get_values_from_embedded, ['name'], { 'id' => '00000000-0000-0000-0000-000000000000' }))
+
+          # a scalar value is returned unchanged
+          assert_equal('scalar', subject.send(:get_values_from_embedded, ['name'], 'scalar'))
+        end
       end
     end
   end

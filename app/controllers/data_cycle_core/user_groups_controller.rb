@@ -54,7 +54,7 @@ module DataCycleCore
       if @user_group.save
         flash[:success] = I18n.t 'controllers.success.created', data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       else
-        flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
+        flash[:error] = @user_group.errors.full_messages.first
       end
 
       redirect_back_or_to(root_path)
@@ -80,7 +80,7 @@ module DataCycleCore
       if @user_group.destroy
         flash[:success] = I18n.t 'controllers.success.destroyed', data: DataCycleCore::UserGroup.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       else
-        flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
+        flash[:error] = @user_group.errors.full_messages.first
       end
       redirect_back_or_to(root_path)
     end

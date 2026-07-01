@@ -37,6 +37,17 @@ module DataCycleCore
       assert_not seg.include?(obj_double(template_name: 'Artikel'), 'update')
     end
 
+    # Regression: CanCanCan calls the rule block with only the subject when the
+    # authorize! scope (passed as the attribute) is nil, e.g. authorize!(:create, template, nil).
+    # include? must tolerate a missing scope instead of raising ArgumentError.
+    test 'include? tolerates a missing scope (single argument) and denies' do
+      seg = Subject.new(['create'], ['Artikel'])
+
+      assert_nothing_raised { seg.include?(obj_double(template_name: 'Artikel')) }
+      assert_not seg.include?(obj_double(template_name: 'Artikel'))
+      assert_nothing_raised { seg.to_proc.call(obj_double(template_name: 'Artikel')) }
+    end
+
     test 'subject is Thing and to_proc delegates to include?' do
       seg = Subject.new('all', ['Artikel'])
 

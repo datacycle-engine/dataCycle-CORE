@@ -98,5 +98,16 @@ module DataCycleCore
       assert_respond_to(search.shared_by_watch_list_shares([admin_id]), :count)
       assert_respond_to(search.shared_by_watch_list_shares(nil), :count) # blank guard
     end
+
+    # ---------- Filter::Common::Union ----------
+
+    test 'not_union_filter_ids builds an executable query for unknown collections' do
+      assert_equal(0, search.not_union_filter_ids([UUID]).count)
+    end
+
+    test 'content_ids and not_content_ids resolve non-uuid ids via the slug subquery' do
+      assert_equal(0, search.content_ids(['some-slug-not-a-uuid']).count)
+      assert_equal(0, search.not_content_ids(['some-slug-not-a-uuid']).count)
+    end
   end
 end

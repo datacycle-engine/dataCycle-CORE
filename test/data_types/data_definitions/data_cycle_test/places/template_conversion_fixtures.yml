@@ -108,6 +108,19 @@
                 - Lift
         :api:
           :disabled: true
+      # [#43079] preserved (local) outgoing relation defined on the SOURCE but NOT on the target.
+      # Mirrors the real case (TouristAttraction#appended_additional_information, a preserved block,
+      # is undefined on FoodEstablishment). When EMPTY it carries no data, so it must not block the
+      # conversion; when it holds linked data the conversion is still rejected, as that data would
+      # be orphaned. (linked rather than embedded purely to keep the fixture self-contained; the
+      # feasibility check treats preserved linked and embedded relations identically.)
+      :appended_info:
+        :label: Appended Info (local, source-only)
+        :type: linked
+        :local: true
+        :template_name: POI
+        :api:
+          :disabled: true
 - :data:
     :name: TemplateConversionTarget
     :type: object

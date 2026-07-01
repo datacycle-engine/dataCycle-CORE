@@ -96,6 +96,20 @@ module DataCycleCore
           build_renderer.render
         end
       end
+
+      test 'include_dc_classification escapes classification_trees_parameters' do
+        sql = build_renderer(include_parameters: [['dc:classification']], classification_trees_parameters: ["a'b"]).main_sql
+
+        assert_includes(sql, "'a''b'")
+        assert_not_includes(sql, "IN ('a'b')")
+      end
+
+      test 'a malicious classification_trees value stays inside a quoted literal' do
+        sql = build_renderer(include_parameters: [['dc:classification']], classification_trees_parameters: ["x')); SELECT 1; --"]).main_sql
+
+        assert_includes(sql, "'x'')); SELECT 1; --'", "the payload's single quote is doubled, so it cannot terminate the string literal")
+        assert_not_includes(sql, "IN ('x'));", 'the raw, break-out form must not appear')
+      end
     end
   end
 end

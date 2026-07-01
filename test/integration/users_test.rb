@@ -161,5 +161,40 @@ module DataCycleCore
 
       assert_select 'button.show-sidebar > span', 'guest@datacycle.at'
     end
+
+    test 'index with filters, sorting and count_only via json' do
+      get users_path(format: :json), params: {
+        # an unresolved filter name exercises the filter-building loop then skips via `next`
+        f: { '0' => { 'c' => 'd', 'n' => 'zzz_no_such_scope', 'm' => 'i', 'v' => 'test' } },
+        s: { '0' => { 'm' => 'email', 'o' => 'asc' } },
+        count_only: '1',
+        target: 'results',
+        count_mode: 'all',
+        content_class: 'User',
+        mode: 'list'
+      }
+
+      assert_response :success
+      assert response.parsed_body.key?('html')
+    end
+
+    test 'validate reports errors for an invalid new user' do
+      post validate_users_path, params: { user: { email: 'not-an-email', given_name: 'X' } }
+
+      assert_response :success
+      body = response.parsed_body
+
+      assert_includes body.keys, 'valid'
+      assert_includes body.keys, 'errors'
+    end
+
+    test 'validate runs against an existing user' do
+      user = DataCycleCore::User.find_by(email: 'guest@datacycle.at')
+
+      post validate_user_path(user), params: { user: { email: user.email } }
+
+      assert_response :success
+      assert response.parsed_body.key?('valid')
+    end
   end
 end
