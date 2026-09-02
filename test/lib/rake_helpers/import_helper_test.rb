@@ -14,22 +14,12 @@ module DataCycleCore
       assert_equal 'base-system', external_source.identifier
     end
 
+    # Resolution and ambiguity are DataCycleCore::ExternalSystem's rule (see
+    # ExternalSystemLookupTest); what this helper adds on top of it are the config checks below.
     test 'external_system raises when the source cannot be found' do
-      DataCycleCore::ExternalSystem.stub(:by_names_identifiers_or_ids, nil) do
-        error = assert_raises(RuntimeError) { ImportHelper.external_system('does-not-exist') }
-        assert_includes error.message, 'External source not found'
-      end
-    end
+      error = assert_raises(RuntimeError) { ImportHelper.external_system('does-not-exist') }
 
-    test 'external_system raises when the source is ambiguous' do
-      ambiguous = Object.new
-      def ambiguous.nil? = false
-      def ambiguous.many? = true
-
-      DataCycleCore::ExternalSystem.stub(:by_names_identifiers_or_ids, ambiguous) do
-        error = assert_raises(RuntimeError) { ImportHelper.external_system('base') }
-        assert_includes error.message, 'Ambiguous external source'
-      end
+      assert_includes error.message, 'External system not found'
     end
 
     test 'external_system raises when the import config is missing' do
@@ -52,50 +42,38 @@ module DataCycleCore
 
     test 'perform_job runs the job immediately when run_now is truthy' do
       job = Minitest::Mock.new
-      job.expect(:queue_name, 'queue')
-      job.expect(:delayed_reference_type, 'type')
-      job.expect(:delayed_reference_id, 1)
+      job.expect(:duplicate_queued_with_args?, false)
       job.expect(:perform_now, nil)
 
       job_class = Class.new
       job_class.define_singleton_method(:new) { |*| job }
 
-      Delayed::Job.stub(:exists?, false) do
-        ImportHelper.perform_job(ExternalSourceStub.new(1), 'mode', 'true', job_class)
-      end
+      ImportHelper.perform_job(ExternalSourceStub.new(1), 'mode', 'true', job_class)
 
       assert_mock job
     end
 
     test 'perform_job enqueues the job when run_now is falsy' do
       job = Minitest::Mock.new
-      job.expect(:queue_name, 'queue')
-      job.expect(:delayed_reference_type, 'type')
-      job.expect(:delayed_reference_id, 1)
+      job.expect(:duplicate_queued_with_args?, false)
       job.expect(:enqueue, nil)
 
       job_class = Class.new
       job_class.define_singleton_method(:new) { |*| job }
 
-      Delayed::Job.stub(:exists?, false) do
-        ImportHelper.perform_job(ExternalSourceStub.new(1), 'mode', false, job_class)
-      end
+      ImportHelper.perform_job(ExternalSourceStub.new(1), 'mode', false, job_class)
 
       assert_mock job
     end
 
     test 'perform_job does nothing when an equivalent job is already queued' do
       job = Minitest::Mock.new
-      job.expect(:queue_name, 'queue')
-      job.expect(:delayed_reference_type, 'type')
-      job.expect(:delayed_reference_id, 1)
+      job.expect(:duplicate_queued_with_args?, true)
 
       job_class = Class.new
       job_class.define_singleton_method(:new) { |*| job }
 
-      Delayed::Job.stub(:exists?, true) do
-        ImportHelper.perform_job(ExternalSourceStub.new(1), 'mode', true, job_class)
-      end
+      ImportHelper.perform_job(ExternalSourceStub.new(1), 'mode', true, job_class)
 
       assert_mock job
     end
@@ -154,7 +132,7 @@ module DataCycleCore
     test 'download_by_cred raises when the external source is missing' do
       DataCycleCore::ExternalSystem.stub(:by_names_identifiers_or_ids, []) do
         error = assert_raises(RuntimeError) { ImportHelper.download_by_cred({ credential_key: 'key', external_source_id: 'missing' }) }
-        assert_includes error.message, 'External source not found'
+        assert_includes error.message, 'External system not found'
       end
     end
 

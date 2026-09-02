@@ -3,10 +3,7 @@
 module DataCycleCore
   class ComputePropertiesJob < UniqueApplicationJob
     queue_as :search_update
-
-    def delayed_reference_id
-      "#{arguments[0]}-#{Array.wrap(arguments[1]).join('_')}"
-    end
+    limits_concurrency key: ->(*args) { "#{args[0]}/#{Array.wrap(args[1]).join(',')}" }
 
     def perform(id, keys)
       return if keys.blank?

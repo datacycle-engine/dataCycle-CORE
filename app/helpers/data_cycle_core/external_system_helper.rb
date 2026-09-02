@@ -52,6 +52,7 @@ module DataCycleCore
           sync_type: sync.sync_type,
           date: sync.last_sync_at,
           successful_date: sync.last_successful_sync_at,
+          exception_data: sync.display_exception_data,
           external_key: sync.external_key || content.id,
           external_edit_url: sync.external_url,
           external_detail_url: sync.external_detail_url,
@@ -74,7 +75,7 @@ module DataCycleCore
       end
     end
 
-    def external_sync_status_icon(status, sync_type, include_status_message = false)
+    def external_sync_status_icon(status, sync_type, exception_data: nil, include_status_message: false, show_webhook_error: false)
       additional_classes = "external-system-icon #{status}"
       icon = case sync_type
              when 'import', 'export'
@@ -89,13 +90,18 @@ module DataCycleCore
              end
 
       icon = tag.i(class: "fa fa-refresh #{additional_classes}") if status == 'pending'
-      icon = tag.i(class: "fa fa-times #{additional_classes}") if status&.in?(['failure', 'error'])
+      icon = tag.i(class: "fa fa-times #{additional_classes}") if status&.in?(DataCycleCore::ExternalSystemSync::FAILURE_STATUSES)
 
       return icon unless include_status_message
 
       messages = []
       messages << "<b>#{t('common.status', locale: active_ui_locale)}</b>: #{t("external_connection_states.#{status}", locale: active_ui_locale)}" if status.present?
       messages << "<b>#{t('external_connections.type', locale: active_ui_locale)}</b>: #{t("common.#{sync_type}", locale: active_ui_locale)}"
+
+      if status&.in?(DataCycleCore::ExternalSystemSync::FAILURE_STATUSES) && show_webhook_error && exception_data.is_a?(Hash)
+        error_text = [exception_data['status'], exception_data['text'].presence || exception_data['message']].compact.join(': ')
+        messages << "<b>#{t('external_connections.webhook_error', locale: active_ui_locale)}</b>: #{ERB::Util.html_escape(truncate_head_and_tail(error_text))}" if error_text.present?
+      end
 
       tag.span(icon, data: { dc_tooltip: messages.join('<br>') })
     end
@@ -190,6 +196,15 @@ module DataCycleCore
           concat(" (#{distance_of_time_in_words(Time.zone.now, Time.zone.now + last_successful_try_time, locale: active_ui_locale)})") if last_successful_try_time.present?
         end
       end
+    end
+
+    private
+
+    # the useful part of a long error text can sit at either end - keep a slice of both
+    def truncate_head_and_tail(text, head: 150, tail: 150)
+      return text if text.length <= head + tail + 3
+
+      "#{text[0, head]}...#{text[-tail, tail]}"
     end
   end
 end

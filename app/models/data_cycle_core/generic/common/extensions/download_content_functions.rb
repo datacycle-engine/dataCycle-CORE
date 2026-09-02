@@ -5,9 +5,13 @@ module DataCycleCore
     module Common
       module Extensions
         module DownloadContentFunctions
+          include DumpKeyPolicy
+
           DELTA = 100
+          # Ids per bulk statement. A single $in listing a whole project grows towards mongo's 16 MB
+          # limit for a query document, so every bulk statement works in slices.
+          SLICE_SIZE = 100_000
           FULL_MODES = DataCycleCore::Generic::DownloadObject::FULL_MODES
-          CONFIG_PROPS = [:tree_label, :external_id_prefix, :concept_scheme_name, :priority].freeze
 
           def download_content_all(**keyword_args)
             download_content(iterate_locales: false, **keyword_args)
@@ -28,28 +32,60 @@ module DataCycleCore
             download_object.mode = :full
             options[:mode] = 'full' # always full mode for touch
 
-            with_logging(download_object:, iterator:, options:, **keyword_args) do |opts|
+            with_logging(download_object:, iterator:, options:, **keyword_args) do |opts, step_label|
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
-                external_keys = items(iterator:, download_object:, options: opts, locale:).to_a
-                external_keys = external_keys.filter_map { |k| data_id&.call(k)&.to_s || k&.to_s }
-                dump_path = :"dump.#{locale}"
+                external_keys = external_keys_from(items: items(iterator:, download_object:, options: opts, locale:), data_id:)
 
-                result = mongo_item.where({
-                  dump_path => { '$ne' => nil },
-                  external_id: { '$in' => external_keys }
-                }).update_all(
-                  '$set' => { 'seen_at' => Time.zone.now },
-                  '$unset' => {
-                    "dump.#{locale}.deleted_at" => true,
-                    "dump.#{locale}.last_seen_before_delete" => true,
-                    "dump.#{locale}.delete_reason" => true
-                  }
-                )
+                result = touch_and_revive_items(mongo_item:, external_ids: external_keys, locale:)
+                download_object.logger.info(step_label, "revived #{result[:revived]} items previously flagged deleted for #{locale}") if result[:revived].positive?
 
-                result.modified_count
+                result[:touched]
               end
             end
+          end
+
+          # Marks every id the source still lists as seen and revives those that were flagged deleted for
+          # +locale+. Two statements on purpose:
+          #   * seen_at is refreshed for every id, regardless of which locale dumps a document carries.
+          #     seen_at is document level, so a record that missed a single locale pass (e.g. a content that
+          #     only became visible at the source between the de and the en run) would otherwise never be
+          #     touched again and the mark_deleted steps would remove it in every language it does have.
+          #   * updated_at is bumped only for documents that really carried a delete marker. update_all is a
+          #     driver statement that runs no callbacks, so it never maintains Mongoid's timestamps: without
+          #     the explicit bump an incremental import never learns about the revival and the content stays
+          #     deleted in the database -- while bumping it for every touched document would turn every
+          #     incremental import into a full one.
+          # Only the delete markers are cleared: archived_at comes from a different decision (the +archived+
+          # callable of mark_deleted_from_data, not "the source stopped listing it"), so an archived document
+          # that reappears stays archived -- and, its seen_at being refreshed here, it no longer ages out on
+          # its own either. Un-archiving is the archiving step's call.
+          # Returns the number of +touched+ and +revived+ documents.
+          def touch_and_revive_items(mongo_item:, external_ids:, locale:)
+            external_ids = Array.wrap(external_ids).filter_map { |k| k.to_s.presence }
+            return { touched: 0, revived: 0 } if external_ids.blank?
+
+            now = Time.zone.now
+            # symbols, not interpolated strings: those read as a possible injection to brakeman
+            delete_marker = :"dump.#{locale}.deleted_at"
+            touched = 0
+            revived = 0
+
+            external_ids.each_slice(SLICE_SIZE) do |keys_slice|
+              selector = { external_id: { '$in' => keys_slice } }
+
+              touched += mongo_item.where(selector).update_all('$set' => { 'seen_at' => now }).modified_count
+              revived += mongo_item.where(selector.merge(delete_marker => { '$exists' => true })).update_all(
+                '$set' => { 'updated_at' => now },
+                '$unset' => {
+                  delete_marker => true,
+                  :"dump.#{locale}.last_seen_before_delete" => true,
+                  :"dump.#{locale}.delete_reason" => true
+                }
+              ).modified_count
+            end
+
+            { touched:, revived: }
           end
 
           def bulk_mark_deleted(download_object:, options:, iterator: nil, data_id: nil, **keyword_args)
@@ -57,27 +93,30 @@ module DataCycleCore
               locale = opts[:locales].first
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 times = [Time.current]
-                external_keys = items(iterator:, download_object:, options: opts, locale:).to_a
+                external_keys = external_keys_from(items: items(iterator:, download_object:, options: opts, locale:), data_id:)
                 next 0 if external_keys.blank?
 
-                external_keys = external_keys.filter_map { |k| data_id&.call(k)&.to_s || k&.to_s }
                 delete_props = {
                   "dump.#{locale}.deleted_at" => Time.zone.now,
+                  # '$seen_at' is a reference to the document's own seen_at. It only resolves in an
+                  # aggregation pipeline update, which is why the update below goes through the driver
+                  # instead of Mongoid's update_all (that one would store the string verbatim).
                   "dump.#{locale}.last_seen_before_delete" => '$seen_at'
                 }
                 delete_reason = opts.dig(:download, :delete_reason)
-                delete_props["dump.#{locale}.delete_reason"] = delete_reason if delete_reason.present?
+                # wrapped in $literal so a reason starting with $ stays a value instead of becoming a field path
+                delete_props["dump.#{locale}.delete_reason"] = { '$literal' => delete_reason } if delete_reason.present?
                 count = 0
                 condition = {
                   "dump.#{locale}": { '$ne' => nil },
                   "dump.#{locale}.deleted_at": { '$exists' => false }
                 }
 
-                external_keys.each_slice(100_000) do |keys_slice|
+                external_keys.each_slice(SLICE_SIZE) do |keys_slice|
                   next if keys_slice.blank?
 
                   condition[:external_id] = { '$in' => keys_slice }
-                  result = mongo_item.where(condition).update_all(delete_props)
+                  result = mongo_item.collection.update_many(mongo_item.where(condition).selector, [{ '$set' => delete_props }])
                   count += result.modified_count
                   times << Time.current
                   download_object.logger.phase_partial(step_label, count, times)
@@ -88,7 +127,7 @@ module DataCycleCore
             end
           end
 
-          def download_item_slice(download_object:, item_data_slice:, options:, data_id: nil, data_name: nil, cleanup_data: nil, credential_key: nil, **_keyword_args)
+          def download_item_slice(download_object:, item_data_slice:, options:, data_id: nil, data_name: nil, cleanup_data: nil, credential_key: nil, step_label: nil, **_keyword_args)
             return if item_data_slice.blank?
 
             iterate_locales = options[:iterate_locales]
@@ -113,17 +152,14 @@ module DataCycleCore
                   locales.each do |locale|
                     local_item = item.dump[locale]
                     item_data = get_item_data(loaded_data, locale, iterate_locales:)
-                    item_data['id'] = item_id if item_data['id'].blank? && item_id.present?
+                    strip_internal_keys!(item_data) # before anything of ours is written into it
+                    item_data['id'] = item_id if item_data['id'].blank? && item_id.present? # check if item_data['id'].blank? is required, because this skips the external_id_hash_method
                     item_data['name'] = data_name&.call(item_data)&.to_s if item_data['name'].blank?
                     item_data['dc_external_id'] = item_id if item_id.present? # make external_id available under dump.de.dc_external_id
 
                     next unless item_allowed?(local_item:, options:)
 
-                    if item_data.key?(:external_system)
-                      data_credential_keys = Array.wrap(item_data.dig(:external_system, :credential_keys))
-                      data_credential_keys.each { |key| add_credentials!(item:, credential_key: key) }
-                      item_data.delete(:external_system)
-                    end
+                    harvest_external_system!(item:, item_data:)
 
                     add_credentials!(item:, credential_key:) if credential_key.present?
 
@@ -137,7 +173,16 @@ module DataCycleCore
                   end
 
                   if item.data_has_changed || item.external_system_has_changed
-                    item.save!
+                    begin
+                      item.save!
+                    rescue Mongo::Error::MaxBSONSize, Mongo::Error::MaxMessageSize => e
+                      # a document this size will never fit, no matter how often the step retries it,
+                      # so one of them must not take the whole step down with it
+                      download_object.logger.item_failed(e, download_object.external_source, step_label, item.external_id, download_object.step_name)
+                      # the stored document keeps its old dump, but it is still listed at the source --
+                      # without the touch it ages out into the mark_deleted/archive steps
+                      touch_ids << item.external_id if item.persisted?
+                    end
                   else
                     touch_ids << item.external_id
                   end
@@ -192,6 +237,30 @@ module DataCycleCore
             }
           end
 
+          # Moves a payload-supplied external_system onto the mongo item and out of the dump. It is
+          # not in INTERNAL_DUMP_KEYS because it is not merely dropped -- its credential_keys are
+          # harvested onto the item first -- but the effect on the dump is the same, and a source
+          # shipping a field of that name does lose it here. external_system belongs on the item:
+          # the import side reads it as content[:external_system] (ImportFunctions, where it becomes
+          # raw_data['dc_credential_keys']), never from inside dump.<locale>.
+          #
+          # Both key forms are deleted and both are harvested: a BSON::Document normalises the symbol,
+          # but a plain Hash from a custom iterator or a webhook payload can carry both at once, where
+          # a short-circuiting `||` left the string one in the dump with its credential keys
+          # unharvested -- the very bug this method exists for, one key form over. #add_credentials!
+          # is additive and skips duplicates, so taking both loses nothing. The Hash guard also covers
+          # a source shipping a scalar of that name, which `dig(:external_system, ...)` raised on.
+          def harvest_external_system!(item:, item_data:)
+            return unless item_data.is_a?(::Hash)
+
+            [item_data.delete(:external_system), item_data.delete('external_system')].each do |data_external_system|
+              next unless data_external_system.is_a?(::Hash)
+
+              Array.wrap(data_external_system.to_h.symbolize_keys[:credential_keys])
+                .each { |credential_key| add_credentials!(item:, credential_key:) }
+            end
+          end
+
           def add_credentials!(item:, credential_key:)
             return if credential_key.blank?
 
@@ -230,10 +299,6 @@ module DataCycleCore
             source_filter.with_indifferent_access
           end
 
-          def props_from_config(options:)
-            options[:download]&.slice(*CONFIG_PROPS)&.stringify_keys || {}
-          end
-
           def endpoint_items(download_object:, options:, locale:)
             endpoint_method = options.dig(:download, :endpoint_method) ||
                               download_object.source_type.collection_name.to_s
@@ -251,23 +316,31 @@ module DataCycleCore
             if iterator.nil?
               endpoint_items(download_object:, options:, locale:)
             else
-              Enumerator.new do |yielder|
-                iterator_items(iterator:, download_object:, options:, locale:).each do |item|
-                  yielder << item
-                end
-              end
+              iterator_items(iterator:, download_object:, options:, locale:)
             end
           end
 
-          # lower value for priority means higher priority (same as in DelayedJob)
-          # default is 5
-          def item_allowed?(local_item:, options:)
-            step_priority = options.dig(:download, :priority)
-            item_priority = local_item&.dig(:priority)
+          # The external_id keys the bulk statements match on. +data_id+ resolves whatever the source yields
+          # (a payload hash for the endpoint strategies, a plain id for the from_data ones); a bare id needs
+          # no resolution, so it falls back to itself.
+          # Payloads that resolve to nothing raise instead of falling back to +to_s+: that stringifies the
+          # whole payload into a key nothing matches, so the step would report success while touching or
+          # marking not a single document -- and a touch that matches nothing lets its data go stale until
+          # the mark_deleted steps remove it (a step whose external_key_path/data_id_path is missing or
+          # points at the wrong path did exactly that). Single unresolvable payloads are still skipped,
+          # they are source noise rather than a broken step.
+          def external_keys_from(items:, data_id: nil)
+            items = items.to_a
+            keys = items.filter_map do |item|
+              key = data_id&.call(item)&.to_s
+              key = item.to_s if key.blank? && !item.is_a?(Enumerable)
 
-            return true if step_priority.blank? || item_priority.blank?
+              key.presence
+            end
 
-            step_priority <= item_priority
+            raise DataCycleCore::Generic::Common::Error::ImporterError, "no external_id could be derived from any of #{items.size} #{items.first.class} items, check external_key_path/data_id_path of this step" if keys.blank? && items.any?(Enumerable)
+
+            keys
           end
 
           def iterate_credentials(options:, **keyword_args, &block)

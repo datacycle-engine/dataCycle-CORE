@@ -29,13 +29,18 @@ module DataCycleCore
 
       if editable
         html << if definition&.dig('template_name').is_a?(Array)
-                  render('data_cycle_core/contents/editors/embedded/new_partials/new_content_button', id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", templates: definition['template_name'].map { |t| DataCycleCore::DataHashService.get_internal_template(t) })
+                  render('data_cycle_core/contents/editors/embedded/new_partials/new_content_button', id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", templates: embedded_templates_for_select(definition['template_name']))
                 else
                   tag.div(tag.button(tag.i(class: 'fa fa-plus'), id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", type: 'button', class: 'button add-content-object', disabled: !editable, data: { template: definition['template_name'] }), class: 'new-embedded-button-wrapper')
                 end
       end
 
       tag.div(html, class: 'embedded-editor-header dc-sticky-bar')
+    end
+
+    # :template_name: order in the data definition carries no meaning for the dropdown.
+    def embedded_templates_for_select(template_names)
+      sort_templates_by_translated_name(template_names.map { |t| DataCycleCore::DataHashService.get_internal_template(t) })
     end
 
     def embedded_viewer_html_classes(**_args)

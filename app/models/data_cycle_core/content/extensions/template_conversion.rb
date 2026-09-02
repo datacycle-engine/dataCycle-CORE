@@ -76,13 +76,15 @@ module DataCycleCore
 
           resolved_target = resolved_template_for(target_template)
           became = nil
+          source_template_name = template_name
+          source_external_source = external_source
 
           ActiveRecord::Base.transaction(requires_new: true) do
             became = becomes!(resolved_target.template_name)
             became.save!
 
             post_errors = became.send(:post_conversion_errors)
-            raise build_template_conversion_error(target_template, post_errors) if post_errors.present?
+            raise build_template_conversion_error(target_template, post_errors, template_name: source_template_name, external_source: source_external_source) if post_errors.present?
           end
 
           became
@@ -123,12 +125,13 @@ module DataCycleCore
           DataCycleCore::ThingTemplate.find_by(template_name:)
         end
 
-        def build_template_conversion_error(target_template, validation_errors)
+        def build_template_conversion_error(target_template, validation_errors, template_name: self.template_name, external_source: self.external_source)
           expected_template_name = target_template.respond_to?(:template_name) ? target_template.template_name : target_template&.to_s
 
           DataCycleCore::Error::Import::TemplateConversionError.new(
-            template_name: template_name,
+            template_name:,
             expected_template_name:,
+            external_source:,
             external_key: external_key,
             validation_errors:
           )
@@ -321,8 +324,7 @@ module DataCycleCore
             .with_internal_name(constraint[:aliases])
             .with_descendants
             .pluck(:internal_name)
-            .to_set
-          names.any? { |name| satisfying.include?(name) }
+          names.intersect?(satisfying)
         end
 
         # the content-type classification names a content of the given template would carry

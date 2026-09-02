@@ -1,96 +1,135 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "229031e5e08c52ec281925ce41d6929d5439d625c64cac47f9b5fd4748aec895",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/models/data_cycle_core/common/by_ordered_values.rb",
-      "line": 9,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "Arel.sql(\"array_position(ARRAY[?]::#{columns_hash[key.to_s].sql_type}[], #{table_name}.#{key})\")",
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "0c324082bbce71abe051c81de1922d03d65540320b946e6bc146c81085188368",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "config/initializers/monkey/hash_with_evaluated_values.rb",
+      "line": 16,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval(value[(2..-3)], current_binding)",
       "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "DataCycleCore::Common",
-        "method": null
-      },
-      "user_input": "columns_hash[key.to_s].sql_type",
-      "confidence": "Medium",
+      "location": null,
+      "user_input": null,
+      "confidence": "Weak",
       "cwe_id": [
-        89
+        913,
+        95
       ],
-      "note": ""
+      "note": "same '{{ ... }}' config DSL as fingerprint 462424ae253bb9f33e9b49b47b8de21804b5ad5e2cac6fff3c7fdca71c1621c2, here for hash and array values. One fingerprint covers both the Hash and the Array implementation of #with_evaluated_values."
     },
     {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "455bf01374be4c00b3fb84c7ca5358152176a94c2ccf63464d06cadb59133cca",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/models/data_cycle_core/common/by_ordered_values.rb",
-      "line": 9,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "Arel.sql(\"array_position(ARRAY[?]::#{columns_hash[key.to_s].sql_type}[], #{table_name}.#{key})\")",
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "43186b9bc1eeada5a9e12aa07601eaac6fe66ceb20c9b2bbbc5a9952e5b98c79",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "app/models/data_cycle_core/generic/common/update_attributes.rb",
+      "line": 23,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval(options.dig(:import, :last_successful_try))",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "DataCycleCore::Common::ByOrderedValues",
-        "method": null
+        "class": "DataCycleCore::Generic::Common::UpdateAttributes",
+        "method": "DataCycleCore::Generic::Common::UpdateAttributes.process_content"
       },
-      "user_input": "columns_hash[key.to_s].sql_type",
-      "confidence": "Medium",
+      "user_input": null,
+      "confidence": "Weak",
       "cwe_id": [
-        89
+        913,
+        95
       ],
-      "note": ""
+      "note": "developer-only config DSL, not reachable by end users: 'import.last_successful_try' is a ruby expression taken from the external_system yaml config in the repository (e.g. '2.days.ago') and is evaluated to build a date. eval without an explicit binding uses the call-site binding, so this call cannot be moved into a shared helper without changing what a config string is able to reference."
+    },
+    {
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "462424ae253bb9f33e9b49b47b8de21804b5ad5e2cac6fff3c7fdca71c1621c2",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "config/initializers/monkey/hash_with_evaluated_values.rb",
+      "line": 10,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval(key[(2..-3)], current_binding)",
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        913,
+        95
+      ],
+      "note": "developer-only config DSL, not reachable by end users: evaluates the ruby inside a '{{ ... }}' marker in a data-cycle config file (source_filters, template definitions) to build the value. See the !!ATTENTION!! comment on the method: only repository config files are passed through it, never end-user input. This warning covers the evaluated String key."
+    },
+    {
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "60080b31a88f9c7669e9fd0b31da404dc98c2539c608e81cf732f8a39be1140e",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "config/initializers/monkey/hash_with_evaluated_values.rb",
+      "line": 11,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval((key or eval(key[(2..-3)], current_binding))[(2..-3)], current_binding)",
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        913,
+        95
+      ],
+      "note": "same '{{ ... }}' config DSL as the String-key case (fingerprint 462424ae253bb9f33e9b49b47b8de21804b5ad5e2cac6fff3c7fdca71c1621c2), here for a Symbol key."
     },
     {
       "warning_type": "Remote Code Execution",
-      "warning_code": 24,
-      "fingerprint": "78d9129b44fe35e7204353c45ace44cd0859e54be08a6e3b8fce856f59cdc97c",
-      "check_name": "UnsafeReflection",
-      "message": "Unsafe reflection method `safe_constantize` called on model attribute",
-      "file": "app/controllers/data_cycle_core/api/v4/external_systems_export_controller.rb",
-      "line": 16,
-      "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
-      "code": "DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(permitted_params[:external_system_id]).first!.export_config[\"transformations\"].safe_constantize",
+      "warning_code": 25,
+      "fingerprint": "65bbedcd2559f6760a9c5d216f9f6a930b68ad43a0ea579317e44bfbef73ed22",
+      "check_name": "Deserialize",
+      "message": "Use of `Marshal.load` may be dangerous",
+      "file": "app/jobs/data_cycle_core/classification_mapping_job.rb",
+      "line": 81,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Marshal.load(read.read)",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "DataCycleCore::Api::V4::ExternalSystemsExportController",
-        "method": "show"
+        "class": "DataCycleCore::ClassificationMappingJob",
+        "method": "run_mapping_changes_in_fork"
       },
-      "user_input": "DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(permitted_params[:external_system_id]).first!",
-      "confidence": "Medium",
+      "user_input": null,
+      "confidence": "Weak",
       "cwe_id": [
-        470
+        502
       ],
-      "note": ""
+      "note": "no untrusted data: the payload is written by Marshal.dump in this process' own forked child and read back over the IO.pipe created here (parent holds only the read end). Nothing external can reach this buffer, and the round trip has to carry an exception class + backtrace, which json cannot represent."
     },
     {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "a6945d5ddca14bc5d0d57fa9dd8bae519890dbb034c445749877bfcde0d0b4bd",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/models/data_cycle_core/common/by_ordered_values.rb",
-      "line": 9,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "Arel.sql(\"array_position(ARRAY[?]::#{columns_hash[key.to_s].sql_type}[], #{table_name}.#{key})\")",
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "8aaa24bf2bd5c2661459da114235ce91d4d832c2bf9615a7777f003500f85b05",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "app/models/data_cycle_core/generic/common/delete_contents.rb",
+      "line": 23,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval(options.dig(:import, :last_successful_try))",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "DataCycleCore",
-        "method": null
+        "class": "DataCycleCore::Generic::Common::DeleteContents",
+        "method": "DataCycleCore::Generic::Common::DeleteContents.process_content"
       },
-      "user_input": "columns_hash[key.to_s].sql_type",
-      "confidence": "Medium",
+      "user_input": null,
+      "confidence": "Weak",
       "cwe_id": [
-        89
+        913,
+        95
       ],
-      "note": ""
+      "note": "developer-only config DSL, not reachable by end users: 'import.last_successful_try' is a ruby expression taken from the external_system yaml config in the repository (e.g. '2.days.ago') and is evaluated to build a date. eval without an explicit binding uses the call-site binding, so this call cannot be moved into a shared helper without changing what a config string is able to reference."
     },
     {
       "warning_type": "File Access",
@@ -113,8 +152,79 @@
       "cwe_id": [
         22
       ],
-      "note": ""
+      "note": "no path traversal possible: the path is built by active_storage from the blob key (service.path_for), params[:id] only selects the data_link, which is authorized via is_valid? beforehand. must stay send_file (not send_data): nginx offloads it via X-Accel-Redirect (X-Accel-Mapping /app/public/uploads/=/__rails_send_file), which only works for a response body with a file path."
+    },
+    {
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "b8270cd07cfb21cfd3afe4ff0fef571ff4e00ebfacf490cab9753e95e8fa85ae",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "app/models/data_cycle_core/generic/common/download_functions.rb",
+      "line": 234,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval(options.dig(:download, :archive_from))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::Generic::Common::DownloadFunctions",
+        "method": "DataCycleCore::Generic::Common::DownloadFunctions.mark_deleted_from_data"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        913,
+        95
+      ],
+      "note": "developer-only config DSL, not reachable by end users: 'download.archive_from' is a ruby expression taken from the external_system yaml config in the repository (e.g. '2.days.ago') and is evaluated to build a date. eval without an explicit binding uses the call-site binding, so this call cannot be moved into a shared helper without changing what a config string is able to reference."
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 25,
+      "fingerprint": "ca009151bdbdf34a1cc4ef8dd4be1d449075513ce91fd6c9e6b306e1b922a408",
+      "check_name": "Deserialize",
+      "message": "Use of `Marshal.load` may be dangerous",
+      "file": "app/models/data_cycle_core/generic/common/import_functions.rb",
+      "line": 124,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Marshal.load(read.read)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::Generic::Common::ImportFunctions",
+        "method": "DataCycleCore::Generic::Common::ImportFunctions.import_sequential"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        502
+      ],
+      "note": "no untrusted data: the payload is written by Marshal.dump in this process' own forked child and read back over the IO.pipe created here (parent holds only the read end). Nothing external can reach this buffer, and the round trip has to carry an exception class + backtrace, which json cannot represent."
+    },
+    {
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "d29d253459d4c6e5858ea4d1345b9456b1ad99eb033eb6cd693e1a9eeac4f4ee",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "app/models/data_cycle_core/generic/common/delete_contents_update_attributes.rb",
+      "line": 23,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval(options.dig(:import, :last_successful_try))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::Generic::Common::DeleteContentsUpdateAttributes",
+        "method": "DataCycleCore::Generic::Common::DeleteContentsUpdateAttributes.process_content"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        913,
+        95
+      ],
+      "note": "developer-only config DSL, not reachable by end users: 'import.last_successful_try' is a ruby expression taken from the external_system yaml config in the repository (e.g. '2.days.ago') and is evaluated to build a date. eval without an explicit binding uses the call-site binding, so this call cannot be moved into a shared helper without changing what a config string is able to reference."
     }
   ],
-  "brakeman_version": "8.0.4"
+  "brakeman_version": "8.0.5"
 }

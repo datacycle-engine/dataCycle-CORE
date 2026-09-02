@@ -71,20 +71,31 @@ module DataCycleCore
         end
       end
 
+      # Fallback for external systems that report no step info at all. Their only evidence is the
+      # last/last_successful timestamp pair, and a first run that is still going looks exactly like a
+      # failed one there: last_<type> is set, last_successful_<type> is not. So an 'error' has to be
+      # checked against the queue before it is believed — step info is what replaced this, but a
+      # system without any never gets it.
       def last_status_legacy(type)
         last_legacy_status = send(:"last_#{type}") == send(:"last_successful_#{type}") ? 'finished' : 'error' if !deactivated && (send(:"last_#{type}") || send(:"last_successful_#{type}"))
-        last_legacy_status = 'running' if last_legacy_status == 'error' &&
-                                          (type == :import ? last_download_status != 'running' : true) &&
-                                          Delayed::Job.where('delayed_reference_type ILIKE ?', "%#{type}%")
-                                            .where(
-                                              queue: 'importers',
-                                              delayed_reference_id: id,
-                                              failed_at: nil
-                                            )
-                                            .where.not(locked_by: nil)
-                                            .exists?
 
-        last_legacy_status
+        return last_legacy_status unless last_legacy_status == 'error'
+        # a running download reports itself; don't show the import it is a prerequisite of as running too
+        return last_legacy_status if type == :import && last_download_status == 'running'
+
+        running_import_job?(type) ? 'running' : last_legacy_status
+      end
+
+      # Whether a worker is currently executing a +type+ job for this external system. Every
+      # ImportJob variant shares the :importers concurrency group, so this matches at most one row.
+      # @param type [Symbol] :download or :import
+      # @return [Boolean]
+      def running_import_job?(type)
+        SolidQueue::Job
+          .where(concurrency_key: DataCycleCore::ImportJob.new(id).concurrency_key)
+          .where.associated(:claimed_execution)
+          .pluck(:class_name)
+          .any? { |class_name| class_name.safe_constantize.try(:runs?, type) }
       end
 
       def last_download_status_legacy

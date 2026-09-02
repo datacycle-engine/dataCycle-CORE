@@ -58,19 +58,7 @@
         <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_path(item), class: 'edit-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } %>
       <% end %>
 
-      <% if can?(:lock, item) && !item.access_locked? %>
-        <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true),
-                    lock_user_path(item),
-                    method: :delete,
-                    class:'alert lock-link',
-                    data: {
-                      confirm: "#{item.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?",
-                      confirmation_text: t('actions.lock', locale: active_ui_locale) + tag.i(class: 'fa fa-lock'),
-                      dc_tooltip: t('actions.lock', locale: active_ui_locale)
-                    } %>
-      <% elsif can?(:lock, item) %>
-        <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(item), method: :post, class:'success unlock-link', data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } %>
-      <% end %>
+      <%= render 'data_cycle_core/users/lock_actions', user: item %>
 
       <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true),
                   user_path(item),
@@ -95,10 +83,7 @@
 
   <% if can?(:generate_access_token, item) && item.access_token.present? %>
     <div class="token">
-      <%= content_tag :span, class: 'copy-to-clipboard with-shadow', data: { value: item.access_token } do %>
-        <i class="fa fa-key" aria-hidden="true"></i>
-        <%= item.access_token %>
-      <% end %>
+      <%= render 'data_cycle_core/users/access_token', user: item %>
     </div>
   <% end %>
 
@@ -129,6 +114,8 @@
       <%= yield_content!(:additional_attributes) %>
     </ul>
   <% end %>
+
+  <%= render 'data_cycle_core/users/lock_status', user: item %>
 
   <div class="tags">
     <ul class="no-bullet no-format">

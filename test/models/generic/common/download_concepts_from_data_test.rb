@@ -312,6 +312,28 @@ module DataCycleCore
       end
     end
 
+    # [#50666] the aggregation projects no priority at all any more, so the options are the only way
+    # the claim reaches props_from_config -- otherwise an unprioritised concept step would stop
+    # claiming what it writes and every concept dump would be rewritten once to drop the key.
+    test 'download_content claims what it writes at the default priority' do
+      captured = nil
+      DataCycleCore::Generic::Common::DownloadFunctions.stub(:download_content, ->(**kwargs) { captured = kwargs[:options] }) do
+        DataCycleCore::Generic::Common::DownloadConceptsFromData.download_content(utility_object: nil, options: { download: { data_path: 'dataPath' } })
+      end
+
+      assert_equal DataCycleCore::Generic::Common::Extensions::DumpKeyPolicy::DEFAULT_STEP_PRIORITY,
+                   captured.dig(:download, :priority)
+    end
+
+    test 'download_content leaves a configured priority alone' do
+      captured = nil
+      DataCycleCore::Generic::Common::DownloadFunctions.stub(:download_content, ->(**kwargs) { captured = kwargs[:options] }) do
+        DataCycleCore::Generic::Common::DownloadConceptsFromData.download_content(utility_object: nil, options: { download: { data_path: 'dataPath', priority: 0 } })
+      end
+
+      assert_equal 0, captured.dig(:download, :priority)
+    end
+
     test 'final_projection_stage projects relevant info 1' do
       options = {
         download: {
@@ -322,7 +344,7 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id', 'data.uri' => '$data.uri', 'data.priority' => 5, 'external_system' => 1 } }
+      exp = { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id', 'data.uri' => '$data.uri', 'external_system' => 1 } }
       relevant_pipeline = pipelines.reverse.find { |p| p.key?('$project') }
 
       assert_equal exp, relevant_pipeline
@@ -341,7 +363,7 @@ module DataCycleCore
       }
       locale = :de
       pipelines = DataCycleCore::Generic::Common::DownloadConceptsFromData.create_aggregate_pipeline(options: options, locale:, source_filter: {})
-      exp = { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id_path', 'data.uri' => '$data.uri_path', 'data.priority' => 3, 'external_system' => 1 } }
+      exp = { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id_path', 'data.uri' => '$data.uri_path', 'external_system' => 1 } }
       relevant_pipeline = pipelines.reverse.find { |p| p.key?('$project') }
 
       assert_equal exp, relevant_pipeline
@@ -385,7 +407,7 @@ module DataCycleCore
           { '$project' => { 'data' => '$data.obj', 'external_system' => 1 } },
           { '$unwind' => '$data' },
           { '$match' => { 'data.id' => { '$exists' => true }, 'data.type' => 'type' } },
-          { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id', 'data.uri' => '$data.uri', 'data.priority' => 5, 'external_system' => 1 } },
+          { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id', 'data.uri' => '$data.uri', 'external_system' => 1 } },
           { '$group' => { '_id' => '$data.id', 'data' => { '$first' => '$data' }, 'external_system' => { '$mergeObjects' => '$external_system' } } },
           { '$addFields' => { 'data.external_system' => '$external_system' } },
           { '$replaceRoot' => { 'newRoot' => '$data' } },
@@ -416,7 +438,7 @@ module DataCycleCore
           { '$project' => { 'data' => "$dump.#{locale}.dataPath", 'external_system' => 1 } },
           { '$unwind' => '$data' },
           { '$match' => { 'data.id' => { '$exists' => true }, 'data.type' => 'type' } },
-          { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id_path', 'data.uri' => '$data.uri_path', 'data.priority' => 5, 'external_system' => 1 } },
+          { '$project' => { 'data.id' => '$data.id', 'data.name' => '$data.name', 'data.parent_id' => '$data.parent_id_path', 'data.uri' => '$data.uri_path', 'external_system' => 1 } },
           { '$group' => { '_id' => '$data.id', 'data' => { '$first' => '$data' }, 'external_system' => { '$mergeObjects' => '$external_system' } } },
           { '$addFields' => { 'data.external_system' => '$external_system' } },
           { '$replaceRoot' => { 'newRoot' => '$data' } },

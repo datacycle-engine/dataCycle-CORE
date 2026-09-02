@@ -20,13 +20,10 @@ module DataCycleCore
         classification_alias: @c1
       )
 
-      @thing = DataCycleCore::TestPreparations.create_content(
-        template_name: 'POI',
-        data_hash: {
-          name: 'Test POI 1',
-          universal_classifications: [@c1_mapping.primary_classification.id]
-        }
-      )
+      @thing = create_content('POI', {
+        name: 'Test POI 1',
+        universal_classifications: [@c1_mapping.primary_classification.id]
+      })
     end
 
     test 'mapping assigned update classification attributes' do
@@ -35,6 +32,7 @@ module DataCycleCore
       assert_equal(3.weeks.ago.beginning_of_day, @thing.cache_valid_since)
 
       @c1_mapping.update!(name: 'UPDATED NAME2')
+      perform_enqueued_jobs
 
       assert_operator @thing.reload.cache_valid_since, :>, 1.day.ago.beginning_of_day
     end
@@ -45,6 +43,7 @@ module DataCycleCore
       assert_equal(3.weeks.ago.beginning_of_day, @thing.cache_valid_since)
 
       @c1_mapping.move_after(@ct3, @c7)
+      perform_enqueued_jobs
 
       assert_operator @thing.reload.cache_valid_since, :>, 1.day.ago.beginning_of_day
     end
@@ -55,6 +54,7 @@ module DataCycleCore
       assert_equal(3.weeks.ago.beginning_of_day, @thing.cache_valid_since)
 
       @c1_mapping.merge_with_children(@c6)
+      perform_enqueued_jobs
 
       assert_operator @thing.reload.cache_valid_since, :>, 1.day.ago.beginning_of_day
     end
@@ -65,6 +65,7 @@ module DataCycleCore
       assert_equal(3.weeks.ago.beginning_of_day, @thing.cache_valid_since)
 
       @c1_mapping.destroy
+      perform_enqueued_jobs
 
       assert_operator @thing.reload.cache_valid_since, :>, 1.day.ago.beginning_of_day
     end

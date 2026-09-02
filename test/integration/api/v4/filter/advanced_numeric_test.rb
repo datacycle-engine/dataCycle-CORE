@@ -13,6 +13,7 @@ module DataCycleCore
 
             image_b = DataCycleCore::V4::DummyDataHelper.create_data('image')
             image_b.set_data_hash(data_hash: { width: 50, height: 50 })
+            perform_enqueued_jobs
           end
 
           test 'api/v4/things with filter[attribute][{attributeName}][in][min]' do

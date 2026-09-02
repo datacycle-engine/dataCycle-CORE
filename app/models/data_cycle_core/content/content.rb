@@ -97,7 +97,7 @@ module DataCycleCore
         template_attrs = attrs.slice(:template_name, :thing_template)
         normal_attrs = attrs.except(:template_name, :thing_template)
 
-        template_attrs[:thing_template] ||= DataCycleCore::ThingTemplate.find_by(template_name: template_attrs[:template_name]) if template_attrs[:template_name].present?
+        template_attrs[:thing_template] ||= DataCycleCore::ThingTemplate.cached_by_template_name(template_attrs[:template_name]) if template_attrs[:template_name].present?
         template_attrs[:template_name] ||= template_attrs[:thing_template].template_name if template_attrs[:thing_template].present?
 
         super(template_attrs) do
@@ -421,7 +421,7 @@ module DataCycleCore
       end
 
       def linked_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
+        memoized_property_names(:linked, include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def inverse_linked_property_names(include_overlay = false)
@@ -433,7 +433,7 @@ module DataCycleCore
       end
 
       def embedded_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) }
+        memoized_property_names(:embedded, include_overlay) { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def included_property_names(include_overlay = false)
@@ -444,15 +444,42 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition.key?('compute') }
       end
 
+      # Computed properties calculated during the inline before_save pass, i.e. written by the
+      # same save. This is the default; a compute that has to observe the *persisted* state
+      # opts out with compute.async or compute.after_save, because before_save runs before the
+      # relation rows exist (e.g. collected_classification_contents is only filled by its
+      # triggers once the classification_contents rows are written).
+      #
+      # @return [Array<String>] property names computed inline, before the save
       def inline_computed_property_names(include_overlay = false)
         name_property_selector(include_overlay) do |definition|
-          definition.key?('compute') && definition.dig('compute', 'async').to_s != 'true'
+          definition.key?('compute') &&
+            definition.dig('compute', 'async').to_s != 'true' &&
+            definition.dig('compute', 'after_save').to_s != 'true'
         end
       end
 
+      # Computed properties recalculated after the save by UpdateAsyncComputedPropertiesJob
+      # (compute.async). The value only becomes visible once that job has run — up to a
+      # cache_invalidation worker poll later — so prefer compute.after_save for anything the
+      # editor is expected to see immediately.
+      #
+      # @return [Array<String>] property names computed in a background job, after the save
       def async_computed_property_names(include_overlay = false)
         name_property_selector(include_overlay) do |definition|
           definition.key?('compute') && definition.dig('compute', 'async').to_s == 'true'
+        end
+      end
+
+      # Computed properties recalculated synchronously right after the save that triggered them
+      # (compute.after_save). Like compute.async they see the persisted state, but they are
+      # computed inside the same request and transaction, so the value is committed before the
+      # response — see Content::Extensions::ComputedValue#update_after_save_computed_values.
+      #
+      # @return [Array<String>] property names computed in-request, after the save
+      def after_save_computed_property_names(include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.key?('compute') && definition.dig('compute', 'after_save').to_s == 'true'
         end
       end
 
@@ -508,7 +535,7 @@ module DataCycleCore
       end
 
       def classification_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
+        memoized_property_names(:classification, include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def classification_properties(include_overlay = false)
@@ -954,6 +981,7 @@ module DataCycleCore
 
       def reload_template_definition
         remove_instance_variable(:@content_template) if instance_variable_defined?(:@content_template)
+        remove_instance_variable(:@memoized_property_names) if instance_variable_defined?(:@memoized_property_names)
         remove_instance_variable(:@translatable_property_names) if instance_variable_defined?(:@translatable_property_names)
         remove_instance_variable(:@untranslatable_property_names) if instance_variable_defined?(:@untranslatable_property_names)
         remove_instance_variable(:@get_property_value) if instance_variable_defined?(:@get_property_value)

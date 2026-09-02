@@ -18,8 +18,5 @@ module DataCycleCore
         format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').strip } }
       end
     end
-
-    def settings
-    end
   end
 end

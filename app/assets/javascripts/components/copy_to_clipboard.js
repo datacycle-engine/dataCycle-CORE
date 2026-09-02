@@ -15,6 +15,13 @@ class CopyToClipboard {
 	setup() {
 		this.item.addEventListener("click", this.copyValueToClipboard.bind(this));
 	}
+	/**
+	 * The admin panel's COPY button carries no value of its own - it copies the tab's
+	 * <code class="formatted-json" data-json="...">, which each tab now delivers through a
+	 * lazily loaded turbo frame instead of the <pre class="remote-render"> it used to fill,
+	 * so "pre code" no longer matches. The element is also absent until the frame resolves
+	 * and stays absent for a tab whose payload is empty, hence the null check.
+	 */
 	copyValueToClipboard(event) {
 		event.preventDefault();
 		event.stopPropagation();
@@ -23,7 +30,9 @@ class CopyToClipboard {
 		if (currentTarget.classList.contains("admin-clipboard"))
 			currentTarget = currentTarget
 				.closest("section.tabs-panel")
-				.querySelector("pre code");
+				?.querySelector("code.formatted-json");
+
+		if (!currentTarget) return console.warn("nothing to copy");
 
 		let text;
 		if ("json" in currentTarget.dataset && currentTarget.dataset.json)

@@ -47,5 +47,16 @@ module DataCycleCore
     test 'parse_header returns nil when there are no HTTP_ headers' do
       assert_nil parse_header(struct_double(env: { 'REQUEST_METHOD' => 'GET' }))
     end
+
+    test 'propstat builds a text-file resource for a thing without assets' do
+      thing = DataCycleCore::Thing.new(template_name: DataCycleCore::ThingTemplate.first.template_name)
+      thing.define_singleton_method(:updated_at) { Time.zone.now }
+
+      result = propstat(thing)
+
+      assert_equal 'text/plain', result[:content_type]
+      assert result[:file_name].end_with?('.txt')
+      assert result[:display_name].end_with?('.txt')
+    end
   end
 end

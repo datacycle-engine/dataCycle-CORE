@@ -13,6 +13,7 @@ module DataCycleCore
       @content2 = create_content('Aggregate', { name: 'HEADLINE - NO TAGS 2' })
       I18n.with_locale(:en) do
         @content2.set_data_hash(data_hash: { name: 'HEADLINE - NO TAGS 2 EN' })
+        perform_enqueued_jobs
       end
       @external_source = DataCycleCore::ExternalSystem.first
       @aggregate_content = create_content('Aggregate (Aggregate)', { aggregate_for: [@content1.id] })
@@ -33,6 +34,7 @@ module DataCycleCore
 
     test 'aggregate_content and contents get correct aggregate_type after update' do
       @aggregate_content.set_data_hash(data_hash: { aggregate_for: [@content2.id] })
+      perform_enqueued_jobs
 
       assert_equal 'aggregate', @aggregate_content.aggregate_type
       assert_equal 'default', @content1.reload.aggregate_type
@@ -45,6 +47,7 @@ module DataCycleCore
       I18n.with_locale(:en) do
         @aggregate_content.set_data_hash(data_hash: { aggregate_for: [@content2.id] })
       end
+      perform_enqueued_jobs
 
       assert_equal [:de, :en], @aggregate_content.translated_locales
       assert_equal 'HEADLINE - NO TAGS 2', @aggregate_content.name
@@ -62,6 +65,7 @@ module DataCycleCore
       assert_equal 'HEADLINE - NO TAGS 1', @aggregate_content.name
 
       @content1.set_data_hash(data_hash: { name: 'HEADLINE - NO TAGS 1 NEW' })
+      perform_enqueued_jobs
 
       assert_equal 'HEADLINE - NO TAGS 1 NEW', @aggregate_content.reload.name
     end
@@ -76,6 +80,7 @@ module DataCycleCore
       @content2.add_external_system_data(@external_source, { name: 'HEADLINE - NO TAGS 2' }, 'success', 'export', '2')
 
       @aggregate_content.set_data_hash(data_hash: { aggregate_for: [@content1.id, @content2.id] })
+      perform_enqueued_jobs
 
       assert_equal(
         @content1.external_syncs_as_property_values + @content2.external_syncs_as_property_values,
@@ -87,6 +92,7 @@ module DataCycleCore
       classification_id = DataCycleCore::Concept.for_tree('Tags').pick(:classification_id)
       content = create_content('Computed-Common-attribute_value_from_first_existing_linked', { name: 'Entity with Aggregate 2', classification_value: [classification_id] })
       @aggregate_content.set_data_hash(data_hash: { aggregate_for: [@content1.id, content.id] })
+      perform_enqueued_jobs
 
       assert_equal [classification_id], @aggregate_content.universal_classifications.pluck(:id)
     end

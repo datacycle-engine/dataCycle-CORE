@@ -1,168 +1,95 @@
-<% content_for(:sidebar_user_administration, flush:true) do %>
-  <% if DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability).exists? %>
-    <div>
-      <%= link_to classifications_path, class: 'classifications-link' do %>
-        <span class="icon">
-          <i class="fa fa-sitemap" aria-hidden="true"></i>
-        </span>
+<%= render layout: 'data_cycle_core/application/side_bar/section', locals: { title: t('data_cycle_core.side_bar.management', locale: active_ui_locale) } do %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: index_users_path,
+    icon: 'fa fa-user',
+    title: t('actions.manage', data: DataCycleCore::User.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale),
+    options: { class: 'users-link' } if can?(:index, DataCycleCore::User) %>
 
-        <span class="title">
-          <%= t('actions.manage', locale: active_ui_locale, data: DataCycleCore::Concept.model_name.human(count: 2, locale: active_ui_locale)) %>
-        </span>
-      <% end %>
-    </div>
-  <% end %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: user_groups_path,
+    icon: 'fa fa-users',
+    title: t('actions.manage', data: DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale),
+    options: { class: 'user-groups-link' } if can?(:index, DataCycleCore::UserGroup) %>
 
-  <% if can? :index, DataCycleCore::User %>
-    <div>
-      <%= link_to index_users_path, class: 'users-link' do %>
-        <span class="icon">
-          <i class="fa fa-user" aria-hidden="true"></i>
-        </span>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: permissions_path,
+    icon: 'fa fa-user-circle-o',
+    title: DataCycleCore::Permission.model_name.human(count: 2, locale: active_ui_locale),
+    options: { class: 'permissions-link' } if can?(:index, DataCycleCore::Permission) %>
 
-        <span class="title">
-          <%= t('actions.manage', data: DataCycleCore::User.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %>
-        </span>
-      <% end %>
-    </div>
-  <% end %>
-
-  <% if can? :index, DataCycleCore::UserGroup %>
-    <div>
-      <%= link_to user_groups_path, class: 'user-groups-link' do %>
-        <span class="icon">
-          <i class="fa fa-users" aria-hidden="true"></i>
-        </span>
-
-        <span class="title">
-          <%= t('actions.manage', locale: active_ui_locale, data: DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale)) %>
-        </span>
-      <% end %>
-    </div>
-  <% end %>
-
-  <% if can? :manage, Doorkeeper::Application %>
-    <div>
-      <%= link_to oauth_applications_path, class: 'oauth-applications-link' do %>
-        <span class="icon">
-          <i class="fa fa-openid" aria-hidden="true"></i>
-        </span>
-
-        <span class="title">
-          <%= t('actions.manage', locale: active_ui_locale, data: Doorkeeper::Application.model_name.human(count: 2, locale: active_ui_locale)) %>
-        </span>
-      <% end %>
-    </div>
-  <% end %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: classifications_path,
+    icon: 'fa fa-sitemap',
+    title: t('actions.manage', data: DataCycleCore::Concept.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale),
+    options: { class: 'classifications-link' } if DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability).exists? %>
 <% end %>
 
-<% content_for(:sidebar_monitoring, flush:true) do %>
-  <% if can? :index, DataCycleCore::Permission %>
-    <div>
-      <%= link_to permissions_path, class: 'permissions-link' do %>
-        <span class="icon">
-          <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-        </span>
+<%= render layout: 'data_cycle_core/application/side_bar/section', locals: { title: t('data_cycle_core.side_bar.system_and_tools', locale: active_ui_locale) } do %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: admin_path,
+    icon: 'fa fa-tachometer',
+    title: t('data_cycle_core.administration', locale: active_ui_locale),
+    options: { class: 'admin-link' } if can?(:home, :dash_board) %>
 
-        <span class="title"><%= DataCycleCore::Permission.model_name.human(count: 2, locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: reports_path,
+    icon: 'fa fa-table',
+    title: t('data_cycle_core.reports.root', locale: active_ui_locale),
+    options: { class: 'reports-link' } if can?(:index, :report) && DataCycleCore::Feature::ReportGenerator.enabled? %>
+
+  <% DataCycleCore::Feature::AdditionalMenuLink.links.each do |link| %>
+    <% next unless can?(:show, link.permission || link) %>
+
+    <%= render 'data_cycle_core/application/side_bar/link',
+      href: link.external? ? link.url : File.join(root_path, link.url),
+      icon: link.icon_class,
+      title: link.title(active_ui_locale),
+      options: { class: "additional-menu-link #{link.key}-link", target: '_blank', rel: 'noopener' } %>
   <% end %>
 
-  <% if can?(:index, :report) && DataCycleCore::Feature::ReportGenerator.enabled? %>
-    <div>
-      <%= link_to reports_path do %>
-        <span class="icon">
-          <i class="fa fa-table" aria-hidden="true"></i>
-        </span>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: clear_all_caches_path,
+    icon: 'fa fa-shield',
+    title: t('data_cycle_core.cache.clear_all', locale: active_ui_locale),
+    options: {
+      class: 'clear-caches-link',
+      data: {
+        turbo: true,
+        turbo_stream: true,
+        turbo_method: 'delete',
+        turbo_confirm: t('common.confirm_delete_all_caches', locale: active_ui_locale)
+      }
+    } if can?(:clear_all, :cache) %>
 
-        <span class="title"><%= t('data_cycle_core.reports.root', locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
-
-  <% if can?(:show, :grafana_dashboards) %>
-    <div>
-      <%= link_to File.join(root_path, 'grafana'), class: 'grafana-link', target: '_blank' do %>
-        <span class="icon">
-          <i class="fa fa-line-chart" aria-hidden="true"></i>
-        </span>
-
-        <span class="title"><%= t('data_cycle_core.grafana', locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: oauth_applications_path,
+    icon: 'fa fa-openid',
+    title: t('actions.manage', data: Doorkeeper::Application.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale),
+    options: { class: 'oauth-applications-link' } if can?(:manage, Doorkeeper::Application) %>
 <% end %>
 
-<% content_for(:sidebar_administration, flush:true) do %>
-  <% if can? :clear_all, :cache %>
-    <div>
-      <%= link_to clear_all_caches_path,
-              data: {
-                  dc_tooltip: t('data_cycle_core.cache.clear_all', locale: active_ui_locale),
-                  turbo: true,
-                  turbo_stream: true,
-                  turbo_method: 'delete',
-                  turbo_confirm: t('common.confirm_delete_all_caches', locale: active_ui_locale)
-              } do %>
-        <span class="icon">
-          <i class="fa fa-shield" aria-hidden="true"></i>
-        </span>
+<%= render layout: 'data_cycle_core/application/side_bar/section', locals: { title: t('data_cycle_core.side_bar.resources', locale: active_ui_locale) } do %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: configured_info_link,
+    icon: 'fa fa-info-circle',
+    title: 'Info',
+    options: { class: 'info-link', target: '_blank', rel: 'noopener' } %>
 
-        <span class="title"><%= t('data_cycle_core.cache.clear_all', locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: docs_path,
+    icon: 'fa fa-book',
+    title: t('data_cycle_core.documentation', locale: active_ui_locale),
+    options: { class: 'documentation-link' } %>
 
-  <% if can? :home, :dash_board %>
-    <div>
-      <%= link_to admin_path, class: 'admin-link' do %>
-        <span class="icon">
-          <i class="fa fa-tachometer" aria-hidden="true"></i>
-        </span>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: DataCycleCore.logo.dig('footer_links', 'terms_and_conditions'),
+    icon: 'fa fa-file-text',
+    title: t('data_cycle_core.side_bar.terms_and_conditions', locale: active_ui_locale),
+    options: { class: 'terms-and-conditions-link', target: '_blank', rel: 'noopener' } if DataCycleCore.logo.dig('footer_links', 'terms_and_conditions').present? %>
 
-        <span class="title"><%= t('data_cycle_core.administration', locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
-
-  <div>
-    <%= link_to docs_path, class: 'documentation-link' do %>
-      <span class="icon">
-        <i class="fa fa-book" aria-hidden="true"></i>
-      </span>
-
-      <span class="title"><%= t('data_cycle_core.documentation', locale: active_ui_locale) %></span>
-    <% end %>
-  </div>
-
-  <% if can? :home, :dash_board %>
-    <div>
-      <%= link_to guides_path, class: 'guides-link' do %>
-        <span class="icon">
-          <i class="fa fa-compass" aria-hidden="true"></i>
-        </span>
-
-        <span class="title"><%= t('data_cycle_core.guides.root', locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
-<% end %>
-
-<% if content_for?(:sidebar_user_administration) %>
-  <div class="settings-row">
-    <%= yield_content!(:sidebar_user_administration) %>
-  </div>
-<% end %>
-
-<% if content_for?(:sidebar_monitoring) %>
-  <div class="settings-row">
-    <%= yield_content!(:sidebar_monitoring) %>
-  </div>
-<% end %>
-
-<% if content_for?(:sidebar_administration) %>
-  <div class="settings-row">
-    <%= yield_content!(:sidebar_administration) %>
-  </div>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: guides_path,
+    icon: 'fa fa-compass',
+    title: t('data_cycle_core.guides.root', locale: active_ui_locale),
+    options: { class: 'guides-link' } if can?(:show, :guides) %>
 <% end %>

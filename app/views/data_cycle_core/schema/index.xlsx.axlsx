@@ -77,7 +77,7 @@ def convert_embedded_attribute_to_rows(key, definition, visited = Set.new)
   visited += [definition['template_name']]
   embedded_template = DataCycleCore::ThingTemplate.find_by(template_name: definition['template_name'])
 
-  # rubocop:disable Performance/FlatMap
+  # rubocop:disable-next Performance/FlatMap
   [[definition['label'], key, nil, nil]] + embedded_template.schema['properties'].map { |property_key, property_definition|
     nested_attributes = convert_attribute_to_row(property_key, property_definition, visited)
 
@@ -87,7 +87,6 @@ def convert_embedded_attribute_to_rows(key, definition, visited = Set.new)
       [[nil] + nested_attributes]
     end
   }.flatten(1)
-  # rubocop:enable Performance/FlatMap
 end
 
 def convert_linked_attribute_to_rows(key, definition)

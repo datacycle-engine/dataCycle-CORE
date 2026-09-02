@@ -14,8 +14,12 @@ en:
           invalid_object: "invalid included_object: type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data)."
         storage_location:
           invalid_column: "invalid storage_location column, column is only allowed for external_key and slug"
+        collapse_redundant_values:
+          invalid_collapse_redundant_values: "invalid collapse_redundant_values: only allowed for type: timeseries"
         overlay:
           invalid_overlay_type: overlay is not allowed for this attribute type
+        compute:
+          conflicting_deferral: "invalid compute: set either async (recomputed by a background job) or after_save (recomputed synchronously in the same request), not both"
         data:
           missing_schema_type_or_ancestors: "schema_type or schema_ancestors have to be defined."
         reserved_property_name: "property name is reserved as database column"
@@ -28,7 +32,7 @@ en:
       nested_json_path?: "must not start with $..<field>, use $.<field> instead"
       uuid?: "must be a valid UUID"
       api_weight_string?: 'must be a valid weight string (allowed values: ABCD, e.g. "AB")'
-      api_fulltext_fields_string?: 'must be a valid field string for fulltext search (allowed values: name,dc:slug,dc:classification, e.g. "name,dc:slug")'
+      api_fulltext_fields_string?: 'must be a valid field string for fulltext search (allowed values: name,dc:slug,dc:classification,dc:text, e.g. "name,dc:slug")'
       ruby_module_or_class?: "must be a valid Ruby module or class"
       ruby_module?: "must be a valid Ruby module"
       ruby_class?: "must be a valid Ruby class"

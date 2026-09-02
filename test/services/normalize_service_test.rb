@@ -24,6 +24,16 @@ module DataCycleCore
       assert_equal 2, params['items'].size
     end
 
+    test 'normalize_parameters keeps an empty hash a hash instead of turning it into an array' do
+      params = { 'definition' => { 'ui' => {}, 'validations' => { 'soft_required' => true } } }
+
+      DataCycleCore::NormalizeService.normalize_parameters(params)
+
+      assert_kind_of Hash, params['definition']['ui']
+      assert_empty params['definition']['ui']
+      assert_equal({ 'soft_required' => true }, params['definition']['validations'])
+    end
+
     test 'normalize_encoding sanitizes the string encoding' do
       assert_equal 'abc', DataCycleCore::NormalizeService.normalize_encoding('abc')
     end

@@ -7,5 +7,6 @@ module DataCycleCore
     include Common::ByOrderedValues
     include Common::UiExtensions
     include Common::AsJsonExtension
+    include Common::LocalePriority
   end
 end

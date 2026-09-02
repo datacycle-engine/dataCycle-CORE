@@ -53,7 +53,13 @@ module DataCycleCore
     test 'import_job records the failure and re-raises on error' do
       es = external_system_double(config: { 'download_config' => {} }, raise_on: :download)
 
-      assert_raises(StandardError) { perform_with(es, DataCycleCore::ImportJob) }
+      # the perform method records the failure and re-raises; retry/backoff on top of that is
+      # ActiveJob's (retry_on) concern, so exercise perform directly rather than perform_now.
+      assert_raises(StandardError) do
+        DataCycleCore::ExternalSystem.stub(:find, es) do
+          DataCycleCore::ImportJob.new(UUID).perform(UUID)
+        end
+      end
       assert es.data['last_download_import_failed']
       assert_predicate es.data['last_download_import_exception'], :present?
     end
@@ -62,19 +68,43 @@ module DataCycleCore
       es = external_system_double(config: {})
 
       DataCycleCore::ExternalSystem.stub(:find, es) do
-        DataCycleCore::ImportJob.perform_later(UUID)
+        perform_enqueued_jobs do
+          DataCycleCore::ImportJob.perform_later(UUID)
+        end
       end
 
       assert es.data.key?('last_download_import_job_id')
       assert_not es.data['last_download_import_failed']
     end
 
-    test 'import_job exposes reference id and type' do
+    test 'import_job exposes its concurrency key' do
       job = DataCycleCore::ImportJob.new(UUID, 'full')
 
-      assert_equal UUID, job.delayed_reference_id
-      assert_equal 'download_import_full', job.delayed_reference_type
-      assert_predicate DataCycleCore::ImportJob, :broadcast_dashboard_jobs_now?
+      assert_equal "importers/#{UUID}", job.concurrency_key
+    end
+
+    test 'import_job is enqueued on the importers queue by default' do
+      es = external_system_double
+      es.define_singleton_method(:import_queue) { :importers }
+
+      DataCycleCore::ExternalSystem.stub(:find_by, es) do
+        assert_equal 'importers', DataCycleCore::ImportJob.new(UUID).queue_name
+      end
+    end
+
+    test 'import_job honours the queue configured on the external system' do
+      es = external_system_double
+      es.define_singleton_method(:import_queue) { :importers_short }
+
+      DataCycleCore::ExternalSystem.stub(:find_by, es) do
+        assert_equal 'importers_short', DataCycleCore::ImportJob.new(UUID).queue_name
+      end
+    end
+
+    test 'import_job falls back to the importers queue when the system is missing' do
+      DataCycleCore::ExternalSystem.stub(:find_by, nil) do
+        assert_equal 'importers', DataCycleCore::ImportJob.new(UUID).queue_name
+      end
     end
 
     test 'download_job downloads via the block' do

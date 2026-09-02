@@ -62,5 +62,18 @@ module DataCycleCore
       assert_includes html, 'Montag'
       assert_includes html, 'geschlossen'
     end
+
+    test 'opening_time_opening_hours renders opening and closing times for a weekday rule' do
+      opening_times = [{
+        rrules: [{ validations: { day: [1] } }],
+        start_time: { time: Time.zone.local(2024, 1, 15, 9, 0), zone: nil },
+        duration: 3600
+      }]
+
+      html = opening_time_opening_hours(opening_times)
+
+      assert_predicate html, :html_safe?
+      assert_includes html, 'Montag'
+    end
   end
 end

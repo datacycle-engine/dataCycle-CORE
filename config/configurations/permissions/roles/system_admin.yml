@@ -27,6 +27,29 @@ read_api_configs:
       - :api_config_features
       - :api_config_common
 
+# the developer guides document dataCycle internals, so only system_admin gets the sidebar entry
+# (#51344). Until then it hung off `can?(:home, :dash_board)`, which super_admin holds. This gates the
+# menu entry, not the route: /guides is served by StaticController, which authorizes nothing.
+show_guides:
+  actions: show
+  segment: SubjectByConditions
+  parameters:
+    - - :guides
+
+show_raw_data:
+  actions: show_raw_data
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing
+
+# the external URI of a concept is a technical mapping detail (license URLs, foreign ids), so it is
+# only rendered in classification tooltips for system_admin (#27657). manage_system_subjects above
+# already covers this action; declaring it keeps the capability greppable, lists it in the permissions
+# overview and lets a project grant it without handing out full classification management.
+show_concept_uri:
+  actions: show_uri
+  segment: SubjectByConditions
+  parameters: DataCycleCore::ClassificationAlias
+
 user_actions:
   actions: manage
   segment: SubjectByConditions
@@ -36,6 +59,16 @@ role_filter:
   actions: filter
   segment: SubjectByConditions
   parameters: DataCycleCore::Role
+
+trigger_update_webhook:
+  actions: trigger_update_webhooks
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing
+
+show_webhook_error_message:
+  actions: show_webhook_error_message
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing
 
 watch_list_bulk_actions:
   actions:

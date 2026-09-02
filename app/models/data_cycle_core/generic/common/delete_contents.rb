@@ -54,7 +54,9 @@ module DataCycleCore
               ).order(created_at: :asc).first
 
               if oldest_duplicate.nil?
+                template_name = content.template_name
                 content.try(:destroy_content, save_history: true, destroy_linked: true)
+                DataCycleCore::Generic::Common::ImportCounters.instrument(:deleted, utility_object:, template_name:)
               else
                 content.update_columns(external_source_id: oldest_duplicate.external_system_id, external_key: oldest_duplicate.external_key) unless DataCycleCore::Thing.exists?(
                   external_source_id: oldest_duplicate.external_system_id,

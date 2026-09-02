@@ -7,11 +7,7 @@ class ImportHelper
     # @param type [Array<String>] optional array of 'download' or 'import' to check for specific config. If nil, both are checked
     # @return [DataCycleCore::ExternalSystem]
     def external_system(external_source_name, type = ['download', 'import'])
-      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(external_source_name)
-      raise "External source not found: #{external_source_name}" if external_source.nil?
-      raise "Ambiguous external source: #{external_source_name}" if external_source.many?
-
-      external_source = external_source.first
+      external_source = DataCycleCore::ExternalSystem.find_unique_by_names_identifiers_or_ids!(external_source_name)
       raise "No import config found for external source: #{external_source_name}" if external_source.import_config.blank? && (type.blank? || type.include?('import'))
       raise "No download config found for external source: #{external_source_name}" if external_source.download_config.blank? && (type.blank? || type.include?('download'))
 
@@ -21,7 +17,7 @@ class ImportHelper
     def perform_job(external_source, mode, run_now, job_class)
       job = job_class.new(external_source.id, mode)
       run_now = ['true', true].include?(run_now)
-      if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
+      if job.duplicate_queued_with_args?
         # do nothing
       elsif run_now
         job.perform_now
@@ -57,7 +53,7 @@ class ImportHelper
         'external_system.credential_keys' => { '$in' => [nil, options[:credential_key]] }
       }
 
-      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
+      external_source = DataCycleCore::ExternalSystem.find_unique_by_names_identifiers_or_ids!(options[:external_source_id])
 
       options[:import_names] = external_source.config['import_config'].sort_by { |_, config| config['sorting'] }.to_h.keys.join('|') if options[:import_names].nil?
       options[:import_names].presence.split('|').each do |import_name|
@@ -69,9 +65,7 @@ class ImportHelper
       options = convert_args_to_options(args)
       raise 'Error: credential_key is required!' if options[:credential_key].nil?
 
-      external_source = DataCycleCore::ExternalSystem.by_names_identifiers_or_ids(options[:external_source_id]).first
-
-      raise 'External source not found!' if external_source.nil?
+      external_source = DataCycleCore::ExternalSystem.find_unique_by_names_identifiers_or_ids!(options[:external_source_id])
 
       options[:skip_save] = true
 

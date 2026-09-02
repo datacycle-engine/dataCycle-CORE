@@ -126,6 +126,55 @@ module DataCycleCore
 
         private
 
+        # Enforce the caller's api-scope visibility (StoredFilter user filters) on a single content fetched
+        # by id (DC-14).
+        # @param content [DataCycleCore::Thing] the content to check
+        # @param skip_validity [Boolean] see #api_scope_query
+        def authorize_api_content!(content, skip_validity: false)
+          scope_query = api_scope_query(skip_validity:)
+          return if scope_query.nil?
+
+          raise CanCan::AccessDenied unless scope_query.exists?(id: content.id)
+        end
+
+        # The things the caller may see according to their api-scope user filters, or nil when none applies
+        # to them: apply_user_filter then leaves the query unscoped, so every content passes and building
+        # the query would only cost a query (DC-14).
+        #
+        # Memoized per mode, so the check for a content and a restriction of related records (e.g. the
+        # duplicate candidates of a content) share one relation and one set of rules.
+        # @param skip_validity [Boolean] see #build_api_scope_query
+        # @return [ActiveRecord::Relation, nil]
+        def api_scope_query(skip_validity: false)
+          @api_scope_query ||= {}
+          return @api_scope_query[skip_validity] if @api_scope_query.key?(skip_validity)
+
+          @api_scope_query[skip_validity] = build_api_scope_query(skip_validity)
+        end
+
+        # +skip_validity+ lets the query reach expired contents, which the endpoints of an internal tool
+        # need. It is switched off at the filter methods instead of through parameters or a constructor
+        # flag, because a scope resolves nested StoredFilters of its own (+filter_ids+, +union+) that no
+        # outer flag reaches. The access scope itself (tenant, pools, shares) applies unchanged.
+        # @param skip_validity [Boolean] bypass the validity part of the scope
+        def build_api_scope_query(skip_validity)
+          scope_filter = DataCycleCore::StoredFilter.new.apply_user_filter(current_user, { scope: 'api' })
+          return if scope_filter.user_filter_parameters.blank?
+          return scope_filter.things(skip_ordering: true) unless skip_validity
+
+          DataCycleCore::Filter::Common::Date.without_validity_filters do
+            scope_filter.things(skip_ordering: true)
+          end
+        end
+
+        # Renders an error in the shape ErrorHandler#content_api_error produces, for the cases a
+        # controller rejects itself instead of raising.
+        # @param status [Symbol] http status
+        # @param detail [String] human readable reason
+        def render_api_error(status, detail)
+          render json: { errors: [{ source: { pointer: request.path }, detail: }] }, status:
+        end
+
         def set_default_response_format
           return request.format = :geojson if request.format.geojson? || permitted_params[:format].to_s == 'geojson' || Mime::Type.parse(request.accept.to_s)&.include?(:geojson)
 

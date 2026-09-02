@@ -38,6 +38,11 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
               label: 'id',
               type: 'key'
             },
+            schema_types: {
+              type: 'classification',
+              tree_label: 'SchemaTypes',
+              visible: false
+            },
             headline: {
               label: 'Arbeitstitel',
               type: 'string',
@@ -293,6 +298,11 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
               label: 'id',
               type: 'key'
             },
+            schema_types: {
+              type: 'classification',
+              tree_label: 'SchemaTypes',
+              visible: false
+            },
             external_key: {
               type: 'string',
               storage_location: 'column',
@@ -326,6 +336,11 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
               label: 'id',
               type: 'key'
             },
+            schema_types: {
+              type: 'classification',
+              tree_label: 'SchemaTypes',
+              visible: false
+            },
             external_key: {
               type: 'string',
               storage_location: 'column',
@@ -358,6 +373,11 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
             id: {
               label: 'id',
               type: 'key'
+            },
+            schema_types: {
+              type: 'classification',
+              tree_label: 'SchemaTypes',
+              visible: false
             },
             name: {
               label: 'Name',
@@ -396,6 +416,11 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
             id: {
               label: 'id',
               type: 'key'
+            },
+            schema_types: {
+              type: 'classification',
+              tree_label: 'SchemaTypes',
+              visible: false
             },
             external_key: {
               type: 'string',

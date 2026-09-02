@@ -5,6 +5,17 @@ module DataCycleCore
     module Virtual
       module Classification
         class << self
+          # example config:
+          # :virtual:
+          #   :module: Classification
+          #   :method: concat
+          #   :key: name
+          #   :separator: " | " # optional
+          #   :parameters:
+          #     - some_classification_attribute
+          #
+          # ', ' stays the default for the configs that predate the option. A separator
+          # configured as an empty string is used as such, it does not fall back.
           def concat(virtual_parameters:, content:, virtual_definition:, **_args)
             values = virtual_parameters.map do |param|
               classifcation_alias_value(content.send(param), virtual_definition.dig(:virtual, :key))
@@ -14,7 +25,7 @@ module DataCycleCore
 
             return if values.empty?
 
-            values.join(', ')
+            values.join(virtual_definition.dig(:virtual, :separator) || ', ')
           end
 
           def by_tree_label(content:, virtual_definition:, **_args)

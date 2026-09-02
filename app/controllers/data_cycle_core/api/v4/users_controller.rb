@@ -52,16 +52,32 @@ module DataCycleCore
         def update
           authorize! :update, current_user
 
-          current_user.user_api_feature = @user_api_feature
-          current_user.attributes = user_params.except(:additional_attributes)
-          (current_user.additional_attributes ||= {}).merge!(user_params[:additional_attributes] || {})
-
-          current_user.attributes = layout_params
+          assign_user_api_attributes(current_user)
 
           if current_user.save
             render json: current_user.as_user_api_json.merge(current_user.generate_user_token.to_h), status: :ok
           else
             render json: { errors: current_user.errors }, status: :unprocessable_content
+          end
+        end
+
+        # Updates the user named by :id, for any caller holding :update on that user - e.g. a
+        # service token, granted through Segments::UsersByUserGroupAndApiToken. #update only ever
+        # writes the caller's own account.
+        #
+        # It deliberately answers without a user token, where #update returns one for the account
+        # it just wrote: handing the caller a token for somebody else's account would turn
+        # :update on a user into a sign in as that user.
+        def update_by_id
+          @user = DataCycleCore::User.find(params[:id])
+          authorize! :update, @user
+
+          assign_user_api_attributes(@user)
+
+          if @user.save
+            render json: @user.as_user_api_json.deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :ok
+          else
+            render json: { errors: @user.errors }, status: :unprocessable_content
           end
         end
 
@@ -147,6 +163,15 @@ module DataCycleCore
 
         def user_params
           @user_api_feature.parsed_user_params(params)
+        end
+
+        # additional_attributes is merged rather than assigned, so a request that sends only some
+        # of its keys leaves the rest in place
+        def assign_user_api_attributes(user)
+          user.user_api_feature = @user_api_feature
+          user.attributes = user_params.except(:additional_attributes)
+          (user.additional_attributes ||= {}).merge!(user_params[:additional_attributes] || {})
+          user.attributes = layout_params
         end
 
         def role_params

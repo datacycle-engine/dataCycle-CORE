@@ -57,8 +57,6 @@ Rails.application.configure do
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 
-  # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
-  # the I18n.default_locale when a translation cannot be found).
   config.i18n.fallbacks = false
 
   config.force_ssl = ENV['APP_PROTOCOL'] == 'https'
@@ -83,6 +81,9 @@ Rails.application.configure do
 
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
+
+  # Highlight code that triggered redirect in logs.
+  config.action_dispatch.verbose_redirect_logs = true
 
   # Don't annotate rendered view with file names, as it interferes with content_for?(...)
   config.action_view.annotate_rendered_view_with_filenames = false
@@ -116,12 +117,17 @@ Rails.application.configure do
 
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
   config.hosts.push('dockerhost', 'web', 'localhost', ENV.fetch('APP_HOST', 'localhost'))
+  config.action_cable.url = '/cable'
+  config.action_cable.allowed_request_origins = [config.asset_host]
 
   if ENV['RAILS_LOG_TO_STDOUT'].to_s == 'true'
     logger = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
+
+  config.active_job.logger = Logger.new(nil) # enable with solid_queue
+  config.action_cable.logger = Logger.new(nil)
 
   # Bullet configuration:
   # only activate if required for local testing
@@ -132,6 +138,4 @@ Rails.application.configure do
     Prosopite.stderr_logger = true
     Prosopite.enabled = true
   end
-  config.action_cable.url = '/cable'
-  config.action_cable.allowed_request_origins = [config.asset_host]
 end

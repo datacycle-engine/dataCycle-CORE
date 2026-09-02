@@ -87,3 +87,7 @@
 @import 'modules/components/ai_lector';
 @import 'modules/components/multi_step_form';
 @import 'modules/components/content_warnings';
+@import 'modules/components/oauth';
+
+// last, so a project's own settings win whatever order it assigns them in - see the file itself
+@import 'css_variables';

@@ -26,6 +26,7 @@ module DataCycleCore
         'data_pool' => [['-', content_data.data_pool.pluck(:id)]],
         'upload_date' => ['-', content_data.upload_date],
         'mandatory_license' => ['-', false],
+        'overlay_present' => ['-', false],
         'schema_types' => [['-', content_data.schema_types.pluck(:id)]]
       }
 

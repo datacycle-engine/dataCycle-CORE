@@ -19,7 +19,7 @@ module DataCycleCore
         'text' => 'Full Test'
       }
 
-      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash:)
+      create_content('Artikel', data_hash)
 
       assert_equal(1, DataCycleCore::Search.count - search_count)
     end

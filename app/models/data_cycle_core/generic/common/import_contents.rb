@@ -28,6 +28,10 @@ module DataCycleCore
             return if data_module.blank?
             return if data_filter.present? && !data_module.constantize.method(data_filter).call(raw_data, options.dig(:import, :data_filter))
 
+            # nested contents are cut out of the mongo document and carry no key of their own, so the
+            # document's key is handed down -- otherwise their dc_mongo_key names no document at all
+            base_external_id = DataCycleCore::Generic::Common::ImportFunctions.mongo_external_id(raw_data)
+
             Array.wrap(options.dig(:import, :nested_contents)).each do |nested_contents_config|
               transformation_method = options[:transformations].constantize.method(nested_contents_config[:transformation])
 
@@ -47,7 +51,7 @@ module DataCycleCore
 
                 nested_content_config = nested_contents_config.except(:exists, :not_exists, :path, :json_path, :template, :transformation)
                 raw_data = raw_data.merge(options.dig(:import, :main_content, :data)) if options.dig(:import, :main_content, :data).present?
-                process_single_content(utility_object, nested_contents_config[:template], transformation_method, nested_data, nested_content_config)
+                process_single_content(utility_object, nested_contents_config[:template], transformation_method, nested_data, nested_content_config, base_external_id:)
               end
             end
 
@@ -58,9 +62,14 @@ module DataCycleCore
           end
         end
 
-        def self.process_single_content(utility_object, template_name, transformation_method, raw_data, config = {})
+        # +base_external_id+ is set for nested contents only, and merged in only once the two guards
+        # ran: they judge the payload as it came in, a key of ours makes every hash look present.
+        def self.process_single_content(utility_object, template_name, transformation_method, raw_data, config = {}, base_external_id: nil)
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
+
+          # merged, not written in place: nested data is a part of the base data the main content still gets
+          raw_data = raw_data.merge('dc_external_id' => base_external_id) if base_external_id.present?
 
           transformation = transformation_with_args(transformation_method:, utility_object:, config:)
 

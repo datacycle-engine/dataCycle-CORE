@@ -41,10 +41,13 @@ module DataCycleCore
           'mandatory_license',
           'internal_content_score',
           'external_content_score',
+          'overlay_present', # computed overlay flag, api-disabled; false for non-overlay content
           'web_url',
           'linked_in_text',
           'linked_to_text',
           'dc_ext_key_priority',
+          'dc_mongo_collection',
+          'dc_mongo_key',
           'dummy'
         ].freeze
 

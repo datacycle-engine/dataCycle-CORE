@@ -68,14 +68,7 @@
           <%= render 'split_source_subscribe_notice', content: content, split_source: split_source if local_assigns[:subscribe_notice] && can?(:subscribe, split_source) && split_source.subscriptions.by_user(current_user).size.zero? && cookies[:subscribe_notice_dismissed].blank? %>
 
           <div class="show-content">
-            <div class="detail-header-info">
-              <%= tag.b(
-                t('duplicate.duplicate', locale: active_ui_locale) + ':',
-                class: 'meta-data-prefix alert-color',
-                data: { dc_tooltip: t('duplicate.duplicate_tooltip', locale: active_ui_locale) }
-              ) if merge_view %>
-              <%= render 'data_cycle_core/contents/meta_data', content: split_source, html_class: merge_view ? 'alert-color' : '' %>
-              <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: split_source if show_external_connections?(split_source) %>
+            <% header_extra = capture do %>
               <ul class="split-locales no-bullet">
                 <%= render 'split_locale_links',
                   content: content,
@@ -85,14 +78,14 @@
                   link_action: local_assigns[:link_action] if split_source.translatable? && I18n.available_locales&.many? %>
               </ul>
               <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: active_ui_locale), class: 'close-source-link' %>
-            </div>
+            <% end %>
 
-            <%= render_content_partial(
-              'details',
+            <%= render 'split_detail_column',
               content: split_source,
-              options: { force_render: true, whitelist_keys: rendered_keys, scope: :edit },
-              default: true
-            ) %>
+              label: merge_view ? 'duplicate' : nil,
+              color_class: merge_view ? 'alert-color' : '',
+              whitelist_keys: rendered_keys,
+              header_extra: header_extra %>
           </div>
         </div>
       <% end %>

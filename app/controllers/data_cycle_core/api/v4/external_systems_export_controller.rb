@@ -13,7 +13,7 @@ module DataCycleCore
           @ids = permitted_params[:ids].to_s.split(',').map(&:strip)
           @contents = DataCycleCore::Thing.where(id: @ids)
 
-          transformations = @external_system.export_config['transformations']&.safe_constantize
+          transformations = @external_system.export_transformations
           raise ActiveRecord::RecordNotFound, 'No export transformations found for given external system!' if transformations.nil?
 
           render_params = transformations.method(:render).parameters
@@ -32,9 +32,9 @@ module DataCycleCore
         private
 
         def check_job_status
-          refresh_strategy = @external_system.export_config.dig('refresh', 'strategy')
-          return if refresh_strategy.blank?
-          return unless Array.wrap(refresh_strategy.safe_constantize.hooks).include?(:after_show)
+          refresh_strategy = @external_system.export_refresh_strategy
+          return if refresh_strategy.nil?
+          return unless Array.wrap(refresh_strategy.try(:hooks)).include?(:after_show)
 
           @contents.each do |content|
             content.allowed_webhooks = [@external_system.name]

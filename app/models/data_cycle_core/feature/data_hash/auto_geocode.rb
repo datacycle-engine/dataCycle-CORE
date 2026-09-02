@@ -42,14 +42,40 @@ module DataCycleCore
           end
         end
 
-        # true when this save should enqueue geocoding: a watched address attribute changed, the
-        # content is geocodable, and geocoding is actually needed (see #geocode_needed?). Checks the
-        # cheap "did a watched key change?" first to short-circuit unrelated saves.
+        # true when this save should enqueue geocoding: a watched address attribute changed and the
+        # content actually needs geocoding (see #auto_geocode_needed?). Checks the cheap "did a watched
+        # key change?" first to short-circuit unrelated saves.
         def queue_geocoding?(changed_keys)
           return false unless DataCycleCore::Feature::AutoGeocode.attribute_keys.intersect?(Array.wrap(changed_keys))
-          return false unless geocodable?
 
-          geocode_needed?
+          auto_geocode_needed?
+        end
+
+        # true when geocoding this content may run: either it has no coordinates yet (:needed) or the
+        # coordinates it has are ours and could be re-derived (:refreshable, see #auto_geocode_status).
+        # Used by the post-save hook and the job, which both act on an actual address change.
+        #
+        # The backfill (dc:geocode:auto_geocode) deliberately does NOT use this - it enqueues :needed
+        # only, so it fills gaps instead of re-geocoding, on every run, everything it geocoded before.
+        def auto_geocode_needed?
+          auto_geocode_status.in?([:needed, :refreshable])
+        end
+
+        # why this content is (not) auto-geocoded. Reported per bucket by dc:geocode:auto_geocode, so
+        # content that deliberately keeps empty coordinates - insufficient address data, per the
+        # customer decision in #45442 - is explainable instead of silently skipped.
+        #
+        # @return [Symbol] :needed (no coordinates, address good enough), :refreshable (coordinates
+        #   present but set by this feature, so an address change may re-derive them), :not_allowed
+        #   (embedded or template does not opt in), :has_coordinates (authoritative, from the source
+        #   system or an editor), :no_address, or :insufficient_address (present but too imprecise)
+        def auto_geocode_status
+          return :not_allowed unless geocodable?
+          return existing_coordinates_status if try(DataCycleCore::Feature::AutoGeocode.target_key).present?
+          return :no_address if auto_geocode_raw_address.blank?
+          return :insufficient_address if auto_geocode_address_value.blank?
+
+          :needed
         end
 
         # true when this save left the content carrying the auto-geocoded ownership tag but without
@@ -71,15 +97,13 @@ module DataCycleCore
           DataCycleCore::Feature::AutoGeocode.allowed?(self)
         end
 
-        # performs the geocoding (called from AutoGeocodeThingJob). Re-checks #geocodable? and
-        # #geocode_needed? because the content may have changed between enqueue and execution.
+        # performs the geocoding (called from AutoGeocodeThingJob). Re-checks #auto_geocode_needed?
+        # because the content may have changed between enqueue and execution.
         def auto_geocode!
           return false unless DataCycleCore::Feature['Geocode']&.enabled?
-          return false unless geocodable?
-          return false unless geocode_needed?
+          return false unless auto_geocode_needed?
 
           address = auto_geocode_address_value
-          return false if address.blank?
 
           location = I18n.with_locale(first_available_locale) do
             DataCycleCore::Feature['Geocode'].geocode_address(address)
@@ -107,13 +131,11 @@ module DataCycleCore
 
         private
 
-        # coordinates should be (re-)derived when they are missing, or when the existing coordinates
-        # were themselves set by auto-geocoding (see #auto_geocoded?). Coordinates from the source
-        # system or an editor are authoritative and left untouched.
-        def geocode_needed?
-          return true if try(DataCycleCore::Feature::AutoGeocode.target_key).blank?
-
-          auto_geocoded?
+        # status for a content that already carries coordinates: they may be re-derived only when this
+        # feature set them (see #auto_geocoded?) and the address could still produce a position.
+        # Coordinates from the source system or an editor are authoritative and left untouched.
+        def existing_coordinates_status
+          auto_geocoded? && auto_geocode_address_value.present? ? :refreshable : :has_coordinates
         end
 
         # true when this content currently carries the auto-geocoded tag, i.e. its coordinates were
@@ -126,14 +148,21 @@ module DataCycleCore
           universal_classifications.exists?(id: tag_ids)
         end
 
-        # the (sufficient) address hash to geocode, nil otherwise
-        def auto_geocode_address_value
+        # the watched address attribute as a plain hash, regardless of how precise it is
+        def auto_geocode_raw_address
           value = try(DataCycleCore::Feature::AutoGeocode.attribute_keys.first)
-          value = value.to_h if value.respond_to?(:to_h)
-          return if value.blank?
-          return unless DataCycleCore::Feature::AutoGeocode.sufficient_address?(value)
 
-          value
+          value.respond_to?(:to_h) ? value.to_h : value
+        end
+
+        # the address hash to geocode - present only when it can yield a meaningful position, so an
+        # address that would only resolve to a street/village/country centroid geocodes to nothing
+        def auto_geocode_address_value
+          address = auto_geocode_raw_address
+          return if address.blank?
+          return unless DataCycleCore::Feature::AutoGeocode.sufficient_address?(address)
+
+          address
         end
 
         # data hash written back after geocoding: the resolved point + its longitude/latitude, plus

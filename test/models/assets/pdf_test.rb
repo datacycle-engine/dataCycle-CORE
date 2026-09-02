@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   module Assets
-    class PdfTest < ActiveSupport::TestCase
+    class PdfTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include DataCycleCore::ActiveStorageHelper
 
       def setup
@@ -27,6 +27,7 @@ module DataCycleCore
       test 'upload Pdf: pdf' do
         file_name = 'test.pdf'
         @pdf = upload_pdf(file_name)
+        perform_enqueued_jobs
 
         assert_equal('application/pdf', @pdf.content_type)
 
@@ -39,6 +40,7 @@ module DataCycleCore
         @pdf = DataCycleCore::Pdf.new
         @pdf.file.attach(io: File.open(file_path), filename: file_name)
         @pdf.save
+        perform_enqueued_jobs
 
         assert_not(@pdf.persisted?)
         assert_not(@pdf.valid?)

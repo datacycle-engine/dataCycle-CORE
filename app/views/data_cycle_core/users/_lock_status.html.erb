@@ -1,0 +1,23 @@
+<%#
+  renders the lock status of a user, nothing if the user is not locked
+
+  user: the user to render the status for
+  full_text: render the reason for the lock inline instead of as a tooltip on a short label
+  additional_classes: additional css classes for the wrapping element
+%>
+<% if user.access_locked? %>
+  <% status_text = user.lock_status_text(locale: active_ui_locale) %>
+
+  <%= tag.div(class: class_names('user-lock-status', 'alert-color', local_assigns[:additional_classes])) do %>
+    <% if local_assigns[:full_text] %>
+      <%= tag.i(class: 'fa fa-ban', aria_hidden: true) %>
+      <%= status_text %>
+    <% else %>
+      <%# the tooltip is attached to an inline element so its arrow points at the label instead of the whole row %>
+      <%= tag.span(data: { dc_tooltip: status_text }) do %>
+        <%= tag.i(class: 'fa fa-ban', aria_hidden: true) %>
+        <%= DataCycleCore::User.human_attribute_name(:locked_at, locale: active_ui_locale) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

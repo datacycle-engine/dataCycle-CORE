@@ -31,13 +31,15 @@ module DataCycleCore
         @locales = Array.wrap(@options[:locales]).map(&:to_sym)
       end
 
-      def self.init_logging(type)
+      def self.init_logging(type, external_system = nil)
         return if type.blank?
 
-        DataCycleCore::Generic::Logger::Instrumentation.new(type.to_s)
+        DataCycleCore::Generic::Logger::Instrumentation.new(type.to_s, external_system)
       end
 
-      delegate :init_logging, to: :class
+      def init_logging(type)
+        self.class.init_logging(type, external_source)
+      end
 
       def self.format_float(number, n, m)
         parts = number.round(m).to_s.split('.')

@@ -4,8 +4,6 @@ module DataCycleCore
   module Utility
     module Virtual
       module Linked
-        extend DataCycleCore::ContentHelper
-
         class << self
           def parent(content:, **_args)
             content&.related_contents&.limit(1) || DataCycleCore::Thing.none
@@ -62,7 +60,7 @@ module DataCycleCore
             return DataCycleCore::Thing.none if start_point.blank?
 
             start_location = DataCycleCore::Thing.new(template_name:)
-            start_location.id = generate_uuid(content.id, start_point.to_s)
+            start_location.id = DataCycleCore::UuidService.generate(content.id, start_point.to_s)
             start_location.set_memoized_attribute('location', start_point)
 
             DataCycleCore::Thing.where(id: start_location.id)

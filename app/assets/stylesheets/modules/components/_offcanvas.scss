@@ -13,6 +13,7 @@
   padding-top: calc(4.1rem + 5px);
   max-height: 100vh;
   height: auto;
+  overflow-y: auto;
   border-bottom-left-radius: var(--large-radius);
   border-bottom-right-radius: var(--large-radius);
   position: absolute;
@@ -20,54 +21,22 @@
   will-change: transform;
 
   .settings-row {
-    padding: 1.5rem;
+    padding: 0.8rem 1.25rem;
     color: $black;
     display: flex;
     flex-flow: column;
-    gap: 0.75rem;
+    gap: 0.45rem;
 
     &:not(:last-child) {
       border-bottom: 1px solid $medium-gray;
     }
 
-    &:first-child {
-      padding-top: 1.5rem;
-    }
-
-    .show-user-link {
-      overflow: hidden;
-    }
-
-    .user-details-row {
-
-      >.show-user-link,
-      >.user-title {
-        flex: auto;
-      }
-    }
-
-    .user-settings-link,
-    .logout-link {
-      .icon {
-        padding: 0 0.3rem;
-        width: auto;
-
-        .fa {
-          margin: 0;
-        }
-      }
-    }
-
-    .copy-to-clipboard {
-      font-size: 0.9rem;
-    }
-
-    .terms-and-conditions-link a {
-      overflow: hidden;
-    }
-
-    :not(.user-details-row) a {
-      flex: auto;
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: $dark-gray;
     }
 
     a {
@@ -77,24 +46,13 @@
       flex-flow: row nowrap;
       align-items: center;
       gap: 0.5rem;
+      flex: auto;
+      overflow: hidden;
       transition: $color-transition;
 
       &:hover {
         color: #000;
       }
-
-      &.delete-user-link {
-        color: var(--alert-color);
-
-        &:hover {
-          color: var(--alert-color-hover);
-        }
-      }
-    }
-
-    a~a {
-      padding: 0 0.2rem;
-      flex: 0;
     }
 
     >div {
@@ -104,10 +62,6 @@
       align-items: center;
       padding: 0;
       gap: 0.3rem;
-
-      &.access-token {
-        white-space: nowrap;
-      }
     }
 
     span {
@@ -181,8 +135,38 @@
       }
     }
   }
+
+  .logout-row {
+    background-color: var(--light-gray);
+
+    .logout-link {
+      justify-content: center;
+      padding: 0.45rem;
+      flex: none;
+      background-color: $white;
+      border: 1px solid var(--alert-color);
+      border-radius: var(--global-radius);
+      color: var(--alert-color);
+
+      .icon {
+        width: auto;
+        min-width: 0;
+      }
+
+      .title {
+        flex: none;
+      }
+
+      &:hover {
+        color: var(--alert-color-hover);
+        border-color: var(--alert-color-hover);
+      }
+    }
+  }
 }
 
 #settings-off-canvas.is-open {
-  box-shadow: 0px 0 20px 0px rgba($black, 0.25);
+  box-shadow:
+    0 1px 4px rgba($black, 0.2),
+    0 8px 28px rgba($black, 0.4);
 }

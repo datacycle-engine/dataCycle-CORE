@@ -28,7 +28,12 @@ module DataCycleCore
         end
 
         def with_schema_type(type)
-          where("thing_templates.schema ->> 'schema_type' = :type OR thing_templates.api_schema_types && ARRAY[:type]::VARCHAR[]", type:)
+          # Filters on thing_templates columns, so join it explicitly (like Filter::Search). Rails 8
+          # no longer promotes includes() to a JOIN from a string reference, and Thing's default_scope
+          # no longer eager-loads the template — without this the query raises missing-FROM-clause.
+          # left_outer_joins only adds the JOIN; #thing_template access stays cache-backed.
+          left_outer_joins(:thing_template)
+            .where("thing_templates.schema ->> 'schema_type' = :type OR thing_templates.api_schema_types && ARRAY[:type]::VARCHAR[]", type:)
         end
 
         def without_template_names(*names)
@@ -45,7 +50,9 @@ module DataCycleCore
             .with_descendants
             .pluck(:internal_name)
 
-          includes(:thing_template)
+          # explicit JOIN for the thing_templates filter — see with_schema_type (Rails 8 does not
+          # promote includes() from a string reference).
+          left_outer_joins(:thing_template)
             .where("thing_templates.schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
         end
 

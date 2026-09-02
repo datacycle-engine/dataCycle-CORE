@@ -1,0 +1,55 @@
+# webhooks are deliberately left without a worker here: exports must not fire at a developer's
+# whim, and `rails dc:sync:trigger_webhooks` runs them synchronously when they are actually wanted
+default: &default
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+  workers:
+    - queues: [default, mailers, cache_invalidation, search_update]
+      threads: 3
+      processes: 1
+      polling_interval: 1
+    - queues: [importers]
+      threads: 1
+      processes: 1
+      polling_interval: 1
+    - queues: [importers_short]
+      threads: 3
+      processes: 1
+      polling_interval: 1
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+staging: &production
+  <<: *default
+  workers:
+    - queues: [mailers, default]
+      threads: 3
+      processes: 1
+      polling_interval: 1
+    - queues: [importers]
+      threads: 1
+      processes: 1
+      polling_interval: 1
+    - queues: [importers_short]
+      threads: 3
+      processes: 1
+      polling_interval: 1
+    - queues: [cache_invalidation]
+      threads: 3
+      processes: 1
+      polling_interval: 1
+    - queues: [search_update]
+      threads: 3
+      processes: 1
+      polling_interval: 1
+    - queues: [webhooks]
+      threads: 3
+      processes: 1
+      polling_interval: 1
+
+production: *production

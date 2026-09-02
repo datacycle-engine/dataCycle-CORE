@@ -1,0 +1,36 @@
+<%# Replaces doorkeeper's own consent view: its markup carries Bootstrap classes (page-header, h4,
+    text-info, btn-*) that have no styling in dataCycle's Foundation layout, and its labels resolve
+    against I18n.locale instead of the signed-in user's ui_locale. %>
+<% content_for(:title, flush: true) { t('doorkeeper.authorizations.new.title', locale: active_ui_locale) } %>
+
+<div class="oauth-authorization">
+  <h1><%= t('doorkeeper.authorizations.new.title', locale: active_ui_locale) %></h1>
+
+  <p class="oauth-authorization-prompt">
+    <%= t('doorkeeper.authorizations.new.prompt', client_name: tag.strong(@pre_auth.client.name), locale: active_ui_locale).html_safe %>
+  </p>
+
+  <% if @pre_auth.scopes.count.positive? %>
+    <div class="oauth-permissions">
+      <p><%= t('doorkeeper.authorizations.new.able_to', locale: active_ui_locale) %></p>
+
+      <ul>
+        <% @pre_auth.scopes.each do |scope| %>
+          <li><%= t(scope, scope: [:doorkeeper, :scopes], locale: active_ui_locale) %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="oauth-authorization-buttons">
+    <%= form_tag oauth_authorization_path, method: :post do %>
+      <%= render 'pre_auth_fields', pre_auth: @pre_auth %>
+      <%= submit_tag t('doorkeeper.authorizations.buttons.authorize', locale: active_ui_locale), class: 'button success' %>
+    <% end %>
+
+    <%= form_tag oauth_authorization_path, method: :delete do %>
+      <%= render 'pre_auth_fields', pre_auth: @pre_auth %>
+      <%= submit_tag t('doorkeeper.authorizations.buttons.deny', locale: active_ui_locale), class: 'button alert' %>
+    <% end %>
+  </div>
+</div>

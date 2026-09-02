@@ -4,25 +4,32 @@
 
   <div>
     <div id="edit-form">
-      <% content_for :form_action do %>
-        <i class="fa fa-code-fork" aria-hidden="true"></i> <%= t('duplicate.merge_with', data: @content.translated_template_name(active_ui_locale), locale: active_ui_locale) %>
-      <% end %>
+      <% if @read_only %>
+        <%= render 'merge_preview',
+          content: @content,
+          watch_list: @watch_list,
+          split_source: @split_source %>
+      <% else %>
+        <% content_for :form_action do %>
+          <i class="fa fa-code-fork" aria-hidden="true"></i> <%= t('duplicate.merge_with', data: @content.translated_template_name(active_ui_locale), locale: active_ui_locale) %>
+        <% end %>
 
-      <% content_for(:additional_edit_buttons) do %>
-        <%= link_to tag.i(class: 'fa fa-exchange', aria_hidden: true), merge_with_duplicate_thing_path(@split_source, source_id: @content.id, locale: @source_locale, source_locale: @locale), class: 'duplicate-switch-link', data: { dc_tooltip: t('duplicate.switch', locale: active_ui_locale) } %>
-      <% end %>
+        <% content_for(:additional_edit_buttons) do %>
+          <%= link_to tag.i(class: 'fa fa-exchange', aria_hidden: true), merge_with_duplicate_thing_path(@split_source, source_id: @content.id, locale: @source_locale, source_locale: @locale), class: 'duplicate-switch-link', data: { dc_tooltip: t('duplicate.switch', locale: active_ui_locale) } %>
+        <% end %>
 
-      <% content_for(:additional_form_fields, flush:true) do %>
-        <%= hidden_field_tag 'duplicate_id', @split_source.id %>
-      <% end %>
+        <% content_for(:additional_form_fields, flush:true) do %>
+          <%= hidden_field_tag 'duplicate_id', @split_source.id %>
+        <% end %>
 
-      <%= render 'form',
-        key_prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
-        content: @content,
-        watch_list: @watch_list,
-        split_source: @split_source,
-        additional_submit_properties: DataCycleCore::Feature::DuplicateCandidate.enabled? ? { data: { dc_tooltip: t('actions.merge_with_duplicate', locale: active_ui_locale) }, additional_class: 'merge-with-duplicate' } : nil,
-        link_action: :merge_with_duplicate %>
+        <%= render 'form',
+          key_prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
+          content: @content,
+          watch_list: @watch_list,
+          split_source: @split_source,
+          additional_submit_properties: DataCycleCore::Feature::DuplicateCandidate.enabled? ? { data: { dc_tooltip: t('actions.merge_with_duplicate', locale: active_ui_locale) }, additional_class: 'merge-with-duplicate' } : nil,
+          link_action: :merge_with_duplicate %>
+      <% end %>
     </div>
   </div>
 

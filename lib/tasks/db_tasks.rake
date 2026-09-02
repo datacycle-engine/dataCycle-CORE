@@ -201,9 +201,6 @@ namespace :db do
     full_path  = nil
     cmd        = nil
 
-    pgclusters = ''
-    pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
-
     DbHelper.with_config do |host, port, db, user, password|
       full_path = if args[:backup_name].nil?
                     "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{dump_sfx}"
@@ -214,7 +211,7 @@ namespace :db do
       sh "rm -rf #{full_path}" if full_path.present?
 
       excludes = DATABASE_DUMP_EXCLUDES[args.mode].map { |e| "--exclude-table-data='#{e}'" }.join(' ') if args.mode.present?
-      cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if dump_fmt == 'd'} -v -O --compress=zstd --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
+      cmd = "pg_dump -F #{dump_fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if dump_fmt == 'd'} -v -O --compress=zstd --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
     end
 
     sh cmd
@@ -228,8 +225,6 @@ namespace :db do
   task :restore, [:pattern] => [:environment] do |_, args|
     temp = Time.zone.now
     pattern = args[:pattern]
-    pgclusters = ''
-    pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
 
     if pattern.present?
       file = nil
@@ -251,7 +246,7 @@ namespace :db do
           when 'p'
             cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
           else
-            cmd = "#{pgclusters}pg_restore -F #{fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if fmt == 'd'} -O -v --disable-triggers --superuser=#{user} --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
+            cmd = "pg_restore -F #{fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if fmt == 'd'} -O -v --disable-triggers --superuser=#{user} --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
           end
         else
           puts "Too many files match the pattern '#{pattern}':"

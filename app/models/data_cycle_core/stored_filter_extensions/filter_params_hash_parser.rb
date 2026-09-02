@@ -5,7 +5,7 @@ module DataCycleCore
     module FilterParamsHashParser
       extend ActiveSupport::Concern
 
-      delegate :param_from_definition, to: DataCycleCore::Type::StoredFilter::Parameters
+      delegate :param_from_definition, to: 'DataCycleCore::Type::StoredFilter::Parameters'
 
       def parameters_from_hash(params_array)
         return self if params_array.blank?
@@ -29,6 +29,9 @@ module DataCycleCore
 
         self.parameters = user.default_filter(parameters, filter_options) # keep for backwards compatibility
 
+        # Collect resolved user filters into the non-persisted `user_filter_parameters`, not `parameters`,
+        # so the query cache stays usable (see StoredFilter#user_filter_parameters).
+        self.user_filter_parameters = []
         applicable_filters.each { |f| apply_specific_user_filter(f) }
 
         self
@@ -36,9 +39,15 @@ module DataCycleCore
 
       private
 
+      # Collect a resolved user filter, skipping it when an equal filter (ignoring context `c`) is already
+      # collected or already present as a base parameter. Context is ignored because both the query cache and
+      # the live path apply base parameters regardless of `c` (the cache is rebuilt via `apply_single_filter!`,
+      # which ignores it), so an equal base parameter already enforces it. `parameters` is left untouched.
       def apply_specific_user_filter(filter)
-        parameters.reject! { |f| filter_equal?(f, filter, consider_context: false) } if filter['c'] == 'uf'
-        parameters.push(filter) unless parameters.any? { |f| filter_equal?(f, filter, consider_context: false) }
+        return if user_filter_parameters.any? { |f| filter_equal?(f, filter, consider_context: false) }
+        return if parameters.any? { |f| filter_equal?(f, filter, consider_context: false) }
+
+        user_filter_parameters.push(filter)
       end
 
       def user_filters_from_hash(user, filter_options)

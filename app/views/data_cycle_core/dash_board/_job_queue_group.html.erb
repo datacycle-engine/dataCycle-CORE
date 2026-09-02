@@ -1,0 +1,21 @@
+<%# locals: (stat_job_queue:, state:, css_class:, icon:, label:, spin: false) %>
+<%# renders one per-queue counter group (queued / running / failed) of the dashboard job panel %>
+<% counts = stat_job_queue[state] || {} %>
+<% sum = counts.values.sum %>
+<% known_queues = DataCycleCore.job_queues.keys.map(&:to_s) %>
+
+<div class="<%= css_class %>" data-count="<%= sum %>">
+  <h5>
+    <i class="<%= [icon, ('fa-spin' if spin && sum.positive?)].compact.join(' ') %>" aria-hidden="true"></i>
+    <%= label %>: <%= number_with_delimiter(sum, locale: active_ui_locale) %>
+  </h5>
+
+  <% if counts.present? %>
+    <ul>
+      <% counts.each do |queue, count| %>
+        <% types = stat_job_queue.dig(:job_types, queue, "#{state}_types").presence&.then { |t| "<b>job_types:</b><br>#{t.first(10).join('<br>') + (t.size > 10 ? '<br>...' : '')}" } %>
+        <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: types }), class: queue.in?(known_queues) ? '' : 'alert-color') %>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

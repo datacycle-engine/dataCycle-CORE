@@ -14,7 +14,8 @@ module DataCycleCore
       no_intra_emphasis: true,
       fenced_code_blocks: true,
       lax_spacing: true,
-      autolink: true
+      autolink: true,
+      tables: true
     }.freeze
 
     def show

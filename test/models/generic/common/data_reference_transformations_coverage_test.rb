@@ -15,7 +15,7 @@ module DataCycleCore
         test 'replace_references resolves a classification uri reference' do
           ref = Subject::ClassificationUriReference.new('tree', 'https://example.org/c#a')
 
-          result = Subject.replace_references(ref, {}, { 'https://example.org/c#a' => 'concept-id' })
+          result = Subject.replace_references(ref, {}, { 'https://example.org/c#a' => 'concept-id' }, {})
 
           assert_equal('concept-id', result)
         end

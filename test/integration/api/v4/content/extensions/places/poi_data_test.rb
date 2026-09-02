@@ -261,6 +261,56 @@ module DataCycleCore
                 assert_nil specs.find { |s| s['opens'] == '10:00' }['dct:modified']
                 assert_nil specs.find { |s| s['opens'] == '13:00' }['dct:modified']
               end
+
+              test 'openingHoursSpecification dct:modified does not change for other schedules when only one schedule is updated per write' do
+                schedule1 = @content.opening_hours_specification.find_by("dtstart <= '2019-10-10 10:00'")
+                schedule2 = @content.opening_hours_specification.find_by("dtstart >= '2019-10-10 10:00'")
+
+                fetch_modified = lambda do
+                  post api_v4_thing_path(id: @content.id, include: 'openingHoursSpecification.dct:modified')
+                  json_data = response.parsed_body['@graph'].first
+                  specs = json_data['openingHoursSpecification'].select { |s| s['@type'] == 'OpeningHoursSpecification' }
+
+                  {
+                    '10:00' => specs.find { |s| s['opens'] == '10:00' }['dct:modified'],
+                    '13:00' => specs.find { |s| s['opens'] == '13:00' }['dct:modified']
+                  }
+                end
+
+                baseline_modified = fetch_modified.call
+
+                first_update_payload = @content.opening_hours_specification.order(:dtstart).map { |schedule| schedule.to_h.deep_stringify_keys }
+                first_schedule_payload = first_update_payload.find { |schedule| schedule['id'] == schedule1.id }
+                first_schedule_payload['duration'] = (DataCycleCore::Schedule.parse_iso8601_duration(first_schedule_payload['duration']) + 5.minutes).iso8601
+
+                assert @content.set_data_hash(
+                  data_hash: { opening_hours_specification: first_update_payload },
+                  prevent_history: true,
+                  partial_update: true
+                )
+
+                modified_after_first_write = fetch_modified.call
+
+                assert_not_equal baseline_modified['10:00'], modified_after_first_write['10:00'], 'Expected dct:modified for schedule 1 to change after first write'
+                assert_equal baseline_modified['13:00'], modified_after_first_write['13:00'], 'Expected dct:modified for schedule 2 to remain unchanged after first write'
+
+                @content.reload
+
+                second_update_payload = @content.opening_hours_specification.order(:dtstart).map { |schedule| schedule.to_h.deep_stringify_keys }
+                second_schedule_payload = second_update_payload.find { |schedule| schedule['id'] == schedule2.id }
+                second_schedule_payload['duration'] = (DataCycleCore::Schedule.parse_iso8601_duration(second_schedule_payload['duration']) + 5.minutes).iso8601
+
+                assert @content.set_data_hash(
+                  data_hash: { opening_hours_specification: second_update_payload },
+                  prevent_history: true,
+                  partial_update: true
+                )
+
+                modified_after_second_write = fetch_modified.call
+
+                assert_equal modified_after_first_write['10:00'], modified_after_second_write['10:00'], 'Expected dct:modified for schedule 1 to remain unchanged after second write'
+                assert_not_equal modified_after_first_write['13:00'], modified_after_second_write['13:00'], 'Expected dct:modified for schedule 2 to change after second write'
+              end
             end
           end
         end

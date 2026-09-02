@@ -5,18 +5,17 @@ export default class AiLector {
 
 		this.initActionCable();
 	}
-	initActionCable() {
-		window.actionCable.then((cable) => {
-			this.channel = cable.subscriptions.create(
-				{
-					channel: "DataCycleCore::AiLectorChannel",
-					window_id: DataCycle.windowId,
-				},
-				{
-					received: this.received.bind(this),
-				},
-			);
-		});
+	async initActionCable() {
+		const cable = await DataCycle.cable;
+		this.channel = cable.subscriptions.create(
+			{
+				channel: "DataCycleCore::AiLectorChannel",
+				window_id: DataCycle.windowId,
+			},
+			{
+				received: this.received.bind(this),
+			},
+		);
 	}
 	send(data) {
 		if (!this.channel) throw new Error("ActionCable channel not initialized");

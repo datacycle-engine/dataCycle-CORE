@@ -106,6 +106,20 @@
         :validations:
           :min: 0
           :max: 100
+      :dc_mongo_collection:
+        :label: MongoDB Collection
+        :type: string
+        :storage_location: value
+        :visible: false
+        :api:
+          :disabled: true
+      :dc_mongo_key:
+        :label: MongoDB Key
+        :type: string
+        :storage_location: value
+        :visible: false
+        :api:
+          :disabled: true
       :dummy:
         :type: string
         :storage_location: translated_value

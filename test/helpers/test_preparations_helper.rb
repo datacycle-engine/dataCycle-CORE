@@ -142,6 +142,14 @@ module DataCycleCore
         confirmed_at: 1.day.ago,
         access_token: SecureRandom.hex
       })
+      @system_admin = DataCycleCore::User.where(email: 'system_admin@datacycle.at').first_or_create({
+        given_name: 'System',
+        family_name: 'Administrator',
+        password: 'PME_jeh0nek4tbf8mea',
+        role_id: DataCycleCore::Role.find_by(name: 'system_admin')&.id,
+        providers: { keycloak: 'raw-data-test-user' },
+        confirmed_at: 1.day.ago
+      })
     end
 
     def self.create_user_group
@@ -163,19 +171,35 @@ module DataCycleCore
     # hash (discarded when this setup process exits), so it must run in each test process. It now
     # does so lazily on first access (see dummy_data_hash), not as a setup or boot step.
     def self.prepare_database!(root = Rails.root)
-      load_classifications([root.join('..', 'data_types', 'data_definitions', 'data_cycle_test')])
-      load_external_systems([root.join('..', 'fixtures', 'external_systems')])
-      load_templates(
-        [
-          root.join('..', 'data_types', 'data_definitions', 'data_cycle_test'),
-          root.join('..', 'data_types', 'attributes'),
-          root.join('..', 'data_types', 'models')
-        ]
-      )
+      if configured_master_data_paths?
+        # nil makes every importer fall back to the paths the app configured
+        load_classifications(nil)
+        load_external_systems(nil)
+        load_templates(nil)
+      else
+        load_classifications([root.join('..', 'data_types', 'data_definitions', 'data_cycle_test')])
+        load_external_systems([root.join('..', 'fixtures', 'external_systems')])
+        load_templates(
+          [
+            root.join('..', 'data_types', 'data_definitions', 'data_cycle_test'),
+            root.join('..', 'data_types', 'attributes'),
+            root.join('..', 'data_types', 'models')
+          ]
+        )
+      end
+
       load_user_roles
       create_users
       create_user_group
       DataCycleCore::PgDictMapping.upsert_missing
+    end
+
+    # Only the engine's dummy app keeps its master data next to Rails.root (test/data_types,
+    # test/fixtures) and configures no paths for it. A host project mounting the engine points
+    # the importers at its own directories in an initializer, and there the relative paths above
+    # would resolve *outside* the project and silently load nothing.
+    def self.configured_master_data_paths?
+      DataCycleCore.template_path.present? || DataCycleCore.default_template_paths.present?
     end
 
     def self.create_content(template_name:, data_hash:, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil, source: nil)

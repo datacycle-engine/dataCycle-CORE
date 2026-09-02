@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module DataCycleCore
+  # Backed by the content_items view, which has no id column. Both columns together identify a row.
   class DataLinkContentItem < ApplicationRecord
     self.table_name = 'content_items'
+    self.implicit_order_column = [:data_link_id, :content_id]
 
     belongs_to :indirect_data_link, class_name: :DataLink, foreign_key: :data_link_id, inverse_of: :data_link_content_item
     belongs_to :content, polymorphic: true

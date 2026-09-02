@@ -34,6 +34,47 @@ module DataCycleCore
       ]
     end
 
+    # [#50666] a payload shipping keys DataCycle owns inside dump.<locale>
+    def stripped_items(*_args)
+      [{ 'de' => { 'id' => 'da-strip', 'name' => 'Stripped', 'deleted_at' => 'x', 'mark_for_update' => 'x' } }]
+    end
+
+    # [#50666] download_all is fed from endpoint.send(endpoint_method), so its payloads are
+    # string-keyed JSON/XML -- the form the symbol-only external_system check used to miss
+    def string_keyed_external_system_items(*_args)
+      [{ 'de' => { 'id' => 'da-es-string', 'name' => 'String ES', 'external_system' => { 'credential_keys' => ['ck-string'] } } }]
+    end
+
+    # a source shipping a scalar under that name: dig(:external_system, :credential_keys) raised on it
+    def scalar_external_system_items(*_args)
+      [{ 'de' => { 'id' => 'da-es-scalar', 'name' => 'Scalar ES', 'external_system' => 'not-a-hash' } }]
+    end
+
+    # a plain Hash can hold both key forms at once, unlike a BSON::Document -- a short-circuiting
+    # `||` harvested the symbol one and left the string one in the dump
+    def both_key_forms_external_system_items(*_args)
+      [{
+        'de' => {
+          'id' => 'da-es-both',
+          'name' => 'Both ES',
+          :external_system => { credential_keys: ['ck-symbol'] },
+          'external_system' => { 'credential_keys' => ['ck-string'] }
+        }
+      }]
+    end
+
+    # [#50666] ships both a key DataCycle owns and an external_system, to pin what a `delete` callback
+    # still sees once the strip and the harvest have had their turn
+    def callback_order_items(*_args)
+      [{
+        'de' => {
+          'id' => 'da-order', 'name' => 'Order',
+          'deleted_at' => 'from-the-source',
+          'external_system' => { 'credential_keys' => ['ck-order'] }
+        }
+      }]
+    end
+
     # exactly DELTA (100) items to cross the progress/GC batch boundary in download_all
     def hundred_items(*_args)
       (1..100).map { |i| { 'de' => { 'id' => "batch-#{i}", 'name' => "Item #{i}" } } }
@@ -300,6 +341,181 @@ module DataCycleCore
 
       assert_nil item.dump.dig('de', 'deleted_at')
       assert_nil item.dump.dig('de', 'delete_reason')
+    end
+
+    test 'download_single strips DataCycle owned keys from the payload without any delete filter' do
+      # [#50666] the source ships them, so they are not ours and must never reach the dump
+      object = download_object('dft_single_strip')
+      raw_data = {
+        'de' => {
+          'id' => 'single-4', 'name' => 'Stripped',
+          'deleted_at' => 'x', 'archived_at' => 'x', 'mark_for_update' => 'x', 'dc_external_id' => 'not-ours'
+        }
+      }
+
+      SUBJECT.download_single(
+        download_object: object,
+        data_id: ->(data) { data['id'] },
+        data_name: ->(data) { data['name'] },
+        raw_data:,
+        options: { locales: [:de], download: {} }
+      )
+
+      dump = load_item(object, 'single-4').dump['de']
+
+      assert_equal 'Stripped', dump['name']
+      assert_not dump.key?('deleted_at')
+      assert_not dump.key?('archived_at')
+      assert_not dump.key?('mark_for_update')
+      assert_not dump.key?('dc_external_id')
+    end
+
+    test 'download_all strips DataCycle owned keys from the payload' do
+      object = download_object('dft_all_strip')
+
+      SUBJECT.download_all(
+        download_object: object,
+        data_id: ->(data) { data['id'] },
+        options: {
+          locales: [:de],
+          download: {
+            endpoint: 'DataCycleCore::DcDownloadFunctionsTestEndpoint',
+            endpoint_method: 'stripped_items'
+          }
+        }
+      )
+
+      dump = load_item(object, 'da-strip').dump['de']
+
+      assert_equal 'Stripped', dump['name']
+      assert_not dump.key?('deleted_at')
+      assert_not dump.key?('mark_for_update')
+    end
+
+    test 'download_all harvests a string keyed external_system out of the payload' do
+      # [#50666] the symbol-only check stored it verbatim in the dump and dropped its credential keys
+      object = download_object('dft_all_es_string')
+
+      SUBJECT.download_all(
+        download_object: object,
+        data_id: ->(data) { data['id'] },
+        options: {
+          locales: [:de],
+          download: {
+            endpoint: 'DataCycleCore::DcDownloadFunctionsTestEndpoint',
+            endpoint_method: 'string_keyed_external_system_items'
+          }
+        }
+      )
+
+      item = load_item(object, 'da-es-string')
+
+      assert_equal 'String ES', item.dump.dig('de', 'name')
+      assert_not item.dump['de'].key?('external_system'), 'external_system belongs on the item, not in the dump'
+      assert_equal ['ck-string'], item.external_system['credential_keys']
+    end
+
+    test 'download_all harvests both key forms of external_system out of the same payload' do
+      object = download_object('dft_all_es_both')
+
+      SUBJECT.download_all(
+        download_object: object,
+        data_id: ->(data) { data['id'] },
+        options: {
+          locales: [:de],
+          download: {
+            endpoint: 'DataCycleCore::DcDownloadFunctionsTestEndpoint',
+            endpoint_method: 'both_key_forms_external_system_items'
+          }
+        }
+      )
+
+      item = load_item(object, 'da-es-both')
+
+      assert_equal 'Both ES', item.dump.dig('de', 'name')
+      assert_not item.dump['de'].key?('external_system'), 'the string keyed one stayed in the dump'
+      assert_not item.dump['de'].key?(:external_system)
+      assert_equal ['ck-symbol', 'ck-string'], item.external_system['credential_keys']
+    end
+
+    test 'both download paths hand a delete callback the same payload' do
+      # [#50666] the strip runs before the callback, so a source-shipped delete marker never reaches it
+      # -- a connector deletion feed reading one would silently stop firing. The harvest runs after, so
+      # external_system is still there. Nothing pinned either order, and both paths had to agree.
+      seen = {}
+      delete = lambda { |data, _language|
+        seen[data['id']] = data.slice('deleted_at', 'external_system')
+        false
+      }
+
+      SUBJECT.download_single(
+        download_object: download_object('dft_single_order'),
+        data_id: ->(data) { data['id'] },
+        data_name: ->(data) { data['name'] },
+        delete:,
+        raw_data: { 'de' => { 'id' => 'single-order', 'name' => 'Order', 'deleted_at' => 'from-the-source', 'external_system' => { 'credential_keys' => ['ck-order'] } } },
+        options: { locales: [:de], download: {} }
+      )
+
+      SUBJECT.download_all(
+        download_object: download_object('dft_all_order'),
+        data_id: ->(data) { data['id'] },
+        delete:,
+        options: {
+          locales: [:de],
+          download: {
+            endpoint: 'DataCycleCore::DcDownloadFunctionsTestEndpoint',
+            endpoint_method: 'callback_order_items'
+          }
+        }
+      )
+
+      expected = { 'external_system' => { 'credential_keys' => ['ck-order'] } }
+
+      assert_equal expected, seen['single-order']
+      assert_equal expected, seen['da-order']
+    end
+
+    test 'download_all tolerates a non hash external_system in the payload' do
+      object = download_object('dft_all_es_scalar')
+
+      result = SUBJECT.download_all(
+        download_object: object,
+        data_id: ->(data) { data['id'] },
+        options: {
+          locales: [:de],
+          download: {
+            endpoint: 'DataCycleCore::DcDownloadFunctionsTestEndpoint',
+            endpoint_method: 'scalar_external_system_items'
+          }
+        }
+      )
+
+      assert result
+
+      item = load_item(object, 'da-es-scalar')
+
+      assert_not item.dump['de'].key?('external_system')
+      assert_nil item.external_system
+    end
+
+    test 'download_single harvests external_system out of a webhook payload' do
+      object = download_object('dft_single_es')
+      raw_data = { 'de' => { 'id' => 'single-5', 'name' => 'Webhook ES', 'external_system' => { 'credential_keys' => ['ck-hook'] } } }
+
+      SUBJECT.download_single(
+        download_object: object,
+        data_id: ->(data) { data['id'] },
+        data_name: ->(data) { data['name'] },
+        raw_data:,
+        options: { locales: [:de], download: {} }
+      )
+
+      item = load_item(object, 'single-5')
+
+      assert_equal 'Webhook ES', item.dump.dig('de', 'name')
+      assert_not item.dump['de'].key?('external_system')
+      assert_equal ['ck-hook'], item.external_system['credential_keys']
     end
 
     test 'download_all applies delete markers, embedded credentials, included data and skips unknown keys' do

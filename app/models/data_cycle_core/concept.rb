@@ -146,7 +146,7 @@ module DataCycleCore
     alias available_locales translated_locales
 
     def first_available_locale(locale = nil)
-      (Array.wrap(locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| I18n.available_locales.index t }
+      (Array.wrap(locale).map(&:to_sym).sort_by { |t| locale_priority(t) }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| locale_priority(t) }
     end
 
     def to_api_default_values

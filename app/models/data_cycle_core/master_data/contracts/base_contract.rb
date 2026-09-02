@@ -152,6 +152,15 @@ module DataCycleCore
           optional(:notIn).filled(:array).each(:string)
         end
 
+        # Filters contents by their duplicate candidates: whether any exist at all, and optionally by
+        # score range and detection method. Maps onto Filter::Common::DuplicateCandidate.
+        DUPLICATE_CANDIDATE_FILTER = Dry::Schema.Params do
+          optional(:exists).filled(:bool)
+          optional(:minScore).filled(:float)
+          optional(:maxScore).filled(:float)
+          optional(:method).filled(:string)
+        end
+
         FULLTEXT_SEARCH_FILTER = Dry::Schema.Params do
           optional(:value).filled(:string)
           optional(:fields).filled(:api_fulltext_fields_string?)
@@ -182,11 +191,45 @@ module DataCycleCore
             optional(:in).filled(:array).each(:uuid_or_list_of_uuid?)
             optional(:notIn).filled(:array).each(:uuid_or_list_of_uuid?)
           end
+          optional(:externalSystem).hash(IN_ARRAY_FILTER)
+          optional(:duplicateCandidates).hash(DUPLICATE_CANDIDATE_FILTER)
           optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
           optional(:slug).hash(ATTRIBUTE_FILTER)
           optional(:'skos:broader').hash(IN_UUID_OR_NULL_ARRAY_FILTER)
           optional(:'skos:ancestors').hash(IN_UUID_ARRAY_FILTER)
           optional(:schedule).hash(SCHEDULE_FILTER)
+        end
+
+        # Filter that constrains which concepts (classification aliases) are returned, as opposed to
+        # +FILTER+ which filters contents. Only the attribute, hierarchy (skos:*) and full-text filters
+        # apply to concepts — the content filters (classifications, geo, creator, …) are intentionally
+        # excluded so the contract rejects them per action. +dct:modified+/+dct:created+ are validated
+        # via the +attribute+ wrapper against +ATTRIBUTE_FILTER+ (see +ApiService#validate_api_filters+).
+        CONCEPT_FILTER = Dry::Schema.Params do
+          optional(:search).value { str? | hash(FULLTEXT_SEARCH_FILTER) }
+          optional(:q).value { str? | hash(FULLTEXT_SEARCH_FILTER) }
+          optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
+          optional(:'skos:broader').hash(IN_UUID_OR_NULL_ARRAY_FILTER)
+          optional(:'skos:ancestors').hash(IN_UUID_ARRAY_FILTER)
+        end
+
+        # Filter for concept schemes (classification tree labels). Like +CONCEPT_FILTER+ but without the
+        # hierarchy filters (skos:broader/skos:ancestors), which only make sense for concepts, not schemes.
+        CONCEPT_SCHEME_FILTER = Dry::Schema.Params do
+          optional(:search).value { str? | hash(FULLTEXT_SEARCH_FILTER) }
+          optional(:q).value { str? | hash(FULLTEXT_SEARCH_FILTER) }
+          optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
+        end
+
+        # Filter for the facets +conceptFilter+. Like +CONCEPT_FILTER+ but without +dct:deleted+: the facet
+        # count query runs on +ClassificationAlias+, whose paranoid +default_scope+ excludes deleted concepts,
+        # so a +dct:deleted+ +conceptFilter+ could never surface them (it would be a silent no-op). Rejecting
+        # it here is honest; the concept endpoints keep +dct:deleted+ via +CONCEPT_FILTER+. See Redmine #43008.
+        FACET_CONCEPT_FILTER = Dry::Schema.Params do
+          optional(:search).value { str? | hash(FULLTEXT_SEARCH_FILTER) }
+          optional(:q).value { str? | hash(FULLTEXT_SEARCH_FILTER) }
+          optional(:'skos:broader').hash(IN_UUID_OR_NULL_ARRAY_FILTER)
+          optional(:'skos:ancestors').hash(IN_UUID_ARRAY_FILTER)
         end
 
         TRANSLATE = Dry::Schema.Params do

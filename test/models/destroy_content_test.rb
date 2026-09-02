@@ -5,18 +5,20 @@ require 'test_helper'
 module DataCycleCore
   class DestroyContentTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
-      @organization = DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: { name: 'Test Organisation 1' })
+      @organization = create_content('Organization', { name: 'Test Organisation 1' })
       @external_system = DataCycleCore::ExternalSystem.first
 
       I18n.with_locale(:de) do
-        @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', author: [@organization.id] })
+        @image = create_content('Bild', { name: 'Test Bild 1', author: [@organization.id] })
       end
 
       I18n.with_locale(:en) do
         @image.set_data_hash(data_hash: { name: 'Test Image 1' })
       end
 
-      @article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1', image: [@image.id] })
+      @article = create_content('Artikel', { name: 'Test Artikel 1', image: [@image.id] })
+
+      perform_enqueued_jobs
     end
 
     test 'delete a content' do
@@ -150,7 +152,7 @@ module DataCycleCore
     test 'dont delete linked existing relations' do
       assert_not(@image.destroyed?)
 
-      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 2', image: [@image.id] })
+      create_content('Artikel', { name: 'Test Artikel 2', image: [@image.id] })
 
       @article.destroy(destroy_linked: { template_names: ['Bild'] })
 
@@ -163,7 +165,7 @@ module DataCycleCore
     test 'invalidate cache if linked is deleted' do
       assert_not(@image.destroyed?)
 
-      article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 2', image: [@image.id] })
+      article = create_content('Artikel', { name: 'Test Artikel 2', image: [@image.id] })
       cache_valid_since = article.cache_valid_since
 
       @image.destroy

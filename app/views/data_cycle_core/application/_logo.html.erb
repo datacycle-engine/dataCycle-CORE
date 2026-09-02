@@ -1,4 +1,7 @@
-<span class="logo">
-  <%= image_tag dc_image_path(local_assigns[:inverted] ? DataCycleCore.logo['inverted'] : DataCycleCore.logo['normal']), alt: DataCycleCore.logo['alt_text'], class: 'hide-for-print' %>
+<span class="logo<%= ' has-inverted-logo' if DataCycleCore.logo['inverted'].present? %>">
+  <%= image_tag dc_image_path(local_assigns[:inverted] ? DataCycleCore.logo['inverted'] : DataCycleCore.logo['normal']), alt: DataCycleCore.logo['alt_text'], class: 'hide-for-print logo-screen-default' %>
+  <% if !local_assigns[:inverted] && DataCycleCore.logo['inverted'].present? %>
+    <%= image_tag dc_image_path(DataCycleCore.logo['inverted']), alt: DataCycleCore.logo['alt_text'], class: 'hide-for-print logo-screen-inverted' %>
+  <% end %>
   <%= image_tag dc_image_path(DataCycleCore.logo['print']), alt: DataCycleCore.logo['alt_text'], class: 'show-for-print' %>
 </span>

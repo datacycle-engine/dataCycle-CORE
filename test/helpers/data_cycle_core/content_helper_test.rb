@@ -66,5 +66,9 @@ module DataCycleCore
     test 'thing_thumbnail_url returns nil when no attribute is present' do
       assert_nil thing_thumbnail_url(Object.new)
     end
+
+    test 'grouped_related_contents returns an empty hash when there are no related contents' do
+      assert_equal({}, grouped_related_contents(struct_double(id: '00000000-0000-0000-0000-000000000000')))
+    end
   end
 end

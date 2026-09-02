@@ -5,15 +5,13 @@ require 'test_helper'
 module DataCycleCore
   class LinkedFromTextAttributeTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
-      @linked1 = TestPreparations.create_content(template_name: 'Linked-Place-1', data_hash: { name: 'linked-from-text-place-1 test' })
-      @linked2 = TestPreparations.create_content(template_name: 'Linked-Place-1', data_hash: { name: 'linked-from-text-place-2 test' })
-      @content = TestPreparations.create_content(
-        template_name: 'Creative-Work-1-With-Translations',
-        data_hash: {
-          name: 'test-linked-in-text organization',
+      @linked1 = create_content('Linked-Place-1', { name: 'linked-from-text-place-1 test' })
+      @linked2 = create_content('Linked-Place-1', { name: 'linked-from-text-place-2 test' })
+      @content = create_content(
+        'Creative-Work-1-With-Translations',
+        { name: 'test-linked-in-text organization',
           description: "<span class=\"dc--contentlink\" data-href=\"#{@linked1.id}\">sdfadfa</span> ksjdfksjbndfksdf <span class=\"dc--contentlink\" data-href=\"#{@linked2.id}\">sdfadfa</span>",
-          text: 'Testtext'
-        }
+          text: 'Testtext' }
       )
     end
 
@@ -44,6 +42,7 @@ module DataCycleCore
 
     test 'destroying linked content should correctly remove linked id texts' do
       @linked1.destroy
+      perform_enqueued_jobs
 
       assert_equal("sdfadfa ksjdfksjbndfksdf <span class=\"dc--contentlink\" data-href=\"#{@linked2.id}\">sdfadfa</span>", @content.description)
       assert_equal('Testtext', @content.text)

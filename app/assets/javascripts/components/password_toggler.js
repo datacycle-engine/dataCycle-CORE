@@ -21,6 +21,10 @@ class PasswordToggler {
 			"input",
 			this.changeTogglerVisibility.bind(this),
 		);
+
+		// the toggle is hidden until has-value; a prefilled field (the sidebar's API token) never
+		// fires input, so it would keep the eye at opacity 0 without this
+		this.changeTogglerVisibility();
 	}
 	addPasswordTogglerHtml() {
 		if (this.passwordToggler) return;

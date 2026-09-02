@@ -16,6 +16,13 @@ module DataCycleCore
           'external_system_syncs'
         ].freeze
 
+        UNSERIALIZABLE_PROPERTY_TYPES = [
+          *DataCycleCore::Content::Content::ASSET_PROPERTY_TYPES,
+          *DataCycleCore::Content::Content::COLLECTION_PROPERTY_TYPES,
+          *DataCycleCore::Content::Content::OEMBED_PROPERTY_TYPES,
+          *DataCycleCore::Content::Content::TABLE_PROPERTY_TYPES
+        ].freeze
+
         extend ActiveSupport::Concern
 
         def to_sync_data(locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [], attribute_name: nil, linked_stored_filter: nil)
@@ -61,9 +68,20 @@ module DataCycleCore
           data
         end
 
+        # A sync payload cannot carry an asset (the value is a binary in ActiveStorage) or a
+        # collection (a set of contents), and table/oembed have no serializer here yet. Their keys
+        # are dropped rather than emitted as null, because `to_sync_h` builds its hash with
+        # `index_with`: a key it keeps travels to the other instance, where a null value would read
+        # as an instruction to delete what is stored there. See the regression documented in
+        # test/models/content/extensions/sync_api_serialize_test.rb.
+        def unserializable_sync_property_names
+          memoized_property_names(:unserializable_sync) { |definition| UNSERIALIZABLE_PROPERTY_TYPES.include?(definition['type']) }
+        end
+
         def to_sync_h(**kwargs)
           keys = property_names -
                  timeseries_property_names -
+                 unserializable_sync_property_names -
                  overlay_for_property_names - # exclude all overlay_for properties,
                  Array.wrap(overlay_name)     # as they are included in their original property
           keys
@@ -105,11 +123,6 @@ module DataCycleCore
             preloaded['classifications']
               &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
               &.keys
-          elsif asset_property?(property_name, prop) ||
-                collection_property?(property_name, prop) ||
-                oembed_property?(property_name, prop) ||
-                table_property?(property_name, prop)
-            # TODO: check if we need to serialize these properties
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
@@ -165,6 +178,8 @@ module DataCycleCore
                 end
 
                 mapped_ids = c_data[:classification].additional_classification_aliases.map(&:id)
+
+                next if mapped_ids.blank?
 
                 preloaded['classifications']
                   .each_value do |v|

@@ -3,10 +3,10 @@
 module DataCycleCore
   module Webhook
     class Base
-      def self.execute_all(data, action)
+      def self.execute_all(data, action, external_system_id: nil)
         return if data.try(:prevent_webhooks) == true
 
-        webhooks_for(action, data).each do |utility_object|
+        webhooks_for(action, data, external_system_id:).each do |utility_object|
           execute(utility_object, data)
         rescue SystemStackError => e
           ActiveSupport::Notifications.instrument 'webhooks_failed.datacycle', {
@@ -31,12 +31,13 @@ module DataCycleCore
         allowed_webhooks
       end
 
-      def self.webhooks_for(action, data)
-        DataCycleCore::ExternalSystem
-          .where(name: available_system_names(data))
-          .filter_map do |external_system|
-            utility_object_for(external_system, action, data)
-          end
+      def self.webhooks_for(action, data, external_system_id: nil)
+        scope = DataCycleCore::ExternalSystem.where(name: available_system_names(data))
+        scope = scope.where(id: external_system_id) if external_system_id.present?
+
+        scope.filter_map do |external_system|
+          utility_object_for(external_system, action, data)
+        end
       end
 
       def self.utility_object_for(external_system, action, data)

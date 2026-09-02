@@ -126,13 +126,12 @@ module DataCycleCore
       # The import jobs run inline in the test adapter and their #perform requires keyword
       # args the controller doesn't pass; stub the job builder with a no-op double so only
       # the controller's enqueue branch is exercised.
-      def fake_dashboard_job
+      def fake_dashboard_job(duplicate: false)
         job = Object.new
-        def job.queue_name = 'importers'
-        def job.delayed_reference_type = 'DataCycleCore::ExternalSystem'
-        def job.delayed_reference_id = SecureRandom.uuid
+        job.define_singleton_method(:queue_name) { 'importers' }
+        job.define_singleton_method(:duplicate_queued_with_args?) { duplicate }
         # enqueue's return value is unused by the controller
-        def job.enqueue = nil
+        job.define_singleton_method(:enqueue) { nil }
         job
       end
 
@@ -149,10 +148,8 @@ module DataCycleCore
       test 'download reports a running job when one is already queued' do
         external_source = DataCycleCore::ExternalSystem.first
 
-        DataCycleCore::DownloadJob.stub(:new, fake_dashboard_job) do
-          Delayed::Job.stub(:exists?, true) do
-            post admin_download_path(external_source.id), params: { mode: 'full' }
-          end
+        DataCycleCore::DownloadJob.stub(:new, fake_dashboard_job(duplicate: true)) do
+          post admin_download_path(external_source.id), params: { mode: 'full' }
         end
 
         assert_response :redirect
@@ -180,16 +177,21 @@ module DataCycleCore
         assert_response :redirect
       end
 
-      test 'delete_queue destroys a delayed job' do
-        wrapper = ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper.new(DataCycleCore::RebuildClassificationMappingsJob.new.serialize)
-        job = Delayed::Job.create!(handler: wrapper.to_yaml, queue: 'default')
+      test 'delete_queue destroys a queued job' do
+        active_job = DataCycleCore::RebuildClassificationMappingsJob.new
+        job = SolidQueue::Job.create!(
+          queue_name: 'default',
+          class_name: active_job.class.name,
+          arguments: active_job.serialize,
+          concurrency_key: active_job.concurrency_key
+        )
 
         without_job_broadcasts do
           delete admin_delete_queue_path(job.id)
         end
 
         assert_response :redirect
-        assert_not Delayed::Job.exists?(job.id)
+        assert_not SolidQueue::Job.exists?(job.id)
       end
 
       test 'rebuild_classification_mappings queues a job and redirects (html)' do

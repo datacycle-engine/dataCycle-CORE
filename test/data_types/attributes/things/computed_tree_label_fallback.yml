@@ -1,0 +1,108 @@
+---
+# Flagged computes parameterised only on universal_classifications (:universal: true, so it carries
+# no tree_label of its own). The tree can only come from the property's own config — which the two
+# compute utilities read from two different places, hence one template per convention.
+- :data:
+    :name: ComputeTreeLabel-Place
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      # tree_label inside :compute: — String#parent_classification_name. On 'Tags' because this
+      # compute stores the *parent's* name and so needs a tree with a nesting level; 'Tags' is the
+      # nested one the recompute tests drive.
+      :parent_tag_name:
+        :label: Übergeordneter Tag
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: String
+          :method: parent_classification_name
+          :recompute_on_classification_change: true
+          :tree_label: Tags
+          :parameters:
+            - universal_classifications
+- :data:
+    :name: PropertyTreeLabel-Place
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      # tree_label on the property — Classification#override_or_mapped. after_save because that
+      # utility reads collected_classification_contents, which its triggers only fill once the
+      # classification_contents rows are written, so it must not run in the inline before_save pass.
+      :mapped_tag:
+        :label: Effective Tag
+        :type: classification
+        :tree_label: Tags
+        :compute:
+          :module: Classification
+          :method: override_or_mapped
+          :fallback: false
+          :after_save: true
+          :recompute_on_classification_change: true
+          :parameters:
+            - universal_classifications
+# A flagged compute with nothing classification-related to react to. Its counterpart — one whose tree
+# cannot be derived — is imported inside a single test (master_data/ungated_compute_set) instead: it
+# matches every tree, so registering it here would make "a tree with no opted-in property" impossible.
+- :data:
+    :name: NoClassificationCompute-Place
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      # tree-bound, and deliberately NOT a parameter of the compute below. PrimaryIcon-Place does list a
+      # 'primary_icon_tags', so a parameter lookup keyed by template name alone would gate this template
+      # on 'Tags' off the back of that.
+      :primary_icon_tags:
+        :label: Haupt-Icon (Tags)
+        :type: classification
+        :tree_label: Tags
+      # flagged, but parameterised only on a string — no classification change can stale it
+      :name_copy:
+        :label: Name (kopiert)
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: String
+          :method: concat
+          :recompute_on_classification_change: true
+          :parameters:
+            - name

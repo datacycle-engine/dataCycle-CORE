@@ -86,7 +86,7 @@ module DataCycleCore
     end
 
     test 'resolution_validation rescues unreadable files' do
-      Vips::Image.stub(:vipsload, ->(*) { raise 'broken image' }) do
+      Vips::Image.stub(:new_from_file, ->(*) { raise 'broken image' }) do
         broken = DataCycleCore::Image.find(@image.id)
         broken.resolution_validation({ max: 1 })
 
@@ -112,7 +112,7 @@ module DataCycleCore
     end
 
     test 'dimensions_validation rescues unreadable files' do
-      Vips::Image.stub(:vipsload, ->(*) { raise 'broken image' }) do
+      Vips::Image.stub(:new_from_file, ->(*) { raise 'broken image' }) do
         broken = DataCycleCore::Image.find(@image.id)
         broken.dimensions_validation({ landscape: { min: { width: 1 } } })
 

@@ -11,3 +11,14 @@
     <%= t('data_cycle_core.child_classification_relations_html', count: classification_alias.sub_classification_alias.size, data: t('data_cycle_core.this_classification', locale: active_ui_locale), locale: active_ui_locale) %>
   </div>
 <% end %>
+
+<% usage = DataCycleCore::StoredFilter.used_by_classification(classification_alias.id) %>
+<% if usage.present? %>
+  <% direct_count = usage.count { |_, direct| direct } %>
+  <div class="warning callout">
+    <%= t('classification_administration.stored_filter_usage.removal_warning_html',
+          count: usage.size, direct: direct_count, indirect: usage.size - direct_count,
+          data: t('data_cycle_core.this_classification_nominative', locale: active_ui_locale),
+          locale: active_ui_locale) %>
+  </div>
+<% end %>

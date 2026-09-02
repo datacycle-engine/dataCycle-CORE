@@ -65,6 +65,27 @@ module DataCycleCore
       assert_response :forbidden
     end
 
+    # #51087: the POI list of the map editor, loaded by maplibre_additional_values_filter_control.js.
+    test 'serves the additional values overlay of the map editor' do
+      get remote_render_path, params: {
+        partial: 'data_cycle_core/contents/editors/geographic/additional_values_overlay',
+        options: { additional_values: { waypoint: { label: 'Waypoints' } } }
+      }
+
+      assert_response :success
+      assert_includes response.body, 'dc-additional-values-filter'
+    end
+
+    test 'serves the shape from concept overlay of the map editor' do
+      get remote_render_path, params: {
+        partial: 'data_cycle_core/contents/editors/geographic/shape_from_concept_overlay',
+        options: { overlay_id: 'dc01_shape_from_concept' }
+      }
+
+      assert_response :success
+      assert_includes response.body, 'shape-from-concept-form'
+    end
+
     test 'still serves an allowlisted partial (no regression)' do
       get remote_render_path, params: { partial: 'data_cycle_core/stored_filters/search_history_short' }
 

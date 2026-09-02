@@ -1,0 +1,10 @@
+development: &default
+  adapter: redis
+  url: <%= "redis://#{ENV["REDIS_SERVER"]}:#{ENV["REDIS_PORT"]}/#{ENV["REDIS_CACHE_DATABASE"]}" %>
+  channel_prefix: <%= ENV["REDIS_CACHE_NAMESPACE"] %>
+
+test:
+  adapter: async
+
+staging: *default
+production: *default

@@ -123,6 +123,9 @@
 
 :user_api:
   :enabled: true
+  :user_params:
+    :given_name:
+    :family_name:
   :allowed_redirect_hosts:
     - "*.dummy.com"
     - "trusted.example.com"
@@ -232,4 +235,7 @@
         :enabled: true
 
 :aggregate:
+  :enabled: true
+
+:locale_inheritance:
   :enabled: true

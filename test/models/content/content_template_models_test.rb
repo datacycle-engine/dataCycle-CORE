@@ -32,7 +32,7 @@ module DataCycleCore
         dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
         st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
 
-        @content.update(template_name: 'Artikel')
+        perform_enqueued_jobs { @content.update(template_name: 'Artikel') }
         new_content = DataCycleCore::Thing.find(@content.id)
 
         assert_in_delta(100.0, new_content.boost)
@@ -64,7 +64,7 @@ module DataCycleCore
         assert_equal tt.template_thing.translatable_property_names, @content.translatable_property_names
         assert_equal tt.template_thing.untranslatable_property_names, @content.untranslatable_property_names
 
-        @content.save!
+        perform_enqueued_jobs { @content.save! }
 
         assert_equal dt, @content.data_type.pluck(:id)
         assert_equal st, @content.schema_types.pluck(:id)
@@ -76,7 +76,7 @@ module DataCycleCore
         dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
         st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
 
-        @content.update(thing_template: tt)
+        perform_enqueued_jobs { @content.update(thing_template: tt) }
         new_content = DataCycleCore::Thing.find(@content.id) # reload with new STI class
 
         assert_in_delta(100.0, new_content.boost)
@@ -98,7 +98,7 @@ module DataCycleCore
         assert_equal tt.translatable_property_names, new_content.translatable_property_names
         assert_equal tt.untranslatable_property_names, new_content.untranslatable_property_names
 
-        new_content.save!
+        perform_enqueued_jobs { new_content.save! }
 
         assert_equal dt, new_content.data_type.pluck(:id)
         assert_equal st, new_content.schema_types.pluck(:id)
@@ -111,7 +111,7 @@ module DataCycleCore
         st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
 
         new_content = @content.becomes!('Artikel')
-        new_content.save!
+        perform_enqueued_jobs { new_content.save! }
         new_content.reload
 
         assert_in_delta(100.0, new_content.boost)
@@ -151,6 +151,75 @@ module DataCycleCore
 
         assert_equal 'DataCycleCore::Thing::Artikel', artikel_class.name
         assert_operator artikel_class, :<, DataCycleCore::Thing
+      end
+
+      # Regression: the STI subclass name must NOT depend on the active locale. sti_subclass_name_for
+      # transliterates via I18n (locale-sensitive), so "Übersetzung" becomes "Uebersetzung" under
+      # :de/:en (they define an ü->ue rule) but "Ubersetzung" under a locale without that rule (e.g. :it).
+      # sti_class_for both GENERATES and RESOLVES the constant and runs on every record instantiation
+      # (find_sti_class) — frequently inside I18n.with_locale(target_locale) blocks (auto-translation).
+      # A locale-dependent name generated "Uebersetzung" but looked up "Ubersetzung", so resolution fell
+      # back to the base class and AR raised SubclassNotFound ("Thing is not a subclass of ...Uebersetzung").
+      test 'sti_class_for resolves an umlaut template name ("Übersetzung") to the same STI subclass under any active locale' do
+        # precondition: this name really does transliterate differently per locale, otherwise the
+        # assertions below would silently be a no-op (pick another locale here if :it ever gets a rule)
+        assert_not_equal(
+          I18n.transliterate('Übersetzung', locale: :de),
+          I18n.transliterate('Übersetzung', locale: :it),
+          'expected "Übersetzung" to transliterate differently under :de vs :it'
+        )
+
+        uebersetzung = DataCycleCore::Thing.sti_class_for('Übersetzung')
+
+        assert_equal 'DataCycleCore::Thing::Uebersetzung', uebersetzung.name
+        assert_operator uebersetzung, :<, DataCycleCore::Thing
+
+        # under a locale whose transliteration drops the umlaut, resolution must still return the same
+        # subclass — both from the base class and from the subclass itself (find_sti_class is invoked on
+        # the subclass when a translation content is reloaded during auto-translation)
+        I18n.with_locale(:it) do
+          assert_equal uebersetzung, DataCycleCore::Thing.sti_class_for('Übersetzung')
+          assert_equal uebersetzung, DataCycleCore::Thing::Uebersetzung.sti_class_for('Übersetzung')
+        end
+      end
+
+      # Regression: the bulk init runs once per process and publishes its flag before its first
+      # const_set, so a template it had not reached yet was reported as a missing constant to every
+      # other thread — the editor fires one remote_render per embedded viewer into exactly that window.
+      # find_sti_class recovered by template name, but a constant reference (ParamsResolver
+      # deserializing a remote_render {class:, id:} pair) constantized to nil, and the caller silently
+      # received the raw params hash — "undefined method 'schema' for ... HashWithIndifferentAccess".
+      #
+      # The names the init records cover this without re-reading the templates, which is all a
+      # production process can need: it imports them before it restarts.
+      test 'a template constant this process has not generated yet is created from the names the init recorded' do
+        DataCycleCore::Thing.ensure_sti_subclasses_initialized_once!
+        DataCycleCore::Thing.send(:remove_const, :Artikel)
+
+        artikel_class = DataCycleCore::ThingTemplate.stub(:pluck, ->(*) { raise 'templates re-read' }) do
+          'DataCycleCore::Thing::Artikel'.safe_constantize
+        end
+
+        assert_equal 'DataCycleCore::Thing::Artikel', artikel_class&.name
+        assert_equal artikel_class, DataCycleCore::Thing.sti_class_for('Artikel')
+      end
+
+      # development and test only: rails dc:update and the test setup import templates into a process
+      # that has already initialized, and no reload or after_commit tells it about them
+      test 'a template imported after the init is found by looking the names up again' do
+        DataCycleCore::Thing.ensure_sti_subclasses_initialized_once!
+        recorded = DataCycleCore::Thing.instance_variable_get(:@sti_template_names)
+        DataCycleCore::Thing.instance_variable_set(:@sti_template_names, recorded - ['Artikel'])
+        DataCycleCore::Thing.send(:remove_const, :Artikel)
+
+        assert_equal 'DataCycleCore::Thing::Artikel', 'DataCycleCore::Thing::Artikel'.safe_constantize&.name
+      ensure
+        DataCycleCore::Thing.instance_variable_set(:@sti_template_names, recorded)
+      end
+
+      test 'a constant matching no template is still reported as missing' do
+        assert_nil 'DataCycleCore::Thing::NoSuchTemplate'.safe_constantize
+        assert_raises(NameError) { DataCycleCore::Thing.const_get(:NoSuchTemplate, false) }
       end
     end
   end

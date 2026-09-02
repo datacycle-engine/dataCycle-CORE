@@ -78,7 +78,7 @@ module DataCycleCore
     end
 
     def result_count(mode, result_count, content_class)
-      if mode.in?(['classification_alias', 'ca_related', 'ca_recursive', 'container'])
+      if mode.in?(['classification_alias', 'ca_related', 'ca_recursive', 'container', 'external_system'])
         result_count&.positive? ? number_with_delimiter(result_count.to_i, locale: active_ui_locale) : '-'
       else
         t("common.#{content_class}_count_html", count: result_count.to_i, delimited_count: number_with_delimiter(result_count.to_i, locale: active_ui_locale), locale: active_ui_locale)
@@ -89,20 +89,25 @@ module DataCycleCore
       case mode
       when 'tree'
         capture do
-          if DataCycleCore::ClassificationTreeLabel.visible('tree_view').many?
+          tree_entries = DataCycleCore::ClassificationTreeLabel.visible('tree_view').order(:name).map do |tree_label|
+            [t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale), tree_label.id]
+          end
+          tree_entries << [t('tree_view.external_systems', default: 'Externe Systeme', locale: active_ui_locale), DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID]
+
+          if tree_entries.many?
             concat(tag.span(mode_icon(mode), data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
             concat(
               tag.div(class: 'dropdown-pane no-bullet', id: 'tree-view-selector', data: { dropdown: true }) do
                 concat(
                   tag.ul(class: 'no-bullet') do
-                    DataCycleCore::ClassificationTreeLabel.visible('tree_view').order(:name).each do |tree_label|
+                    tree_entries.each do |label, ctl_id|
                       concat(
                         tag.li(
                           link_to_unless(
-                            tree_label.id == params_hash[:ctl_id],
-                            t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale),
-                            params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset)
-                              .merge({ mode:, ctl_id: tree_label.id })
+                            ctl_id == params_hash[:ctl_id],
+                            label,
+                            params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset, :es_id)
+                              .merge({ mode:, ctl_id: })
                           )
                         )
                       )
@@ -111,18 +116,18 @@ module DataCycleCore
                 )
               end
             )
-          elsif DataCycleCore::ClassificationTreeLabel.visible('tree_view').present?
-            tree_label = DataCycleCore::ClassificationTreeLabel.visible('tree_view').first
+          elsif tree_entries.present?
+            label, ctl_id = tree_entries.first
             link_to_unless(
-              tree_label.id == params_hash[:ctl_id],
-              mode_icon(mode, t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale)),
-              params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset)
-                .merge({ mode:, ctl_id: tree_label.id })
+              ctl_id == params_hash[:ctl_id],
+              mode_icon(mode, label),
+              params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset, :es_id)
+                .merge({ mode:, ctl_id: })
             )
           end
         end
       else
-        link_to_unless selected, mode_icon(mode), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge(mode:)
+        link_to_unless selected, mode_icon(mode), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset, :es_id).merge(mode:)
       end
     end
 
@@ -193,11 +198,18 @@ module DataCycleCore
       query = if ordered_array.present?
                 query.sort_by { |t| ordered_array.index(t.template_name).to_i }
               else
-                query.sort_by(&:template_name)
+                sort_templates_by_translated_name(query)
               end
       query = query.first(limit.to_i) if limit.present?
 
       query
+    end
+
+    # Ordered by the name the editor sees. template_name is the internal class name
+    # and sorts differently ('KachelManuell' vs. 'Teaser-Kachel'); transliterate
+    # keeps umlauts next to their base letter instead of sorting them after Z.
+    def sort_templates_by_translated_name(templates)
+      templates.sort_by { |t| I18n.transliterate(t.translated_template_name(active_ui_locale).to_s.downcase, locale: active_ui_locale) }
     end
 
     def template_select_options(template_things)
@@ -503,6 +515,18 @@ module DataCycleCore
           reload_on_goto: true
         })
       end
+    end
+
+    # Target of the sidebar's "Info" entry. `DataCycleCore.info_link` accepts a URL string for
+    # projects hosting their own page, or any non-blank value (VTG sets `:info`) to use the built-in
+    # `/info` page; unconfigured it points at the product site.
+    #
+    # @return [String]
+    def configured_info_link
+      return 'https://datacycle.info/' if DataCycleCore.info_link.blank?
+      return DataCycleCore.info_link if DataCycleCore.info_link.is_a?(::String)
+
+      info_path
     end
 
     def link_to_condition(condition, *args, **html_options, &block)

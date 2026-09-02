@@ -22,10 +22,10 @@ module DataCycleCore
       assert_equal [['slug']], called
     end
 
-    test 'compute_properties builds the reference id from id and keys' do
+    test 'compute_properties builds the concurrency key from id and keys' do
       job = DataCycleCore::ComputePropertiesJob.new(UUID, ['a', 'b'])
 
-      assert_equal "#{UUID}-a_b", job.delayed_reference_id
+      assert_equal "DataCycleCore::ComputePropertiesJob/#{UUID}/a,b", job.concurrency_key
     end
 
     test 'update_async_computed_properties returns for blank keys' do
@@ -56,11 +56,11 @@ module DataCycleCore
       assert_equal [[['async_key'], 'de']], called
     end
 
-    test 'update_async_computed_properties builds the reference id' do
+    test 'update_async_computed_properties builds the concurrency key' do
       job = DataCycleCore::UpdateAsyncComputedPropertiesJob.new(UUID, ['a', 'b'], 'de')
 
-      assert_equal "#{UUID}-a_b-de", job.delayed_reference_id
-      assert_equal DataCycleCore::UpdateAsyncComputedPropertiesJob::PRIORITY, job.priority
+      assert_equal "DataCycleCore::UpdateAsyncComputedPropertiesJob/#{UUID}/a,b/de", job.concurrency_key
+      assert_equal 10, job.priority
     end
 
     test 'video_transcoding processes the video and stores the url' do
@@ -78,11 +78,11 @@ module DataCycleCore
       assert_equal [[{ 'video_url' => 'https://example.com/video.mp4' }, false]], stored
     end
 
-    test 'video_transcoding builds the reference id from both arguments' do
+    test 'video_transcoding builds the concurrency key from both arguments' do
       job = DataCycleCore::VideoTranscodingJob.new(UUID, 'video_url')
 
-      assert_equal "#{UUID}_video_url", job.delayed_reference_id
-      assert_equal DataCycleCore::VideoTranscodingJob::PRIORITY, job.priority
+      assert_equal "DataCycleCore::VideoTranscodingJob/#{UUID}/video_url", job.concurrency_key
+      assert_equal 12, job.priority
     end
   end
 end

@@ -34,14 +34,102 @@
       top: 50%;
     }
 
+    // Wraps the classification-usage chip and .fulltext-search together so they read as one
+    // "restricted search" unit and share a single flex-grow/max-width budget - .fulltext-search
+    // itself is otherwise untouched (unchanged from before the chip existed), so its icon
+    // positioning (anchored to itself, see .fulltext-search-form below) keeps working exactly as
+    // it always did, regardless of whether a chip precedes it.
+    //
+    // position: relative is required, not just cosmetic: .title's &:before divider line is
+    // position: absolute, and positioned elements always paint above non-positioned in-flow content
+    // regardless of DOM order - .title-text/.pages (via the .title > span rule) and .fulltext-search
+    // all have position: relative for exactly this reason. Without it here, the line painted over
+    // this whole wrapper (and the chip inside it) despite coming first in the DOM.
+    //
+    // padding-left + background mask the divider line up to the chip, the same way .title-text/.pages
+    // mask it with their own padding+background below - without this the line shows through the
+    // transparent margin/gap area before the chip. No padding-right: the nested .fulltext-search
+    // already masks the line the rest of the way with its own padding+background, unchanged.
+    .classification-usage-search {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex: auto;
+      // Matches .fulltext-search's own cap when there is no chip (e.g. after removing it via the
+      // remove-tag button, see stored_filter.js) - :has() re-evaluates automatically once the chip is
+      // gone, so this does not leave the extra room from the max-width below empty on the right.
+      max-width: 400px;
+      margin: 0 1rem;
+
+      &:has(.classification-usage-chip) {
+        // Extra room for the chip, in addition to .fulltext-search's own 400px cap.
+        max-width: 500px;
+        // Masks the divider line up to the chip (see .title's &:before) - only needed with a chip
+        // present, since .fulltext-search's own padding+background already does this otherwise
+        // (unchanged from before the chip existed).
+        padding-left: 1rem;
+        background: var(--white);
+      }
+
+      .classification-usage-chip {
+        flex-shrink: 0;
+        // Visually matches .fulltext-search-field's own 2rem height (Foundation sets box-sizing:
+        // border-box globally) together with the shared .tag-group rule's 2px top/bottom padding below.
+        height: 1.88rem;
+
+        // Colors/shape (background, box-shadow, .tag padding) come from the shared .tag-group rule
+        // below, reused as-is from the per-search filter tags.
+
+        // Same red remove-icon as the dashboard's active-filter chips (.remove-advanced-filter in
+        // _filters.scss), reused via the shared --alert-color custom property rather than that class,
+        // since that one is wired to the dashboard's own filter-builder JS which does not apply here.
+        .remove-tag {
+          display: inline-flex;
+          align-items: center;
+          font-size: inherit;
+          line-height: inherit;
+          color: var(--alert-color);
+          background: none;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+
+          // button, .button { .fa { font-size: inherit; } } in _base.scss resets icon size to the
+          // button's own font-size for *any* <button> - the dashboard's equivalent uses an <a> instead,
+          // which that rule does not target, so it keeps the global .fa size (1.1rem) unaffected. This
+          // overrides that reset back to the same 1.1rem so both look the same regardless of element type.
+          .fa {
+            font-size: 1.1rem;
+          }
+
+          &:hover {
+            color: var(--alert-color-hover);
+          }
+        }
+      }
+
+      // Tighter than .fulltext-search's own 1rem left padding - only right after the chip, so the
+      // icon doesn't sit in a wide empty gap next to it. Left as-is (1rem) when there is no chip.
+      .classification-usage-chip + .fulltext-search {
+        padding-left: 0.25rem;
+
+        // .fulltext-search-submit's left is a fixed offset from this containing block's padding
+        // edge, not relative to the padding value above - it must be kept in sync with it, otherwise
+        // the icon sits offset from where this .fulltext-search's own (now smaller) padding ends.
+        .fulltext-search-submit {
+          left: 0.25rem;
+        }
+      }
+    }
+
     .fulltext-search {
       position: relative;
-      margin: 0 1rem;
       padding: 0 1rem;
       background: var(--white);
       flex: auto;
       display: flex;
-      max-width: 800px;
+      max-width: 400px;
 
       .fulltext-search-form {
         display: flex;
@@ -257,70 +345,76 @@
               font-size: 0.8rem;
               margin-right: 0.1rem;
             }
-
-            .tag-group {
-              color: var(--black);
-              display: flex;
-              align-items: center;
-              gap: 0.3rem;
-              border-radius: var(--global-radius);
-              padding: 2px 4px;
-              background-color: lighten($dark-gray, 32%);
-              box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
-              max-width: 100%;
-
-              .tag {
-                font-style: normal;
-                padding: 0 0.3rem;
-                line-height: 1.2rem;
-                border-radius: var(--global-radius);
-              }
-
-              &.e,
-              &.u,
-              &.b {
-                background-color: lighten($alert-color, 41%);
-                box-shadow: 0 0 0 1px lighten($alert-color, 20%);
-
-                .tag {
-                  position: relative;
-
-                  &::after {
-                    content: '';
-                    display: block;
-                    position: absolute;
-                    top: 50%;
-                    left: 0;
-                    border-bottom: 1px solid;
-                    width: calc(100% - 0.4rem);
-                    margin: 0 0.2rem;
-                  }
-                }
-              }
-
-              &.i,
-              &.s,
-              &.p {
-                background-color: lighten($success-color, 36%);
-                box-shadow: 0 0 0 1px lighten($success-color, 3%);
-              }
-
-              &.user-force-filter {
-                background-color: lighten($dark-gray, 32%);
-                box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
-              }
-
-              &.language {
-                background-color: lighten($primary-color, 55%);
-                box-shadow: 0 0 0 1px lighten($primary-color, 25%);
-
-                .tag {
-                  background-color: lighten($primary-color, 2%);
-                }
-              }
-            }
           }
         }
+      }
+    }
+  }
+
+  // Shared by the per-search filter tags above (content-attributes .tag-group) and the
+  // classification-usage chip in .title - one rule, reused by both instead of duplicated.
+  // font-size set explicitly (matching the same tag-group's size on the main dashboard's active-filter
+  // row, .filtertags in _filters.scss) rather than relying on .content-attributes' ambient font-size,
+  // which the classification-usage chip in .title does not sit inside.
+  .tag-group {
+    font-size: 0.8rem;
+    color: var(--black);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: var(--global-radius);
+    padding: 2px 4px;
+    background-color: lighten($dark-gray, 32%);
+    box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
+    max-width: 100%;
+
+    .tag {
+      font-style: normal;
+      padding: 0 0.3rem;
+      line-height: 1.2rem;
+      border-radius: var(--global-radius);
+    }
+
+    &.e,
+    &.u,
+    &.b {
+      background-color: lighten($alert-color, 41%);
+      box-shadow: 0 0 0 1px lighten($alert-color, 20%);
+
+      .tag {
+        position: relative;
+
+        &::after {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 50%;
+          left: 0;
+          border-bottom: 1px solid;
+          width: calc(100% - 0.4rem);
+          margin: 0 0.2rem;
+        }
+      }
+    }
+
+    &.i,
+    &.s,
+    &.p {
+      background-color: lighten($success-color, 36%);
+      box-shadow: 0 0 0 1px lighten($success-color, 3%);
+    }
+
+    &.user-force-filter {
+      background-color: lighten($dark-gray, 32%);
+      box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
+    }
+
+    &.language {
+      background-color: lighten($primary-color, 55%);
+      box-shadow: 0 0 0 1px lighten($primary-color, 25%);
+
+      .tag {
+        background-color: lighten($primary-color, 2%);
       }
     }
   }

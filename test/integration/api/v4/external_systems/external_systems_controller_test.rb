@@ -73,6 +73,23 @@ module DataCycleCore
             mock_method.verify
           end
 
+          test 'timeseries endpoint collapses repeated values end-to-end, through the real create_all path' do
+            patch api_v4_external_source_timeseries_path(external_source_id: @external_system.id, external_key: @content.external_key, attribute: 'series_collapsed'),
+                  params: { 'data' => [['2026-05-01T10:00:00Z', 7]] }, as: :json
+
+            assert_response :accepted
+
+            patch api_v4_external_source_timeseries_path(external_source_id: @external_system.id, external_key: @content.external_key, attribute: 'series_collapsed'),
+                  params: { 'data' => [['2026-05-01T10:01:00Z', 7]] }, as: :json
+
+            assert_response :accepted
+
+            rows = DataCycleCore::Timeseries.where(thing_id: @content.id, property: 'series_collapsed').order(:timestamp)
+
+            assert_equal 2, rows.size
+            assert_equal [0, 2], rows.map(&:redundant_count)
+          end
+
           # ---- timeseries guard branches ----
           test 'timeseries returns not found for an unknown external key' do
             patch api_v4_external_source_timeseries_path(external_source_id: @external_system.id, external_key: 'does-not-exist', attribute: 'series'),

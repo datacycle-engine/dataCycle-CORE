@@ -1,21 +1,9 @@
-<% content_for(:user_links, flush:true) do %>
-  <% if can?(:index, DataCycleCore::Subscription) %>
-    <div>
-      <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
-        <span class="icon"><i class="fa fa-bell" aria-hidden="true"></i></span>
-        <span class="title"><%= DataCycleCore::Subscription.model_name.human(count: 2, locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
-
-  <% if DataCycleCore::Feature::PublicationSchedule.enabled? && can?(:index, :publication) %>
-    <div>
-      <%= link_to publications_path, class: 'publications-link' do %>
-        <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-        <span class="title"><%= t('data_cycle_core.publications_calendar', locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
+<%= render layout: 'data_cycle_core/application/side_bar/section', locals: { title: t('data_cycle_core.side_bar.personal', locale: active_ui_locale) } do %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: user_path(current_user),
+    icon: 'fa fa-user-o',
+    title: t('data_cycle_core.side_bar.profile', locale: active_ui_locale),
+    options: { class: 'show-user-link' } if can?(:show, current_user) %>
 
   <% if DataCycleCore.asset_objects.any? { |a| can?(:create, a.classify.constantize) } %>
     <div>
@@ -24,7 +12,7 @@
         <span class="title"><%= t('common.my_assets', locale: active_ui_locale) %></span>
       </a>
 
-      <div class="full reveal asset-selector-reveal" id="asset-selector-sidebar" data-reveal data-multiple-opened="true" data-v-offset="0" data-multi-select="true" >
+      <div class="full reveal asset-selector-reveal" id="asset-selector-sidebar" data-reveal data-multiple-opened="true" data-v-offset="0" data-multi-select="true">
         <div class="asset-list-container">
           <h3><%= t('common.my_assets', locale: active_ui_locale) %></h3>
           <div class="scrollable-asset-list">
@@ -50,11 +38,17 @@
     </div>
   <% end %>
 
-  <%= yield :additional_user_links %>
-<% end %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: subscriptions_path,
+    icon: 'fa fa-bell',
+    title: DataCycleCore::Subscription.model_name.human(count: 2, locale: active_ui_locale),
+    options: { class: 'user-subscriptions-link' } if can?(:index, DataCycleCore::Subscription) %>
 
-<% if content_for?(:user_links) %>
-  <div class="settings-row">
-    <%= yield_content!(:user_links) %>
-  </div>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: publications_path,
+    icon: 'fa fa-calendar',
+    title: t('data_cycle_core.publications_calendar', locale: active_ui_locale),
+    options: { class: 'publications-link' } if DataCycleCore::Feature::PublicationSchedule.enabled? && can?(:index, :publication) %>
+
+  <%= yield :additional_user_links %>
 <% end %>

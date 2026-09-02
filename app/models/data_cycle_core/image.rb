@@ -54,7 +54,7 @@ module DataCycleCore
                            file.service.path_for(file.key)
                          end
 
-      image = Vips::Image.vipsload(path_to_tempfile)
+      image = Vips::Image.new_from_file(path_to_tempfile)
       resolution = image.width * image.height
 
       if options.key?(:max) && resolution > options[:max].to_i
@@ -85,7 +85,7 @@ module DataCycleCore
                          else
                            file.service.path_for(file.key)
                          end
-      image = Vips::Image.vipsload(path_to_tempfile)
+      image = Vips::Image.new_from_file(path_to_tempfile)
 
       within_bounds = options.except(:exclude, :landscape, :portrait).presence&.any? do |_, v|
         image.width <= v.dig(:max, :width).to_i ||
@@ -253,7 +253,7 @@ module DataCycleCore
 
       raise ActiveStorage::FileNotFoundError, 'Image path not found' if image_path.nil?
 
-      image = Vips::Image.vipsload(image_path)
+      image = Vips::Image.new_from_file(image_path)
       exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: 'true' })
       exif_data = exif_data
         .to_hash

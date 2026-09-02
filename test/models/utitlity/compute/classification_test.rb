@@ -10,6 +10,18 @@ module DataCycleCore
           @tag_ids = DataCycleCore::Concept.for_tree('Tags').with_name(['Tag 1', 'Tag 2']).pluck(:classification_id)
         end
 
+        # The override branch is pure; the mapped/hidden fallback reads collected_classification_contents
+        # and is covered end-to-end in ComputedOverrideOrMappedTest.
+        test 'override_or_mapped returns the override value when it is present' do
+          value = subject.override_or_mapped(
+            computed_parameters: { 'override' => [@tag_ids.first] },
+            computed_definition: { 'tree_label' => 'Tags', 'compute' => { 'override_parameter' => 'override', 'parameters' => ['override'] } },
+            content: nil
+          )
+
+          assert_equal [@tag_ids.first], value
+        end
+
         def subject
           DataCycleCore::Utility::Compute::Classification
         end
@@ -120,6 +132,9 @@ module DataCycleCore
                              computed_definition: { 'tree_label' => 'Tags', 'compute' => { 'key_path' => '' } }
                            ))
         end
+
+        # from_linked reads collected_classification_contents throughout, so it is covered
+        # end-to-end in ComputedFromLinkedTest instead of unit tested here.
 
         test 'from_string_for_path returns nil for a blank tree label' do
           assert_nil(subject.from_string_for_path(computed_parameters: {}, computed_definition: { 'compute' => { 'parameters' => ['a'] } }))

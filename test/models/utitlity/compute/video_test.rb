@@ -39,9 +39,9 @@ module DataCycleCore
           DataCycleCore::Video.stub(:find_by, video_meta) do
             params = { 'asset' => 'video-id' }
 
-            assert_equal(1920, subject.width(computed_parameters: params))
-            assert_equal(1080, subject.height(computed_parameters: params))
-            assert_in_delta(12.5, subject.duration(computed_parameters: params))
+            assert_equal(1920, subject.width(content: video_content, computed_parameters: params))
+            assert_equal(1080, subject.height(content: video_content, computed_parameters: params))
+            assert_in_delta(12.5, subject.duration(content: video_content, computed_parameters: params))
           end
         end
 
@@ -89,17 +89,15 @@ module DataCycleCore
           value = subject.preview_url(
             content: video_content,
             key: 'preview_image',
-            computed_parameters: { 'asset' => 'video-id', 'thumbnail' => 'https://cdn.test/thumb.jpg' },
-            computed_definition: { 'compute' => { 'parameters' => ['thumbnail'] } }
+            computed_parameters: { 'asset' => 'video-id', 'thumbnail_image' => [{ 'content_url' => 'https://cdn.test/thumb.jpg' }] },
+            computed_definition: { 'compute' => { 'parameters' => ['thumbnail_image.content_url'] } }
           )
 
           assert_equal('https://cdn.test/thumb.jpg', value)
         end
 
         test 'thumbnail_url returns nil when there is no thumbnail and the video is not attached' do
-          video = struct_double(file: unattached_file)
-
-          DataCycleCore::Video.stub(:find_by, video) do
+          DataCycleCore::Video.stub(:find_by, unattached_asset_double) do
             value = subject.thumbnail_url(
               content: video_content,
               key: 'preview_image',
@@ -112,7 +110,7 @@ module DataCycleCore
         end
 
         test 'preview_url returns the processed preview url for an attached video' do
-          DataCycleCore::Video.stub(:find_by, attached_video(url: 'https://cdn.test/preview.png')) do
+          DataCycleCore::Video.stub(:find_by, attached_asset_double(url: 'https://cdn.test/preview.png')) do
             DataCycleCore::ActiveStorageService.stub(:with_current_options, ->(&block) { block.call }) do
               value = subject.preview_url(
                 content: video_content,
@@ -127,7 +125,7 @@ module DataCycleCore
         end
 
         test 'thumbnail_url returns the processed resized url for an attached video' do
-          DataCycleCore::Video.stub(:find_by, attached_video(url: 'https://cdn.test/thumb.png')) do
+          DataCycleCore::Video.stub(:find_by, attached_asset_double(url: 'https://cdn.test/thumb.png')) do
             DataCycleCore::ActiveStorageService.stub(:with_current_options, ->(&block) { block.call }) do
               value = subject.thumbnail_url(
                 content: video_content,
@@ -142,7 +140,7 @@ module DataCycleCore
         end
 
         test 'preview_url and thumbnail_url rescue ActiveStorage errors and return nil' do
-          DataCycleCore::Video.stub(:find_by, attached_video(raises: true)) do
+          DataCycleCore::Video.stub(:find_by, attached_asset_double(raises: true)) do
             DataCycleCore::ActiveStorageService.stub(:with_current_options, ->(&block) { block.call }) do
               base = { content: video_content, key: 'preview_image', computed_parameters: { 'asset' => 'video-id' }, computed_definition: { 'compute' => { 'parameters' => [] } } }
 
@@ -154,36 +152,8 @@ module DataCycleCore
 
         private
 
-        def unattached_file
-          Class.new { def attached? = false }.new
-        end
-
-        def attached_video(url: 'https://cdn.test/thumb.png', raises: false)
-          preview = Object.new
-          if raises
-            preview.define_singleton_method(:processed) { raise ActiveStorage::FileNotFoundError }
-          else
-            processed = Object.new
-            processed.define_singleton_method(:url) { url }
-            preview.define_singleton_method(:processed) { processed }
-          end
-
-          file = Object.new
-          file.define_singleton_method(:attached?) { true }
-          file.define_singleton_method(:preview) { |_options| preview }
-
-          video = Object.new
-          video.define_singleton_method(:file) { file }
-          video
-        end
-
         def video_content
-          Class.new {
-            def asset_property_names = ['asset']
-            def external_source_id = nil
-            def id = nil
-            def translatable_property_names = []
-          }.new
+          asset_content_double
         end
       end
     end

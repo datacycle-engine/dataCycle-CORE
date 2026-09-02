@@ -2,18 +2,11 @@
 
 module DataCycleCore
   class UpdateComputedPropertiesJob < UniqueApplicationJob
-    PRIORITY = 12
     WEBHOOK_PRIORITY = 6
 
     queue_as :cache_invalidation
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      arguments[0]
-    end
+    queue_with_priority 12
+    limits_concurrency key: ->(*args) { args[0] }
 
     def perform(id, _changed_attributes)
       id_attribute_hash = Thing::PropertyDependency.id_attribute_hash(id)

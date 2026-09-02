@@ -114,7 +114,7 @@ namespace :dc do
     end
 
     desc 'delete orphaned external_data'
-    task :external_data, [:external_system_or_stored_filter_id, :templates] => [:environment] do |_, args|
+    task :external_data, [:external_system_or_stored_filter_id, :templates] => [:environment] do |t, args|
       templates = args.fetch(:templates, '').split('|').filter_map do |template_name|
         DataCycleCore::ThingTemplate.find_by(template_name: template_name)&.template_name
       end
@@ -143,22 +143,71 @@ namespace :dc do
       origin = external_system.present? ? external_system.name : "#{collection.type || 'Collection'}: #{collection.id}"
 
       items_to_delete = orphans.count
-      logger.info("Started deleting #{items_to_delete} orphans with these templates #{templates} from #{origin}")
-      puts "Deleting #{items_to_delete} (templates: #{templates}) from #{origin}"
+      logger.info("[#{t.name}] Started deleting #{items_to_delete} orphans with these templates #{templates} from #{origin}")
 
-      queue = DataCycleCore::WorkerPool.new
-      progressbar = ProgressBar.create(total: items_to_delete, title: 'Deleting')
+      progressbar = ProgressBar.create(total: items_to_delete, title: templates.join('/'))
 
-      orphans.find_each do |orphan|
-        queue.append do
-          orphan.destroy_content(destroy_linked: true)
-          progressbar.increment
+      deleted = 0
+      orphans.find_in_batches(batch_size: 1000) do |batch|
+        # WorkerPool#wait! shuts down the underlying thread pool, so a fresh pool
+        # is required per batch (reusing one raises Concurrent::RejectedExecutionError).
+        queue = DataCycleCore::WorkerPool.new
+
+        batch.each do |orphan|
+          queue.append do
+            # Concurrent deletes of heavily shared content (e.g. "Bild") can deadlock
+            # on overlapping row/index locks; retry the rolled-back transaction.
+            CleanupHelper.with_deadlock_retry(logger:, identifier: "Thing #{orphan.id}") do
+              orphan.destroy_content(destroy_linked: true)
+            end
+            progressbar.increment
+          end
         end
+
+        queue.wait!
+        deleted += batch.size
       end
 
-      queue.wait!
-      logger.info("[DONE] Deleted #{items_to_delete} ")
+      logger.info("[#{t.name}] [DONE] Deleted #{deleted}/#{items_to_delete} orphans (templates: #{templates}) from #{origin}")
       progressbar.finish
+    end
+
+    desc 'archive orphaned imported content of a stored filter instead of deleting it'
+    task :archive_orphans, [:stored_filter_id_or_slug, :templates, :min_age_days, :dry_run, :life_cycle_stage] => [:environment] do |t, args|
+      templates = args.fetch(:templates, '').to_s.split('|').filter_map do |template_name|
+        DataCycleCore::ThingTemplate.find_by(template_name: template_name.squish)&.template_name
+      end
+
+      # the same guard the sibling delete task uses: without templates a mistyped filter would act
+      # on everything it happens to match
+      abort('Please provide an array of templates seperated like that template_name|template_name !') if templates.blank?
+
+      collection = DataCycleCore::Collection.by_id_name_slug(args.stored_filter_id_or_slug.to_s).first
+      abort("Collection #{args.stored_filter_id_or_slug} does not exist!") if collection.blank?
+
+      min_age_days = args.fetch(:min_age_days, 3).to_i
+      dry_run = args.fetch(:dry_run, false).to_s == 'true'
+
+      collection.language = Array.wrap(I18n.available_locales).map(&:to_s)
+      scope = collection.unsorted_things.where(template_name: templates)
+
+      logger = Logger.new('log/archive_orphans.log')
+      orphans = CleanupHelper.orphaned_imported(scope, min_age_days:)
+      reattached = CleanupHelper.reattached(scope)
+
+      if dry_run
+        logger.info("[#{t.name}] [DRY RUN] #{orphans.count} orphans would be archived, #{reattached.count} linked contents would be checked for reactivation (collection: #{collection.id}, templates: #{templates}, min_age_days: #{min_age_days})")
+        next
+      end
+
+      logger.info("[#{t.name}] Started archiving orphans (collection: #{collection.id}, templates: #{templates}, min_age_days: #{min_age_days})")
+
+      archived = CleanupHelper.archive_contents!(orphans, logger:)
+      # "feed wins": a content that is linked again belongs back in the active pool. Runs after the
+      # archiving pass, which by definition cannot have touched anything that is linked.
+      reactivated = CleanupHelper.reactivate_contents!(reattached, stage_name: args[:life_cycle_stage], logger:)
+
+      logger.info("[#{t.name}] [DONE] Archived #{archived} orphans, reactivated #{reactivated} contents (templates: #{templates})")
     end
 
     desc 'Check all embedded for orphaned data (does not modify the data)'
@@ -232,6 +281,69 @@ namespace :dc do
         end
       end
       puts "things (#{template_name}) missing in mongoDB: #{things_missing}\n"
+    end
+
+    desc 'Build a stored filter per template (system excludes and/or base stored filters) and delete its orphans (see #42950)'
+    task orphans_by_template: :environment do
+      config = DataCycleCore.cleanup_orphans.presence
+      abort("No config found: #{config}") if config.blank?
+
+      logger = Logger.new('log/delete_orphans_by_template.log')
+
+      config.each do |template, entry|
+        unless DataCycleCore::ThingTemplate.exists?(template_name: template)
+          logger.info("[SKIP] Template '#{template}' does not exist – skipping.")
+          next
+        end
+
+        unless entry.is_a?(Hash)
+          logger.error("[SKIP] '#{template}': config must be a hash with 'exclude' and/or 'stored_filters' (got #{entry.class}).")
+          next
+        end
+
+        has_exclude = entry.key?('exclude')
+        has_base = entry['stored_filters'].present?
+
+        unless has_exclude || has_base
+          logger.error("[SKIP] '#{template}': neither 'exclude' nor 'stored_filters' configured – skipping.")
+          next
+        end
+
+        # excludes mode: resolve external-system identifiers -> ids (empty list = clean in ALL systems)
+        exclude_source_ids = nil
+        if has_exclude
+          identifiers = Array(entry['exclude'])
+          systems = DataCycleCore::ExternalSystem.where(identifier: identifiers)
+          exclude_source_ids = systems.pluck(:id)
+          missing = identifiers - systems.pluck(:identifier)
+          logger.warn("[WARN] '#{template}': unknown external-system identifiers (ignored): #{missing.join(', ')}") if missing.any?
+        end
+
+        # base-filters mode: resolve stored-filter ids; skip the template entirely if none exist, so the
+        # generated filter never collapses to "whole template" (filter_ids([]) is a no-op) and mass-deletes.
+        base_filter_ids = nil
+        if has_base
+          requested = Array(entry['stored_filters']).map(&:to_s)
+          base_filter_ids = DataCycleCore::StoredFilter.where(id: requested).pluck(:id)
+          missing = requested - base_filter_ids.map(&:to_s)
+          logger.warn("[WARN] '#{template}': unknown stored_filters (ignored): #{missing.join(', ')}") if missing.any?
+
+          if base_filter_ids.blank?
+            logger.error("[SKIP] '#{template}': none of the configured stored_filters exist (#{requested.join(', ')}) – skipping to avoid deleting the whole template.")
+            next
+          end
+        end
+
+        filter = DataCycleCore::StoredFilter.find_or_create_by(name: "Cleanup Waisen – #{template}")
+        filter.api = true
+        filter.parameters = CleanupHelper.orphan_filter_parameters(template_name: template, exclude_source_ids:, base_filter_ids:)
+        filter.save!
+
+        logger.info("[INFO] '#{template}': stored filter #{filter.id} (excluded systems: #{exclude_source_ids&.size || 0}, base filters: #{base_filter_ids&.size || 0})")
+
+        Rake::Task['dc:clean_up:external_data'].reenable
+        Rake::Task['dc:clean_up:external_data'].invoke(filter.id, template)
+      end
     end
   end
 end

@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class AssetTest < ActionDispatch::IntegrationTest
+  class AssetTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
     include DataCycleCore::ActiveStorageHelper

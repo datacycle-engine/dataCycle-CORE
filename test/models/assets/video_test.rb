@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   module Assets
-    class VideoTest < ActiveSupport::TestCase
+    class VideoTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include DataCycleCore::ActiveStorageHelper
 
       def setup

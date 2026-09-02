@@ -13,7 +13,8 @@ module DataCycleCore
         none: ['br', 'p'],
         minimal: ['b', 'strong', 'i', 'em', 'u', 'br', 'p'],
         basic: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'br', 'p', 'sub', 'sup'],
-        full: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'blockquote', 'ul', 'ol', 'li', 'br', 'a', 'contentlink', 'p', 'sub', 'sup', 'span']
+        list: ['ul', 'ol', 'li', 'br', 'p'],
+        full: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'blockquote', 'ul', 'ol', 'li', 'br', 'a', 'contentlink', 'p', 'sub', 'sup', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td']
       }.freeze
 
       SANITIZED_ATTRIBUTES = {
@@ -21,7 +22,8 @@ module DataCycleCore
         none: [],
         minimal: [],
         basic: [],
-        full: ['href', 'target', 'rel', 'class', 'data-href', 'data-dc-tooltip', 'data-dc-tooltip-id']
+        list: [],
+        full: ['href', 'target', 'rel', 'class', 'data-href', 'data-dc-tooltip', 'data-dc-tooltip-id', 'data-dc-placeholder', 'colspan', 'rowspan']
       }.freeze
 
       # Converts a given value into a specific internal type.
@@ -184,28 +186,30 @@ module DataCycleCore
         (returned || value).to_s
       end
 
-      # Converts a boolean value to string.
+      # Converts a value into a boolean.
       #
       # @param value [String, Boolean, nil] Input value
-      # @return [String, nil] String representation
-      # @raise [ArgumentError] If invalid input
-      def self.string_to_boolean(value)
+      # @param strict [Boolean] Raise on invalid input instead of returning it unchanged
+      # @return [Boolean, nil, Object] Converted boolean, or the input itself unless strict
+      # @raise [ArgumentError] If invalid input and strict
+      def self.string_to_boolean(value, strict: true)
         return value if value.is_a?(::TrueClass) || value.is_a?(::FalseClass)
         return nil if value.blank?
-        raise ArgumentError, 'can not convert to a boolean' unless value.is_a?(::String)
 
-        case value.squish
+        case value.is_a?(::String) ? value.squish.downcase : value
         when 'true' then true
         when 'false' then false
         else
-          raise ArgumentError, 'can not convert to a boolean'
+          raise ArgumentError, 'can not convert to a boolean' if strict
+
+          value
         end
       end
 
-      # Converts a string into a boolean.
+      # Converts a datetime into a string.
       #
-      # @param value [String, Boolean, nil] Input value
-      # @return [Boolean, nil] Converted boolean
+      # @param value [String, Time, nil] Input value
+      # @return [String, nil] String representation
       # @raise [ArgumentError] If conversion fails
       def self.datetime_to_string(value)
         return nil if value.blank?

@@ -2,13 +2,9 @@
 
 module DataCycleCore
   class ApplicationJob < ActiveJob::Base
-    include DataCycleCore::JobExtensions::DelayedJob
+    include DataCycleCore::JobExtensions::Persistence
     include DataCycleCore::JobExtensions::Callbacks
 
-    ATTEMPTS = 10
-    WAIT = :polynomially_longer
-    PRIORITY = 5
-
-    queue_with_priority self::PRIORITY
+    queue_with_priority 5
   end
 end

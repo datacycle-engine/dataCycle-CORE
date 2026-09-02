@@ -1,0 +1,12 @@
+<%# every entry is permission gated, so a section renders nothing rather than an empty heading %>
+<% body = capture { yield } %>
+
+<% if body.to_s.strip.present? %>
+  <%= tag.div class: ['settings-row', local_assigns[:class]] do %>
+    <% if local_assigns[:title].present? %>
+      <span class="section-title"><%= title %></span>
+    <% end %>
+
+    <%= body %>
+  <% end %>
+<% end %>

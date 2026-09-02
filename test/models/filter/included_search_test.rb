@@ -3,9 +3,9 @@
 require 'test_helper'
 
 module DataCycleCore
-  class IncludedSearchTest < ActiveSupport::TestCase
+  class IncludedSearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     test 'make sure included objectsa added correctly' do
-      content = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Included-Entity-Search', data_hash: {
+      content = create_content('Embedded-Included-Entity-Search', {
         name: 'HEADLINE 1',
         description: 'DESCRIPTION 1',
         float_main: 7.1,

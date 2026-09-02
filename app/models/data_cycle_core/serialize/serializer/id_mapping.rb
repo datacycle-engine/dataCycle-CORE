@@ -83,6 +83,7 @@ module DataCycleCore
             sql = <<~SQL.squish
               LEFT OUTER JOIN collected_classification_contents ccc ON ccc.thing_id = contents.id
               AND ccc.link_type IN ('direct', 'related')
+              AND ccc.hidden = FALSE
               AND ccc.classification_tree_label_id IN (?)
               LEFT OUTER JOIN concept_schemes cs ON cs.id = ccc.classification_tree_label_id
               LEFT OUTER JOIN concepts c ON c.id = ccc.classification_alias_id

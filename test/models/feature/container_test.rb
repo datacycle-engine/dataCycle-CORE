@@ -3,13 +3,13 @@
 require 'test_helper'
 
 module DataCycleCore
-  class ContainerTest < ActiveSupport::TestCase
+  class ContainerTest < DataCycleCore::TestCases::ActiveSupportTestCase
     test 'insert container and delete it' do
       template = DataCycleCore::Thing.count
       template_trans = DataCycleCore::Thing::Translation.count
       current_user = DataCycleCore::User.first
       data_hash = { 'name' => 'Test Container!', 'headline' => 'Test Container!' }
-      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash:, prevent_history: true, user: current_user)
+      data_set = create_content('Container', { name: 'Test Container!', headline: 'Test Container!' }, current_user, prevent_history: true)
 
       returned_data_hash = data_set.get_data_hash
 
@@ -37,7 +37,7 @@ module DataCycleCore
         'date_modified' => Time.zone.now
       }
       ds_a.set_data_hash(data_hash: dh_a, prevent_history: true, current_user:, new_content: true)
-      ds_a.save
+      perform_enqueued_jobs
 
       r_dh = ds_a.get_data_hash
       e_hash = {

@@ -107,7 +107,7 @@ module DataCycleCore
                               count: item_count,
                               timestamp: Time.current,
                               error_message: error&.message,
-                              error_class: error&.class,
+                              error_class: error&.class&.name,
                               error_backtrace: error&.backtrace
                             },
                             write
@@ -126,8 +126,7 @@ module DataCycleCore
                           times << data[:timestamp]
                           logging.phase_partial(step_label, item_count, times)
 
-                          error = data[:error_class].new(data[:error_message]) if data[:error_class].present?
-                          error.set_backtrace(data[:error_backtrace]) if data[:error_backtrace].present?
+                          error = DataCycleCore::ErrorService.rebuild(data[:error_class], data[:error_message], data[:error_backtrace])
                         end
 
                         if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
@@ -141,6 +140,52 @@ module DataCycleCore
                   end
 
                   logging.phase_finished(step_label, item_count.to_s, Time.current - times.first)
+                rescue StandardError => e
+                  logging.phase_failed(e, utility_object.external_source, step_label, utility_object.step_name, 'import_failed.datacycle')
+                  raise
+                end
+              end
+            end
+          end
+        end
+
+        # Loads every matching download item at once (bulk) and hands the whole set to +data_processor+
+        # in a single call per locale — so a strategy can resolve and update the contents in one pass
+        # (e.g. fetch all Things by external key with one query and update them across a WorkerPool),
+        # instead of the per-item find + update that #import_sequential does. Applies the same default
+        # scoping as #import_sequential; the iterator (load_contents) can widen it via FilterObject#except.
+        # The processor should return the number of affected contents (used for the phase log).
+        def self.import_bulk(utility_object:, iterator:, data_processor:, options:)
+          init_logging(utility_object) do |logging|
+            utility_object.with_mongodb do
+              each_locale(utility_object.locales) do |locale|
+                step_label = utility_object.step_label(options.merge({ locales: [locale] }))
+                total = 0
+                start_time = Time.current
+
+                begin
+                  logging.phase_started(step_label)
+
+                  utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                    filter_object = Import::FilterObject.new(options&.dig(:import, :source_filter), locale, mongo_item, binding)
+                      .without_deleted
+                      .without_archived
+                    filter_object = filter_object.with_updated_since(utility_object.last_successful_try) if utility_object.mode == :incremental && utility_object.last_successful_try.present?
+
+                    iterate = filtered_items(iterator, locale, filter_object).all.no_timeout.max_time_ms(fixnum_max)
+                    external_key_path = options.dig(:import, :external_key_path)
+                    iterate = iterate.only("dump.#{locale}.#{external_key_path}") if external_key_path.present?
+
+                    raw_data = iterate.to_a
+                    # Mongoid 9 no longer marks projected documents readonly, which turned `destroy`
+                    # into a silent success — see ImportData#delete_data for the same guard
+                    raw_data.each(&:readonly!) if external_key_path.present?
+
+                    result = data_processor.call(utility_object:, raw_data:, locale:, options:)
+                    total = result if result.is_a?(Numeric)
+                  end
+
+                  logging.phase_finished(step_label, total, Time.current - start_time)
                 rescue StandardError => e
                   logging.phase_failed(e, utility_object.external_source, step_label, utility_object.step_name, 'import_failed.datacycle')
                   raise

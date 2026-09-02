@@ -1,56 +1,10 @@
-<% queued_sum = stat_job_queue[:queued].values.sum %>
-
-<div class="queued-jobs" data-count="<%= queued_sum %>">
-  <h5>
-    <i class="fa fa-tasks" aria-hidden="true"></i>
-    in queue: <%= number_with_delimiter(queued_sum, locale: active_ui_locale) %>
-  </h5>
-
-  <% if stat_job_queue[:queued].present? %>
-    <ul>
-      <% stat_job_queue[:queued].each do |queue, count| %>
-        <% queued_types = stat_job_queue.dig(:delayed_reference_types, queue, 'queued_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
-        <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: queued_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
-      <% end %>
-    </ul>
-  <% end %>
-</div>
-
-<% running_sum = stat_job_queue[:running].values.sum %>
-
-<div class="running-jobs" data-count="<%= running_sum %>">
-  <h5>
-    <i class="fa fa-spinner <%= 'fa-spin' if running_sum.positive? %>" aria-hidden="true"></i>
-    running: <%= number_with_delimiter(running_sum, locale: active_ui_locale) %>
-  </h5>
-
-  <% if stat_job_queue[:running].present? %>
-    <ul>
-      <% stat_job_queue[:running].each do |queue, count| %>
-        <% running_types = stat_job_queue.dig(:delayed_reference_types, queue, 'running_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
-        <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: running_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
-      <% end %>
-    </ul>
-  <% end %>
-</div>
-
-<% failed_sum = stat_job_queue[:failed].values.sum %>
-
-<div class="failed-jobs" data-count="<%= failed_sum %>">
-  <h5>
-    <i class="fa fa-times" aria-hidden="true"></i>
-    failed: <%= number_with_delimiter(failed_sum, locale: active_ui_locale) %>
-  </h5>
-
-  <% if stat_job_queue[:failed].present? %>
-    <ul>
-      <% stat_job_queue[:failed].each do |queue, count| %>
-        <% failed_types = stat_job_queue.dig(:delayed_reference_types, queue, 'failed_types').presence&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
-        <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: failed_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
-      <% end %>
-    </ul>
-  <% end %>
-</div>
+<% [
+     { state: :queued, css_class: 'queued-jobs', icon: 'fa fa-tasks', label: 'in queue' },
+     { state: :running, css_class: 'running-jobs', icon: 'fa fa-spinner', label: 'running', spin: true },
+     { state: :failed, css_class: 'failed-jobs', icon: 'fa fa-times', label: 'failed' }
+   ].each do |group| %>
+  <%= render('data_cycle_core/dash_board/job_queue_group', stat_job_queue:, **group) %>
+<% end %>
 
 <% importers_sum = stat_job_queue[:importers].size %>
 

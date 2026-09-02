@@ -7,6 +7,7 @@ module DataCycleCore
       # from various sources including linked content, geographic data, and embedded objects.
       module Classification
         extend Extensions::ValueByPathExtension
+        extend Extensions::PrimaryIconExtension
 
         class << self
           def keywords(computed_parameters:, **_args)
@@ -92,6 +93,90 @@ module DataCycleCore
             uc += uc.flat_map(&:mapped_inverse_concepts)
             uc.select! { |c| c.concept_scheme.name == computed_definition['tree_label'] }.map!(&:classification_id)
             uc
+          end
+
+          # Computes an "effective" classification: the manual override when it is set, otherwise the
+          # classifications the content already carries in compute's tree_label through mappings — the
+          # 'related' collected_classification_contents produced by the mapping machinery. Reusing that
+          # output (instead of re-deriving the mapping) keeps transitive and ancestor mappings correct,
+          # and it includes mappings marked hidden (Redmine #47172), which stay in CCC as hidden 'related'
+          # rows. Generalises the "override attribute + computed effective attribute per tree" pattern.
+          #
+          # The parameter named by compute.override_parameter is the override; the remaining parameters
+          # (e.g. the source classifications) only need to be listed so a change to them re-triggers this
+          # compute — their values are not read here.
+          #
+          # Must not run in the inline before_save pass: CCC is only filled by its triggers once the
+          # classification_contents rows are written. Both post-save modes satisfy that; prefer
+          # compute.after_save, which commits the value within the triggering request instead of a
+          # cache_invalidation poll later, so the view rendered after the save-redirect shows it.
+          #
+          # example config:
+          # :tree_label: BayernCloud - Klassifizierung
+          # :compute:
+          #   :module: Classification
+          #   :method: override_or_mapped
+          #   :fallback: false
+          #   :after_save: true
+          #   :recompute_on_classification_change: true
+          #   :override_parameter: bayerncloud_classification_override
+          #   :parameters:
+          #     - bayerncloud_classification_override
+          #     - universal_classifications
+          def override_or_mapped(computed_parameters:, computed_definition:, content:, **_args)
+            tree_label = computed_definition['tree_label']
+            return if tree_label.blank?
+
+            override_key = computed_definition.dig('compute', 'override_parameter')
+            override_ids = Array.wrap(computed_parameters[override_key]).compact_blank if override_key.present?
+
+            return override_ids if override_ids.present?
+            return if content.nil? || content.new_record?
+
+            content.collected_classification_contents
+              .for_scheme(tree_label)
+              .where(link_type: 'related') # mapping-derived; deliberately includes hidden mappings (#47172)
+              .concepts
+              .pluck(:classification_id)
+              .uniq
+          end
+
+          # Collects the concepts of the property's tree_label from all contents linked through the
+          # compute parameters, e.g. the degree of AI involvement of the linked
+          # ArtificialIntelligenceAgent contents on an ImageObject. As a classification (instead of
+          # a virtual string) the value is stored, filterable and displayed with the other
+          # classifications, while the api can still serialize it as a string (api.partial: string).
+          #
+          # Reads the linked contents' collected_classification_contents, so concepts reached
+          # through a mapping count as well - the same source the detail view and the api read.
+          #
+          # example config:
+          # :type: classification
+          # :tree_label: ODTA - AI-DegreeOfInvolvement
+          # :compute:
+          #   :module: Classification
+          #   :method: from_linked
+          #   :fallback: false
+          #   :parameters:
+          #     - contributor
+          def from_linked(computed_parameters:, computed_definition:, content:, key:, **_args)
+            tree_label = computed_definition['tree_label']
+            # a template error must not clear the value - with fallback false a nil would be written
+            # through, and a nil clears a classification property just like []
+            return content&.attribute_to_h(key) if tree_label.blank?
+
+            linked_ids = computed_parameters.values.flatten.compact_blank
+
+            # nothing linked (any more) is a result, so [] - it unsets what a previous save collected
+            return [] if linked_ids.blank?
+
+            DataCycleCore::CollectedClassificationContent
+              .without_broader
+              .where(thing_id: linked_ids)
+              .for_scheme(tree_label)
+              .concepts
+              .pluck(:classification_id)
+              .uniq
           end
 
           def from_string_for_path(computed_parameters:, computed_definition:, **args)

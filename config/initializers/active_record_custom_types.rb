@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-raise 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter#initialize_type_map is no longer available, check patch!' unless ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.private_method_defined? :initialize_type_map
-
 module PostgresCustomTypesExtension
   extend ActiveSupport::Concern
 
@@ -26,4 +24,8 @@ module PostgresCustomTypesExtension
   end
 end
 
-ActiveSupport.on_load(:active_record_postgresqladapter) { prepend PostgresCustomTypesExtension }
+ActiveSupport.on_load(:active_record_postgresqladapter) do
+  raise 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter#initialize_type_map is no longer available, check patch!' unless private_method_defined? :initialize_type_map
+
+  prepend PostgresCustomTypesExtension
+end

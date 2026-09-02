@@ -55,10 +55,10 @@ class ChangeExternalSourcesToExternalSystems < ActiveRecord::Migration[5.2]
       t.jsonb  :credentials
       t.jsonb  :config
       t.jsonb :default_options
-      t.datetime  :last_download
-      t.datetime  :last_successful_download
-      t.datetime  :last_import
-      t.datetime  :last_successful_import
+      t.datetime :last_download
+      t.datetime :last_successful_download
+      t.datetime :last_import
+      t.datetime :last_successful_import
       t.string :identifier
       t.index ['id'], name: 'index_external_sources_on_id', unique: true, using: :btree
     end

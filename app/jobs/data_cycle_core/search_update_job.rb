@@ -2,17 +2,9 @@
 
 module DataCycleCore
   class SearchUpdateJob < UniqueApplicationJob
-    PRIORITY = 1
-
     queue_as :search_update
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      "#{arguments[0]}_#{arguments[1].presence || 'all'}"
-    end
+    queue_with_priority 1
+    limits_concurrency key: ->(*args) { "#{args[0]}_#{args[1].presence || 'all'}" }
 
     def perform(thing_id, locale = nil)
       content = DataCycleCore::Thing.find(thing_id)

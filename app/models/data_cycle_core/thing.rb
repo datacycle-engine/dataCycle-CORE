@@ -30,7 +30,10 @@ module DataCycleCore
                autosave: true,
                dependent: :delete_all,
                extend: ::Mobility::Backends::ActiveRecord::Table::TranslationsHasManyExtension
-      default_scope { i18n.includes(:thing_template) }
+      # thing_template is cache-backed (Content::ContentRelations#thing_template), so it no longer
+      # needs eager preloading here — dropping it avoids a thing_templates load on every query.
+      # Scopes that filter on thing_templates columns join it explicitly (e.g. Searchable#with_schema_type).
+      default_scope { i18n }
 
       # deleted by FK ON DELETE CASCADE (thing_history_id): scheduled_history_data,
       # content_collection_link_histories, geometry_histories, embedding_histories
@@ -55,8 +58,11 @@ module DataCycleCore
       end
     end
 
+    # Backed by the duplicate_candidates view, which has no id column. thing_duplicate_id alone is not
+    # unique: the view unions each pair in both directions.
     class DuplicateCandidate < ApplicationRecord
       self.table_name = 'duplicate_candidates'
+      self.implicit_order_column = [:thing_duplicate_id, :duplicate_id]
 
       belongs_to :original, class_name: 'DataCycleCore::Thing'
       belongs_to :duplicate, class_name: 'DataCycleCore::Thing'
@@ -89,9 +95,12 @@ module DataCycleCore
       end
     end
 
-    # Only for computed properties
+    # Only for computed properties. Backed by the content_property_dependencies view, which has no id
+    # column; the view emits one row per compute parameter, so compute_parameter_property_name is part
+    # of the row identity.
     class PropertyDependency < ApplicationRecord
       self.table_name = 'content_property_dependencies'
+      self.implicit_order_column = [:content_id, :dependent_content_id, :property_name, :compute_parameter_property_name]
 
       belongs_to :thing, foreign_key: :content_id, class_name: 'DataCycleCore::Thing', inverse_of: :property_dependencies
       belongs_to :dependent_thing, foreign_key: :dependent_content_id, class_name: 'DataCycleCore::Thing', inverse_of: :dependent_properties
@@ -141,11 +150,18 @@ module DataCycleCore
              autosave: true,
              dependent: :delete_all,
              extend: ::Mobility::Backends::ActiveRecord::Table::TranslationsHasManyExtension
-    default_scope { i18n.includes(:thing_template) }
+    # thing_template is cache-backed (Content::ContentRelations#thing_template), so it no longer
+    # needs eager preloading here — dropping it avoids a thing_templates load on every query.
+    # Scopes that filter on thing_templates columns join it explicitly (e.g. Searchable#with_schema_type).
+    default_scope { i18n }
 
     # polymorphic, no FK possible => :delete_all (single query, no callbacks to run)
     has_many :external_system_syncs, as: :syncable, dependent: :delete_all, inverse_of: :syncable, autosave: true, class_name: 'DataCycleCore::ExternalSystemSync'
     has_many :external_systems, through: :external_system_syncs, class_name: 'DataCycleCore::ExternalSystem'
+
+    scope :delivered_to, lambda { |external_system|
+      joins(:external_system_syncs).merge(DataCycleCore::ExternalSystemSync.delivered_to(external_system)).distinct
+    }
 
     # polymorphic, no FK possible => :delete_all (single query, no callbacks to run)
     has_many :activities, as: :activitiable, dependent: :delete_all, class_name: 'DataCycleCore::Activity'

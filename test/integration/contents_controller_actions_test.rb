@@ -121,5 +121,27 @@ module DataCycleCore
       assert_redirected_to root_path
       assert_predicate flash[:alert], :present?
     end
+
+    test 'trigger_webhooks rejects an external_system_id the content is not synced with' do
+      sign_in(User.find_by(email: 'system_admin@datacycle.at'))
+      foreign_id = DataCycleCore::ExternalSystem.first.id
+
+      post trigger_webhooks_thing_path(@content, webhook_action: 'update', external_system_id: foreign_id), headers: { referer: thing_path(@content) }
+
+      assert_redirected_to root_path
+      assert_predicate flash[:alert], :present?
+    end
+
+    test 'trigger_webhooks accepts an external_system_id the content is synced with' do
+      sign_in(User.find_by(email: 'system_admin@datacycle.at'))
+      content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'WebhookTriggerArtikel' })
+      external_system = DataCycleCore::ExternalSystem.find_by(name: 'Local-System')
+      content.add_external_system_data(external_system, { 'key' => 'value' }, 'success', 'export')
+
+      post trigger_webhooks_thing_path(content, webhook_action: 'update', external_system_id: external_system.id), headers: { referer: thing_path(content) }
+
+      assert_redirected_to thing_path(content)
+      assert_predicate flash[:success], :present?
+    end
   end
 end

@@ -49,5 +49,9 @@ module DataCycleCore
 
       assert_response :forbidden
     end
+
+    # NOTE: the authorize/callback google-business happy paths build
+    # `callback_external_source_url`, a route provided by the GoogleBusiness
+    # connector gem (not present in core), so they are not testable here.
   end
 end

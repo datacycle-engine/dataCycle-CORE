@@ -32,4 +32,4 @@ test/dummy/storage
 **/app/assets/entrypoints/images
 **/*.local
 .DS_Store
-.irb-history
+.codegraph/

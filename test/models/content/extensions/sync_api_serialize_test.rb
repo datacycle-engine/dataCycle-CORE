@@ -4,6 +4,9 @@ require 'test_helper'
 
 module DataCycleCore
   class SyncApiSerializeTest < ActiveSupport::TestCase
+    include ActiveJob::TestHelper
+    include DataCycleCore::ActiveStorageHelper
+
     def create_event
       DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: { name: 'Test Event' })
     end
@@ -62,6 +65,10 @@ module DataCycleCore
         schedule: [{ event_date: event_date_range(1) }],
         overlay: [{ schedule: [{ event_date: event_date_range(2) }] }]
       })
+    end
+
+    def create_image_with_asset
+      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild', asset: upload_image('test_rgb.jpeg').id })
     end
 
     def create_event_with_image(image, overlay_image)
@@ -322,6 +329,42 @@ module DataCycleCore
       assert_equal(2, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
       assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.pluck('name').sort)
       assert_equal(['Test1', 'Test2'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.pluck('name').sort)
+    end
+
+    # The canonical description of #50337, which `SyncApi#unserializable_sync_property_names` and
+    # `ImportFunctions#drop_blank_assets` both point at. `to_sync_h` used to build its hash with
+    # `index_with` over every property name, so an ImageObject that could not serialize its asset
+    # still emitted the key: `"asset": null`. On the receiving instance that null reached
+    # `set_data_hash`, and `set_asset_id(nil, 'asset', 'image')` destroyed the AssetContent and,
+    # through its `dependent: :destroy`, the local Asset with its ActiveStorage blob and file, while
+    # `content_url` kept pointing at the file that had just been deleted.
+    #
+    # A partner instance exports the same content back, so a DcSync payload of an image reaches the
+    # instance that owns the file. The round trip below feeds the payload straight into
+    # `set_data_hash` — deliberately without `drop_blank_assets`, which guards the same hole for
+    # payloads arriving from an instance that still runs the old serializer — so what it covers is
+    # the serializer alone.
+    test 'sync payload of an image omits its asset instead of nulling it' do
+      main_data = create_image_with_asset.to_sync_data['de']
+
+      assert_not(main_data.key?('asset'))
+      assert_predicate(main_data['content_url'], :present?)
+    end
+
+    test 'importing a sync payload keeps the local asset of an image' do
+      image = create_image_with_asset
+      asset_id = image.asset.id
+      payload = image.to_sync_data['de'].slice(*image.importable_property_names)
+
+      assert_no_difference -> { DataCycleCore::Image.count } do
+        image.set_data_hash(data_hash: payload, prevent_history: true)
+      end
+
+      image.reload
+
+      assert_equal(asset_id, image.asset&.id)
+      assert_predicate(DataCycleCore::Image.find_by(id: asset_id)&.file, :attached?)
+      assert_includes(image.content_url, image.id)
     end
   end
 end

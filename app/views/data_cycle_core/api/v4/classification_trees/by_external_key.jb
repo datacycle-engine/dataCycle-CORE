@@ -16,6 +16,6 @@ json.merge! render 'classifications', classification_aliases: @classification_al
 
 json.merge! render 'pagination_links',
                    objects: @classification_aliases,
-                   object_url: ->(params) { api_v4_classification_trees_by_external_key(@api_subversion, params.merge(external_source_id: @external_source_id, external_key: @external_key)) }
+                   object_url: ->(params) { api_v4_classification_trees_by_external_key_url(@api_subversion, params.merge(external_source_id: @external_source_id, external_key: @external_key)) }
 
 json

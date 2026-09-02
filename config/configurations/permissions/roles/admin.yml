@@ -355,3 +355,8 @@ grafana_dashboards:
   actions: read
   segment: SubjectByConditions
   parameters: :grafana_dashboards
+
+additional_menu_links:
+  actions: show
+  segment: AdditionalMenuLinkByKeys
+  parameters: all

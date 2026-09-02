@@ -1,0 +1,63 @@
+---
+# Carries the two property types the push api key filter used to drop, so a push covers both, plus
+# an embedded slot: a module the push creates writes its collection links onto a brand new content.
+- :data:
+    :name: Entity-With-Collection-And-Table
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    # Creatable for the same reason as Embedded-Multiple-Templates-Entity-1, see
+    # test/data_types/attributes/things/embedded_multiple_templates.yml.
+    :features:
+      :creatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :collections:
+        :label: Test Listen
+        :type: collection
+        :api:
+          :name: dcls:collections
+      :table_data:
+        :label: Test Tabelle
+        :type: table
+        :storage_location: translated_value
+      :embedded_module:
+        :label: Embedded Modul
+        :type: embedded
+        :template_name: Embedded-With-Collection
+
+- :data:
+    :name: Embedded-With-Collection
+    :type: object
+    :content_type: embedded
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+      :collections:
+        :label: Test Listen
+        :type: collection
+        :api:
+          :name: dcls:collections

@@ -4,17 +4,9 @@ require 'pdf-reader'
 
 module DataCycleCore
   class ExtractPdfTextContentJob < UniqueApplicationJob
-    PRIORITY = 12
-
     discard_on PDF::Reader::MalformedPDFError
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      arguments[0]
-    end
+    queue_with_priority 12
+    limits_concurrency key: ->(*args) { args[0] }
 
     def perform(id)
       asset = DataCycleCore::Asset.find_by(id:)

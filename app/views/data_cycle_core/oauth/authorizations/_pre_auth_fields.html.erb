@@ -1,0 +1,14 @@
+<%# The consent POST/DELETE rebuilds the pre-authorization from these params alone
+    (Doorkeeper::AuthorizationsController#pre_auth_params), so every field has to be echoed back.
+    AuthorizationsPreAuthFieldsTest pins the list against pre_auth_param_fields. %>
+<%= hidden_field_tag :client_id, pre_auth.client.uid, id: nil %>
+<%= hidden_field_tag :redirect_uri, pre_auth.redirect_uri, id: nil %>
+<%= hidden_field_tag :state, pre_auth.state, id: nil %>
+<%= hidden_field_tag :response_type, pre_auth.response_type, id: nil %>
+<%= hidden_field_tag :response_mode, pre_auth.response_mode, id: nil %>
+<%= hidden_field_tag :scope, pre_auth.scope, id: nil %>
+<%= hidden_field_tag :code_challenge, pre_auth.code_challenge, id: nil %>
+<%= hidden_field_tag :code_challenge_method, pre_auth.code_challenge_method, id: nil %>
+<%# Added to pre_auth_param_fields by doorkeeper-openid_connect, whose stock view never echoes it.
+    Dropping it here issues an ID token without the nonce claim, which a conforming client rejects. %>
+<%= hidden_field_tag :nonce, pre_auth.nonce, id: nil %>

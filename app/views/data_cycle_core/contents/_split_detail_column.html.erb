@@ -1,0 +1,21 @@
+<%# shared read-only "detail view" for one side of the merge split view.
+    used by the read-only merge preview (both sides) and the editable form's duplicate side.
+    only the surrounding structure (row/data-attributes/form fields) is provided by the caller;
+    this partial renders the common header (label + meta data + external connections) and the details. %>
+<div class="detail-header-info">
+  <%= tag.b(
+    t("duplicate.#{local_assigns[:label]}", locale: active_ui_locale) + ':',
+    class: "meta-data-prefix #{local_assigns[:color_class]}",
+    data: { dc_tooltip: t("duplicate.#{local_assigns[:label]}_tooltip", locale: active_ui_locale) }
+  ) if local_assigns[:label].present? %>
+  <%= render 'data_cycle_core/contents/meta_data', content: content, html_class: local_assigns[:color_class].to_s %>
+  <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
+  <%= local_assigns[:header_extra] %>
+</div>
+
+<%= render_content_partial(
+  'details',
+  content: content,
+  options: { force_render: true, whitelist_keys: local_assigns[:whitelist_keys] || [], scope: :edit },
+  default: true
+) %>

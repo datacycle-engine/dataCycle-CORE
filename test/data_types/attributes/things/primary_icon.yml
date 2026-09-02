@@ -1,0 +1,65 @@
+---
+- :data:
+    :name: PrimaryIcon-Place
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+    :boost: 100.0
+    :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :location:
+        :label: Location
+        :type: geographic
+      :primary_icon_tags:
+        :label: Haupt-Icon (Tags)
+        :type: classification
+        :tree_label: Tags
+        :validations:
+          :max: 1
+      :primary_icon_tags_secondary:
+        :label: Haupt-Icon (Tags, sekundär)
+        :type: classification
+        :tree_label: Tags
+        :validations:
+          :max: 1
+      :primary_icon_maerkte:
+        :label: Haupt-Icon (Märkte)
+        :type: classification
+        :tree_label: Märkte
+        :validations:
+          :max: 1
+      :universal_classifications:
+        :label: Universal Classifications
+        :type: classification
+        :universal: true
+      :primary_icon_classifications:
+        :label: Haupt-Icon
+        :type: classification
+        :universal: true
+        :compute:
+          :module: Classification
+          :method: primary_icon_classifications
+          :fallback: false
+          :after_save: true
+          :recompute_on_classification_change: true
+          :parameters:
+            - primary_icon_tags
+            - primary_icon_tags_secondary
+            - primary_icon_maerkte
+            - universal_classifications
+        :api:
+          :partial: classification
+          :name: dc:icon

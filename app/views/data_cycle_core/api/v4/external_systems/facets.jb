@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+json.merge!(render('data_cycle_core/api/v4/api_base/context', languages: Array(@language).presence || Array(I18n.locale.to_s)))
+
+unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
+  json['@graph'] = @external_system_facets.map do |external_system, count|
+    {
+      '@id' => external_system.identifier,
+      '@type' => 'dc:ExternalSystem',
+      'name' => external_system.name,
+      'dc:thingCount' => count
+    }
+  end
+end
+
+json['meta'] = { 'total' => @external_system_facets.size } unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
+
+json

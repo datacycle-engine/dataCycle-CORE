@@ -706,6 +706,35 @@ module DataCycleCore
             assert_api_count_result(2)
           end
 
+          # the {value, fields} hash form is allowed by the filter contract and must be handled like a
+          # plain search string -- including in the similarity-ordering path (no sort given), which
+          # would otherwise raise "can't quote ActionController::Parameters" (#43008)
+          test 'api/v4/concept_schemes/id/concepts parameter filter[:search] hash form' do
+            tree_id = @tags.id
+
+            params = {
+              id: tree_id,
+              filter: {
+                search: { value: 'Nested' }
+              }
+            }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_response :success
+            assert_api_count_result(2)
+
+            params = {
+              id: tree_id,
+              filter: {
+                q: { value: 'Nested' }
+              }
+            }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_response :success
+            assert_api_count_result(2)
+          end
+
           test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][in] without children' do
             tree_id = @tags.id
             params = { id: tree_id, filter: { attribute: { 'skos:broader': { in: @tag_aliases.values_at('Tag 1') } } } }

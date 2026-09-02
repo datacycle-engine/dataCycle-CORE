@@ -7,6 +7,10 @@ namespace :dc do
     Rake::Task['dc:code:validate:bundle_audit'].reenable
     puts '----------'
 
+    Rake::Task['dc:code:validate:js_audit'].invoke
+    Rake::Task['dc:code:validate:js_audit'].reenable
+    puts '----------'
+
     Rake::Task['dc:code:validate:brakeman'].invoke
     Rake::Task['dc:code:validate:brakeman'].reenable
     puts '----------'
@@ -17,6 +21,10 @@ namespace :dc do
 
     Rake::Task['dc:external_systems:validate'].invoke
     Rake::Task['dc:external_systems:validate'].reenable
+    puts '----------'
+
+    Rake::Task['dc:jobs:validate'].invoke
+    Rake::Task['dc:jobs:validate'].reenable
     puts '----------'
 
     Rake::Task['dc:templates:validate'].invoke(args.verbose)

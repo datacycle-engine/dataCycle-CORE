@@ -2,6 +2,12 @@
 
 module DataCycleCore
   module Error
+    # Class name plus message, skipping the message when it only repeats the class name. `to_s` and
+    # not `message`, so an overridden `#message` cannot make the reporting path the thing that fails.
+    def self.describe(exception)
+      [exception.class.name, exception.to_s].compact_blank.uniq.join(': ')
+    end
+
     module Api
       class InvalidArgumentError < StandardError
       end
@@ -63,8 +69,27 @@ module DataCycleCore
     class RecordNotFoundError < StandardError
     end
 
+    # error of a forked child process that could not be rebuilt as its original class
+    class ForkedProcessError < StandardError
+    end
+
     module Asset
       class RemoteFileDownloadError < StandardError
+      end
+    end
+
+    # Redmine #51232: merging drops the source's external system and key, and the importer's
+    # ON CONFLICT is partial on live rows -- so the next run recreates the merged-away concept
+    # instead of updating the target. The target can only carry one external identity, so a merge
+    # that would have to pick between two is refused rather than resolved silently.
+    class AmbiguousClassificationExternalSystemError < StandardError
+      attr_reader :source, :target
+
+      def initialize(source, target)
+        @source = source
+        @target = target
+
+        super("cannot merge #{source.id} into #{target.id}: both carry an external system (#{source.external_source_id}/#{source.external_key} and #{target.external_source_id}/#{target.external_key}) and only one can survive")
       end
     end
 
@@ -83,6 +108,8 @@ module DataCycleCore
       end
 
       def message
+        return super if wraps_itself?
+
         message = [original_error.message]
 
         if original_error.try(:response).present?
@@ -109,7 +136,17 @@ module DataCycleCore
       end
 
       def backtrace
+        return super&.take(5) if wraps_itself?
+
         (original_error.try(:backtrace) || super)&.take(5)
+      end
+
+      private
+
+      # defensive: `initialize` falls back to `self` when built without an original error, so both
+      # readers above would delegate to themselves and recurse
+      def wraps_itself?
+        original_error.equal?(self)
       end
     end
 

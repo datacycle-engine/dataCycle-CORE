@@ -20,6 +20,11 @@ module DataCycleCore
           end
         end
 
+        # [#50050] Reference to an ArtificialIntelligenceAgent content: the degree of AI involvement
+        # (external_key or uri of a concept of 'ODTA - AI-DegreeOfInvolvement') and, optionally, the
+        # agent's name. Resolved - and created if needed - by AiAgentService.
+        AiAgentReference = Struct.new(:degree, :name)
+
         def self.add_external_content_references(data, property_name, external_source_id, key_resolver)
           add_reference(data, property_name, key_resolver) do |key|
             ExternalReference.new(:content, external_source_id, key)
@@ -74,6 +79,35 @@ module DataCycleCore
           end
         end
 
+        # Links the AI agent of the delivered degree of AI involvement, so imported contents carry
+        # their AI marking (e.g. Feratel's isAiGenerated, Contwise' aiGenerated, TTG's
+        # AiOptimizedImage). References already present on the property are kept.
+        #
+        # @param degree_resolver [Proc, Array<String>] resolves the degree of involvement
+        #   (odta:AIInvolved, odta:AIGenerated, odta:AIModified); blank values add no reference
+        # @param name_resolver [Proc, Array<String>, nil] optionally resolves the agent's name, for
+        #   suppliers that name their AI agent themselves. Paired with the degree at the same
+        #   position, unless it resolves a single name for the whole record - that one names every
+        #   degree, so a Proc does not have to repeat itself per degree.
+        # @param property_name [String] the linked property to add the agent to; 'contributor' is
+        #   where images and creative works carry it, override it only for a template that differs
+        def self.add_ai_agent_references(data, degree_resolver, name_resolver = nil, property_name = 'contributor')
+          names = name_resolver.present? ? get_reference(data, name_resolver, &:itself) : []
+          # Paired by position, blank degrees dropped only afterwards: resolve_attribute_path plucks a
+          # key missing from one item as nil, so both paths keep their positions.
+          # A single resolved name names every degree - one agent at several degrees, not a pairing.
+          # By size, not one?: one? counts truthy entries and would broadcast over a delivered blank.
+          references = get_reference(data, degree_resolver, &:itself).each_with_index.filter_map do |degree, index|
+            next if degree.blank?
+
+            AiAgentReference.new(degree, (names.size == 1 ? names.first : names[index]).presence)
+          end
+
+          return data if references.blank?
+
+          data.merge({ property_name => Array.wrap(data[property_name]) + references })
+        end
+
         def self.get_reference(data, key_resolver, &)
           reference_keys = if key_resolver.respond_to?(:to_proc)
                              Array.wrap(key_resolver.to_proc.call(data)) || []
@@ -101,13 +135,14 @@ module DataCycleCore
           classification_path_mapping_table = create_classification_path_mapping_table(collected_references)
           classification_uri_mapping_table = create_classification_uri_mapping_table(collected_references)
           classification_mapping_table = classification_path_mapping_table.merge(classification_uri_mapping_table)
+          ai_agent_mapping_table = create_ai_agent_mapping_table(collected_references)
 
-          replace_references(data, external_reference_mapping_table, classification_mapping_table)
+          replace_references(data, external_reference_mapping_table, classification_mapping_table, ai_agent_mapping_table)
         end
 
         def self.collect_references(data)
           case data
-          when ExternalReference, ClassificationNameReference, ClassificationUriReference
+          when ExternalReference, ClassificationNameReference, ClassificationUriReference, AiAgentReference
             data
           when Hash
             data.values.map { |v| collect_references(v) }.flatten
@@ -148,7 +183,15 @@ module DataCycleCore
           )
         end
 
-        def self.replace_references(data, external_reference_mapping_table, classification_mapping_table)
+        # The agents are created while the mapping table is built, as they are reference data
+        # every importer links to (#50050).
+        def self.create_ai_agent_mapping_table(collected_references)
+          DataCycleCore::AiAgentService.mapping_table(collected_references.grep(AiAgentReference))
+        end
+
+        # No default for the agent table: the three-argument form would drop every AiAgentReference
+        # silently, and a lost AI marking has to fail loudly instead.
+        def self.replace_references(data, external_reference_mapping_table, classification_mapping_table, ai_agent_mapping_table)
           case data
           when ExternalReference
             external_reference_mapping_table.dig(data.reference_type, data.external_source_id, data.external_key&.to_s)
@@ -156,10 +199,12 @@ module DataCycleCore
             classification_mapping_table[data.classification_path&.map(&:to_s)]
           when ClassificationUriReference
             classification_mapping_table[data.uri&.to_s]
+          when AiAgentReference
+            ai_agent_mapping_table[data]
           when Hash
-            data.transform_values { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }
+            data.transform_values { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table, ai_agent_mapping_table) }
           when Array
-            data.filter_map { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }.uniq
+            data.filter_map { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table, ai_agent_mapping_table) }.uniq
           else
             data
           end

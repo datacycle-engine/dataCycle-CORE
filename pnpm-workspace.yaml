@@ -1,2 +1,34 @@
 shamefullyHoist: true
 storeDir: /tmp/pnpm/store
+minimumReleaseAge: 10080 # 1 week
+# our GitLab package registry omits the "time" field that minimumReleaseAge requires.
+# Drop this once gitlab-org/gitlab#585659 ships.
+minimumReleaseAgeExclude:
+  - '@data-cycle/*'
+# fabric (via tui-image-editor) declares canvas + jsdom as optionalDependencies for
+# its Node.js/SSR mode only; its own `browser` field maps both to `false`, so they
+# never enter the bundle. Skipping them drops their vulnerable transitive trees
+# (canvas > @mapbox/node-pre-gyp > tar, jsdom > request > form-data/qs/tough-cookie).
+ignoredOptionalDependencies:
+  - canvas
+  - jsdom
+overrides:
+  # nanoid "custom generators can loop indefinitely when size is zero"
+  # (GHSA-2v37-7h3g-55p8, high, fixed in 3.3.18). It reaches us only transitively, as
+  # vite > postcss > nanoid. postcss declares `nanoid: ^3.3.17`, so the patched release
+  # already satisfies it and pnpm simply keeps the version it locked first — `pnpm update
+  # nanoid --depth Infinity` is a no-op here. This override lifts the floor instead of
+  # pinning a version, so patch releases keep flowing, and it is scoped to the 3.x line so
+  # the direct nanoid@^5 dependency resolves untouched.
+  # Drop it once postcss requires >= 3.3.18 itself.
+  nanoid@3: ^3.3.18
+auditConfig:
+  ignoreGhsas:
+    # fabric "Stored XSS via SVG Export" — not reachable in our integration and not
+    # fixable by a version bump: tui-image-editor@3.15.3 requires fabric@^4.2.0 and
+    # *bundles* fabric 4.6.0 into its own dist, so an override would silence the
+    # audit without changing the shipped code. The vulnerability lives in fabric's
+    # SVG serialization; image_editor.js only ever exports raster
+    # (setFileFormat coerces to jpeg/png) and never calls toSVG/loadSVGFrom*.
+    # Real remediation is replacing the unmaintained tui-image-editor.
+    - GHSA-hfvx-25r5-qc3w

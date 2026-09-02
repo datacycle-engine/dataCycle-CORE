@@ -1,0 +1,40 @@
+<% identifier = SecureRandom.hex(10) %>
+
+<li class="ai-lector-row <%= category %>">
+  <button
+    type="button"
+    id="<%= identifier %>"
+    class="ai-lector-button ai-lector-improvement-button"
+    data-template-name="<%= content.template_name %>"
+    data-content-id="<%= content.id %>"
+    data-tip-key="<%= k %>"
+    data-key="<%= key %>"
+    data-identifier="<%= identifier %>"
+    data-prompt-type="improvement"
+    data-locale="<%= I18n.locale %>"
+  >
+    <i class="fa <%= icon %> ai-lector-button-icon" aria-hidden="true"></i>
+    <span class="ai-lector-button-label"><%= t("feature.ai_lector.improvements.#{k}", default: k, locale: active_ui_locale) %></span>
+  </button>
+
+  <%= turbo_frame_tag("#{identifier}-context-overlay", loading: 'lazy',
+    src: remote_render_path(
+      options: { overlay_id: "#{identifier}-context-overlay", key: k, classification_tree_label: v[:classification_tree_label], locale: I18n.locale }.to_json,
+      partial: 'data_cycle_core/contents/editors/features/ai_lector_context_frame'
+    ),
+    class: 'ai-lector-context-overlay reveal', data: { reveal: true }) if v[:allow_direct_user_input] %>
+
+  <%= turbo_frame_tag("#{identifier}-diff-overlay", loading: 'lazy',
+    src: remote_render_path(
+      options: { overlay_id: "#{identifier}-diff-overlay", identifier:, allow_feedback_loop: v[:allow_feedback_loop] }.to_json,
+      partial: 'data_cycle_core/contents/editors/features/ai_lector_diff_frame'
+    ),
+    class: 'ai-lector-diff-overlay reveal', data: { reveal: true }) %>
+
+  <%= turbo_frame_tag("#{identifier}-finetune-overlay", loading: 'lazy',
+    src: remote_render_path(
+      options: { overlay_id: "#{identifier}-finetune-overlay" }.to_json,
+      partial: 'data_cycle_core/contents/editors/features/ai_lector_finetune_frame'
+    ),
+    class: 'ai-lector-finetune-overlay reveal', data: { reveal: true }) if v[:allow_feedback_loop] %>
+</li>

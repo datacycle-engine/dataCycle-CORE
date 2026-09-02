@@ -23,6 +23,23 @@ module DataCycleCore
     attribute :parameters, :'stored_filter/parameters'
 
     attr_accessor :query, :include_embedded
+    # Resolved user filters (see FilterParamsHashParser#apply_user_filter), applied live on top of the
+    # (cached or live) base query. Kept out of the persisted `parameters`: writing them there would flip
+    # `parameters_changed?` and disable the query cache (see Cachable#cached_result?). Never persisted.
+    attr_writer :user_filter_parameters
+
+    # Resolved user filters (never nil), defaulting to an empty array so callers can freely `+`/`push`.
+    def user_filter_parameters
+      @user_filter_parameters ||= []
+    end
+
+    # The effective filter set: base `parameters` plus the resolved user filters. Used only to render the
+    # dashboard filter chips (see FilterConcern#get_filtered_results) - a read-only view, never persisted.
+    # `apply_specific_user_filter` already dedups `user_filter_parameters` against `parameters`, so a plain
+    # concatenation introduces no duplicates.
+    def parameters_with_user_filters
+      parameters.to_a + user_filter_parameters
+    end
 
     API_V4_TYPE = 'dc:DynamicCollection'
     KEYS_FOR_TYPE_EQUALITY = ['t', 'c', 'n', 'q'].freeze
@@ -35,6 +52,11 @@ module DataCycleCore
       'filter_ids', 'not_filter_ids',
       'union_filter_ids', 'not_union_filter_ids'
     ].freeze
+    # Filter parameter types related to classifications (used by .used_by_classification to find the
+    # stored filters affected by a classification). Derived from Filter::Common::Classification's public
+    # methods instead of duplicated by hand, so a newly added classification filter type is picked up
+    # automatically instead of silently missing from the classification-usage check.
+    CLASSIFICATION_FILTER_TYPES = DataCycleCore::Filter::Common::Classification.instance_methods(false).map(&:to_s).sort.freeze
 
     # Only validate when the parameters actually changed: a self-reference can only live in
     # `parameters`, so re-scanning on unrelated updates (e.g. a name change) would needlessly cost
@@ -44,10 +66,25 @@ module DataCycleCore
     after_destroy :drop_sql_representation!
     after_save :sync_sql_representation!, if: :sql_representation_update_needed?
 
+    # Return the things of this filter without any ordering.
+    #
+    # `apply_order_parameters!` always applies a sort - it falls back to the default one - so every
+    # consumer that treats the result as a set has to strip it again: `SELECT DISTINCT` next to an
+    # ORDER BY expression that is not in the select list is rejected by Postgres (a filter sorted by
+    # name orders by `thing_translations.content ->> 'name'`), `find_in_batches` discards the order
+    # with a warning, and for a membership check the sort is pure overhead.
+    #
+    # WatchList answers the same message, so a collection of either type can be used interchangeably.
+    #
+    # @return [ActiveRecord::Relation]
+    def unsorted_things(**)
+      things(skip_ordering: true, **).except(:order)
+    end
+
     # Return the list of thing ids that match this stored filter.
     def thing_ids
       clear_thing_cache! if parameters_changed? && !new_record?
-      @thing_ids ||= things(skip_ordering: true).except(:order).pluck(:id)
+      @thing_ids ||= unsorted_things.pluck(:id)
     end
 
     # Return the list of thing ids for nested queries.
@@ -179,7 +216,7 @@ module DataCycleCore
 
       filter.readonly!
 
-      duplicate_count = filter.apply(skip_ordering: true).query.reorder(nil).size
+      duplicate_count = filter.unsorted_things.size
 
       return {} if duplicate_count.zero?
 
@@ -244,6 +281,78 @@ module DataCycleCore
 
         Array.wrap(filter['v']).grep(String)
       }.uniq
+    end
+
+    # Every named stored filter that uses the given classification_alias id or classification_tree_label
+    # id as a filter criterion - directly, or indirectly through another stored filter that includes
+    # it (see SELF_REFERENCE_FILTER_TYPES).
+    #
+    # The whole affected subtree is included: for a classification_alias, its descendants (a subtree
+    # filter on a parent also matches content in its children, and deleting a classification deletes
+    # its descendants too); for a classification_tree_label, every alias in that tree (deleting the
+    # tree deletes them all). So a saved search referencing any of those is reported as well.
+    #
+    # Returns a Hash of StoredFilter => direct (Boolean): true if the filter references one of the ids
+    # itself, false if it only does so through a nested filter.
+    #
+    # Perf (#43524): matching cannot be done with one `ILIKE ANY (ARRAY[<id + descendants>])` per id -
+    # a classification can have thousands of descendants and EXPLAIN ANALYZE showed Postgres abandons
+    # the trigram index once the pattern list gets that large, falling back to a sequential scan (18s+).
+    # CLASSIFICATION_FILTER_TYPES and SELF_REFERENCE_FILTER_TYPES are small, fixed sets of type names,
+    # so instead the candidate filters (those using a classification / a nested-filter reference) are
+    # each fetched once via those few, index-friendly patterns and matched/traversed in memory.
+    def self.used_by_classification(id)
+      return {} if id.blank?
+
+      # Array#intersect? requires an Array argument - classification_usage_target_ids returns a Set.
+      target_ids = classification_usage_target_ids(id).to_a
+
+      classification_patterns = CLASSIFICATION_FILTER_TYPES.map { |type| %(%"t": "#{type}"%) }
+      direct_ids = where('parameters::TEXT ILIKE ANY (ARRAY[?])', classification_patterns)
+        .pluck(:id, :parameters)
+        .filter_map { |filter_id, parameters| filter_id if Array.wrap(parameters).any? { |f| f.is_a?(::Hash) && Array.wrap(f['v']).intersect?(target_ids) } }
+
+      connector_patterns = SELF_REFERENCE_FILTER_TYPES.map { |type| %(%"t": "#{type}"%) }
+      reference_graph = where('parameters::TEXT ILIKE ANY (ARRAY[?])', connector_patterns)
+        .pluck(:id, :parameters)
+        .to_h { |filter_id, parameters| [filter_id, referenced_stored_filter_ids(parameters)] }
+
+      found_ids = direct_ids.to_set
+      frontier = direct_ids
+
+      until frontier.empty?
+        next_level = reference_graph.filter_map { |filter_id, referenced_ids| filter_id if found_ids.exclude?(filter_id) && referenced_ids.intersect?(frontier) }
+        break if next_level.empty?
+
+        found_ids.merge(next_level)
+        frontier = next_level
+      end
+
+      return {} if found_ids.empty?
+
+      direct_set = direct_ids.to_set
+      where(id: found_ids.to_a).named.index_with { |filter| direct_set.include?(filter.id) }
+    end
+
+    # The classification_alias or classification_tree_label behind a .used_by_classification id, or
+    # nil if it no longer exists. Shared by classification_usage_target_ids below and the
+    # classification-usage chip on the saved-searches page (see StoredFiltersController#saved_searches).
+    def self.classification_usage_record(id)
+      DataCycleCore::ClassificationAlias.where(id:).first || DataCycleCore::ClassificationTreeLabel.where(id:).first
+    end
+
+    # The set of ids whose usage counts as "using" the given classification: the id itself plus the
+    # whole subtree it owns. For a classification_alias that is its descendant alias ids; for a
+    # classification_tree_label it is every alias id in that tree. An unknown id resolves to itself.
+    def self.classification_usage_target_ids(id)
+      case (record = classification_usage_record(id))
+      when DataCycleCore::ClassificationAlias
+        [id] + record.descendants.ids
+      when DataCycleCore::ClassificationTreeLabel
+        [id] + record.classification_aliases.ids
+      else
+        [id]
+      end.to_set
     end
 
     # Whether this filter references itself, directly or transitively: following its relation/filter_ids

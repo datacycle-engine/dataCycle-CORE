@@ -5,34 +5,23 @@ classification_aliases = content.send(key)&.includes(:classification_aliases)&.m
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 
 if classification_aliases.present?
-  json.set! key_new, classification_aliases.map { |classification_alias|
-    case classification_alias.internal_name
-    when 'Januar'
-      1
-    when 'Februar'
-      2
-    when 'März'
-      3
-    when 'April'
-      4
-    when 'Mai'
-      5
-    when 'Juni'
-      6
-    when 'Juli'
-      7
-    when 'August'
-      8
-    when 'September'
-      9
-    when 'Oktober'
-      10
-    when 'November'
-      11
-    when 'Dezember'
-      12
-    else
-      classification_alias.name
-    end
-  }&.sort
+  month_numbers = {
+    'Januar' => 1,
+    'Februar' => 2,
+    'März' => 3,
+    'April' => 4,
+    'Mai' => 5,
+    'Juni' => 6,
+    'Juli' => 7,
+    'August' => 8,
+    'September' => 9,
+    'Oktober' => 10,
+    'November' => 11,
+    'Dezember' => 12
+  }
+
+  mapped = classification_aliases.map { |classification_alias| month_numbers[classification_alias.internal_name] || classification_alias.name }
+  months, other = mapped.partition { |month| month.is_a?(Integer) }
+
+  json.set! key_new, months.sort + other.sort
 end

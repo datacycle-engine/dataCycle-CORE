@@ -87,6 +87,12 @@
             :disabled: true
         :api:
           :minimal: true
+      :thumbnail_image:
+        :label: Vorschaubild
+        :type: linked
+        :template_name: Bild
+        :api:
+          :name: thumbnail
       :thumbnail_url:
         :label: Thumbnail URL
         :type: string
@@ -95,6 +101,10 @@
           :module: Utility::Compute::Pdf
           :method: thumbnail_url
           :parameters:
+            # the linked "Vorschaubild" wins (same precedence as its own thumbnailUrl in the api),
+            # the preview rendered from the pdf is only the fallback
+            - thumbnail_image.virtual_thumbnail_url
+            - thumbnail_image.thumbnail_url
             - asset
         :ui:
           :show:
@@ -103,6 +113,24 @@
             :disabled: true
         :api:
           :minimal: true
+      :preview_url:
+        :label: Preview URL
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Pdf
+          :method: preview_url
+          # stays the page rendered from the pdf — no linked parameter here, otherwise
+          # thumbnailUrl and dc:previewUrl would be identical again (#50159)
+          :parameters:
+            - asset
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :name: "dc:previewUrl"
       :width:
         :label: Breite
         :type: number

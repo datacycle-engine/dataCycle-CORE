@@ -61,6 +61,9 @@ module DataCycleCore
             render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && return
           end
 
+          # apply forced api_linked user filters (e.g. hide closed-data linked contents) to a single content, too
+          @linked_stored_filter = linked_stored_filter
+
           renderer = DataCycleCore::ApiRenderer::ThingRendererV4.new(
             content: @content,
             request_method: request.request_method,
@@ -242,16 +245,6 @@ module DataCycleCore
         end
 
         private
-
-        # Enforce the caller's api-scope visibility (StoredFilter user filters) on a single content fetched
-        # by id. No-op when the user has no api-scope filters: apply_user_filter then leaves the query
-        # unscoped so the exists? check would always pass, and is skipped to avoid a needless query (DC-14).
-        def authorize_api_content!(content)
-          api_user_filter = DataCycleCore::StoredFilter.new.apply_user_filter(current_user, { scope: 'api' })
-          return if api_user_filter.parameters.blank?
-
-          raise CanCan::AccessDenied unless api_user_filter.things(skip_ordering: true).exists?(id: content.id)
-        end
 
         def thing_renderer_v4_params
           DataCycleCore::ApiRenderer::ThingRendererV4::JSON_RENDER_PARAMS

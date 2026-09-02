@@ -1,0 +1,56 @@
+---
+- :data:
+    :name: Vererbte Sprachen
+    :type: object
+    :schema_ancestors:
+      - CreativeWork
+    :content_type: entity
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :inherited_reference:
+        :label: Referenz
+        :type: linked
+        :template_name: Artikel
+        :validations:
+          :max: 1
+        :features:
+          :locale_inheritance:
+            :allowed: true
+      # inherits its locales too, but feeds no computed value
+      :secondary_reference:
+        :label: Zweite Referenz
+        :type: linked
+        :template_name: Artikel
+        :validations:
+          :max: 1
+        :features:
+          :locale_inheritance:
+            :allowed: true
+      # linked, but not inheriting: neither its locales nor its changes reach the inheritance
+      :plain_reference:
+        :label: Dritte Referenz
+        :type: linked
+        :template_name: Artikel
+        :validations:
+          :max: 1
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :compute:
+          :module: Common
+          :method: attribute_value_by_first_match
+          :fallback: false
+          :value:
+            - :attribute: inherited_reference.name
+          :parameters:
+            - inherited_reference
+      :meta_data:
+        :type: mixin
+        :name: meta_data

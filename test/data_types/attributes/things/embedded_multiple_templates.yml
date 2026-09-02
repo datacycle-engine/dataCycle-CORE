@@ -6,7 +6,17 @@
     :schema_ancestors:
       - CreativeWork
     :boost: 1.0
+    # The APIv4 push refuses to create a template nobody may create, which would stop a push test
+    # before it ever reaches the embedded slot. Real hosts of a multi-template slot are creatable.
+    :features:
+      :creatable:
+        :allowed: true
     :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
       :id:
         :label: id
         :type: key

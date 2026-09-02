@@ -284,8 +284,6 @@ export default class AiLectorImprovementButton extends AiLectorTipButton {
 	requestBody() {
 		return Object.assign({}, super.requestBody(), {
 			content_id: this.contentId,
-			selected_content_ids: this.selectedContentIds || [],
-			selected_property_data: this.selectedPropertyData || [],
 		});
 	}
 
@@ -293,10 +291,22 @@ export default class AiLectorImprovementButton extends AiLectorTipButton {
 		event.preventDefault();
 		event.stopImmediatePropagation();
 
-		const textarea = this.contextModal.querySelector(
-			".ai-lector-context-textarea",
+		// Free-text improvements render a textarea; targeting improvements render a
+		// classification <select> instead. Both expose the chosen context via .value.
+		const contextField = this.contextModal.querySelector(
+			".ai-lector-context-textarea, .ai-lector-context-select",
 		);
-		this.promptContext = textarea.value.trim();
+		const value = contextField?.value?.trim() ?? "";
+
+		// Required fields (the targeting classification pickers) must not submit
+		// empty. Native form validation normally blocks the submit before we get
+		// here; this guard also covers the case where that validation is bypassed.
+		if (contextField?.required && !value) {
+			contextField.reportValidity?.();
+			return;
+		}
+
+		this.promptContext = value;
 		this.state.transition("load");
 	}
 

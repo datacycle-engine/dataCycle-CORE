@@ -25,6 +25,25 @@
   </li>
 <% end %>
 
+<% if can?(:index, DataCycleCore::StoredFilter) %>
+  <li>
+    <button type="button" class="stored-filter-usage-button" data-open="stored-filter-usage-reveal-<%= concept_scheme.id %>">
+      <i class="fa fa-search icon"></i>
+      <span class="text"><%= t('classification_administration.stored_filter_usage.link_title', locale: active_ui_locale) %></span>
+    </button>
+
+    <div id="stored-filter-usage-reveal-<%= concept_scheme.id %>" class="reveal stored-filter-usage-reveal" data-reveal>
+      <div class="reveal-header"><%= t('classification_administration.stored_filter_usage.link_title', locale: active_ui_locale) %></div>
+
+      <%= turbo_frame_tag "stored-filter-usage-#{concept_scheme.id}", class: 'stored-filter-usage-frame', src: stored_filter_usage_classifications_path(id: concept_scheme.id), loading: 'lazy' %>
+
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </li>
+<% end %>
+
 <% if can?(:link_contents, concept_scheme) %>
   <li>
     <button type="button" class="concept-scheme-link-button" data-open="concept-scheme-link-reveal-<%= concept_scheme.id %>">

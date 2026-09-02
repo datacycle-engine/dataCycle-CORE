@@ -3,8 +3,8 @@
 module DataCycleCore
   module Webhook
     class Deploy < Base
-      def self.execute_all(data)
-        Base.execute_all(data, 'deploy')
+      def self.execute_all(data, external_system_id: nil)
+        Base.execute_all(data, 'deploy', external_system_id:)
       end
 
       def self.deployable?(data)

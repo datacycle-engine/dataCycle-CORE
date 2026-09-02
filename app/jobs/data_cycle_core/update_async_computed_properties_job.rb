@@ -2,17 +2,9 @@
 
 module DataCycleCore
   class UpdateAsyncComputedPropertiesJob < UniqueApplicationJob
-    PRIORITY = 10
-
     queue_as :cache_invalidation
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      "#{arguments[0]}-#{Array.wrap(arguments[1]).join('_')}-#{arguments[2]}"
-    end
+    queue_with_priority 10
+    limits_concurrency key: ->(*args) { "#{args[0]}/#{Array.wrap(args[1]).join(',')}/#{args[2]}" }
 
     def perform(id, keys, locale = nil)
       return if keys.blank?

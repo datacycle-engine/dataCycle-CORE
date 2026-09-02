@@ -7,6 +7,11 @@
       - CreativeWork
     :boost: 100.0
     :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
       :id:
         :label: id
         :type: key
@@ -18,6 +23,10 @@
       :series:
         :label: Messdaten
         :type: timeseries
+      :series_collapsed:
+        :label: Messdaten (redundante Werte entfernt)
+        :type: timeseries
+        :collapse_redundant_values: true
       :series_first:
         :label: first
         :type: number
@@ -74,3 +83,27 @@
           :module: Utility::Virtual::Timeseries
           :method: avg
           :data: series
+      :series_collapsed_count:
+        :label: count (collapsed)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Timeseries
+          :method: count
+          :data: series_collapsed
+      :series_collapsed_sum:
+        :label: sum (collapsed)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Timeseries
+          :method: sum
+          :data: series_collapsed
+      :series_collapsed_avg:
+        :label: avg (collapsed)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Timeseries
+          :method: avg
+          :data: series_collapsed

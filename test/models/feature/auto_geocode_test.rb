@@ -23,6 +23,12 @@ unless DataCycleCore::Feature['Geocode']
         def self.target_key(content = nil)
           configuration(content)['target_key']
         end
+
+        # mirrors Datacycle::Feature::Geocode::Base: AutoGeocode delegates the "is this address precise
+        # enough" heuristic here, so the stub has to answer it too.
+        def self.street_address_with_house_number?(street_address)
+          street_address.to_s.match?(/\d/)
+        end
       end
     end
   end
@@ -46,6 +52,9 @@ module DataCycleCore
       'postal_code' => '6900',
       'address_locality' => 'Bregenz'
     }.freeze
+    # street without a house number: the geocoder would answer with a street/village centroid, which
+    # the customer explicitly rejected (#45442) -> must be treated as insufficient
+    ADDRESS_WITHOUT_HOUSE_NUMBER = ADDRESS.merge('street_address' => 'Hauptplatz').freeze
 
     # minimal host to exercise the post-save hook in isolation (without booting the whole Thing save
     # lifecycle). The hook's per-content decisions (#queue_geocoding? etc.) are now instance methods,
@@ -165,6 +174,171 @@ module DataCycleCore
       assert_not tour.geocodable?
     end
 
+    # --- sufficient_address? (only geocode addresses that yield a meaningful position) -------
+
+    test 'sufficient_address? accepts a street-level address' do
+      assert DataCycleCore::Feature::AutoGeocode.sufficient_address?(ADDRESS)
+    end
+
+    test 'sufficient_address? rejects a street without a house number' do
+      assert_not DataCycleCore::Feature::AutoGeocode.sufficient_address?(ADDRESS_WITHOUT_HOUSE_NUMBER)
+    end
+
+    test 'sufficient_address? rejects an address without a street' do
+      assert_not DataCycleCore::Feature::AutoGeocode.sufficient_address?(ADDRESS.except('street_address'))
+    end
+
+    test 'sufficient_address? rejects an address without postal code or locality' do
+      assert_not DataCycleCore::Feature::AutoGeocode.sufficient_address?(ADDRESS.except('postal_code'))
+      assert_not DataCycleCore::Feature::AutoGeocode.sufficient_address?(ADDRESS.except('address_locality'))
+    end
+
+    # --- auto_geocode_needed? --------------------------------------------------------------
+
+    test 'auto_geocode_needed? is true for a geocodable content with a sufficient address and no coordinates' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Needed Yes', address: ADDRESS })
+
+      assert_predicate content, :auto_geocode_needed?
+    end
+
+    test 'auto_geocode_needed? is false without an address' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Needed No Address' })
+
+      assert_not content.auto_geocode_needed?
+    end
+
+    test 'auto_geocode_needed? is false for an address that yields no meaningful position' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Needed Imprecise', address: ADDRESS_WITHOUT_HOUSE_NUMBER })
+
+      assert_not content.auto_geocode_needed?
+    end
+
+    test 'auto_geocode_needed? is false when authoritative coordinates already exist' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Needed Has Coords', address: ADDRESS, location: sample_point })
+
+      assert_not content.auto_geocode_needed?
+    end
+
+    test 'auto_geocode_needed? is false for a content whose template does not opt in' do
+      content = create_content(NON_GEOCODABLE_TEMPLATE, { name: 'Needed Not Allowed' })
+
+      assert_not content.auto_geocode_needed?
+    end
+
+    # --- scope of auto-geocodable content (used by the backfill task / data migration) -------
+
+    test 'allowed_template_names lists the opted-in templates and auto_geocodable_things scopes to them' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Scoped Place', address: ADDRESS })
+      tour = create_content(NON_GEOCODABLE_PLACE_TEMPLATE, { name: 'Scoped Tour' })
+
+      template_names = DataCycleCore::Feature::AutoGeocode.allowed_template_names
+
+      assert_includes template_names, content.template_name
+      assert_not_includes template_names, tour.template_name
+
+      things = DataCycleCore::Feature::AutoGeocode.auto_geocodable_things
+
+      assert_includes things.pluck(:id), content.id
+      assert_not_includes things.pluck(:id), tour.id
+    end
+
+    test 'backfill enqueues only the contents that need geocoding and counts the rest by reason' do
+      needed = create_content(GEOCODE_TEMPLATE, { name: 'Backfill Needed', address: ADDRESS })
+      imprecise = create_content(GEOCODE_TEMPLATE, { name: 'Backfill Imprecise', address: ADDRESS_WITHOUT_HOUSE_NUMBER })
+      done = create_content(GEOCODE_TEMPLATE, { name: 'Backfill Done', address: ADDRESS, location: sample_point })
+      contents = DataCycleCore::Thing.where(id: [needed.id, imprecise.id, done.id])
+
+      stats = nil
+      enqueued = capture_perform_later do
+        stats = DataCycleCore::Feature::AutoGeocode.backfill(contents)
+      end
+
+      assert_equal [[needed.id]], enqueued
+      assert_equal 1, stats[:needed]
+      assert_equal 1, stats[:insufficient_address]
+      assert_equal 1, stats[:has_coordinates]
+      assert_equal 0, stats[:errors]
+      assert_includes DataCycleCore::Feature::AutoGeocode.backfill_summary(stats), '3 contents checked'
+    end
+
+    test 'backfill does not re-enqueue content it already geocoded, but the hook still refreshes it' do
+      create_auto_geocoded_tag
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Backfill Already Geocoded', address: ADDRESS })
+      stub_geocode_address(sample_point) { content.auto_geocode! }
+      content.reload
+
+      assert_equal :refreshable, content.auto_geocode_status
+      assert content.queue_geocoding?(['address']), 'an address change must still refresh coordinates we own'
+
+      stats = nil
+      enqueued = capture_perform_later do
+        stats = DataCycleCore::Feature::AutoGeocode.backfill(DataCycleCore::Thing.where(id: content.id))
+      end
+
+      assert_empty enqueued, 'the backfill fills gaps; it must not re-geocode what it already geocoded'
+      assert_equal 1, stats[:refreshable]
+    end
+
+    test 'backfill re-raises a database error instead of swallowing it' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Backfill DB Error', address: ADDRESS })
+
+      # A failed statement leaves a surrounding transaction unusable (the backfill also runs from a
+      # data migration), so counting it as one content's error would make every later query fail with
+      # PG::InFailedSqlTransaction and hide the real cause.
+      stub_perform_later_raising(ActiveRecord::StatementInvalid.new('PG::UndefinedTable')) do
+        assert_raises ActiveRecord::StatementInvalid do
+          DataCycleCore::Feature::AutoGeocode.backfill(DataCycleCore::Thing.where(id: content.id))
+        end
+      end
+    end
+
+    test 'backfill counts a non-database error per content and logs it, keeping the batch going' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Backfill Soft Error', address: ADDRESS })
+      log = []
+      logger = Object.new
+      logger.define_singleton_method(:error) { |message| log << message }
+
+      stats = stub_perform_later_raising(RuntimeError.new('boom')) do
+        DataCycleCore::Feature::AutoGeocode.backfill(DataCycleCore::Thing.where(id: content.id), logger:)
+      end
+
+      assert_equal 1, stats[:errors]
+      assert_equal 1, log.size
+      assert_includes log.first, content.id
+      assert_includes log.first, 'boom'
+    end
+
+    test 'backfill in dry_run mode counts without enqueuing' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Backfill Dry', address: ADDRESS })
+      contents = DataCycleCore::Thing.where(id: content.id)
+
+      stats = nil
+      enqueued = capture_perform_later do
+        stats = DataCycleCore::Feature::AutoGeocode.backfill(contents, dry_run: true)
+      end
+
+      assert_empty enqueued
+      assert_equal 1, stats[:needed]
+      assert_includes DataCycleCore::Feature::AutoGeocode.backfill_summary(stats, dry_run: true), 'would be enqueued'
+    end
+
+    test 'backfill counts the enqueues the queue accepted, not the duplicates it dropped' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Backfill Duplicate', address: ADDRESS })
+
+      # AutoGeocodeThingJob is a UniqueApplicationJob: for a content that already has a duplicate
+      # waiting, abort_if_queued throws :abort and perform_later answers false instead of a job
+      stats = stub_perform_later_returning(false) do
+        DataCycleCore::Feature::AutoGeocode.backfill(DataCycleCore::Thing.where(id: content.id))
+      end
+      summary = DataCycleCore::Feature::AutoGeocode.backfill_summary(stats)
+
+      assert_equal 1, stats[:needed]
+      assert_equal 0, stats[:enqueued]
+      assert_includes summary, '1 contents checked'
+      assert_includes summary, '0 enqueued'
+      assert_includes summary, '1 already had a job queued'
+    end
+
     # --- queue_geocoding? decision ---------------------------------------------------------
 
     test 'queues geocoding when the address changed and no coordinates exist yet' do
@@ -183,6 +357,13 @@ module DataCycleCore
       content = create_content(GEOCODE_TEMPLATE, { name: 'Restaurant C', address: ADDRESS })
 
       assert_not content.queue_geocoding?(['name'])
+    end
+
+    test 'does not queue geocoding for an address that yields no meaningful position' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Restaurant Imprecise', address: ADDRESS_WITHOUT_HOUSE_NUMBER })
+
+      assert_not content.queue_geocoding?(['address']),
+                 'an address the geocoder could only answer with a street/village centroid must not even be queued'
     end
 
     # --- auto_geocode! ---------------------------------------------------------------------
@@ -217,6 +398,16 @@ module DataCycleCore
 
     test 'auto_geocode! does nothing when the address is incomplete' do
       content = create_content(GEOCODE_TEMPLATE, { name: 'Restaurant Incomplete', address: { 'address_locality' => 'Bregenz' } })
+
+      stub_geocode_address(sample_point) do
+        assert_not content.auto_geocode!
+      end
+
+      assert_nil content.reload.location
+    end
+
+    test 'auto_geocode! does nothing when the street address carries no house number' do
+      content = create_content(GEOCODE_TEMPLATE, { name: 'Restaurant Centroid', address: ADDRESS_WITHOUT_HOUSE_NUMBER })
 
       stub_geocode_address(sample_point) do
         assert_not content.auto_geocode!
@@ -369,6 +560,27 @@ module DataCycleCore
       end
     end
 
+    # UniqueApplicationJob#abort_if_queued keys off concurrency_key, so without limits_concurrency
+    # the per-content deduplication this feature relies on silently does nothing
+    test 'AutoGeocodeThingJob limits concurrency per content id' do
+      job = DataCycleCore::AutoGeocodeThingJob.new('thing-1')
+
+      assert_equal 'DataCycleCore::AutoGeocodeThingJob/thing-1', job.concurrency_key
+      assert_not_equal job.concurrency_key, DataCycleCore::AutoGeocodeThingJob.new('thing-2').concurrency_key
+    end
+
+    # the priority must live in ActiveJob's attribute, not in an overridden reader, so that
+    # JobExtensions::Callbacks can lower it between retries
+    test 'AutoGeocodeThingJob priority is settable and survives a bump' do
+      job = DataCycleCore::AutoGeocodeThingJob.new('thing-1')
+
+      assert_equal DataCycleCore::AutoGeocodeThingJob::PRIORITY, job.priority
+
+      job.priority += 1
+
+      assert_equal DataCycleCore::AutoGeocodeThingJob::PRIORITY + 1, job.priority
+    end
+
     # --- post-save hook --------------------------------------------------------------------
 
     test 'post-save hook enqueues the job (with the content id) when geocoding is needed' do
@@ -405,6 +617,44 @@ module DataCycleCore
       end
 
       assert_includes enqueued.map(&:first), content.id
+    end
+
+    test 'integration: an import-style save (new_content, no history) enqueues the job exactly once' do
+      ensure_hook_prepended
+
+      content = DataCycleCore::Thing.new(thing_template: DataCycleCore::ThingTemplate.find_by(template_name: GEOCODE_TEMPLATE))
+      content.save!
+
+      enqueued = capture_perform_later do
+        content.set_data_hash(
+          data_hash: { 'name' => 'Imported POI', 'address' => ADDRESS },
+          new_content: true,
+          prevent_history: true,
+          update_search_all: true
+        )
+      end
+
+      assert_includes content.previous_datahash_changes.keys, 'address',
+                      'the watched address key must show up in the diff of a fresh import'
+      assert_equal [[content.id]], enqueued
+    end
+
+    test 'integration: an import-style save with an imprecise address enqueues nothing' do
+      ensure_hook_prepended
+
+      content = DataCycleCore::Thing.new(thing_template: DataCycleCore::ThingTemplate.find_by(template_name: GEOCODE_TEMPLATE))
+      content.save!
+
+      enqueued = capture_perform_later do
+        content.set_data_hash(
+          data_hash: { 'name' => 'Imported POI without house number', 'address' => ADDRESS_WITHOUT_HOUSE_NUMBER },
+          new_content: true,
+          prevent_history: true,
+          update_search_all: true
+        )
+      end
+
+      assert_empty enqueued
     end
 
     test 'integration: clearing coordinates on a real auto-geocoded content removes the tag via the prepended hook (synchronous cleanup)' do
@@ -455,8 +705,8 @@ module DataCycleCore
       geocode.define_singleton_method(:geocode_address, original)
     end
 
-    # records arguments passed to AutoGeocodeThingJob.perform_later (avoids depending on a
-    # specific ActiveJob queue adapter; the app runs DelayedJob, not the :test adapter)
+    # records arguments passed to AutoGeocodeThingJob.perform_later (avoids depending on the queue
+    # adapter the suite happens to run, and on what the job itself does on the way in)
     def capture_perform_later
       calls = []
       job = DataCycleCore::AutoGeocodeThingJob
@@ -464,6 +714,27 @@ module DataCycleCore
       job.define_singleton_method(:perform_later) { |*args| calls << args }
       yield
       calls
+    ensure
+      job.define_singleton_method(:perform_later, original)
+    end
+
+    # makes AutoGeocodeThingJob.perform_later answer a fixed value, to exercise the backfill against
+    # an enqueue that was aborted (false) without building the queue rows that abort it
+    def stub_perform_later_returning(value)
+      job = DataCycleCore::AutoGeocodeThingJob
+      original = job.method(:perform_later)
+      job.define_singleton_method(:perform_later) { |*_args| value }
+      yield
+    ensure
+      job.define_singleton_method(:perform_later, original)
+    end
+
+    # makes AutoGeocodeThingJob.perform_later raise, to exercise the backfill's error handling
+    def stub_perform_later_raising(error)
+      job = DataCycleCore::AutoGeocodeThingJob
+      original = job.method(:perform_later)
+      job.define_singleton_method(:perform_later) { |*_args| raise error }
+      yield
     ensure
       job.define_singleton_method(:perform_later, original)
     end

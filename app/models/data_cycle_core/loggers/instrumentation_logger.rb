@@ -32,9 +32,20 @@ module DataCycleCore
 
             message.push("(Item-ID: #{data[:item_id]})") if data[:item_id].present?
 
-            if data[:exception].present?
-              formatted_backtrace = data[:exception].backtrace.filter { |line| line.exclude?('/bundle') }.join("\n")
-              message.push("(Exception: #{data[:exception]}, Backtrace: #{formatted_backtrace})")
+            # +exception_object+ is Rails' conventional key for the exception itself, and what the
+            # ".active_job" payloads carry (JobExtensions::Callbacks#instrument_error) — there
+            # +exception+ is the conventional [class name, message] pair, which has no backtrace.
+            # The datacycle-namespaced importer payloads predate that split and pass the object under
+            # +exception+ or +error+, so both stay as fallbacks, probed rather than assumed.
+            exception = data[:exception_object] if data[:exception_object].respond_to?(:backtrace)
+            exception = data[:exception] if exception.nil? && data[:exception].present? && data[:exception].respond_to?(:backtrace)
+            exception = data[:error] if exception.nil? && data[:error].present? && data[:error].respond_to?(:backtrace)
+
+            if exception.present?
+              # an exception that was never raised has no backtrace, and the logger must not be the
+              # thing that fails while reporting a failure
+              formatted_backtrace = Array.wrap(exception.backtrace).filter { |line| line.exclude?('/bundle') }.join("\n")
+              message.push("(Exception: #{DataCycleCore::Error.describe(exception)}, Backtrace: #{formatted_backtrace})")
             end
             message = message.join(' ')
           end

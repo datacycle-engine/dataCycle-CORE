@@ -4,20 +4,12 @@ require 'mini_exiftool_vendored'
 
 module DataCycleCore
   class WriteExifDataJob < UniqueApplicationJob
-    PRIORITY = 12
     WEBHOOK_PRIORITY = 6
-
     EXIF_ARRAY_DATA_TYPES = ['Keywords', 'Subject'].freeze
 
     queue_as :cache_invalidation
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      arguments[0]
-    end
+    queue_with_priority 12
+    limits_concurrency key: ->(*args) { args[0] }
 
     def perform(content_id)
       update_exif_values(DataCycleCore::Thing.find(content_id))

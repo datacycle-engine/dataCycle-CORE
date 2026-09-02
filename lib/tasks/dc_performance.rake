@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Benchmark.ms was removed from ActiveSupport in Rails 8.1 and is only available from the
+# benchmark gem, which no longer gets required through activesupport.
+require 'benchmark'
+
 namespace :dc do
   namespace :performance do
     desc 'override some files in project from core templates'

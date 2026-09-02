@@ -27,7 +27,24 @@ module DataCycleCore
         assert_nil log.error(nil, 5, nil, 'boom')   # id-only branch
         assert_nil log.error(nil, nil, nil, 'boom') # generic branch
         assert_nil log.debug('title', 1, { 'a' => 1 })
+        assert_nil log.item_failed(StandardError.new('boom'), nil, 'label', 'ext-1', 'step')
       end
+    end
+
+    # item_failed takes its channel as an argument, so it is not download-only. The subscriber in
+    # config/initializers/instrumentation.rb has to file the line under the kind that emitted it,
+    # the way the job_failed subscriber next to it does -- a hardcoded 'download' wrote an
+    # import-side call into the download log and broadcast it as a download event.
+    test 'item_failed is logged under the kind of the logger that emitted it' do
+      types = []
+
+      DataCycleCore::Loggers::InstrumentationLogger.stub(:with_logger, ->(type:, &_block) { types << type }) do
+        logger.item_failed(StandardError.new('boom'), nil, 'label', 'ext-1', 'step')
+        DataCycleCore::Generic::Logger::Instrumentation.new('download')
+          .item_failed(StandardError.new('boom'), nil, 'label', 'ext-2', 'step')
+      end
+
+      assert_equal ['import', 'download'], types
     end
   end
 end

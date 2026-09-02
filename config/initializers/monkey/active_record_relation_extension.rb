@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 raise 'ActiveRecord::Relation#load is no longer available, check patch!' unless ActiveRecord::Relation.method_defined? :load
+raise 'ActiveRecord::Relation#async_count is no longer available, check patch!' unless ActiveRecord::Relation.method_defined? :async_count
+raise 'ActiveRecord::Relation#references_eager_loaded_tables? is no longer available, check patch!' unless ActiveRecord::Relation.private_method_defined? :references_eager_loaded_tables?
+raise 'ActiveRecord::Promise is no longer available, check patch!' unless defined?(ActiveRecord::Promise)
 
 module DataCycleCore
   module ActiveRecordRelationExtension

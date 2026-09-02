@@ -44,7 +44,7 @@ class ConceptSchemeLinkForm {
 			collection_id: collection_id,
 		};
 	}
-	confirmSubmit(event) {
+	async confirmSubmit(event) {
 		event.preventDefault();
 		event.stopPropagation();
 
@@ -55,14 +55,16 @@ class ConceptSchemeLinkForm {
 		DataCycle.disableElement(this.postSubmitButton);
 		this.clearResult();
 		this.setProgress(0);
-		this.initActionCable(collection_id, concept_scheme_id);
+		await this.initActionCable(collection_id, concept_scheme_id);
 		this.submitData(formData);
 	}
 	submitData(formData) {
+		// the rejection reason must not reach showGenericError — as a key it built
+		// "concept_scheme_link.Error: 401" and rendered that instead of a message
 		DataCycle.httpRequest(this.item.action, {
 			method: this.item.method,
 			body: formData,
-		}).catch(this.showGenericError.bind(this));
+		}).catch(() => this.showGenericError());
 	}
 	showGenericError(key = "error") {
 		I18n.t(`concept_scheme_${this.key}.${key}`).then((t) =>
@@ -70,34 +72,48 @@ class ConceptSchemeLinkForm {
 		);
 		DataCycle.enableElement(this.postSubmitButton);
 	}
-	initActionCable(collection_id, concept_scheme_id) {
-		window.actionCable.then((cable) => {
-			this.subscription = cable.subscriptions.create(
-				{
-					channel: ConceptSchemeLinkForm.#channel,
-					collection_id: collection_id,
-					concept_scheme_id: concept_scheme_id,
-					key: this.key,
-				},
-				{
-					received: (data) => {
-						if (data.type === "error") {
-							return I18n.t(`concept_scheme_${this.key}.error`).then((t) =>
-								showCallout(t, "alert"),
-							);
-						}
+	async initActionCable(collection_id, concept_scheme_id) {
+		const cable = await DataCycle.cable;
+		if (this.subscription) this.subscription.unsubscribe();
 
-						if (data.error) showCallout(data.error, "alert");
+		// ActionCable's own `reconnected` flag is only set when its stale-poll drove the reopen — the one
+		// a visibilitychange triggers looks like a first connect — so recognize a reconnect ourselves
+		let seenConnect = false;
 
-						if (data.finished) this.finishedResult(data);
-						else if (Object.hasOwn(data, "progress"))
-							this.showProgress(data.progress);
-					},
-					disconnected: this.showGenericError.bind(this, "disconnected"),
-					rejected: this.showGenericError.bind(this, "disconnected"),
+		this.subscription = cable.subscriptions.create(
+			{
+				channel: ConceptSchemeLinkForm.#channel,
+				collection_id: collection_id,
+				concept_scheme_id: concept_scheme_id,
+				key: this.key,
+			},
+			{
+				connected: () => {
+					if (seenConnect) this.subscription.perform("resync");
+					seenConnect = true;
 				},
-			);
-		});
+				received: (data) => {
+					if (data.type === "error") {
+						return I18n.t(`concept_scheme_${this.key}.error`).then((t) =>
+							showCallout(t, "alert"),
+						);
+					}
+
+					if (data.error) showCallout(data.error, "alert");
+
+					if (data.finished) this.finishedResult(data);
+					else if (Object.hasOwn(data, "progress"))
+						this.showProgress(data.progress);
+				},
+				// ActionCable reopens the socket for anything from a missed ping to a backgrounded tab
+				// (its own stale check trips on throttled timers) and resubscribes on its own, so only a
+				// drop it will not retry means the run can no longer be followed
+				disconnected: ({ willAttemptReconnect } = {}) => {
+					if (!willAttemptReconnect) this.showGenericError("disconnected");
+				},
+				rejected: this.showGenericError.bind(this, "error"),
+			},
+		);
 	}
 	actionFinished(message, calloutClass = "success") {
 		this.postSubmitText.innerHTML = `<div class="callout ${calloutClass}">${message}</div>`;

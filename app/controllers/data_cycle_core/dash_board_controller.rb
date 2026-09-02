@@ -9,7 +9,7 @@ module DataCycleCore
       @duplicates = nil
       @stat_database = StatsDatabase.new.load_all_stats
       @stats_job_queue = StatsJobQueue.new.job_list
-      @rebuilding_classification_mappings = StatsJobQueue.rebuilding_mappings_jobs.exists?
+      @rebuilding_classification_mappings = SolidQueue::Job.live.exists?(class_name: DataCycleCore::RebuildClassificationMappingsJob.name)
       @grouped_external_systems = DataCycleCore::ExternalSystem.grouped_by_type(@stat_database.import_modules)
     end
 
@@ -18,50 +18,27 @@ module DataCycleCore
     end
 
     def download
-      @external_source = ExternalSystem.find(import_params[:id])
-      job = DownloadJob.new(@external_source.id, import_params[:mode])
-
-      if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
-        flash[:info] = I18n.t('controllers.job.running', locale: helpers.active_ui_locale)
-      else
-        job.enqueue
-        flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
-      end
-
-      respond_to_admin_path_actions
+      enqueue_import_job(DownloadJob)
     end
 
     def import
-      @external_source = ExternalSystem.find(import_params[:id])
-      job = ImportOnlyJob.new(@external_source.id, import_params[:mode])
-
-      if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
-        flash[:info] = I18n.t('controllers.job.running', locale: helpers.active_ui_locale)
-      else
-        job.enqueue
-        flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
-      end
-
-      respond_to_admin_path_actions
+      enqueue_import_job(ImportOnlyJob)
     end
 
     def download_import
-      @external_source = ExternalSystem.find(import_params[:id])
-      job = ImportJob.new(@external_source.id, import_params[:mode])
-
-      if Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil)
-        flash[:info] = I18n.t('controllers.job.running', locale: helpers.active_ui_locale)
-      else
-        job.enqueue
-        flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
-      end
-
-      respond_to_admin_path_actions
+      enqueue_import_job(ImportJob)
     end
 
     def delete_queue
-      job = Delayed::Job.find(import_params[:id])
-      job.presence&.destroy
+      job = SolidQueue::Job.find_by(id: import_params[:id])
+
+      # A claimed job is being executed right now and must not be destroyed: `before_destroy
+      # :unblock_next_blocked_job` only fires while the job is ready, and ClaimedExecution#finalize
+      # will not release the lock either once its row is gone — so the semaphore would stay taken
+      # until it expires (15 minutes for imports), with the orphaned run still extending it. The view
+      # already hides the button for a running job; this catches the stale page. No message needed,
+      # the response re-renders the queue and shows why nothing happened.
+      job.destroy unless job.nil? || job.claimed?
 
       respond_to_admin_path_actions
     end
@@ -73,7 +50,6 @@ module DataCycleCore
         format.html { redirect_to(admin_path, notice: I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)) }
         format.turbo_stream do
           flash.now[:success] = I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)
-          stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list
           render turbo_stream: [
             turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash'),
             turbo_stream.replace(
@@ -82,8 +58,7 @@ module DataCycleCore
               partial: 'data_cycle_core/dash_board/concept_mappings_button',
               locals: { rebuilding: true }
             ),
-            turbo_stream.update(:jobs_queue_title, partial: 'data_cycle_core/dash_board/job_queue_title', locals: { stat_job_queue: }),
-            turbo_stream.update(:jobs_queue_body, partial: 'data_cycle_core/dash_board/job_queue_body', locals: { stat_job_queue: })
+            *job_queue_streams
           ]
         end
       end
@@ -115,11 +90,9 @@ module DataCycleCore
           format.html { redirect_to(admin_path, notice: message) }
           format.turbo_stream do
             flash.now[:success] = message
-            stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list
             render turbo_stream: [
               turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash'),
-              turbo_stream.update(:jobs_queue_title, partial: 'data_cycle_core/dash_board/job_queue_title', locals: { stat_job_queue: }),
-              turbo_stream.update(:jobs_queue_body, partial: 'data_cycle_core/dash_board/job_queue_body', locals: { stat_job_queue: })
+              *job_queue_streams
             ]
           end
         end
@@ -155,15 +128,38 @@ module DataCycleCore
       @update_computed_attributes_params ||= params.permit(:templates_or_collection_id, :webhooks, computed_name: [])
     end
 
+    # queues +job_class+ for the requested external system, unless an identical job is already pending
+    def enqueue_import_job(job_class)
+      @external_source = ExternalSystem.find(import_params[:id])
+      job = job_class.new(@external_source.id, import_params[:mode])
+
+      if job.duplicate_queued_with_args?
+        flash[:info] = I18n.t('controllers.job.running', locale: helpers.active_ui_locale)
+      else
+        job.enqueue
+        flash[:success] = I18n.t('controllers.job.added', data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale)
+      end
+
+      respond_to_admin_path_actions
+    end
+
+    # the pair of turbo-stream updates that refreshes the dashboard job queue panel
+    def job_queue_streams
+      stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list
+
+      [
+        turbo_stream.update(:jobs_queue_title, partial: 'data_cycle_core/dash_board/job_queue_title', locals: { stat_job_queue: }),
+        turbo_stream.update(:jobs_queue_body, partial: 'data_cycle_core/dash_board/job_queue_body', locals: { stat_job_queue: })
+      ]
+    end
+
     def respond_to_admin_path_actions
       respond_to do |format|
         format.html { redirect_to admin_path }
         format.turbo_stream do
-          stat_job_queue = DataCycleCore::StatsJobQueue.new.job_list
           render turbo_stream: [
             turbo_stream.append(:'flash-messages', partial: 'data_cycle_core/shared/flash', locals: { flash: flash.discard }),
-            turbo_stream.update(:jobs_queue_title, partial: 'data_cycle_core/dash_board/job_queue_title', locals: { stat_job_queue: }),
-            turbo_stream.update(:jobs_queue_body, partial: 'data_cycle_core/dash_board/job_queue_body', locals: { stat_job_queue: })
+            *job_queue_streams
           ]
         end
       end

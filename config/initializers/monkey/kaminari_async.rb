@@ -21,5 +21,7 @@ module DataCycleCore
 end
 
 Rails.application.reloader.to_prepare do
+  raise 'Kaminari::ActiveRecordRelationMethods#total_count is no longer available, check patch!' unless Kaminari::ActiveRecordRelationMethods.method_defined?(:total_count, false)
+
   Kaminari::ActiveRecordRelationMethods.prepend(DataCycleCore::KaminariAsyncExtension)
 end

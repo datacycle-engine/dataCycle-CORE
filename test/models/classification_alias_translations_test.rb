@@ -41,6 +41,34 @@ describe DataCycleCore::ClassificationAlias do
     assert_equal('Deutsch', classification_alias.primary_classification.name)
   end
 
+  it 'should fall back to an available locale if translations exist for unavailable locales' do
+    classification_alias = classification_tree.create_classification_alias('CLASSIFICATION I', 'Januar')
+    I18n.with_locale(:cs) { classification_alias.name = 'Leden' }
+    classification_alias.save!
+
+    # :cs is translated but not part of I18n.available_locales, :en is available but untranslated
+    [DataCycleCore::ClassificationAlias, DataCycleCore::Concept].each do |model|
+      content = model.find(classification_alias.id)
+
+      assert_equal([:cs, :de], content.translated_locales.sort)
+      I18n.with_locale(:en) { assert_equal(:de, content.first_available_locale(['en'])) }
+    end
+  end
+
+  it 'should fall back to a translated locale if none of them are available' do
+    classification_alias = classification_tree.create_classification_alias('CLASSIFICATION I', 'CLASSIFICATION I - A')
+    classification_alias.name = nil
+    [:cs, :it].each { |locale| I18n.with_locale(locale) { classification_alias.name = "CLASSIFICATION I - #{locale}" } }
+    classification_alias.save!
+
+    [DataCycleCore::ClassificationAlias, DataCycleCore::Concept].each do |model|
+      content = model.find(classification_alias.id)
+
+      assert_equal([:cs, :it], content.translated_locales.sort)
+      I18n.with_locale(:en) { assert_includes(content.translated_locales, content.first_available_locale(['en'])) }
+    end
+  end
+
   it 'should find classification_alias in all languages' do
     classification_alias = classification_tree.create_classification_alias('CLASSIFICATION I', "CLASSIFICATION I - A - #{I18n.locale}")
     locales = [:de, :en, :fr, :it]

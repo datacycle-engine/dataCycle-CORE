@@ -6,9 +6,9 @@ module DataCycleCore
       module Fulltext
         extend ActiveSupport::Concern
 
-        FULLTEXT_FIELDS = ['name', 'dc:slug', 'dc:classification'].freeze
-        FULLTEXT_WEIGHTS = ['A', 'B', 'C'].freeze
-        FULLTEXT_WEIGHT_MAP = FULLTEXT_FIELDS.zip(FULLTEXT_WEIGHTS).to_h.freeze
+        FULLTEXT_WEIGHT_MAP = { 'name' => 'A', 'dc:slug' => 'B', 'dc:classification' => 'C', 'dc:text' => 'D' }.freeze
+        FULLTEXT_FIELDS = FULLTEXT_WEIGHT_MAP.keys.freeze
+        FULLTEXT_WEIGHTS = FULLTEXT_WEIGHT_MAP.values.uniq.freeze
 
         def legacy_fulltext_search(value)
           value = value[:value] if value.is_a?(Hash)
@@ -50,7 +50,12 @@ module DataCycleCore
           def fulltext_fields_to_weights(fields_string)
             return '' if fields_string.blank?
 
-            fields_string.split(',').map(&:strip).map { |f| FULLTEXT_WEIGHT_MAP[f] }.join.to_s.upcase
+            weights = fields_string.split(',').filter_map { |f| FULLTEXT_WEIGHT_MAP[f.strip] }.uniq
+
+            # an empty weight string already means "every weight"; spelling it out would only cost a heap recheck
+            return '' if weights.size == FULLTEXT_WEIGHTS.size
+
+            weights.join
           end
         end
 

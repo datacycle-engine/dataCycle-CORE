@@ -17,7 +17,8 @@ module DataCycleCore
     def dc_background_image_style
       return if DataCycleCore.logo['background_images'].blank?
 
-      "--dc-background-image-url: url('#{dc_image_path(Array.wrap(DataCycleCore.logo['background_images']).sample.to_s)}');"
+      position = DataCycleCore.logo['background_position'].presence || 'center center'
+      "--dc-background-image-url: url('#{dc_image_path(Array.wrap(DataCycleCore.logo['background_images']).sample.to_s)}'); --dc-background-image-position: #{position};"
     end
 
     def dc_favicon_link_tags

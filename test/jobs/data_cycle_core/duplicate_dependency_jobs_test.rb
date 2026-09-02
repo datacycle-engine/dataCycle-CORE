@@ -66,11 +66,11 @@ module DataCycleCore
       assert_empty thing.created
     end
 
-    test 'check_dependent exposes its reference id and priority' do
+    test 'check_dependent exposes its concurrency key and priority' do
       job = DataCycleCore::CheckDependentForDuplicatesJob.new(UUID, {})
 
-      assert_equal UUID, job.delayed_reference_id
-      assert_equal DataCycleCore::CheckDependentForDuplicatesJob::PRIORITY, job.priority
+      assert_equal "DataCycleCore::CheckDependentForDuplicatesJob/#{UUID}", job.concurrency_key
+      assert_equal 6, job.priority
     end
 
     test 'destroy_dependent returns when the attribute hash is present' do

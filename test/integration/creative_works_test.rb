@@ -6,7 +6,7 @@ module DataCycleCore
   class CreativeWorksTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
     before(:all) do
       DataCycleCore::Thing.delete_all
-      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+      @content = create_content('Artikel', { name: 'TestArtikel' })
     end
 
     setup do

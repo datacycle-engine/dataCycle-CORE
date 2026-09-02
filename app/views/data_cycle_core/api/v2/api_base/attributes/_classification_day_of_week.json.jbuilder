@@ -4,26 +4,18 @@ classification_aliases = content.send(key).includes(:classification_aliases).map
 
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 if classification_aliases.present?
-  json.set! key_new, classification_aliases.map do |classification_alias|
-    case classification_alias.internal_name
-    when 'Montag'
-      'https://schema.org/Monday'
-    when 'Dienstag'
-      'https://schema.org/Tuesday'
-    when 'Mittwoch'
-      'https://schema.org/Wednesday'
-    when 'Donnerstag'
-      'https://schema.org/Thursday'
-    when 'Freitag'
-      'https://schema.org/Friday'
-    when 'Samstag'
-      'https://schema.org/Saturday'
-    when 'Sonntag'
-      'https://schema.org/Sunday'
-    when 'Feiertag'
-      'https://schema.org/PublicHolidays'
-    else
-      classification_alias.name
-    end
-  end
+  day_of_week_uris = {
+    'Montag' => 'https://schema.org/Monday',
+    'Dienstag' => 'https://schema.org/Tuesday',
+    'Mittwoch' => 'https://schema.org/Wednesday',
+    'Donnerstag' => 'https://schema.org/Thursday',
+    'Freitag' => 'https://schema.org/Friday',
+    'Samstag' => 'https://schema.org/Saturday',
+    'Sonntag' => 'https://schema.org/Sunday',
+    'Feiertag' => 'https://schema.org/PublicHolidays'
+  }
+
+  days_of_week = classification_aliases.map { |classification_alias| day_of_week_uris[classification_alias.internal_name] || classification_alias.name }
+
+  json.set! key_new, days_of_week
 end

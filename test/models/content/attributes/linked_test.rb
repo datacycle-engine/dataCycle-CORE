@@ -16,12 +16,12 @@ module DataCycleCore
 
           count_things(diff: [linked_size, 0, 0, 0]) do
             linked_size.times do |i|
-              @linked_objects.push(DataCycleCore::TestPreparations.create_content(template_name: 'Linked-Creative-Work-2', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge({ 'name' => "CreativeWork Linked Headline #{i}" }), prevent_history: true).id)
+              @linked_objects.push(create_content('Linked-Creative-Work-2', DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge({ 'name' => "CreativeWork Linked Headline #{i}" }), prevent_history: true).id)
             end
           end
 
           count_things(diff: [1, 0, 0, 0]) do
-            @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Linked-Creative-Work-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked'), prevent_history: true)
+            @data_set = create_content('Linked-Creative-Work-1', DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked'), prevent_history: true)
           end
 
           count_things(diff: [0, 0, 5, 0]) do
@@ -42,6 +42,7 @@ module DataCycleCore
         test 'read linked data, filter linked data' do
           linked = @data_set.linked_creative_work.first
           linked.set_data_hash(data_hash: linked.get_data_hash.merge({ 'name' => 'test' }), prevent_history: true)
+          perform_enqueued_jobs
 
           linked_filter = DataCycleCore::StoredFilter.create(
             name: 'fulltext',
@@ -126,7 +127,7 @@ module DataCycleCore
 
           count_things(diff: [2, 1, 2, 5]) do
             2.times do |i|
-              linked_objects2.push(DataCycleCore::TestPreparations.create_content(template_name: 'Linked-Creative-Work-2', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge({ 'name' => "CreativeWork Linked Additional #{i}" }), prevent_history: true).id)
+              linked_objects2.push(create_content('Linked-Creative-Work-2', DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge({ 'name' => "CreativeWork Linked Additional #{i}" }), prevent_history: true).id)
             end
 
             data_set.set_data_hash(
@@ -181,7 +182,7 @@ module DataCycleCore
 
           count_things(diff: [3, 0, 0, 0]) do
             place_count.times do |i|
-              linked_places.push(DataCycleCore::TestPreparations.create_content(template_name: 'Linked-Place-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked').merge({ 'name' => "CreativeWork Linked Headline #{i}" }), prevent_history: true).id)
+              linked_places.push(create_content('Linked-Place-1', DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked').merge({ 'name' => "CreativeWork Linked Headline #{i}" }), prevent_history: true).id)
             end
 
             assert_equal(place_count, linked_places.size)

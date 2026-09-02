@@ -6,6 +6,7 @@ require 'rake_helpers/time_helper'
 DATABASE_DUMP_EXCLUDES = {
   'review' => [
     'delayed_jobs',
+    'solid_queue*',
     'subscriptions',
     '*histories',
     '*history_translations',
@@ -15,6 +16,7 @@ DATABASE_DUMP_EXCLUDES = {
   ],
   'caches' => [
     'delayed_jobs',
+    'solid_queue*',
     'subscriptions',
     '*histories',
     '*history_translations',
@@ -23,6 +25,7 @@ DATABASE_DUMP_EXCLUDES = {
   ],
   'activities' => [
     'delayed_jobs',
+    'solid_queue*',
     'subscriptions',
     '*histories',
     '*history_translations',
@@ -31,6 +34,7 @@ DATABASE_DUMP_EXCLUDES = {
   ],
   'full' => [
     'delayed_jobs',
+    'solid_queue*',
     'subscriptions'
   ]
 }.freeze

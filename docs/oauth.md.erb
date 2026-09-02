@@ -1,0 +1,142 @@
+<% base = root_url.chomp('/') %># Authentifizierung über OAuth 2.0 / OpenID Connect
+
+dataCycle kann als **OAuth-2.0-Autorisierungsserver** und **OpenID-Connect-Provider (OIDC)** fungieren. Externe Anwendungen können damit Benutzer über dataCycle anmelden (Single Sign-On) und deren Identitäts- bzw. Profilinformationen (z.B. E-Mail-Adresse, Name, Rollen, Gruppen) abrufen.
+
+Die Implementierung basiert auf [Doorkeeper](https://doorkeeper.gitbook.io/) und [doorkeeper-openid_connect](https://github.com/doorkeeper-gem/doorkeeper-openid_connect) und folgt den Standards [OAuth 2.0 (RFC 6749)](https://datatracker.ietf.org/doc/html/rfc6749) sowie [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html).
+
+Alle Endpunkte und Beispiele beziehen sich auf die Basis-URL dieser dataCycle-Instanz (```<%= base %>```).
+
+_Hinweis: Die über diesen Weg ausgestellten Access Tokens dienen der Anmeldung und dem Abruf von Identitätsinformationen (OpenID Connect). Der Zugriff auf die [Datenschnittstelle](/docs/api) erfolgt über eigene Authentifizierungs-Mechanismen (API-Token bzw. JWT, siehe [Authentifizierung der Datenschnittstelle](/docs/api#authentifizierung)) und ist von diesem OAuth-Flow unabhängig._
+
+
+## Registrieren einer Anwendung (Client)
+
+Bevor eine externe Anwendung dataCycle als Provider nutzen kann, muss sie als OAuth-Anwendung (Client) registriert werden.
+
+Die Verwaltung erfolgt in der Benutzeroberfläche unter **Administration → OAuth-Anwendungen** (```<%= base %>/oauth/applications```). Dafür ist die Berechtigung zum Verwalten von OAuth-Anwendungen erforderlich (in der Regel Super-Administratoren).
+
+Beim Anlegen einer Anwendung werden folgende Angaben benötigt:
+
+* **Name**: Anzeigename der Anwendung. Er erscheint u.a. im Zustimmungs-Dialog des Benutzers.
+* **Weiterleitungs-URI** (Redirect URI): Eine oder mehrere absolute ```https```-URLs (eine pro Zeile), an die nach der Autorisierung zurückgeleitet wird.
+* **Vertraulich** (Confidential): ```Ja``` für serverseitige Anwendungen, die das Client-Secret geheim halten können. ```Nein``` für Single-Page-Apps und native Apps.
+* **Scopes**: Optionale Einschränkung der für diese Anwendung erlaubten Scopes (leer = Standard-Scopes).
+
+Nach dem Speichern erhält die Anwendung eine **Client-ID (UID)** und ein **Client-Secret**. Das Secret wird gehasht gespeichert, ist also nach dem Anlegen nicht mehr im Klartext einsehbar und muss sicher hinterlegt werden.
+
+
+## Scopes
+
+* **```public```** (Standard): Wird verwendet, wenn kein Scope explizit angefordert wird.
+* **```openid```** (optional): Aktiviert OpenID Connect, d.h. die Ausstellung eines ID Tokens.
+* **```profile```** (optional): Ergänzt den Claim ```name```.
+* **```email```** (optional): E-Mail-bezogene Claims.
+* **```roles```** (optional): Ergänzt den Claim ```roles``` (Rollen des Benutzers).
+* **```groups```** (optional): Ergänzt den Claim ```groups``` (Benutzergruppen).
+
+
+## Endpunkte
+
+* **Autorisierung**: ```GET /oauth/authorize```
+* **Token**: ```POST /oauth/token```
+* **Token widerrufen (Revocation)**: ```POST /oauth/revoke```
+* **Token-Introspection**: ```POST /oauth/introspect```
+* **Token-Informationen**: ```GET /oauth/token/info```
+* **UserInfo (OIDC)**: ```GET``` / ```POST /oauth/userinfo```
+* **Discovery (OIDC)**: ```GET /.well-known/openid-configuration```
+* **Signaturschlüssel (JWKS)**: ```GET /oauth/discovery/keys```
+* **Anwendungen verwalten (Administration)**: ```/oauth/applications```
+* **Autorisierte Anwendungen (Benutzer)**: ```/oauth/authorized_applications```
+
+OIDC-fähige Clients können über das **Discovery-Dokument** (```<%= base %>/.well-known/openid-configuration```) alle Endpunkte, unterstützten Scopes und das Signaturverfahren automatisch ermitteln.
+
+
+## Unterstützte Grant-Flows
+
+dataCycle unterstützt:
+
+* **Authorization Code** (```response_type=code```) – empfohlen für serverseitige Anwendungen, die ein Client-Secret geheim halten können.
+* **OpenID Connect Implicit** (```response_type=id_token``` bzw. ```id_token token```) – für clientseitige Anwendungen (Single-Page-Apps).
+
+_Hinweis: Es werden standardmäßig **keine Refresh Tokens** ausgegeben. Access Tokens sind kurzlebig (standardmäßig 2 Stunden gültig). Nach Ablauf muss der Autorisierungs-Flow erneut durchlaufen werden._
+
+
+### Ablauf des Authorization-Code-Flows
+
+**1. Autorisierungsanfrage** – Der Benutzer wird im Browser auf den Autorisierungs-Endpunkt geleitet (Parameter hier zur besseren Lesbarkeit umgebrochen, tatsächlich als eine URL):
+
+```url
+GET <%= base %>/oauth/authorize
+      ?client_id=CLIENT_ID
+      &redirect_uri=https%3A%2F%2FIHRE_APP%2Fcallback
+      &response_type=code
+      &scope=openid%20email%20profile
+      &state=ZUFAELLIGER_STATE
+```
+
+Ist der Benutzer noch nicht angemeldet, wird er zunächst auf die dataCycle-Anmeldung geleitet. Anschließend bestätigt er den Zugriff im Zustimmungs-Dialog. dataCycle leitet danach an die hinterlegte ```redirect_uri``` zurück:
+
+```url
+https://IHRE_APP/callback?code=AUTH_CODE&state=ZUFAELLIGER_STATE
+```
+
+**2. Token-Anfrage** – Die Anwendung tauscht den erhaltenen ```code``` serverseitig gegen ein Access Token:
+
+```bash
+curl --request POST \
+     --url <%= base %>/oauth/token \
+     --data grant_type=authorization_code \
+     --data code=AUTH_CODE \
+     --data redirect_uri=https://IHRE_APP/callback \
+     --data client_id=CLIENT_ID \
+     --data client_secret=CLIENT_SECRET
+```
+
+Antwort:
+
+```json
+{
+  "access_token": "...",
+  "token_type": "Bearer",
+  "expires_in": 7200,
+  "scope": "openid email profile",
+  "id_token": "...",
+  "created_at": 1700000000
+}
+```
+
+Das Attribut ```id_token``` wird nur ausgeliefert, wenn der Scope ```openid``` angefordert wurde.
+
+**3. Benutzerinformationen abrufen** – Mit dem Access Token können die Identitätsinformationen des angemeldeten Benutzers am UserInfo-Endpunkt abgerufen werden:
+
+```bash
+curl --url <%= base %>/oauth/userinfo \
+     --header 'Authorization: Bearer ACCESS_TOKEN'
+```
+
+
+## OpenID Connect
+
+Wird der Scope ```openid``` angefordert, stellt dataCycle zusätzlich ein signiertes **ID Token** (JWT, Signaturverfahren ```RS256```) aus. Als Aussteller (```issuer```) wird ```dataCycle``` verwendet. Dieselben Informationen liefert der UserInfo-Endpunkt (siehe Schritt 3 oben).
+
+Je nach angefordertem Scope enthalten ID Token bzw. UserInfo-Antwort folgende Claims:
+
+* **```sub```**: Eindeutige, unveränderliche Benutzer-ID (immer enthalten).
+* **```email```**: E-Mail-Adresse (immer enthalten).
+* **```email_verified```**: Ob die E-Mail-Adresse bestätigt wurde (immer enthalten).
+* **```name```**: Vollständiger Name (Scope ```profile```).
+* **```roles```**: Rollen des Benutzers (Scope ```roles```).
+* **```groups```**: Benutzergruppen (Scope ```groups```).
+
+Die zur Signaturprüfung notwendigen öffentlichen Schlüssel werden im [JWKS](https://datatracker.ietf.org/doc/html/rfc7517)-Format unter ```<%= base %>/oauth/discovery/keys``` bereitgestellt.
+
+
+## Zugriffssteuerung
+
+* Um sich über OAuth anmelden zu können, benötigt ein Benutzer die Berechtigung **OAuth authentifizieren** (```authenticate_with :oauth```). Diese ist in den Standard-Rollen enthalten.
+* Der Zugriff kann zusätzlich pro Anwendung eingeschränkt werden. Für vertrauenswürdige, hauseigene Anwendungen kann der Zustimmungs-Dialog außerdem übersprungen werden. Ein Beispiel dafür ist die Grafana-Integration: Sie setzt die Berechtigung zum Anzeigen der Grafana-Dashboards voraus und überspringt den Zustimmungs-Dialog.
+
+
+## Verwaltung durch Benutzer
+
+Angemeldete Benutzer können unter ```<%= base %>/oauth/authorized_applications``` einsehen, welchen Anwendungen sie Zugriff auf ihr Konto gewährt haben, und diesen bei Bedarf widerrufen.

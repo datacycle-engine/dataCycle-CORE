@@ -79,6 +79,16 @@ module DataCycleCore
       end
     end
 
+    # Processor that reads `external_id` — a top-level document field, so any `dump.<locale>.<path>`
+    # projection drops it and the read raises. Records the batch size it was handed so a test can tell
+    # "the projection produced no document" apart from "the document was there and the read failed".
+    def external_id_reading_processor(batch_sizes)
+      lambda { |raw_data:, **|
+        batch_sizes << raw_data.size
+        raw_data.map(&:external_id)
+      }
+    end
+
     def legacy_iterator
       ->(mongo_item, _locale, source_filter) { mongo_item.where(source_filter) }
     end
@@ -295,6 +305,153 @@ module DataCycleCore
       SUBJECT.import_paging(utility_object: object, iterator: legacy_iterator, data_processor: collecting_processor(processed), options: { import: { name: 'paging' } })
 
       assert_equal 10, processed.size
+    end
+    # The five tests below cover the `external_key_path` projection (`Criteria#only`) of import_bulk and
+    # delete_data — the two call sites of `.only` in the gem — against a real Mongo.
+    #
+    # Reading a field the projection dropped raises a different class per Mongoid major
+    # (ActiveModel::MissingAttributeError up to 8.x, Mongoid::Errors::AttributeNotLoaded from 9.0), so
+    # the error tests assert the observable contract — the processor ran, its error reached phase_failed
+    # and propagated — rather than the class or the message. Both rescues only need a StandardError.
+    #
+    # Mongoid 9 flips `legacy_readonly`, which lands on exactly these documents: `destroy` and `delete`
+    # on a projected one would proceed where 8.1 raised. Both steps mark the batch `readonly!` to keep
+    # that a raise, and `assert_projected_batch_is_readonly` is called once per step to hold them to it.
+
+    # Both projection tests differ only in the step, the collection suffix, the import name, the seeded
+    # keys and (for delete_data) the `deleted_at` the delete filter needs, so they share a body.
+    def assert_hands_processor_projected_documents(step, name:, keys:, seed_extra: {})
+      object = utility_object("ift_#{name}_projection")
+      keys.each_with_index { |key, i| seed_item(object, key, { 'de' => { 'id' => key, 'name' => "n#{i}" }.merge(seed_extra) }) }
+      processed = []
+
+      SUBJECT.public_send(
+        step,
+        utility_object: object,
+        iterator: legacy_iterator,
+        data_processor: collecting_processor(processed),
+        options: { import: { name:, external_key_path: 'id' } }
+      )
+
+      assert_equal 1, processed.size
+      assert_equal [:de], processed.pluck(:locale)
+
+      # read after the size assertion above, so an empty batch is reported as such instead of dying on
+      # `nil` here. `dump` is indexed with the Symbol the step yielded (`each_locale` yields
+      # `locale.to_sym`), which is how every consumer reads it — and it is the Symbol lookup that leans
+      # on `BSON::Document` coercing String keys, so it breaks loudly if `dump` stops demongoizing to one.
+      locale = processed.first[:locale]
+      raw_data = processed.first[:raw_data]
+
+      projected_external_keys = raw_data.filter_map { |item| item.dump[locale]&.dig('id') }
+      projected_dump_keys = raw_data.map { |item| item.dump[locale]&.keys }
+      projected_attribute_keys = raw_data.map { |item| item.attributes.keys }
+
+      assert_equal keys, projected_external_keys.sort
+      assert_equal [['id']] * keys.size, projected_dump_keys
+      assert_equal [['_id', 'dump']] * keys.size, projected_attribute_keys
+    end
+
+    # The error tests differ the same way. The control run stays inside the `init_logging` stub so it
+    # does not open the real import log or emit a Turbo broadcast for a result nothing asserts on.
+    def assert_projection_drop_reaches_phase_failed(step, name:, key:, seed_extra: {})
+      object = utility_object("ift_#{name}_projection_error")
+      seed_item(object, key, { 'de' => { 'id' => key, 'name' => 'eins' }.merge(seed_extra) })
+      logger = DcImportFunctionsRecordingLogger.new
+      projected = []
+      control_projected = []
+
+      # wrapped in a lambda: the recording logger answers `call` through method_missing, so handing it to
+      # stub directly would make minitest invoke it instead of returning it
+      error = object.stub(:init_logging, ->(_type) { logger }) do
+        raised = assert_raises(StandardError) do
+          SUBJECT.public_send(
+            step,
+            utility_object: object,
+            iterator: legacy_iterator,
+            data_processor: external_id_reading_processor(projected),
+            options: { import: { name:, external_key_path: 'id' } }
+          )
+        end
+
+        # control: without the projection the very same processor succeeds, which is what ties the
+        # failure above to the dropped field rather than to the processor itself. It collects into its
+        # own array so the assertions below stay tied to the projected run alone.
+        assert_nothing_raised do
+          SUBJECT.public_send(
+            step,
+            utility_object: object,
+            iterator: legacy_iterator,
+            data_processor: external_id_reading_processor(control_projected),
+            options: { import: { name: } }
+          )
+        end
+
+        raised
+      end
+      phase_failed = logger.calls.find { |call| call[0] == :phase_failed }
+
+      # the projection itself produced the document — the error came from reading the field it dropped,
+      # not from the query failing before the processor ever ran
+      assert_equal [1], projected
+      assert_equal error, phase_failed&.at(1)
+      assert_equal [1], control_projected
+    end
+
+    # The invariant the block comment above states: a projected document must not be destroyable.
+    # Without the `readonly!` in the step this passes on Mongoid 8 and fails on 9.
+    def assert_projected_batch_is_readonly(step, name:, key:, seed_extra: {})
+      object = utility_object("ift_#{name}_readonly")
+      seed_item(object, key, { 'de' => { 'id' => key, 'name' => 'eins' }.merge(seed_extra) })
+      destroy_results = []
+
+      SUBJECT.public_send(
+        step,
+        utility_object: object,
+        iterator: legacy_iterator,
+        data_processor: lambda { |raw_data:, **|
+          raw_data.each do |item|
+            item.destroy
+            destroy_results << :destroyed
+          rescue StandardError => e
+            destroy_results << e.class
+          end
+          raw_data.size
+        },
+        options: { import: { name:, external_key_path: 'id' } }
+      )
+
+      assert_equal [Mongoid::Errors::ReadonlyDocument], destroy_results
+    end
+
+    test 'import_bulk hands the processor documents projected to the external key path' do
+      assert_hands_processor_projected_documents(:import_bulk, name: 'bulk', keys: ['bulk-1', 'bulk-2'])
+    end
+
+    test 'delete_data hands the processor documents projected to the external key path' do
+      assert_hands_processor_projected_documents(
+        :delete_data, name: 'delete', keys: ['del-1', 'del-2'], seed_extra: { 'deleted_at' => Time.zone.now }
+      )
+    end
+
+    test 'import_bulk logs a failed phase and re-raises when the processor reads a field the projection dropped' do
+      assert_projection_drop_reaches_phase_failed(:import_bulk, name: 'bulk', key: 'bulk-err-1')
+    end
+
+    test 'delete_data logs a failed phase and re-raises when the processor reads a field the projection dropped' do
+      assert_projection_drop_reaches_phase_failed(
+        :delete_data, name: 'delete', key: 'del-err-1', seed_extra: { 'deleted_at' => Time.zone.now }
+      )
+    end
+
+    test 'import_bulk hands the processor a batch that cannot be destroyed' do
+      assert_projected_batch_is_readonly(:import_bulk, name: 'bulk', key: 'bulk-ro-1')
+    end
+
+    test 'delete_data hands the processor a batch that cannot be destroyed' do
+      assert_projected_batch_is_readonly(
+        :delete_data, name: 'delete', key: 'del-ro-1', seed_extra: { 'deleted_at' => Time.zone.now }
+      )
     end
   end
 end

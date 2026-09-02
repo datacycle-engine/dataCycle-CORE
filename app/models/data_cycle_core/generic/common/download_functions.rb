@@ -38,14 +38,15 @@ module DataCycleCore
               raw_data.each do |language, data_hash|
                 next unless locales.include?(language.to_sym)
 
-                if delete.present?
-                  if delete.call(data_hash, language)
-                    data_hash['deleted_at'] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
-                    data_hash['delete_reason'] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
-                  else
-                    data_hash = data_hash.except('deleted_at', 'delete_reason')
-                  end
+                strip_internal_keys!(data_hash) # before any of our own keys are written into it
+
+                if delete.present? && delete.call(data_hash, language)
+                  data_hash['deleted_at'] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
+                  data_hash['delete_reason'] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                 end
+
+                # after the delete block as in #download_all, since it takes external_system off the payload
+                harvest_external_system!(item:, item_data: data_hash) # webhook payloads carry one too
 
                 data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                 item.data_has_changed = true if item.dump.dig(language, 'mark_for_update').present?
@@ -91,6 +92,8 @@ module DataCycleCore
 
                 item_data.each do |key, data_hash|
                   if locales.include?(key.to_sym)
+                    strip_internal_keys!(data_hash) # before any of our own keys are written into it
+
                     if delete.present? && delete.call(data_hash, key)
                       data_hash[:deleted_at] = item.dump[key].try(:[], 'deleted_at') || Time.zone.now
                       data_hash[:delete_reason] = item.dump[key].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
@@ -100,11 +103,7 @@ module DataCycleCore
                       data_hash[:last_seen_before_archived] = item.dump[key].try(:[], 'last_seen_before_archived') if item.dump[key].try(:[], 'last_seen_before_archived').present?
                     end
 
-                    if data_hash.key?(:external_system)
-                      data_credential_keys = Array.wrap(data_hash.dig(:external_system, :credential_keys))
-                      data_credential_keys.each { |k| add_credentials!(item:, credential_key: k) }
-                      data_hash.delete(:external_system)
-                    end
+                    harvest_external_system!(item:, item_data: data_hash)
 
                     add_credentials!(item:, credential_key:) if credential_key.present?
 

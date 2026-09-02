@@ -1,0 +1,39 @@
+---
+# A flagged compute whose tree cannot be derived: no tree_label on the property, none inside :compute:,
+# and its only parameter is universal. Imported per test rather than into the shared test data — it
+# matches every tree, which would make "a tree with no opted-in property" impossible everywhere else.
+- :data:
+    :name: UngatedCompute-Place
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      # inline rather than via the meta_data mixin, which this standalone path does not load
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :universal_classifications:
+        :label: Universal Classifications
+        :type: classification
+        :universal: true
+      :parent_tag_name:
+        :label: Übergeordneter Tag
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: String
+          :method: parent_classification_name
+          :recompute_on_classification_change: true
+          :parameters:
+            - universal_classifications

@@ -26,7 +26,15 @@ module DataCycleCore
           has_many :classifications, through: :classification_content_histories
         end
 
-        has_many :classification_groups, through: :classifications
+        # #47172/#50677: mappings into a tree flagged with hidden_mappings do not classify the content
+        # for display/search/sort purposes. The exclusion is applied on the classification_groups
+        # association (see ClassificationGroup.visible) instead of on classification_aliases: keeping
+        # the classification_aliases scope free of extra references lets scoped `has_many :through`
+        # preloads of it stay resolvable — e.g. PreloadService.preload(records, :classification_aliases,
+        # ClassificationAlias.for_tree(...)). A join-table condition on that scope silently defeats such a
+        # preload and makes it load classifications from every tree.
+        # Computed attributes read mappings via concept_links, not this association, so they are unaffected.
+        has_many :classification_groups, -> { visible }, through: :classifications
         has_many :classification_aliases, -> { distinct }, through: :classification_groups
         has_many :primary_classification_aliases, through: :classifications, source: :primary_classification_alias
         has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
@@ -63,6 +71,15 @@ module DataCycleCore
 
         belongs_to :thing_template, inverse_of: :things, foreign_key: :template_name, primary_key: :template_name
         delegate :schema, :api_schema_types, to: :thing_template
+
+        # thing_template is static config touched on nearly every content (schema lookups, imports,
+        # rendering), so a lazily-loaded record otherwise fires a query per instance. Back the
+        # association with the process-level cache. Preloading still wins: an already-loaded
+        # association (e.g. via includes(:thing_template)) is left untouched.
+        def thing_template
+          association(:thing_template).target = DataCycleCore::ThingTemplate.cached_by_template_name(template_name) unless template_name.blank? || association(:thing_template).loaded?
+          super
+        end
       end
 
       module ClassMethods
@@ -110,6 +127,15 @@ module DataCycleCore
           load_relation(relation_name: :timeseries, preload:)
         end
 
+        # The contents themselves plus everything that renders them into its own cached output:
+        # each parent that embeds or links them, then that parent's parents, walking upwards along
+        # content_content_links for at most +DataCycleCore.cache_invalidation_depth+ hops. Downwards
+        # is deliberately not covered — a child's output does not depend on its parents.
+        #
+        # This is the set to invalidate when these contents change, because an embedded content is
+        # rendered inline into its parents' cached api fragments under the parents' cache keys.
+        #
+        # @return [ActiveRecord::Relation] the given contents and their ancestors
         def with_cached_related_contents
           tree_query = <<~SQL.squish
             WITH RECURSIVE paths (content_b_id, content_a_id, PATH) AS (
@@ -309,6 +335,8 @@ module DataCycleCore
         content_content_links_b.any?
       end
 
+      # @see .with_cached_related_contents
+      # @return [ActiveRecord::Relation] this content and its ancestors
       def with_cached_related_contents
         self.class.base_class.where(id: id).with_cached_related_contents
       end

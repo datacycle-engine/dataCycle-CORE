@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   module Assets
-    class ImageTest < ActiveSupport::TestCase
+    class ImageTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include DataCycleCore::ActiveStorageHelper
 
       def setup

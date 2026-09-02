@@ -19,7 +19,7 @@
     </div>
 
     <div class="content-details remote-render"
-          id="<%= "#{item.id}-#{local_assigns[:classification_parent_tree]&.id || classification_tree.id}-#{local_assigns[:container]&.id}" %>"
+          id="<%= "#{item.id}-#{local_assigns[:classification_parent_tree]&.id || local_assigns[:classification_tree]&.id || local_assigns[:external_system]&.id}-#{local_assigns[:container]&.id}" %>"
           data-remote-render-function="render_content_tile_details"
           data-remote-render-params="<%= to_query_params(item: item, mode: 'tree', parameters: { language: local_assigns[:language] }).to_json %>">
     </div>

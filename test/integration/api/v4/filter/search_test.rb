@@ -15,6 +15,7 @@ module DataCycleCore
             @poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: { name: 'Headline POI' })
 
+            perform_enqueued_jobs
             @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 

@@ -24,6 +24,9 @@ module DataCycleCore
 
                     total = iterate.size
                     data = iterate.to_a
+                    # Mongoid 9 no longer marks projected documents readonly, which turned `destroy`
+                    # into a silent success — see ImportFunctions#import_bulk for the same guard
+                    data.each(&:readonly!) if external_key_path.present?
                     start_time = Time.current
 
                     result = data_processor.call(utility_object: utility_object, raw_data: data, locale: locale, options: options)

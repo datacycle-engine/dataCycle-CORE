@@ -1,0 +1,74 @@
+<section class="edit-header dc-sticky-bar">
+  <div class="row expanded">
+    <div class="column edit-header-functions">
+      <div class="edit-name">
+        <span class="icon"><i class="fa fa-code-fork" aria-hidden="true"></i></span>
+        <span class="template-title"><%= t('duplicate.merge_with', data: content.translated_template_name(active_ui_locale), locale: active_ui_locale) %></span>
+      </div>
+      <ul>
+        <li class="buttons">
+          <%= link_to tag.i(class: 'fa fa-exchange', aria_hidden: true),
+            merge_with_duplicate_thing_path(split_source, source_id: content.id, locale: @source_locale, source_locale: @locale),
+            class: 'duplicate-switch-link',
+            data: { dc_tooltip: t('duplicate.switch', locale: active_ui_locale) } %>
+
+          <%= link_to tag.i(class: 'fa fa-times', aria_hidden: true),
+            previous_authorized_crumb.url,
+            class: 'button discard top',
+            data: { dc_tooltip: t('actions.discard_changes', locale: active_ui_locale) } if previous_authorized_crumb.present? %>
+
+          <%= button_to tag.i(class: 'fa fa-check', aria_hidden: true),
+            confirm_merge_with_duplicate_thing_path(content, duplicate_id: split_source.id, watch_list_id: watch_list&.id),
+            method: :post,
+            class: 'button-prime submit merge-with-duplicate',
+            data: {
+              confirm: t('duplicate.confirm_merge', locale: active_ui_locale),
+              dc_tooltip: t('actions.merge_with_duplicate', locale: active_ui_locale)
+            } %>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="row expanded">
+  <div class="column">
+    <div class="warning callout merge-preview-hint"><%= t('duplicate.merge_preview_hint_html', locale: active_ui_locale) %></div>
+  </div>
+</div>
+
+<%# both columns are read-only: intentionally NOT `.detail-content` so the editor-only
+    SplitView (copy/"übernehmen") never initializes here. `.split-content` is kept so the
+    hover highlight that distinguishes the two sides still works. %>
+<div class="edit-form-content flex-box">
+  <% I18n.with_locale(split_source.first_available_locale(@source_locale)) do %>
+    <div class="row split-content merge-preview-content"
+      data-locale="<%= I18n.locale %>"
+      data-id="<%= split_source.id %>">
+      <div class="column">
+        <div class="show-content">
+          <% duplicate_header_extra = capture do %>
+            <ul class="split-locales no-bullet">
+              <%= render 'split_locale_links',
+                content: content,
+                source_content: split_source,
+                locale_url_parameter: 'source_locale',
+                locale: @locale,
+                link_action: :merge_with_duplicate if split_source.translatable? && I18n.available_locales&.many? %>
+            </ul>
+          <% end %>
+
+          <%= render 'split_detail_column', content: split_source, label: 'duplicate', color_class: 'alert-color', header_extra: duplicate_header_extra %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row split-content merge-preview-content" data-id="<%= content&.id %>">
+    <div class="column">
+      <div class="show-content">
+        <%= render 'split_detail_column', content: content, label: 'original', color_class: 'success-color' %>
+      </div>
+    </div>
+  </div>
+</div>

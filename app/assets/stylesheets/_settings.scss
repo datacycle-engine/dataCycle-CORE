@@ -85,7 +85,7 @@ $global-backdrop-filter: saturate(0.5) blur(5px);
 
 @include add-foundation-colors;
 
-$customercolor: #009fe3;
+$customercolor: #ffcc00 !default;
 
 // Map colors
 // https://carto.com/carto-colors/, Pastel Qualitative Scheme
@@ -101,67 +101,6 @@ $purple: #94346e;
 $dark-purple: #6f4070;
 $pastel-purple: #994e95;
 $gray: #666666;
-
-:root {
-  --customer-color: #{$customercolor};
-  --primary-color: #{$primary-color};
-  --secondary-color: #{$secondary-color};
-  --success-color: #{$success-color};
-  --warning-color: #{$warning-color};
-  --alert-color: #{$alert-color};
-  --alert-color-02: rgba(204, 75, 55, 0.2);
-  --light-gray: #{$light-gray};
-  --medium-gray: #{$medium-gray};
-  --medium-dark-gray: #cccccc;
-  --dark-gray: #9d9d9d;
-  --dark-gray-hover: hsl(0, 0%, 52%);
-  --darker-gray: #666666;
-  --dark-gray-05: rgba(157, 157, 157, 0.5);
-  --black-01: rgba(0, 0, 0, 0.1);
-  --black: #{$black};
-  --white: #{$white};
-  --violet: #{$violet};
-  --dark-blue: #{$dark-blue};
-  --light-blue: #{$light-blue};
-  --dark-green: #{$dark-green};
-  --light-green: #{$light-green};
-  --yellow: #{$yellow};
-  --orange: #{$orange};
-  --red: #{$red};
-  --purple: #{$purple};
-  --dark-purple: #{$dark-purple};
-  --pastel-purple: #{$pastel-purple};
-  --gray: #{$gray};
-  --chart0: #{$dark-gray};
-  --chart1: #0b84a5;
-  --chart2: #f6c85f;
-  --chart3: #6f4e7c;
-  --chart4: #9dd866;
-  --chart5: #ca472f;
-  --chart6: #ffa056;
-  --chart7: #8dddd0;
-  --global-radius: #{$global-radius};
-  --small-radius: 3px;
-  --medium-radius: 5px;
-  --large-radius: 10px;
-  --attribute-label-color: #666666;
-  --absolute-black: #000000;
-  --very-light-gray: #efefef;
-  --nearly-white: #f8f8f8;
-  --absolute-white: #ffffff;
-  --black-09: rgba(51, 51, 51, 0.9);
-  --black-08: rgba(51, 51, 51, 0.8);
-  --black-03: rgba(51, 51, 51, 0.3);
-  --white-09: rgba(255, 255, 255, 0.9);
-  --alert-color-hover: hsl(8, 59%, 41%);
-  --warning-color-hover: hsl(41, 100%, 40%);
-  --success-color-hover: hsl(91, 43%, 47%);
-  --primary-color-hover: hsl(204, 78%, 31%);
-  --secondary-color-hover: hsl(0, 0%, 36%);
-  --nearly-white-09: rgba(248, 248, 248, 0.9);
-  --opacity-transition: #{$opacity-transition};
-  --background-color-transition: background-color 0.25s ease-out;
-}
 
 // 2. Breakpoints
 // --------------

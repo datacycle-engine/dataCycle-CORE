@@ -19,6 +19,7 @@ module DataCycleCore
 
       rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
       rescue_from PG::QueryCanceled, with: :too_many_requests
+      rescue_from DataCycleCore::Error::Api::InvalidArgumentError, with: :bad_request
       rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
       rescue_from DataCycleCore::Error::BadRequestError, with: :bad_request_error
       rescue_from ActiveRecord::StatementInvalid, with: :bad_request if self <= ActionController::API
@@ -97,9 +98,18 @@ module DataCycleCore
     def user_interface_error(exception)
       return if performed?
 
-      redirect_back_or_to(root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false) && return if is_a?(ApplicationController)
+      # Stateless API/token clients (e.g. the widgets middleware) must get the HTTP status
+      # code, never an HTML redirect they can't consume. Interactive browser sessions keep
+      # the redirect + flash.
+      redirect_back_or_to(root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false) && return if is_a?(ApplicationController) && !api_token_request?
 
       bad_request(exception)
+    end
+
+    # Mirrors ApiBearerTokenStrategy / ApiTokenStrategy: authenticated via an HTTP token
+    # (Authorization: Token|Bearer …) or the ?token= param.
+    def api_token_request?
+      ActionController::HttpAuthentication::Token.token_and_options(request).present? || params[:token].present?
     end
 
     def not_acceptable
@@ -137,7 +147,7 @@ module DataCycleCore
       respond_to do |format|
         format.html { render 'data_cycle_core/exceptions/not_found_exception', status: :not_found } if is_a?(ApplicationController)
         format.json { render status: :not_found, json: { errors: content_api_error(exception) } }
-        format.js { render status: :not_found, js: "console.warn('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
+        format.js { render status: :not_found, js: "console.warn('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if render_js_error?
         format.any { head :not_found }
       end
     end
@@ -148,7 +158,7 @@ module DataCycleCore
       respond_to do |format|
         format.html { render 'data_cycle_core/exceptions/conflict_exception', status: :conflict } if is_a?(ApplicationController)
         format.json { render status: :conflict, json: { errors: content_api_error(exception) } }
-        format.js { render status: :conflict, js: "console.warn('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
+        format.js { render status: :conflict, js: "console.warn('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if render_js_error?
         format.any { head :conflict }
       end
     end
@@ -159,13 +169,18 @@ module DataCycleCore
       respond_to do |format|
         format.html { redirect_to authorized_root_path(nil, root_path_params), alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false } if is_a?(ApplicationController)
         format.json { render status: status_code, json: { errors: content_api_error(exception) } }
-        format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
+        format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if render_js_error?
         format.any { head status_code }
       end
     end
 
     def stored_filter_error(exception)
       redirect_to_root_with_error(exception, :bad_request, { reset: true })
+    end
+
+    # rails-ujs sets X-Requested-With on every remote request, so a non-XHR .js GET is a foreign <script> tag, not our UI
+    def render_js_error?
+      is_a?(ApplicationController) && request.xhr?
     end
 
     def exception_message(exception)

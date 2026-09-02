@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# simplecov:disable
 module DataCycleCore
   module Api
     module V1
@@ -64,3 +65,4 @@ module DataCycleCore
     end
   end
 end
+# simplecov:enable

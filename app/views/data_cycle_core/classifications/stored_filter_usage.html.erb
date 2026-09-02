@@ -1,0 +1,35 @@
+<%= turbo_frame_tag "stored-filter-usage-#{@classification_id}" do %>
+  <div class="reveal-body">
+    <% if @stored_filter_usage.present? %>
+      <ul class="no-bullet stored-filter-usage-list">
+        <% @stored_filter_usage.each do |stored_filter, direct| %>
+          <li>
+            <%# no classification_id here - a single item is an exact, already-identified search, not
+                a classification-restricted browse, so no chip; `q` just makes the `ids` restriction
+                visible in the search field instead of silently showing one unexplained result. %>
+            <%= button_to saved_searches_stored_filters_path, params: { ids: [stored_filter.id], q: stored_filter.name }, method: :post, form: { target: '_blank' }, data: { dc_tooltip: t('data_cycle_core.stored_searches.show_in_my_saved_searches', locale: active_ui_locale) } do %>
+              <%= tag.i(class: 'fa fa-external-link') %>
+              <%= stored_filter.name %>
+            <% end %>
+
+            <%= tag.i(class: 'fa fa-long-arrow-right', data: { dc_tooltip: t('classification_administration.stored_filter_usage.indirect', locale: active_ui_locale) }) unless direct %>
+          </li>
+        <% end %>
+      </ul>
+    <% elsif @hidden_usage_count.to_i.zero? %>
+      <p class="empty"><%= t('classification_administration.stored_filter_usage.empty', locale: active_ui_locale) %></p>
+    <% end %>
+
+    <% if @hidden_usage_count.to_i.positive? %>
+      <p class="stored-filter-usage-hidden-count"><%= t('classification_administration.stored_filter_usage.hidden_count', count: @hidden_usage_count, locale: active_ui_locale) %></p>
+    <% end %>
+  </div>
+
+  <% if @stored_filter_usage.present? %>
+    <div class="reveal-footer">
+      <%= button_to t('classification_administration.stored_filter_usage.show_all', locale: active_ui_locale),
+                  saved_searches_stored_filters_path, params: { ids: @stored_filter_usage.keys.map(&:id), classification_id: @classification_id },
+                  method: :post, form: { target: '_blank' }, class: 'button stored-filter-usage-show-all' %>
+    </div>
+  <% end %>
+<% end %>

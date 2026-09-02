@@ -186,6 +186,8 @@ Es ist möglich die Ergebnismenge auf direkte Kinder bzw. Unterklassifizierungen
 
 Es kann im Context eines Inhalts-Endpunktes in Kombination mit einem Klassifizierungsbaums eine Facettierung angefordert werden.
 
+> Ein Ergebnissatz kann auch nach dem externen System, aus dem die Inhalte importiert wurden, facettiert werden – siehe [Externe Systeme](/docs/api/external_systems).
+
 #### HTTP-GET:
 
 _/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID?token=YOUR_ACCESS_TOKEN_
@@ -202,7 +204,7 @@ _/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID?token=YOUR
 
 Dabei wird bei jeder Klassifizierung die Anzahl der indirekt verknüpften Inhalte (Mappings und untergeordnete Klassifizierungen werden berücksichtigt) unter `dc:thingCountWithSubtree`, sowie die Anzahl der direkt verknüpften Inhalte unter `dc:thingCountWithoutSubtree` ausgegeben.
 
-Bei diesem Endpunkt werden verwendete `filter` auf die Inhalte direkt angewendet, verwendete `sort`, `fields` und `include` Parameter werden auf die Klassifizierungen angewendet.
+Bei diesem Endpunkt werden verwendete `filter` auf die Inhalte direkt angewendet (und beeinflussen damit die Counts), verwendete `sort`, `fields` und `include` Parameter werden auf die Klassifizierungen angewendet. Mit `conceptFilter` kann zusätzlich die zurückgelieferte Menge der Klassifizierungen (Concepts) eingeschränkt werden (siehe [Filtern der Klassifizierungen mit `conceptFilter`](#filtern-der-klassifizierungen-mit-conceptfilter)).
 
 Die übergebene `language` steuert die Sprache für die Berechnung der Inhalts-Counts.
 Mit `conceptLanguage` kann optional eine andere Sprache für Klassifizierungen festgelegt werden.
@@ -299,6 +301,38 @@ Es gibt jedoch die Möglichkeit, die Ergebnismenge auf Ergebnisse zu beschränke
 ```
 
 In diesem Beispiel werden nur Klassifizierungen zurückgegeben, die mindestens einen Inhalt direkt oder indirekt über einen Unterbaum verknüpft haben (with_subtree). Die Klassifizierungen, die keine verknüpften Inhalte haben, werden nicht zurückgegeben. Hinweis: `minCountWithSubtree` wird implizit immer auf den Wert von `minCountWithoutSubtree` gesetzt, wenn der Parameter nicht explizit gesetzt wird. Auch kann kann `minCountWithSubtree` nicht kleiner als `minCountWithoutSubtree` sein.
+
+#### Filtern der Klassifizierungen mit `conceptFilter`
+
+Während `filter` die Inhalte (und damit die Counts) einschränkt, kann mit `conceptFilter` die zurückgelieferte Menge der Klassifizierungen (Concepts) selbst gefiltert werden. `conceptFilter` bietet die Filter der [Abfrage der Klassifizierungen eines Klassifizierungsbaums](#filtern-und-sortieren-von-klassifizierungen): Volltextsuche (`search`/`q`) sowie `attribute`-Filter (`dct:created`, `dct:modified`, `skos:broader`, `skos:ancestors`). Die Counts bleiben davon unberührt und werden weiterhin ausschließlich über `filter` gesteuert.
+
+Hinweis: `dct:deleted` steht im `conceptFilter` – anders als bei der Abfrage der Klassifizierungen eines Klassifizierungsbaums – nicht zur Verfügung. Die Facetten werden ausschließlich über nicht gelöschte Klassifizierungen berechnet, ein `dct:deleted`-Filter hätte daher keine Wirkung und wird abgelehnt (`400 Bad Request`).
+
+Beispiel: nur die direkten Unterklassifizierungen einer Klassifizierung zurückliefern (die Counts werden weiterhin über alle Inhalte berechnet):
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "conceptFilter": {
+    "attribute": {
+      "skos:broader": {
+        "in": ["6d9fbb75-1365-4edb-b470-56f8626d3a66"]
+      }
+    }
+  }
+}
+```
+
+Beispiel: die zurückgelieferten Klassifizierungen per Volltextsuche einschränken:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "conceptFilter": {
+    "search": "Musik"
+  }
+}
+```
 
 ### Sortierung
 

@@ -2,22 +2,9 @@
 
 module DataCycleCore
   class MailDeliveryJob < ActionMailer::MailDeliveryJob
-    include DataCycleCore::JobExtensions::DelayedJob
     include DataCycleCore::JobExtensions::Callbacks
 
-    ATTEMPTS = 10
-    WAIT = :polynomially_longer
-    PRIORITY = 5
-
     queue_as :mailers
-    queue_with_priority self::PRIORITY
-
-    def delayed_reference_id
-      arguments[0]
-    end
-
-    def delayed_reference_type
-      arguments[1]
-    end
+    queue_with_priority 5
   end
 end

@@ -69,7 +69,11 @@ module DataCycleCore
       keys
     end
 
-    def content_header_classification_aliases(content:, scope: :show, context: :show)
+    # #50677: `include_hidden` additionally lists the concepts the content only carries through a
+    # mapping of a tree flagged with hidden_mappings, as :hidden_mapped_value. Only the caller of the
+    # collapsed area passes it (and only for roles allowed to see them) — they never belong in the
+    # visible part of the detail view.
+    def content_header_classification_aliases(content:, scope: :show, context: :show, include_hidden: false)
       classification_aliases = {}
       parameters = {
         allowed_properties: ordered_header_classification_properties(content:, scope:),
@@ -80,18 +84,31 @@ module DataCycleCore
         content:
       }
 
-      content.collected_classification_contents
+      ccc_scope = content.collected_classification_contents
+      ccc_scope = ccc_scope.without_hidden unless include_hidden # #47172: hidden mappings never appear in the visible detail view
+
+      rows = ccc_scope
         .includes(classification_alias: [:classification_tree_label, :classification_alias_path])
-        .group_by(&:relation)
-        .each do |key, ccs|
+        .reject { |ccc| ccc.link_type == 'broader' }
+
+      # a concept the content carries visibly (in any relation) is shown as that, not additionally as
+      # a hidden mapping — the collapsed area reveals what would otherwise not be displayed at all
+      visible_ids = rows.reject(&:hidden).to_set(&:classification_alias_id)
+
+      rows.group_by(&:relation).each do |key, ccs|
         ccs.each do |ccc|
-          next if ccc.link_type == 'broader'
+          next if ccc.hidden && visible_ids.include?(ccc.classification_alias_id)
+
+          direct = ccc.link_type == 'direct'
 
           add_content_header_classification_alias(
             **parameters,
-            key: ccc.link_type == 'direct' ? key : '',
+            key: direct ? key : '',
             classification_alias: ccc.classification_alias,
-            type: ccc.link_type == 'direct' ? :value : :mapped_value
+            type: if ccc.hidden then :hidden_mapped_value
+                  elsif direct then :value
+                  else :mapped_value
+                  end
           )
         end
       end
@@ -99,6 +116,7 @@ module DataCycleCore
       classification_aliases.each_value do |v|
         v[:value].uniq!(&:id)
         v[:mapped_value].uniq!(&:id)
+        v[:hidden_mapped_value].uniq!(&:id)
 
         next unless v[:key] == 'universal_classifications'
 
@@ -123,7 +141,13 @@ module DataCycleCore
       ui_config = content&.properties_for(key)&.[]('ui').to_h
       ui_config.presence&.merge!(ui_config[scope.to_s].to_h)
 
-      if context == :show && ui_config.key?('disabled')
+      if type == :hidden_mapped_value
+        # #50677: these are only ever rendered in the collapsed area, so the tree's show_more
+        # visibility must not decide it — being displayable in the detail view at all is enough. The
+        # ui_config branch below cannot apply to them either way: like every non-direct value they
+        # carry a blank key, so there is no property whose `ui` could disable them.
+        return unless classification_alias.classification_tree_label.visibility&.intersect?(['show', 'show_more'])
+      elsif context == :show && ui_config.key?('disabled')
         return if ui_config['disabled'].to_s == 'true'
       else
         return unless classification_alias.classification_tree_label.visibility&.include?(context.to_s)
@@ -133,7 +157,7 @@ module DataCycleCore
       definition['tree_label'] ||= classification_alias.classification_tree_label.name
       definition['type'] ||= 'classification'
       label = translated_attribute_label(key, definition, content, options)
-      classification_aliases[label] ||= { key:, definition:, options:, value: [], mapped_value: [] }
+      classification_aliases[label] ||= { key:, definition:, options:, value: [], mapped_value: [], hidden_mapped_value: [] }
       classification_aliases[label][type] << classification_alias
     end
 
@@ -175,10 +199,13 @@ module DataCycleCore
       html_title += ': ' if text.present?
 
       html_text = text.presence || ''
+      # breadcrumb labels arrive as icon markup (config/breadcrumbs.rb), and aria-hidden is not in
+      # the sanitizer's default attribute list — without it screen readers read out every glyph
+      allowed = { tags: ['i'], attributes: ['class', 'aria-hidden'] }
 
       out = []
-      out << tag.span(html_title.html_safe)
-      out << tag.b(html_text.html_safe)
+      out << tag.span(sanitize(html_title, **allowed))
+      out << tag.b(sanitize(html_text, **allowed))
       safe_join(out)
     end
   end

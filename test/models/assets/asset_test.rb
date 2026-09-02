@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   module Assets
-    class AssetTest < ActiveSupport::TestCase
+    class AssetTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include DataCycleCore::ActiveStorageHelper
 
       def setup

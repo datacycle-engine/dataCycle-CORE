@@ -11,6 +11,24 @@ module DataCycleCore
       end
     end
 
+    # #50677: params scope => attribute => the ability its form field is rendered under, enforced by
+    # without_unpermitted_gated_attributes. Keep in sync with _classification_tree_label_form and
+    # _classification_alias_form.
+    # ui_configs is dropped whole because :color is the only sub-key permitted and it is the gated one;
+    # a second one would need this to map sub-keys instead.
+    GATED_ATTRIBUTES = {
+      classification_tree_label: {
+        internal: :update_internal,
+        mappable: :update_mappable,
+        hidden_mappings: :update_hidden_mappings,
+        change_behaviour: :update_change_behaviour
+      },
+      classification_alias: {
+        internal: :update_internal,
+        ui_configs: :set_color
+      }
+    }.freeze
+
     def index
       respond_to do |format|
         format.html do
@@ -39,17 +57,11 @@ module DataCycleCore
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
             @mapped_classification_aliases = @classification_tree.sub_classification_alias&.additional_classifications&.primary_classification_aliases || DataCycleCore::ClassificationAlias.none.page(1)
             @classification_type = @classification_tree
-            @queue_classification_mappings = Delayed::Job.where(
-              delayed_reference_type: 'ClassificationMappingJob',
-              delayed_reference_id: @classification_trees.pluck(:classification_alias_id)
-            ).pluck(:delayed_reference_id)
+            @queue_classification_mappings = queued_classification_mappings(@classification_trees.pluck(:classification_alias_id))
           elsif index_params.include?(:classification_tree_label_id)
             @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
             @classification_type = @classification_tree_label
-            @queue_classification_mappings = Delayed::Job.where(
-              delayed_reference_type: 'ClassificationMappingJob',
-              delayed_reference_id: @classification_trees.pluck(:classification_alias_id)
-            ).pluck(:delayed_reference_id)
+            @queue_classification_mappings = queued_classification_mappings(@classification_trees.pluck(:classification_alias_id))
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
@@ -57,7 +69,7 @@ module DataCycleCore
           authorize! :index, @classification_tree_label
 
           @mapped_classification_aliases = @mapped_classification_aliases
-            .includes(:classification_alias_path, :classification_tree_label)
+            .includes(:classification_alias_path, :classification_tree_label, :primary_classification)
             .reorder(nil)
             .order('classification_tree_labels.name ASC, classification_aliases.order_a ASC').references(:classification_tree_labels)
 
@@ -209,20 +221,36 @@ module DataCycleCore
         @object.save!
       end
 
-      queued_job = Delayed::Job.exists?(delayed_reference_type: 'ClassificationMappingJob', delayed_reference_id: @object.id)
-
       render json: {
         html: render_to_string(
           formats: [:html],
           layout: false,
           action: 'update',
           assigns: {
-            queue_classification_mappings: queued_job ? [@object.id] : []
+            queue_classification_mappings: queued_classification_mappings([@object.id])
           }
         ).strip
       }.merge(flash.discard.to_h)
     rescue ActiveRecord::RecordInvalid
       render json: { error: I18n.with_locale(helpers.active_ui_locale) { @object.errors.full_messages.join(', ') } }
+    end
+
+    # Renders the "used in stored filters" panel for a classification_alias or classification_tree_label,
+    # shown via a lazily-loaded turbo frame from the classification admin's overflow menu.
+    def stored_filter_usage
+      authorize! :index, DataCycleCore::StoredFilter
+
+      @classification_id = stored_filter_usage_params[:id]
+      usage = DataCycleCore::StoredFilter.used_by_classification(@classification_id)
+
+      # The count itself stays global (deleting a classification affects every user's saved
+      # searches), but listing names/links must not leak stored filters the current user cannot
+      # open - same scope as StoredFiltersController#saved_searches, which the links point to.
+      accessible_ids = DataCycleCore::StoredFilter.accessible_by(current_ability).where(id: usage.keys.map(&:id)).ids.to_set
+      @stored_filter_usage = usage.select { |filter, _direct| accessible_ids.include?(filter.id) }
+      @hidden_usage_count = usage.size - @stored_filter_usage.size
+
+      render 'data_cycle_core/classifications/stored_filter_usage', layout: false
     end
 
     def destroy
@@ -300,13 +328,17 @@ module DataCycleCore
       flash.now[:success] = I18n.t('classification_administration.merge.success', locale: helpers.active_ui_locale)
 
       render json: flash.discard.to_h
+    rescue DataCycleCore::Error::AmbiguousClassificationExternalSystemError
+      render json: { error: I18n.t('classification_administration.merge.ambiguous_external_system', locale: helpers.active_ui_locale) }
     end
 
     def unlink_contents
       collection = DataCycleCore::Collection.find(link_params[:collection_id])
       concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
 
-      authorize! :unlink_contents, concept_scheme
+      # the ability is declared on ClassificationTreeLabel, which is also what the button's can? checks,
+      # so authorizing the ConceptScheme denied every role without a blanket rule — super_admin included
+      authorize! :unlink_contents, concept_scheme.classification_tree_label
 
       DataCycleCore::ConceptSchemeUnlinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
 
@@ -317,7 +349,7 @@ module DataCycleCore
       collection = DataCycleCore::Collection.find(link_params[:collection_id])
       concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
 
-      authorize! :link_contents, concept_scheme
+      authorize! :link_contents, concept_scheme.classification_tree_label
 
       DataCycleCore::ConceptSchemeLinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
 
@@ -350,6 +382,18 @@ module DataCycleCore
     end
 
     private
+
+    # Which of the given classification aliases still have a mapping job outstanding, so the view can
+    # show them as queued. The key is asked of the job class instead of being spelled out here: it is
+    # SolidQueue's +[group, param]+ join, and adding a +group:+ to +limits_concurrency+ would
+    # otherwise silently turn this into an empty result rather than an error.
+    # @param classification_alias_ids [Array<String>]
+    # @return [Array<String>] the subset that is queued or running
+    def queued_classification_mappings(classification_alias_ids)
+      keys = classification_alias_ids.index_by { |id| DataCycleCore::ClassificationMappingJob.new(id).concurrency_key }
+
+      SolidQueue::Job.live.where(concurrency_key: keys.keys).pluck(:concurrency_key).filter_map { |key| keys[key] }
+    end
 
     def geometry_params
       params.permit(:id, concepts: [])
@@ -386,11 +430,13 @@ module DataCycleCore
         params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
-        normalize_names(params).permit(
-          :classification_tree_label_id,
-          :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, :mappable, { visibility: [], change_behaviour: [] }],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, classification_ids: [], ui_configs: [:color] }]
+        without_unpermitted_gated_attributes(
+          normalize_names(params).permit(
+            :classification_tree_label_id,
+            :classification_tree_id,
+            classification_tree_label: [:id, :name, :internal, :mappable, :hidden_mappings, { visibility: [], change_behaviour: [] }],
+            classification_alias: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, classification_ids: [], ui_configs: [:color] }]
+          )
         )
       end
     end
@@ -402,17 +448,55 @@ module DataCycleCore
         params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
-        normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, :mappable, { visibility: [], change_behaviour: [] }],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, classification_ids: [], ui_configs: [:color] }]
+        without_unpermitted_gated_attributes(
+          normalize_names(params).permit(
+            classification_tree_label: [:id, :name, :internal, :mappable, :hidden_mappings, { visibility: [], change_behaviour: [] }],
+            classification_alias: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, classification_ids: [], ui_configs: [:color] }]
+          )
         )
       end
+    end
+
+    # #50677: attributes whose form field is gated on an ability of its own — the tree label form and the
+    # classification alias form only render them for holders of the mapped action. create/update
+    # authorize nothing beyond this, so dropping the parameters here is what makes those gates hold for a
+    # hand-crafted request too.
+    def without_unpermitted_gated_attributes(permitted)
+      GATED_ATTRIBUTES.each do |scope, gates|
+        attributes = permitted[scope]
+        next if attributes.blank?
+
+        submitted = gates.slice(*attributes.keys.map(&:to_sym))
+        next if submitted.blank?
+
+        subject = gated_subject(scope, attributes[:id])
+        denied = submitted.filter_map { |attribute, action| attribute if cannot?(action, subject) }
+
+        permitted[scope] = attributes.except(*denied) if denied.present?
+      end
+
+      permitted
+    end
+
+    # the persisted record where there is one (the SubjectNotExternal-style segments of these abilities
+    # only exclude external/internal subjects on an instance), the class on create
+    def gated_subject(scope, id)
+      model = case scope
+              when :classification_tree_label then DataCycleCore::ClassificationTreeLabel
+              when :classification_alias then DataCycleCore::ClassificationAlias
+              end
+
+      model.find_by(id:) || model
     end
 
     def find_params
       return @find_params if defined? @find_params
 
       @find_params = params.permit(:tree_label, ids: [])
+    end
+
+    def stored_filter_usage_params
+      params.permit(:id)
     end
 
     def locale_params

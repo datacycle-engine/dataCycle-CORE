@@ -10,6 +10,31 @@ module DataCycleCore
         @failures = {}   # template_name => [messages]
         @life_cycle_set = []
         @life_cycle_disabled = false
+        @collection = nil
+      end
+
+      # Describes a collection by everything that tells a right one from a wrong one: path, id, owner,
+      # and whether it is served to API consumers. Public and on the class so a caller can name the
+      # collection it is about to write into before the run, not only read it back out afterwards.
+      #
+      # @return [String, nil] nil when there is no collection to describe.
+      def self.describe_collection(collection)
+        return if collection.nil?
+
+        traits = [collection.user_id.nil? ? 'system-owned' : "owned by user #{collection.user_id}"]
+        traits << 'api' if collection.api?
+        traits << 'my selection' if collection.my_selection?
+
+        "#{collection.full_path} (#{collection.id}, #{traits.join(', ')})"
+      end
+
+      # Records the collection the run adds its records to. Reported because collection_id reaches
+      # any collection in the installation, so a wrong-but-existing id is indistinguishable from a
+      # correct one in the counts and the generator cannot take the records back out again. Described
+      # on the way in rather than held as a record: a rolled-back run (DRY_RUN) resets the id of a
+      # collection created inside its transaction, and that report is worth reading too.
+      def note_collection(collection)
+        @collection = self.class.describe_collection(collection)
       end
 
       # Records a template whose record was filled successfully.
@@ -55,6 +80,7 @@ module DataCycleCore
       # Human-readable summary with failures and skipped properties.
       def to_s
         lines = ["Test data generation: #{created_count} created, #{life_cycle_set_count} life-cycle-set, #{failed_count} failed."]
+        lines << collection_line
         lines << '  (life cycle feature disabled — stage not set)' if @life_cycle_disabled
         lines.concat(failure_lines)
         lines.concat(skip_lines)
@@ -62,6 +88,10 @@ module DataCycleCore
       end
 
       private
+
+      def collection_line
+        "  Collection: #{@collection || 'none — the records are not collected'}"
+      end
 
       def failure_lines
         return [] if @failures.empty?

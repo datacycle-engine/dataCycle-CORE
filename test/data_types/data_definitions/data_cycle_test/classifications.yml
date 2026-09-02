@@ -878,3 +878,26 @@
 - Übersetzungstyp | all:
     - $$Manuell
     - $$Automatisch
+
+# [#50050] AiAgentService resolves these by external_key or uri (hence the differing uri) and
+# creates an agent only in the locales of its degree (hence the de-only odta:AIModified)
+- name: ODTA - AI-DegreeOfInvolvement
+  external_key: odta:aiDegreeOfInvolvement
+  visibility:
+    - api
+    - show
+  concepts:
+    - name:
+        de: KI-generiert
+        en: AI generated
+      uri: odta:AIGenerated
+      external_key: odta:AIGenerated
+    - name:
+        de: KI-unterstützt
+        en: AI involved
+      uri: https://odta.io/voc/AIInvolved
+      external_key: odta:AIInvolved
+    - name:
+        de: KI-überarbeitet
+      uri: odta:AIModified
+      external_key: odta:AIModified

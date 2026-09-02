@@ -9,32 +9,91 @@ module DataCycleCore
 
     def stub_rake(task_name, args, &block)
       task = Minitest::Mock.new
+      task.expect(:reenable, nil)
       task.expect(:invoke, nil, args)
 
-      Rake::Task.stub(:clear, nil) do
-        Rails.application.stub(:load_tasks, nil) do
-          Rake::Task.stub(:[], lambda { |name|
-            assert_equal task_name, name
-            task
-          }, &block)
-        end
+      Rails.application.stub(:load_tasks, nil) do
+        Rake::Task.stub(:[], lambda { |name|
+          assert_equal task_name, name
+          task
+        }, &block)
       end
 
       assert_mock task
     end
 
-    test 'run_task_job clears, loads and invokes the rake task' do
+    test 'run_task_job loads, reenables and invokes the rake task' do
       stub_rake('my:task', ['arg']) do
         DataCycleCore::RunTaskJob.perform_now('my:task', ['arg'])
       end
     end
 
-    test 'run_task_job builds reference id and type' do
+    test 'run_task_job builds its concurrency key from task and arguments' do
       job = DataCycleCore::RunTaskJob.new('my:task', ['a', 'b'])
 
-      assert_equal 'args:a_b', job.delayed_reference_id
-      assert_equal 'RunTaskJob: my:task', job.delayed_reference_type
-      assert_equal DataCycleCore::RunTaskJob::PRIORITY, job.priority
+      assert_equal 'DataCycleCore::RunTaskJob/my:task/a_b', job.concurrency_key
+      assert_equal 0, job.priority
+    end
+
+    test 'run_task_job keys the same task with different arguments separately' do
+      assert_not_equal DataCycleCore::RunTaskJob.new('my:task', ['a']).concurrency_key,
+                       DataCycleCore::RunTaskJob.new('my:task', ['b']).concurrency_key
+    end
+
+    # :discard leaves no blocked execution behind, so the uniqueness guard has to look at the jobs
+    # table; a blocked-execution-only check would report no duplicate and let this one through
+    test 'run_task_job discards a duplicate instead of queueing it behind the original' do
+      assert_equal 'discard', DataCycleCore::RunTaskJob.concurrency_on_conflict.to_s
+
+      job = DataCycleCore::RunTaskJob.new('my:task', ['a'])
+      SolidQueue::Job.create!(
+        queue_name: job.queue_name,
+        class_name: job.class.name,
+        arguments: job.serialize,
+        concurrency_key: job.concurrency_key
+      )
+
+      assert_empty SolidQueue::BlockedExecution.where(concurrency_key: job.concurrency_key)
+      assert_not DataCycleCore::RunTaskJob.perform_later('my:task', ['a'])
+      assert DataCycleCore::RunTaskJob.perform_later('my:task', ['b'])
+    end
+
+    # The counterpart for the default :block mode, which is what all but three UniqueApplicationJob
+    # subclasses use. The test adapter never writes solid_queue_jobs, so the blocking state has to be
+    # built by hand — without it abort_if_queued would find nothing and every one of those classes
+    # would silently stop deduplicating. CheckForDuplicatesJob stands in for the whole set: what is
+    # under test is UniqueApplicationJob's before_enqueue, not anything specific to that job.
+    test 'a blocking unique job drops a duplicate once one is waiting on the same key' do
+      assert_equal 'block', DataCycleCore::CheckForDuplicatesJob.concurrency_on_conflict.to_s
+
+      job = DataCycleCore::CheckForDuplicatesJob.new(UUID)
+      # a held semaphore makes SolidQueue block the next job for the key instead of readying it
+      SolidQueue::Semaphore.create!(key: job.concurrency_key, value: 0, expires_at: 1.hour.from_now)
+      row = SolidQueue::Job.create!(
+        queue_name: job.queue_name,
+        class_name: job.class.name,
+        arguments: job.serialize,
+        concurrency_key: job.concurrency_key
+      )
+
+      assert SolidQueue::BlockedExecution.exists?(job_id: row.id)
+
+      assert_no_enqueued_jobs only: DataCycleCore::CheckForDuplicatesJob do
+        assert_not DataCycleCore::CheckForDuplicatesJob.perform_later(UUID)
+      end
+
+      # a different key is unaffected — the guard drops duplicates, not the job class
+      assert_enqueued_jobs 1, only: DataCycleCore::CheckForDuplicatesJob do
+        assert DataCycleCore::CheckForDuplicatesJob.perform_later(SecureRandom.uuid)
+      end
+    end
+
+    test 'a UniqueApplicationJob without limits_concurrency has nothing to be unique by' do
+      klass = Class.new(DataCycleCore::UniqueApplicationJob) do
+        def self.name = 'KeylessUniqueJob'
+      end
+
+      assert_raises(RuntimeError) { klass.new.abort_if_queued }
     end
 
     test 'run_task_job_import clears, loads and invokes the rake task' do
@@ -43,46 +102,11 @@ module DataCycleCore
       end
     end
 
-    test 'run_task_job_import builds the reference id' do
+    test 'run_task_job_import builds its concurrency key' do
       job = DataCycleCore::RunTaskJobImport.new('importer:task')
 
-      assert_equal 'importer:task', job.delayed_reference_id
-      assert_equal DataCycleCore::RunTaskJobImport::PRIORITY, job.priority
-    end
-
-    test 'unique_application_job raises for an unimplemented reference id' do
-      assert_raises(RuntimeError) { DataCycleCore::UniqueApplicationJob.new.delayed_reference_id }
-    end
-
-    test 'unique_application_job clears previous jobs and reuses their schedule' do
-      job = DataCycleCore::AutoTranslationJob.new(UUID, 'de')
-      previous = Object.new
-      run_at = 1.hour.ago
-      previous.define_singleton_method(:run_at) { run_at }
-
-      deleted = []
-      relation = Object.new
-      relation.define_singleton_method(:order) { |*| relation }
-      relation.define_singleton_method(:first) { previous }
-      relation.define_singleton_method(:delete_all) { deleted << :deleted }
-
-      Delayed::Job.stub(:where, relation) do
-        job.clear_previous_jobs
-      end
-
-      assert_equal run_at, job.scheduled_at
-      assert_equal [:deleted], deleted
-    end
-
-    test 'unique_application_job keeps schedule when there is no previous job' do
-      job = DataCycleCore::AutoTranslationJob.new(UUID, 'de')
-      relation = Object.new
-      relation.define_singleton_method(:order) { |*| relation }
-      relation.define_singleton_method(:first) { nil }
-
-      Delayed::Job.stub(:where, relation) do
-        assert_nil job.clear_previous_jobs
-      end
+      assert_equal 'DataCycleCore::RunTaskJobImport/importer:task', job.concurrency_key
+      assert_equal 5, job.priority
     end
 
     test 'rebuild_classification_mappings rebuilds tables and broadcasts the button state' do
@@ -95,14 +119,13 @@ module DataCycleCore
 
       assert_includes states, true
       assert_includes states, false
-      assert_predicate DataCycleCore::RebuildClassificationMappingsJob, :broadcast_dashboard_jobs_now?
     end
 
-    test 'rebuild_classification_mappings exposes its reference id and priority' do
+    test 'rebuild_classification_mappings exposes its concurrency key and priority' do
       job = DataCycleCore::RebuildClassificationMappingsJob.new
 
-      assert_equal 'DataCycleCore::Feature::TransitiveClassificationPath#rebuild_transitive_tables!', job.delayed_reference_id
-      assert_equal DataCycleCore::RebuildClassificationMappingsJob::PRIORITY, job.priority
+      assert_equal 'DataCycleCore::RebuildClassificationMappingsJob/rebuild_transitive_tables', job.concurrency_key
+      assert_equal 0, job.priority
     end
 
     test 'remove_content_references uses the non-translatable branch' do

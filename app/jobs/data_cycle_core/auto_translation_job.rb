@@ -2,17 +2,9 @@
 
 module DataCycleCore
   class AutoTranslationJob < UniqueApplicationJob
-    PRIORITY = 5
-
     queue_as :default
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      arguments[0]
-    end
+    queue_with_priority 5
+    limits_concurrency key: ->(*args) { args[0] }
 
     def perform(id, locale)
       return unless DataCycleCore::Feature::AutoTranslation.enabled?

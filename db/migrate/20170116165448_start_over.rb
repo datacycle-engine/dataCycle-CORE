@@ -32,17 +32,17 @@ class StartOver < ActiveRecord::Migration[5.0]
     end
 
     create_table :classifications_groups, id: :uuid do |t|
-      t.uuid  :classification_id
-      t.uuid  :classifications_alias_id
-      t.uuid  :external_source_id
+      t.uuid :classification_id
+      t.uuid :classifications_alias_id
+      t.uuid :external_source_id
       t.datetime :seen_at
       t.timestamps
     end
 
     create_table :classifications_places, id: :uuid do |t|
-      t.uuid  :place_id
-      t.uuid  :classification_id
-      t.uuid  :external_source_id
+      t.uuid :place_id
+      t.uuid :classification_id
+      t.uuid :external_source_id
       t.datetime :seen_at
       t.timestamps
       t.index ['classification_id'], name: 'index_classifications_places_on_classification_id', using: :btree

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class RemoveAddressDataFromTranslationsForPlaces < ActiveRecord::Migration[5.0]
-  # rubocop:disable Rails/BulkChangeTable
+  # rubocop:disable-next Rails/BulkChangeTable
   def change
     remove_column :place_translations, :addressLocality, :string
     remove_column :place_translations, :streetAddress, :string
@@ -39,5 +39,4 @@ class RemoveAddressDataFromTranslationsForPlaces < ActiveRecord::Migration[5.0]
     add_column :place_histories, :telephone, :string
     add_column :place_histories, :email, :string
   end
-  # rubocop:enable Rails/BulkChangeTable
 end

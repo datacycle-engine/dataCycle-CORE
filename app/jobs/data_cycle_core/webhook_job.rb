@@ -4,9 +4,8 @@ module DataCycleCore
   class WebhookJob < UniqueApplicationJob
     queue_as :webhooks
     queue_with_priority 5
+    limits_concurrency key: ->(*args) { "#{args.dig(0, :data_object, :id)}/#{args.dig(0, :external_system_id)}/#{args.dig(0, :action)}" }
 
-    ATTEMPTS = 10
-    WAIT = :polynomially_longer
     ABORT_ON_NIL_ACTIONS = [:create, :update].freeze
 
     attr_accessor :data, :utility_object, :external_sync, :response, :start_time
@@ -19,19 +18,8 @@ module DataCycleCore
     after_error :error_external_sync
     after_failure :failure_external_sync
 
-    def delayed_reference_id
-      arguments.dig(0, :data_object, :id)
-    end
-
     def discard_on_failure?
       utility_object&.discard_job_on_failure?
-    end
-
-    def delayed_reference_type
-      [
-        arguments.dig(0, :external_system_id),
-        arguments.dig(0, :action)&.to_s
-      ].compact_blank.join('_')
     end
 
     def perform(*)
@@ -54,7 +42,11 @@ module DataCycleCore
     def success_delete
       return unless utility_object.action.to_s == 'delete'
 
-      external_sync&.update(sync_type: 'duplicate')
+      if utility_object.external_system.remove_external_system_syncs_on_delete? && data.respond_to?(:external_system_syncs) && !delete_response_failed?
+        DataCycleCore::Export::SyncCleanup.new(content: data, external_system: utility_object.external_system).call
+      else
+        external_sync&.update(sync_type: 'duplicate')
+      end
     end
 
     def error_external_sync
@@ -85,6 +77,13 @@ module DataCycleCore
 
     private
 
+    # only skip sync cleanup on an explicit failure response (e.g. DZT returns
+    # { 'job_status' => 'failed' }); keeps cleanup correct regardless of the
+    # order in which after_success callbacks run
+    def delete_response_failed?
+      response.is_a?(Hash) && response['job_status'].to_s == 'failed'
+    end
+
     def instrument_status(severity, message_details)
       return if utility_object.blank? || utility_object.external_system.blank?
 
@@ -104,15 +103,28 @@ module DataCycleCore
       }
     end
 
+    # Faraday::Error#response is a Hash; our own EndpointError classes wrap a Faraday::Response object
+    def response_status(response)
+      return response[:status] if response.is_a?(Hash)
+
+      response.try(:status)
+    end
+
+    def response_body(response)
+      body = response.is_a?(Hash) ? response[:body] : response.try(:body)
+      body&.to_s&.dup&.encode_utf8!
+    end
+
     def exception_data
       return if last_error.blank?
 
-      text = last_error.try(:response)&.dig(:body)&.to_s&.dup&.encode_utf8! if last_error.try(:response).respond_to?(:dig)
+      response = (last_error.try(:original_error) || last_error).try(:response)
 
       {
         timestamp: Time.zone.now,
+        status: response_status(response),
         message: last_error.message.dup.encode_utf8!,
-        text:
+        text: response_body(response)
       }
     end
 

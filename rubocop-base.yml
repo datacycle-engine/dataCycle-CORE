@@ -10,7 +10,7 @@ AllCops:
   DisplayCopNames: true
   SuggestExtensions: false
   TargetRubyVersion: 3.3
-  TargetRailsVersion: 8.0
+  TargetRailsVersion: 8.1
   NewCops: enable
   Exclude:
     - "node_modules/**/*"

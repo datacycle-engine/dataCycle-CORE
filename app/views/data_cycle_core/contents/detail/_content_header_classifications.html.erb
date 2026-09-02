@@ -1,8 +1,11 @@
 <div class="content-header-classifications">
   <%= render 'data_cycle_core/contents/detail/content_header_classification_aliases', local_assigns.merge({ context: :show }) %>
 
+  <%# 50677: the collapsed area additionally reveals the concepts a content only carries through a
+      hidden mapping (super_admin and above) %>
   <% content_for :mapped_hidden_classifications, flush: true do %>
-    <%= render 'data_cycle_core/contents/detail/content_header_classification_aliases', local_assigns.merge({ context: :show_more }) %>
+    <%= render 'data_cycle_core/contents/detail/content_header_classification_aliases',
+          local_assigns.merge({ context: :show_more, include_hidden: can?(:show_hidden_classifications, content) }) %>
   <% end %>
 
   <% if content_for?(:mapped_hidden_classifications) %>

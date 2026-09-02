@@ -10,6 +10,11 @@
       :translatable:
         :allowed: true
     :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
       :id:
         :label: id
         :type: key
@@ -65,6 +70,11 @@
       :translatable:
         :allowed: true
     :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
       :id:
         :label: id
         :type: key
@@ -119,6 +129,11 @@
       :translatable:
         :allowed: true
     :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
       :id:
         :label: id
         :type: key

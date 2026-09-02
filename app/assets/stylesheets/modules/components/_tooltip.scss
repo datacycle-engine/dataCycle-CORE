@@ -32,6 +32,15 @@
     font-weight: bold;
   }
 
+  .tag-uri {
+    max-width: 40vw;
+    overflow-wrap: anywhere;
+
+    .tag-uri-header {
+      font-weight: bold;
+    }
+  }
+
   .tag-description {
     max-width: 40vw;
   }

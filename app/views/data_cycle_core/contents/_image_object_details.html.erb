@@ -49,12 +49,12 @@
               </dd>
             <% end %>
 
-            <% if ['copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines', 'licensing_agreement', 'attribution_url'].any?{|val| content.try(val.to_sym).present? } %>
+            <% if ['copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer', 'author', 'contributor', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines', 'licensing_agreement', 'attribution_url'].any?{|val| content.try(val.to_sym).present? } %>
               <dt>
                 <i class="fa fa-copyright" aria-hidden="true"></i>
                 Copyright
               </dt>
-              <% ['copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'use_guidelines', 'licensing_agreement', 'attribution_url'].each do |property_name| %>
+              <% ['copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer', 'author', 'contributor', 'copyright_holder', 'copyright_year', 'use_guidelines', 'licensing_agreement', 'attribution_url'].each do |property_name| %>
                 <% next if content.try(property_name.to_sym).blank? %>
 
                 <dd>
@@ -222,7 +222,7 @@
           <% next if ['overlay', 'asset', 'thumbnail_url', 'alternative_headline', 'caption', 'description',
                       'content_location', 'comment', 'source', 'image_id', 'visibility', 'validity_schedule',
                       'copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer',
-                      'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines',
+                      'author', 'contributor', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines',
                       'licensing_agreement', 'attribution_url', 'width', 'height', 'content_size', 'file_format',
                       'date_created', 'date_modified', 'upload_date', 'mandatory_license'].include?(key) %>
 

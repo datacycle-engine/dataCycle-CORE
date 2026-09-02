@@ -5,6 +5,52 @@ module DataCycleCore
     module Common
       # Methods for parsing and applying date-related filters.
       module Date
+        SKIP_VALIDITY_FILTERS_KEY = :data_cycle_core_skip_validity_filters
+        # `date_range` attribute paths come from the `advanced_filter.date_range` config (and from
+        # stored filters created with it), where a value may be a JSON path into a jsonb column
+        # (e.g. `metadata ->> 'upload_date'`) instead of a plain `things` column.
+        DATE_RANGE_JSON_PATH = /\A\s*(?<column>\w+)\s*->>?\s*'(?<key>[^']+)'\s*\z/
+
+        class << self
+          # Runs the block with the validity filters (#validity_period, #in_validity_period and their
+          # negations) turned into no-ops.
+          #
+          # Deliberately not solved by removing the validity parameters from a StoredFilter: a filter
+          # reaches them through parameter types that resolve a StoredFilter of their own
+          # (+filter_ids+, +union_filter_ids+, +union+ - see StoredFilterExtensions::FilterParamsHashParser
+          # and Filter::Common::Union), whose parameters no caller can strip. Switching the filter
+          # methods off instead survives every nesting level.
+          #
+          # A relation built inside the block keeps the bypass when it is executed later: the filter
+          # methods run while the query is assembled, and nested StoredFilters are resolved to SQL
+          # right there. Only relations *built* outside the block are unaffected.
+          #
+          # Note that this cannot reach a StoredFilter that answers from its cache
+          # (StoredFilterExtensions::Cachable) - the cached set was materialized with the validity
+          # filter applied. Callers that need the bypass therefore have to run uncached, which a
+          # +StoredFilter.new+ (no +cached_result+) does at every level.
+          #
+          # The state lives in +Thread.current+ (as in Turbo::ThreadThrottler), not in a Rails store.
+          # Note that +Thread#[]+ is fiber-local, not thread-local: a query built inside a +Fiber+, an
+          # +Enumerator+ or a +.lazy+ chain opened in the block does not see the bypass and applies the
+          # validity filter again. That is the safe direction to fail in, and neither Filter:: nor
+          # StoredFilter uses any of them today - but it is the assumption this switch rests on.
+          # @return [Object] the return value of the block
+          def without_validity_filters
+            previous = Thread.current[SKIP_VALIDITY_FILTERS_KEY]
+            Thread.current[SKIP_VALIDITY_FILTERS_KEY] = true
+
+            yield
+          ensure
+            Thread.current[SKIP_VALIDITY_FILTERS_KEY] = previous
+          end
+
+          # @return [Boolean] whether the validity filters are currently switched off
+          def validity_filters_disabled?
+            Thread.current[SKIP_VALIDITY_FILTERS_KEY].present?
+          end
+        end
+
         # Filter things that have schedule occurrences overlapping the given date filter object.
         #
         # `attribute_key` supports the historical alias 'schedule' for backwards compatibility of APIv4 filter[attribute][schedule].
@@ -48,6 +94,7 @@ module DataCycleCore
 
         # Filter things whose `:validity_range` intersects the provided date filter range.
         def validity_period(value = nil, _mode = nil)
+          return self if DataCycleCore::Filter::Common::Date.validity_filters_disabled?
           return none if value.blank?
 
           from_node, to_node = arel_date_from_filter_object(value)
@@ -61,6 +108,8 @@ module DataCycleCore
 
         # Negated `validity_period` — returns things whose `:validity_range` do NOT have any overlap with the given range.
         def not_validity_period(value = nil, _mode = nil)
+          return self if DataCycleCore::Filter::Common::Date.validity_filters_disabled?
+
           from_node, to_node = arel_date_from_filter_object(value)
 
           reflect(
@@ -74,6 +123,8 @@ module DataCycleCore
         #
         # Defaults to the beginning of the current day.
         def in_validity_period(current_date = nil)
+          return self if DataCycleCore::Filter::Common::Date.validity_filters_disabled?
+
           current_date ||= Time.zone.now.beginning_of_day
           reflect(
             @query.where(in_range(thing[:validity_range], cast_tstz(current_date)))
@@ -105,7 +156,7 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              in_range(tsrange(from_node, to_node), thing[attribute_path.to_sym])
+              in_range(tsrange(from_node, to_node), date_range_attribute(attribute_path))
             )
           )
         end
@@ -116,7 +167,7 @@ module DataCycleCore
 
           reflect(
             @query.where.not(
-              in_range(tsrange(from_node, to_node), thing[attribute_path.to_sym])
+              in_range(tsrange(from_node, to_node), date_range_attribute(attribute_path))
             )
           )
         end
@@ -174,74 +225,39 @@ module DataCycleCore
 
         # Convert the parsed from/to values into ARel nodes using the provided range conversion function (default: `cast_tstz`).
         #
+        # Relative dates are resolved in Ruby (see `relative_to_absolute_date`) and embedded as absolute
+        # literals; the database-side `relative_date(jsonb)` function is intentionally NOT used here — it
+        # is opaque to the query planner and regressed production performance (#50369). The function is
+        # kept in the schema for hand-written Grafana queries.
+        #
         # Dates are normalised to day boundaries (beginning_of_day/end_of_day) to provide intuitive semantics for date-only filters.
         def arel_date_from_filter_object(value, range_function = 'cast_tstz')
-          assert_date_filter_bounds!(value)
+          from, to = date_from_filter_object(value)
 
-          value ||= {}
-          value.stringify_keys!
-          min = value['from'] || value['min']
-          max = value['until'] || value['max']
-
-          if min.is_a?(Hash) || max.is_a?(Hash)
-            from_node = send(range_function, relative_to_absolute_arel_date(min))
-            to_node = send(range_function, relative_to_absolute_arel_date(max))
-          else
-            from_date = date_from_single_value(min)
-            to_date = date_from_single_value(max)
-
-            from_date = from_date.beginning_of_day if from_date.is_a?(::Date)
-            to_date = to_date.end_of_day if to_date.is_a?(::Date)
-
-            from_node = from_date.blank? ? nil : send(range_function, from_date)
-            to_node = to_date.blank? ? nil : send(range_function, to_date)
-          end
+          from_node = if from.blank?
+                        nil
+                      else
+                        send(range_function, from.is_a?(::Date) ? from.beginning_of_day : from)
+                      end
+          to_node = if to.blank?
+                      nil
+                    else
+                      send(range_function, to.is_a?(::Date) ? to.end_of_day : to)
+                    end
 
           return from_node, to_node
         end
 
-        # Raises `DataCycleCore::Error::Filter::DateFilterRangeError` if bounds are inverted.
-        def assert_date_filter_bounds!(value)
-          _, __ = date_from_filter_object(value)
-        end
-
-        # Builds an ARel call to the database-side `relative_date(jsonb)` function for relative-to-absolute date conversion.
+        # Relative-to-absolute date conversion used by the filter query builder.
         #
         # Expects a hash containing keys `n` and `unit` and an optional `mode` (p for plus/forward).
-        # Returns an ARel node representing the function call (e.g. `relative_date('{"n":2,"unit":"day","mode":"m"}'::jsonb)`) or nil for invalid payloads.
-        def relative_to_absolute_arel_date(value)
-          return if value.blank? || !value.is_a?(::Hash)
-
-          value = value.stringify_keys
-          distance = value['n']&.presence&.to_i
-
-          return if distance.blank?
-
-          payload = value.slice('n', 'unit', 'mode').compact
-          json_literal = ActiveRecord::Base.connection.quote(payload.to_json)
-
-          Arel::Nodes::NamedFunction.new(
-            'relative_date',
-            [Arel::Nodes::SqlLiteral.new("#{json_literal}::jsonb")]
-          )
-        end
-
-        # Supported relative-date units mapped to ActiveSupport::Duration helpers.
-        # Mirrors the unit handling of the database-side `relative_date(jsonb)` (unknown/blank unit -> days),
-        # and avoids `Integer#send(arbitrary_method)` which could call any Integer method (e.g. 'abs').
-        RELATIVE_DATE_UNITS = {
-          'minute' => :minutes,
-          'hour' => :hours,
-          'day' => :days,
-          'week' => :weeks,
-          'month' => :months,
-          'year' => :years
-        }.freeze
-
-        # Ruby-based implementation for relative-to-absolute date conversion.
+        # Returns a Time instance or nil for invalid payloads.
         #
-        # Expects a hash containing keys `n` and `unit` and an optional `mode` (p for plus/forward).
-        # Returns a Time instance or nil for invalid payloads. Mirrors the database-side `relative_date`.
+        # Ruby is the source of truth for relative dates; the database-side `relative_date(jsonb)`
+        # function (kept only for Grafana) mirrors it for all real inputs. Malformed units are the one
+        # exception where we do NOT match it: the SQL `ELSE` falls back to days, whereas here an
+        # unrecognised unit yields nil. The `case` (not `distance.send(value['unit'])`) keeps user
+        # input from invoking arbitrary Integer methods (e.g. 'abs').
         def relative_to_absolute_date(value)
           return if value.blank?
 
@@ -249,7 +265,17 @@ module DataCycleCore
 
           return if distance.blank?
 
-          duration = distance.public_send(RELATIVE_DATE_UNITS.fetch(value['unit'], :days))
+          unit = value['unit'] || 'day'
+          duration = case unit
+                     when 'minute' then distance.minutes
+                     when 'hour' then distance.hours
+                     when 'day' then distance.days
+                     when 'week' then distance.weeks
+                     when 'month' then distance.months
+                     when 'year' then distance.years
+                     end
+
+          return if duration.nil?
 
           value['mode'] == 'p' ? Time.zone.now + duration : Time.zone.now - duration
         end
@@ -266,9 +292,18 @@ module DataCycleCore
           end
         end
 
+        private
+
+        # The JSON form yields text, so it needs a cast to be comparable to the tsrange.
+        def date_range_attribute(attribute_path)
+          match = DATE_RANGE_JSON_PATH.match(attribute_path.to_s)
+
+          return thing[attribute_path.to_sym] if match.nil?
+
+          cast_ts(in_json(thing[match[:column].to_sym], match[:key]))
+        end
+
         module_function :date_from_filter_object
-        module_function :assert_date_filter_bounds!
-        module_function :relative_to_absolute_arel_date
         module_function :relative_to_absolute_date
         module_function :date_from_single_value
       end

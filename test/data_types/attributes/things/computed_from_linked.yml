@@ -1,0 +1,70 @@
+---
+# [#50050] Templates for Classification#from_linked: a content that mirrors the concepts of a
+# tree from the contents linked through a property - the degree of AI involvement of its linked
+# ArtificialIntelligenceAgent contents, as the ai_involvement mixin of the schema gems does it.
+- :data:
+    :name: FromLinked-Image
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - ImageObject
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :contributor:
+        :label: Mitwirkende
+        :type: linked
+        :template_name:
+          - ArtificialIntelligenceAgent
+          - FromLinked-Tagged
+      :dc_ai_degree_of_involvement:
+        :label: Grad der KI-Beteiligung
+        :type: classification
+        :tree_label: ODTA - AI-DegreeOfInvolvement
+        :visible:
+          - show
+        :compute:
+          :module: Classification
+          :method: from_linked
+          :fallback: false
+          :parameters:
+            - contributor
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+# A linked content whose classifications live in another tree, so the assertion that from_linked
+# collects only the concepts of its own tree_label has a subject.
+- :data:
+    :name: FromLinked-Tagged
+    :type: object
+    :content_type: entity
+    # not Person: the search index of a Person reads given_name/family_name, which this
+    # minimal template does not have
+    :schema_ancestors:
+      - Organization
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :tags:
+        :label: Tags
+        :type: classification
+        :tree_label: Tags
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false

@@ -45,7 +45,7 @@ module DataCycleCore
 
               raise(Error::BadRequestError, I18n.with_locale(:en) { receiver.errors.messages.values.flatten.map { |m| { path: ['@graph', index, 'receiver'], message: m } } }) unless receiver.persisted?
 
-              rraise(Error::BadRequestError, { path: ['@graph', index, 'receiver'], message: 'receiver is locked' }) if receiver.locked?
+              raise(Error::BadRequestError, { path: ['@graph', index, 'receiver'], message: 'receiver is locked' }) if receiver.access_locked?
               raise(Error::BadRequestError, { path: ['@graph', index, 'receiver', 'email'], message: 'external_link already exists for this email' }) if DataCycleCore::DataLink.includes(:receiver).where(**data.slice(:item_id, :item_type), receiver: { email: receiver.email }).any?
 
               data_link = DataCycleCore::DataLink.create!(

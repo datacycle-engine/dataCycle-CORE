@@ -2,21 +2,9 @@
 
 module DataCycleCore
   class CacheInvalidationJob < UniqueApplicationJob
-    PRIORITY = 10
-
     queue_as :cache_invalidation
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      arguments[1].to_s
-    end
-
-    def delayed_reference_type
-      "#{arguments[0]}##{arguments[2]}"
-    end
+    queue_with_priority 10
+    limits_concurrency key: ->(*args) { "#{args[2]}/#{args[1]}" }
 
     def perform(class_name, id, method_name)
       class_name.classify.constantize.find(id).send(method_name)

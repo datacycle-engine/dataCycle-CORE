@@ -4,6 +4,8 @@ module DataCycleCore
   module Generic
     module Common
       module ImportFunctionsDataHelper
+        include ImportLocaleFilter
+
         PROPERTIES_WITH_IMPORTED_FLAG = [
           'data_pool'
         ].freeze
@@ -47,6 +49,9 @@ module DataCycleCore
           return if DataHashService.deep_blank?(data) || data['external_key'].blank?
 
           data = post_process_data(data:, config:, utility_object:).slice(*template.importable_property_names)
+          data = drop_blank_assets(data, template)
+          data = add_mongo_infos(data:, raw_data:, utility_object:)
+
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
           external_key = data['external_key']
           external_source_id = utility_object.external_source.id
@@ -125,7 +130,12 @@ module DataCycleCore
             return content
           end
 
-          if (template_changed = template_changed?(content:, template:))
+          # read before the saves below, which clear the dirty flag a primary system change left
+          import_untranslatable = import_untranslatable?(content)
+
+          # a conversion concerns every locale at once and clears the untranslatable data it expects
+          # the write below to re-map onto the new template - only a primary locale pass writes it
+          if import_untranslatable && (template_changed = template_changed?(content:, template:))
             previous_template_name = content.template_name
 
             unless content.can_become?(template, data:)
@@ -167,7 +177,14 @@ module DataCycleCore
             # 'id' is only used to look up existing content (see #find_thing) and is not a writable
             # schema property, so exclude it here (like 'external_key' below) to keep it out of set_data_hash.
             global_data = data.except(*content.local_property_names, 'overlay', 'id')
-            add_properties_with_imported_flag!(content, global_data)
+
+            if import_untranslatable
+              add_properties_with_imported_flag!(content, global_data)
+            else
+              # the flags belong to their (untranslatable) property, so they are left alone too
+              keep_translatable_only!(global_data, content)
+            end
+
             global_data.except!('external_key') unless created
 
             valid = content.set_data_hash(
@@ -185,17 +202,9 @@ module DataCycleCore
           if valid
             instrument_template_conversion(content:, utility_object:, item_id: external_key, previous_template_name:) if template_changed
 
-            ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle.counter', {
-              external_system: utility_object.external_source,
-              step_name: utility_object.step_name,
-              template_name: content.template_name
-            }
+            DataCycleCore::Generic::Common::ImportCounters.instrument(:success, utility_object:, template_name: content.template_name)
           else
-            ActiveSupport::Notifications.instrument 'object_import_failed.datacycle.counter', {
-              external_system: utility_object.external_source,
-              step_name: utility_object.step_name,
-              template_name: content.template_name
-            }
+            DataCycleCore::Generic::Common::ImportCounters.instrument(:failure, utility_object:, template_name: content.template_name)
 
             errors = content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', ')
             error_keys = content.errors.messages.keys.map(&:to_s)
@@ -333,8 +342,10 @@ module DataCycleCore
         def add_external_system_data!(content:, data:, step_config:, utility_object:, update: false) # rubocop:disable Naming/PredicateMethod
           es_data = full_external_system_data(data, utility_object)
           es_upsert = []
-          external_systems = ExternalSystem.by_names_or_identifiers(es_data.pluck('identifier', 'name').flatten.compact.uniq)
-          external_systems = external_systems.index_by(&:identifier).merge(external_systems.index_by(&:name))
+          # { identifier/name => ExternalSystem } across all (few, static) systems, cached to avoid
+          # a lookup per content record. Newly created systems (below) are picked up on the next
+          # record via the after_commit cache reset.
+          external_systems = ExternalSystem.cached_by_key
           existing_systems = content.view_all_external_data
 
           es_data.each do |es|
@@ -568,6 +579,31 @@ module DataCycleCore
           else
             false
           end
+        end
+
+        # Key of the mongo document a raw data hash was read from. `dc_external_id` is written at
+        # download time, the other two cover dumps stored before that.
+        def mongo_external_id(raw_data)
+          return if raw_data.blank?
+
+          raw_data['dc_external_id'] || raw_data['external_id'] || raw_data['id']
+        end
+
+        def add_mongo_infos(data:, raw_data:, utility_object:)
+          data['dc_mongo_collection'] = utility_object.try(:source_name)
+          data['dc_mongo_key'] = mongo_external_id(raw_data).to_s
+
+          data
+        end
+
+        # An import can only attach an asset it carries itself, as `Functions.local_asset` does when
+        # it fetches a file into a local Asset and puts that id into the data hash. A blank value is
+        # not an instruction to drop the existing one: nil reaching `set_asset_id` destroys the
+        # content's local Asset and, through `AssetContent`'s `dependent: :destroy`, its
+        # ActiveStorage blob and file. See the regression documented in
+        # test/models/content/extensions/sync_api_serialize_test.rb.
+        def drop_blank_assets(data, template)
+          data.except(*template.asset_property_names.select { |key| DataHashService.blank?(data[key]) })
         end
       end
     end

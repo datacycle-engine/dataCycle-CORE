@@ -45,5 +45,15 @@ module DataCycleCore
       assert_includes html, 'value="sum_hour"'
       assert_includes html, 'value="avg_week"'
     end
+
+    test 'grouping_options honors configured groups' do
+      definition = { 'ui' => { 'show' => { 'timeseries' => { 'groups' => { 'sum' => ['hour', 'day'] } } } } }
+
+      html = grouping_options(definition).first
+
+      assert_includes html, '<optgroup'
+      assert_includes html, 'value="sum_hour"'
+      assert_includes html, 'value="sum_day"'
+    end
   end
 end

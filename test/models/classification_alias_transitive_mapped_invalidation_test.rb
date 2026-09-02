@@ -32,9 +32,9 @@ module DataCycleCore
         classification_alias: @c1_mapping
       )
 
-      @thing = DataCycleCore::TestPreparations.create_content(
-        template_name: 'POI',
-        data_hash: {
+      @thing = create_content(
+        'POI',
+        {
           name: 'Test POI 1',
           universal_classifications: [@c1_transitive_mapping.primary_classification.id]
         }
@@ -54,6 +54,7 @@ module DataCycleCore
       assert_equal(3.weeks.ago.beginning_of_day, @thing.cache_valid_since)
 
       @c1_transitive_mapping.update!(name: 'UPDATED NAME2')
+      perform_enqueued_jobs
 
       assert_operator @thing.reload.cache_valid_since, :>, 1.day.ago.beginning_of_day
     end
@@ -64,6 +65,7 @@ module DataCycleCore
       assert_equal(3.weeks.ago.beginning_of_day, @thing.cache_valid_since)
 
       @c1_transitive_mapping.move_after(@ct2, @c5)
+      perform_enqueued_jobs
 
       assert_operator @thing.reload.cache_valid_since, :>, 1.day.ago.beginning_of_day
     end

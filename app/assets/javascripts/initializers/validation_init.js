@@ -3,7 +3,7 @@ import DataCycleNormalizer from "./../components/normalizer";
 import Validator from "./../components/validator";
 
 function initValidator(elem) {
-	if (elem.classList.contains("bulk-edit-form") && window.actionCable)
+	if (elem.classList.contains("bulk-edit-form") && DataCycle.cable)
 		new BulkUpdateValidator(elem);
 	else new Validator(elem);
 }

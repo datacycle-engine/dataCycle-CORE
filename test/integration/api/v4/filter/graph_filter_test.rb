@@ -34,6 +34,8 @@ module DataCycleCore
 
             # fulltext search stored filter filtering for name of @poi_b, should return only @poi_b - Linked: 2 images, no poi
             @stored_filter = add_fulltext_filter(@poi_b.name)
+
+            perform_enqueued_jobs
           end
 
           setup do

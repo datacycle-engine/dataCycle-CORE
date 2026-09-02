@@ -10,6 +10,11 @@
       :id:
         :label: id
         :type: key
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
       :name:
         :label: Titel
         :type: string

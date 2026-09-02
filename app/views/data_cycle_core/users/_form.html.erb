@@ -141,6 +141,60 @@
             </div>
           </div>
         <% end %>
+
+        <% if can?(:settings, :backend) %>
+          <fieldset class="with-border">
+            <legend><%= t('data_cycle_core.settings', locale: active_ui_locale) %></legend>
+
+            <% if can?(:subscribe, DataCycleCore::Thing) || can?(:subscribe, DataCycleCore::WatchList) %>
+              <div class="form-element validation-container">
+                <%= f.label :notification_frequency, DataCycleCore::User.human_attribute_name(:notification_frequency, locale: active_ui_locale) %>
+
+                <div class="v-select">
+                  <%= f.select :notification_frequency,
+                    DataCycleCore.notification_frequencies.except(DataCycleCore::Feature::NamedVersion.enabled? ? nil : 'named_version').map { |frequency|
+                      [t("notification.frequency.#{frequency}", locale: active_ui_locale), frequency]
+                    },
+                    {},
+                    class: 'single-select',
+                    data: {
+                      allow_clear: false
+                    } %>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="form-element">
+              <%= f.label :default_locale, DataCycleCore::User.human_attribute_name(:default_locale, locale: active_ui_locale) %>
+
+              <div class="v-select">
+                <%= f.select :default_locale,
+                  available_locales_with_names.invert,
+                  {},
+                  class: 'single-select',
+                  data: {
+                    allow_clear: false
+                  } %>
+              </div>
+            </div>
+
+            <% if DataCycleCore.ui_locales.many? && can?(:change_ui_locale, content) %>
+              <div class="form-element">
+                <%= f.label :ui_locale, DataCycleCore::User.human_attribute_name(:ui_locale, locale: active_ui_locale) %>
+
+                <div class="v-select">
+                  <%= f.select :ui_locale,
+                    available_locales_with_names.slice(*DataCycleCore.ui_locales.map(&:to_sym)).invert,
+                    {},
+                    class: 'single-select',
+                    data: {
+                      allow_clear: false
+                    } %>
+                </div>
+              </div>
+            <% end %>
+          </fieldset>
+        <% end %>
       </div>
     </div>
   </div>

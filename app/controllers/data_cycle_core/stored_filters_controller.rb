@@ -24,10 +24,27 @@ module DataCycleCore
     def saved_searches
       authorize! :index, DataCycleCore::StoredFilter
 
-      @stored_searches = DataCycleCore::StoredFilter.includes(:linked_stored_filter, :concept_schemes, :shared_users, :shared_user_groups, :shared_roles).accessible_by(current_ability).named.order(:name)
+      # stored_filters/_stored_saved_search renders the creator through full_name_with_status,
+      # which reaches locked_by for every locked user
+      @stored_searches = DataCycleCore::StoredFilter.includes(:linked_stored_filter, :concept_schemes, :shared_users, :shared_user_groups, :shared_roles, user_with_deleted: :locked_by).accessible_by(current_ability).named.order(:name)
       @search_param = index_params[:q]
 
+      @stored_searches = @stored_searches.where(id: index_params[:ids]) if index_params[:ids].present?
       @stored_searches = @stored_searches.by_id_name_slug_description(@search_param) if @search_param.present?
+
+      # #43524: when opened from the classification "used in stored filters" panel's "show all"/"load
+      # more" with a restricting `ids` list *and* a `classification_id`, the saved-searches page shows
+      # a removable chip naming that classification so the restriction isn't silently invisible - see
+      # saved_searches.html.erb and stored_filter.js, which keeps resending `ids` on every subsequent
+      # search/pagination request. `classification_id` is required (not just `ids`): a single-item
+      # link from the same panel also sets `ids` (to land on that exact search unambiguously), but
+      # that's a precise "open this one search" navigation, not a classification-restricted browse -
+      # no chip there, and no sticky `ids` once the user starts typing (see stored_filter_usage.html.erb).
+      if index_params[:ids].present? && index_params[:classification_id].present?
+        @classification_usage_ids = index_params[:ids]
+        classification_usage_record = DataCycleCore::StoredFilter.classification_usage_record(index_params[:classification_id])
+        @classification_usage_group_label, @classification_usage_title = helpers.classification_usage_titles(classification_usage_record)
+      end
 
       @page = (index_params[:page] || 1).to_i
 
@@ -87,7 +104,10 @@ module DataCycleCore
       stored_filter.attributes = stored_filter_params
 
       if params[:update_filter_parameters]
-        get_filtered_results(user_filter: nil) # prefill stored_filter params
+        # prefill stored_filter params from the request only (user_filter: nil): don't resolve the creator's
+        # user filters here, so save_filter persists just the form-derived parameters (user filters are
+        # applied per viewer at read time, not baked into the saved filter - see #save_filter).
+        get_filtered_results(user_filter: nil)
         stored_filter = save_filter(new_filter: stored_filter)
 
         redirect_to(root_path(stored_filter:), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
@@ -131,7 +151,7 @@ module DataCycleCore
       authorize! :show, DataCycleCore::StoredFilter
 
       stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
-        .includes(:user_with_deleted)
+        .includes(user_with_deleted: :locked_by)
         .limit(20)
         .order(name: :asc)
 
@@ -221,7 +241,7 @@ module DataCycleCore
     end
 
     def index_params
-      params.permit(:page, :last_day, :q, :load_all, :partial)
+      params.permit(:page, :last_day, :q, :load_all, :partial, :classification_id, ids: [])
     end
   end
 end

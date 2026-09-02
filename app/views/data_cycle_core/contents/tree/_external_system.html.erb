@@ -1,0 +1,30 @@
+<li id="<%= external_system.id %>" class="tree-link-container external-system-node">
+  <span class="inner-item">
+    <%= link_to '#',
+                class: 'tree-link',
+                data: {
+                  disable: true,
+                  additional_form_parameters: {
+                    ctl_id: DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID,
+                    es_id: external_system.id
+                  }.to_json
+                } do %>
+      <%= external_system.name %>
+      <span class="children-count">
+        (<%= tag.span(
+          class: 'child-count-full result-count loading',
+          id: "tree-external-system-count-#{external_system.id}",
+          'data-additional-form-parameters': to_query_params({
+            content_class: local_assigns[:content_class] || 'things',
+            count_mode: 'external_system',
+            ctl_id: DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID,
+            es_id: external_system.id
+          }).to_json,
+          data: {
+            dc_tooltip: I18n.t('external_systems.imported_content', default: 'Importierte Inhalte', locale: active_ui_locale)
+          }
+        ) %>)
+      </span>
+    <% end %>
+  </span>
+</li>

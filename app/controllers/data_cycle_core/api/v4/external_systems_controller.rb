@@ -86,11 +86,40 @@ module DataCycleCore
           render plain: response.to_json, content_type: 'application/json', status:
         end
 
+        # Facets the endpoint's result set by the external system each content was imported from
+        # (its primary source, +things.external_source_id+), returning one entry per external
+        # system with the count of matching contents. Honors the same +filter[...]+ params as the
+        # content endpoint, plus +minCount+ to drop systems below a threshold.
+        def facets
+          min_count = (permitted_params[:min_count] || permitted_params[:minCount]).to_i
+
+          # The endpoint's filtered result set, bound as a parameterized subquery
+          # (no raw SQL interpolation). All user input is applied via ActiveRecord/Arel
+          # in build_search_query, so it is quoted by the adapter.
+          base_query = build_search_query.query
+            .except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS)
+            .reselect(DataCycleCore::Thing.arel_table[:id])
+
+          facet_counts = DataCycleCore::Thing
+            .where(id: base_query)
+            .where.not(external_source_id: nil)
+            .group(:external_source_id)
+            .count
+
+          facet_counts.select! { |_, count| count >= min_count } if min_count.positive?
+
+          external_systems = DataCycleCore::ExternalSystem.where(id: facet_counts.keys).index_by(&:id)
+
+          @external_system_facets = facet_counts
+            .filter_map { |id, count| [external_systems[id], count] if external_systems[id] }
+            .sort_by { |external_system, count| [-count, external_system.name.to_s.downcase] }
+        end
+
         private
 
         def permitted_parameter_keys
-          super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
-                   :days, :units, :from, :to, :page_size, :start_index, :attribute, :language, :classification_id, :classification_ids, :min_count_with_subtree, :min_count_without_subtree, :minCountWithSubtree, :minCountWithoutSubtree,
+          super + [:id, :external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
+                   :days, :units, :from, :to, :page_size, :start_index, :attribute, :language, :classification_id, :classification_ids, :min_count, :minCount, :min_count_with_subtree, :min_count_without_subtree, :minCountWithSubtree, :minCountWithoutSubtree,
                    { occupation: [:adults, :children, :units], filter: {} }]
         end
 

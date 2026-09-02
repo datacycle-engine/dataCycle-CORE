@@ -21,7 +21,7 @@ de:
   doorkeeper:
     applications:
       confirmations:
-        destroy: "Sind Sie sicher?"
+        destroy: "Wirklich löschen?"
       buttons:
         edit: "Bearbeiten"
         destroy: "Löschen"
@@ -29,16 +29,16 @@ de:
         cancel: "Abbrechen"
         authorize: "Autorisieren"
       form:
-        error: "Ups! Überprüfen Sie Ihr Formular auf mögliche Fehler"
+        error: "Ups! Das Formular auf mögliche Fehler überprüfen"
       help:
         confidential: "Anwendung wird verwendet, wenn das Client-Secret vertraulich behandelt werden kann. Native Mobile Apps und Single Page Apps gelten als nicht vertraulich."
-        redirect_uri: "Verwenden Sie eine Zeile pro URI"
-        blank_redirect_uri: "Lassen Sie es leer, wenn Sie Ihren Provider für Client Credentials, Resource Owner Password Credentials oder einen anderen Grant-Type konfiguriert haben, der keine Weiterleitungs-URI benötigt."
-        scopes: "Trennen Sie Scopes mit Leerzeichen. Lassen Sie es leer, um die Standard-Scopes zu verwenden."
+        redirect_uri: "Eine Zeile pro URI verwenden"
+        blank_redirect_uri: "Leer lassen, wenn der Provider für Client Credentials, Resource Owner Password Credentials oder einen anderen Grant-Type konfiguriert ist, der keine Weiterleitungs-URI benötigt."
+        scopes: "Scopes mit Leerzeichen trennen. Leer lassen, um die Standard-Scopes zu verwenden."
       edit:
         title: "Anwendung bearbeiten"
       index:
-        title: "Ihre Anwendungen"
+        title: "Anwendungen"
         new: "Neue Anwendung"
         name: "Name"
         callback_url: "Callback-URL"
@@ -68,8 +68,8 @@ de:
         title: "Ein Fehler ist aufgetreten"
       new:
         title: "Autorisierung erforderlich"
-        prompt: "%{client_name} autorisieren, Ihr Konto zu verwenden?"
-        able_to: "Diese Anwendung wird in der Lage sein"
+        prompt: "Kontozugriff für %{client_name} erlauben?"
+        able_to: "Die Anwendung erhält damit die folgenden Berechtigungen:"
       show:
         title: "Autorisierungscode"
       form_post:
@@ -77,11 +77,11 @@ de:
 
     authorized_applications:
       confirmations:
-        revoke: "Sind Sie sicher?"
+        revoke: "Wirklich widerrufen?"
       buttons:
         revoke: "Widerrufen"
       index:
-        title: "Ihre autorisierten Anwendungen"
+        title: "Autorisierte Anwendungen"
         application: "Anwendung"
         created_at: "Erstellt am"
         date_format: "%d.%m.%Y %H:%M:%S"
@@ -127,7 +127,7 @@ de:
           expired: "Das Access-Token ist abgelaufen"
           unknown: "Das Access-Token ist ungültig"
         revoke:
-          unauthorized: "Sie sind nicht autorisiert, dieses Token zu widerrufen"
+          unauthorized: "Keine Berechtigung, um dieses Token zu widerrufen"
 
         forbidden_token:
           missing_scope: 'Zugriff auf diese Ressource erfordert Scope "%{oauth_scopes}".'
@@ -158,6 +158,20 @@ de:
           home: "Startseite"
       application:
         title: "OAuth-Autorisierung erforderlich"
+
+    # Every scope in config/initializers/doorkeeper.rb needs a key here. The consent page renders
+    # t(scope, scope: [:doorkeeper, :scopes]) for each requested scope, so a missing key shows up
+    # as "translation missing" in front of the user instead of the permission being granted.
+    # address and phone are standard OIDC scopes we do not enable, kept for projects that do.
+    scopes:
+      public: "Auf öffentlich zugängliche Daten zugreifen"
+      openid: "Konto authentifizieren"
+      profile: "Profildaten ansehen"
+      email: "E-Mail-Adresse ansehen"
+      roles: "Rolle ansehen"
+      groups: "Gruppen ansehen"
+      address: "Anschrift ansehen"
+      phone: "Telefonnummer ansehen"
 
     openid_connect:
       errors:

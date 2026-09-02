@@ -5,8 +5,6 @@ module DataCycleCore
     module Virtual
       # Provides virtual attribute methods for object properties
       module Object
-        extend DataCycleCore::ContentHelper
-
         class << self
           # Used to generate a virtual attribute for the start location of a tour
           # based on the line geometry of the content.

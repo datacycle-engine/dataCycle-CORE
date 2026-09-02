@@ -7,9 +7,13 @@ module DataCycleCore
     include DataCycleCore::HistoryHelper
     include DataCycleCore::UiLocaleHelper
 
+    def current_user = nil
+
     HistoryDouble = Struct.new(:is_history, :thing) do
       def history? = is_history
     end
+
+    UUID = '00000000-0000-0000-0000-000000000000'
 
     test 'save_navigate digs into a nested hash along the path' do
       assert_equal 1, save_navigate({ 'a' => { 'b' => 1 } }, ['a', 'b'])
@@ -110,6 +114,63 @@ module DataCycleCore
 
     test 'complete_history_list is empty for a nil content' do
       assert_equal [], complete_history_list(nil)
+    end
+
+    test 'new_relations / new_relation / new_content_collections resolve added ids' do
+      assert_kind_of ActiveRecord::Relation, new_relations([['+', [UUID]]], 'watch_list')
+      assert_kind_of ActiveRecord::Relation, new_relation(['+', [UUID]], 'watch_list')
+      assert_kind_of Array, new_content_collections([['+', [UUID]]])
+    end
+
+    test 'version_name_html renders the version name indicator when present' do
+      html = version_name_html(struct_double(version_name: 'V1', can_remove_version_name: false, id: 'i1'))
+
+      assert_includes html, 'version-name'
+      assert_includes html, 'V1'
+    end
+
+    test 'history_link renders the icon for an icon-only entry' do
+      item = struct_double(icon_only: true, icon: { class: 'fa fa-arrows-h', tooltip: 'history.active_version' })
+
+      assert_includes history_link(nil, item), 'fa-arrows-h'
+    end
+
+    test 'history_dropdown_line renders a list entry for an icon-only item' do
+      item = struct_double(
+        watch_list_id: nil, active_id: nil, diff_id: nil, right_side: nil, diff_view: nil,
+        updated_by_user: struct_double(full_name: 'John', email: 'j@x.com'),
+        locale: 'de', updated_at: Time.zone.now, version_name: nil, can_remove_version_name: false,
+        icon_only: true, icon: { class: 'fa fa-arrows-h', tooltip: 'history.active_version' },
+        active_class: 'active', id: 'i1'
+      )
+
+      html = history_dropdown_line(nil, item, 'wl1')
+
+      assert_includes html, 'history-time'
+      assert_includes html, 'history-locale'
+    end
+
+    test 'diff_target_by_id returns nil without a diff target and finds by id otherwise' do
+      key = struct_double(attribute_name_from_key: 'foo')
+
+      assert_nil diff_target_by_id(object: struct_double(id: 'x'), key:, diff_target: nil)
+
+      diff_objects = Object.new
+      def diff_objects.find_by(**_args) = 'FOUND'
+      diff_target = Object.new
+      diff_target.define_singleton_method(:foo) { diff_objects }
+
+      assert_equal 'FOUND', diff_target_by_id(object: struct_double(id: 'x'), key:, diff_target:)
+    end
+
+    test 'complete_history_list builds entries for a content record' do
+      content = DataCycleCore::Thing.new(template_name: DataCycleCore::ThingTemplate.first.template_name)
+      content.define_singleton_method(:first_available_locale) { |*| :de }
+      content.define_singleton_method(:last_updated_locale) { 'de' }
+
+      DataCycleCore::Feature::NamedVersion.stub(:enabled?, false) do
+        assert_kind_of Array, complete_history_list(content)
+      end
     end
   end
 end

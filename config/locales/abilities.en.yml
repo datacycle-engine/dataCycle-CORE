@@ -71,6 +71,7 @@ en:
       cache: Cache
       auto_translate: Automatic translation
       dash_board: Admin Dashboard
+      guides: Developer guides
       permission: Authorizations
       preview: Widget link
       oauth: OAuth
@@ -143,11 +144,14 @@ en:
       download_content_report: Download report for content
       manage: Execute all actions
       map_classifications: Create classification mappings
+      update_hidden_mappings: Change hiding of mapped classifications
       set_color: Change color
       clear: for empty content
       clear_all: Empty for all content
       remove_version_name: Remove version name
       show_admin_panel: Show admin panel
+      show_raw_data: Show raw data
+      show_hidden_classifications: Show classifications assigned through hidden mappings
       switch_primary_external_system: Change primary external system
       demote_primary_external_system: Convert primary external system into external link
       create_external_connection: Create external connection
@@ -162,6 +166,7 @@ en:
       update_description: Edit description
       authenticate_with: authenticate
     restrictions:
+      additional_menu_link_by_keys: "Links: %{data}"
       advanced_filter_except_type: "Filter not: %{except}"
       asset_by_user_and_no_content:
         - User who uploaded the file
@@ -212,6 +217,7 @@ en:
         - "Data type: %{template_names}"
       things_by_collections:
         - "Contents in %{collection_type}: %{collection_names_or_ids}"
+      things_by_stored_filter: "Contents in the stored filter"
       things_in_collections:
         - "Contents in %{collection_type}: %{collection_names_or_ids}"
       tree_label_by_visibility: "Visibility: %{visibilities}"

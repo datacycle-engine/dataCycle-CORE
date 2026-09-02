@@ -52,10 +52,30 @@ module DataCycleCore
       end
     end
 
+    def classification_tree_label_name(classification_alias)
+      classification_alias&.classification_alias_path&.full_path_names&.last
+    end
+
+    # #43524: display texts for the classification-usage chip on the saved-searches page - takes the
+    # already-resolved record (see StoredFilter.classification_usage_record) so this stays pure
+    # presentation logic - and mirrors how a classification filter tag looks elsewhere (dimension
+    # label + selected value): [tree_label_name, classification_title], e.g. ["Inhaltstypen",
+    # "Veranstaltung"]. For a classification_tree_label (the whole tree, not a single alias) the tree
+    # name is still the dimension label, but there is no narrower selection, so the value falls back
+    # to a generic "all" text instead of repeating the tree name as if it were a specific selection.
+    def classification_usage_titles(record)
+      case record
+      when DataCycleCore::ClassificationAlias
+        [classification_tree_label_name(record), classification_title(record)]
+      when DataCycleCore::ClassificationTreeLabel
+        [record.name, t('data_cycle_core.stored_searches.classification_usage_all', locale: active_ui_locale)]
+      end
+    end
+
     def classification_path_classes(classification_alias)
       return if classification_alias&.classification_alias_path&.full_path_names.nil?
 
-      tree_label = classification_alias.classification_alias_path.full_path_names.last
+      tree_label = classification_tree_label_name(classification_alias)
       classification_alias
         .classification_alias_path
         .full_path_names
@@ -70,12 +90,33 @@ module DataCycleCore
       "--classification-color: #{classification_alias.color};"
     end
 
+    # Builds the tooltip markup shared by every classification representation (tags, editor labels,
+    # filter items, select2 options and the classifications JSON endpoints). Sections are ordered from
+    # identity to detail: full path, external URI, description, translations.
+    #
+    # The external URI (#27657) is what tells near-identically named concepts apart while mapping them,
+    # so it is labelled with the model's own attribute translation rather than printed bare - its values
+    # are not always URL-shaped, some external systems store foreign ids in it. It stays plain text on
+    # purpose: the shared tooltip element is not interactive, so a link would not be clickable. It is a
+    # technical detail, so it is gated on :show_uri, which only system_admin holds - asked of the class
+    # rather than the record, because the section is a global capability and this helper is duck-typed.
+    #
+    # @param concept [DataCycleCore::Concept, DataCycleCore::ClassificationAlias, nil] duck-typed, hence try
+    # @return [String, nil] tooltip markup for data-dc-tooltip, sanitized again client side
     def classification_tooltip(concept)
       return if concept.nil?
 
       tooltip_html = []
+      uri = concept.try(:uri)
 
       tooltip_html << tag.div(concept.full_path, class: 'tag-full-path') if concept.try(:full_path).present?
+
+      if uri.present? && can?(:show_uri, DataCycleCore::ClassificationAlias)
+        tooltip_html << tag.div(
+          safe_join([tag.span("#{DataCycleCore::ClassificationAlias.human_attribute_name(:uri, locale: active_ui_locale)}:", class: 'tag-uri-header'), uri], ' '),
+          class: 'tag-uri'
+        )
+      end
 
       I18n.with_locale(concept.first_available_locale(active_ui_locale)) do
         tooltip_html << tag.div(sanitize(concept.description), class: 'tag-description') if concept.try(:description).present?

@@ -68,18 +68,34 @@ module DataCycleCore
           cache_ttl.positive?
       end
 
-      # Cache is valid if it is enabled, has been updated at least once, the parameters have not changed,
-      # and is not older than ttl + CACHE_VALIDITY_GRACE_MINUTES. The SQL `resolve_stored_search` applies
-      # the identical window so the API (Ruby) and Grafana (SQL) never disagree around the TTL boundary.
+      # Cache is valid if it is enabled, has been updated at least once, the cache-relevant parameters have
+      # not changed (context-only edits are ignored, see #cache_relevant_parameters_changed?), and is not
+      # older than ttl + CACHE_VALIDITY_GRACE_MINUTES. The SQL `resolve_stored_search` applies the identical
+      # window so the API (Ruby) and Grafana (SQL) never disagree around the TTL boundary.
       def cached_result?
         cache_result? &&
           cached_result &&
-          !parameters_changed? &&
+          !cache_relevant_parameters_changed? &&
           cache_updated_at.present? &&
           cache_updated_at >= (cache_ttl + CACHE_VALIDITY_GRACE_MINUTES).minutes.ago
       end
 
       private
+
+      # `parameters_changed?` also trips on context-only edits that don't change the cached set - e.g.
+      # `apply_user_filter` downgrading a no-longer-applicable user-filter entry's context to `a`. The cache
+      # is rebuilt via `apply_single_filter!`, which ignores `c` (and the UI-only `identifier`), so such edits
+      # must not invalidate it; a genuine change to any query-relevant key still does, as before.
+      def cache_relevant_parameters_changed?
+        return false unless parameters_changed?
+
+        old, current = changes['parameters']
+        cache_relevant_parameters(old) != cache_relevant_parameters(current)
+      end
+
+      def cache_relevant_parameters(params)
+        Array.wrap(params).map { |f| f.except('c', 'identifier') }
+      end
 
       def cached_query(locale: language)
         locale = Array.wrap(locale).presence

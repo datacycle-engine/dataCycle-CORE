@@ -1,8 +1,5 @@
 <div class="glass home-container reset-password">
   <div class="home-container-content">
-    <!--[if lt IE 9]>
-      <div class="legacy-ie-fix"></div>
-    <![endif]-->
     <div class="columns">
       <%= render 'logo' %>
     </div>
@@ -21,17 +18,14 @@
         <% end %>
 
         <div class="row">
-          <div class="small-3 columns">
-            <label for="user_email" class="text-right middle">
-              <%= t('activerecord.attributes.user.email', locale: active_ui_locale) %>:
-            </label>
-          </div>
-          <div class="small-8 columns end">
+          <div class="small-12 columns">
+            <label for="user_email"><%= t('activerecord.attributes.user.email', locale: active_ui_locale) %></label>
             <%= f.email_field :email, required: true, autofocus: true %>
           </div>
         </div>
+
         <div class="row">
-          <div class="small-8 small-offset-3 columns end">
+          <div class="small-12 columns">
             <div class="form-actions">
               <%= f.button :button, class: 'button', type: 'submit' do %>
                 <%= t('devise.confirmations.new.resend_confirmation_instructions_button', locale: active_ui_locale) %>

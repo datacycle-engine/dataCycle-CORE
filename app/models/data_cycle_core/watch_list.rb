@@ -12,12 +12,24 @@ module DataCycleCore
     delegate :translated_locales, to: :things
     alias available_locales translated_locales
 
+    # Counterpart of StoredFilter#unsorted_things: a watch list has no sort parameters, so its
+    # association reader is already sort-free. Defined so callers can take a collection of either
+    # type without asking which one they got.
+    #
+    # @return [ActiveRecord::Relation]
+    def unsorted_things(**)
+      things
+    end
+
     def thing_ids
       clear_thing_cache! if watch_list_data_hashes_changed?
       @thing_ids ||= watch_list_data_hashes.pluck(:thing_id)
     end
 
     alias thing_ids_nested thing_ids
+    # a watch list holds its things directly, so there is no locale or ordering to strip - the
+    # alias lets callers nest either collection type without asking which one they hold.
+    alias things_nested things
 
     def reload(options = nil)
       clear_thing_cache!

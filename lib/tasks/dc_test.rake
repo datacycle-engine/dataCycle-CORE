@@ -17,8 +17,55 @@ namespace :dc do
     # load path in a normal rake/app context, so add it before requiring the helper.
     test_lib = File.expand_path('../../test', __dir__)
 
+    # RAILS_ENV must already be `test` when the process starts — a task cannot flip it in
+    # process. config/application.rb runs `Bundler.require(*Rails.groups)` at boot, which
+    # both memoizes Rails.env and loads that env's gem groups long before any task body (or
+    # even this file) is loaded, so setting ENV['RAILS_ENV'] here would be far too late.
+    # CI exports RAILS_ENV=test; the parent tasks below pass it to their child processes
+    # explicitly (the `sh` calls) and `setup` clones from the `env_name: 'test'` config, so
+    # they are safe to run without a prefix. Guard only the internal DB-mutating tasks so
+    # invoking one directly from a non-test shell aborts instead of dropping/seeding the
+    # development database.
+    ensure_test_env = lambda do
+      next if Rails.env.test?
+
+      abort "dc:test:* operate on the test database, but RAILS_ENV=#{Rails.env}. " \
+            'Re-run with RAILS_ENV=test (e.g. `RAILS_ENV=test bundle exec rake …`).'
+    end
+
+    # Fail the run when the merged line coverage falls below MIN_COVERAGE (a percentage,
+    # e.g. 95). Opt-in: with MIN_COVERAGE unset or 0 this is a no-op, so only pipelines
+    # that set the variable enforce the gate and host projects keep their current behaviour.
+    #
+    # It reads coverage/.last_run.json rather than re-implementing SimpleCov's
+    # minimum_coverage. The latter runs per process, and under parallel_tests every worker
+    # is a bare `rails test` process where SimpleCov.final_result_process? is true, so each
+    # would enforce the threshold against its own partial merge and fail the build
+    # spuriously. Enforcing once here — after all workers have finished and merged — checks
+    # the same complete percentage GitLab scrapes for the coverage badge (the last worker to
+    # exit always holds every other worker's result; see test/test_helper.rb).
+    check_coverage = lambda do
+      require 'json'
+      minimum = ENV['MIN_COVERAGE'].to_f
+      next unless minimum.positive?
+
+      last_run = File.expand_path('coverage/.last_run.json', Dir.pwd)
+      unless File.exist?(last_run)
+        abort "MIN_COVERAGE=#{ENV['MIN_COVERAGE']} is set, but #{last_run} is missing — " \
+              'was the suite run with coverage enabled (TEST_COVERAGE=1)?'
+      end
+
+      covered = JSON.parse(File.read(last_run)).dig('result', 'line')
+      abort "could not read line coverage from #{last_run}" if covered.nil?
+
+      abort "Line coverage #{covered.round(2)}% is below the required minimum of #{minimum.round(2)}%." if covered < minimum
+
+      puts "Line coverage #{covered.round(2)}% meets the required minimum of #{minimum.round(2)}%."
+    end
+
     desc 'load the test data (classifications, templates, users, …) into the current test database'
     task prepare_database: :environment do
+      ensure_test_env.call
       $LOAD_PATH.unshift(test_lib) unless $LOAD_PATH.include?(test_lib)
       require 'helpers/test_preparations_helper'
       DataCycleCore::TestPreparations.prepare_database!
@@ -31,13 +78,21 @@ namespace :dc do
     # (dc:test:prepare_database). Picks up TEST_ENV_NUMBER from the env.
     desc 'fully prepare the current worker test database (migrations + engine seed + test data)'
     task setup_worker: :environment do
-      # Don't let the migration run rewrite the committed structure.sql. NB: db:migrate:reset
-      # can't be used here — its prerequisite chain (db:drop db:create db:schema:dump db:migrate)
-      # invokes db:schema:dump unconditionally, ignoring dump_schema_after_migration, so it would
-      # rewrite structure.sql regardless. Run the steps ourselves, minus the dump. The flag below
-      # still suppresses the post-migrate db:_dump.
+      ensure_test_env.call
+      # Neither db:migrate:reset nor db:migrate can build this database: the former's prerequisite
+      # chain (db:drop db:create db:schema:dump db:migrate) dumps over the committed structure.sql
+      # whatever dump_schema_after_migration says, the latter loads it into the empty database first
+      # (DatabaseTasks#initialize_database) — and a host project's dump describes ITS postgres image,
+      # e.g. a text search dictionary whose .ths file no other image has, on which psql aborts the
+      # whole load. Run the steps ourselves; the flag still suppresses the post-migrate db:_dump.
       ActiveRecord.dump_schema_after_migration = false
-      ['db:drop', 'db:create', 'db:migrate:reset', 'db:seed', 'dc:test:prepare_database'].each do |t|
+      ['db:drop', 'db:create'].each do |t|
+        Rake::Task[t].invoke
+        Rake::Task[t].reenable
+      end
+      # migrate_all minus initialize_database; db:drop above already ran db:load_config.
+      ActiveRecord::Tasks::DatabaseTasks.migrate(skip_initialize: true)
+      ['db:seed', 'dc:test:prepare_database'].each do |t|
         Rake::Task[t].invoke
         Rake::Task[t].reenable
       end
@@ -90,8 +145,23 @@ namespace :dc do
     desc 'run the whole test suite in parallel across the worker databases ([count] defaults to CPU count)'
     task :run, [:count] => :environment do |_, args|
       n = args[:count] ? ['-n', args[:count].to_s] : []
-      # system tests need capybara/selenium (not bundled and skipped by `rails test` too)
-      sh('bundle', 'exec', 'parallel_test', 'test/', '-t', 'test', '--exclude-pattern', 'test/system', *n)
+      # Drop any stale SimpleCov result so the coverage gate below can't pass on a previous
+      # run's number if this run produces none (e.g. coverage disabled). SimpleCov rewrites it.
+      last_run = File.expand_path('coverage/.last_run.json', Dir.pwd)
+      File.delete(last_run) if ENV['MIN_COVERAGE'].to_f.positive? && File.exist?(last_run)
+      # system tests need capybara/selenium (not bundled and skipped by `rails test` too).
+      # parallel_test is a bare binary, not `rails test`, so nothing forces the env for its
+      # workers -- a shell that exports RAILS_ENV (the dev containers set `development`) would
+      # otherwise have them boot the development app and run the suite against its database.
+      sh({ 'RAILS_ENV' => 'test' },
+         'bundle', 'exec', 'parallel_test', 'test/', '-t', 'test', '--exclude-pattern', 'test/system', *n)
+      # Only reached when the suite passed (sh raises otherwise) — gate on the merged coverage.
+      check_coverage.call
+    end
+
+    desc 'fail if the last recorded line coverage is below MIN_COVERAGE (percent; no-op when unset/0)'
+    task check_coverage: :environment do
+      check_coverage.call
     end
 
     desc 'set up the worker databases and then run the whole suite in parallel ([count] defaults to CPU count)'

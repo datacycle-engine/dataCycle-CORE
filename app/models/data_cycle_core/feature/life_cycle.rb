@@ -3,6 +3,9 @@
 module DataCycleCore
   module Feature
     class LifeCycle < Base
+      # Life-cycle stage an archived content is moved back to when no `active_name` is configured.
+      DEFAULT_ACTIVE_NAME = 'Aktuell'
+
       class << self
         def content_module
           DataCycleCore::Feature::Content::LifeCycle
@@ -44,6 +47,22 @@ module DataCycleCore
 
         def archive_id(content = nil)
           ordered_classifications(content)&.dig(archive_name(content))&.[](:id)
+        end
+
+        # Counterpart of #archive_name: the stage a content belongs in while it is live. Callers that
+        # carry their own target (a rake argument, an import option) pass it as `stage_name` instead
+        # of resolving stage names themselves.
+        #
+        # @param stage_name [String, nil] overrides the configured stage when present
+        # @return [String] name of the active life-cycle stage
+        def active_name(content = nil, stage_name = nil)
+          stage_name.presence || configuration(content)['active_name'].presence || DEFAULT_ACTIVE_NAME
+        end
+
+        # @return [String, nil] classification id of #active_name, nil when that stage is not part of
+        #   the content's configured life cycle
+        def active_id(content = nil, stage_name = nil)
+          ordered_classifications(content)&.dig(active_name(content, stage_name))&.[](:id)
         end
 
         def creatable_stages(content = nil)

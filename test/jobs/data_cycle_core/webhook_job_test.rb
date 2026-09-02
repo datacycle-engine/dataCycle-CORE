@@ -23,9 +23,10 @@ module DataCycleCore
       sync
     end
 
-    def utility_double(action: :update, discard: true)
+    def utility_double(action: :update, discard: true, remove_syncs: false)
       external_system = Object.new
       external_system.define_singleton_method(:name) { 'Webhook System' }
+      external_system.define_singleton_method(:remove_external_system_syncs_on_delete?) { remove_syncs }
 
       utility = Object.new
       utility.define_singleton_method(:external_system) { external_system }
@@ -52,11 +53,10 @@ module DataCycleCore
       DataCycleCore::WebhookJob.new(args)
     end
 
-    test 'reference id and type are derived from the arguments' do
+    test 'concurrency key is derived from the arguments' do
       job = build_job
 
-      assert_equal 1, job.delayed_reference_id
-      assert_equal 'es_update', job.delayed_reference_type
+      assert_equal 'DataCycleCore::WebhookJob/1/es/update', job.concurrency_key
     end
 
     test 'discard_on_failure delegates to the utility object' do
@@ -119,6 +119,58 @@ module DataCycleCore
       job.success_delete
 
       assert_empty sync.updates
+    end
+
+    def thing_like_data
+      data = Object.new
+      data.define_singleton_method(:external_system_syncs) { [] }
+      data
+    end
+
+    def stub_sync_cleanup(&)
+      calls = []
+      cleanup = Object.new
+      cleanup.define_singleton_method(:call) { calls << :called }
+      DataCycleCore::Export::SyncCleanup.stub(:new, ->(**_kwargs) { cleanup }, &)
+      calls
+    end
+
+    test 'success_delete removes syncs when configured and the response is not a failure' do
+      job = build_job
+      job.instance_variable_set(:@utility_object, utility_double(action: :delete, remove_syncs: true))
+      job.instance_variable_set(:@data, thing_like_data)
+      job.instance_variable_set(:@response, { 'job_status' => 'success' })
+
+      calls = stub_sync_cleanup { job.success_delete }
+
+      assert_equal [:called], calls
+    end
+
+    test 'success_delete keeps the duplicate fallback when the delete response failed' do
+      job = build_job
+      sync = sync_double
+      job.instance_variable_set(:@utility_object, utility_double(action: :delete, remove_syncs: true))
+      job.instance_variable_set(:@data, thing_like_data)
+      job.instance_variable_set(:@external_sync, sync)
+      job.instance_variable_set(:@response, { 'job_status' => 'failed' })
+
+      calls = stub_sync_cleanup { job.success_delete }
+
+      assert_empty calls
+      assert_equal 'duplicate', sync.updates.first[:sync_type]
+    end
+
+    test 'success_delete keeps the duplicate fallback when data is not a thing' do
+      job = build_job
+      sync = sync_double
+      job.instance_variable_set(:@utility_object, utility_double(action: :delete, remove_syncs: true))
+      job.instance_variable_set(:@data, Object.new) # OpenStruct fallback: no external_system_syncs
+      job.instance_variable_set(:@external_sync, sync)
+      job.instance_variable_set(:@response, { 'job_status' => 'success' })
+
+      job.success_delete
+
+      assert_equal 'duplicate', sync.updates.first[:sync_type]
     end
 
     test 'error_external_sync records the error and exception data' do

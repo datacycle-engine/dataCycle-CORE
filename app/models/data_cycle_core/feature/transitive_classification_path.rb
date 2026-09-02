@@ -12,6 +12,7 @@ module DataCycleCore
 
           ActiveRecord::Base.connection.execute <<~SQL.squish
             ALTER TABLE classification_alias_paths_transitive #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;
+            ALTER TABLE classification_alias_paths_transitive #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_update_trigger;
             ALTER TABLE classification_alias_paths_transitive #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
             ALTER TABLE classification_contents #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
             ALTER TABLE classification_contents #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;

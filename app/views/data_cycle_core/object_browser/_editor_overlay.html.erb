@@ -9,7 +9,7 @@
       <input name="f[<%= search_id %>][v]" placeholder="<%= t('common.searchterm', locale: active_ui_locale) %>" autofocus class="object-browser-search">
     </div>
 
-    <% if definition.dig('ui', 'edit', 'options', 'limited_by').blank? %>
+    <% unless object_browser_limited?(definition) %>
       <div class="union-filter">
         <% union_id = SecureRandom.hex(10) %>
         <%= hidden_field_tag "f[#{union_id}][t]", :union_filter_ids %>
@@ -105,7 +105,7 @@
 
     <span class="item-count"></span>
 
-    <%= tag.i(class: 'fa fa-exclamation-triangle filter-warning', data: { dc_tooltip: limited_by_warning(content, definition, key, 'filter_warning') }) if definition.dig('ui', 'edit', 'options', 'limited_by').present? %>
+    <%= tag.i(class: 'fa fa-exclamation-triangle filter-warning', data: { dc_tooltip: limited_by_warning(content, definition, key, 'filter_warning') }) if object_browser_limited?(definition) %>
   </form>
 </div>
 
@@ -141,7 +141,7 @@
             object_browser: true,
             key: html_id,
             scope: 'object_browser',
-            disabled: definition&.dig('ui', 'edit', 'options', 'limited_by').present?,
+            disabled: object_browser_limited?(definition),
             dc_tooltip: limited_by_warning(content, definition, key, 'create_button_warning')
         }, definition) %>
 

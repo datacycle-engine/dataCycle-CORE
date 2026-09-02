@@ -13,21 +13,33 @@ Warning[:deprecated] = true
 
 unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
   require 'simplecov'
+  require 'simplecov-cobertura'
   SimpleCov.start 'rails' do
     # exclude cache folder for gitlab-ci
-    add_filter '/cache/'
-    add_filter 'vendor'
+    skip '/cache/'
+    skip 'vendor'
+    # Keep the human-readable HTML report and additionally emit a Cobertura XML report
+    # (coverage/coverage.xml) that GitLab reads via artifacts:reports:coverage_report
+    # to annotate merge-request diffs with per-line coverage.
+    formatter SimpleCov::Formatter::MultiFormatter.new(
+      [
+        SimpleCov::Formatter::HTMLFormatter,
+        SimpleCov::Formatter::CoberturaFormatter
+      ]
+    )
   end
   SimpleCov.at_exit do
-    Rails.logger.debug "\n"
-
     SimpleCov.result.format!
 
-    Rails.logger.debug do
+    # Print to stdout (not Rails.logger, which in CI writes to a file at a non-debug
+    # level) so GitLab's `coverage` regex can scrape the percentage from the job log
+    # for the badge and the coverage-over-time graph. Under parallel_tests each worker
+    # prints a line; GitLab uses the last match, i.e. the fully merged result.
+    $stdout.puts(
       "\nCOVERAGE: " \
-        "#{(100 * SimpleCov.result.covered_lines.to_f / SimpleCov.result.total_lines.to_f).round(2)}% " \
-        "(#{SimpleCov.result.covered_lines} / #{SimpleCov.result.total_lines} LOC)"
-    end
+      "#{(100 * SimpleCov.result.covered_lines.to_f / SimpleCov.result.total_lines.to_f).round(2)}% " \
+      "(#{SimpleCov.result.covered_lines} / #{SimpleCov.result.total_lines} LOC)"
+    )
   end
 end
 
@@ -92,6 +104,20 @@ require 'helpers/mongo_helper'
 require 'helpers/api_v4_helper'
 require 'helpers/active_storage_helper'
 require 'helpers/struct_double_helper'
+require 'helpers/asset_preview_double_helper'
+require 'helpers/oembed_provider_helper'
+
+# The ThingTemplate process-level caches (import performance) hand out shared state for the whole
+# process, and a per-test transaction rollback does not touch it. Tests mutate a template's schema as
+# setup and persist it with update_column (e.g. set_default_value), which skips the after_commit cache
+# invalidation — so the cache instance loaded during that test keeps the mutated schema and, since the
+# rollback does not clear the cache, leaks it into the next test. The flagged-compute cache derives from
+# the same template data, so the same mutations stale it. Reset before every test to match the DB-level
+# isolation. (The ExternalSystem cache needs no reset here: nothing mutates a cached external system in
+# place, and the full suite is green without it.)
+ActiveSupport::TestCase.setup do
+  DataCycleCore::ThingTemplate.reset_template_caches!
+end
 
 # NB: nothing is prepared here at boot anymore.
 #  - The database preparations (classifications, external systems, templates, user roles, users,

@@ -15,6 +15,7 @@ module DataCycleCore
 
       include CreateHistory
       include UpdateSearch
+      include RelatedWebhooks
 
       before_save :set_internal_data
       before_destroy :add_remove_linked_from_text_job, unless: :history?
@@ -44,17 +45,29 @@ module DataCycleCore
 
         return if embedded?
 
-        # trigger create webhooks if is newly created content
-        execute_create_webhooks if options.new_content
+        # a nested set_data_hash writes this same record as part of the caller's save, so the
+        # outward-facing side effects of that save belong to the caller's pass only: emitting them
+        # there too would send a second identical subscriber mail and an update webhook from inside
+        # the caller's still-open transaction (before the create webhook, for new content). Both are
+        # delivered from a job that re-reads the record, so the caller's pass carries what the
+        # nested one wrote whichever of the two ran first.
+        unless continuing_caller_save?
+          # trigger create webhooks if is newly created content
+          execute_create_webhooks if options.new_content
 
-        # trigger update webhooks / except if only timeseries properties changed
-        execute_update_webhooks unless previous_datahash_changes.blank? ||
-                                       previous_datahash_changes.keys.all? { |k| k.in?(timeseries_property_names) }
+          # the fan-out job, or nil when none was enqueued; it carries the invalidation below
+          related_webhooks_job = execute_update_webhooks(invalidate_related_cache: options.invalidate_related_cache) if datahash_changes_trigger_webhooks?
 
-        # trigger Subscriber Mailer
-        notify_subscribers(current_user: options.current_user) unless options.current_user.nil?
+          # trigger Subscriber Mailer
+          notify_subscribers(current_user: options.current_user) unless options.current_user.nil?
+        end
 
-        if cached_related_contents? && options.invalidate_related_cache
+        # the fan-out invalidates the same set from its own job, before the re-export that depends
+        # on it; a second job would lock those rows from another queue, and invalidate_all silently
+        # skips whatever the other run holds. nil rather than blank?: perform_later answers false
+        # for a duplicate it dropped, and carrying the invalidation is part of that job's
+        # concurrency key, so the one already queued invalidates just the same
+        if cached_related_contents? && options.invalidate_related_cache && related_webhooks_job.nil?
           # trigger cache_invalidation for related contents
           add_related_cache_invalidation_job
         end
@@ -62,8 +75,20 @@ module DataCycleCore
         add_update_exif_values_job if ['Bild', 'ImageObject'].include?(template_name) && exif_property_names.present?
       end
 
+      # True while a nested #set_data_hash writes this record as part of the save that triggered it.
+      # DataHash runs one such pass itself; a feature whose data_hash_module does the same extends
+      # this rather than repeating the gate above per side effect.
+      #
+      # @return [Boolean]
+      def continuing_caller_save?
+        updating_after_save_computed_values?
+      end
+
       def before_destroy_data_hash(_options)
         return if embedded?
+
+        # remove orphaned external_system_sync links of linked children (configurable per external system)
+        cleanup_linked_external_system_syncs
 
         # trigger delete webhooks
         execute_delete_webhooks
@@ -75,10 +100,17 @@ module DataCycleCore
 
         # trigger update of dependent computed properties
         prepare_destroy_dependent_computed_properties_job
+
+        # collect the contents linking this one while the links still exist
+        prepare_destroy_related_webhooks_job
       end
 
       def set_data_hash(**)
         options = DataCycleCore::Content::DataHashOptions.new(**)
+
+        # this save owns the compute.after_save deferral it creates below and consumes in the
+        # transaction; drop anything an earlier pass left behind by bailing out in between
+        reset_after_save_computed_keys
 
         # remove all keys that are not part of the schema
         options.data_hash.slice!(*writable_property_names)
@@ -103,6 +135,8 @@ module DataCycleCore
           partial_schema['properties']&.slice!(*differ.diff_hash.keys)
         end
 
+        recompute_failed = false
+
         transaction(joinable: false, requires_new: true) do
           to_history if write_history
           self.write_history = !options.prevent_history
@@ -121,7 +155,30 @@ module DataCycleCore
 
           save(touch: false)
           search_languages(options.update_search_all) unless id.nil?
+
+          # compute.after_save properties are recomputed here, inside the write transaction, so
+          # the computed value either commits together with the save that triggered it or not at
+          # all. Only a content that actually has such a property carries a deferral (it is fed
+          # from after_save_computed_property_names), so every other content leaves the transaction
+          # here and runs exactly what it ran before this existed.
+          #
+          # previous_datahash_changes is captured and restored around the recompute: the
+          # recompute's own set_data_hash overwrites it (and has already reported its own changes
+          # to its own after_save_data_hash), while after_save_data_hash below has to report the
+          # changes of *this* save to webhooks and subscribers.
+          next if @after_save_computed_keys.blank?
+
+          reload
+          saved_datahash_changes = previous_datahash_changes
+          recompute_failed = !update_after_save_computed_values(options)
+          self.previous_datahash_changes = saved_datahash_changes
+
+          # a computed value the schema rejects must not be committed alongside the change that
+          # caused it — same outcome as a compute that raises, reported instead of thrown
+          raise ActiveRecord::Rollback if recompute_failed
         end
+
+        return false if recompute_failed
 
         reload
         after_save_data_hash(options)
@@ -186,8 +243,17 @@ module DataCycleCore
         execute_webhooks(:create)
       end
 
-      def execute_update_webhooks
+      # The fan-out lives here rather than at the call sites so that every caller inherits it: a
+      # content the export filter rejects reaches a receiver this way only.
+      # @param invalidate_related_cache [Boolean] true when nothing else invalidates the contents the
+      #   fan-out re-exports, which is what makes the re-export land at all. False for a caller that
+      #   invalidates them itself, and for one that wants no invalidation: a backfill re-sends a
+      #   payload that is already current, and an import opting out keeps its opt-out
+      # @return [DataCycleCore::RelatedWebhooksJob, nil] the fan-out job
+      def execute_update_webhooks(invalidate_related_cache: false)
         execute_webhooks(:update)
+
+        add_related_webhooks_job(invalidate: invalidate_related_cache) if cached_related_contents?
       end
 
       def execute_delete_webhooks
@@ -196,12 +262,12 @@ module DataCycleCore
 
       # Executes all webhooks for the specified action (:create, :update, or :delete).
       # Returns early if webhooks are prevented for this content, or if the content is embedded.
-      def execute_webhooks(webhook_action)
+      def execute_webhooks(webhook_action, external_system_id: nil)
         return if prevent_webhooks.is_a?(TrueClass) || embedded?
 
         "DataCycleCore::Webhook::#{webhook_action.to_s.classify}"
           .constantize
-          .execute_all(self)
+          .execute_all(self, external_system_id:)
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true) # rubocop:disable Naming/PredicateMethod
@@ -253,6 +319,13 @@ module DataCycleCore
         return if @destroy_id_attribute_hash.blank?
 
         DataCycleCore::DestroyComputedPropertiesJob.perform_later(id, @destroy_id_attribute_hash)
+      end
+
+      # A change carrying nothing the API renders reaches neither this content's own receivers nor
+      # the contents linking it, and a timeseries value is exactly that.
+      def datahash_changes_trigger_webhooks?
+        previous_datahash_changes.present? &&
+          previous_datahash_changes.keys.any? { |k| timeseries_property_names.exclude?(k) }
       end
 
       def add_update_translated_computed_properties_job(locales, keys)
@@ -377,7 +450,7 @@ module DataCycleCore
         when *ThingTemplateExtensions::PropertyTypes::GEO_PROPERTY_TYPES
           set_geographic(key, value, properties)
         when *TIMESERIES_PROPERTY_TYPES
-          set_timeseries(key, value)
+          set_timeseries(key, value, properties)
         end
       end
 
@@ -436,8 +509,14 @@ module DataCycleCore
       end
 
       # format [{ 'timestamp' => Time, 'value' => 1 }, { 'timestamp' => Time, 'value' => 2 }]
-      def set_timeseries(key, value)
+      def set_timeseries(key, value, properties = nil)
         return if value.blank?
+
+        if properties&.dig('collapse_redundant_values')
+          points = value.map { |item| item.with_indifferent_access.slice('timestamp', 'value').symbolize_keys }
+          Timeseries::RedundantValueCollapser.new(thing_id: id, property: key).call(points)
+          return
+        end
 
         data = value.map do |item|
           v = item.with_indifferent_access.slice('timestamp', 'value')

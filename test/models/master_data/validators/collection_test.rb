@@ -45,6 +45,52 @@ module DataCycleCore
           assert_predicate validator.error[:warning], :blank?
         end
 
+        test 'rejects a blank collection with required validation' do
+          validator = subject.new([], validation_hash.merge({ 'validations' => { 'required' => true } }))
+
+          assert_includes validator.error[:error].values.flatten.pluck(:path), 'validation.errors.required'
+        end
+
+        test 'warns about a blank collection with soft_required validation' do
+          validator = subject.new([], validation_hash.merge({ 'validations' => { 'soft_required' => true } }))
+
+          assert_predicate validator.error[:error], :blank?
+          assert_includes validator.error[:warning].values.flatten.pluck(:path), 'validation.warnings.required'
+        end
+
+        test 'successfully validates a present collection with required validation' do
+          validator = subject.new([@stored_filter.id], validation_hash.merge({ 'validations' => { 'required' => true } }))
+
+          assert_predicate validator.error[:error], :blank?
+          assert_predicate validator.error[:warning], :blank?
+        end
+
+        test 'rejects a blank collection with min validation' do
+          validator = subject.new([], validation_hash.merge({ 'validations' => { 'min' => 1 } }))
+
+          assert_includes validator.error[:error].values.flatten.pluck(:path), 'validation.errors.min_ref'
+        end
+
+        test 'warns about fewer collections than soft_min expects' do
+          validator = subject.new([@stored_filter.id], validation_hash.merge({ 'validations' => { 'soft_min' => 2 } }))
+
+          assert_predicate validator.error[:error], :blank?
+          assert_includes validator.error[:warning].values.flatten.pluck(:path), 'validation.errors.min_ref'
+        end
+
+        test 'rejects more collections than max allows' do
+          validator = subject.new([@stored_filter.id, @watch_list.id], validation_hash.merge({ 'validations' => { 'max' => 1 } }))
+
+          assert_includes validator.error[:error].values.flatten.pluck(:path), 'validation.errors.max_ref'
+        end
+
+        test 'warns about more collections than soft_max allows' do
+          validator = subject.new([@stored_filter.id, @watch_list.id], validation_hash.merge({ 'validations' => { 'soft_max' => 1 } }))
+
+          assert_predicate validator.error[:error], :blank?
+          assert_includes validator.error[:warning].values.flatten.pluck(:path), 'validation.errors.max_ref'
+        end
+
         test 'rejects a value that is not an array, relation or string' do
           validator = subject.new(42, validation_hash)
 

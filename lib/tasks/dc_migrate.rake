@@ -858,5 +858,51 @@ namespace :dc do
 
       puts 'MIGRATION SUCCESSFUL'
     end
+
+    desc 'Redmine #39891: retroactively collapse historical timeseries rows for properties with collapse_redundant_values: true (dry_run: true|false)'
+    task :collapse_redundant_timeseries_values, [:dry_run] => [:environment] do |_, args|
+      dry_run = args.fetch(:dry_run, false).to_s == 'true'
+      puts '###### DRY-RUN: no database changes will be made' if dry_run
+
+      property_names = DataCycleCore::ContentProperties
+        .where("property_definition ->> 'collapse_redundant_values' = 'true'")
+        .distinct
+        .pluck(:property_name)
+
+      if property_names.blank?
+        puts 'no properties with collapse_redundant_values found'
+        next
+      end
+
+      puts "found #{property_names.size} propert(y/ies): #{property_names.join(', ')}"
+
+      pairs = DataCycleCore::Timeseries.where(property: property_names).select(:thing_id, :property).distinct
+      total = pairs.count
+      puts "#{total} thing_id/property pair(s) to check"
+
+      progressbar = ProgressBar.create(total:, title: 'Checking')
+      collapsed_pairs = 0
+      deleted_rows = 0
+
+      pairs.find_in_batches(batch_size: 500) do |batch|
+        batch.each do |pair|
+          content = DataCycleCore::Thing.find_by(id: pair.thing_id)
+
+          # re-check per content: the flag lives on the template, not the row
+          if content&.properties_for(pair.property)&.dig('collapse_redundant_values')
+            result = DataCycleCore::Timeseries::RedundantValueCollapser.backfill!(thing_id: pair.thing_id, property: pair.property, dry_run:)
+
+            if result[:deleted].positive?
+              collapsed_pairs += 1
+              deleted_rows += result[:deleted]
+            end
+          end
+
+          progressbar.increment
+        end
+      end
+
+      puts "done: #{collapsed_pairs} pair(s) had redundant rows, #{deleted_rows} row(s) #{dry_run ? 'would be' : 'were'} deleted"
+    end
   end
 end

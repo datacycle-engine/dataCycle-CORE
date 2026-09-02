@@ -20,5 +20,12 @@ module DataCycleCore
       assert_equal [:de], result.values
       assert_equal :de, result['Deutsch']
     end
+
+    test 'available_download_serializers delegates to the download feature' do
+      DataCycleCore::Feature::Download.stub(:enabled_serializers_for_download, ['xml']) do
+        assert_equal ['xml'], available_download_serializers(Object.new)
+        assert_equal ['xml'], available_download_serializers(Object.new, [:embedded])
+      end
+    end
   end
 end

@@ -1,5 +1,6 @@
 normal: "dc-logo.svg"
-inverted: "dc-logo_inverted.svg"
+# dark-background variant — dataCycle CI yellow (#48677)
+inverted: "dc-logo_yellow.svg"
 email: "eml-datacycle.png"
 print: "dc-logo.png"
 alt_text: "dataCycle Logo"
@@ -7,7 +8,8 @@ mail_dimensions:
   height: "65px"
 customercolor: "#FFCC00"
 background_images:
-  - dc-bg.jpg
+  - dc-bg.png
+background_position: "center center"
 # footer_logo: 'dc-logo.svg'
 # footer_links:
 #   text: url

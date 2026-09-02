@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   class DeleteContentsTest < DataCycleCore::TestCases::ActiveSupportTestCase
-    DummyUtilityObject = Struct.new(:external_source, :last_successful_try, :steps_successful, :mode) do
+    DummyUtilityObject = Struct.new(:external_source, :last_successful_try, :steps_successful, :mode, :step_name) do
       def source_steps_successful?
         steps_successful
       end
@@ -14,7 +14,7 @@ module DataCycleCore
       @subject = DataCycleCore::Generic::Common::DeleteContents
       @local_system = DataCycleCore::ExternalSystem.find_by(identifier: 'local-system')
       @other_system = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system')
-      @utility_object = DummyUtilityObject.new(@local_system, Time.zone.now, true)
+      @utility_object = DummyUtilityObject.new(@local_system, Time.zone.now, true, nil, 'delete')
     end
 
     test 'import_data delegates to ImportFunctions with full mode' do
@@ -82,13 +82,20 @@ module DataCycleCore
       end
     end
 
-    test 'process_content destroys matching content without a duplicate sync' do
+    test 'process_content destroys matching content without a duplicate sync and counts it as deleted' do
       content = create_content('POI', { name: 'DC Del One', external_key: 'dc-del-1', external_source_id: @local_system.id })
       options = { import: { external_key_path: 'id' } }
+      events = []
 
-      @subject.process_content(utility_object: @utility_object, raw_data: { 'id' => 'dc-del-1' }, locale: :de, options:)
+      ActiveSupport::Notifications.subscribed(->(_name, _s, _f, _id, payload) { events << payload }, DataCycleCore::Generic::Common::ImportCounters::EVENTS[:deleted]) do
+        @subject.process_content(utility_object: @utility_object, raw_data: { 'id' => 'dc-del-1' }, locale: :de, options:)
+      end
 
       assert_nil(DataCycleCore::Thing.find_by(id: content.id))
+      assert_equal(1, events.size)
+      assert_equal(@local_system, events.first[:external_system])
+      assert_equal('delete', events.first[:step_name])
+      assert_equal('POI', events.first[:template_name])
     end
 
     test 'process_content reassigns matching content to its oldest duplicate sync' do
@@ -96,9 +103,13 @@ module DataCycleCore
       DataCycleCore::ExternalSystemSync.create!(external_system_id: @other_system.id, sync_type: 'duplicate', external_key: 'dc-del-2-dup', syncable: content)
       options = { import: { external_key_path: 'id' } }
 
-      @subject.process_content(utility_object: @utility_object, raw_data: { 'id' => 'dc-del-2' }, locale: :de, options:)
+      events = []
+      ActiveSupport::Notifications.subscribed(->(_name, _s, _f, _id, payload) { events << payload }, DataCycleCore::Generic::Common::ImportCounters::EVENTS[:deleted]) do
+        @subject.process_content(utility_object: @utility_object, raw_data: { 'id' => 'dc-del-2' }, locale: :de, options:)
+      end
 
       assert_equal(@other_system.id, content.reload.external_source_id)
+      assert_empty(events)
     end
   end
 end

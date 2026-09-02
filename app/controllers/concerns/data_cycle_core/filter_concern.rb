@@ -5,6 +5,9 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     DEFAULT_PAGE_SIZE = 25
+    # Sentinel used in place of a classification tree label id (`ctl_id`) to render the
+    # dashboard tree view grouped by external system instead of by classification.
+    EXTERNAL_SYSTEM_TREE_ID = 'external_systems'
     PAGE_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
       optional(:page).filled(:integer)
       optional(:tree_page).filled(:integer)
@@ -29,8 +32,9 @@ module DataCycleCore
       @stored_filter.apply_user_filter(current_user, user_filter, filter_reset?(@stored_filter)) if user_filter.present?
       query = @stored_filter.apply(query: query&.dup, skip_ordering: @count_only, watch_list:)
 
-      # used on dashboard
-      @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
+      # dashboard chips: user filters live outside `parameters`, so include them via
+      # #parameters_with_user_filters to keep the user/forced filter chips visible.
+      @filters = @stored_filter.parameters_with_user_filters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
         .where(
           id: @filters
@@ -61,6 +65,9 @@ module DataCycleCore
       new_filter ||= @stored_filter
       new_filter.user_id ||= current_user.id
       new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && !new_filter.persisted?
+      # persist only the form-derived parameters, never the user filters: those are resolved per viewer at
+      # read time (see StoredFilter#user_filter_parameters), so a filter saved by a restricted user must not
+      # carry that restriction for everyone who later opens it.
       new_filter.parameters = @stored_filter.parameters
       new_filter.language = Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       new_filter.sort_parameters = @stored_filter.sort_parameters
@@ -95,7 +102,15 @@ module DataCycleCore
 
       case @mode
       when 'tree'
-        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
+        return set_external_system_tree_variables(query:, user_filter:) if mode_params[:ctl_id] == EXTERNAL_SYSTEM_TREE_ID
+
+        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find_by(id: mode_params[:ctl_id])
+
+        # unresolvable tree context (e.g. a stale/blank ctl_id): fall back to the grid view
+        if @classification_tree_label.nil?
+          @mode = 'grid'
+          return set_grid_variables(query:, user_filter:, watch_list:)
+        end
 
         if mode_params[:con_id].present? && request.xhr?
           @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
@@ -163,25 +178,59 @@ module DataCycleCore
           .per(page_size)
           .without_count
       else
-        page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
-        @contents = get_filtered_results(query:, user_filter:, watch_list:)
-        @contents = @contents.content_includes.page(page_params[:page]).per(page_size).without_count
-        DataCycleCore::PreloadService.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
+        set_grid_variables(query:, user_filter:, watch_list:)
       end
     end
 
     private
 
-    def linked_stored_filter(collection)
+    # Builds the dashboard tree view grouped by external system (the "imported from" breakdown):
+    # lists the active import external systems as tree nodes. Each node's content count is loaded
+    # lazily via the `external_system` count mode (see #total_count). Clicking a node expands the
+    # contents imported from that system (loaded via xhr, see #set_external_system_contents).
+    def set_external_system_tree_variables(query:, user_filter:)
+      @external_system_tree = true
+      @external_system = DataCycleCore::ExternalSystem.find_by(id: mode_params[:es_id]) if mode_params[:es_id].present?
+
+      # an xhr request for a selected system is a drill-in (or load-more) that renders only the
+      # contents fragment; the full html page always renders the external-system node list
+      return set_external_system_contents(query:, user_filter:) if @external_system && request.xhr?
+
+      @external_systems = DataCycleCore::ExternalSystem.with_import_config.where(deactivated: false).order(:name)
+      get_filtered_results(query:, user_filter:) # set default parameters for filters
+    end
+
+    # Paged list of contents imported from a single external system (its primary source).
+    def set_external_system_contents(query:, user_filter:)
+      contents = get_filtered_results(query:, user_filter:).external_source([@external_system.id])
+      total_count = contents.count
+
+      @contents = contents.content_includes.page(page_params[:page])
+      @contents = @contents.tap { |rel| rel.send(:load_records, []) } if total_count.zero?
+      DataCycleCore::PreloadService.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
+
+      @page = @contents.current_page
+      @total_count = @contents.instance_variable_set(:@total_count, total_count)
+      @total_pages = @contents.total_pages
+    end
+
+    def set_grid_variables(query:, user_filter:, watch_list: nil)
+      page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
+      @contents = get_filtered_results(query:, user_filter:, watch_list:)
+      @contents = @contents.content_includes.page(page_params[:page]).per(page_size).without_count
+      DataCycleCore::PreloadService.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
+    end
+
+    def linked_stored_filter(collection = nil)
       user_linked_filters = current_user&.user_filters('api_linked')
 
-      return unless collection.linked_stored_filter_id.present? || user_linked_filters.present?
+      return unless collection&.linked_stored_filter_id.present? || user_linked_filters.present?
 
-      linked_filter = collection.linked_stored_filter
+      linked_filter = collection&.linked_stored_filter
 
       return linked_filter if user_linked_filters.blank?
 
-      unique_key = generate_uuid(collection.id, "#{user_linked_filters.join(',')}/#{current_user.id}")
+      unique_key = DataCycleCore::UuidService.generate(collection&.id || @content&.id, "#{user_linked_filters.join(',')}/#{current_user.id}")
       linked_filter ||= DataCycleCore::StoredFilter.new(id: unique_key)
       linked_filter.apply_user_filter(current_user, { scope: 'api_linked' })
     end
@@ -244,6 +293,8 @@ module DataCycleCore
       when 'classification_tree_label'
         ca_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
         total_count = total_count.classification_tree_ids(ca_label.id)
+      when 'external_system'
+        total_count = total_count.external_source([mode_params[:es_id]])
       end
 
       total_count.count
@@ -264,7 +315,7 @@ module DataCycleCore
     end
 
     def mode_params
-      params.permit(:mode, :ct_id, :con_id, :ctl_id, :cpt_id)
+      params.permit(:mode, :ct_id, :con_id, :ctl_id, :cpt_id, :es_id)
     end
 
     def count_only_params

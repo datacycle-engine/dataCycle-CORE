@@ -7,6 +7,9 @@ module DataCycleCore
 
     protect_from_forgery with: :exception, except: :imgproxy_url
 
+    # public files, so cross-origin <script> embedding is legitimate; otherwise every /assets/*.js bot probe raises InvalidCrossOriginRequest
+    skip_after_action :verify_same_origin_request
+
     def show
       load_asset_from_params
 

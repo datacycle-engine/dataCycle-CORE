@@ -59,16 +59,31 @@ module DataCycleCore
       nil
     end
 
-    def limited_by_warning(content, definition, key, translation_key)
-      return if definition&.dig('ui', 'edit', 'options', 'limited_by').blank?
+    # True when the object browser candidate set is restricted, either via the
+    # DOM based `limited_by` (aggregate) or the server side `limited_by_linked`.
+    def object_browser_limited?(definition)
+      definition&.dig('ui', 'edit', 'options', 'limited_by').present? ||
+        definition&.dig('ui', 'edit', 'options', 'limited_by_linked').present?
+    end
 
-      if I18n.exists?("object_browser.limited_by.#{content&.template_name}.#{key.attribute_name_from_key}.#{translation_key}", locale: active_ui_locale)
-        I18n.t("object_browser.limited_by.#{content&.template_name}.#{key.attribute_name_from_key}.#{translation_key}", locale: active_ui_locale)
-      elsif I18n.exists?("object_browser.limited_by.#{key.attribute_name_from_key}.#{translation_key}", locale: active_ui_locale)
-        I18n.t("object_browser.limited_by.#{key.attribute_name_from_key}.#{translation_key}", locale: active_ui_locale)
-      elsif I18n.exists?("object_browser.limited_by.#{translation_key}", locale: active_ui_locale)
-        I18n.t("object_browser.limited_by.#{translation_key}", locale: active_ui_locale)
+    def limited_by_warning(content, definition, key, translation_key)
+      namespace =
+        if definition&.dig('ui', 'edit', 'options', 'limited_by').present?
+          'limited_by'
+        elsif definition&.dig('ui', 'edit', 'options', 'limited_by_linked').present?
+          'limited_by_linked'
+        end
+      return if namespace.blank?
+
+      [
+        "object_browser.#{namespace}.#{content&.template_name}.#{key.attribute_name_from_key}.#{translation_key}",
+        "object_browser.#{namespace}.#{key.attribute_name_from_key}.#{translation_key}",
+        "object_browser.#{namespace}.#{translation_key}"
+      ].each do |lookup_key|
+        return I18n.t(lookup_key, locale: active_ui_locale) if I18n.exists?(lookup_key, locale: active_ui_locale)
       end
+
+      nil
     end
 
     private

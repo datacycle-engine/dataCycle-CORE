@@ -134,6 +134,8 @@
   #   - Aktuelle Inhalte
   #   - Archiv
   # :archive_name: Archiv
+  # # stage a content is moved (back) to when it becomes active again, defaults to "Aktuell"
+  # :active_name: Aktuelle Inhalte
 
 :idea_collection:
   :enabled: false
@@ -246,6 +248,9 @@
     :internal_content_score:
       :type: numeric
       :depends_on: DataCycleCore::Feature::ContentScore
+    :overlay_present:
+      :type: boolean
+      :depends_on: DataCycleCore::Feature::Overlay
   :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
@@ -363,6 +368,10 @@
 
 :duplicate_candidate:
   :enabled: false
+  # merges triggered by a user run inline while at most this many contents are affected
+  # (contents linking to the duplicate + the duplicate's embedded children), bigger merges
+  # are handed to MergeDuplicateJob (blank => always in background)
+  :inline_merge_limit: 50
 
 :content_lock:
   :enabled: false
@@ -686,3 +695,22 @@
   :enabled: false
   # :module: "PreviewLink"
   # :method: "build"
+
+# opted into per linked property via :features: {:locale_inheritance: {:allowed: true}}
+:locale_inheritance:
+  :enabled: false
+
+# additional links rendered as their own section in the sidebar menu
+# :icon: is a font-awesome 4.7 name, :permission: gates the entry on can?(:show, <permission>)
+# instead of the additional_menu_links permission
+:additional_menu_link:
+  :enabled: true
+  :links:
+    :grafana:
+      :url: /grafana
+      :icon: line-chart
+      # grafana_dashboards also gates Grafana's OAuth grant in doorkeeper.rb, keep link and SSO on one permission
+      :permission: grafana_dashboards
+    # :grist:
+    #   :url: https://grist.example.com/
+    #   :icon: table

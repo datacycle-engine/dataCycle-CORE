@@ -236,5 +236,146 @@ module DataCycleCore
       assert_includes(sql, 'desc NULLS LAST')
       assert_includes(search.sort_ts_rank_fulltext_search('ASC', 'Wolfgangsee').to_sql, 'asc NULLS LAST')
     end
+
+    # #50091
+    CLASSIFICATION_UUID = 'a1b2c3d4-1234-1234-1234-123456789abc'
+    CLASSIFICATION_UUID_2 = 'b2c3d4e5-2345-2345-2345-23456789abcd'
+
+    test 'sort_dc_classification orders by array_position over collected_classification_contents' do
+      sql = search.sort_dc_classification('ASC', [CLASSIFICATION_UUID]).to_sql
+
+      assert_includes(sql, 'LEFT OUTER JOIN')
+      assert_includes(sql, 'collected_classification_contents')
+      assert_includes(sql, 'array_position(ARRAY[')
+      assert_includes(sql, "'#{CLASSIFICATION_UUID}'")
+      assert_includes(sql, '::uuid[]')
+      assert_includes(sql, 'hidden = false')
+      assert_includes(sql, 'dc_classification_sort.sort_position asc NULLS LAST')
+      assert_includes(search.sort_dc_classification('DESC', [CLASSIFICATION_UUID]).to_sql, 'dc_classification_sort.sort_position desc NULLS LAST')
+    end
+
+    test 'sort_dc_classification accepts a comma-separated string of uuids' do
+      sql = search.sort_dc_classification('ASC', "#{CLASSIFICATION_UUID},#{CLASSIFICATION_UUID_2}").to_sql
+
+      assert_includes(sql, "'#{CLASSIFICATION_UUID}'")
+      assert_includes(sql, "'#{CLASSIFICATION_UUID_2}'")
+    end
+
+    test 'sort_dc_classification raises for blank or invalid uuids' do
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', nil) }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', '') }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', []) }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', ['not-a-uuid']) }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', "#{CLASSIFICATION_UUID},not-a-uuid") }
+    end
+
+    # #50091 security: the uuid? format check is the injection boundary for the value; every
+    # non-UUID token must be rejected before it can reach the SQL string, so a crafted value
+    # can never break out of the ARRAY[?]::uuid[] bind.
+    test 'sort_dc_classification rejects sql injection payloads in the value' do
+      [
+        "'; DROP TABLE things; --",
+        "#{CLASSIFICATION_UUID}'); DROP TABLE things; --",
+        "#{CLASSIFICATION_UUID}') UNION SELECT id FROM active_storage_blobs --",
+        "' OR '1'='1",
+        '1); DELETE FROM collected_classification_contents; --',
+        "#{CLASSIFICATION_UUID}]::text[]) --"
+      ].each do |payload|
+        assert_raises(DataCycleCore::Error::Api::InvalidArgumentError, "expected #{payload.inspect} to be rejected") do
+          search.sort_dc_classification('ASC', payload)
+        end
+      end
+    end
+
+    # #50091 security: UUID_REGEX is anchored with \A...\z (not ^...$), so a value whose first
+    # line looks like a UUID must still be rejected instead of smuggling a payload past it.
+    test 'sort_dc_classification rejects a multiline value that hides a payload after a valid uuid' do
+      payload = "#{CLASSIFICATION_UUID}\n'); DROP TABLE things; --"
+
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', payload) }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', [payload]) }
+    end
+
+    # #50091 security: a single poisoned element in an otherwise valid array must fail the whole sort.
+    test 'sort_dc_classification rejects injection via a poisoned element in the uuid array' do
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) do
+        search.sort_dc_classification('ASC', [CLASSIFICATION_UUID, "'; DROP TABLE things; --"])
+      end
+    end
+
+    # #50091 security: the ordering direction is whitelisted (asc/desc only) via sanitized_ordering,
+    # so it cannot inject into the ORDER BY clause.
+    test 'sort_dc_classification rejects an injected ordering direction' do
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC; DROP TABLE things; --', [CLASSIFICATION_UUID]) }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('asc NULLS FIRST', [CLASSIFICATION_UUID]) }
+    end
+
+    # #50091 security: valid uuids are emitted only as quoted, ::uuid[]-cast literals, never spliced
+    # raw into the SQL. Also guards against accidental introduction of string interpolation.
+    test 'sort_dc_classification binds uuids as quoted, cast values' do
+      sql = search.sort_dc_classification('ASC', [CLASSIFICATION_UUID]).to_sql
+
+      assert_includes(sql, "ARRAY['#{CLASSIFICATION_UUID}']::uuid[]")
+      assert_not_includes(sql, "ARRAY[#{CLASSIFICATION_UUID}]") # never unquoted
+    end
+
+    # #50554
+    THING_UUID = 'c3d4e5f6-3456-3456-3456-3456789abcde'
+    THING_UUID_2 = 'd4e5f6a7-4567-4567-4567-456789abcdef'
+
+    test 'sort_id orders by array_position over things.id' do
+      sql = search.sort_id('ASC', [THING_UUID, THING_UUID_2]).to_sql
+
+      assert_includes(sql, "array_position(ARRAY['#{THING_UUID}','#{THING_UUID_2}']::uuid[], things.id) asc NULLS LAST")
+      assert_includes(search.sort_id('DESC', [THING_UUID]).to_sql, 'things.id) desc NULLS LAST')
+    end
+
+    test 'sort_id accepts a comma-separated string of uuids' do
+      sql = search.sort_id('ASC', "#{THING_UUID}, #{THING_UUID_2}").to_sql
+
+      assert_includes(sql, "ARRAY['#{THING_UUID}','#{THING_UUID_2}']::uuid[]")
+    end
+
+    # #50554: without a list, @id is a plain sort on things.id instead of a silent no-op.
+    test 'sort_id orders by things.id for a blank list' do
+      [nil, '', []].each do |value|
+        assert_includes(search.sort_id('ASC', value).to_sql, '"things"."id" ASC', "expected #{value.inspect} to sort by things.id")
+      end
+
+      assert_includes(search.sort_id('DESC').to_sql, '"things"."id" DESC')
+      assert_not_includes(search.sort_id('ASC', nil).to_sql, 'array_position')
+    end
+
+    test 'sort_id raises for invalid uuids' do
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('ASC', ['not-a-uuid']) }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('ASC', "#{THING_UUID},not-a-uuid") }
+    end
+
+    # #50554 security: same injection boundary as #50091 — every non-UUID token is rejected before it
+    # can reach the ARRAY[?]::uuid[] literal, including a payload hidden behind a newline.
+    test 'sort_id rejects sql injection payloads in the value' do
+      [
+        "'; DROP TABLE things; --",
+        "#{THING_UUID}'); DROP TABLE things; --",
+        "#{THING_UUID}') UNION SELECT id FROM active_storage_blobs --",
+        "' OR '1'='1",
+        '1); DELETE FROM things; --',
+        "#{THING_UUID}]::text[]) --",
+        "#{THING_UUID}\n'); DROP TABLE things; --"
+      ].each do |payload|
+        assert_raises(DataCycleCore::Error::Api::InvalidArgumentError, "expected #{payload.inspect} to be rejected") do
+          search.sort_id('ASC', payload)
+        end
+
+        assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('ASC', [THING_UUID, payload]) }
+      end
+    end
+
+    # #50554 security: the ordering direction is whitelisted in both branches (list and plain id sort).
+    test 'sort_id rejects an injected ordering direction' do
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('ASC; DROP TABLE things; --', [THING_UUID]) }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('asc NULLS FIRST', [THING_UUID]) }
+      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('ASC; DROP TABLE things; --') }
+    end
   end
 end

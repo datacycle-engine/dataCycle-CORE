@@ -37,6 +37,8 @@ module DataCycleCore
         query = query.where.not(things: { id: permitted_params[:excluded] }) if permitted_params[:excluded].present?
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?
 
+        query = limit_query_to_linked_content(query)
+
         render(json: { count: query.count }) && return if count_only_params[:count_only]
 
         @per = permitted_params[:per] if permitted_params[:per].present?
@@ -53,6 +55,32 @@ module DataCycleCore
           html: render_to_string(formats: [:html], layout: false, locals: ob_params)
         }
       end
+    end
+
+    # Server side counterpart to the DOM based `limited_by`: restricts the object
+    # browser results to the contents the content currently being edited is already
+    # linked to via one or more attributes, configured per property via
+    # `ui.edit.options.limited_by_linked` (a single attribute or a list). The ids
+    # are read from the current content's own attribute values - this respects the
+    # attribute's link direction and works even for computed attributes that are
+    # not rendered in the edit form (unlike the DOM based `limited_by`). A
+    # blank/new content has no such links yet, so nothing is offered until it has
+    # been saved once.
+    #
+    # `@definition` is request supplied, so the configured relation names are
+    # restricted to the content's actual linked properties before they are read
+    # via `try`. Without this whitelist an arbitrary, client-chosen method name
+    # would be invoked on the content (e.g. `destroy`), which is unsafe.
+    def limit_query_to_linked_content(query)
+      relations = Array.wrap(@definition.dig(:ui, :edit, :options, :limited_by_linked)).compact_blank
+      return query if relations.blank?
+
+      relations &= Array.wrap(@content&.linked_property_names(true))
+      return query.where(id: []) if relations.blank?
+
+      linked_ids = relations.flat_map { |relation| Array.wrap(@content.try(relation)&.pluck(:id)) }.uniq
+
+      query.where(id: linked_ids)
     end
 
     def find

@@ -9,6 +9,9 @@ module DataCycleCore
     devise :registerable if Feature::UserRegistration.enabled?
     devise :confirmable if Feature::UserConfirmation.enabled?
 
+    # has to be included after devise :lockable to be able to call super
+    include DataCycleCore::UserExtensions::Lockable
+
     WEBHOOK_ACCESSORS = [:raw_password, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
     attr_accessor :skip_callbacks, :template_namespaces, :issuer, :forward_to_url, :synchronous_webhooks, :webhook_source, *WEBHOOK_ACCESSORS
@@ -150,6 +153,16 @@ module DataCycleCore
       concatenated_name ? "#{concatenated_name} <#{email}>" : email
     end
 
+    # Avatar label beside the name in the header. A user without a name falls back to a single letter
+    # rather than the email's parts, so "mitterer@pixelpoint.at" reads as "M", not "MP".
+    #
+    # @return [String] one or two upper-case letters
+    def initials
+      return email.to_s.first.upcase if concatenated_name.blank?
+
+      concatenated_name.split.first(2).map(&:first).join.upcase
+    end
+
     def default_filter(filters = [], _scope = 'backend', _template_name = nil)
       filters
     end
@@ -190,10 +203,6 @@ module DataCycleCore
 
     def user_groups_by_permission(permission_key)
       user_groups.user_groups_with_permission(permission_key)
-    end
-
-    def locked?
-      locked_at.present?
     end
 
     def organization?
@@ -320,7 +329,7 @@ module DataCycleCore
             full_name_with_status(locale:)
           ], ' '
         ),
-        disabled: disable_locked && locked?,
+        disabled: disable_locked && access_locked?,
         class_key: model_name.param_key
       )
     end
@@ -330,7 +339,7 @@ module DataCycleCore
     end
 
     def full_name_with_status(locale: DataCycleCore.ui_locales.first)
-      return full_name unless locked? || deleted?
+      return full_name unless access_locked? || deleted?
 
       ActionController::Base.helpers.safe_join([
         full_name,
@@ -342,7 +351,8 @@ module DataCycleCore
             ],
             ' '
           ),
-          class: 'alert-color'
+          class: 'alert-color',
+          data: { dc_tooltip: deleted? ? nil : lock_status_text(locale:) }.compact
         )
       ].compact, ' ')
     end
@@ -396,6 +406,8 @@ module DataCycleCore
         ui_locale: I18n.default_locale,
         updated_at: Time.zone.now,
         locked_at: Time.zone.now,
+        # a soft delete is a deliberate lock, it must not expire after Devise.unlock_in
+        auto_locked: false,
         sign_in_count: 0,
         failed_attempts: 0,
         external: false,

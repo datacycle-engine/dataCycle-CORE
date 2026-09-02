@@ -417,6 +417,47 @@ module DataCycleCore
         assert(events.first[:exception].validation_errors.any? { |e| e.include?('member_not_lift') }, 'the post-conversion error names the violating incoming relation')
       end
 
+      test '[#49217] regression: conversion failure caused by post-conversion feasibility check keeps source template and external source in TemplateConversionError (Bild -> PDF; not PDF -> PDF)' do
+        thing = create_content('Bild', {
+          name: 'Linked Image',
+          external_key: 'tc-post-error-context-bild-pdf',
+          external_source_id: @external_system.id,
+          content_url: 'https://example.com/image.jpg',
+          thumbnail_url: 'https://example.com/image-thumb.jpg'
+        })
+        pdf_template = DataCycleCore::ThingTemplate.find_by(template_name: 'PDF')
+        create_content('Event', { name: 'Linking Event', linked_thing: [thing.id] })
+        thing.reload
+
+        assert_empty thing.template_conversion_errors(pdf_template, data: { 'name' => 'x' }), 'guard: pre-check must pass so the failure happens after the cast'
+
+        events = capture_notifications('object_template_conversion_failed.datacycle') do
+          result = create_or_update_content(
+            utility_object: @utility_object,
+            template: pdf_template,
+            data: {
+              'external_key' => 'tc-post-error-context-bild-pdf',
+              'name' => 'Now a PDF',
+              'content_url' => 'https://example.com/file.pdf'
+            },
+            config: @config
+          )
+
+          assert_equal 'Bild', result.reload.template_name, 'post-conversion failure must roll back to the source type'
+        end
+
+        assert_equal 1, events.size
+
+        error = events.first[:exception]
+
+        assert_instance_of DataCycleCore::Error::Import::TemplateConversionError, error
+        assert_equal 'Bild', error.template_name, 'the exception must report the source template, not the in-transaction cast target'
+        assert_equal 'PDF', error.expected_template_name
+        assert_equal @external_system, error.external_source
+        assert(error.validation_errors.any? { |e| e.include?('linked_thing') && e.include?('Event') && e.include?('PDF') })
+        assert_match(/Bild -> PDF/, error.message)
+      end
+
       test 'a conversion the pre-check allows but the post-conversion StoredFilter re-check rejects on an outgoing relation is rolled back (AK3.1, post-conversion, outgoing)' do
         source = create_content('TemplateConversionSource', { name: 'Src', mandatory_note: 'x', external_key: 'tc-out-post-rollback', external_source_id: @external_system.id })
         lift = create_content('Lift', { name: 'A Lift', external_key: 'tc-out-post-lift', external_source_id: @external_system.id })

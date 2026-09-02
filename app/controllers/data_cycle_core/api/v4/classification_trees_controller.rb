@@ -36,13 +36,7 @@ module DataCycleCore
           @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
 
           build_concepts_search_query(@classification_tree_label.classification_aliases) do
-            if permitted_params.dig(:filter, :attribute).present?
-              filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
-              @classification_aliases = @classification_tree_label.classification_aliases_with_deleted if filter.key?(:'dct:deleted')
-              @classification_aliases = apply_filters(@classification_aliases, filter)
-            end
-
-            @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
+            @classification_aliases = apply_concept_filters(@classification_aliases, permitted_params[:filter])
           end
         end
 
@@ -62,7 +56,7 @@ module DataCycleCore
               COUNT(DISTINCT ccc1.thing_id) AS thing_count_with_subtree,
               COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.link_type IN ('direct', 'related')) AS thing_count_without_subtree
               FROM collected_classification_contents ccc1
-              WHERE EXISTS (#{subquery})
+              WHERE ccc1.hidden = FALSE AND EXISTS (#{subquery})
               GROUP BY ccc1.classification_alias_id
             ) ccc ON ccc.classification_alias_id = classification_aliases.id
                 AND COALESCE(ccc.thing_count_with_subtree, 0) >= #{min_count_with_subtree_sanitized}
@@ -88,7 +82,11 @@ module DataCycleCore
           # unset full_text_search for facets, as it interferes with ordering and is not needed
           @full_text_search = nil
           @language = Array.wrap(permitted_params[:conceptLanguage]) if permitted_params[:conceptLanguage].present?
-          build_concepts_search_query(@classification_aliases)
+
+          build_concepts_search_query(@classification_aliases) do
+            # conceptFilter restricts the returned concepts (the content counts stay driven by +filter+, #43008)
+            @classification_aliases = @classification_aliases.where(id: filtered_facet_concept_scope) if permitted_params[:conceptFilter].present?
+          end
 
           # unset classification_trees_filter to render all classifications
           @classification_trees_parameters = []
@@ -120,55 +118,51 @@ module DataCycleCore
           @classification_aliases = apply_paging(@classification_aliases)
         end
 
+        # +filter.search+/+filter.q+ may arrive as the {value, fields} hash form (allowed since #43008
+        # loosened the filter permit). The concept +.search+ and similarity ordering both need a plain
+        # term, so keep only the value here — otherwise ordering raises "can't quote Parameters".
+        def prepare_url_parameters
+          super
+          @full_text_search = @full_text_search[:value] if @full_text_search.is_a?(ActionController::Parameters)
+        end
+
         def permitted_parameter_keys
           super + [:id, :language, :conceptLanguage, :classification_id, :classification_ids, :classificationIds, :classification_tree_label_id, :min_count_with_subtree, :min_count_without_subtree, :minCountWithSubtree, :minCountWithoutSubtree] + [permitted_filter_parameters]
         end
 
+        # Filter params are permitted as open hashes and validated by action-specific Dry contracts
+        # (see #api_filter_contracts) instead of a hand-maintained allow-list. On facets, +filter+
+        # selects the counted contents and +conceptFilter+ selects the returned concepts; on the
+        # other actions +filter+ selects the returned concepts. See Redmine #43008.
         def permitted_filter_parameters
-          if action_name == 'index'
-            {
-              filter: [
-                :search,
-                :q,
-                {
-                  attribute: {
-                    'dct:modified': attribute_filter_operations,
-                    'dct:created': attribute_filter_operations,
-                    'dct:deleted': attribute_filter_operations
-                  }
-                }
-              ]
-            }
-          elsif action_name == 'facets'
-            {
-              filter: {}
-            }
-          else
-            {
-              filter: [
-                :search,
-                :q,
-                {
-                  attribute: {
-                    'dct:modified': attribute_filter_operations,
-                    'dct:created': attribute_filter_operations,
-                    'dct:deleted': attribute_filter_operations,
-                    'skos:broader': concept_classification_filter_operations,
-                    'skos:ancestors': concept_classification_filter_operations
-                  }
-                }
-              ]
-            }
-          end
+          return { filter: {}, conceptFilter: {} } if action_name == 'facets'
+
+          { filter: {} }
         end
 
         private
 
-        def concept_classification_filter_operations
-          {
-            in: [],
-            notIn: []
-          }
+        # Routes +filter+ (and +conceptFilter+ on facets) to the action-appropriate per-action contracts
+        # (see #api_filter_contracts) instead of the single default +ApiFilterContract+. The rest of the
+        # params validation stays in +ApiService#validate_api_params+.
+        def validate_api_filter_params(validation_params)
+          api_filter_contracts.each_with_object([]) do |(filter_key, contract_class), errors|
+            next if validation_params&.dig(filter_key).blank?
+
+            errors.concat(validate_api_filters(validation_params.delete(filter_key), [filter_key], contract_class.new))
+          end
+        end
+
+        # Maps each permitted filter key to the Dry contract that validates it for the current action.
+        def api_filter_contracts
+          case action_name
+          when 'facets'
+            { filter: MasterData::Contracts::ApiFilterContract, conceptFilter: MasterData::Contracts::FacetConceptFilterContract }
+          when 'index'
+            { filter: MasterData::Contracts::ConceptSchemeFilterContract }
+          else
+            { filter: MasterData::Contracts::ConceptFilterContract }
+          end
         end
 
         def external_params
@@ -178,6 +172,13 @@ module DataCycleCore
         def apply_filters(query, filter)
           return super if action_name == 'facets'
 
+          apply_concept_attribute_filters(query, filter)
+        end
+
+        # Applies the concept result-set filters (dct:* date ranges, skos:broader / skos:ancestors) to a
+        # classification-alias / tree-label query. Used by the concept endpoints and, for +conceptFilter+,
+        # by #facets (where #apply_filters itself delegates to the content-filter engine via +super+).
+        def apply_concept_attribute_filters(query, filter)
           filter.each do |attribute_key, operator|
             attribute_path = case attribute_key
                              when :'dct:modified'
@@ -246,6 +247,42 @@ module DataCycleCore
           elsif k == :notIn
             query.where.not(where_part)
           end
+        end
+
+        # Applies the concept result-set filters (attribute + full-text) from +filter+ to +scope+, swapping
+        # in the with-deleted alias scope of +@classification_tree_label+ when the filter targets
+        # +dct:deleted+. Shared by #classifications (+filter+) and #facets (+conceptFilter+, via
+        # #filtered_facet_concept_ids) so both endpoints filter concepts identically.
+        def apply_concept_filters(scope, filter)
+          filter = filter.to_h.deep_symbolize_keys
+
+          if filter[:attribute].present?
+            attribute_filter = filter[:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
+            scope = @classification_tree_label.classification_aliases_with_deleted if attribute_filter.key?(:'dct:deleted')
+            scope = apply_concept_attribute_filters(scope, attribute_filter)
+          end
+
+          search = concept_full_text_search(filter)
+          scope = apply_full_text_search(scope, search) if search.present?
+
+          scope
+        end
+
+        # Concept-id scope (within the current tree) matching +conceptFilter+, used by #facets to restrict
+        # the returned concepts. Returned as a relation so it composes into +WHERE id IN (subquery)+ rather
+        # than materializing every matching id into Ruby and shipping it back as a bind-heavy +IN (...)+ list.
+        # Runs the concept filters against +classification_aliases+ (which joins +classification_trees+, so
+        # skos:broader resolves) rather than against the content-count query. +reorder(nil)+ drops any
+        # default ordering, which is meaningless in an +IN+ subquery (and would otherwise be dead work).
+        def filtered_facet_concept_scope
+          apply_concept_filters(@classification_tree_label.classification_aliases, permitted_params[:conceptFilter])
+            .reorder(nil).select(:id)
+        end
+
+        # Full-text term from a concept filter, accepting both the plain-string and the {value, fields} forms.
+        def concept_full_text_search(filter)
+          value = filter[:search] || filter[:q]
+          value.is_a?(::Hash) ? value[:value] : value
         end
 
         def apply_full_text_search(query, search)

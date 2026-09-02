@@ -25,12 +25,11 @@ module DataCycleCore
       assert_equal [:translations, :auto_translations], called
     end
 
-    test 'exposes the reference id and type' do
+    test 'exposes its concurrency key and priority' do
       job = DataCycleCore::AutoTranslationJob.new('abc', 'de')
 
-      assert_equal 'abc', job.delayed_reference_id
-      assert_equal 'AutoTranslationJob', job.delayed_reference_type
-      assert_equal DataCycleCore::AutoTranslationJob::PRIORITY, job.priority
+      assert_equal 'DataCycleCore::AutoTranslationJob/abc', job.concurrency_key
+      assert_equal 5, job.priority
     end
   end
 end

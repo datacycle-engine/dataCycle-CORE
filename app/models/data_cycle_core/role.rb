@@ -32,5 +32,9 @@ module DataCycleCore
     def self.super_admin
       find_by(rank: 99)
     end
+
+    def self.system_admin
+      find_by(rank: 100)
+    end
   end
 end

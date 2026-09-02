@@ -17,7 +17,7 @@
     <%= select_tag(
         "f[#{identifier}][v][method]",
         options_for_select([[t("common.all", locale: active_ui_locale), 'all']] +
-          DataCycleCore::Feature::DuplicateCandidate.available_rules.map { |m| m.to_select_option(active_ui_locale).to_option_for_select }, value&.dig('method')),
+          DataCycleCore::Feature::DuplicateCandidate.selectable_rules.map { |m| m.to_select_option(active_ui_locale).to_option_for_select }, value&.dig('method')),
         {
           multiple: true,
           class: 'multi-select',

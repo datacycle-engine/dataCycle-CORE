@@ -11,7 +11,7 @@
     </section>
     <section id="template-paths" class="tabs-panel">
       <section class="template-paths-nav">
-        <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.template_paths', locale: active_ui_locale)) %>
+       <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.template_paths', locale: active_ui_locale)) %>
       </section>
       <%= turbo_frame_tag "admin_panel_template_path_#{content.id}", src: admin_panel_template_path_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
     </section>
@@ -33,6 +33,15 @@
       </section>
       <%= turbo_frame_tag "admin_panel_json_api_#{content.id}", src: admin_panel_json_api_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
     </section>
+    <% has_mongo_raw_data = can?(:show_raw_data, content) && content.try(:dc_mongo_collection).present? && content.try(:dc_mongo_key).present? %>
+    <% if has_mongo_raw_data %>
+      <section id="data-raw" class="tabs-panel">
+        <section class="data-raw-nav">
+          <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.raw_data', locale: active_ui_locale)) %>
+        </section>
+        <%= turbo_frame_tag "admin_panel_data_raw_#{content.id}", src: admin_panel_data_raw_thing_path(content), loading: 'lazy', class: 'admin-panel-frame' %>
+      </section>
+    <% end %>
     <% dzt_data = content.external_system_syncs.joins(:external_system).find_by("external_systems.identifier = 'dzt' OR external_systems.identifier ILIKE 'onlim%' OR external_systems.identifier ILIKE 'dzt%'") %>
     <% if dzt_data&.try(:data)&.dig('data_send').present? %>
       <section id="data-send" class="tabs-panel">
@@ -86,6 +95,9 @@
     <% end %>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
       <li class="tabs-title"><a href="#meta-data"><i class="fa">metadata</i></a></li>
+    <% end %>
+    <% if has_mongo_raw_data %>
+      <li class="tabs-title"><a href="#data-raw"><i class="fa"><%= t('admin_panel.raw_data', locale: active_ui_locale) %></i></a></li>
     <% end %>
   </ul>
 </section>

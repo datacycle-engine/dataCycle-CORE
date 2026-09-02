@@ -2,17 +2,9 @@
 
 module DataCycleCore
   class RemoveContentReferencesFromTextJob < UniqueApplicationJob
-    PRIORITY = 10
-
     queue_as :cache_invalidation
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      arguments[0]
-    end
+    queue_with_priority 10
+    limits_concurrency key: ->(*args) { "#{args[0]}/#{Array.wrap(args[1]).join(',')}" }
 
     def perform(id, content_ids)
       DataCycleCore::Thing

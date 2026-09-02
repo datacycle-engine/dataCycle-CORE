@@ -112,6 +112,25 @@
               }
             )
           ) if can?(:copy_api_link, classification_tree.sub_classification_alias) %>
+
+      <% if can?(:index, DataCycleCore::StoredFilter) %>
+        <li>
+          <button type="button" class="stored-filter-usage-button" data-open="stored-filter-usage-reveal-<%= classification_tree.id %>">
+            <i class="fa fa-search icon"></i>
+            <span class="text"><%= t('classification_administration.stored_filter_usage.link_title', locale: active_ui_locale) %></span>
+          </button>
+
+          <div id="stored-filter-usage-reveal-<%= classification_tree.id %>" class="reveal stored-filter-usage-reveal" data-reveal>
+            <div class="reveal-header"><%= t('classification_administration.stored_filter_usage.link_title', locale: active_ui_locale) %></div>
+
+            <%= turbo_frame_tag "stored-filter-usage-#{classification_tree.sub_classification_alias.id}", class: 'stored-filter-usage-frame', src: stored_filter_usage_classifications_path(id: classification_tree.sub_classification_alias.id), loading: 'lazy' %>
+
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        </li>
+      <% end %>
     <% end %>
 
     <% if content_for?(:overflow_buttons) %>

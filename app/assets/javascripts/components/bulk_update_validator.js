@@ -11,30 +11,29 @@ class BulkUpdateValidator extends Validator {
 	setup() {
 		this.initActionCable();
 	}
-	initActionCable() {
-		window.actionCable.then((cable) => {
-			cable.subscriptions.create(
-				{
-					channel: "DataCycleCore::WatchListBulkUpdateChannel",
-					watch_list_id: this.uuid,
+	async initActionCable() {
+		const cable = await DataCycle.cable;
+		cable.subscriptions.create(
+			{
+				channel: "DataCycleCore::WatchListBulkUpdateChannel",
+				watch_list_id: this.uuid,
+			},
+			{
+				received: (data) => {
+					if (!this.$submitButton.prop("disabled")) this.disable();
+					if (data.progress !== undefined) {
+						const progress = Math.round((data.progress * 100) / data.items);
+						this.$submitButton.find(".progress-value").text(`${progress}%`);
+						this.$submitButton
+							.find(".progress-bar > .progress-filled")
+							.css("width", `calc(${progress}% - 1rem)`);
+					}
+					if (data.redirect_path !== undefined) {
+						window.location.href = data.redirect_path;
+					}
 				},
-				{
-					received: (data) => {
-						if (!this.$submitButton.prop("disabled")) this.disable();
-						if (data.progress !== undefined) {
-							const progress = Math.round((data.progress * 100) / data.items);
-							this.$submitButton.find(".progress-value").text(`${progress}%`);
-							this.$submitButton
-								.find(".progress-bar > .progress-filled")
-								.css("width", `calc(${progress}% - 1rem)`);
-						}
-						if (data.redirect_path !== undefined) {
-							window.location.href = data.redirect_path;
-						}
-					},
-				},
-			);
-		});
+			},
+		);
 	}
 	bulkUpdateEnabled(item) {
 		return !!item.querySelector(

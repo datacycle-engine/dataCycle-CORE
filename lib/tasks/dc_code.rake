@@ -22,10 +22,9 @@ namespace :dc do
 
       desc 'audit JS packages'
       task js_audit: :environment do
-        puts 'pnpm audit --audit-level high'
-        system('pnpm audit --audit-level high')
-
-        exit($CHILD_STATUS.exitstatus) if $CHILD_STATUS.exitstatus >= 16
+        # pnpm exits non-zero only for advisories at/above --audit-level that are not
+        # listed in auditConfig.ignoreGhsas, so this fails on high/critical only.
+        sh 'pnpm audit --audit-level high'
       end
     end
   end

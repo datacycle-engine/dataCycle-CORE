@@ -4,9 +4,10 @@ module DataCycleCore
   module Generic
     module Logger
       class Instrumentation
-        def initialize(kind)
+        def initialize(kind, external_system = nil)
           @kind = kind
           @kind_short = "[#{kind.to_s[0].upcase}]"
+          @external_system = external_system
         end
 
         def preparing_phase(label)
@@ -71,6 +72,16 @@ module DataCycleCore
 
         def phase_failed(exception, external_system, step_label, step_name = '', channel = 'download_failed.datacycle')
           error_instrument(exception:, external_system:, step_label:, step_name:, channel:, namespace: 'background_jobs')
+        end
+
+        # A single item the step could not store, in a step that carries on regardless. Its own channel,
+        # so it stays out of check_for_repeated_failure, and its own message: without one, the fallback in
+        # InstrumentationLogger#dc_log renders every error payload as "<step_label> ... [FAILED]" -- which
+        # would announce the whole step as aborted, the very thing this reporting path exists to avoid.
+        def item_failed(exception, external_system, step_label, item_id, step_name = '', channel = 'download_item_failed.datacycle')
+          message = [@kind_short, step_label.to_s, '| item', item_id.to_s, 'not stored:', exception.to_s].join(' ')
+
+          error_instrument(message:, exception:, external_system:, step_label:, step_name:, item_id:, channel:, namespace: 'download')
         end
 
         def validation_error(label, data, error_text)
@@ -152,7 +163,7 @@ module DataCycleCore
           ActiveSupport::Notifications.instrument channel, {
             message:,
             namespace:,
-            external_system:,
+            external_system: external_system || @external_system,
             step_label:,
             step_name:,
             type: @kind,

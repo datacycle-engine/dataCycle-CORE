@@ -5,6 +5,8 @@ module DataCycleCore
     module Common
       module DownloadConceptsCredentialsFromData
         def self.download_content(utility_object:, options:)
+          options = Extensions::DumpKeyPolicy.with_default_step_priority(options)
+
           DataCycleCore::Generic::Common::DownloadFunctions.download_content(
             download_object: utility_object,
             iterator: method(:load_concepts_from_mongo).to_proc,
@@ -23,7 +25,6 @@ module DataCycleCore
           # concept_name = options.dig(:download, :concept_name_path)
           # concept_id = options.dig(:download, :concept_id_path) || concept_name
           # concept_parent_id = options.dig(:download, :concept_parent_id_path) || 'parent_id'
-          priority = options.dig(:download, :priority) || 5
 
           concept_path = '$external_system.credential_keys'
           concept_id_path = '$external_system.credential_keys'
@@ -41,8 +42,7 @@ module DataCycleCore
                 }, {
                   '$project' => {
                     'data.id' => concept_id_path,
-                    'data.name' => concept_name_path,
-                    'data.priority' => priority
+                    'data.name' => concept_name_path
                   }
                 }, {
                   '$group' => {

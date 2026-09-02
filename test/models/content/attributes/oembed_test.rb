@@ -8,25 +8,27 @@ module DataCycleCore
     module Attributes
       class OembedTest < DataCycleCore::TestCases::ActiveSupportTestCase
         test 'create oembed with data' do
-          url = 'https://vimeo.com/226053498'
+          with_test_oembed_provider do
+            url = TEST_OEMBED_URL
 
-          content = DataCycleCore::TestPreparations.create_content(
-            template_name: 'OEmbed',
-            data_hash: {
-              name: 'Oembed',
-              url:
-            }
-          )
+            content = DataCycleCore::TestPreparations.create_content(
+              template_name: 'OEmbed',
+              data_hash: {
+                name: 'Oembed',
+                url:
+              }
+            )
 
-          assert_equal url, content.url
+            assert_equal url, content.url
 
-          url2 = 'https://www.youtube.com/watch?v=AlGcVkVzxt0&t=1s&pp=ygUJZGF0YWN5Y2xl'
+            url2 = "#{TEST_OEMBED_PROVIDER_URL}/watch?v=2"
 
-          content.set_data_hash(data_hash: {
-            url: url2
-          })
+            content.set_data_hash(data_hash: {
+              url: url2
+            })
 
-          assert_equal url2, content.url
+            assert_equal url2, content.url
+          end
         end
       end
     end

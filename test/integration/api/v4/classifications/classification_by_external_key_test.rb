@@ -61,6 +61,33 @@ module DataCycleCore
               assert_equal(@external_system.identifier, item.dig('identifier', 0, 'propertyID'))
             end
           end
+
+          # regression: the pagination_links `object_url` lambda referenced the
+          # bare route helper (api_v4_classification_trees_by_external_key) instead
+          # of the generated `_url` helper, so rendering raised NoMethodError as
+          # soon as the result spanned more than one page (i.e. a next/prev link
+          # had to be built). A small page size forces that link to render.
+          test 'api/v4/external_sources/:external_source_id/concepts/:external_key renders pagination links' do
+            params = {
+              external_source_id: @external_system.id,
+              external_key: @external_keys.join(','),
+              token: @current_user.access_token,
+              include: 'identifier',
+              page: {
+                size: 1
+              }
+            }
+
+            post api_v4_classification_trees_by_external_key_path(params)
+
+            assert_response :success
+
+            json_data = response.parsed_body
+
+            assert_equal(1, json_data['@graph'].size)
+            assert_predicate(json_data.dig('links', 'next'), :present?)
+            assert_includes(json_data.dig('links', 'next'), 'concepts')
+          end
         end
       end
     end

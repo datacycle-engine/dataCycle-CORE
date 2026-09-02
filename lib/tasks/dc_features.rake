@@ -23,5 +23,30 @@ namespace :dc do
         puts(AmazingPrint::Colors.green('[✔] ... looks good 🚀'))
       end
     end
+
+    # DataCycleCore::Feature::LocaleInheritance only reacts to saves, so contents that already
+    # existed when it was enabled -- or whose reference gained its locales before that -- keep the
+    # locales they had. Run this once after enabling it.
+    desc 'create the inherited translations missing on contents opting into locale_inheritance'
+    task inherit_locales: :environment do
+      unless DataCycleCore::Feature::LocaleInheritance.enabled?
+        puts(AmazingPrint::Colors.red('[✘] ... locale_inheritance is not enabled'))
+        exit(-1)
+      end
+
+      template_names = DataCycleCore::Feature::LocaleInheritance.inheriting_properties.keys
+      things = DataCycleCore::Thing.where(template_name: template_names).without_embedded
+
+      puts "Processing #{things.count} contents (#{template_names.join(', ')})"
+
+      things.find_each do |thing|
+        locales_before = thing.translated_locales
+        thing.inherit_missing_locales
+
+        print(thing.reload.translated_locales == locales_before ? '~' : '.')
+      end
+
+      puts "\nProcessed contents"
+    end
   end
 end

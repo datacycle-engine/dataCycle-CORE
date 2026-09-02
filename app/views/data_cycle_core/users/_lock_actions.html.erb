@@ -1,0 +1,19 @@
+<% button_class = local_assigns[:button_class] %>
+
+<% if user.access_locked? %>
+  <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true),
+              unlock_user_path(user),
+              method: :post,
+              class: class_names(button_class, 'success', 'unlock-link'),
+              data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } if can?(:unlock, user) %>
+<% elsif can?(:lock, user) %>
+  <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true),
+              lock_user_path(user),
+              method: :delete,
+              class: class_names(button_class, 'alert', 'lock-link'),
+              data: {
+                confirm: "#{user.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?",
+                confirmation_text: t('actions.lock', locale: active_ui_locale) + tag.i(class: 'fa fa-lock'),
+                dc_tooltip: t('actions.lock', locale: active_ui_locale)
+              } %>
+<% end %>

@@ -137,6 +137,15 @@ module DataCycleCore
       raise ActiveRecord::RecordNotFound if rendered_attribute.blank?
 
       uri = Addressable::URI.parse(rendered_attribute)
+      # The url comes from content data, and imported values in particular are not guaranteed
+      # to be absolute (e.g. https://cdn.example.com/media/foo.jpg) - a source feed may deliver a
+      # path-relative one (e.g. media/foo.jpg), which has no host to redirect to.
+      #
+      # Before Rails 8.1, redirect_to concatenated it onto the host without a separator and served
+      # https://example.commedia/foo.jpg. Rails 8.1 would raise PathRelativeRedirectError, and a
+      # location we cannot resolve is a missing asset, not a server error.
+      raise ActiveRecord::RecordNotFound if uri.scheme.blank? && !uri.to_s.start_with?('/')
+
       redirect_to(uri.to_s, allow_other_host: true)
     end
 
@@ -665,10 +674,14 @@ module DataCycleCore
 
       authorize! :"trigger_#{webhook_action}_webhooks", content
 
+      # only allow targeting an external system this content actually has an export sync with
+      external_system_id = trigger_webhooks_params[:external_system_id].presence
+      raise CanCan::AccessDenied if external_system_id && !content.external_system_syncs.export.exists?(external_system_id:)
+
       data = t("webhooks.actions.#{webhook_action}", locale: helpers.active_ui_locale)
 
       begin
-        content.execute_webhooks(webhook_action)
+        content.execute_webhooks(webhook_action, external_system_id:)
         flash[:success] = I18n.t('controllers.success.webhooks_triggered', data:, locale: helpers.active_ui_locale)
       rescue StandardError
         flash[:error] = I18n.t('controllers.error.webhooks_failed', data:, locale: helpers.active_ui_locale)
@@ -688,6 +701,7 @@ module DataCycleCore
             )
           ]
         end
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: content }).strip, **flash.discard.to_h } }
       end
     end
 
@@ -709,7 +723,7 @@ module DataCycleCore
     end
 
     def trigger_webhooks_params
-      params.permit(:id, :webhook_action)
+      params.permit(:id, :webhook_action, :external_system_id)
     end
 
     def external_connection_params

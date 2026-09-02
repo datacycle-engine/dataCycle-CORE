@@ -8,7 +8,7 @@
       <% end %>
 
       <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
-        <%= render 'data_cycle_core/application/watch_lists', content: content, prefix: "#{local_assigns[:classification_parent_tree]&.id || classification_tree.id}-#{local_assigns[:container]&.id}-" %>
+        <%= render 'data_cycle_core/application/watch_lists', content: content, prefix: "#{local_assigns[:classification_parent_tree]&.id || local_assigns[:classification_tree]&.id || local_assigns[:external_system]&.id}-#{local_assigns[:container]&.id}-" %>
       <% end %>
     <% end %>
 
@@ -23,14 +23,18 @@
                   class: 'button pagination-link',
                   data: {
                     disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}",
-                    additional_form_parameters: {
+                    additional_form_parameters: (local_assigns[:external_system].present? ? {
+                      ctl_id: DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID,
+                      es_id: local_assigns[:external_system].id,
+                      page: (page + 1)
+                    } : {
                       ct_id: local_assigns[:classification_parent_tree]&.id || classification_tree.id,
                       con_id: local_assigns[:container]&.id,
                       ctl_id: classification_tree_label&.id,
                       cpt_id: local_assigns[:classification_parent_tree]&.id,
                       link_type: link_type.presence || 'direct',
                       page: (page + 1)
-                    }.compact.to_json
+                    }).compact.to_json
                   } %>
     </div>
   </li>

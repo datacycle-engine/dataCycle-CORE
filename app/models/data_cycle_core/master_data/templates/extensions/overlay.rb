@@ -8,6 +8,11 @@ module DataCycleCore
           BASE_OVERLAY_POSTFIX = '_override'
           VIRTUAL_OVERLAY_POSTFIX = '_overlay'
           ADD_OVERLAY_POSTFIX = '_add'
+          # NOTE: must NOT end in "_#{overlay_name}" (e.g. "_overlay") — such names are
+          # treated as the virtual overlay view of a base property (see Content#attribute_to_h
+          # and #method_missing), so "has_overlay" would resolve to a base "has" property.
+          OVERLAY_PRESENT_PROPERTY_KEY = 'overlay_present'
+          LEGACY_OVERLAY_RELATION_TYPES = ['embedded', 'linked'].freeze
           OVERLAY_POSTFIXES = {
             'embedded' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze,
             'linked' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze,
@@ -90,25 +95,74 @@ module DataCycleCore
 
           def add_overlay_properties!(properties)
             overlay_props = properties.filter { |_k, prop| prop&.[](:overlay) }
+            overlay_attribute_keys = legacy_overlay_attribute_keys(properties)
 
-            return properties if overlay_props.blank?
+            if overlay_props.present?
+              all_props = properties.to_a
 
-            all_props = properties.to_a
+              overlay_props.each do |key, prop|
+                new_index = all_props.pluck(0).index(key) + 1
+                transform_prop_with_overlay!(prop)
+                versions = Overlay.allowed_postfixes_for_type(prop['type'])
+                versions.map! { |v| key + v }
+                overlay_attribute_keys.concat(versions)
+                new_versions = versions.map do |version|
+                  [version, overlay_version_prop(key, prop, version.delete_prefix("#{key}_"))]
+                end
 
-            overlay_props.each do |key, prop|
-              new_index = all_props.pluck(0).index(key) + 1
-              transform_prop_with_overlay!(prop)
-              versions = Overlay.allowed_postfixes_for_type(prop['type'])
-              versions.map! { |v| key + v }
-              new_versions = versions.map do |version|
-                [version, overlay_version_prop(key, prop, version.delete_prefix("#{key}_"))]
+                new_versions.push([key + VIRTUAL_OVERLAY_POSTFIX, overlay_prop(key, prop, versions)])
+                all_props.insert(new_index, *new_versions)
               end
 
-              new_versions.push([key + VIRTUAL_OVERLAY_POSTFIX, overlay_prop(key, prop, versions)])
-              all_props.insert(new_index, *new_versions)
+              properties.clear.merge!(all_props.to_h)
             end
 
-            properties.clear.merge!(all_props.to_h)
+            add_overlay_present_property!(properties, overlay_attribute_keys)
+
+            properties
+          end
+
+          # Legacy (embedded/linked) overlays: the overlay relation attribute (configured
+          # via features.overlay.attribute_keys, e.g. "overlay") holds a child content with
+          # the override values. Including it as a compute parameter makes overlay_present
+          # true for contents carrying a populated legacy overlay too — and injects the flag
+          # on templates that have only a legacy overlay (no inline *_override/*_add).
+          def legacy_overlay_attribute_keys(properties)
+            Array.wrap(DataCycleCore.features&.dig('overlay', 'attribute_keys')).select do |key|
+              LEGACY_OVERLAY_RELATION_TYPES.include?(properties.dig(key, 'type'))
+            end
+          end
+
+          # denormalized, advanced-searchable flag: true when any inline-overlay
+          # attribute (*_override / *_add) OR the legacy overlay relation holds a present
+          # value. The override/add and legacy overlay attribute names are baked in as
+          # static compute.parameters at template generation time so the dependency tracker
+          # recomputes it on partial updates, and recompute_on_classification_change covers
+          # classification overlays.
+          # default_value: false materializes the flag for contents that never touch an
+          # overlay attribute (compute is skipped when no dependency changed), so the
+          # "without overlay" filter matches them.
+          def add_overlay_present_property!(properties, overlay_attribute_keys)
+            return properties if overlay_attribute_keys.blank?
+
+            properties[OVERLAY_PRESENT_PROPERTY_KEY] = {
+              'label' => OVERLAY_PRESENT_PROPERTY_KEY,
+              'type' => 'boolean',
+              'storage_location' => 'translated_value',
+              'advanced_search' => true,
+              'default_value' => false,
+              'compute' => {
+                'module' => 'Overlay',
+                'method' => 'overlay_present',
+                'fallback' => false,
+                'recompute_on_classification_change' => true,
+                'parameters' => overlay_attribute_keys
+              },
+              'visible' => false,
+              'api' => { 'disabled' => true }
+            }
+
+            properties
           end
 
           def transform_prop_with_overlay!(prop)

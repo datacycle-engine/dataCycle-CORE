@@ -23,6 +23,9 @@ en:
     updated: Edited
   submit: Create
 
+  artificial_intelligence_agent:
+    name: AI agent
+
   template_names:
     skos:Concept: Classification
     Article: Article
@@ -347,6 +350,7 @@ en:
   admin_panel:
     schema: Scheme
     datahash: Datahash
+    raw_data: Raw-Data
     thing_history_links: Merged with current content
     api: JSON API
     relations: Relations
@@ -407,6 +411,10 @@ en:
     user_not_confirmed: email address has not been confirmed yet
     confirm: confirm email
     delete_user_html: really delete user <b>%{email}</b>?
+    lock_status:
+      by_user: Locked on %{date} by %{user}
+      automatic: Automatically locked on %{date} (too many failed sign in attempts)
+      system: Locked on %{date} by the system
     consents:
       header:
         terms_conditions: General Terms and Conditions (GTC) have been updated
@@ -825,6 +833,7 @@ en:
     uri_placeholder: 'Should be a real URI, or start with a valid namespace, e.g. "https://example.com/my-content", "dc:my-content" or "dcls:my-content".'
     merge_warning_html: The duplicate is deleted.<br>Continue?</br>
     additional_classifications: further classifications
+    hidden_mapping: Only assigned through a hidden mapping (excluded from filters, detail view and API)
     bulk_edit_locked_html: "<br><br>At least one content cannot be edited by you, so
       bulk editing is blocked."
     bulk_update:
@@ -950,6 +959,8 @@ en:
       The content cannot be synchronized.
     export: External system
 
+  external_systems:
+    imported_content: Imported contents
   external_connections:
     type: Type
     filter:
@@ -971,6 +982,10 @@ en:
       warning_html: '<p>Convert primary external system to external link?</p><div
         class="callout alert">This may affect the function of an
         importer!</div>'
+    trigger_webhook_update:
+      tooltip: Trigger update webhook again
+      warning_html: '<p>Trigger the update webhook for this external system again?</p>'
+    webhook_error: Error message
 
   duplicate:
     candidates: Possible duplicates
@@ -990,6 +1005,14 @@ en:
     original_tooltip: This content is the original and will remain when merging
     with_score: "with Score:"
     with_method: "with Rule:"
+    confirm_merge: Do you really want to merge these contents?
+    merge_preview_hint_html: 'This is a read-only preview &ndash; fields cannot be
+      edited or copied over here. The content marked as <span
+      class="success-color"><b>original</b></span> will remain with its values, the content
+      marked as <span class="alert-color"><b>duplicate</b></span> will be merged and then
+      deleted. Existing external connections of the duplicate will &ndash; if
+      present &ndash; be transferred to the original, and all references pointing to
+      the duplicate will be re-linked to the original.'
 
   tile_links:
     details: to the detailed view
@@ -1229,6 +1252,8 @@ en:
     language: Language
     external_source: External source
     external_system: External systems
+    overlay_present: Contents with overlay
+    not_overlay_present: Contents without overlay
     creator: Creator
     classification_tree_ids: Select classification tree
     created_at: Creation date
@@ -1419,6 +1444,9 @@ en:
     limited_by:
       filter_warning: The number of displayed contents has been limited by "Aggregat für"
       create_button_warning: New contents can only be created at "Aggregat für"
+    limited_by_linked:
+      filter_warning: Only contents already linked to this content are shown
+      create_button_warning: New contents cannot be created here
     remove_all_button: remove all
 
   terms:
@@ -1504,6 +1532,17 @@ en:
       error: The classifications could not be merged
       confirm_html: <b>%{source_path}</b> will be merged with <b>%{target_path}</b>.
       success: The classifications were successfully merged
+      ambiguous_external_system: Both classifications are externally linked. Only one link
+        can be carried over, so merging is not possible
+    stored_filter_usage:
+      link_title: Show usage in saved searches
+      empty: No saved search uses this classification.
+      indirect: Used through another saved search
+      show_all: Show all matches in "My saved searches"
+      removal_warning_html: "WARNING: %{data} is used in <b>%{count}</b> saved searches! (direct: %{direct}, indirect: %{indirect})"
+      hidden_count:
+        one: "... and 1 more search you don't have access to."
+        other: "... and %{count} more searches you don't have access to."
 
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
@@ -1633,6 +1672,7 @@ en:
   webhooks:
     actions:
       deploy: Deployment
+      update: Update
     trigger_confirmation:
       title: "trigger %{data}"
       text: "%{data} will be triggered. Continue?"
@@ -1806,6 +1846,7 @@ en:
       duplicate:
         type_mismatch: Contents of different types cannot be merged!
         cannot_merge_self: The content cannot be merged with itself!
+        merge_failed: The merge could not be completed and is continued in the background.
       session_expired: The session has expired, please log in again.
       token_invalid: The session has expired, please reload the page.
       no_shared_attributes: There are no attributes that occur with all content
@@ -1843,11 +1884,11 @@ en:
       locked: "%{data} has been locked."
       unlocked: "%{data} has been released."
       invalidated: "%{data} has been disabled."
-      updated_user_settings: "User settings have been updated."
       moved_to: Content moved to %{data}
       become_user: Logged in as %{data}.
       duplicate_false_positive: "%{data} was removed from the possible duplicates"
-      merged_with_duplicate: Contents are merged in the background
+      merged_with_duplicate: Contents were merged
+      merged_with_duplicate_background: Contents are merged in the background
       bulk_updated:
         one: "<b>%{count}</b> Content was updated"
         other: "<b>%{count}</b> Contents have been updated"
@@ -1899,6 +1940,8 @@ en:
       data_cycle_core/utility/duplicate_candidate/bild_phash: Hash (Image)
       data_cycle_core/utility/duplicate_candidate/name_similarity: Similarity (Name)
       data_cycle_core/utility/duplicate_candidate/only_name_and_locality: Exact Match (Name, Locality)
+      data_cycle_core/utility/duplicate_candidate/only_name_and_classification: Exact Match (Name, Classification)
+      data_cycle_core/utility/duplicate_candidate/manual: Marked Manually
 
   activerecord:
     errors:
@@ -1972,6 +2015,9 @@ en:
       data_cycle_core/data_link:
         one: External link
         other: External links
+      data_cycle_core/additional_menu_link:
+        one: Additional menu link
+        other: Additional menu links
       data_cycle_core/stored_filter:
         one: Saved search
         other: Saved searches
@@ -2040,7 +2086,8 @@ en:
         change_behaviour: Change behavior
         external_key: external ID
         internal: internal (system classification tree)
-        mappable: Klassifizierungen dürfen gemapped werden
+        mappable: Classifications may be mapped
+        hidden_mappings: Hide mapped classifications (excluded from filters, detail view and API)
       data_cycle_core/classification_alias:
         assignable: Assignable
         description: Description text
@@ -2080,6 +2127,7 @@ en:
         represented_by: Represented by
         ui_locale: user interface language
         locked_at: locked
+        locked_by: locked by
         deleted_at: deleted
         additional_attributes/terms_conditions_at: Terms & Conditions
         additional_attributes/privacy_policy_at: Privacy Policy
@@ -2156,13 +2204,21 @@ en:
   data_cycle_core:
     administration: Administration
     documentation: Documentation
+    side_bar:
+      profile: My profile
+      terms_and_conditions: Terms
+      personal: Personal
+      management: Management
+      system_and_tools: System & Tools
+      resources: Resources
     activities: Activities
     user_settings: User actions
     user_details: User details
     user_links: User links
     classifications: Classifications
     dashboard: Dashboard
-    grafana: Grafana
+    additional_menu_links:
+      grafana: Grafana
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient
@@ -2174,6 +2230,8 @@ en:
       download_tree_with_inverse_mappings: Classification tree - only ivnerse mappings (csv)
     this_classification: This classification
     this_classification_tree: This classification tree
+    this_classification_nominative: This classification
+    this_classification_tree_nominative: This classification tree
     show_contents_for_tree_label: List contents in %{data}
     settings: Settings
     publication_date: Publication date
@@ -2211,6 +2269,10 @@ en:
       load_more: ... show more searches
       load_all: show all searches
       filter_searches: filter searches ...
+      classification_usage_label: Classification
+      classification_usage_all: All
+      classification_usage_fallback: unknown
+      classification_usage_remove: Remove restriction
       count_html:
         zero: "<b>No</b> searches"
         one: "<b>%{count}</b> searches"
@@ -2359,7 +2421,7 @@ en:
       ratings:
         difficulty_rating: Difficulty
         priority_rating: Priority
-        skill_rating: Skill
+        skill_rating: Technique
         stamina_rating: Stamina
       tour:
       poi:
@@ -2837,6 +2899,7 @@ en:
       invalid_parameter: Invalid Query Parameter
     data_cycle_core/error/api/expired_content_error:
       expired_content: Content is expired
+    data_cycle_core/error/api/invalid_argument_error: Invalid Query Parameter
     active_record/record_not_found: Not found
     active_record/record_not_unique: Conflict
     data_cycle_core/error/filter/date_filter_range_error: "error in filter params:

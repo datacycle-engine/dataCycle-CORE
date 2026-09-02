@@ -68,14 +68,15 @@ module DataCycleCore
         end
 
         def configuration(content = nil, attribute_key = nil)
-          remove_instance_variable(:@configuration) if instance_variable_defined?(:@configuration)
-
           @configuration ||= Hash.new do |h, key|
+            schema = key[2]
+            properties = key[3]
+
             config = ActiveSupport::HashWithIndifferentAccess.new
             config.merge!(DataCycleCore.features[feature_key.to_sym] || {})
-            config.merge!(key[3]&.dig('features', feature_key) || {})
-            config.merge!(key[4]&.filter_map { |k|
-              key[3]&.dig('properties', *k, 'features', feature_key).presence&.merge({ attribute_keys: (k.is_a?(Array) ? [k.last] : [k]), tree_label: key[3]&.dig('properties', *k, 'tree_label') })
+            config.merge!(schema&.dig('features', feature_key) || {})
+            config.merge!(properties&.filter_map { |k|
+              schema&.dig('properties', *k, 'features', feature_key).presence&.merge({ attribute_keys: (k.is_a?(Array) ? [k.last] : [k]), tree_label: schema&.dig('properties', *k, 'tree_label') })
             }&.reduce({}) { |old, new| old.deep_merge(new) { |_, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? v1 | v2 : v2 } } || {})
 
             h[key] = config.compact
@@ -114,7 +115,6 @@ module DataCycleCore
           [
             feature_path,
             'configuration',
-            content&.id,
             content.try(:schema),
             if key.present?
               content.try(:collect_properties)&.select { |v| v.is_a?(::Array) ? v.include?(key.attribute_name_from_key) : v == key.attribute_name_from_key }

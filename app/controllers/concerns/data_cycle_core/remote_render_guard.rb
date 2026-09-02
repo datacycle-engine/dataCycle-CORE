@@ -43,6 +43,13 @@ module DataCycleCore
       'data_cycle_core/classifications/concept_scheme_link_warning',
       'data_cycle_core/classifications/translated_form_fields',
       'data_cycle_core/contents/editors/embedded/single_item',
+      'data_cycle_core/contents/editors/features/ai_lector_context_frame',
+      'data_cycle_core/contents/editors/features/ai_lector_diff_frame',
+      'data_cycle_core/contents/editors/features/ai_lector_finetune_frame',
+      # #51087: the map editor loads both overlays through remote_render. additional_values_overlay
+      # renders its locals unchecked — the caller picks the overlay config and its filter partials.
+      'data_cycle_core/contents/editors/geographic/additional_values_overlay',
+      'data_cycle_core/contents/editors/geographic/shape_from_concept_overlay',
       'data_cycle_core/contents/external_connections/new_external_connection_form',
       'data_cycle_core/contents/grid/attributes/warnings',
       'data_cycle_core/contents/preview_link',

@@ -53,9 +53,15 @@ module DataCycleCore
       content&.attribute_translatable?(key.attribute_name_from_key, definition)
     end
 
-    def concept_tag(concept, additional_classes = '')
+    # icon/icon_tooltip mark a tag that needs an explanation of its own (#50677: a concept the content
+    # only carries through a hidden mapping) - the tooltip sits on the icon so the concept's own
+    # tooltip stays intact.
+    def concept_tag(concept, additional_classes = '', icon: nil, icon_tooltip: nil)
+      label = concept.internal_name
+      label = safe_join([tag.i(class: "fa #{icon}", aria_hidden: true, data: { dc_tooltip: icon_tooltip }), label], ' ') if icon.present?
+
       tag.span(
-        concept.internal_name,
+        label,
         class: "tag #{additional_classes} #{classification_path_classes(concept)}".squish,
         style: classification_style(concept),
         data: { dc_tooltip: classification_tooltip(concept) }

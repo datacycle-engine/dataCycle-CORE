@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class ImportOnlyJob < ImportJob
-    REFERENCE_TYPE = 'import'
+    IMPORT_TYPE = 'import'
 
     def perform(uuid, mode = nil)
       super do |external_system|

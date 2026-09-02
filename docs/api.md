@@ -97,6 +97,11 @@ curl --url https://MY_DATACYCLE_URL/api/v4/concept_schemes \
 Neben den beiden token-basierten Authentifizierungs-Varianten wird auch [Basic Auth](https://datatracker.ietf.org/doc/html/rfc7617) mit Benutzername (bzw. E-Mailadresse) und Passwort unterstützt.
 
 
+#### OAuth 2.0 / OpenID Connect
+
+dataCycle kann darüber hinaus selbst als OAuth-2.0-Autorisierungsserver bzw. OpenID-Connect-Provider agieren. Damit können sich externe Anwendungen von dataCycle-Benutzern anmelden lassen (Single Sign-On) und deren Identitätsinformationen abrufen. Dieser Mechanismus dient der Anmeldung an externen Anwendungen und ist von der hier beschriebenen Authentifizierung der Datenschnittstelle unabhängig. Details dazu finden sich unter [Authentifizierung über OAuth 2.0 / OpenID Connect](/docs/oauth).
+
+
 #### Authentifizierung über einen externen Dienst
 
 Häufig ist es so, dass in Organisationen, die auch dataCycle nutzen, ein zentraler Dienst für die Benutzerverwaltung verwendet wird. Um den so verwalteten Benutzern auch einen einfachen Zugang zur Datenschnittstelle von dataCycle zu ermöglichen, werden bei den tokenbasierten Authentifizierungs-Varianten neben den internen dataCycle-Tokens auch [JSON Web Tokens](https://www.rfc-editor.org/rfc/rfc7519) unterstützt.
@@ -211,3 +216,34 @@ Für viele Anwendungen ist es nicht notwendig, Inhalte vollständig von der Date
 ```
 
 Bei importieren Datensätzen besteht auch die Möglichkeit die IDs des externen Systems anzeigen zu lassen. Mit ```fields=identifier``` oder alternativ ```include=identifier``` werden diese eingeblendet, um z.B. die Duplikatssuche zu vereinfachen. Standardmäßig werden diese Informationen von der API nicht ausgeliefert.
+
+```javascript
+{
+  "@context": {
+    // ...
+  },
+  "@id": "ccc89b02-d918-463d-8c97-289f96de99c1",
+  "@type": "Person",
+  "identifier": [{
+    "@type": "PropertyValue",
+    "propertyID": "outdooractive",
+    "value": "1234567",
+    "valueReference": "import",
+    "url": "https://www.outdooractive.com/de/ooi/1234567"
+  }, {
+    "@type": "PropertyValue",
+    "propertyID": "feratel",
+    "value": "a4e0f3c2-1b8d-4f6a-9c7e-2d5b8a1f0e33",
+    "valueReference": "duplicate"
+  }]
+}
+```
+
+Je Verbindung werden folgende Attribute ausgeliefert:
+
+| Attribut | Beschreibung |
+| --- | --- |
+| ```propertyID``` | Identifier des externen Systems. |
+| ```value``` | ID des Datensatzes im externen System. |
+| ```valueReference``` | Art der Verbindung: ```import``` für das System, aus dem der Datensatz stammt, sowie ```export``` bzw. ```duplicate``` für weitere verknüpfte Systeme. |
+| ```url``` | Link auf die Detailansicht des Datensatzes im externen System. Wird nur ausgeliefert, wenn für das externe System (und die jeweilige Art der Verbindung) eine ```external_detail_url``` konfiguriert ist. Die Sprache des Links entspricht der Sprache, in der der Inhalt ausgeliefert wird. |

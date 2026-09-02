@@ -30,7 +30,10 @@ module DataCycleCore
           available_locales = I18n.available_locales.dup
           available_locales.prepend(I18n.locale)
           available_locales.prepend(ui_locale.to_sym) if ui_locale.present?
-          available_locales.prepend(*Array.wrap(locale).map(&:to_sym).sort_by! { |t| available_locales.index t })
+          # sorted by their position in available_locales (I18n.locale and ui_locale first, not
+          # Common::LocalePriority), requested locales that are not served sort last instead of
+          # raising on a nil comparison
+          available_locales.prepend(*Array.wrap(locale).map(&:to_sym).sort_by! { |t| available_locales.index(t) || available_locales.size })
 
           available_locales.intersection(translated_locales).first
         end

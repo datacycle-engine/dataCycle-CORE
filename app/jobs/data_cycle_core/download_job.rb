@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class DownloadJob < ImportJob
-    REFERENCE_TYPE = 'download'
+    IMPORT_TYPE = 'download'
 
     def perform(uuid, mode = nil)
       super do |external_system|

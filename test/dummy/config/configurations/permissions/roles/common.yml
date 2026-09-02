@@ -1,0 +1,12 @@
+# exercises the service-token grant a host project configures for api/v4/users#update_by_id:
+# UsersByUserGroupAndApiToken requires the standard role, membership in "Service Tokens" and a
+# set access_token together, and the write is limited to the guest role
+service_token_update_user:
+  actions: update
+  segment: UsersByRoleWhitelist
+  parameters: guest
+  condition:
+    segment: UsersByUserGroupAndApiToken
+    parameters:
+      - Service Tokens
+      - standard

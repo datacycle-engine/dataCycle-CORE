@@ -136,6 +136,7 @@ Mögliche Felder für die Einschränkung:
 - `name`
 - `dc:slug`
 - `dc:classification`
+- `dc:text` (alle für die Volltextsuche indizierten Textattribute, inkl. der Attribute eingebetteter Inhalte; je nach Datenmodell zählen dazu auch `name` und `dc:slug`)
 
 **Beispiel** (nur `name` und `dc:slug` werden durchsucht):
 
@@ -703,3 +704,47 @@ Es gibt die Möglichkeit, Inhalte nach dem spezifischsten ```@type``` zu sortier
   "sort": "@type(dcls:POI, dcls:Event)"
 }
 ```
+
+### Sortierung nach Klassifizierungs-Priorität
+
+Inhalte können nach einer priorisierten Liste von Klassifizierungen sortiert werden. Dazu wird über den Parameter `sort` der Schlüssel `dc:classification` verwendet, gefolgt von einer in runden Klammern angegebenen, kommagetrennten Liste von Klassifizierungs-UUIDs. Es muss mindestens eine UUID angegeben werden.
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "dc:classification(uuid1,uuid2,uuid3)"
+}
+```
+
+Die Reihenfolge der UUIDs bestimmt die Priorität: Inhalte mit der Klassifizierung `uuid1` werden vor Inhalten mit `uuid2` gereiht, diese wiederum vor Inhalten mit `uuid3` usw. Hat ein Inhalt mehrere der angegebenen Klassifizierungen, wird jene für die Sortierung verwendet, die in der Liste am weitesten vorne steht (ein Inhalt mit `uuid2` **und** `uuid3` wird also anhand von `uuid2` gereiht). Inhalte, die keine der angegebenen Klassifizierungen besitzen, werden nach den priorisierten Inhalten gereiht.
+
+Wie auch der Klassifizierungsfilter berücksichtigt die Sortierung die Baumstruktur (Subtree): Ein Inhalt, der mit einer untergeordneten Klassifizierung einer angegebenen UUID verknüpft ist, wird ebenfalls berücksichtigt. Durch das Voranstellen eines Minuszeichens (`-dc:classification(...)`) kann die Priorisierung umgekehrt werden.
+
+### Sortierung nach vorgegebenen IDs
+
+Inhalte können in einer vorgegebenen Reihenfolge ausgegeben werden. Dazu wird über den Parameter `sort` der Schlüssel `@id` verwendet, gefolgt von einer in runden Klammern angegebenen, kommagetrennten Liste von dataCycle-IDs (UUIDs). Ein typischer Anwendungsfall dafür ist die Übernahme der Reihenfolge aus einem vorgelagerten System (z.B. die Trefferreihenfolge einer externen Suche).
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "@id(uuid1,uuid2,uuid3)"
+}
+```
+
+Die Reihenfolge der UUIDs bestimmt die Reihenfolge der Inhalte: Der Inhalt mit der ID `uuid1` wird vor dem Inhalt mit der ID `uuid2` ausgegeben usw. Inhalte, deren ID nicht in der Liste enthalten ist, werden nach den vorgegebenen Inhalten gereiht. Durch das Voranstellen eines Minuszeichens (`-@id(...)`) kann die Reihenfolge umgekehrt werden, wobei Inhalte, die nicht in der Liste enthalten sind, weiterhin am Ende ausgegeben werden.
+
+Soll ausschließlich die angegebene Liste von Inhalten – und diese in der vorgegebenen Reihenfolge – ausgegeben werden, kann die Sortierung mit dem Filter `contentId` kombiniert werden. Die IDs müssen dabei als **eine** kommagetrennte Zeichenkette übergeben werden, da mehrere Einträge im Array eine UND-Verknüpfung ergeben würden:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "contentId": {
+      "in": ["uuid1,uuid2,uuid3"]
+    }
+  },
+  "sort": "@id(uuid1,uuid2,uuid3)"
+}
+```
+
+Wird der Schlüssel `@id` ohne Liste verwendet, werden die Inhalte anhand ihrer ID sortiert – aufsteigend über `"sort": "@id"`, absteigend über `"sort": "-@id"`.

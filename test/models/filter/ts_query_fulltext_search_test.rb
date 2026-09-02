@@ -27,6 +27,14 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search('Tag 3').count)
       assert_equal(0, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3', fields: 'name' }).count)
       assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3', fields: 'dc:classification' }).count)
+      assert_equal(0, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3', fields: 'dc:text' }).count)
+      assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3', fields: 'dc:classification,dc:text' }).count)
+    end
+
+    test 'fulltext search restricted to indexed text attributes' do
+      assert_equal(1, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search('FFF').count)
+      assert_equal(0, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'FFF', fields: 'name,dc:slug,dc:classification' }).count)
+      assert_equal(1, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'FFF', fields: 'dc:text' }).count)
     end
 
     test 'fulltext search with nil specified weights' do
@@ -34,6 +42,14 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3', fields: nil }).count)
       assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3', fields: '' }).count)
       assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3' }).count)
+    end
+
+    test 'mapping fulltext fields to tsquery weights' do
+      assert_equal('', DataCycleCore::Filter::Search.fulltext_fields_to_weights(nil))
+      assert_equal('AB', DataCycleCore::Filter::Search.fulltext_fields_to_weights('name, dc:slug'))
+      assert_equal('D', DataCycleCore::Filter::Search.fulltext_fields_to_weights('dc:text'))
+      assert_equal('A', DataCycleCore::Filter::Search.fulltext_fields_to_weights('name,name'))
+      assert_equal('', DataCycleCore::Filter::Search.fulltext_fields_to_weights('name,dc:slug,dc:classification,dc:text'))
     end
   end
 end

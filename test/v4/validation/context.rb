@@ -11,6 +11,7 @@ module DataCycleCore
           required(:cc) { eql?('http://creativecommons.org/ns#') }
           required(:dc) { eql?('https://schema.datacycle.at/') }
           required(:dcls).value(:string)
+          required(:og) { eql?('https://ogp.me/ns#') }
           required(:odta) { eql?('https://odta.io/voc/') }
           required(:sdm) { eql?('https://smartdatamodels.org/') }
           required(:alps) { eql?('http://json-schema.org/draft-07/schema/destinationdata/schemas/2022-04/datatypes#/definitions/') }

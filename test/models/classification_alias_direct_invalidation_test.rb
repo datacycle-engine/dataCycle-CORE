@@ -12,12 +12,9 @@ module DataCycleCore
       @c5 = @ct2.create_classification_alias('Y')
       @c6 = @ct2.create_classification_alias('Z')
 
-      @thing = DataCycleCore::TestPreparations.create_content(
-        template_name: 'POI',
-        data_hash: {
-          name: 'Test POI 1',
-          universal_classifications: [@c1.primary_classification.id]
-        }
+      @thing = create_content(
+        'POI',
+        { name: 'Test POI 1', universal_classifications: [@c1.primary_classification.id] }
       )
     end
 
@@ -31,6 +28,7 @@ module DataCycleCore
       assert_equal(3.weeks.ago.beginning_of_day, @thing.cache_valid_since)
 
       @c1.update!(name: 'UPDATED NAME2')
+      perform_enqueued_jobs
 
       assert_operator @thing.reload.cache_valid_since, :>, 1.day.ago.beginning_of_day
     end

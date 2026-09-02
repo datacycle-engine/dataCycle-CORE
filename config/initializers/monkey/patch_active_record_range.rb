@@ -8,6 +8,15 @@ Time::DATE_FORMATS[:only_date] = '%Y-%m-%d'
 Time::DATE_FORMATS[:only_time] = '%H:%M'
 Time::DATE_FORMATS[:compact_datetime] = '%Y-%m-%dT%H-%M'
 
+# cast_value and serialize below are full replacements, not prepends, and they call ActiveRecord's
+# private helpers. Reopening the class also silently creates it when it has not been loaded, in which
+# case the patch would apply to an empty class and upstream would win. Fail loudly on both instead.
+raise 'ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Range is not loaded, check patch!' unless defined?(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Range)
+
+[:extract_bounds, :type_cast_single, :type_cast_single_for_database, :infinity?].each do |helper|
+  raise "ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Range##{helper} is no longer available, check patch!" unless ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Range.private_method_defined?(helper)
+end
+
 # patch for ActiveRecord, to allow fractional seconds to be saved for PostgreSQL tstzrange datatype
 # TODO: remove if updated upstream
 module ActiveRecord

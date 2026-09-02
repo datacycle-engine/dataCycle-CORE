@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
 
   # rails
   s.add_dependency 'connection_pool', '~> 2.5.5' # wait for fix: https://github.com/mperham/connection_pool/issues/210
-  s.add_dependency 'rails', '~> 8.0.0'
+  s.add_dependency 'rails', '~> 8.1.0'
   s.add_dependency 'turbo-rails'
   # Translations
   s.add_dependency 'mobility', '>= 1.3.1'
@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'vite_rails', '>= 3.0.19'
   s.add_dependency 'vite_ruby', '>= 3.9.2'
   # database
-  s.add_dependency 'activerecord-postgis-adapter'
+  s.add_dependency 'activerecord-postgis-adapter', '>= 11.1' # 11.1 is the first release for rails 8.1
   s.add_dependency 'acts_as_tree'
   s.add_dependency 'neighbor' # https://github.com/pgvector/pgvector-ruby For Rails, check out Neighbor
   s.add_dependency 'pg'
@@ -39,13 +39,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgeo-proj4'
   s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
-  s.add_dependency 'mongoid', '~> 8.1.3'
+  s.add_dependency 'mongoid', '~> 9.1.0'
   # REST Client
   s.add_dependency 'faraday'
   s.add_dependency 'faraday-follow_redirects'
   s.add_dependency 'faraday-retry'
-  # JSON Parser
-  s.add_dependency 'multi_json'
   # XML Parser
   s.add_dependency 'nokogiri'
   # authentication
@@ -58,14 +56,20 @@ Gem::Specification.new do |s|
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
   s.add_dependency 'amazing_print'
+  # Benchmark.ms was removed from ActiveSupport in Rails 8.1 and lives in this gem again
+  s.add_dependency 'benchmark', '>= 0.5'
+  # OpenStruct is used throughout the gem and stops being a default gem with Ruby 3.5
+  s.add_dependency 'ostruct'
   # request-throttling middleware
   s.add_dependency 'rack-attack'
   # validator for json data
   s.add_dependency 'json-schema'
   # background-jobs
+  s.add_dependency 'solid_queue'
+  # Only still here for db/data_migrate/20260417160449_migrate_delayed_jobs_to_solid_queue.rb, which
+  # needs Delayed::Job to move the leftover queue over. Drop it — together with the migration and the
+  # delayed_jobs table — once every deployment has run that upgrade: Redmine #50816.
   s.add_dependency 'delayed_job_active_record'
-  # deamon for delayed_job
-  s.add_dependency 'daemons'
   # Breadcrumbs
   s.add_dependency 'gretel'
 

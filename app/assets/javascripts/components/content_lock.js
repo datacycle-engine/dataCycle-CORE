@@ -27,8 +27,8 @@ class ContentLock {
 
 		this.setup();
 	}
-	setup() {
-		this.initActionCable();
+	async setup() {
+		await this.initActionCable();
 		this.calculateLockedUntil(this.button.data("locks"));
 
 		this.button.on("click", ".pie-text", (event) => {
@@ -96,31 +96,26 @@ class ContentLock {
 
 		Object.assign(this.locks, lockedUntil);
 	}
-	initActionCable() {
-		window.actionCable.then((cable) => {
-			this.lockContentChannel = cable.subscriptions.create(
-				{
-					channel: "DataCycleCore::ContentLockChannel",
-					content_id: this.uuid,
+	async initActionCable() {
+		const cable = await DataCycle.cable;
+		this.lockContentChannel = cable.subscriptions.create(
+			{
+				channel: "DataCycleCore::ContentLockChannel",
+				content_id: this.uuid,
+			},
+			{
+				received: (data) => {
+					if (data.create && data.locked_until !== undefined && !this.editable)
+						this.newLock(data.lock_id, data.locked_until, data.button_text);
+					else if (data.locked_until !== undefined)
+						this.renewLock(data.lock_id, data.locked_until, data.token);
+					else if (data.remove_lock && !this.editable)
+						this.unlockButton(data.lock_id);
+					else if (data.remove_lock && this.editable)
+						this.lockEditor(data.lock_id);
 				},
-				{
-					received: (data) => {
-						if (
-							data.create &&
-							data.locked_until !== undefined &&
-							!this.editable
-						)
-							this.newLock(data.lock_id, data.locked_until, data.button_text);
-						else if (data.locked_until !== undefined)
-							this.renewLock(data.lock_id, data.locked_until, data.token);
-						else if (data.remove_lock && !this.editable)
-							this.unlockButton(data.lock_id);
-						else if (data.remove_lock && this.editable)
-							this.lockEditor(data.lock_id);
-					},
-				},
-			);
-		});
+			},
+		);
 	}
 	newLock(lockId, lockedUntil, buttonText = "") {
 		const isFirst = this._noActiveLocks;

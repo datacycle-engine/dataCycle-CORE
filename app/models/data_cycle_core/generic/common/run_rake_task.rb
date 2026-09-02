@@ -16,10 +16,9 @@ module DataCycleCore
           rake_task = options.dig(:import, :rake_task) || options.dig(:download, :rake_task)
           rake_args = options.dig(:import, :rake_args) || options.dig(:download, :rake_args)
 
-          raise 'Rake task not found' if rake_task.blank? || Rake::Task[rake_task].nil?
+          raise 'Rake task not found' if rake_task.blank?
 
-          Rake::Task[rake_task].invoke(*rake_args)
-          Rake::Task[rake_task].reenable
+          DataCycleCore::RakeTaskService.invoke(rake_task, rake_args)
           # success
           true
         end

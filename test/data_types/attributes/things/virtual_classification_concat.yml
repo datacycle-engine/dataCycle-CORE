@@ -1,0 +1,59 @@
+---
+# The same classification attribute rendered by Virtual::Classification#concat three
+# times, so the separator under test comes out of the schema, not a literal hash.
+- :data:
+    :name: Virtual-Classification-Concat
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Title
+        :type: string
+        :storage_location: translated_value
+      :gravity:
+        :label: Gravity
+        :type: classification
+        :tree_label: Gravity
+      :gravity_default:
+        :label: Gravity (no separator configured)
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Classification
+          :method: concat
+          :key: name
+          :parameters:
+            - gravity
+      :gravity_pipe:
+        :label: Gravity (separator configured)
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Classification
+          :method: concat
+          :key: name
+          :separator: " | "
+          :parameters:
+            - gravity
+      :gravity_glued:
+        :label: Gravity (empty separator)
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Classification
+          :method: concat
+          :key: name
+          :separator: ""
+          :parameters:
+            - gravity

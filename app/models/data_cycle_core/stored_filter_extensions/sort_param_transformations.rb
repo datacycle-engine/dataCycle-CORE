@@ -14,7 +14,9 @@ module DataCycleCore
         'proximity.in_occurrence' => 'sort_by_proximity_value',
         'proximity.in_occurrence_with_distance' => 'sort_by_in_occurrence_with_distance',
         'proximity.in_occurrence_with_distance_pia' => 'sort_by_in_occurrence_with_distance',
-        '@type' => 'sort_by_content_type'
+        '@type' => 'sort_by_content_type',
+        'dc:classification' => 'sort_by_uuid_list',
+        '@id' => 'sort_by_uuid_list'
       }.freeze
       SORT_PARAM_PREFIXES = ['lon:', 'lat:', 'start:', 'end:', 'attr:'].freeze
 
@@ -133,6 +135,15 @@ module DataCycleCore
 
       def sort_by_content_type(_params, value = nil)
         parsed_value = value&.split(',')&.map { |v| v&.strip.presence }
+
+        return if parsed_value.blank?
+
+        { 'v' => parsed_value }
+      end
+
+      # parse the comma-separated UUID list of sort: dc:classification(...) (#50091) and sort: @id(...) (#50554)
+      def sort_by_uuid_list(_params, value = nil)
+        parsed_value = value&.split(',')&.filter_map { |v| v&.strip.presence }
 
         return if parsed_value.blank?
 

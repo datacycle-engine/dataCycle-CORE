@@ -55,6 +55,7 @@ class TextEditor {
 			header: ["header", "break"],
 			minimal: ["bold", "italic", "underline", "break"],
 			basic: ["bold", "italic", "header", "underline", "break", "script"],
+			list: ["list", "break"],
 			full: [
 				"bold",
 				"italic",
@@ -101,6 +102,20 @@ class TextEditor {
 					[{ script: "sub" }, { script: "super" }],
 					["bold", "italic", "underline"],
 					["insertNbsp", "replaceAllNbsp"],
+					["clean"],
+				],
+				handlers: quillCustomHandlers,
+			},
+			list: {
+				container: [
+					[
+						{
+							list: "ordered",
+						},
+						{
+							list: "bullet",
+						},
+					],
 					["clean"],
 				],
 				handlers: quillCustomHandlers,

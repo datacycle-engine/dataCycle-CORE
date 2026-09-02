@@ -52,6 +52,20 @@ module DataCycleCore
       assert_includes html, '...'
     end
 
+    test 'import_schedule renders schedule entries with mode, inline and step details' do
+      schedule = [{
+        timestamp: EtOrbi.parse('2024-01-15T09:00:00'),
+        mode: 'full',
+        inline: true,
+        steps: ['download', 'import']
+      }]
+
+      html = import_schedule(schedule)
+
+      assert_includes html, 'import-schedule-tooltip'
+      assert_includes html, '15.01.2024'
+    end
+
     test 'job_title_tooltip returns a bold title without jobs' do
       assert_equal '<b>Import</b>', job_title_tooltip('Import', nil)
     end

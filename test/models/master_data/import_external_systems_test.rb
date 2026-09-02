@@ -5,6 +5,7 @@ require 'minitest/spec'
 require 'minitest/autorun'
 require 'helpers/minitest_spec_helper'
 require 'tmpdir'
+require 'timeout'
 
 describe DataCycleCore::MasterData::ImportExternalSystems do
   include DataCycleCore::MinitestSpecHelper
@@ -91,6 +92,27 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
       assert_empty(subject.validate(test_hash))
     end
 
+    it 'successfully validates a known queue in default_options' do
+      test_hash = external_source_config.deep_dup
+      test_hash['default_options'] = (test_hash['default_options'] || {}).merge('queue' => 'importers_short')
+
+      assert_empty(subject.validate(test_hash))
+    end
+
+    it 'fails if default_options specifies an unknown queue' do
+      test_hash = external_source_config.deep_dup
+      test_hash['default_options'] = (test_hash['default_options'] || {}).merge('queue' => 'does_not_exist')
+
+      assert_predicate(subject.validate(test_hash), :present?)
+    end
+
+    it 'fails if default_options specifies a registered but non-importer queue' do
+      test_hash = external_source_config.deep_dup
+      test_hash['default_options'] = (test_hash['default_options'] || {}).merge('queue' => 'cache_invalidation')
+
+      assert_predicate(subject.validate(test_hash), :present?)
+    end
+
     it 'successfully validates a valid validate_download_item' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
 
@@ -135,6 +157,38 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
       assert_equal({ endpoint: ['must be a valid Ruby class'] }, external_source_download_contract.call(test_hash).errors.to_h)
     end
 
+    # [#50666] a step without a `priority:` runs at DEFAULT_STEP_PRIORITY but stores no claim, which
+    # only stays equivalent to storing it while nothing configures a priority above the default
+    it 'accepts a step priority from 0 up to the default a step without one runs at' do
+      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
+
+      (0..DataCycleCore::Generic::Common::Extensions::DumpKeyPolicy::DEFAULT_STEP_PRIORITY).each do |priority|
+        assert_empty(external_source_download_contract.call(test_hash.merge(priority:)).errors.to_h, "priority #{priority} should be allowed")
+      end
+    end
+
+    it 'produces an appropriate error if the step priority is above the default' do
+      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
+      test_hash[:priority] = DataCycleCore::Generic::Common::Extensions::DumpKeyPolicy::DEFAULT_STEP_PRIORITY + 1
+
+      assert_equal({ priority: ['must be less than or equal to 5'] }, external_source_download_contract.call(test_hash).errors.to_h)
+    end
+
+    it 'produces an appropriate error if the step priority is negative' do
+      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
+      test_hash[:priority] = -1
+
+      assert_equal({ priority: ['must be greater than or equal to 0'] }, external_source_download_contract.call(test_hash).errors.to_h)
+    end
+
+    it 'produces an appropriate error if the step priority is a quoted number' do
+      # the runtime can only fall back on a non-number, never honour it, so it is a config error
+      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
+      test_hash[:priority] = '0'
+
+      assert_equal({ priority: ['must be an integer'] }, external_source_download_contract.call(test_hash).errors.to_h)
+    end
+
     it 'fails if download_item has no download_strategy specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
 
@@ -159,6 +213,34 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
       test_hash[:logging_strategy] = 'DataCycleCore::XXX'
 
       assert_equal({ logging_strategy: ['the string given does not specify a valid logging class.'] }, external_source_download_contract.call(test_hash).errors.to_h)
+    end
+
+    it 'fails if inline bulk_mark_deleted is set without bulk_touch' do
+      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
+      test_hash[:download_strategy] = 'DataCycleCore::Generic::Common::DownloadDataFromData'
+      test_hash[:bulk_mark_deleted] = true
+
+      assert_equal(
+        { bulk_mark_deleted: ['bulk_touch: true must be set on the same step to prevent deleting all items'] },
+        external_source_download_contract.call(test_hash).errors.to_h
+      )
+    end
+
+    it 'successfully validates inline bulk_mark_deleted when bulk_touch is set on the same step' do
+      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
+      test_hash[:download_strategy] = 'DataCycleCore::Generic::Common::DownloadDataFromData'
+      test_hash[:bulk_touch] = true
+      test_hash[:bulk_mark_deleted] = true
+
+      assert_empty(external_source_download_contract.call(test_hash).errors)
+    end
+
+    it 'successfully validates inline bulk_touch without bulk_mark_deleted' do
+      test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
+      test_hash[:download_strategy] = 'DataCycleCore::Generic::Common::DownloadDataFromData'
+      test_hash[:bulk_touch] = true
+
+      assert_empty(external_source_download_contract.call(test_hash).errors)
     end
 
     it 'produces an appropriate error if sorting is negative for an import_item' do
@@ -566,6 +648,116 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
 
         assert_not(data.dig('config', 'download_config', 'places').present?)
         assert_not(data.key?('extends'))
+      end
+    end
+
+    # A project overriding an abstract system from a gem shares its identifier and extends it,
+    # while its file is globbed *before* the base (project config paths come first). The base
+    # then has to be requeued ahead of the override, otherwise processing never terminates.
+    it 'merges systems with same identifier when the override is loaded before the base' do
+      Dir.mktmpdir do |dir|
+        base = <<~YAML
+          ---
+          name: Same-System
+          identifier: same-system
+          abstract: true
+          config:
+            download_config:
+              images:
+                source_type: images
+                download_strategy: DataCycleCore::Generic::Common::DownloadFunctions
+        YAML
+
+        override = <<~YAML
+          ---
+          name: Same-System
+          identifier: same-system
+          extends: same-system
+          config:
+            download_config:
+              places:
+                source_type: places
+                download_strategy: DataCycleCore::Generic::Common::DownloadFunctions
+        YAML
+
+        # file names chosen so Dir.glob yields the override first
+        File.write(File.join(dir, 'a_override.yml'), override)
+        File.write(File.join(dir, 'z_base.yml'), base)
+
+        loaded = []
+        errors = subject.load_all(paths: Pathname.new(dir)) { |data| loaded << data }
+
+        assert_predicate(errors, :blank?)
+        assert_equal(1, loaded.length)
+        data = loaded.first
+
+        assert_equal('images', data.dig('config', 'download_config', 'images', 'source_type'))
+        assert_equal('places', data.dig('config', 'download_config', 'places', 'source_type'))
+        assert_not(data.key?('extends'))
+      end
+    end
+
+    it 'reports an error instead of looping forever on circular extends' do
+      Dir.mktmpdir do |dir|
+        [['first', 'second'], ['second', 'first']].each do |name, extends|
+          system = <<~YAML
+            ---
+            name: Circular-#{name.capitalize}
+            identifier: circular-#{name}
+            extends: circular-#{extends}
+            config:
+              download_config:
+                images:
+                  source_type: images
+                  download_strategy: DataCycleCore::Generic::Common::DownloadFunctions
+          YAML
+
+          File.write(File.join(dir, "#{name}.yml"), system)
+        end
+
+        loaded = []
+        errors = nil
+
+        Timeout.timeout(20) do
+          errors = subject.load_all(paths: Pathname.new(dir), validation: false) { |data| loaded << data }
+        end
+
+        assert_empty(loaded)
+        assert_equal(2, errors.length)
+        assert_empty(errors.reject { |e| e.include?('Base external system missing') })
+      end
+    end
+
+    # Requeuing an override moves its base to the *back* of the queue, so the systems waiting
+    # on that base are deferred again before it is reached. Detecting the stall must not
+    # mistake those extra deferrals for an unresolvable extends.
+    it 'resolves systems waiting on a base that an override requeued' do
+      Dir.mktmpdir do |dir|
+        step = {
+          'config' => {
+            'download_config' => {
+              'images' => { 'source_type' => 'images', 'download_strategy' => 'DataCycleCore::Generic::Common::DownloadFunctions' }
+            }
+          }
+        }
+
+        # file names chosen so Dir.glob yields the base last, after the override that requeues it
+        {
+          '1_first.yml' => { 'name' => 'First', 'identifier' => 'first', 'extends' => 'base' },
+          '2_second.yml' => { 'name' => 'Second', 'identifier' => 'second', 'extends' => 'base' },
+          '3_override.yml' => { 'name' => 'Base', 'identifier' => 'base', 'extends' => 'base' },
+          '4_base.yml' => { 'name' => 'Base', 'identifier' => 'base', 'abstract' => true }
+        }.each { |file_name, system| File.write(File.join(dir, file_name), system.merge(step).to_yaml) }
+
+        loaded = []
+        errors = nil
+
+        Timeout.timeout(20) do
+          errors = subject.load_all(paths: Pathname.new(dir)) { |data| loaded << data }
+        end
+
+        assert_predicate(errors, :blank?)
+        assert_equal(['base', 'first', 'second'], loaded.map { |d| d['identifier'] }.sort)
       end
     end
   end

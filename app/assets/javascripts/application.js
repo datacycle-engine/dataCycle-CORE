@@ -6,6 +6,11 @@ if (import.meta.hot) {
 }
 
 import { cable, Turbo } from "@hotwired/turbo-rails";
+import { turboConfirmMethod } from "./initializers/rails_confirmation_init";
+
+Turbo.session.drive = false;
+Turbo.config.forms.confirm = turboConfirmMethod;
+
 import Rails from "@rails/ujs";
 import jQuery from "jquery";
 import autoInitComponents from "./auto_init_components";
@@ -20,13 +25,7 @@ Object.assign(window, {
 	jQuery,
 	Rails,
 	I18n,
-	actionCable: cable.createConsumer(),
 });
-
-import { turboConfirmMethod } from "./initializers/rails_confirmation_init";
-
-Turbo.session.drive = false;
-Turbo.config.forms.confirm = turboConfirmMethod;
 
 import "jquery-serializejson";
 import "lazysizes";
@@ -40,6 +39,7 @@ import validationInit from "./initializers/validation_init";
 
 export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	DataCycle = window.DataCycle = DataCycleSingleton.instance(dataCycleConfig);
+	DataCycle.cable = cable.createConsumer();
 
 	initCustomElements();
 	UrlReplacer.cleanSearchFormParams();

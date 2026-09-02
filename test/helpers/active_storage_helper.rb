@@ -28,6 +28,7 @@ module DataCycleCore
       asset.file.attach(io: File.open(file_path), filename: file_name)
       asset.creator_id = @current_user.try(:id)
       asset.save
+      perform_enqueued_jobs
 
       assert_predicate(asset, :persisted?)
       assert_predicate(asset, :valid?)

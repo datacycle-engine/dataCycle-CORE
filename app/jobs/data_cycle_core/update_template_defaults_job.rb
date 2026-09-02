@@ -2,21 +2,14 @@
 
 module DataCycleCore
   class UpdateTemplateDefaultsJob < UniqueApplicationJob
-    PRIORITY = 5
     TEMPLATE_DEFAULT_KEYS = [
       'data_type',
       'schema_types'
     ].freeze
 
     queue_as :cache_invalidation
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      arguments[0]
-    end
+    queue_with_priority 5
+    limits_concurrency key: ->(*args) { args[0] }
 
     def perform(id)
       thing = DataCycleCore::Thing.find(id)

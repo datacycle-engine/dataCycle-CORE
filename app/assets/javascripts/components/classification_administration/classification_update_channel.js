@@ -7,27 +7,25 @@ class ClassificationUpdateChannel {
 	setup() {
 		this.initActionCable();
 	}
-	initActionCable() {
-		window.actionCable.then((cable) => {
-			cable.subscriptions.create(
-				{
-					channel: "DataCycleCore::ClassificationUpdateChannel",
-				},
-				{
-					received: (data) => {
-						if (data.type === "error") {
-							return I18n.t(
-								"controllers.error.classification_mappings_error",
-							).then((t) => CalloutHelpers.show(t, "alert"));
-						}
+	async initActionCable() {
+		const cable = await DataCycle.cable;
+		cable.subscriptions.create(
+			{
+				channel: "DataCycleCore::ClassificationUpdateChannel",
+			},
+			{
+				received: (data) => {
+					if (data.type === "error") {
+						return I18n.t(
+							"controllers.error.classification_mappings_error",
+						).then((t) => CalloutHelpers.show(t, "alert"));
+					}
 
-						if (data.type === "lock") this.addWarningAndLock(data.id);
-						else if (data.type === "unlock")
-							this.removeWarningAndUnlock(data.id);
-					},
+					if (data.type === "lock") this.addWarningAndLock(data.id);
+					else if (data.type === "unlock") this.removeWarningAndUnlock(data.id);
 				},
-			);
-		});
+			},
+		);
 	}
 	async warningHtml() {
 		return `<i class="fa fa-exclamation-triangle warning-color classification-mappings-queued" data-dc-tooltip="${await I18n.t(

@@ -39,6 +39,31 @@ module DataCycleCore
                 assert_equal(302, response.status)
               end
 
+              test 'disabled serializer returns HTTP status instead of a redirect for API token requests' do
+                assert_not DataCycleCore::Feature::Download.allowed?(@content)
+
+                token = SecureRandom.hex
+                @current_user.update!(access_token: token)
+
+                # simulates the widgets middleware: same route it calls (/downloads/things/:id/asset),
+                # authenticated via API Bearer token instead of a browser session.
+                get "/downloads/things/#{@content.id}", params: { serialize_format: 'asset' }, headers: {
+                  referer: thing_path(@content),
+                  'Authorization' => "Bearer #{token}"
+                }
+
+                assert_response :bad_request
+                assert_nil response.headers['Location']
+
+                # same via the ?token= param strategy
+                get "/downloads/things/#{@content.id}", params: { serialize_format: 'asset', token: }, headers: {
+                  referer: thing_path(@content)
+                }
+
+                assert_response :bad_request
+                assert_nil response.headers['Location']
+              end
+
               test 'enable asset serializer and render asset for image' do
                 DataCycleCore.features[:serialize][:serializers][:asset] = true
                 DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
@@ -160,6 +185,7 @@ module DataCycleCore
               end
 
               def teardown
+                @current_user.update_columns(access_token: nil)
                 DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
                 DataCycleCore.features[:download][:downloader] = @download_config[:downloader].deep_dup
                 DataCycleCore.features[:image_proxy][:enabled] = @image_proxy_config[:enabled].deep_dup

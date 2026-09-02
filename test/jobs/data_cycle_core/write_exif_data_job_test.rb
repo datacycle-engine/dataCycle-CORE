@@ -144,11 +144,11 @@ module DataCycleCore
       end
     end
 
-    test 'exposes the reference id and priority' do
+    test 'exposes its concurrency key and priority' do
       job = DataCycleCore::WriteExifDataJob.new(UUID)
 
-      assert_equal UUID, job.delayed_reference_id
-      assert_equal DataCycleCore::WriteExifDataJob::PRIORITY, job.priority
+      assert_equal "DataCycleCore::WriteExifDataJob/#{UUID}", job.concurrency_key
+      assert_equal 12, job.priority
     end
   end
 end

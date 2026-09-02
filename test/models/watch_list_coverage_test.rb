@@ -17,6 +17,15 @@ module DataCycleCore
       assert_empty(relation.to_a)
     end
 
+    # a watch list has no sort parameters, so it answers unsorted_things with its plain association
+    # reader - callers (e.g. dc:clean_up:archive_orphans) can take either collection type
+    test 'unsorted_things is the things relation' do
+      relation = DataCycleCore::WatchList.new(name: 'Coverage WatchList Unsorted').unsorted_things
+
+      assert_kind_of(ActiveRecord::Relation, relation)
+      assert_not_includes(relation.to_sql, 'ORDER BY')
+    end
+
     test 'to_hash excludes the user_id attribute' do
       assert_not_includes(watch_list.to_hash.keys, 'user_id')
     end

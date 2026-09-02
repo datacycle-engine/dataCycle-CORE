@@ -10,12 +10,19 @@ module DataCycleCore
           archive_id = DataCycleCore::Feature::LifeCycle.archive_id(self)
           return false if archive_id.nil?
 
-          set_life_cycle_classification(
-            DataCycleCore::Feature::LifeCycle.archive_id(self),
-            user,
-            false,
-            true
-          )
+          set_life_cycle_classification(archive_id, user, false, true)
+        end
+
+        # Counterpart of #archive: moves a content back to an active life-cycle stage ("feed wins"
+        # un-archiving, see Generic::Common::ReactivateContents and dc:clean_up:archive_orphans).
+        #
+        # @param stage_name [String, nil] target stage, defaults to Feature::LifeCycle.active_name
+        # @return [Boolean] false when the target stage is not part of this content's life cycle
+        def reactivate(user = nil, stage_name: nil)
+          active_id = DataCycleCore::Feature::LifeCycle.active_id(self, stage_name)
+          return false if active_id.nil?
+
+          set_life_cycle_classification(active_id, user, false, true)
         end
 
         def before_save_data_hash(options)

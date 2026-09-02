@@ -115,6 +115,55 @@ module DataCycleCore
 
     alias apply_dc_classification_filters apply_classifications_filters
 
+    # Filters contents by the external system they were imported from (their primary source, +things.external_source_id+).
+    # Accepts external system identifiers or UUIDs (plus the literal 'nil' to match contents without a primary source).
+    def apply_external_system_filters(query, filters)
+      filters.each do |operator, values|
+        query_method = operator == :notIn ? 'not_external_source' : 'external_source'
+        next unless query.respond_to?(query_method)
+
+        ids = resolve_external_system_ids(Array.wrap(values).flat_map { |v| v.to_s.split(',') }.map(&:strip).compact_blank)
+        next if ids.blank?
+
+        query = query.send(query_method, ids)
+      end
+      query
+    end
+
+    # Resolves a mix of external system identifiers and UUIDs to external system UUIDs,
+    # preserving the literal 'nil' (used to match contents without a primary source).
+    def resolve_external_system_ids(values)
+      identifiers, ids = values.partition { |v| v != 'nil' && !v.uuid? }
+      ids += DataCycleCore::ExternalSystem.where(identifier: identifiers).pluck(:id) if identifiers.present?
+      ids
+    end
+
+    # Restricts the result set by duplicate candidates, so a duplicate review queue can be built
+    # without a preconfigured endpoint. Delegates to the existing filter methods
+    # (Filter::Common::DuplicateCandidate): +exists+ to #duplicate_candidates, score range and
+    # method to #duplicate_candidate_filter.
+    # The values are read through the very schema the request was validated against, instead of being
+    # coerced a second time by hand: the filter methods compare +exists+ against the string 'true'
+    # (+withGeometry+ does the same), so every notation the contract accepts as a boolean has to arrive
+    # as one - +no+ and +n+ validate as false for Dry and would otherwise be applied as true, answering
+    # a valid request with exactly the opposite set. Score bounds come out as floats in the same step.
+    # @param filters [Hash] :exists, :minScore, :maxScore, :method
+    def apply_duplicate_candidates_filters(query, filters)
+      filters = DataCycleCore::MasterData::Contracts::BaseContract::DUPLICATE_CANDIDATE_FILTER.call(filters).to_h
+
+      query = query.duplicate_candidates(filters[:exists].to_s) if filters.key?(:exists) && query.respond_to?(:duplicate_candidates)
+
+      candidate_filter = {
+        'min' => filters[:minScore],
+        'max' => filters[:maxScore],
+        'method' => filters[:method]
+      }.compact_blank
+
+      return query if candidate_filter.blank? || !query.respond_to?(:duplicate_candidate_filter)
+
+      query.duplicate_candidate_filter(candidate_filter)
+    end
+
     def apply_geo_filters(query, filters)
       filters.each do |operator, filter|
         if operator == :withGeometry
@@ -370,25 +419,6 @@ module DataCycleCore
       api_advanced_attribute_mapping(path).first
     end
 
-    def attribute_filter_operations
-      {
-        in: [
-          :max,
-          :min,
-          :equals,
-          :like,
-          :bool
-        ],
-        notIn: [
-          :max,
-          :min,
-          :equals,
-          :like,
-          :bool
-        ]
-      }
-    end
-
     def validate_api_filters(filters, key_path = [:filter], validator = DataCycleCore::MasterData::Contracts::ApiFilterContract.new)
       raise 'API Bad Request Error' unless filters.is_a?(Hash)
 
@@ -424,15 +454,22 @@ module DataCycleCore
 
     def validate_api_params(unpermitted_params, exceptions = [], validate_params_contract = nil)
       validation_params = unpermitted_params&.deep_symbolize_keys&.except(*exceptions.map(&:to_sym))
-      validation_errors = []
-
-      validation_errors.concat(validate_api_filters(validation_params.delete(:filter))) if validation_params&.dig(:filter).present?
+      validation_errors = validate_api_filter_params(validation_params)
 
       validator = validate_params_contract&.new || DataCycleCore::MasterData::Contracts::ApiContract.new
       validation = validator.call(validation_params)
       validation_errors.concat(api_errors(validation.errors)) if validation.errors.to_h.present?
 
       raise DataCycleCore::Error::Api::BadRequestError.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
+    end
+
+    # Validates the filter params, deleting them from +validation_params+ so the remaining keys are left for
+    # the params contract, and returns the collected errors. Override to route several filter keys to
+    # per-action contracts (see +Api::V4::ClassificationTreesController+).
+    def validate_api_filter_params(validation_params)
+      return [] if validation_params&.dig(:filter).blank?
+
+      validate_api_filters(validation_params.delete(:filter))
     end
 
     def get_attribute_name_by_api_name(api_name, key_path, property_type)

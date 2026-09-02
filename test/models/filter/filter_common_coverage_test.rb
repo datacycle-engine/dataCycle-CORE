@@ -8,6 +8,8 @@ module DataCycleCore
   # Search instance exercises the builder branches (the result is a Search, so
   # asserting it responds to :count is enough — no matching data is required).
   class FilterCommonCoverageTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    include ActiveSupport::Testing::TimeHelpers
+
     UUID = '11111111-1111-1111-1111-111111111111'
 
     def search
@@ -54,6 +56,24 @@ module DataCycleCore
     test 'user_group_classifications filters by user group membership' do
       assert_kind_of(Integer, search.user_group_classifications(admin_id).count)
       assert_respond_to(search.user_group_classifications(nil), :count) # nil guard
+    end
+
+    # ---------- Filter::Common::Date ----------
+
+    # #50369: relative date bounds must be resolved to absolute literals in Ruby, keeping the
+    # relative_date(jsonb) SQL function out of Ruby-built queries (it is retained in the DB for Grafana).
+    test 'relative date filter bounds resolve to Ruby-computed literals, not the relative_date SQL function' do
+      travel_to Time.zone.local(2026, 7, 1, 12, 0, 0) do
+        value = {
+          'from' => { 'n' => 0, 'unit' => 'day', 'mode' => 'p' },
+          'until' => { 'n' => 10, 'unit' => 'day', 'mode' => 'p' }
+        }
+        sql = search.validity_period(value).to_sql
+
+        assert_not_includes(sql, 'relative_date(', 'expected relative dates to be computed in Ruby')
+        assert_includes(sql, "CAST('#{Time.zone.now.iso8601}' AS timestamp with time zone)")
+        assert_includes(sql, "CAST('#{10.days.from_now.iso8601}' AS timestamp with time zone)")
+      end
     end
 
     # ---------- Filter::Common::Geo ----------
@@ -108,6 +128,41 @@ module DataCycleCore
     test 'content_ids and not_content_ids resolve non-uuid ids via the slug subquery' do
       assert_equal(0, search.content_ids(['some-slug-not-a-uuid']).count)
       assert_equal(0, search.not_content_ids(['some-slug-not-a-uuid']).count)
+    end
+
+    # ---------- Filter::Common::Graph ----------
+
+    test 'graph existence and like filter variants build executable queries' do
+      [:exists_graph_filter, :not_exists_graph_filter, :like_graph_filter, :not_like_graph_filter].each do |method|
+        assert_kind_of(Integer, search.public_send(method, nil, 'linked', 'linked').count)
+      end
+    end
+
+    # ---------- Filter::Common::External ----------
+
+    test 'not_external_system covers the import, all and typed sync branches' do
+      assert_respond_to(search.not_external_system(nil), :count) # blank guard
+      assert_kind_of(Integer, search.not_external_system([UUID], 'import').count)
+      assert_kind_of(Integer, search.not_external_system([UUID], 'all').count)
+      assert_kind_of(Integer, search.not_external_system([UUID], 'export').count)
+    end
+
+    # ---------- Filter::Common::User (shared_with with data links) ----------
+
+    test 'shared_with unions the things resolved from a user data link' do
+      thing = DataCycleCore::Thing.new(id: UUID, template_name: DataCycleCore::ThingTemplate.first.template_name)
+      data_link = Object.new
+      data_link.define_singleton_method(:item) { thing }
+
+      valid_scope = [data_link]
+      permission_scope = Object.new
+      permission_scope.define_singleton_method(:valid) { valid_scope }
+      receiver_scope = Object.new
+      receiver_scope.define_singleton_method(:where) { |*| permission_scope }
+
+      DataCycleCore::DataLink.stub(:by_receiver, ->(*) { receiver_scope }) do
+        assert_kind_of(Integer, search.shared_with([admin_id]).count)
+      end
     end
   end
 end

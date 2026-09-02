@@ -2,17 +2,9 @@
 
 module DataCycleCore
   class CheckDependentForDuplicatesJob < UniqueApplicationJob
-    PRIORITY = 6
-
     queue_as :search_update
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      arguments[0]
-    end
+    queue_with_priority 6
+    limits_concurrency key: ->(*args) { args[0] }
 
     def perform(id, _changed_attributes)
       return unless Feature::DuplicateCandidate.enabled?

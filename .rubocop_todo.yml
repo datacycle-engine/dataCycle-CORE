@@ -305,7 +305,6 @@ Style/Documentation:
     - 'app/jobs/data_cycle_core/import_only_job.rb'
     - 'app/jobs/data_cycle_core/import_partial_job.rb'
     - 'app/jobs/data_cycle_core/job_extensions/callbacks.rb'
-    - 'app/jobs/data_cycle_core/job_extensions/delayed_job.rb'
     - 'app/jobs/data_cycle_core/mail_delivery_job.rb'
     - 'app/jobs/data_cycle_core/merge_duplicate_job.rb'
     - 'app/jobs/data_cycle_core/rebuild_classification_mappings_job.rb'
@@ -654,6 +653,10 @@ Style/Documentation:
     - 'app/models/data_cycle_core/generic/common/webhook.rb'
     - 'app/models/data_cycle_core/generic/csv/endpoint.rb'
     - 'app/models/data_cycle_core/generic/csv/transformations.rb'
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/functions.rb'
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/transformation_functions.rb'
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/transformations.rb'
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/webhook.rb'
     - 'app/models/data_cycle_core/generic/download_object.rb'
     - 'app/models/data_cycle_core/generic/external_link/functions.rb'
     - 'app/models/data_cycle_core/generic/external_link/transformations.rb'
@@ -1053,7 +1056,6 @@ Style/DocumentationMethod:
     - 'app/jobs/data_cycle_core/import_only_job.rb'
     - 'app/jobs/data_cycle_core/import_partial_job.rb'
     - 'app/jobs/data_cycle_core/job_extensions/callbacks.rb'
-    - 'app/jobs/data_cycle_core/job_extensions/delayed_job.rb'
     - 'app/jobs/data_cycle_core/mail_delivery_job.rb'
     - 'app/jobs/data_cycle_core/merge_duplicate_job.rb'
     - 'app/jobs/data_cycle_core/rebuild_classification_mappings_job.rb'
@@ -1367,6 +1369,10 @@ Style/DocumentationMethod:
     - 'app/models/data_cycle_core/generic/common/update_attributes.rb'
     - 'app/models/data_cycle_core/generic/common/webhook.rb'
     - 'app/models/data_cycle_core/generic/csv/endpoint.rb'
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/functions.rb'
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/transformation_functions.rb'
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/transformations.rb'
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/webhook.rb'
     - 'app/models/data_cycle_core/generic/download_object.rb'
     - 'app/models/data_cycle_core/generic/external_link/functions.rb'
     - 'app/models/data_cycle_core/generic/external_link/transformations.rb'
@@ -1671,3 +1677,18 @@ Style/OptionalBooleanParameter:
     - 'app/views/data_cycle_core/api/v4/api_base/attributes/_embedded_opening_hours_description.jb'
     - 'lib/data_cycle_core.rb'
     - 'test/integration/api/v4/filter/graph_filter_test.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyleAlignWith, Severity.
+# SupportedStylesAlignWith: either, start_of_block, start_of_line
+Layout/BlockAlignment:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/webhook.rb'
+
+# Offense count: 1
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: Mode.
+Style/StringConcatenation:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/webhook.rb'

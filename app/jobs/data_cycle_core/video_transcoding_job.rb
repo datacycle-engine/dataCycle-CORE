@@ -2,17 +2,9 @@
 
 module DataCycleCore
   class VideoTranscodingJob < UniqueApplicationJob
-    PRIORITY = 12
-
     queue_as :default
-
-    def priority
-      PRIORITY
-    end
-
-    def delayed_reference_id
-      "#{arguments[0]}_#{arguments[1]}"
-    end
+    queue_with_priority 12
+    limits_concurrency key: ->(*args) { "#{args[0]}/#{args[1]}" }
 
     def perform(content_id, computed_property_name)
       content = DataCycleCore::Thing.find(content_id)

@@ -3,9 +3,9 @@
 require 'test_helper'
 
 module DataCycleCore
-  class EmbeddedSearchTest < ActiveSupport::TestCase
+  class EmbeddedSearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     test 'make sure advanced_search attributes added and updated correctly' do
-      content = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      content = create_content('Embedded-Entity-Search', {
         name: 'HEADLINE 1',
         description: 'DESCRIPTION 1',
         float_main: 7.1,
@@ -82,6 +82,7 @@ module DataCycleCore
           ]
         }
       ))
+      perform_enqueued_jobs
       stored_search = DataCycleCore::Search.where(self_contained: true).first
 
       assert_includes(stored_search.advanced_attributes['float_main'], content.float_main)
@@ -98,7 +99,7 @@ module DataCycleCore
     end
 
     test 'test filter for numeric values' do
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE Numeric',
         float_main: 3.5,
         embedded_search: [
@@ -112,7 +113,7 @@ module DataCycleCore
           }
         ]
       })
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE Numeric 2',
         float_main: 5.8,
         embedded_search: [
@@ -191,7 +192,7 @@ module DataCycleCore
 
       assert_equal(0, test_equal_none.count)
 
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE Numeric 3',
         float_main: 13.7,
         embedded_search: [
@@ -221,7 +222,7 @@ module DataCycleCore
     end
 
     test 'test filter for bool values' do
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE boolean true',
         embedded_search: [
           {
@@ -229,7 +230,7 @@ module DataCycleCore
           }
         ]
       })
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE boolean false',
         embedded_search: [
           {
@@ -253,7 +254,7 @@ module DataCycleCore
     end
 
     test 'test filter for time values' do
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE time a',
         embedded_search: [
           {
@@ -262,7 +263,7 @@ module DataCycleCore
           }
         ]
       })
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE time b',
         embedded_search: [
           {
@@ -336,7 +337,7 @@ module DataCycleCore
     end
 
     test 'test filter for date values' do
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE date a',
         embedded_search: [
           {
@@ -344,7 +345,7 @@ module DataCycleCore
           }
         ]
       })
-      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      create_content('Embedded-Entity-Search', {
         name: 'HEADLINE date b',
         embedded_search: [
           {

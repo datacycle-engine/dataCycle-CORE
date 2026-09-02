@@ -21,8 +21,10 @@ module DataCycleCore
       #   data_name_path: ~ # if the value of the data path should be used
       #   # data_parent_id_path defines the path to the parent id of the data in the document. It is relative to data_path. The default value is 'parent_id'.
       #   data_parent_id_path: 'custom_parent_id'
-      #   # priority defines the priority of the data. It is used decied which document to keep in case the same id is found in different documents. The default value is 5.
-      #   data_priority: 5
+      #   # priority decides which step may overwrite an already stored concept: a LOWER number means
+      #   # HIGHER priority, and a step may only write when its own priority is <= the stored one.
+      #   # Steps that set none run at the default, so they can still refresh what they wrote.
+      #   priority: 5
       #   # data_uri_path defines the path to the uri of the data in the document. The default value is 'uri'.
       #   data_uri_path: 'custom_uri'
       #   # data_id_prefix defines the prefix to be added to the id of the data. It is used to avoid conflicts with other data. The default value is nil. Cannot be used with data_external_id_prefix.
@@ -34,6 +36,8 @@ module DataCycleCore
         extend Extensions::DownloadFromData
 
         def self.download_content(utility_object:, options:)
+          options = Extensions::DumpKeyPolicy.with_default_step_priority(options)
+
           DataCycleCore::Generic::Common::DownloadFunctions.download_content(
             download_object: utility_object,
             iterator: method(:load_data_from_mongo).to_proc,
@@ -54,7 +58,6 @@ module DataCycleCore
           # full_data_path = paths[:full_data_path]
           full_id_path = paths[:full_id_path]
           concept_parent_id = paths[:concept_parent_id]
-          priority = paths[:priority]
           concept_uri = paths[:concept_uri]
 
           source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
@@ -65,7 +68,6 @@ module DataCycleCore
             'data.name' => ['$data', data_name_path].compact_blank.join('.'),
             'data.parent_id' => ['$data', concept_parent_id].compact_blank.join('.'),
             'data.uri' => ['$data', concept_uri].compact_blank.join('.'),
-            'data.priority' => priority,
             'external_system' => 1
           }
 
@@ -154,7 +156,6 @@ module DataCycleCore
           concept_name ||= concept_id
 
           concept_parent_id = path_config(:parent_id, options) || 'parent_id'
-          priority = options.dig(:download, :priority) || 5
           concept_uri = path_config(:uri, options) || 'uri'
 
           concept_path = path_config(nil, options) || ''
@@ -179,7 +180,6 @@ module DataCycleCore
           paths[:full_data_path] = full_data_path
           paths[:full_id_path] = full_id_path
           paths[:concept_parent_id] = concept_parent_id
-          paths[:priority] = priority
           paths[:concept_uri] = concept_uri
           paths.with_indifferent_access
         end

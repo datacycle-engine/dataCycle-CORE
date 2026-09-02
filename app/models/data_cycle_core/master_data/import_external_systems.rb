@@ -95,16 +95,36 @@ module DataCycleCore
       def self.extend_external_systems!(raw_systems, extended_systems, errors)
         queue = raw_systems.dup
         skipped_abstract_systems = {}
+        # Systems deferred since the last one was processed or dropped. Readiness only changes
+        # when the pending set does, so once every system still pending has been deferred
+        # without any progress, none of them can ever become ready -- report instead of
+        # spinning. Counting deferrals instead would be wrong: requeuing moves a base behind
+        # the systems waiting on it, so they get deferred more than once per round.
+        deferred = Set.new.compare_by_identity
 
         while queue.present?
           external_system = queue.shift
           data = external_system[:data]
 
           unless external_system_dependencies_ready?(data, extended_systems, queue)
+            deferred.add(external_system)
+
+            if queue.all? { |s| deferred.include?(s) }
+              report_unresolvable_extends!(data, skipped_abstract_systems, errors)
+              deferred.clear
+              next
+            end
+
+            # Requeue the base system (and any other override sharing this identifier) *before*
+            # the deferred system. An override that extends its own identifier (the usual way a
+            # project overrides an abstract system from a gem) would otherwise be shifted ahead
+            # of its own base on every pass and the loop would never terminate.
             additional_systems = queue.extract! { |s| s[:data]['identifier'] == data['identifier'] }
-            queue.push(external_system, *additional_systems)
+            queue.push(*additional_systems, external_system)
             next
           end
+
+          deferred.clear
 
           if data.key?('extends')
             begin
@@ -134,6 +154,16 @@ module DataCycleCore
         end
       rescue StandardError => e
         errors.push("#{data['name'] || data['identifier']} => extends processing error (#{e.message})")
+      end
+
+      def self.report_unresolvable_extends!(data, skipped_abstract_systems, errors)
+        message = "Base external system missing for #{data['extends']} (circular or unresolvable extends)"
+
+        if data['abstract']
+          skipped_abstract_systems[data['identifier']] = { reason: message, extends: data['extends'] }
+        else
+          errors.push("#{data['name'] || data['identifier']} => #{message}")
+        end
       end
 
       def self.add_missing_identifiers!(external_systems)
@@ -414,6 +444,7 @@ module DataCycleCore
               optional(:grace_period) { str? }
             end
             optional(:ai_model) { str? }
+            optional(:queue) { str? }
             optional(:endpoint).filled(:ruby_class?)
             optional(:transformations).filled(:ruby_module?)
             optional(:primary_system_priority).filled do
@@ -455,6 +486,12 @@ module DataCycleCore
         rule(:credentials).validate(:dc_credential_keys)
         rule('default_options.primary_system_priority').validate(:ruby_module_and_method)
 
+        rule('default_options.queue') do
+          next if value.blank?
+
+          key.failure("unknown import queue '#{value}', available queues: #{DataCycleCore.importer_queues.join(', ')}") unless DataCycleCore.importer_queues.include?(value.to_sym)
+        end
+
         rule('config.export_config.filter').validate(:filter_config)
         rule('config.export_config.create.filter').validate(:filter_config)
         rule('config.export_config.update.filter').validate(:filter_config)
@@ -495,6 +532,8 @@ module DataCycleCore
           optional(:endpoint_method).filled(:str?)
           optional(:import_strategy).filled(:ruby_module?)
           optional(:download_strategy).filled(:ruby_module?)
+          optional(:bulk_touch) { bool? }
+          optional(:bulk_mark_deleted) { bool? }
           optional(:logging_strategy).filled(:str?)
           optional(:position).maybe(:hash)
           optional(:tree_label) { str? | (array? & each { str? }) }
@@ -503,6 +542,13 @@ module DataCycleCore
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
           optional(:external_id_prefix).filled(:str?)
+          # [#50666] Step priority claimed on everything this step writes (0 = highest). Capped at the
+          # default a step without one runs at: above it, an item written by a defaulted step -- which
+          # stores no claim at all -- would be clobberable by this lower-priority step. See
+          # DumpKeyPolicy::DEFAULT_STEP_PRIORITY for why the cap sits here and not in a default
+          # stamped into every dump. int? also catches a quoted `priority: "0"`, which the runtime
+          # can only fall back on, not honour.
+          optional(:priority) { int? & gteq?(0) & lteq?(DataCycleCore::Generic::Common::Extensions::DumpKeyPolicy::DEFAULT_STEP_PRIORITY) }
           optional(:transformations) { hash? }
           optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
           optional(:data_id_transformation).hash do
@@ -542,6 +588,10 @@ module DataCycleCore
         rule(:data_id_transformation).validate(:ruby_module_and_method)
         rule(:download_strategy).validate(:touch_step_required)
         rule(:endpoint).validate(:endpoint_method_exists)
+
+        rule(:bulk_mark_deleted) do
+          key.failure('bulk_touch: true must be set on the same step to prevent deleting all items') if value && !values[:bulk_touch]
+        end
         rule('main_content.primary_system_priority').validate(:ruby_module_and_method)
         # rule('nested_contents[].primary_system_priority').each(&:ruby_module_and_method) # not supported yet
 

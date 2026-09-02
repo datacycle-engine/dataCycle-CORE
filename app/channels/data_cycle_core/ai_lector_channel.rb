@@ -15,8 +15,6 @@ module DataCycleCore
       optional(:previous_response).value(:str?)
       optional(:user_context).value(:str?)
       optional(:content_id).maybe(:str?)
-      optional(:selected_content_ids).maybe(:array?)
-      optional(:selected_property_data).maybe(:array?)
     end
 
     def subscribed
@@ -33,7 +31,13 @@ module DataCycleCore
       parsed_data = parsed_data(data)
       return_data = parsed_data.slice(:identifier, :stream_id)
 
-      if parsed_data[:text].blank?
+      # Consider the text blank if it has no actual textual content — an "empty"
+      # rich-text field can still send markup (e.g. "<p><br></p>"). Strip tags
+      # first (the endpoint strips them before sending anyway) so effectively
+      # empty input yields the "no_data" warning instead of a useless request.
+      stripped_text = parsed_data[:text].to_s.strip_tags.strip
+
+      if stripped_text.blank?
         warning = I18n.t('feature.ai_lector.tips.warnings.no_data', locale: current_user.ui_locale)
         ActionCable.server.broadcast(channel_name, return_data.merge(warning:))
         return
@@ -43,7 +47,7 @@ module DataCycleCore
         ActionCable.server.broadcast(channel_name, return_data.merge(chunk))
       end
 
-      ActionCable.server.broadcast(channel_name, return_data.merge({ **result, finished: true }))
+      ActionCable.server.broadcast(channel_name, return_data.merge({ **(result || {}), finished: true }))
     rescue StandardError => e
       error = if Rails.env.development?
                 "#{e.message}<br>#{e.backtrace.first(10).join('<br>')}"

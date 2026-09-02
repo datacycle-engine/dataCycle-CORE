@@ -12,6 +12,7 @@ module DataCycleCore
           @routes = Engine.routes
           @test_content = DataCycleCore::DummyDataHelper.create_data('tour')
           @previous_user_filters = DataCycleCore.user_filters.deep_dup
+          perform_enqueued_jobs
         end
 
         setup do
@@ -237,6 +238,28 @@ module DataCycleCore
           assert_nil(poi['image'])
         end
 
+        test '/api/v4/things/:id forced api_linked user_filter filters linked contents of a single content' do
+          # regression for #49238: the single-content show endpoint must apply forced api_linked user_filters
+          # to linked contents (e.g. hide closed-data images), just like the collection endpoint does
+
+          # baseline: without a forced api_linked user_filter the linked image is rendered
+          get api_v4_thing_path(id: @test_content.id, include: 'image')
+          content = response.parsed_body['@graph'].first
+
+          assert_equal(@test_content.id, content['@id'])
+          assert_equal(1, content['image']&.size)
+
+          # forced api_linked user_filter restricting linked contents to the POI content type filters out the (non-POI) image
+          DataCycleCore.user_filters = { tmp_api_linked: { 'segments' => [{ 'name' => 'DataCycleCore::Abilities::Segments::UsersByRole', 'parameters' => ['admin'] }], 'force' => true, 'scope' => ['api_linked'], 'stored_filter' => [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['POI'] } }] } }
+
+          get api_v4_thing_path(id: @test_content.id, include: 'image')
+          content = response.parsed_body['@graph'].first
+
+          # the requested content itself is unaffected (api scope), but its linked image is filtered out by the forced api_linked filter
+          assert_equal(@test_content.id, content['@id'])
+          assert_nil(content['image'])
+        end
+
         test '/api/v4/endpoints/:uuid forced api_linked user_filter sets a generated id when collection has no linked_stored_filter' do
           user = DataCycleCore::User.find_by(email: 'tester@datacycle.at')
           collection = DataCycleCore::StoredFilter.create(
@@ -255,10 +278,10 @@ module DataCycleCore
           controller.define_singleton_method(:current_user) { user }
 
           linked_filter = controller.send(:linked_stored_filter, collection)
-          expected_id = controller.send(:generate_uuid, collection.id, "#{user.user_filters('api_linked').join(',')}/#{user.id}")
+          expected_id = DataCycleCore::UuidService.generate(collection.id, "#{user.user_filters('api_linked').join(',')}/#{user.id}")
 
           assert_equal(expected_id, linked_filter.id)
-          assert(linked_filter.parameters.any? { |f| f['c'] == 'uf' })
+          assert(linked_filter.user_filter_parameters.any? { |f| f['c'] == 'uf' })
         end
 
         test '/api/v4/endpoints/:uuid with relation_filter, finds one POI with one suitable image' do

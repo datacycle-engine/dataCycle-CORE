@@ -156,6 +156,14 @@ module DataCycleCore
       assert_equal ['system-a', 'system-b'], SUBJECT.send(:primary_system_priority_list, config)
     end
 
+    test 'mongo_external_id prefers the key written at download time' do
+      assert_equal 'dc-1', SUBJECT.mongo_external_id({ 'dc_external_id' => 'dc-1', 'external_id' => 'ext-1', 'id' => 'id-1' })
+      assert_equal 'ext-1', SUBJECT.mongo_external_id({ 'external_id' => 'ext-1', 'id' => 'id-1' })
+      assert_equal 'id-1', SUBJECT.mongo_external_id({ 'id' => 'id-1' })
+      assert_nil SUBJECT.mongo_external_id({})
+      assert_nil SUBJECT.mongo_external_id(nil)
+    end
+
     test 'instrument_import_failure publishes the failure notification' do
       captured = []
       utility = DcImportDataHelperDummyUtilityObject.new({}, dummy_source)
@@ -287,6 +295,20 @@ module DataCycleCore
       assert_equal content.id, again.id
     end
 
+    test 'process_step stores the mongo key the raw data was downloaded under' do
+      object = utility_object('ifdh_mongo_key')
+
+      content = SUBJECT.process_step(
+        utility_object: object,
+        raw_data: { 'dc_external_id' => 'doc-1', 'external_key' => 'mk-1', 'name' => 'MK Artikel' },
+        transformation: ->(data) { data },
+        default: { template: 'Artikel' },
+        config: {}
+      )
+
+      assert_equal 'doc-1', content.dc_mongo_key
+    end
+
     test 'create_or_update_content reloads existing content on a template mismatch' do
       object = utility_object('ifdh_mismatch')
       existing = SUBJECT.process_step(
@@ -306,6 +328,20 @@ module DataCycleCore
       )
 
       assert_equal existing.id, result.id
+    end
+
+    # #50337: a payload from an instance running the old sync_api serializer carries `asset => nil`,
+    # which would destroy the content's local Asset. An asset the import actually supplies (via
+    # Functions.local_asset) still has to get through.
+    test 'drop_blank_assets removes a blank asset but keeps a supplied one' do
+      template = SUBJECT.send(:load_template, 'Bild')
+      data = { 'name' => 'Bild', 'asset' => nil }.with_indifferent_access
+
+      assert_equal ['name'], SUBJECT.drop_blank_assets(data, template).keys
+
+      data['asset'] = 'e4d9de1c-4d1e-4e42-9d0e-0a5a1a7bd3f0'
+
+      assert_equal data, SUBJECT.drop_blank_assets(data, template)
     end
   end
 end

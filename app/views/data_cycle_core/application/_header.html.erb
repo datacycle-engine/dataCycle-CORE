@@ -14,19 +14,11 @@
             <%= render 'watch_lists' %>
           <% end %>
         </li>
-        <li>
-          <% if DataCycleCore.info_link.blank? %>
-            <%= link_to tag.i(class: 'fa fa-question') + tag.span('Info'), 'https://datacycle.info/', title: 'datacycle.info', target: :_blank %>
-          <% elsif DataCycleCore.info_link.is_a?(::String) %>
-            <%= link_to tag.i(class: 'fa fa-question') + tag.span('Info'), DataCycleCore.info_link, target: :_blank %>
-          <% else %>
-            <%= link_to tag.i(class: 'fa fa-question') + tag.span('Info'), info_path, target: :_blank %>
-          <% end %>
-        </li>
         <% if user_signed_in? %>
           <li>
-            <button type="button" class="button show-sidebar" data-toggle="settings-off-canvas">
-              <span><%= current_user.email %></span>
+            <button type="button" class="button show-sidebar" data-toggle="settings-off-canvas" data-dc-tooltip="<%= current_user.email %>">
+              <span class="user-initials" aria-hidden="true"><%= current_user.initials %></span>
+              <span><%= current_user.full_name_or_email %></span>
               <i class="fa fa-bars icon-right" aria-hidden="true"></i>
             </button>
           </li>

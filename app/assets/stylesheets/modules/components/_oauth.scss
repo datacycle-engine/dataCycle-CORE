@@ -1,0 +1,64 @@
+// OAuth consent screen (doorkeeper authorizations#new). Styled here because the page renders inside
+// the regular backend layout, where doorkeeper's own Bootstrap classes carry no styling at all.
+.oauth-authorization {
+  max-width: 40rem;
+  margin: $global-margin auto;
+  padding: 2rem;
+  background-color: $white;
+  border: 1px solid $medium-gray;
+  border-radius: $global-radius;
+
+  h1 {
+    margin-bottom: $global-margin;
+    font-size: 1.5rem;
+  }
+
+  .oauth-authorization-prompt {
+    font-size: 1.125rem;
+  }
+
+  .oauth-permissions {
+    margin: $global-margin 0 2rem;
+    padding: $global-margin;
+    background-color: $light-gray;
+    border-radius: $global-radius;
+
+    p {
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    ul {
+      margin: 0;
+      list-style: none;
+    }
+
+    li {
+      position: relative;
+      padding-left: 1.5rem;
+
+      &::before {
+        content: '\f00c'; // fa-check
+        font-family: FontAwesome;
+        position: absolute;
+        left: 0;
+        color: $dark-gray;
+      }
+    }
+  }
+
+  .oauth-authorization-buttons {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 0.5rem;
+
+    form {
+      margin: 0;
+    }
+
+    .button {
+      margin: 0;
+    }
+  }
+}

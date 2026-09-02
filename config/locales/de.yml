@@ -23,6 +23,9 @@ de:
   submit: "Erstellen"
   settings:
 
+  artificial_intelligence_agent:
+    name: "KI-Agent"
+
   template_names:
     skos:Concept: Klassifizierung
     Article: Artikel
@@ -165,6 +168,7 @@ de:
 
   admin_panel:
     schema: Schema
+    raw_data: Rohdaten
     datahash: Datahash
     thing_history_links: Mit aktuellem Inhalt zusammengeführt
     api: JSON API
@@ -225,6 +229,10 @@ de:
     user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
     confirm: E-Mail Adresse wurde noch nicht bestätigt, jetzt bestätigen!
     delete_user_html: Benutzer <b>%{email}</b> wirklich löschen?
+    lock_status:
+      by_user: Gesperrt am %{date} von %{user}
+      automatic: Automatisch gesperrt am %{date} (zu viele fehlgeschlagene Anmeldeversuche)
+      system: Gesperrt am %{date} vom System
     consents:
       header:
         terms_conditions: Allgemeine Geschäftsbedingungen (AGB) wurden aktualisiert
@@ -657,6 +665,7 @@ de:
     uri_placeholder: 'Sollte eine echte URI sein, oder mit einem gültigen Namespace beginnen, z.B. "https://example.com/my-content", "dc:my-content" oder "dcls:my-content".'
     merge_warning_html: "Das Duplikat wird gelöscht.<br>Fortfahren?"
     additional_classifications: weitere Klassifizierungen
+    hidden_mapping: Nur über ein ausgeblendetes Mapping zugeordnet (nicht in Filtern, Detailansicht oder API)
     bulk_edit_locked_html: "<br><br>Mindestens ein Inhalt kann von Ihnen nicht
       bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt."
     bulk_update:
@@ -789,6 +798,8 @@ de:
       Der Inhalt kann nicht synchronisiert werden."
     export: Externes System
 
+  external_systems:
+    imported_content: Importierte Inhalte
   external_connections:
     type: Typ
     filter:
@@ -811,6 +822,10 @@ de:
       warning_html: '<p>primäres externes System in externe Verknüpfung
         umwandeln?</p><div class="callout alert">Das beeinflusst
         möglicherweise die Funktion eines Importers!</div>'
+    trigger_webhook_update:
+      tooltip: Update-Webhook erneut auslösen
+      warning_html: '<p>Update-Webhook für dieses externe System erneut auslösen?</p>'
+    webhook_error: Fehlermeldung
 
   duplicate:
     candidates: Mögliche Duplikate
@@ -830,6 +845,15 @@ de:
     original_tooltip: Dieser Inhalt ist das Original und bleibt beim Zusammenführen bestehen
     with_score: "mit Score:"
     with_method: "mit Regel:"
+    confirm_merge: Möchtest du diese Inhalte wirklich zusammenführen?
+    merge_preview_hint_html: 'Dies ist eine reine Vorschau &ndash; hier können keine
+      Felder bearbeitet oder übernommen werden. Der als <span
+      class="success-color"><b>Original</b></span> markierte Inhalt bleibt mit seinen
+      Werten bestehen, der als <span class="alert-color"><b>Duplikat</b></span> markierte
+      Inhalt wird zusammengeführt und anschließend gelöscht. Vorhandene externe
+      Verknüpfungen des Duplikats werden &ndash; sofern vorhanden &ndash; auf das
+      Original übernommen, und alle Referenzen, die auf das Duplikat verweisen,
+      werden auf das Original umgehängt.'
 
   tile_links:
     details: zur Detailansicht
@@ -1098,6 +1122,8 @@ de:
     not_with_geom: Inhalte ohne Geokoordinaten
     with_external_source: Importierte Inhalte
     not_with_external_source: Nicht Importierte Inhalte
+    overlay_present: Inhalte mit Overlay
+    not_overlay_present: Inhalte ohne Overlay
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
@@ -1293,6 +1319,9 @@ de:
     limited_by:
       filter_warning: Die Anzahl der angezeigten Inhalte wurde durch "Aggregat für" begrenzt
       create_button_warning: Neue Inhalte können nur beim "Aggregat für" erstellt werden
+    limited_by_linked:
+      filter_warning: Es werden nur bereits mit diesem Inhalt verknüpfte Inhalte angezeigt
+      create_button_warning: Neue Inhalte können hier nicht angelegt werden
     remove_all_button: Alle entfernen
 
   terms:
@@ -1386,8 +1415,20 @@ de:
       error: Die Klassifizierungen konnten nicht zusammengeführt werden
       confirm_html: <b>%{source_path}</b> wird mit <b>%{target_path}</b> zusammengeführt.
       success: Die Klassifizierungen wurden erfolgreich zusammengeführt
+      ambiguous_external_system: Beide Klassifizierungen sind extern verknüpft.
+        Es kann nur eine Verknüpfung übernommen werden, deshalb ist ein
+        Zusammenführen nicht möglich
     classification_polygon:
       link_tooltip: verknüpfte GeoShape anzeigen
+    stored_filter_usage:
+      link_title: Verwendung in gespeicherten Suchen anzeigen
+      empty: Keine gespeicherte Suche verwendet diese Klassifizierung.
+      indirect: Wird über eine andere gespeicherte Suche verwendet
+      show_all: Alle Treffer in "Meine gespeicherten Suchen" anzeigen
+      removal_warning_html: "ACHTUNG: %{data} wird in <b>%{count}</b> gespeicherten Suchen verwendet! (direkt: %{direct}, indirekt: %{indirect})"
+      hidden_count:
+        one: "... und noch 1 weitere Suche, auf die du keinen Zugriff hast."
+        other: "... und noch %{count} weitere Suchen, auf die du keinen Zugriff hast."
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
@@ -1517,6 +1558,7 @@ de:
   webhooks:
     actions:
       deploy: Deployment
+      update: Update
     trigger_confirmation:
       title: "%{data} auslösen"
       text: "Es wird ein %{data} ausgelöst. Fortfahren?"
@@ -1542,7 +1584,7 @@ de:
     version_name: "zugewiesene Klassifizierungen für %{data} wurden entfernt"
     info_html: Alle direkten Zuweisungen von Klassifizierungen aus <b>%{name}</b> zu
       Inhalten aus der gewählten <b>%{collection}</b> werden entfernt.
-    disconnected: Die Verbingung zum Server wurde unterbrochen. Bitte versuchen Sie
+    disconnected: Die Verbindung zum Server wurde unterbrochen. Bitte versuchen Sie
       es erneut.
     post_submit_info_html: "Das Entfernen der Zuweisung wird im Hintergrund
       durchgeführt.<br>Es kann einen Moment dauert, bis der Job gestartet wird."
@@ -1571,7 +1613,7 @@ de:
     info_html: Alle Klassifizierungen des Klassifizierungsbaums <b>%{name}</b>, die
       über Mappings mit Inhalten aus der gewählten <b>%{collection}</b>
       verknüpft sind, werden direkt den Inhalten zugewiesen.
-    disconnected: Die Verbingung zum Server wurde unterbrochen. Bitte versuchen Sie
+    disconnected: Die Verbindung zum Server wurde unterbrochen. Bitte versuchen Sie
       es erneut.
     post_submit_info_html: "Die Zuweisung der Klassifizierungen wird im Hintergrund
       durchgeführt.<br>Es kann einen Moment dauert, bis der Job gestartet wird."
@@ -1705,6 +1747,8 @@ de:
       duplicate:
         type_mismatch: "Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!"
         cannot_merge_self: Der Inhalt kann nicht mit sich selbst zusammengeführt werden!
+        merge_failed: Das Zusammenführen konnte nicht abgeschlossen werden und wird im
+          Hintergrund fortgesetzt.
       session_expired: Die Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
       token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
       no_shared_attributes: Es gibt keine Attribute, die bei allen Inhalten vorkommen
@@ -1744,11 +1788,11 @@ de:
       locked: "%{data} wurde gesperrt."
       unlocked: "%{data} wurde freigegeben."
       invalidated: "%{data} wurde deaktiviert."
-      updated_user_settings: "Benutzereinstellungen wurden aktualisiert."
       moved_to: "Inhalt in %{data} verschoben"
       become_user: "Eingeloggt als %{data}."
       duplicate_false_positive: "%{data} wurde von den möglichen Duplikaten entfernt"
-      merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
+      merged_with_duplicate: Inhalte wurden zusammengeführt
+      merged_with_duplicate_background: Inhalte werden im Hintergrund zusammengeführt
       bulk_updated:
         one: "<b>%{count}</b> Inhalt wurde aktualisiert"
         other: "<b>%{count}</b> Inhalte wurden aktualisiert"
@@ -1801,6 +1845,8 @@ de:
       data_cycle_core/utility/duplicate_candidate/bild_phash: Hash (Bild)
       data_cycle_core/utility/duplicate_candidate/name_similarity: Ähnlichkeit (Name)
       data_cycle_core/utility/duplicate_candidate/only_name_and_locality: Exakte Übereinstimmung (Name, Ort)
+      data_cycle_core/utility/duplicate_candidate/only_name_and_classification: Exakte Übereinstimmung (Name, Klassifizierung)
+      data_cycle_core/utility/duplicate_candidate/manual: Manuell markiert
 
   activerecord:
     errors:
@@ -1937,6 +1983,9 @@ de:
       data_cycle_core/data_attribute:
         one: Attribut
         other: Attribute
+      data_cycle_core/additional_menu_link:
+        one: Zusätzlicher Menülink
+        other: Zusätzliche Menülinks
       data_cycle_core/thing/history:
         one: Inhaltsversion
         other: Inhaltsversionen
@@ -1964,6 +2013,7 @@ de:
         external_key: Externe ID
         internal: intern (Systemklassifizierungsbaum)
         mappable: Klassifizierungen dürfen gemapped werden
+        hidden_mappings: Gemappte Klassifizierungen ausblenden (nicht in Filtern, Detailansicht oder API)
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: "Beschreibungstext"
@@ -2003,6 +2053,7 @@ de:
         represented_by: Repräsentiert durch
         ui_locale: Sprache der Benutzeroberfläche
         locked_at: gesperrt
+        locked_by: gesperrt von
         deleted_at: gelöscht
         additional_attributes/terms_conditions_at: AGB
         additional_attributes/privacy_policy_at: Datenschutzerklärung
@@ -2082,13 +2133,21 @@ de:
   data_cycle_core:
     administration: Administration
     documentation: Dokumentation
+    side_bar:
+      profile: Mein Profil
+      terms_and_conditions: AGB
+      personal: Persönlich
+      management: Verwaltung
+      system_and_tools: System & Tools
+      resources: Ressourcen
     activities: Aktivitäten
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
     user_links: Benutzerlinks
     classifications: Klassifizierungen
     dashboard: Dashboard
-    grafana: Grafana
+    additional_menu_links:
+      grafana: Grafana
     classifications_adminitration:
       classification:
         submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
@@ -2100,6 +2159,8 @@ de:
       download_tree_with_inverse_mappings: Klassifizierungsbaum - nur inverse Mappings (csv)
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
+    this_classification_nominative: Diese Klassifizierung
+    this_classification_tree_nominative: Dieser Klassifizierungsbaum
     show_contents_for_tree_label: "Inhalte in %{data} auflisten"
     settings: Einstellungen
     publication_date: Publikationsdatum
@@ -2138,6 +2199,10 @@ de:
       load_more: ... weitere Suchen anzeigen
       load_all: alle Suchen anzeigen
       filter_searches: Suchen filtern ...
+      classification_usage_label: Klassifizierung
+      classification_usage_all: Alle
+      classification_usage_fallback: unbekannt
+      classification_usage_remove: Einschränkung entfernen
       count_html:
         zero: "<b>Keine</b> Suchen"
         one: "<b>%{count_string}</b> Suche"
@@ -2304,7 +2369,7 @@ de:
       ratings:
         difficulty_rating: Schwierigkeit
         priority_rating: Priorität
-        skill_rating: Fähigkeiten
+        skill_rating: Technik
         stamina_rating: Kondition
       tour:
       poi:
@@ -2800,6 +2865,7 @@ de:
       invalid_parameter: Ungültiger Query Parameter
     data_cycle_core/error/api/expired_content_error:
       expired_content: Inhalt ist abgelaufen
+    data_cycle_core/error/api/invalid_argument_error: Ungültiger Query Parameter
     active_record/record_not_found: Nicht gefunden
     active_record/record_not_unique: Konflikt
     data_cycle_core/error/filter/date_filter_range_error: "Fehler bei

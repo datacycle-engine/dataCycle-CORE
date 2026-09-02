@@ -6,7 +6,15 @@ module DataCycleCore
       def add_external_system_data(external_system, data = nil, status = nil, sync_type = 'export', external_key = nil, use_key = true)
         external_data = external_system_sync_by_system(external_system:, sync_type:, external_key:, use_key:)
 
-        external_data.attributes = { data:, status:, external_key: external_key.presence }.compact
+        attributes = { data:, status:, external_key: external_key.presence }.compact
+        if status.in?(DataCycleCore::ExternalSystemSync::FAILURE_STATUSES)
+          exception_data = DataCycleCore::ExternalSystemSync.exception_data_from(data)
+          attributes[:exception_data] = exception_data if exception_data.present?
+        elsif status == 'success'
+          attributes[:exception_data] = nil # clear stale error, mirroring WebhookJob#success_external_sync
+        end
+
+        external_data.attributes = attributes
         external_data.save
         external_data
       rescue ActiveRecord::RecordNotUnique
@@ -16,6 +24,19 @@ module DataCycleCore
       def remove_external_system_data(external_system, sync_type = 'export', external_key = nil)
         external_data = external_system_syncs.find_by(external_system_id: external_system.id, sync_type:, external_key:)
         external_data.update(data: nil)
+      end
+
+      # on destroy: remove orphaned external_system_sync links of linked children (and write their history)
+      # for every external system this content was exported to that is configured to do so. The content's
+      # own syncs are handled by the destroy cascade + history, so include_self is false here.
+      def cleanup_linked_external_system_syncs
+        DataCycleCore::ExternalSystem
+          .where(id: external_system_syncs.export.select(:external_system_id))
+          .find_each do |external_system|
+            next unless external_system.remove_external_system_syncs_on_delete?
+
+            DataCycleCore::Export::SyncCleanup.new(content: self, external_system:, include_self: false).call
+          end
       end
 
       def external_system_sync_by_system(external_system:, sync_type: 'export', external_key: nil, use_key: false)
@@ -75,13 +96,29 @@ module DataCycleCore
         set_data_hash(data_hash:, prevent_history: true) if data_hash.present?
       end
 
+      # Raw, untransformed import data as stored in the external system's MongoDB.
+      # `dc_mongo_collection` / `dc_mongo_key` are written onto the content during import
+      # (see Generic::Common::ImportFunctionsDataHelper) and point at the document's
+      # collection name and `external_id`. Returns the document's `dump` hash
+      # (raw data keyed by locale), or nil when nothing is referenced/found.
+      def mongo_raw_data
+        collection_name = try(:dc_mongo_collection)
+        key = try(:dc_mongo_key)
+
+        return if external_source.blank? || collection_name.blank? || key.blank?
+
+        external_source.query(collection_name) { |collection|
+          collection.where(external_id: key).first
+        }&.dump
+      end
+
       def view_all_external_data
         all_data = []
 
         if external_source_id.present? && external_key.present?
           all_data.push({
             external_system_id: external_source_id,
-            external_identifier: external_source.identifier,
+            external_identifier: DataCycleCore::ExternalSystem.cached_by_id(external_source_id)&.identifier,
             external_key:
           }.with_indifferent_access)
         end

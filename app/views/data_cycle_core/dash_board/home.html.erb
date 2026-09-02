@@ -93,9 +93,9 @@
           import modules
           <% if can?(:create, DataCycleCore::ExternalSystem) && DataCycleCore.external_system_template_paths.present? %>
             <% random_id = SecureRandom.hex(10) %>
-            <a href="#" class="add-external_system-button button small" data-open="<%= random_id %>">
+            <button type="button" class="add-external_system-button button small" data-open="<%= random_id %>">
               <i class="fa fa-plus"></i>
-            </a>
+            </button>
             <div
               class="reveal new-item remote-render"
               id="<%= random_id %>"

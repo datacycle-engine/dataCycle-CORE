@@ -4,6 +4,8 @@ require 'test_helper'
 
 module DataCycleCore
   class SortParamTransformationsTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    include ActiveSupport::Testing::TimeHelpers
+
     test 'sort_by_in_occurrence_with_distance with format (lon,lat,start_date,end_date,sortAttr)' do
       order_string = '14,46,2025-05-01,2025-05-31,eventSchedule'
       expected = [['14', '46'], { 'in' => { 'min' => '2025-05-01', 'max' => '2025-05-31' }, 'relation' => 'eventSchedule' }]
@@ -113,66 +115,43 @@ module DataCycleCore
       assert_equal(expected, actual)
     end
 
-    test 'sort_proximity_in_time with relative in min' do
-      value = {
-        'q' => 'relative',
-        'in' => { 'min' => { 'n' => 0, 'unit' => 'day', 'mode' => 'p' } }
-      }
+    # #50369: relative dates are resolved in Ruby to an absolute literal instead of emitting the
+    # relative_date(jsonb) SQL function (which regressed prod performance). The SQL function is kept
+    # in the DB for Grafana, but is no longer used from Ruby-built queries.
+    test 'sort_proximity_in_time with relative in min resolves to a Ruby-computed absolute date' do
+      travel_to Time.zone.local(2026, 7, 1, 12, 0, 0) do
+        [
+          [{ 'n' => 0, 'unit' => 'day', 'mode' => 'p' }, Time.zone.now],
+          [{ 'n' => 0, 'unit' => 'month', 'mode' => 'p' }, Time.zone.now],
+          [{ 'n' => 0, 'unit' => 'year', 'mode' => 'p' }, Time.zone.now]
+        ].each do |relative, expected|
+          value = { 'q' => 'relative', 'in' => { 'min' => relative } }
 
-      search = DataCycleCore::Filter::Search.new
-      sql = search.sort_proximity_in_time('', value).to_sql
+          search = DataCycleCore::Filter::Search.new
+          sql = search.sort_proximity_in_time('', value).to_sql
 
-      assert_includes(sql, "ORDER BY ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'end_date' AS timestamp without time zone) - relative_date('{\"n\":0,\"unit\":\"day\",\"mode\":\"p\"}'::jsonb))), ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone) - relative_date('{\"n\":0,\"unit\":\"day\",\"mode\":\"p\"}'::jsonb))), CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone), \"things\".\"id\" DESC")
-
-      value = {
-        'q' => 'relative',
-        'in' => { 'min' => { 'n' => 0, 'unit' => 'month', 'mode' => 'p' } }
-      }
-
-      search = DataCycleCore::Filter::Search.new
-      sql = search.sort_proximity_in_time('', value).to_sql
-
-      assert_includes(sql, "ORDER BY ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'end_date' AS timestamp without time zone) - relative_date('{\"n\":0,\"unit\":\"month\",\"mode\":\"p\"}'::jsonb))), ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone) - relative_date('{\"n\":0,\"unit\":\"month\",\"mode\":\"p\"}'::jsonb))), CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone), \"things\".\"id\" DESC")
-
-      value = {
-        'q' => 'relative',
-        'in' => { 'min' => { 'n' => 0, 'unit' => 'year', 'mode' => 'p' } }
-      }
-
-      search = DataCycleCore::Filter::Search.new
-      sql = search.sort_proximity_in_time('', value).to_sql
-
-      assert_includes(sql, "ORDER BY ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'end_date' AS timestamp without time zone) - relative_date('{\"n\":0,\"unit\":\"year\",\"mode\":\"p\"}'::jsonb))), ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone) - relative_date('{\"n\":0,\"unit\":\"year\",\"mode\":\"p\"}'::jsonb))), CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone), \"things\".\"id\" DESC")
+          assert_not_includes(sql, 'relative_date(', 'expected the Ruby implementation, not the relative_date SQL function')
+          assert_includes(sql, "ORDER BY ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'end_date' AS timestamp without time zone) - '#{expected.iso8601}')), ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone) - '#{expected.iso8601}')), CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone), \"things\".\"id\" DESC")
+        end
+      end
     end
 
-    test 'sort_proximity_in_time with relative v from' do
-      value = {
-        'q' => 'relative',
-        'v' => { 'from' => { 'n' => 2, 'unit' => 'day', 'mode' => 'p' } }
-      }
+    test 'sort_proximity_in_time with relative v from resolves to a Ruby-computed absolute date' do
+      travel_to Time.zone.local(2026, 7, 1, 12, 0, 0) do
+        [
+          [{ 'n' => 2, 'unit' => 'day', 'mode' => 'p' }, 2.days.from_now],
+          [{ 'n' => 2, 'unit' => 'month', 'mode' => 'p' }, 2.months.from_now],
+          [{ 'n' => 2, 'unit' => 'year', 'mode' => 'p' }, 2.years.from_now]
+        ].each do |relative, expected|
+          value = { 'q' => 'relative', 'v' => { 'from' => relative } }
 
-      search = DataCycleCore::Filter::Search.new
-      sql = search.sort_proximity_in_time('', value).to_sql
+          search = DataCycleCore::Filter::Search.new
+          sql = search.sort_proximity_in_time('', value).to_sql
 
-      assert_includes(sql, "ORDER BY ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'end_date' AS timestamp without time zone) - relative_date('{\"n\":2,\"unit\":\"day\",\"mode\":\"p\"}'::jsonb))), ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone) - relative_date('{\"n\":2,\"unit\":\"day\",\"mode\":\"p\"}'::jsonb))), CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone), \"things\".\"id\" DESC")
-      value = {
-        'q' => 'relative',
-        'v' => { 'from' => { 'n' => 2, 'unit' => 'month', 'mode' => 'p' } }
-      }
-
-      search = DataCycleCore::Filter::Search.new
-      sql = search.sort_proximity_in_time('', value).to_sql
-
-      assert_includes(sql, "ORDER BY ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'end_date' AS timestamp without time zone) - relative_date('{\"n\":2,\"unit\":\"month\",\"mode\":\"p\"}'::jsonb))), ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone) - relative_date('{\"n\":2,\"unit\":\"month\",\"mode\":\"p\"}'::jsonb))), CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone), \"things\".\"id\" DESC")
-      value = {
-        'q' => 'relative',
-        'v' => { 'from' => { 'n' => 2, 'unit' => 'year', 'mode' => 'p' } }
-      }
-
-      search = DataCycleCore::Filter::Search.new
-      sql = search.sort_proximity_in_time('', value).to_sql
-
-      assert_includes(sql, "ORDER BY ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'end_date' AS timestamp without time zone) - relative_date('{\"n\":2,\"unit\":\"year\",\"mode\":\"p\"}'::jsonb))), ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone) - relative_date('{\"n\":2,\"unit\":\"year\",\"mode\":\"p\"}'::jsonb))), CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone), \"things\".\"id\" DESC")
+          assert_not_includes(sql, 'relative_date(', 'expected the Ruby implementation, not the relative_date SQL function')
+          assert_includes(sql, "ORDER BY ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'end_date' AS timestamp without time zone) - '#{expected.iso8601}')), ABS(DATE_PART('day', CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone) - '#{expected.iso8601}')), CAST(\"things\".\"metadata\" ->> 'start_date' AS timestamp without time zone), \"things\".\"id\" DESC")
+        end
+      end
     end
 
     test 'date_from_filter_object raises for inverted relative bounds' do
@@ -319,6 +298,57 @@ module DataCycleCore
       actual = stored_filter.send(:merge_api_filter_params, sort_string, filter_string, 'sort_proximity_geographic_value')
 
       assert_equal(expected, actual)
+    end
+
+    # #50091
+    test 'sort_by_uuid_list parses comma separated uuids' do
+      stored_filter = DataCycleCore::StoredFilter.new
+      actual = stored_filter.send(:sort_by_uuid_list, {}, 'uuid1, uuid2 ,uuid3')&.dig('v')
+
+      assert_equal(['uuid1', 'uuid2', 'uuid3'], actual)
+    end
+
+    test 'sort_by_uuid_list returns nil for blank values' do
+      stored_filter = DataCycleCore::StoredFilter.new
+
+      assert_nil(stored_filter.send(:sort_by_uuid_list, {}, nil))
+      assert_nil(stored_filter.send(:sort_by_uuid_list, {}, ''))
+    end
+
+    test 'apply_sorting_from_api_parameters parses dc:classification into sort_parameters' do
+      stored_filter = DataCycleCore::StoredFilter.new
+      stored_filter.apply_sorting_from_api_parameters({ sort: 'dc:classification(uuid1,uuid2,uuid3)' })
+
+      assert_equal([{ 'm' => 'dc_classification', 'o' => 'ASC', 'v' => ['uuid1', 'uuid2', 'uuid3'] }], stored_filter.sort_parameters)
+    end
+
+    test 'apply_sorting_from_api_parameters parses reversed -dc:classification' do
+      stored_filter = DataCycleCore::StoredFilter.new
+      stored_filter.apply_sorting_from_api_parameters({ sort: '-dc:classification(uuid1)' })
+
+      assert_equal([{ 'm' => 'dc_classification', 'o' => 'DESC', 'v' => ['uuid1'] }], stored_filter.sort_parameters)
+    end
+
+    # #50554
+    test 'apply_sorting_from_api_parameters parses @id into sort_parameters' do
+      stored_filter = DataCycleCore::StoredFilter.new
+      stored_filter.apply_sorting_from_api_parameters({ sort: '@id(uuid1,uuid2,uuid3)' })
+
+      assert_equal([{ 'm' => 'id', 'o' => 'ASC', 'v' => ['uuid1', 'uuid2', 'uuid3'] }], stored_filter.sort_parameters)
+    end
+
+    test 'apply_sorting_from_api_parameters parses reversed -@id' do
+      stored_filter = DataCycleCore::StoredFilter.new
+      stored_filter.apply_sorting_from_api_parameters({ sort: '-@id(uuid1)' })
+
+      assert_equal([{ 'm' => 'id', 'o' => 'DESC', 'v' => ['uuid1'] }], stored_filter.sort_parameters)
+    end
+
+    test 'apply_sorting_from_api_parameters parses @id without a list' do
+      stored_filter = DataCycleCore::StoredFilter.new
+      stored_filter.apply_sorting_from_api_parameters({ sort: '@id' })
+
+      assert_equal([{ 'm' => 'id', 'o' => 'ASC' }], stored_filter.sort_parameters)
     end
   end
 end

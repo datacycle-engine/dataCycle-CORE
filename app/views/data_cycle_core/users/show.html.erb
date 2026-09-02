@@ -33,40 +33,6 @@
             </div>
           </li>
 
-          <li>
-            <span class="link" aria_hidden="true">
-              <%= tag.i(
-                class: 'fa fa-language user-locales',
-                data: {
-                  dc_tooltip: tag.span(
-                    tag.span("#{@user.class.human_attribute_name(:default_locale, locale: active_ui_locale)}:", class: 'user-default-locale-title') +
-                    tag.span(t("locales.#{@user.default_locale || I18n.default_locale}", locale: active_ui_locale), class: 'user-default-locale-value'),
-                    class: 'user-default-locale'
-                  ) +
-                  tag.span(
-                    tag.span("#{@user.class.human_attribute_name(:ui_locale, locale: active_ui_locale)}:", class: 'user-ui-locale-title') +
-                    tag.span(t("locales.#{@user.ui_locale || DataCycleCore.ui_locales.first}", locale: active_ui_locale), class: 'user-ui-locale-value'),
-                    class: 'user-ui-locale'
-                  )
-                }
-              ) %>
-            </span>
-          </li>
-
-          <% if can?(:generate_access_token, @user) && @user.access_token.present? %>
-            <li>
-              <span class="link" aria_hidden="true">
-                <%= tag.i(
-                  class: 'fa fa-key copy-to-clipboard',
-                  data: {
-                    value: @user.access_token,
-                    dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale), locale: active_ui_locale)
-                  }
-                ) %>
-              </span>
-            </li>
-          <% end %>
-
           <%= tag.li render('data_cycle_core/data_links/received_data_links_list', content: @user) if can?(:index, DataCycleCore::DataLink) && @user.received_data_links.present? %>
 
           <li class="buttons">
@@ -90,6 +56,8 @@
         <%= tag.div(@user.email, class: 'user-email') %>
       </div>
 
+      <%= render 'data_cycle_core/users/lock_status', user: @user, full_text: true, additional_classes: 'link' %>
+
       <div class="edit">
         <% if DataCycleCore::Feature::UserConfirmation.enabled? && !@user.confirmed? && can?(:confirm, @user) %>
           <%= link_to tag.i(class: 'fa fa-check confirm-link-button', aria_hidden: true, data: { dc_tooltip: t("user.confirm", locale: active_ui_locale) }), confirm_user_path(@user), { method: :post, class: 'button-prime small confirm-link' } %>
@@ -103,19 +71,7 @@
           <i class="fa fa-pencil" aria-hidden="true"></i>
         <% end if can?(:edit, @user) %>
 
-        <% if can?(:lock, @user) && !@user.access_locked? %>
-          <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true),
-                      lock_user_path(@user),
-                      method: :delete,
-                      class:'button-prime small alert lock-link',
-                      data: {
-                        confirm: "#{@user.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?",
-                        confirmation_text: t('actions.lock', locale: active_ui_locale) + tag.i(class: 'fa fa-lock'),
-                        dc_tooltip: t('actions.lock', locale: active_ui_locale)
-                      } %>
-        <% elsif can?(:lock, @user) %>
-          <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(@user), method: :post, class:'button-prime small success unlock-link', data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } %>
-        <% end %>
+        <%= render 'data_cycle_core/users/lock_actions', user: @user, button_class: 'button-prime small' %>
 
         <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true),
                     user_path(@user),
@@ -151,6 +107,37 @@
         <div class="detail-type user_group_ids">
           <%= tag.span(@user.class.human_attribute_name(:user_group_ids, locale: active_ui_locale), class: 'detail-label') %>
           <%= tag.span(safe_join(@user.user_groups.map { |ug| tag.span(ug.name, class: 'tag') }), class: 'detail-content tags') %>
+        </div>
+      <% end %>
+
+      <%# every user reached their own token in the sidebar before it moved here, and only admin holds
+          generate_access_token - so seeing your own token cannot depend on that ability (#51344) %>
+      <% if @user.access_token.present? && (@user == current_user || can?(:generate_access_token, @user)) %>
+        <div class="detail-type access_token">
+          <%= tag.span(@user.class.human_attribute_name(:access_token, locale: active_ui_locale), class: 'detail-label') %>
+
+          <span class="detail-content">
+            <%= render 'data_cycle_core/users/access_token', user: @user %>
+          </span>
+        </div>
+      <% end %>
+
+      <%# these replace the header's language icon, which carried both locales in its tooltip, so they
+          stay as visible as they were - change_ui_locale gates editing in the form, not reading here %>
+      <div class="detail-type notification_frequency">
+        <%= tag.span(@user.class.human_attribute_name(:notification_frequency, locale: active_ui_locale), class: 'detail-label') %>
+        <%= tag.span(t("notification.frequency.#{@user.notification_frequency}", locale: active_ui_locale), class: 'detail-content') %>
+      </div>
+
+      <div class="detail-type default_locale">
+        <%= tag.span(@user.class.human_attribute_name(:default_locale, locale: active_ui_locale), class: 'detail-label') %>
+        <%= tag.span(t("locales.#{@user.default_locale || I18n.default_locale}", locale: active_ui_locale), class: 'detail-content') %>
+      </div>
+
+      <% if DataCycleCore.ui_locales.many? %>
+        <div class="detail-type ui_locale">
+          <%= tag.span(@user.class.human_attribute_name(:ui_locale, locale: active_ui_locale), class: 'detail-label') %>
+          <%= tag.span(t("locales.#{@user.ui_locale || DataCycleCore.ui_locales.first}", locale: active_ui_locale), class: 'detail-content') %>
         </div>
       <% end %>
 

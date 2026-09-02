@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AddPersonColumnsToThings < ActiveRecord::Migration[5.1]
-  # rubocop:disable Rails/BulkChangeTable
+  # rubocop:disable-next Rails/BulkChangeTable
   def change
     add_column :things, :given_name, :string
     add_column :things, :family_name, :string
@@ -56,5 +56,4 @@ class AddPersonColumnsToThings < ActiveRecord::Migration[5.1]
       end
     end
   end
-  # rubocop:enable Rails/BulkChangeTable
 end

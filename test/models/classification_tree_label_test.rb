@@ -62,5 +62,24 @@ module DataCycleCore
         end
       end
     end
+
+    # invalidate_things_cache lifts the tree's own things, not the ones linking them that the fan-out
+    # re-exports, and it runs in a job of its own with no ordering against this one. Without the
+    # invalidation here the re-export ships the payload the receiver already has.
+    test 'the contents linking the tree things are invalidated before the re-export goes out' do
+      linking = DataCycleCore::TestPreparations.create_content(template_name: 'Vererbte Sprachen', data_hash: { name: 'CTL Linking Thing', plain_reference: [@content.id] })
+      cache_valid_since = DataCycleCore::Thing.find(linking.id).cache_valid_since
+      seen = nil
+
+      @label.stub(:things, DataCycleCore::Thing.where(id: @content.id)) do
+        DataCycleCore::RelatedWebhooksJob.stub(:perform_later, ->(*) {}) do
+          DataCycleCore::Webhook::Update.stub(:execute_all, ->(*, **) { seen = DataCycleCore::Thing.find(linking.id).cache_valid_since }) do
+            DataCycleCore.stub(:webhooks, ['CTL ES']) { @label.send(:execute_things_webhooks) }
+          end
+        end
+      end
+
+      assert_operator seen, :>, cache_valid_since
+    end
   end
 end

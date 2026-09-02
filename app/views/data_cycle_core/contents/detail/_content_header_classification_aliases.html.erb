@@ -1,4 +1,4 @@
-<% content_header_classification_aliases(content: content, context: local_assigns[:context])&.each do |tree_name, tree_value| %>
+<% content_header_classification_aliases(content: content, context: local_assigns[:context], include_hidden: local_assigns[:include_hidden].present?)&.each do |tree_name, tree_value| %>
   <%= tag.div(
       class: attribute_viewer_html_classes(**tree_value.slice(:key, :definition, :options)),
       data: attribute_viewer_data_attributes(**tree_value.slice(:key, :definition, :options).merge(content: content))
@@ -13,6 +13,11 @@
 
       <% tree_value[:mapped_value].each do |a| %>
         <%= concept_tag(a, 'mapped') %>
+      <% end %>
+
+      <%# 50677: only reachable through a mapping of a tree that hides its mappings - flagged with an icon %>
+      <% tree_value[:hidden_mapped_value].each do |a| %>
+        <%= concept_tag(a, 'mapped hidden-mapping', icon: 'fa-eye-slash', icon_tooltip: t('common.hidden_mapping', locale: active_ui_locale)) %>
       <% end %>
     </span>
   <% end %>

@@ -27,8 +27,9 @@ module DataCycleCore
     after_update :update_primary_classification
     after_update :add_things_cache_invalidation_job, if: :cached_attributes_changed?
     after_update :add_things_search_update_job, if: :search_attributes_changed?
+    after_update :add_linked_things_computed_properties_job, if: :search_attributes_changed?
     after_update :add_things_webhooks_job_update, if: :webhook_attributes_changed?
-    before_destroy :add_things_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
+    before_destroy :add_things_job_destroy, :add_things_webhooks_job_destroy, :destroy_primary_classification
     after_destroy :clean_stored_filters
     after_find :set_thing_counts
 
@@ -179,6 +180,7 @@ module DataCycleCore
     def linked_contents
       DataCycleCore::Thing.where(
         collected_classification_contents
+          .without_hidden # #47172: hidden mappings do not link a content to this classification
           .select(1)
           .where('collected_classification_contents.thing_id = things.id')
           .arel
@@ -218,7 +220,7 @@ module DataCycleCore
     alias available_locales translated_locales
 
     def first_available_locale(locale = nil)
-      (Array(locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| I18n.available_locales.index t }
+      (Array(locale).map(&:to_sym).sort_by { |t| locale_priority(t) }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| locale_priority(t) }
     end
 
     def external_keys
@@ -315,6 +317,9 @@ module DataCycleCore
       add_things_cache_invalidation_job
       add_things_search_update_job
       add_things_webhooks_job_update
+      # no callback covers a move: the write lands on classification_trees, and move_after bypasses it
+      # with update_columns. Reloaded because the line above can memoize the tree from before the move.
+      add_linked_things_computed_properties_job(reload_classification_tree_label&.name)
     end
 
     def merge_children_into_self
@@ -339,6 +344,8 @@ module DataCycleCore
     end
 
     def merge_with(new_classification_alias)
+      ensure_external_system_mergeable!(new_classification_alias)
+
       # update Mappings
       additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_id = classification_groups.classification_id AND cg.classification_alias_id = ?)', new_classification_alias.id).update_all(classification_alias_id: new_classification_alias.id, created_at: Time.zone.now, updated_at: Time.zone.now)
 
@@ -361,6 +368,10 @@ module DataCycleCore
         .update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
 
       destroy
+
+      # after destroy: our (external_source_id, external_key) is free again, so the target can take it
+      # over without tripping the partial unique index on live rows
+      move_external_system_to(new_classification_alias)
 
       new_classification_alias.send(:add_things_cache_invalidation_job)
       new_classification_alias.send(:add_things_search_update_job)
@@ -419,6 +430,66 @@ module DataCycleCore
       self.internal_name = DataCycleCore::MasterData::DataConverter.string_to_string(name(locale: available_translation.first)&.to_s)
     end
 
+    # Redmine #51232: a merge that destroys the system-owned side loses its external key, and the
+    # importer's ON CONFLICT only sees live rows -- so the next run recreates the concept instead of
+    # updating the target, and the duplicate is back. Refused when both sides carry an external
+    # identity, because the target has room for exactly one.
+    # The identity an import matches on is the (external_source_id, external_key) pair, and both
+    # unique indexes are NULLS NOT DISTINCT -- so a bare key is an identity too. A config concept's
+    # is exactly (NULL, full_path): ConceptImporter#insert_concepts looks it up on that pair.
+    def ensure_external_system_mergeable!(new_classification_alias)
+      return if external_source_id.nil?
+      return if new_classification_alias.external_source_id.nil? && new_classification_alias.external_key.nil?
+      # only reachable with a NULL key on both sides: index_classification_aliases_unique_external_source_id_and_key
+      # is NULLS NOT DISTINCT but partial on external_key IS NOT NULL, so two live aliases cannot share
+      # a real key. Nothing to refuse there -- neither side carries an identity an import could match on.
+      return if [external_source_id, external_key] == [new_classification_alias.external_source_id, new_classification_alias.external_key]
+
+      raise DataCycleCore::Error::AmbiguousClassificationExternalSystemError.new(self, new_classification_alias)
+    end
+
+    # Hands our external identity to the target so the next import updates it instead of inserting a
+    # new concept. The alias write propagates to concepts via update_concepts_trigger; the
+    # classification needs its own, because the importer matches classifications on the same pair.
+    def move_external_system_to(new_classification_alias)
+      return if external_source_id.nil?
+      return if new_classification_alias.external_source_id.present?
+
+      release_external_system_from_primary_classification
+
+      new_classification_alias.update_columns(external_source_id:, external_key:, updated_at: Time.zone.now)
+      new_classification_alias.primary_classification&.update_columns(external_source_id:, external_key:, updated_at: Time.zone.now)
+    end
+
+    # destroy_primary_classification leaves our classification alive whenever another concept still
+    # claims it, and it keeps carrying our pair --
+    # index_classifications_unique_external_source_id_and_key is partial on live rows, so handing the
+    # pair to the target would raise. The pair belongs to the alias we just destroyed, never to the
+    # concept that kept the classification, so releasing it here loses nothing.
+    # Only for a key the index actually covers: with a NULL key there is nothing to collide with and
+    # nothing an import could match on either.
+    def release_external_system_from_primary_classification
+      return if external_key.nil?
+
+      DataCycleCore::Classification
+        .where(id: primary_classification&.id, external_source_id:, external_key:)
+        .update_all(external_source_id: nil, external_key: nil, updated_at: Time.zone.now)
+    end
+
+    # Redmine #51232: primary_classification reads the trigger-maintained concepts.classification_id,
+    # which a second live concept can also claim -- upsert_concept_tables_trigger_function promotes a
+    # mapping to primary whenever the inserting alias has no live group of its own.
+    # Destroying that classification takes the co-owner's data down too: classification_contents are
+    # hard-deleted, and its own classification_group is soft-deleted with the rest.
+    # Skipping is enough to leave a clean state -- has_many :classification_groups, dependent: :destroy
+    # still detaches our own groups.
+    def destroy_primary_classification
+      return if primary_classification.nil?
+      return if DataCycleCore::Concept.where(classification_id: primary_classification.id).where.not(id:).exists?
+
+      primary_classification.destroy
+    end
+
     def update_primary_classification
       return unless saved_change_to_attribute?('internal_name')
 
@@ -449,43 +520,87 @@ module DataCycleCore
                                     saved_changes['description_i18n']&.map(&:compact_blank)&.reject(&:blank?).present?
     end
 
+    # after_add/after_remove association callbacks — fire once per classification. For a bulk
+    # mapping delta (ClassificationMappingJob / the dc:classifications rake) call
+    # #classifications_changed instead: looping these would run a pluck + enqueue per
+    # classification and, because CacheInvalidationDestroyJob dedups on (alias, method) without
+    # thing_ids, collapse every side effect down to the last classification's contents.
     def classifications_added(classification = nil)
-      unless classification.nil?
-        thing_ids = classification.things.pluck(:id)
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'update_things_search', thing_ids)
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', thing_ids) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
-      end
-
+      enqueue_thing_cache_jobs(classification&.things&.pluck(:id))
       @classifications_changed = true
     end
 
     def classifications_removed(classification = nil)
-      unless classification.nil?
-        thing_ids = classification.things.pluck(:id)
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'update_things_search', thing_ids)
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', thing_ids) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
-      end
-
+      enqueue_thing_cache_jobs(classification&.things&.pluck(:id))
       @classifications_changed = true
     end
 
+    # Bulk sibling of classifications_added/classifications_removed for a mapping delta that
+    # touches many classifications at once. Computes the union of affected contents in one
+    # query and enqueues ONE job per side effect (search, webhooks, computed-property
+    # recompute), sidestepping the per-classification dedup collapse and N+1 churn above.
+    def classifications_changed(classification_ids)
+      return if classification_ids.blank?
+
+      @classifications_changed = true
+
+      thing_ids = DataCycleCore::Thing.joins(:classifications).where(classifications: { id: classification_ids }).distinct.pluck(:id)
+      enqueue_thing_cache_jobs(thing_ids)
+      add_things_computed_properties_job(thing_ids)
+    end
+
+    # Enqueues a single recompute for the union of affected contents. Separate from
+    # enqueue_thing_cache_jobs because the per-classification callbacks intentionally skip the
+    # (expensive) recompute — it runs once for the whole delta via #classifications_changed.
+    def add_things_computed_properties_job(thing_ids)
+      return if thing_ids.blank?
+
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'update_things_computed_properties', thing_ids)
+    end
+
+    # A rename or a move writes no content, so nothing else recomputes a value derived from this concept.
+    # The stale contents are linked_contents, not the directly assigned things a mapping delta uses:
+    # parent_classification_name stores the *parent's* name, so they hang below the changed concept.
+    # Resolved in the job — tens of thousands of ids are too many to travel as job arguments.
+    #
+    # Gated here so a tree with no opted-in property, or a concept with no linked content, enqueues nothing.
+    #
+    # Accepted: linked_contents is transitive, so a whole-tree relabel recomputes a content per ancestor.
+    #
+    # A cross-tree move only covers the new tree — the job re-reads the tree label at perform time.
+    def add_linked_things_computed_properties_job(tree_label = classification_tree_label&.name)
+      return if tree_label.blank?
+      return if DataCycleCore::ThingTemplate.classification_change_computed_properties_for(tree_label).blank?
+      return unless linked_contents.exists?
+
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'update_linked_things_computed_properties', nil)
+    end
+
+    def enqueue_thing_cache_jobs(thing_ids)
+      return if thing_ids.blank?
+
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'update_things_search', thing_ids)
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', thing_ids) if classification_tree_label&.trigger_webhooks?
+    end
+
     def add_things_webhooks_job_destroy
-      return unless classification_tree_label&.change_behaviour&.include?('trigger_webhooks') && classifications.things.exists?
+      return unless classification_tree_label&.trigger_webhooks? && classifications.things.exists?
 
       DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classifications.things.pluck(:id))
     end
 
     def add_things_webhooks_job_update
       return if prevent_webhooks
-      return unless classification_tree_label&.change_behaviour&.include?('trigger_webhooks') && classifications.things.exists?
+      return unless classification_tree_label&.trigger_webhooks? && classifications.things.exists?
 
       DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'execute_things_webhooks')
     end
 
+    # Invalidated through the fan-out like the tree label path: #invalidate_things_cache covers the
+    # same set, but runs in a CacheInvalidationJob under a concurrency key of its own, so nothing
+    # orders it against this one.
     def execute_things_webhooks
-      linked_contents.find_each do |content|
-        content.send(:execute_update_webhooks) unless content.embedded?
-      end
+      DataCycleCore::Content::RelatedWebhooks.fan_out(linked_contents, invalidate_related_cache: true)
     end
 
     def add_things_cache_invalidation_job

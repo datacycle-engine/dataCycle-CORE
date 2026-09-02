@@ -116,9 +116,7 @@ module DataCycleCore
     def filter_double(size)
       filter = Object.new
       filter.define_singleton_method(:readonly!) { nil }
-      filter.define_singleton_method(:apply) { |**| filter }
-      filter.define_singleton_method(:query) { filter }
-      filter.define_singleton_method(:reorder) { |_| filter }
+      filter.define_singleton_method(:unsorted_things) { filter }
       filter.define_singleton_method(:size) { size }
       filter.define_singleton_method(:parameters) { [{ 't' => 'fulltext_search' }] }
       filter

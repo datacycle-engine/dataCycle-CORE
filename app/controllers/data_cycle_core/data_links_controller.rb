@@ -35,7 +35,7 @@ module DataCycleCore
 
       redirect_back_or_to(root_path, alert: (I18n.t 'controllers.error.invalid_mail', locale: helpers.active_ui_locale)) && return unless @receiver.valid?
 
-      redirect_back_or_to(root_path, alert: (I18n.t 'controllers.error.user_locked', locale: helpers.active_ui_locale)) && return if @receiver.locked?
+      redirect_back_or_to(root_path, alert: (I18n.t 'controllers.error.user_locked', locale: helpers.active_ui_locale)) && return if @receiver.access_locked?
 
       redirect_back_or_to(root_path, alert: (I18n.t 'controllers.error.email_exists', locale: helpers.active_ui_locale)) && return if DataCycleCore::DataLink.joins(:receiver).exists?(item_type: data_link_params[:item_type], item_id: data_link_params[:item_id], users: { email: @receiver.email })
 

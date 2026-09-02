@@ -532,6 +532,25 @@ describe DataCycleCore::MasterData::DataConverter do
       assert_equal expected, subject.sanitize_html_string(sanitization_html, 'basic')
     end
 
+    it 'sanitize html for data-size list' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      expected = <<~TEXT.squish
+        <p>paragraph</p><p>paragraph center</p><p>paragraph right</p><p>paragraph justify</p>
+        <ul><li>unordered listitem 1</li><li>unordered listitem 2</li></ul>
+        <ol><li>ordered listitem 1</li><li>ordered listitem 2</li></ol>
+        <p>paragraph before multiple breaks</p><p><br></p><p><br></p><p><br></p>headline 1headline 2headline 3headline4headline5headline6<p>somethingsub</p>
+        a tag with onclick event<p>somethingsup</p><p>somethingstrong</p>
+        <p>somethingcursive</p><p>somethingunderlined</p>blockquoted<p>some&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blankspaces</p><p>some         blankspaces</p>
+        <p>external link</p>
+        <p>Internal Link</p><p>paragraph</p>
+        alert('alert from scripttag')
+      TEXT
+
+      assert_equal expected, subject.sanitize_html_string(sanitization_html, 'list')
+    end
+
     it 'sanitize html for data-size full' do
       DataCycleCore.features[:string_sanitizer][:enabled] = true
       DataCycleCore::Feature['StringSanitizer'].reload
@@ -548,6 +567,50 @@ describe DataCycleCore::MasterData::DataConverter do
         alert('alert from scripttag')
       TEXT
       assert_equal expected, subject.sanitize_html_string(sanitization_html, 'full')
+    end
+
+    # covers the table tags/attributes added to the full mode
+    # (table, thead, tbody, tr, th, td, colspan, rowspan)
+    table_html = <<~TEXT.squish
+      <table><thead><tr><th></th><th>Erwachsene</th></tr></thead><tbody><tr><td colspan="2" rowspan="1">Tageskarte</td><td>€ 60,00</td></tr></tbody></table>
+    TEXT
+
+    it 'keeps table markup and cell attributes in full mode' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      expected = '<table><thead><tr><th></th><th>Erwachsene</th></tr></thead><tbody><tr><td colspan="2" rowspan="1">Tageskarte</td><td>€ 60,00</td></tr></tbody></table>'
+
+      assert_equal expected, subject.sanitize_html_string(table_html, 'full')
+    end
+
+    it 'strips table markup to text content in non-full modes' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      expected = 'ErwachseneTageskarte€ 60,00'
+
+      ['none', 'minimal', 'basic', 'default'].each do |mode|
+        assert_equal expected, subject.sanitize_html_string(table_html, mode)
+      end
+    end
+
+    placeholder_html = '<p>Hallo <span class="dc--placeholder" data-dc-placeholder="consent-youtube">Video</span> Ende</p>'
+
+    it 'keeps the text editor placeholder attribute in full mode' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      assert_equal placeholder_html, subject.sanitize_html_string(placeholder_html, 'full')
+    end
+
+    it 'strips the placeholder markup to text content in non-full modes' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      ['none', 'minimal', 'basic', 'list', 'default'].each do |mode|
+        assert_equal '<p>Hallo Video Ende</p>', subject.sanitize_html_string(placeholder_html, mode)
+      end
     end
 
     it 'sanitize html without sanitization_mode falls back to the safe default mode' do

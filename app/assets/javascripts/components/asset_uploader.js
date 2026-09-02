@@ -125,21 +125,20 @@ class AssetUploader {
 		this.contentUploaderField.trigger("dc:upload:filesChanged");
 		$(".asset-selector-reveal:visible").trigger("open.zf.reveal");
 	}
-	initActionCable() {
-		window.actionCable.then((cable) => {
-			this.bulkCreateChannel = cable.subscriptions.create(
-				{
-					channel: "DataCycleCore::BulkCreateChannel",
-					overlay_id: this.overlayId,
+	async initActionCable() {
+		const cable = await DataCycle.cable;
+		this.bulkCreateChannel = cable.subscriptions.create(
+			{
+				channel: "DataCycleCore::BulkCreateChannel",
+				overlay_id: this.overlayId,
+			},
+			{
+				received: (data) => {
+					if (data.progress && this.saving) this.advanceProgress(data);
+					else if (data.content_ids) this.finishProgress(data);
 				},
-				{
-					received: (data) => {
-						if (data.progress && this.saving) this.advanceProgress(data);
-						else if (data.content_ids) this.finishProgress(data);
-					},
-				},
-			);
-		});
+			},
+		);
 	}
 	advanceProgress(data) {
 		this.updateProgressBar(Math.round((data.progress * 100) / data.items));

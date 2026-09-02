@@ -45,9 +45,9 @@ module DataCycleCore
             def classification_tree_label = Struct.new(:name).new('Lizenzen')
             def uri = 'https://cc.test/by/4.0'
           }.new
-          ccc = Struct.new(:classification_alias) {
+          ccc = Struct.new(:classification_alias, :hidden) {
             def association_cached?(_key) = true
-          }.new(license_alias)
+          }.new(license_alias, false)
           content = Struct.new(:collected_classification_contents) {
             def association_cached?(_key) = true
           }.new([ccc])

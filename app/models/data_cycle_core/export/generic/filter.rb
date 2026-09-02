@@ -14,37 +14,59 @@ module DataCycleCore
           :filter_stored_filters
         ].freeze
 
+        # A delete asks whether the receiver still holds the content, which none of the filters below
+        # answer: gating it on current containment leaves everything an earlier, wider filter
+        # exported behind at the receiver for good, since narrowing the filter is exactly what takes
+        # a content out of it. What was exported gets deleted.
         def self.filter(**args)
-          if args[:external_system].export_config_by_filter_key(args[:method_name], 'endpoints').present?
+          return exported?(args[:data], args[:external_system]) if args[:method_name].to_s.end_with?('delete')
+
+          if endpoint_ids_for(args[:external_system], args[:method_name]).present?
             filter_endpoints(**args)
           else
             AVAILABLE_WEBHOOK_FILTERS.all? { |f| send(f, **args) }
           end
         end
 
+        # Per record over the polymorphic association rather than DataCycleCore::Thing.delivered_to:
+        # export_config.allowed_models admits any syncable, DataCycleCore::User among them.
+        def self.exported?(data, external_system)
+          data.external_system_syncs.delivered_to(external_system).exists?
+        end
+
+        # Only contents an endpoint contains itself are exported; being linked from such a content is
+        # explicitly not enough (DataCycleCore::Export::RelatedWebhooks).
         def self.filter_endpoints(data:, external_system:, method_name:)
           return false if data.try(:embedded?)
 
-          endpoint_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'endpoints'))
-          endpoints = DataCycleCore::StoredFilter.by_id_or_slug(endpoint_ids) if endpoint_ids.present?
+          endpoints = endpoints_for(external_system, method_name)
 
           return false if endpoints.blank?
 
-          endpoints.any? do |endpoint|
-            query = endpoint.things(skip_ordering: true).reorder(nil)
+          endpoints.any? { |endpoint| endpoint_things(endpoint).exists?(id: data.id) }
+        end
 
-            next true if query.exists?(id: data.id)
+        # The ids as configured, before by_id_or_slug drops the ones that resolve to nothing: the
+        # guards in DataCycleCore::Export::StaleCleanup report on the difference between the two, and
+        # a second reading of the config is what would let their two halves drift apart.
+        def self.endpoint_ids_for(external_system, method_name)
+          Array.wrap(external_system.export_config_by_filter_key(method_name, 'endpoints')).uniq
+        end
 
-            if data.depending_contents&.exists?
-              tmp = query.exists?(id: data.depending_contents.pluck(:id))
+        def self.endpoints_for(external_system, method_name)
+          endpoint_ids = endpoint_ids_for(external_system, method_name)
 
-              next tmp if endpoint.linked_stored_filter.nil?
+          return if endpoint_ids.blank?
 
-              next tmp && endpoint.linked_stored_filter.apply.except(:order).exists?(id: data.id)
-            end
+          DataCycleCore::StoredFilter.by_id_or_slug(endpoint_ids)
+        end
 
-            false
-          end
+        # What an endpoint contains, for the filter above and for the candidates
+        # DataCycleCore::Export::RelatedWebhooks narrows to before enqueueing: the two decide the same
+        # question at either end of a job and fall apart silently if they read different sets.
+        # DataCycleCore::Export::StaleCleanup deliberately reads wider — see #endpoint_things_all_locales.
+        def self.endpoint_things(endpoint)
+          endpoint.unsorted_things
         end
 
         def self.filter_presence(data:, external_system:, method_name:)

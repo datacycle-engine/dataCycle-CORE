@@ -6,6 +6,11 @@
     :schema_ancestors:
       - Place
     :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
       :id:
         :label: id
         :type: key

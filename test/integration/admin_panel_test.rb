@@ -10,7 +10,8 @@ module DataCycleCore
   # no class/id input and a non-Thing id simply 404s.
   #
   # Seeded roles: admin@datacycle.at = super_admin (rank 99, has show_admin_panel),
-  # guest@datacycle.at = guest (rank 0, no backend access).
+  # guest@datacycle.at = guest (rank 0, no backend access),
+  # system_admin@datacycle.at = system_admin (rank 100, hash show_admin_panel and show_raw_data).
   class AdminPanelTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
@@ -21,6 +22,7 @@ module DataCycleCore
       @routes = Engine.routes
       @super_admin = DataCycleCore::User.find_by(email: 'admin@datacycle.at')
       @guest = DataCycleCore::User.find_by(email: 'guest@datacycle.at')
+      @system_admin = DataCycleCore::User.find_by(email: 'system_admin@datacycle.at')
       @article = DataCycleCore::Thing.where_translated_value(name: 'AdminPanelArticle').first ||
                  DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'AdminPanelArticle' })
     end
@@ -60,6 +62,10 @@ module DataCycleCore
       get admin_panel_datahash_thing_path(id: @guest.id)
 
       assert_response :not_found
+    end
+
+    test 'system_admin may show_raw_data on a thing' do
+      assert DataCycleCore::Ability.new(@system_admin).can?(:show_raw_data, @article)
     end
   end
 end

@@ -122,7 +122,9 @@ class AsyncSelect2 extends BasicSelect2 {
 		if (!selector) return queryParams;
 
 		if (queryParams?.stored_filter[0]?.exists_graph_filter?.name)
-			queryParams.stored_filter[0].exists_graph_filter.name = selector.value;
+			queryParams.stored_filter[0].exists_graph_filter.name = selector.multiple
+				? Array.from(selector.selectedOptions, (option) => option.value)
+				: selector.value;
 
 		return queryParams;
 	}

@@ -4,8 +4,6 @@ module DataCycleCore
   module Utility
     module Virtual
       module String
-        extend DataCycleCore::ContentHelper
-
         EXTERNAL_SYSTEM_MAPPING = {
           'outdooractive' => 'outdoor_active'
         }.freeze
@@ -43,6 +41,7 @@ module DataCycleCore
                content.collected_classification_contents.present? &&
                content.collected_classification_contents.all? { |ccc| ccc.association_cached?(:classification_alias) && ccc.classification_alias.association_cached?(:classification_alias_path) && ccc.classification_alias.association_cached?(:classification_tree_label) }
               content.collected_classification_contents
+                .reject(&:hidden) # #47172: hidden mappings are not exposed
                 .sort_by { |ccc| -ccc.classification_alias&.classification_alias_path&.full_path_ids&.size.to_i }
                 .detect { |ccc| ccc.classification_alias&.classification_tree_label&.name == 'Lizenzen' }
                 &.classification_alias
@@ -51,6 +50,7 @@ module DataCycleCore
               nil
             else
               content.collected_classification_contents
+                .without_hidden # #47172: hidden mappings are not exposed
                 .classification_aliases
                 .joins(:classification_alias_path)
                 .for_tree('Lizenzen')
@@ -77,7 +77,7 @@ module DataCycleCore
                   .primary_classifications
 
                 t.attributes = {
-                  id: generate_uuid(content.id, key),
+                  id: DataCycleCore::UuidService.generate(content.id, key),
                   created_at: Time.zone.now,
                   updated_at: Time.zone.now,
                   name: content.properties_for(key)&.dig('label'),

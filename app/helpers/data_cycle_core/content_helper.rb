@@ -3,10 +3,7 @@
 module DataCycleCore
   module ContentHelper
     def generate_uuid(id, key)
-      [
-        id.sub(/(.*)-(\w+)$/, '\1'),
-        (id.sub(/(.*)-(\w+)$/, '\2').hex ^ Digest::MD5.hexdigest(key)[0..11].hex).to_s(16).rjust(12, '0')
-      ].join('-')
+      DataCycleCore::UuidService.generate(id, key)
     end
 
     def aspect_ratio(content)

@@ -84,6 +84,42 @@ module DataCycleCore
         assert_nothing_raised { thing.set_memoized_attribute('collections', []) }
         assert(thing.instance_variable_defined?(:@get_property_value))
       end
+
+      test 'first_available_locale ignores requested locales that are not available' do
+        content = translated_poi
+
+        # :it and :cs are not part of I18n.available_locales and must not break the sorting
+        I18n.with_locale(:de) do
+          assert_equal(:de, content.first_available_locale(['de', 'it']))
+          assert_equal(:de, content.first_available_locale(['it', 'de']))
+          assert_equal(:de, content.first_available_locale(['it', 'cs']))
+        end
+      end
+
+      test 'first_available_locale prefers the current and the ui locale' do
+        content = translated_poi
+
+        I18n.with_locale(:en) { assert_equal(:en, content.first_available_locale(['de', 'en'])) }
+        I18n.with_locale(:de) do
+          assert_equal(:de, content.first_available_locale(['en', 'de']))
+          assert_equal(:en, content.first_available_locale(['en', 'de'], :en))
+        end
+      end
+
+      private
+
+      def translated_poi
+        content = DataCycleCore::TestPreparations.create_content(
+          template_name: 'POI',
+          data_hash: { 'name' => 'Locale Fallback POI' }
+        )
+        I18n.with_locale(:en) { content.set_data_hash(data_hash: { name: 'Locale Fallback POI EN' }) }
+        content = DataCycleCore::Thing.find(content.id)
+
+        assert_equal([:de, :en], content.translated_locales.sort)
+
+        content
+      end
     end
   end
 end

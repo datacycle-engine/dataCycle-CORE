@@ -333,7 +333,8 @@ module DataCycleCore
           elsif type == 'number'
             value = value.presence&.to_i
           elsif type == 'boolean'
-            value = blank?(value) ? nil : value == 'true'
+            # keep what the converter rejects, so validation reports it instead of it becoming false
+            value = DataCycleCore::MasterData::DataConverter.string_to_boolean(value, strict: false)
           elsif type == 'table'
             value = JSON.parse(value) rescue nil # rubocop:disable Style/RescueModifier
           elsif type == 'geographic'

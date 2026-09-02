@@ -3,6 +3,10 @@
 module DataCycleCore
   module Geo
     class BaseRenderer
+      # conventional name of the computed attribute storing the primary icon
+      # classifications ("Haupt-Icon", one per classification tree)
+      PRIMARY_ICON_RELATION = 'primary_icon_classifications'
+
       def initialize(**options)
         @contents = options[:contents]
         @include_parameters = Array.wrap(options[:include_parameters])
@@ -27,6 +31,7 @@ module DataCycleCore
           config << include_name(key) if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
           config << include_slug(key) if field_required?('dc:slug')
           config << include_dc_classification(key) if field_required?('dc:classification')
+          config << include_icon_id(key) if field_required?('dc:iconId')
           config << include_image(key) if field_required?('image') # image only works for GeoJSON
           config << include_internal_content_score(key) if field_required?('dc:contentScore')
 
@@ -78,8 +83,6 @@ module DataCycleCore
         json_object.push("'@id', concepts.id") if fields_parameters.blank? || fields_parameters.include?('@id')
         json_object.push("'dc:path', classification_alias_paths.full_path_names") if fields_parameters.blank? || fields_parameters.include?('dc:path')
 
-        # collected_classification_contents can't be filtered by link_type yet, wait for https://ticket.pixelpoint.at/issues/39929
-
         {
           identifier: '"dc:classification"',
           select: 'json_agg(tmp1."dc:classification") FILTER (
@@ -95,7 +98,32 @@ module DataCycleCore
                   #{concept_scheme_filter_sql}
                   AND ccc.thing_id = #{base_table}.id
                   AND ccc.link_type IN ('direct', 'related')
+                  AND ccc.hidden = FALSE
               ) AS tmp1 ON TRUE"
+        }
+      end
+
+      # Primary icons ("Haupt-Icon") stored by the PRIMARY_ICON_RELATION computed
+      # attribute: one concept id per classification tree, aggregated to a csv string —
+      # a request filtered on a single tree therefore gets exactly one id. Reads
+      # classification_contents instead of collected_classification_contents: it holds
+      # exactly the direct assignments of the relation (no transitive rows), while the
+      # collected link_type is unreliable when another attribute assigns the same
+      # classification (its trigger partitions without the relation column).
+      def include_icon_id(base_table = 'things')
+        {
+          identifier: '"dc:iconId"',
+          select: 'MAX(tmp3."dc:iconId")',
+          joins: "LEFT OUTER JOIN LATERAL (
+                SELECT string_agg(concepts.id::text, ',' ORDER BY concepts.concept_scheme_id) AS \"dc:iconId\"
+                FROM classification_contents
+                  INNER JOIN concepts ON concepts.classification_id = classification_contents.classification_id
+                  INNER JOIN concept_schemes ON concept_schemes.id = concepts.concept_scheme_id
+                WHERE 'api' = ANY(concept_schemes.visibility)
+                  AND classification_contents.content_data_id = #{base_table}.id
+                  AND classification_contents.relation = '#{PRIMARY_ICON_RELATION}'
+                  #{concept_scheme_filter_sql('concepts.concept_scheme_id')}
+              ) AS tmp3 ON TRUE"
         }
       end
 

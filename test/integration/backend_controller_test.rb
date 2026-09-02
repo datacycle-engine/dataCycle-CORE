@@ -13,6 +13,9 @@ module DataCycleCore
       @classification_tree = @inhaltstypen.classification_trees.find { |t| t.sub_classification_alias.present? }
       @tags_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').first
       @thing = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Backend Cov Artikel' })
+      @external_system = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system')
+      @imported_thing = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Backend Cov Imported' })
+      @imported_thing.update_columns(external_source_id: @external_system.id, external_key: 'backend-cov-import')
     end
 
     setup do
@@ -37,6 +40,41 @@ module DataCycleCore
       assert response.parsed_body.key?('html')
     end
 
+    test 'tree mode grouped by external systems lists the active import systems' do
+      get root_path(mode: 'tree', ctl_id: 'external_systems', reset: true), headers: { referer: root_path }
+
+      assert_response :success
+      assert_includes response.body, @external_system.name
+    end
+
+    test 'tree mode: expanding an external system lists its imported contents' do
+      # dashboard drill-in fetch: xhr + json (see DataCycle.httpRequest default headers)
+      get root_path(format: :json, mode: 'tree', ctl_id: 'external_systems', es_id: @external_system.id, reset: true),
+          xhr: true, headers: { referer: root_path }
+
+      assert_response :success
+      assert response.parsed_body.key?('html')
+      # the content imported from that system is listed, the source-less one is not
+      assert_includes response.parsed_body['html'], @imported_thing.id
+      assert_not_includes response.parsed_body['html'], @thing.id
+    end
+
+    test 'starting a search while grouped by external systems does not raise' do
+      # regression: the search form now submits ctl_id=external_systems instead of a blank ctl_id,
+      # which previously reached ClassificationTreeLabel.find('') and raised RecordNotFound
+      get root_path(mode: 'tree', ctl_id: 'external_systems', reset: true),
+          params: { f: { '0' => { 'c' => 'a', 'n' => 'Suche', 't' => 'fulltext_search', 'v' => 'Backend Cov' } } },
+          headers: { referer: root_path }
+
+      assert_response :success
+    end
+
+    test 'tree mode with an unresolvable ctl_id falls back gracefully instead of raising' do
+      get root_path(mode: 'tree', ctl_id: '', reset: true), headers: { referer: root_path }
+
+      assert_response :success
+    end
+
     # ---------- map mode ----------
     test 'map mode paginates without count' do
       get root_path(mode: 'map', reset: true), headers: { referer: root_path }
@@ -51,7 +89,8 @@ module DataCycleCore
         { count_mode: 'ca_related', ct_id: @classification_tree.id },
         { count_mode: 'ca_recursive', ct_id: @classification_tree.id },
         { count_mode: 'classification_tree_label', ctl_id: @inhaltstypen.id },
-        { count_mode: 'container', con_id: @thing.id }
+        { count_mode: 'container', con_id: @thing.id },
+        { count_mode: 'external_system', es_id: @external_system.id }
       ].each do |extra|
         get root_path(format: :json, count_only: '1', target: 'results', content_class: 'Thing', reset: true, **extra),
             headers: { referer: root_path }
@@ -59,6 +98,17 @@ module DataCycleCore
         assert_response :success, "count_mode #{extra[:count_mode]} failed"
         assert response.parsed_body.key?('html')
       end
+    end
+
+    test 'count_only for the external_system mode counts contents imported from that system' do
+      get root_path(format: :json, count_only: '1', target: 'results', content_class: 'Thing', reset: true, mode: 'tree', count_mode: 'external_system', es_id: @external_system.id),
+          headers: { referer: root_path }
+
+      assert_response :success
+      count_html = response.parsed_body['html'].to_s.strip
+      # external_system uses the plain-number count path (not the "X Inhalte" header format)
+      assert_match(/\A[\d.,]+\z/, count_html)
+      assert_operator(count_html.gsub(/\D/, '').to_i, :>=, 1)
     end
 
     test 'count_only in map mode applies the geometry filter' do

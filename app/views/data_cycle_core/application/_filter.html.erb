@@ -11,12 +11,14 @@
   stored_filter: @stored_filter&.id,
   endpoint_id: @stored_filter&.id || @watch_list&.id,
   mode: @mode,
-  ctl_id: @classification_tree_label&.id,
-  ct_id: @classification_tree&.id
+  ctl_id: @external_system_tree ? DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID : @classification_tree_label&.id,
+  ct_id: @classification_tree&.id,
+  es_id: @external_system&.id
 }) do %>
   <%= hidden_field_tag 'mode', @mode %>
   <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
-  <%= hidden_field_tag 'ctl_id', @classification_tree_label&.id %>
+  <%= hidden_field_tag 'ctl_id', @external_system_tree ? DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID : @classification_tree_label&.id %>
+  <%= hidden_field_tag 'es_id', @external_system&.id %>
 
   <%= conditional_filter_accordion(filter_config) do %>
     <div class="row">

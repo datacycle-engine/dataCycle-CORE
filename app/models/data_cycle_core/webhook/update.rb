@@ -3,8 +3,8 @@
 module DataCycleCore
   module Webhook
     class Update < Base
-      def self.execute_all(data)
-        Base.execute_all(data, 'update')
+      def self.execute_all(data, external_system_id: nil)
+        Base.execute_all(data, 'update', external_system_id:)
       end
     end
   end

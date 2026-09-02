@@ -45,7 +45,7 @@ group :development do
   gem 'brakeman', require: false
   gem 'bundler-audit', require: false
   gem 'faker'
-  gem 'rubocop', '!= 1.85.0', require: false
+  gem 'rubocop', '>= 1.90', require: false # 1.90 adds the rubocop:disable-next directive
   gem 'rubocop-ast'
   gem 'rubocop-minitest', require: false
   gem 'rubocop-rake', require: false
@@ -69,4 +69,5 @@ group :development, :test, :review do
   gem 'pry-byebug'
   gem 'rb-readline'
   gem 'simplecov', require: false
+  gem 'simplecov-cobertura', require: false # Cobertura XML report for GitLab MR diff coverage
 end

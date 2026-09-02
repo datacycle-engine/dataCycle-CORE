@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 DataCycleCore::Engine.routes.draw do
+  uuid_regexp = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
+                     skip: [:registrations],
                      controllers: {
                        passwords: 'data_cycle_core/passwords',
                        sessions: 'data_cycle_core/sessions',
@@ -9,6 +12,17 @@ DataCycleCore::Engine.routes.draw do
                        confirmations: 'data_cycle_core/confirmations',
                        omniauth_callbacks: 'data_cycle_core/omniauth'
                      }
+
+  # only sign up is exposed via devise, editing/deleting the own account goes through
+  # DataCycleCore::UsersController (/users/:id/edit) so the ability checks are applied.
+  # mirrors DataCycleCore::User, which only includes :registerable for an enabled feature
+  # -- without it devise would not have generated any registration route either
+  if DataCycleCore::Feature::UserRegistration.enabled?
+    devise_scope :user do
+      get 'users/sign_up', to: 'registrations#new', as: :new_user_registration
+      post 'users', to: 'registrations#create', as: :user_registration
+    end
+  end
 
   use_doorkeeper do
     controllers authorizations: 'oauth/authorizations',
@@ -34,7 +48,6 @@ DataCycleCore::Engine.routes.draw do
 
   authenticate do
     post '/', to: 'backend#index'
-    get  '/settings', to: 'backend#settings'
   end
 
   match '/401', to: 'exceptions#unauthorized_exception', via: :all, as: :unauthorized_exception
@@ -61,13 +74,13 @@ DataCycleCore::Engine.routes.draw do
 
   authenticate do
     post '/assets/imgproxy_url/:id', to: 'missing_asset#imgproxy_url', as: :imgproxy_url, defaults: { format: :json }, constraints: {
-      id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+      id: uuid_regexp
     }
   end
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
-    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
+    id: uuid_regexp,
     file: /.*/
   }
 
@@ -77,7 +90,7 @@ DataCycleCore::Engine.routes.draw do
 
   get '/processed/:klass/:id(/:file)', to: 'missing_asset#processed', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
-    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+    id: uuid_regexp
   }
 
   get '/schema', to: 'schema#index'
@@ -89,7 +102,8 @@ DataCycleCore::Engine.routes.draw do
   authenticate do
     delete :clear_all_caches, controller: :application
 
-    resources :users, only: [:index, :show, :edit, :update, :destroy] do
+    # user_id: nested member routes (become) look the id up themselves
+    resources :users, only: [:index, :show, :edit, :update, :destroy], constraints: { id: uuid_regexp, user_id: uuid_regexp } do
       delete :lock, on: :member
       post :unlock, on: :member
       post :confirm, on: :member
@@ -132,7 +146,6 @@ DataCycleCore::Engine.routes.draw do
         get :select_search, on: :collection
         post :render_embedded_object, on: :member
         post :bulk_create, on: :collection
-        post :ai_lector_properties, on: :member
         delete :remove_locks, on: :member
         get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
         post :attribute_value, on: :member
@@ -149,7 +162,7 @@ DataCycleCore::Engine.routes.draw do
         DataCycleCore::AdminPanelActions::PANELS.each do |panel|
           get "admin_panel/#{panel}", on: :member, action: :"admin_panel_#{panel}", as: :"admin_panel_#{panel}"
         end
-        match '/', on: :member, action: :show, via: [:get, :post], constraints: { id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ }
+        match '/', on: :member, action: :show, via: [:get, :post], constraints: { id: uuid_regexp }
       end
     end
   end
@@ -173,6 +186,9 @@ DataCycleCore::Engine.routes.draw do
       get 'download/(:serialize_format)', on: :member, to: '/data_cycle_core/downloads#download_stored_filter', as: 'download'
       post :add_to_watchlist, on: :collection
       get :saved_searches, on: :collection
+      # POST variant for the stored-filter-usage panel's links: with hundreds of ids, a GET query
+      # string (ids[]=...) can exceed the URI length limit; POST sends them in the body instead.
+      post :saved_searches, on: :collection
       get :render_update_form, on: :collection
       post :rebuild_cache, on: :member
     end
@@ -239,6 +255,7 @@ DataCycleCore::Engine.routes.draw do
       get :download, on: :collection
       patch :move, on: :collection
       patch :merge, on: :collection
+      get :stored_filter_usage, on: :collection
       post :unlink_contents, on: :collection
       post :link_contents, on: :collection
       post :geometry, on: :collection
@@ -402,6 +419,21 @@ DataCycleCore::Engine.routes.draw do
 
                 match 'things', to: 'things#index', via: [:get, :post] if Rails.env.local?
                 match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
+
+                # must stay above the greedy 'things/:id/:timeseries' route below, which would
+                # otherwise resolve these paths as a timeseries attribute named external_connections
+                post 'things/:id/external_connections', to: 'external_connections#create', as: 'thing_external_connections'
+                # needs an explicit name: an unnamed route inside the namespace falls back to the
+                # namespace-derived name (api_v4) and would steal it from external_systems#create
+                delete 'things/:id/external_connections', to: 'external_connections#destroy', as: 'remove_thing_external_connections'
+                patch 'things/:id/external_connections/promote', to: 'external_connections#promote', as: 'promote_thing_external_connections'
+                patch 'things/:id/external_connections/demote', to: 'external_connections#demote', as: 'demote_thing_external_connections'
+
+                get 'things/:id/duplicates', to: 'duplicates#index', as: 'thing_duplicates'
+                post 'things/:id/duplicates', to: 'duplicates#create', as: 'mark_thing_duplicates'
+                post 'things/:id/duplicates/:duplicate_id/merge', to: 'duplicates#merge', as: 'merge_thing_duplicates'
+                post 'things/:id/duplicates/:duplicate_id/false_positive', to: 'duplicates#false_positive', as: 'false_positive_thing_duplicates'
+
                 match 'things/:id/:timeseries(/:format)', to: 'things#timeseries', as: 'thing_timeseries', via: [:get, :post]
 
                 match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
@@ -418,6 +450,7 @@ DataCycleCore::Engine.routes.draw do
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
                 match 'endpoints/:id/suggest_by_title', to: 'contents#typeahead_by_title', as: 'typeahead_by_title', via: [:get, :post]
                 match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'download_endpoint', via: [:get, :post]
+                match 'endpoints/:id/facets/externalSystems', to: 'external_systems#facets', as: 'external_systems_facets', via: [:get, :post]
                 match 'endpoints/:id/facets/:classification_tree_label_id(/:classification_id)', to: 'classification_trees#facets', as: 'facets', via: [:get, :post]
                 get 'endpoints/:id/statistics/:attribute(/:format)', to: 'contents#statistics', as: 'statistics'
                 match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
@@ -452,6 +485,9 @@ DataCycleCore::Engine.routes.draw do
                   post :resend_confirmation
                   match '/confirm', action: :confirm, via: [:patch, :put]
                   match '/:id', action: :show, as: :user, via: [:get, :post]
+                  # stays below '/update', '/password' and '/confirm', which would otherwise
+                  # resolve as an :id here
+                  match '/:id', action: :update_by_id, via: [:patch, :put]
                 end
 
                 scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do

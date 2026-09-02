@@ -118,8 +118,16 @@ namespace :dc do
           inserted = DataCycleCore::ClassificationGroup.insert_all(to_insert.uniq, unique_by: :classification_groups_ca_id_c_id_uq_idx).pluck('id')
         end
 
-        DataCycleCore::ClassificationGroup.includes(:classification, :classification_alias).where(id: inserted).find_each do |group|
-          group.classification_alias.send(:classifications_added, group.classification)
+        affected_classification_ids = Hash.new { |h, k| h[k] = [] }
+        DataCycleCore::ClassificationGroup.includes(:classification_alias).where(id: inserted).find_each do |group|
+          affected_classification_ids[group.classification_alias] << group.classification_id
+        end
+
+        # one job per side effect per alias for the union of its affected contents
+        # (per-classification jobs would collapse under CacheInvalidationDestroyJob's
+        # (alias, method) dedup key) — see ClassificationAlias#classifications_changed
+        affected_classification_ids.each do |ca, classification_ids|
+          ca.send(:classifications_changed, classification_ids)
         end
 
         duplicates = to_insert.size - inserted.size
@@ -136,7 +144,9 @@ namespace :dc do
         abort('file_path missing!') if args.file_path.blank?
 
         errors = []
-        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
+        # not the whole connection pool: this task also runs through RunTaskJob, and there it shares
+        # its process with the other jobs of a multi-threaded worker (see WorkerPool)
+        pool = Concurrent::FixedThreadPool.new(DataCycleCore::WorkerPool.default_num_workers)
         futures = []
         file_paths = Dir[args.file_path]
         use_external_key = args.use_external_key || false
@@ -185,6 +195,84 @@ namespace :dc do
         puts errors.join("\n")
         puts "FINISHED IMPORTING TRANSLATIONS! (#{errors.size} errors)"
       end
+
+      # Creates classification mappings between two trees by matching concept names (internal_name).
+      # The target tree is expected to be a (usually smaller) subset of the source tree, so we index
+      # the source tree once and iterate the target tree, mapping each matching source concept onto
+      # its target counterpart (classification_alias = source concept, classification = target concept).
+      # End result in the view: each matched target-tree classification is shown as a "child" of the
+      # corresponding source-tree classification.
+      # Idempotent: re-running only adds mappings that don't exist yet.
+      desc 'map concepts between two classification trees by matching name (internal_name); ' \
+           'args: source_tree_label, target_tree_label (target is treated as a subset of source)'
+      task :mappings_by_name, [:source_tree_label, :target_tree_label] => :environment do |_, args|
+        abort('source_tree_label and target_tree_label are required!') if args.source_tree_label.blank? || args.target_tree_label.blank?
+
+        source_tree_label = args.source_tree_label.strip
+        target_tree_label = args.target_tree_label.strip
+
+        abort('source_tree_label and target_tree_label must differ!') if source_tree_label == target_tree_label
+        abort("source tree_label '#{source_tree_label}' not found!") unless DataCycleCore::ClassificationTreeLabel.exists?(name: source_tree_label)
+        abort("target tree_label '#{target_tree_label}' not found!") unless DataCycleCore::ClassificationTreeLabel.exists?(name: target_tree_label)
+
+        updated_at = Time.zone.now
+        errors = []
+        to_insert = []
+        inserted = []
+
+        # index the (larger) source tree's aliases by internal_name => [classification_alias_id, ...]
+        source_alias_ids_by_name = Hash.new { |h, k| h[k] = [] }
+        DataCycleCore::ClassificationAlias.for_tree(source_tree_label).find_each do |source_concept|
+          source_alias_ids_by_name[source_concept.internal_name] << source_concept.id
+        end
+
+        # iterate the (smaller) target tree and map each matching source concept onto it
+        DataCycleCore::ClassificationAlias.for_tree(target_tree_label).includes(:primary_classification).find_each do |target_concept|
+          if target_concept.primary_classification.nil?
+            errors << "no primary classification for '#{target_concept.internal_name}' in '#{target_tree_label}'"
+            print 'x'
+            next
+          end
+
+          source_alias_ids = source_alias_ids_by_name[target_concept.internal_name]
+          if source_alias_ids.blank?
+            errors << "no match in '#{source_tree_label}' for '#{target_concept.internal_name}'"
+            print 'x'
+            next
+          end
+
+          source_alias_ids.each do |classification_alias_id|
+            to_insert.push({ classification_alias_id:, classification_id: target_concept.primary_classification.id, updated_at: })
+            print '.'
+          end
+        end
+
+        abort("\nno matching concepts found between '#{source_tree_label}' and '#{target_tree_label}'!") if to_insert.blank?
+
+        ActiveRecord::Base.transaction do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+
+          inserted = DataCycleCore::ClassificationGroup.insert_all(to_insert.uniq, unique_by: :classification_groups_ca_id_c_id_uq_idx).pluck('id')
+        end
+
+        affected_classification_ids = Hash.new { |h, k| h[k] = [] }
+        DataCycleCore::ClassificationGroup.includes(:classification_alias).where(id: inserted).find_each do |group|
+          affected_classification_ids[group.classification_alias] << group.classification_id
+        end
+
+        # one job per side effect per alias for the union of its affected contents
+        # (per-classification jobs would collapse under CacheInvalidationDestroyJob's
+        # (alias, method) dedup key) — see ClassificationAlias#classifications_changed
+        affected_classification_ids.each do |ca, classification_ids|
+          ca.send(:classifications_changed, classification_ids)
+        end
+
+        duplicates = to_insert.size - inserted.size
+
+        puts
+        puts errors.join("\n")
+        puts "FINISHED IMPORTING MAPPINGS! (new: #{inserted.size}, duplicates: #{duplicates}, errors: #{errors.size})"
+      end
     end
 
     namespace :update do
@@ -203,7 +291,13 @@ namespace :dc do
 
         from_ca.prevent_webhooks = args.prevent_webhooks&.to_s == 'true'
 
-        new_ca = from_ca.move_to_path(to_path, destroy_children)
+        begin
+          new_ca = from_ca.move_to_path(to_path, destroy_children)
+        rescue DataCycleCore::Error::AmbiguousClassificationExternalSystemError => e
+          # destroy_children merges every descendant into the target, so a second externally keyed
+          # child refuses -- the transaction is already rolled back, only the message is missing
+          abort("ERROR: #{e.message}")
+        end
 
         abort('ERROR: error moving to new path') unless new_ca.is_a?(DataCycleCore::ClassificationAlias)
 
@@ -275,6 +369,37 @@ namespace :dc do
         DataCycleCore::ClassificationGroup.insert_all(new_ca_groups, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
 
         puts AmazingPrint::Colors.green("[DONE] finished upserting #{mappings.size} mappings in #{Time.zone.now - tmp}s.")
+      end
+    end
+
+    desc 'Delete Classification Tree Label'
+    task :destroy_classification_tree_label, [:tree_label_key] => :environment do |_, args|
+      tree_label_key = args[:tree_label_key]
+
+      tree = DataCycleCore::ClassificationTreeLabel.find_by(external_key: tree_label_key)
+      return if tree.nil?
+
+      tree.classification_aliases.find_each do |ca|
+        ca.additional_classification_groups.find_each do |cg|
+          ActiveRecord::Base.transaction do
+            ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+            cg.destroy
+            print('.')
+          end
+        end
+      end
+
+      tree.classifications.find_each do |c|
+        ActiveRecord::Base.transaction do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+          c.classification_contents.delete_all
+          print('.')
+        end
+      end
+
+      ActiveRecord::Base.transaction do
+        ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+        DataCycleCore::ClassificationTreeLabel.find_by(external_key: tree_label_key)&.destroy
       end
     end
 

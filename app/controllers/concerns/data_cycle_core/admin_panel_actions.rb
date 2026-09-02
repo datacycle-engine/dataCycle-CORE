@@ -11,7 +11,7 @@ module DataCycleCore
 
     PANELS = [
       'schema', 'template_path', 'datahash', 'thing_history_links', 'json_api',
-      'meta_data', 'data_export', 'data_send', 'data_job'
+      'meta_data', 'data_export', 'data_send', 'data_job', 'data_raw'
     ].freeze
 
     DATAHASH_ATTRIBUTES = [:external_key, :external_source_id, :created_at, :created_by, :updated_at, :cache_valid_since, :updated_by].freeze
@@ -19,6 +19,7 @@ module DataCycleCore
 
     included do
       before_action :load_admin_panel_content, only: PANELS.map { |panel| :"admin_panel_#{panel}" }
+      before_action :authorize_show_raw_data!, only: :admin_panel_data_raw
     end
 
     # Tab: the content template's sorted schema.
@@ -80,12 +81,22 @@ module DataCycleCore
       render_admin_panel(dzt_export_data('job_result'))
     end
 
+    # Tab: the raw, untransformed MongoDB import document, if present. Authorization for the
+    # stricter show_raw_data ability is enforced by the authorize_show_raw_data! before_action.
+    def admin_panel_data_raw
+      render_admin_panel(@content.mongo_raw_data)
+    end
+
     private
 
     def load_admin_panel_content
       @content = DataCycleCore::Thing.find(params[:id])
       authorize!(:show_admin_panel, @content)
       @admin_panel_frame = "#{action_name}_#{@content.id}"
+    end
+
+    def authorize_show_raw_data!
+      authorize!(:show_raw_data, @content)
     end
 
     # Most tabs serialize a Ruby object; json_api / data_export already produce a JSON string and

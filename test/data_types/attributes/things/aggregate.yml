@@ -14,6 +14,11 @@
         :additional_base_templates:
           - Computed-Common-attribute_value_from_first_existing_linked
     :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
       :id:
         :label: id
         :type: key

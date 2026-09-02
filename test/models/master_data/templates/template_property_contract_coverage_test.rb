@@ -62,5 +62,54 @@ module DataCycleCore
 
       assert(result.errors.map(&:text).any? { |m| m.include?('is blank') })
     end
+
+    test 'rule(:collapse_redundant_values) accepts the flag on a timeseries property' do
+      result = call_contract({ 'type' => 'timeseries', 'collapse_redundant_values' => true })
+
+      assert_not result.errors.to_h.key?(:collapse_redundant_values)
+    end
+
+    test 'rule(:collapse_redundant_values) rejects the flag on a non-timeseries property' do
+      result = call_contract({ 'type' => 'number', 'storage_location' => 'value', 'collapse_redundant_values' => true })
+
+      assert result.errors.to_h.key?(:collapse_redundant_values)
+    end
+
+    def call_compute_contract(compute)
+      call_contract({
+        'type' => 'classification',
+        'universal' => true,
+        'compute' => { 'module' => 'Classification', 'method' => 'primary_icon_classifications' }.merge(compute)
+      })
+    end
+
+    test 'rule(:compute) accepts after_save on its own' do
+      result = call_compute_contract({ 'after_save' => true })
+
+      assert_not result.errors.to_h.key?(:compute)
+    end
+
+    test 'rule(:compute) accepts async on its own' do
+      result = call_compute_contract({ 'async' => true })
+
+      assert_not result.errors.to_h.key?(:compute)
+    end
+
+    test 'rule(:compute) rejects async and after_save together' do
+      result = call_compute_contract({ 'async' => true, 'after_save' => true })
+
+      assert result.errors.to_h.key?(:compute)
+      assert(result.errors.map(&:text).any? { |m| m.include?('either async') })
+    end
+
+    # undeclared keys are dropped from the contract's output, and ThingTemplate reads compute.tree_label
+    # to gate recompute_on_classification_change
+    test 'compute.tree_label is type-checked and kept in the output' do
+      result = call_compute_contract({ 'tree_label' => 'Tags' })
+
+      assert_not result.errors.to_h.key?(:compute)
+      assert_equal('Tags', result.to_h.dig(:compute, :tree_label))
+      assert_predicate(call_compute_contract({ 'tree_label' => ['Tags'] }).errors.to_h.dig(:compute, :tree_label), :present?)
+    end
   end
 end

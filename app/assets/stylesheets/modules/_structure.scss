@@ -43,7 +43,7 @@ textarea {
 header {
   z-index: 1007;
   position: relative;
-  border-top: 5px solid $customercolor;
+  border-top: 5px solid var(--customer-color);
 
   .top-bar {
     display: flex;
@@ -182,6 +182,22 @@ header {
 
         span {
           position: relative;
+        }
+
+        .user-initials {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          vertical-align: middle;
+          width: 1.9rem;
+          height: 1.9rem;
+          margin-right: 0.6rem;
+          border-radius: 50%;
+          background-color: var(--customer-color);
+          color: $white;
+          font-size: 0.75rem;
+          font-weight: bold;
+          line-height: 1;
         }
       }
     }
@@ -380,8 +396,8 @@ button.button-prime {
 /* Home */
 
 body.with-glass {
-  background-color: darkgrey;
-  background-position: center bottom;
+  background-color: #221c36;
+  background-position: var(--dc-background-image-position, center center);
   background-attachment: fixed;
   background-size: cover;
   background-image: var(--dc-background-image-url);
@@ -399,6 +415,7 @@ body.with-glass {
 
   ul.footer-links li {
     color: $black;
+    font-size: 0.8rem;
 
     a {
       color: $black;
@@ -411,6 +428,7 @@ ul.footer-links {
   width: 100%;
   margin: 0;
   text-align: center;
+  padding: 1rem 2rem;
 
   li {
     display: inline-block;
@@ -422,15 +440,36 @@ ul.footer-links {
 }
 
 .home-container {
-  max-width: 500px;
+  max-width: 435px;
   overflow: hidden;
   margin: 50px auto;
   width: 70%;
   padding: 0;
-  animation: 1s ease-in-out 500ms 1 fadeInGlassContainer;
-  animation-fill-mode: both;
+
+  .form-actions {
+    padding-top: 1rem;
+  }
+
+  .columns {
+    padding: 0;
+    float: none;
+    clear: both;
+
+    .accordion-item {
+      padding: 1rem 2rem;
+
+      &:not(:first-of-type) {
+        border-top: 1px solid var(--dc-login-separator);
+      }
+    }
+  }
 
   .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+
     img {
       max-height: 60px;
       max-width: 75%;
@@ -443,9 +482,6 @@ ul.footer-links {
     overflow: hidden;
     backface-visibility: hidden;
     position: relative;
-    border-bottom: 1px solid;
-    border-bottom-color: rgba(255, 255, 255, 0.2);
-    padding: rem-calc(15) 0;
 
     &.footer {
       .footer-image {
@@ -453,7 +489,12 @@ ul.footer-links {
         float: none;
         align-items: center;
         justify-content: center;
+        padding: 1rem 2rem;
       }
+    }
+
+    .password-visibility-toggle {
+      bottom: 0.5rem;
     }
 
     .centered-text {
@@ -468,7 +509,6 @@ ul.footer-links {
 
     a.forgotten_password_link {
       display: block;
-      text-align: right;
       font-size: 0.9rem;
       color: $black;
       text-decoration: underline;
@@ -510,10 +550,10 @@ ul.footer-links {
     }
 
     fieldset.with-border {
-      padding: 0.5rem 0 0 0;
+      padding: 0.5rem 1rem 0 1rem;
       border: 1px solid var(--darker-gray);
       margin: 0 0 1rem 0;
-      border-radius: var(--medium-radius);
+      border-radius: var(--large-radius);
 
       legend {
         padding: 0 0.5rem;
@@ -549,8 +589,7 @@ ul.footer-links {
         color: $black;
         text-align: center;
         font-size: 2rem;
-        padding: 1rem 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0;
 
         i {
           font-size: 2rem;
@@ -583,7 +622,7 @@ ul.footer-links {
   }
 
   .guest-login-button {
-    margin-bottom: 1rem;
+    margin: 2rem 0 1rem 0;
   }
 
   form {
@@ -598,11 +637,12 @@ ul.footer-links {
 .glass {
   backface-visibility: hidden;
   position: relative;
-  border-radius: 10px;
+  border-radius: 16px;
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background-color: rgba(34, 28, 54, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 3px 100px rgba(34, 28, 54, 0.6);
 
   input,
   button,
@@ -611,9 +651,182 @@ ul.footer-links {
   }
 }
 
+// hidden by default; the dark glass card opts in below
+.logo-screen-inverted {
+  display: none;
+}
+
+/* Modernized login / devise card — dataCycle CI (#48677).
+   Restyles the shared markup (.home-container / .glass) that the login
+   partials use, so projects overriding those partials pick up the new look
+   with no HTML changes as long as they keep the core class names. */
+body.with-glass {
+  --dc-login-fg: #dedde1; // nachtblau 15%
+  --dc-login-fg-muted: #918e9b; // nachtblau 50%
+  --dc-login-field-bg: #e9e9eb; // nachtblau 10%
+  --dc-login-field-border: #bdbbc3; // nachtblau 30%
+  --dc-login-separator: #433e54; // nachtblau 85%
+
+  .home-container,
+  .home-container .home-container-content {
+    color: var(--dc-login-fg);
+  }
+
+  // logo on the dark card: prefer the project's inverted (light) logo,
+  // otherwise lighten the default logo so it stays legible
+  .home-container .logo.has-inverted-logo {
+    .logo-screen-default {
+      display: none;
+    }
+
+    .logo-screen-inverted {
+      display: inline-block;
+    }
+  }
+
+  .home-container .logo:not(.has-inverted-logo) .logo-screen-default {
+    filter: brightness(0) invert(1);
+  }
+
+  .home-container .logo {
+    min-height: 125px;
+    border-bottom: 1px solid var(--dc-login-separator);
+  }
+
+  // the welcome heading is dropped on the login page only (per the design);
+  // other devise pages (password reset, confirmation, …) keep their heading
+  &.sessions .home-container h1 {
+    display: none;
+  }
+
+  // section titles: light, bold, left-aligned, no leading icon
+  .home-container .accordion li.accordion-item a.accordion-title {
+    color: var(--dc-login-fg);
+    border-top-color: var(--dc-login-separator);
+    text-align: left;
+    font-size: 1.125rem;
+    font-weight: 700;
+
+    >i.fa {
+      display: none;
+    }
+
+    &::before {
+      color: var(--dc-login-fg);
+    }
+
+    &:hover,
+    &:focus {
+      color: var(--dc-login-fg);
+      opacity: 0.8;
+    }
+  }
+
+  .home-container .accordion-content {
+    color: var(--dc-login-fg);
+  }
+
+  // labels + remember-me
+  .home-container form label,
+  .home-container .dc-checkbox>label {
+    color: var(--dc-login-fg);
+  }
+
+  // stacked field labels sit directly above their full-width input
+  .home-container form .columns:not(.dc-checkbox)>label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+  }
+
+  // text inputs + selects
+  .home-container input[type='text'],
+  .home-container input[type='email'],
+  .home-container input[type='password'],
+  .home-container select {
+    height: auto;
+    padding: 0.9rem 1rem;
+    color: #221c36;
+    background-color: var(--dc-login-field-bg);
+    border: 1px solid var(--dc-login-field-border);
+    border-radius: 8px;
+    box-shadow: none;
+
+    &::placeholder {
+      color: var(--dc-login-fg-muted);
+    }
+
+    &:focus {
+      background-color: var(--dc-login-field-bg);
+      border-color: var(--customer-color);
+      box-shadow: none;
+    }
+  }
+
+  // keep the optional password-visibility toggle anchored to its (stacked) input
+  .home-container .password-field {
+    position: relative;
+
+    .password-visibility-toggle {
+      top: auto;
+      bottom: 0.9rem;
+    }
+  }
+
+  // links
+  .home-container a.forgotten_password_link,
+  .home-container .login-checkboxes a {
+    color: var(--dc-login-fg);
+  }
+
+  // forgot-password / resend-confirmation links get room to breathe
+  .home-container a.forgotten_password_link {
+    display: inline-block;
+    margin: 0.4rem 0;
+  }
+
+  ul.footer-links li,
+  ul.footer-links li a {
+    color: var(--dc-login-fg);
+  }
+
+  // primary login actions → customer-color pill with a trailing arrow.
+  // covers the submit buttons (Anmelden/Registrieren/…) and the guest-login
+  // link, which is an <a> rather than a submit. the arrow is a decorative
+  // ::after (a flex item), so projects inherit it with no HTML change;
+  // space-between keeps the label left, arrow right.
+  .home-container button[type='submit'].button,
+  .home-container .login-form button[type='submit'].button,
+  .home-container a.button.guest-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+    color: var(--customer-color-contrast);
+    background-color: var(--customer-color);
+    border-radius: 16px;
+    font-weight: 700;
+    text-align: left;
+
+    &::after {
+      content: '\f105'; // fa-angle-right
+      font-family: FontAwesome;
+      font-size: 1.25rem;
+    }
+
+    &:hover,
+    &:focus {
+      background-color: var(--customer-color);
+      filter: brightness(0.92);
+    }
+  }
+}
+
 .home-container.reset-password {
   main {
-    padding: 1rem 0;
+    padding: 1rem 2rem;
 
     h1 {
       font-size: 1.75rem;
@@ -783,7 +996,7 @@ ul.footer-links {
   display: flex;
   width: 3.6rem;
   opacity: 0.7;
-  position: absolute;
+  position: fixed;
   right: 1rem;
   bottom: 1rem;
   transition: $opacity-transition;
@@ -848,7 +1061,7 @@ ul.footer-links {
     }
   }
 
-  >input[required]+label {
+  >input[required]+label:not(:has(.required-field-marker)) {
     &::after {
       content: '*';
       display: inline-flex;

@@ -51,7 +51,8 @@ module DataCycleCore
 
         def classification_ids_for_concept_scheme(concept_scheme)
           collected_classification_contents
-            .where(link_type: 'related', classification_tree_label_id: concept_scheme.id)
+            .related # #47172: 'related' link_type, excluding hidden mappings
+            .where(classification_tree_label_id: concept_scheme.id)
             .includes(:concept)
             .filter_map { |ccc| ccc.concept&.classification_id }
             .uniq

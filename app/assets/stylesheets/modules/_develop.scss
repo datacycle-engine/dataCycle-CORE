@@ -696,6 +696,11 @@ select {
 }
 
 #edit-form {
+  // read-only merge preview: keep the hint callout off the sticky header's edge
+  .merge-preview-hint {
+    margin-top: 1rem;
+  }
+
   .detail-header-info {
     text-align: left;
     display: flex;
@@ -838,6 +843,18 @@ select {
 
   .flex-box {
     height: calc(100vh - 11.4rem);
+
+    // read-only merge preview: grey out the side that is not hovered so the two
+    // panels are distinguishable (JS-free equivalent of the editor's hover effect)
+    &:hover .split-content.merge-preview-content:not(:hover) {
+      background: rgba($light-gray, 0.2);
+    }
+
+    // read-only merge preview: subtle grey field bands to signal "view only".
+    // background only (no padding/position/margin) so the viewer layout is not shifted
+    .split-content.merge-preview-content .type.properties .detail-type {
+      background: rgba($light-gray, 0.45);
+    }
 
     .detail-header-info>* {
       margin-top: 1rem;

@@ -131,7 +131,7 @@ module DataCycleCore
           link_types << 'direct' if direct
           link_types << 'related' if related
 
-          query = DataCycleCore::CollectedClassificationContent.where(classification_alias_id: ids)
+          query = DataCycleCore::CollectedClassificationContent.without_hidden.where(classification_alias_id: ids) # #47172: never filter on hidden mappings
           query = query.where(link_type: link_types) if link_types.present?
           query.where(ccc_table[:thing_id].eq(thing[:id]))
             .select(1)
@@ -140,6 +140,7 @@ module DataCycleCore
 
         def sub_query_for_tree_label_ids(ids, direct = false)
           query = DataCycleCore::CollectedClassificationContent
+            .without_hidden # #47172: never filter on hidden mappings
             .where(classification_tree_label_id: ids)
 
           query = query.where(link_type: 'direct') if direct

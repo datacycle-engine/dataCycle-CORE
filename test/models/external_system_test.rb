@@ -60,20 +60,101 @@ module DataCycleCore
       assert_equal(['de', 'en'], @external_system.locales)
     end
 
+    test 'import_queue defaults to :importers' do
+      assert_equal(:importers, DataCycleCore::ExternalSystem.new(default_options: {}).import_queue)
+      assert_equal(:importers, DataCycleCore::ExternalSystem.new(default_options: nil).import_queue)
+    end
+
+    test 'import_queue can be overridden via default_options' do
+      assert_equal(:importers_short, DataCycleCore::ExternalSystem.new(default_options: { 'queue' => 'importers_short' }).import_queue)
+    end
+
+    test 'import_queue only reads the top-level queue, not a nested import queue' do
+      assert_equal(:importers, DataCycleCore::ExternalSystem.new(default_options: { 'import' => { 'queue' => 'importers_short' } }).import_queue)
+    end
+
+    test 'import_queue falls back to :importers for a queue that is not an importer queue' do
+      assert_equal(:importers, DataCycleCore::ExternalSystem.new(default_options: { 'queue' => 'importers_shrot' }).import_queue)
+      assert_equal(:importers, DataCycleCore::ExternalSystem.new(default_options: { 'queue' => 'mailers' }).import_queue)
+    end
+
     test 'find_from_hash resolves by identifier and by name' do
       assert_equal(@external_system.id, DataCycleCore::ExternalSystem.find_from_hash({ 'identifier' => @external_system.identifier })&.id)
       assert_equal(@external_system.id, DataCycleCore::ExternalSystem.find_from_hash({ 'name' => @external_system.name })&.id)
     end
 
-    test 'check_for_repeated_failure instruments a notification past the grace period' do
+    # --- process-level cache (import performance) ----------------------------
+    test 'cached_by_id returns the system and nil for blank ids' do
+      DataCycleCore::ExternalSystem.reset_cache!
+
+      assert_equal(@external_system.id, DataCycleCore::ExternalSystem.cached_by_id(@external_system.id)&.id)
+      assert_nil(DataCycleCore::ExternalSystem.cached_by_id(nil))
+      assert_nil(DataCycleCore::ExternalSystem.cached_by_id(''))
+    end
+
+    test 'cached_by_key indexes systems by identifier and by name' do
+      DataCycleCore::ExternalSystem.reset_cache!
+      by_key = DataCycleCore::ExternalSystem.cached_by_key
+
+      assert_kind_of(Hash, by_key)
+      assert_equal(@external_system.id, by_key[@external_system.identifier]&.id)
+      assert_equal(@external_system.id, by_key[@external_system.name]&.id)
+    end
+
+    test 'cached_index memoizes until reset' do
+      DataCycleCore::ExternalSystem.reset_cache!
+      first = DataCycleCore::ExternalSystem.cached_index
+
+      assert_same(first, DataCycleCore::ExternalSystem.cached_index)
+
+      DataCycleCore::ExternalSystem.reset_cache!
+
+      assert_not_same(first, DataCycleCore::ExternalSystem.cached_index)
+    end
+
+    test 'reset_cache! rebuilds the index from the current systems' do
+      DataCycleCore::ExternalSystem.reset_cache!
+
+      assert_equal(DataCycleCore::ExternalSystem.unscoped.count, DataCycleCore::ExternalSystem.cached_index[:by_id].size)
+    end
+
+    # Returns the payload of the notification the call emitted, or nil if it emitted none.
+    def notified_repeated_failure(type, exception)
       events = []
-      subscriber = ActiveSupport::Notifications.subscribe('import_failed_repeatedly.datacycle') { |*args| events << args }
-
-      @external_system.check_for_repeated_failure('import', StandardError.new('boom'))
-
-      assert_predicate(events, :present?)
+      subscriber = ActiveSupport::Notifications.subscribe("#{type}_failed_repeatedly.datacycle") { |*args| events << args }
+      @external_system.check_for_repeated_failure(type, exception)
+      events.dig(0, 4)
     ensure
       ActiveSupport::Notifications.unsubscribe(subscriber)
+    end
+
+    test 'check_for_repeated_failure instruments a notification past the grace period' do
+      assert_predicate(notified_repeated_failure('import', StandardError.new('boom')), :present?)
+    end
+
+    # This message is what the subscriber hands the mailer and error_notify.html.erb renders verbatim,
+    # so it needs the same class-name prefix as the import log.
+    test 'check_for_repeated_failure names the exception class in the notified message' do
+      opaque = 'Translation missing: de.mongoid.errors.messages.attribute_not_loaded.message'
+
+      notified = notified_repeated_failure('import', StandardError.new(opaque))
+
+      assert_includes(notified[:exception].message, "StandardError: #{opaque}")
+    end
+
+    test 'check_for_repeated_failure does not name a message-less exception twice' do
+      notified = notified_repeated_failure('import', ArgumentError.new)
+
+      assert_includes(notified[:exception].message, 'The last exception was: ArgumentError')
+      assert_not_includes(notified[:exception].message, 'ArgumentError: ArgumentError')
+    end
+
+    # WebhookError#initialize falls back to `self` when built without an original error, and #message
+    # delegates to it — without the guard, rendering one would recurse until SystemStackError
+    test 'check_for_repeated_failure survives an exception whose message delegates to itself' do
+      notified = notified_repeated_failure('import', DataCycleCore::Error::WebhookError.new(nil))
+
+      assert_includes(notified[:exception].message, 'DataCycleCore::Error::WebhookError')
     end
 
     test 'refresh raises without a configured strategy' do
@@ -123,6 +204,42 @@ module DataCycleCore
     test 'query and query2 run within the external-system database' do
       assert_equal(0, @external_system.query('coverage_test') { DataCycleCore::Generic::Collection.count })
       assert_equal(0, @external_system.query2('coverage_test') { DataCycleCore::Generic::Collection2.count })
+    end
+
+    # Mongoid 9 dropped the legacy persistence-context behavior, so a document now remembers the
+    # storage options it was created under. `query` combines a global `Mongoid.override_database`
+    # with a block-local `with(collection:)` and resets the override in its `ensure`, which makes
+    # "where did the write actually land" the invariant worth pinning: in this system's own database,
+    # and never in the default one that every other external system shares.
+    #
+    # The cleanup covers both databases on purpose. `destroy_all` only reaches the namespaced one, so
+    # were the write ever to land in the default database, the leftover would fail every later run of
+    # this test — including runs against a since-fixed `query`.
+    test 'a document written inside query lands in the external-system database only' do
+      @external_system.stub(:id, 'c3') do
+        purge_default_database('coverage_context', 'context-1')
+
+        @external_system.query('coverage_context') do
+          DataCycleCore::Generic::Collection.create!(external_id: 'context-1', dump: { 'de' => { 'id' => 'context-1' } })
+        end
+
+        namespaced = @external_system.query('coverage_context') { DataCycleCore::Generic::Collection.where(external_id: 'context-1').count }
+        default = default_database_count('coverage_context', 'context-1')
+
+        assert_equal(1, namespaced)
+        assert_equal(0, default)
+      ensure
+        @external_system.destroy_all('coverage_context')
+        purge_default_database('coverage_context', 'context-1')
+      end
+    end
+
+    def default_database_count(collection_name, external_id)
+      DataCycleCore::Generic::Collection.with(collection: collection_name) { |c| c.where(external_id:).count }
+    end
+
+    def purge_default_database(collection_name, external_id)
+      DataCycleCore::Generic::Collection.with(collection: collection_name) { |c| c.where(external_id:).delete_all }
     end
 
     test 'maintenance copies archive and delete metadata from de to en' do
@@ -260,6 +377,36 @@ module DataCycleCore
 
       assert_equal('b_main', captured[0])
       assert_equal({ external_id: 'ext-123' }, captured[1].dig(:import, :source_filter))
+    end
+
+    # An external system without any step info has only the last/last_successful pair to go by, where
+    # a first run that is still going is indistinguishable from a failed one. Without the queue lookup
+    # such a system reads as 'error' while it is importing.
+    def claim_import_job(system, klass)
+      job = klass.new(system.id)
+      row = SolidQueue::Job.create!(queue_name: 'importers', class_name: klass.name, arguments: job.serialize, concurrency_key: job.concurrency_key)
+      process = SolidQueue::Process.create!(kind: 'Worker', name: "test-worker-#{row.id}", pid: 1, last_heartbeat_at: Time.current)
+      SolidQueue::ClaimedExecution.create!(job: row, process:)
+    end
+
+    test 'a system with no step info reads as running while its import job is claimed' do
+      system = DataCycleCore::ExternalSystem.create!(name: 'Legacy Status System', last_import: 1.minute.ago)
+
+      assert_equal 'error', system.last_import_status
+
+      claim_import_job(system, DataCycleCore::ImportOnlyJob)
+
+      assert_equal 'running', DataCycleCore::ExternalSystem.find(system.id).last_import_status
+    end
+
+    test 'a claimed download job does not make the import read as running' do
+      system = DataCycleCore::ExternalSystem.create!(name: 'Legacy Download System', last_download: 1.minute.ago, last_import: 1.minute.ago)
+
+      claim_import_job(system, DataCycleCore::DownloadJob)
+      system = DataCycleCore::ExternalSystem.find(system.id)
+
+      assert_equal 'running', system.last_download_status
+      assert_equal 'error', system.last_import_status
     end
   end
 end

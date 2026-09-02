@@ -159,10 +159,17 @@ en:
       application:
         title: "OAuth authorization required"
 
+    # Every scope in config/initializers/doorkeeper.rb needs a key here. The consent page renders
+    # t(scope, scope: [:doorkeeper, :scopes]) for each requested scope, so a missing key shows up
+    # as "translation missing" in front of the user instead of the permission being granted.
+    # address and phone are standard OIDC scopes we do not enable, kept for projects that do.
     scopes:
+      public: "Access publicly available data"
       openid: "Authenticate your account"
       profile: "View your profile information"
       email: "View your email address"
+      roles: "View your role"
+      groups: "View your groups"
       address: "View your physical address"
       phone: "View your phone number"
 

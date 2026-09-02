@@ -10,7 +10,7 @@ body>header {
 
 .turbo-progress-bar {
   height: 5px;
-  background-color: $customercolor;
+  background-color: var(--customer-color);
 
   ~body>header {
     border-top: 5px solid darken($customercolor, 20%);

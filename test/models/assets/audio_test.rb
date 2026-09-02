@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   module Assets
-    class AudioTest < ActiveSupport::TestCase
+    class AudioTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include DataCycleCore::ActiveStorageHelper
 
       def setup

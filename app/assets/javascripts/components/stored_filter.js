@@ -19,6 +19,16 @@ class StoredFilter {
 		this.list = this.element.querySelector("ul.content-list");
 		this.count = this.element.querySelector(".pages-count");
 		this.search = this.fullTextSearchField?.value || "";
+		this.classificationChip = this.element.querySelector(
+			".classification-usage-chip",
+		);
+		this.classificationChipRemove =
+			this.classificationChip?.querySelector(".remove-tag");
+		this.classificationUsageIds = (
+			this.element.dataset.classificationUsageIds || ""
+		)
+			.split(",")
+			.filter(Boolean);
 
 		this.setup();
 	}
@@ -37,6 +47,11 @@ class StoredFilter {
 				this.resetSearches.bind(this),
 			);
 		}
+		if (this.classificationChipRemove)
+			this.classificationChipRemove.addEventListener(
+				"click",
+				this.removeClassificationContext.bind(this),
+			);
 
 		DataCycle.registerAddCallback(
 			".stored-searches-load-more-button",
@@ -90,9 +105,11 @@ class StoredFilter {
 		this.disableForm(target);
 
 		DataCycle.httpRequest(target.href, {
+			method: "POST",
 			body: {
 				last_day: lastDayChild?.dataset.day,
 				q: this.search,
+				ids: this.classificationUsageIds,
 			},
 		})
 			.then((data) => {
@@ -131,8 +148,10 @@ class StoredFilter {
 		if (history) this.pushStateToHistory();
 
 		DataCycle.httpRequest(this.fullTextForm.action, {
+			method: "POST",
 			body: {
 				q: this.search,
+				ids: this.classificationUsageIds,
 			},
 		})
 			.then((data) => {
@@ -156,6 +175,16 @@ class StoredFilter {
 		event.preventDefault();
 		event.stopPropagation();
 
+		this.fullTextSearchField.value = "";
+		this.filterSearches(event);
+	}
+	removeClassificationContext(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		this.classificationUsageIds = [];
+		this.classificationChip.remove();
+		this.classificationChip = null;
 		this.fullTextSearchField.value = "";
 		this.filterSearches(event);
 	}

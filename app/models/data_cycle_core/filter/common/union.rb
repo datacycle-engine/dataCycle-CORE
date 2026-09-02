@@ -24,7 +24,7 @@ module DataCycleCore
 
           return self if filter_query_sql.blank?
 
-          reflect(@query.where(thing[:id].not_in(Arel.sql(filter_query_sql))))
+          exclude_thing_ids(filter_query_sql)
         end
 
         def content_ids(ids = nil)
@@ -76,9 +76,7 @@ module DataCycleCore
           filter_query_sql = filter_ids_query(ids)
           return self if filter_query_sql.blank?
 
-          reflect(
-            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql)))
-          )
+          exclude_thing_ids(filter_query_sql)
         end
 
         def watch_list_ids(ids = nil)
@@ -94,9 +92,7 @@ module DataCycleCore
           filter_query_sql = watch_list_ids_query(ids)
           return self if filter_query_sql.blank?
 
-          reflect(
-            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql)))
-          )
+          exclude_thing_ids(filter_query_sql)
         end
 
         def watch_list_ids_query(ids)
@@ -151,6 +147,30 @@ module DataCycleCore
 
           reflect(
             @query.where(thing[:id].in(Arel.sql(filters.join(' UNION '))))
+          )
+        end
+
+        private
+
+        # NOT EXISTS, not NOT IN: a NOT IN sublink plans as a hashed SubPlan pinned to the things
+        # scan, so the planner cannot evaluate it after the selective filters and seq-scans the
+        # whole table. NOT EXISTS becomes an anti-join it is free to reorder. The (id) alias
+        # normalises the subquery's column, which is `thing_id` for watch lists and `id` for filters.
+        # Must stay private: it embeds raw SQL, and StoredFilter dispatches filter parameters via
+        # `query.respond_to?(t)` + `send`, which would otherwise reach it with attacker-set `v`.
+        def exclude_thing_ids(sql)
+          excluded = Arel::Table.new(:excluded_ids)
+          derived = Arel::Nodes::TableAlias.new(Arel::Nodes::Grouping.new(Arel.sql(sql)), Arel.sql('excluded_ids(id)'))
+
+          reflect(
+            @query.where(
+              Arel::SelectManager.new
+                .project(Arel.sql('1'))
+                .from(derived)
+                .where(excluded[:id].eq(thing[:id]))
+                .exists
+                .not
+            )
           )
         end
       end

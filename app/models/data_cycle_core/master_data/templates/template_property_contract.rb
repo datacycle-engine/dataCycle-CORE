@@ -43,6 +43,9 @@ module DataCycleCore
                 end
                 optional(:additional_value_paths).value(:hash)
                 optional(:additional_values_overlay).array(:string)
+                # restrict object browser candidates to things linked to the
+                # current content via the given relation attribute(s)
+                optional(:limited_by_linked) { str? | (array? & each(:string)) }
               end
             end
           end
@@ -58,6 +61,9 @@ module DataCycleCore
           optional(:stored_filter).value(:array)
           # for type embedded
           optional(:translated).value(:bool)
+
+          # for type timeseries
+          optional(:collapse_redundant_values).value(:bool)
 
           # for type linked
           # valid_linked_language?
@@ -98,6 +104,15 @@ module DataCycleCore
             required(:method).value(:string)
             optional(:parameters).value(:array)
             optional(:async).value(:bool)
+            optional(:after_save).value(:bool)
+            optional(:fallback).value(:bool)
+            optional(:recompute_on_classification_change).value(:bool)
+            # the tree the compute reads (String#parent_classification_name), for computes whose own type
+            # carries no tree_label. Declared so it is type-checked and survives the contract's output,
+            # which drops keys it does not know. A misspelled key still passes — the schema admits
+            # unknown compute options (override_parameter, separator, ...) on purpose; what catches that
+            # is ThingTemplate.classification_change_computed_properties logging the missing tree
+            optional(:tree_label).value(:string)
           end
 
           optional(:content_score).hash do
@@ -150,12 +165,22 @@ module DataCycleCore
         rule(:content_score).validate(ruby_module_and_method: 'Utility::ContentScore')
         rule(:validations).validate(:dc_property_validations)
 
+        # async and after_save are two ways of deferring the same compute past the save (job vs.
+        # in-request); asking for both leaves it undefined which one wins
+        rule(:compute) do
+          key.failure(:conflicting_deferral) if value.is_a?(::Hash) && value[:async] == true && value[:after_save] == true
+        end
+
         rule(:properties) do
           key.failure(:invalid_object) if key? && !(values[:type] == 'object' && ['value', 'translated_value'].include?(values[:storage_location]))
         end
 
         rule(:storage_location) do
           key.failure(:invalid_column) if key? && value == 'column' && ['external_key', 'slug'].exclude?(property_name.to_s)
+        end
+
+        rule(:collapse_redundant_values) do
+          key.failure(:invalid_collapse_redundant_values) if key? && values[:type] != 'timeseries'
         end
 
         rule(:overlay, :type) do

@@ -26,6 +26,8 @@
   </ul>
 <% end %>
 
+<%= render 'data_cycle_core/users/lock_status', user: item, full_text: true, additional_classes: 'link' %>
+
 <div class="tags">
   <ul class="no-bullet no-format">
     <% if item.role %>

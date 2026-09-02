@@ -1485,6 +1485,84 @@ ul.backend-treeview-list,
   }
 }
 
+// Keep the footer (with the "show all" button) and the header visible while only the result list
+// scrolls. The column layout lives on the turbo frame, NOT on the reveal itself: Foundation toggles
+// the reveal's inline `display` (block on open, none on close), which would override a stylesheet
+// `display: flex` - and forcing it with !important would stop the reveal from ever closing. The
+// frame's display is never touched by Foundation, so it can safely be the flex column. Capping the
+// frame to a viewport-relative height keeps the whole dialog on screen (the header adds a little
+// above it); Foundation's ResizeObserver position updater (see foundation_init.js) recenters the
+// reveal once the lazy frame has loaded.
+.reveal.stored-filter-usage-reveal {
+  .stored-filter-usage-frame {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 80vh;
+  }
+
+  .reveal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .reveal-footer {
+    flex: 0 0 auto;
+  }
+}
+
+// Row spacing/colors match the classification tree's own row style (span.inner-item / a.name above:
+// padding: 0.5rem 0.7rem, primary-color links, dark-blue hover) rather than the saved-searches list's
+// .content-item, so this panel reads as part of the classification admin, not a different widget. The
+// border-bottom separators are kept for scannability; the indirect-usage arrow is pushed to the row's
+// end via flex/margin-left auto instead of sitting right up against the link text.
+//
+// Each entry is a button_to (POST, so hundreds of ids go in the form body instead of a query string
+// that can exceed the URI length limit - see #43524) rather than a plain link. `display: contents` on
+// the generated form keeps it out of the flex layout entirely, so the button participates in the row's
+// flex row exactly like the anchor it replaces; the button itself is reset back to look like a link,
+// since `button` already carries this app's default button chrome (background/border/padding).
+.stored-filter-usage-list {
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.7rem;
+    line-height: 1.4;
+    border-bottom: 1px solid var(--medium-gray);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  form.button_to {
+    display: contents;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--primary-color);
+
+    &:hover {
+      color: var(--dark-blue);
+    }
+  }
+
+  .fa-long-arrow-right {
+    margin-left: auto;
+    color: var(--dark-gray);
+  }
+}
+
 
 .reveal.concept-scheme-link-reveal,
 .reveal.concept-scheme-unlink-reveal {

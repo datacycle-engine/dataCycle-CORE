@@ -37,8 +37,8 @@ namespace :dc do
       puts "setting #{to_update.size} running imports to failed"
 
       to_update.find_each(&:fail_running_steps!)
-    rescue StandardError
-      puts AmazingPrint::Colors.red('🔥 there were some errors!')
+    rescue StandardError => e
+      puts AmazingPrint::Colors.red("🔥 there were some errors! #{e.message}")
     end
   end
 end

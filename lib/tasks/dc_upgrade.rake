@@ -27,17 +27,26 @@ namespace :dc do
 
     desc 'remove some unused config files'
     task clean_configs: :environment do
-      file_path = Rails.root.join('config', 'cable.yml')
+      file_path = Rails.root.join('config', 'spring.rb')
       if File.exist?(file_path)
-        puts 'remove config/cable.yml ...'
+        print 'removing config/spring.rb ... '
         FileUtils.rm_f(file_path)
+        puts AmazingPrint::Colors.green('✔')
+      end
+
+      file_path = Rails.root.join('bin', 'delayed_job')
+      if File.exist?(file_path)
+        print 'removing bin/delayed_job ... '
+        FileUtils.rm_f(file_path)
+        puts AmazingPrint::Colors.green('✔')
       end
 
       file_path = Rails.root.join('config', 'appsignal.yml')
       if File.exist?(file_path)
-        puts 'remove config/appsignal.yml ...'
         puts '!!! WARNING: make sure PRODUCTION_ENVIRONMENT in gitlab CI/CD settings includes APPSIGNAL_PUSH_API_KEY !!!' if File.exist?(file_path)
+        print 'removing config/appsignal.yml ... '
         FileUtils.rm_f(file_path)
+        puts AmazingPrint::Colors.green('✔')
       end
 
       file_path = Rails.root.join('.npmrc')
@@ -48,12 +57,14 @@ namespace :dc do
 
         if new_text.present?
           if text != new_text
-            puts 'remove useless lines from .npmrc ...'
+            print 'removing useless lines from .npmrc ... '
             File.write(file_path, new_text)
+            puts AmazingPrint::Colors.green('✔')
           end
         else
-          puts 'remove .npmrc ...'
+          print 'removing .npmrc ... '
           FileUtils.rm_f(file_path)
+          puts AmazingPrint::Colors.green('✔')
         end
       end
 

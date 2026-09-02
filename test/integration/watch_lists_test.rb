@@ -13,13 +13,13 @@ module DataCycleCore
       @routes = Engine.routes
       @default_tags = DataCycleCore::Classification.for_tree('Tags').where(name: ['Tag 1', 'Tag 2']).pluck(:id)
       @additional_tags = DataCycleCore::Classification.for_tree('Ausgabekanäle').where(name: 'Tag 3').pluck(:id)
-      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel', tags: @default_tags })
-      @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
+      @content = create_content('Artikel', { name: 'TestArtikel', tags: @default_tags })
+      @watch_list = create_watch_list(name: 'TestWatchList')
       @current_user = User.find_by(email: 'tester@datacycle.at')
-      @organization = DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: { name: 'TestOrganisation' })
-      @image_a = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildA', author: [@organization.id] })
-      @image_b = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildB', author: [@organization.id] })
-      @image_c = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildC', copyright_holder: [@organization.id] })
+      @organization = create_content('Organization', { name: 'TestOrganisation' })
+      @image_a = create_content('Bild', { name: 'TestBildA', author: [@organization.id] })
+      @image_b = create_content('Bild', { name: 'TestBildB', author: [@organization.id] })
+      @image_c = create_content('Bild', { name: 'TestBildC', copyright_holder: [@organization.id] })
     end
 
     setup do
@@ -245,7 +245,7 @@ module DataCycleCore
 
     test 'bulk delete all watch_list_items, fails because one item is external' do
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: @content.id)
-      content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+      content2 = create_content('Artikel', { name: 'TestArtikel' })
       content2.external_source_id = ExternalSystem.first.id
       content2.save!
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, thing_id: content2.id)
@@ -479,7 +479,7 @@ module DataCycleCore
     end
 
     test 'add search items to watch_list' do
-      content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Zweiter Inhalt' })
+      content2 = create_content('Artikel', { name: 'Zweiter Inhalt' })
       @watch_list.things << content2
 
       assert_includes @watch_list.things.pluck(:id), content2.id

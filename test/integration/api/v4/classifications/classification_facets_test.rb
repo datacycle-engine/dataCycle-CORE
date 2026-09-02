@@ -33,6 +33,8 @@ module DataCycleCore
             @tag2 = @aliases.find_by(internal_name: 'Tag 2')
 
             @count_mapping[@aliases.last.id] = []
+
+            perform_enqueued_jobs
           end
 
           test 'api/v4/endpoints/:endpoint/facets' do
@@ -177,6 +179,156 @@ module DataCycleCore
 
               assert_equal(expected_count, item['dc:thingCountWithSubtree'])
             end
+          end
+
+          # conceptFilter restricts the returned concepts (result set), unlike filter which drives the counts (#43008)
+          test 'api/v4/endpoints/:endpoint/facets with conceptFilter[skos:broader] restricts returned concepts' do
+            tag3 = @aliases.find_by(internal_name: 'Tag 3')
+            nested1 = @aliases.find_by(internal_name: 'Nested Tag 1')
+            nested2 = @aliases.find_by(internal_name: 'Nested Tag 2')
+
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              conceptFilter: { attribute: { 'skos:broader': { in: [tag3.id] } } },
+              page: { size: 100 }
+            }
+
+            post api_v4_facets_path(params)
+            json_data = response.parsed_body
+
+            assert_equal([nested1.id, nested2.id].sort, json_data['@graph'].pluck('@id').sort)
+          end
+
+          test 'api/v4/endpoints/:endpoint/facets with conceptFilter[skos:broader]=null returns only top-level concepts' do
+            roots = ['Tag 1', 'Tag 2', 'Tag 3'].map { |n| @aliases.find_by(internal_name: n).id }
+
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              conceptFilter: { attribute: { 'skos:broader': { in: ['null'] } } },
+              page: { size: 100 }
+            }
+
+            post api_v4_facets_path(params)
+            json_data = response.parsed_body
+
+            assert_equal(roots.sort, json_data['@graph'].pluck('@id').sort)
+          end
+
+          test 'api/v4/endpoints/:endpoint/facets with conceptFilter[skos:ancestors] restricts to descendants' do
+            tag3 = @aliases.find_by(internal_name: 'Tag 3')
+            nested1 = @aliases.find_by(internal_name: 'Nested Tag 1')
+            nested2 = @aliases.find_by(internal_name: 'Nested Tag 2')
+
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              conceptFilter: { attribute: { 'skos:ancestors': { in: [tag3.id] } } },
+              page: { size: 100 }
+            }
+
+            post api_v4_facets_path(params)
+            json_data = response.parsed_body
+
+            assert_equal([nested1.id, nested2.id].sort, json_data['@graph'].pluck('@id').sort)
+          end
+
+          test 'api/v4/endpoints/:endpoint/facets with conceptFilter[search] restricts returned concepts' do
+            nested1 = @aliases.find_by(internal_name: 'Nested Tag 1')
+            nested2 = @aliases.find_by(internal_name: 'Nested Tag 2')
+
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              conceptFilter: { search: 'Nested' },
+              page: { size: 100 }
+            }
+
+            post api_v4_facets_path(params)
+            json_data = response.parsed_body
+
+            assert_equal([nested1.id, nested2.id].sort, json_data['@graph'].pluck('@id').sort)
+          end
+
+          test 'api/v4/endpoints/:endpoint/facets conceptFilter restricts concepts while filter still drives counts' do
+            roots = ['Tag 1', 'Tag 2', 'Tag 3'].map { |n| @aliases.find_by(internal_name: n).id }
+
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              filter: { search: @tag2.id }, # counts: only the content tagged with Tag 2 matches
+              conceptFilter: { attribute: { 'skos:broader': { in: ['null'] } } }, # concepts: roots only
+              page: { size: 100 }
+            }
+
+            post api_v4_facets_path(params)
+            json_data = response.parsed_body
+
+            assert_equal(roots.sort, json_data['@graph'].pluck('@id').sort)
+            json_data['@graph'].each do |item|
+              assert_equal(item['@id'] == @tag2.id ? 1 : 0, item['dc:thingCountWithSubtree'])
+            end
+          end
+
+          test 'api/v4/endpoints/:endpoint/facets rejects content-only filter keys inside conceptFilter' do
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              conceptFilter: { classifications: { in: { withSubtree: [@tag1.id] } } }
+            }
+
+            post api_v4_facets_path(params)
+
+            assert_response :bad_request
+          end
+
+          # dct:deleted is a no-op on facets (the count query excludes deleted concepts), so the
+          # conceptFilter contract rejects it instead of silently ignoring it (#43008)
+          test 'api/v4/endpoints/:endpoint/facets rejects conceptFilter[dct:deleted]' do
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              conceptFilter: { attribute: { 'dct:deleted': { in: { bool: true } } } }
+            }
+
+            post api_v4_facets_path(params)
+
+            assert_response :bad_request
+          end
+
+          # The id of the request scoped StoredFilter comes from DataCycleCore::UuidService. As the
+          # view helper generate_uuid it was an instance method only on controllers including
+          # DataCycleCore::ApiHelper, so every other build_search_query caller - facets among them -
+          # raised NoMethodError once a user had a forced api_linked user_filter (#49238).
+          test 'api/v4/endpoints/:endpoint/facets with a forced api_linked user_filter' do
+            previous_user_filters = DataCycleCore.user_filters.deep_dup
+            DataCycleCore.user_filters = { tmp_api_linked: { 'segments' => [{ 'name' => 'DataCycleCore::Abilities::Segments::UsersByRole', 'parameters' => ['admin'] }], 'force' => true, 'scope' => ['api_linked'], 'stored_filter' => [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['POI'] } }] } }
+
+            params = {
+              id: @endpoint.id,
+              classification_tree_label_id: @tree_label.id,
+              token: @current_user.access_token,
+              page: { size: 100 }
+            }
+
+            post api_v4_facets_path(params)
+
+            assert_response :success
+            json_data = response.parsed_body
+
+            json_data['@graph'].each do |item|
+              assert_equal(@count_mapping[item['@id']].size, item['dc:thingCountWithSubtree'])
+            end
+          ensure
+            DataCycleCore.user_filters = previous_user_filters
           end
         end
       end

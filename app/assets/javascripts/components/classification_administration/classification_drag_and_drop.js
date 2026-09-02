@@ -134,13 +134,12 @@ class ClassificationDragAndDrop {
 					},
 					"merge",
 				)
-					.then(this.renderResponseMessage.bind(this))
-					.catch()
-
 					.then((data) => {
 						this.renderResponseMessage(data);
 						this.enableMergeElements(source, target);
-						source.remove();
+						// a refused merge answers 200 with an error payload, so the source is still in
+						// the tree — removing it would read as "merged anyway"
+						if (!data?.error) source.remove();
 					})
 					.catch(() => {
 						this.renderGeneralError("merge");

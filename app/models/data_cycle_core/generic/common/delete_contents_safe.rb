@@ -61,7 +61,10 @@ module DataCycleCore
               end
 
               if oldest_import_duplicate.nil?
+                template_name = content.template_name
                 content.try(:destroy, save_history: true, destroy_linked: { template_names: linked_template_names }, destroy_locale: true) # delete only a particular translation!
+                # counts what the step hands to destroy -- #destroy returns self either way, so it is no success signal
+                DataCycleCore::Generic::Common::ImportCounters.instrument(:deleted, utility_object:, template_name:)
               else
                 content.update_columns(external_source_id: oldest_import_duplicate.external_system_id, external_key: oldest_import_duplicate.external_key) unless DataCycleCore::Thing.exists?(
                   external_source_id: oldest_import_duplicate.external_system_id,

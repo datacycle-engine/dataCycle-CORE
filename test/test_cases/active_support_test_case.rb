@@ -6,17 +6,23 @@ require 'helpers/active_storage_helper'
 module DataCycleCore
   module TestCases
     class ActiveSupportTestCase < ActiveSupport::TestCase
+      include ActiveJob::TestHelper
       include DataCycleCore::MinitestHookHelper
       include DataCycleCore::ActiveStorageHelper
 
       private
 
-      def create_content(template_name, data = {}, user = nil)
-        DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data, user:)
+      def create_content(template_name, data = {}, user = nil, prevent_history: false)
+        content = DataCycleCore::TestPreparations
+          .create_content(template_name:, data_hash: data, user:, prevent_history:)
+        perform_enqueued_jobs
+        content
       end
 
       def update_content(content, data = {}, user = nil)
         content.set_data_hash(data_hash: data, current_user: user)
+        perform_enqueued_jobs
+        content
       end
 
       def get_classification_ids(tree_name, *alias_names)

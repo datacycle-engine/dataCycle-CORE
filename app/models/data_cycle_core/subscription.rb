@@ -22,7 +22,7 @@ module DataCycleCore
     def self.to_notify(frequencies = ['always'])
       return if DataCycleCore.notification_frequencies.blank?
 
-      includes(:user).where(users: { notification_frequency: frequencies, locked_at: nil })
+      includes(:user).where(users: { notification_frequency: frequencies }).merge(DataCycleCore::User.not_effectively_locked)
     end
   end
 end

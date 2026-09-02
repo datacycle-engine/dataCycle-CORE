@@ -3,10 +3,7 @@
 module DataCycleCore
   class UpdateTranslatedComputedPropertiesJob < UniqueApplicationJob
     queue_as :cache_invalidation
-
-    def delayed_reference_id
-      "#{arguments[0]}-#{arguments[1].join('_')}-#{arguments[2]&.join('_')}"
-    end
+    limits_concurrency key: ->(*args) { "#{args[0]}/#{args[1].join(',')}/#{args[2]&.join(',')}" }
 
     def perform(id, locales, keys = nil)
       content = DataCycleCore::Thing.find_by(id:)

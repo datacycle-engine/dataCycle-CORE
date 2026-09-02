@@ -50,6 +50,17 @@ module DataCycleCore
         all_properties.select { |_, definition| yield(definition) }
       end
 
+      # Memoized #name_property_selector: each unmemoized call rebuilds a filtered copy of all
+      # property definitions, which dominates per-property loops. Cleared by #reload_template_definition.
+      def memoized_property_names(key, include_overlay = false, &)
+        cache = (@memoized_property_names ||= {})
+        cache_key = [key, include_overlay]
+
+        return cache[cache_key] if cache.key?(cache_key)
+
+        cache[cache_key] = name_property_selector(include_overlay, &)
+      end
+
       def duplicate_data_hash(data_hash)
         data_hash.deep_reject { |k, _v| k == 'id' || asset_property_names.include?(k) || computed_property_names.include?(k) }
       end

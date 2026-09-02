@@ -6,16 +6,12 @@ module DataCycleCore
     PRIORITY = 12
 
     queue_as :default
-
-    # job priority (lower runs earlier)
-    def priority
-      PRIORITY
-    end
-
-    # deduplicate queued jobs per content
-    def delayed_reference_id
-      arguments[0]
-    end
+    # job priority (lower runs earlier); must not override the +priority+ reader, otherwise
+    # ActiveJob cannot bump it between retries (see JobExtensions::Callbacks)
+    queue_with_priority PRIORITY
+    # deduplicate queued jobs per content, which is what UniqueApplicationJob keys its
+    # abort_if_queued check on
+    limits_concurrency key: ->(*args) { args[0] }
 
     # geocode the given Thing if it still needs coordinates
     def perform(thing_id)

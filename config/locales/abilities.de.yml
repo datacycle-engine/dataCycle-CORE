@@ -59,6 +59,7 @@ de:
       cache: Cache
       auto_translate: Automatische Übersetzung
       dash_board: Admin Dashboard
+      guides: Entwickler-Guides
       permission: Berechtigungen
       preview: Widget-Link
       oauth: OAuth
@@ -131,11 +132,14 @@ de:
       download_content_report: Report für Inhalt herunterladen
       manage: alle Aktionen ausführen
       map_classifications: Klassifizierungsmappings erstellen
+      update_hidden_mappings: Ausblenden von gemappten Klassifizierungen ändern
       set_color: Farbe ändern
       clear: für Inhalt leeren
       clear_all: für alle Inhalte leeren
       remove_version_name: Versionsname entfernen
       show_admin_panel: Adminpanel anzeigen
+      show_raw_data: Rohdaten anzeigen
+      show_hidden_classifications: über ausgeblendete Mappings zugeordnete Klassifizierungen anzeigen
       switch_primary_external_system: primäres externes System ändern
       demote_primary_external_system: primäres externes System in externe Verknüpfung umwandeln
       create_external_connection: externe Verbindung erstellen
@@ -150,6 +154,7 @@ de:
       update_description: Beschreibung bearbeiten
       authenticate_with: authentifizieren
     restrictions:
+      additional_menu_link_by_keys: "Links: %{data}"
       advanced_filter_except_type: "nicht: %{except}"
       asset_by_user_and_no_content:
         - "Benutzer die Datei hochgeladen hat"
@@ -199,6 +204,7 @@ de:
         - "Datentyp: %{template_names}"
       things_by_collections:
         - "Inhalte in %{collection_type}: %{collection_names_or_ids}"
+      things_by_stored_filter: "Inhalte im gespeicherten Filter"
       things_in_collections:
         - "Inhalte in %{collection_type}: %{collection_names_or_ids}"
       tree_label_by_visibility: "Sichtbarkeit: %{visibilities}"

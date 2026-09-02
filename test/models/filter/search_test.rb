@@ -37,6 +37,8 @@ module DataCycleCore
 
       # SELECT st_Multi(ST_Polygon('LINESTRING(40 40, 50 40, 50 50, 40 50, 40 40)'::geometry, 4326)) as poly;
       DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 4326).parse_wkt('MULTIPOLYGON (((40 40, 50 40, 50 50, 40 50, 40 40)))'), classification_alias_id: @alias_id2[0], id: 2)
+
+      perform_enqueued_jobs
     end
 
     test 'small helper functions' do
@@ -147,6 +149,20 @@ module DataCycleCore
       assert_equal(0, items.count)
     end
 
+    test 'test query for date_range with a jsonb attribute path' do
+      image = create_content('Bild', { name: 'UPLOADED IMAGE', upload_date: Date.current })
+
+      items = DataCycleCore::Filter::Search.new(locale: :de)
+        .date_range({ from: Date.current, until: Date.current }, "metadata ->> 'upload_date'")
+
+      assert_equal([image.id], items.pluck(:id))
+
+      items = DataCycleCore::Filter::Search.new(locale: :de)
+        .date_range({ from: Date.current + 1.day, until: Date.current + 2.days }, "metadata ->> 'upload_date'")
+
+      assert_equal(0, items.count)
+    end
+
     test 'test query for validity_period' do
       items = DataCycleCore::Filter::Search.new(locale: :de).validity_period({ from: Date.current, until: Date.current })
 
@@ -155,6 +171,23 @@ module DataCycleCore
       items = DataCycleCore::Filter::Search.new(locale: :de).not_validity_period({ from: Date.current, until: Date.current })
 
       assert_equal(2, items.count)
+    end
+
+    test 'without_validity_filters turns the validity filters into no-ops' do
+      all = DataCycleCore::Filter::Search.new(locale: :de).count
+      filter_object = { from: Date.current, until: Date.current }
+
+      DataCycleCore::Filter::Common::Date.without_validity_filters do
+        assert_equal(all, DataCycleCore::Filter::Search.new(locale: :de).validity_period(filter_object).count)
+        assert_equal(all, DataCycleCore::Filter::Search.new(locale: :de).not_validity_period(filter_object).count)
+        assert_equal(all, DataCycleCore::Filter::Search.new(locale: :de).in_validity_period.count)
+      end
+
+      # the state is restored afterwards, also when the block raises
+      assert_equal(8, DataCycleCore::Filter::Search.new(locale: :de).validity_period(filter_object).count)
+
+      assert_raises(RuntimeError) { DataCycleCore::Filter::Common::Date.without_validity_filters { raise 'boom' } }
+      assert_not_predicate DataCycleCore::Filter::Common::Date, :validity_filters_disabled?
     end
 
     test 'test query for inactive items' do
@@ -182,15 +215,15 @@ module DataCycleCore
       asset1 = upload_image('test_rgb.jpeg')
 
       assert_predicate asset1.thumb_preview, :present?
-      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset1.id })
+      create_content('Bild', { name: 'Test Bild 1', asset: asset1.id })
       asset2 = upload_image('test_rgb.png')
 
       assert_predicate asset2.thumb_preview, :present?
-      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: asset2.id })
+      create_content('Bild', { name: 'Test Bild 2', asset: asset2.id })
       asset3 = upload_image('test_rgb.jpeg')
 
       assert_predicate asset3.thumb_preview, :present?
-      image3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3', asset: asset3.id })
+      image3 = create_content('Bild', { name: 'Test Bild 3', asset: asset3.id })
 
       DataCycleCore::Thing
         .where(external_source_id: nil, external_key: nil, template_name: 'Bild')
@@ -222,6 +255,7 @@ module DataCycleCore
         .create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 1' } }, nil)
       DataCycleCore::DataHashService
         .create_internal_object('Örtlichkeit', { datahash: { name: 'Test Örtlichkeit 2' } }, nil)
+      perform_enqueued_jobs
 
       items = DataCycleCore::Filter::Search.new(locale: :de)
         .duplicate_candidate_filter({ 'method' => 'only_title' })

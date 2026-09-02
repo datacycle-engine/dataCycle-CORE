@@ -123,7 +123,11 @@ class GeoKeyFigure {
 		})
 			.then((data) => {
 				if (data) {
-					if (data.newValue) this.setNewValue(data.newValue);
+					// a key figure of 0 is a value, not a missing one: a tour that only
+					// descends has an ascent of 0, and a flat one has both at 0. The
+					// endpoints report "no data" as an error, so anything under newValue
+					// can be written - including 0, which a truthiness check dropped.
+					if (Object.hasOwn(data, "newValue")) this.setNewValue(data.newValue);
 					if (data.error) this.showErrorMessage(data.error);
 				}
 			})

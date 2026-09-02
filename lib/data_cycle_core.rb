@@ -10,6 +10,7 @@ require 'action_controller/railtie'
 require 'action_mailer/railtie'
 require 'action_view/railtie'
 require 'action_cable/engine'
+require 'ostruct' # OpenStruct is used across the gem and stops being a default gem with ruby 3.5
 require 'turbo-rails'
 
 # Databases
@@ -44,7 +45,7 @@ require 'rack/attack'
 # validator for json data
 require 'json-schema'
 # backgound-jobs
-require 'delayed_job_active_record'
+require 'solid_queue'
 
 # REST-client
 require 'faraday'
@@ -253,11 +254,26 @@ module DataCycleCore
   self.job_queues = {
     default: 1,
     importers: 1,
+    importers_short: 1,
     cache_invalidation: 2,
     search_update: 3,
     mailers: 1,
     webhooks: 1
   }
+
+  # queues that run external-system download/import jobs (see ExternalSystem#import_queue)
+  mattr_accessor :importer_queues
+  self.importer_queues = [:importers, :importers_short]
+
+  # How many jobs this process runs at the same time, and therefore how many of them share its
+  # single connection pool. One everywhere except inside a SolidQueue worker, where the hook in
+  # +config/initializers/solid_queue.rb+ replaces it with that worker's configured thread count.
+  #
+  # Anything that opens a thread pool of its own per job has to divide the connection pool by this
+  # before sizing itself, or the process runs out of connections as soon as more than one job is in
+  # flight — see +DataCycleCore::WorkerPool.default_num_workers+.
+  mattr_accessor :concurrent_job_threads
+  self.concurrent_job_threads = 1
 
   mattr_accessor :schedule_occurrences_range
   self.schedule_occurrences_range = {
@@ -273,6 +289,9 @@ module DataCycleCore
 
   mattr_accessor :schedule
   self.schedule = []
+
+  mattr_accessor :cleanup_orphans
+  self.cleanup_orphans = {}
 
   def self.setup
     yield self
@@ -355,7 +374,6 @@ module DataCycleCore
     config.action_controller.forgery_protection_origin_check = true
     # Configure SSL options to enable HSTS with subdomains. Previous versions had false.
     config.ssl_options = { hsts: { subdomains: true } }
-    config.active_support.to_time_preserves_timezone = :zone
     # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
     ActiveSupport.on_load(:action_controller) do
       wrap_parameters format: [:json]
@@ -367,15 +385,42 @@ module DataCycleCore
     config.active_record.dump_schemas = :all
     config.active_record.default_timezone = :utc # Or :local
 
-    # backend for active_job is delayed_job
-    config.active_job.queue_adapter = :delayed_job
+    # backend for active_job
+    config.active_job.queue_adapter = :solid_queue
+    config.solid_queue.preserve_finished_jobs = false
+    # How long a concurrency lock survives without being refreshed. The dispatcher deletes every
+    # semaphore past it and then releases a blocked duplicate, so the value has to outlast the
+    # longest stretch in which nothing refreshes the lock.
+    #
+    # The gem's 3 minutes does not: a job holds its lock from dispatch, but the refresh timer in
+    # +with_extended_concurrency_lock+ only starts once the job runs, so a job left waiting for a
+    # free worker loses its lock and a duplicate becomes runnable beside it — the trade-off
+    # +ImportJob+ documents at its own +duration:+. At 10 minutes, which is also the dispatcher's
+    # default +concurrency_maintenance_interval+, the sweep additionally stops finding keys that a
+    # content save is still acquiring inside its transaction, which is what the two deadlocked over.
+    config.solid_queue.default_concurrency_control_period = 10.minutes
+    # Budget the supervisor spends waiting for its workers before SIGQUITing them. Jobs that are
+    # still running when it expires are released back to the queue by the supervisor's own
+    # deregistration (SolidQueue::Process#deregister cascades to its supervisees), so they resume
+    # after the restart instead of failing — but only if the supervisor itself is not killed first.
+    # Keep this well below the smallest container stop_grace_period in play, and see
+    # DataCycleCore::JobRecovery for the safety net when it is killed anyway.
+    #
+    # The ceiling is the local jobs container, which sets no stop_grace_period and so gets docker's
+    # 10s default (production sets 2m30s); 5s leaves that ample room for the SIGQUIT and the
+    # deregistering DELETE. That happens to be the gem default too, and is pinned here so a gem
+    # update cannot move it without the grace periods above being re-checked. Anything shorter buys
+    # nothing and costs: every deploy would kill the short jobs — mails, cache invalidation,
+    # webhooks — that would have finished on their own, and a released mailer job re-runs its
+    # delivery from the top. It cannot save a long import either way, so there is no point tuning
+    # for one.
+    config.solid_queue.shutdown_timeout = 5.seconds
 
     # set default language and no errors for non standard languages
     config.i18n.enforce_available_locales = false
     config.i18n.default_locale = :de
-    # fallbacks for i18n and Globalize (buggy with json db-fields)
-    # ! when set to true regression with translated jsonb fields occurs
-    # !!!!!!!!!!!!!!!! do not switch on !!!!!!!!!!!!!!!!
+    # off by default, host projects enable it per environment; translated content is unaffected
+    # as long as Mobility's fallbacks plugin stays off (see config/initializers/mobility.rb)
     config.i18n.fallbacks = false
     config.action_view.form_with_generates_remote_forms = true
 
@@ -398,8 +443,6 @@ module DataCycleCore
     config.active_record.async_query_executor = :global_thread_pool
     config.active_record.global_executor_concurrency = ENV['PUMA_MAX_THREADS']&.to_i || 5
 
-    config.yjit = true
-
     # register the engine deprecator so the host application configures its behaviour centrally
     initializer 'data_cycle_core.deprecator' do |app|
       app.deprecators[:data_cycle_core] = DataCycleCore.deprecator
@@ -411,14 +454,6 @@ module DataCycleCore
         config.paths['db/migrate'].expanded.each do |expanded_path|
           app.config.paths['db/migrate'] << expanded_path
         end
-      end
-    end
-
-    initializer :append_cable_configurations do |app|
-      app.paths['config/cable'] << root.join('config', 'cable.yml').to_s
-      ActiveSupport.on_load(:action_cable) do
-        config_path = Pathname.new(app.config.paths['config/cable'].find { |p| Pathname.new(p).exist? })
-        self.cable = Rails.application.config_for(config_path).to_h.with_indifferent_access if config_path
       end
     end
 
@@ -446,7 +481,12 @@ module DataCycleCore
         ENV[var] = File.read(path).strip
       end
 
-      app.config.load_defaults 8.0
+      app.config.load_defaults 8.1
+      # Rails 8.1 defaults YJIT to production only. Keep it on everywhere: the gem is developed
+      # and tested against the same JIT behaviour it runs under in production. This has to sit on
+      # the application config - Rails::Engine::Configuration#yjit= never reaches the
+      # :enable_yjit initializer, which reads Rails.application.config.yjit.
+      app.config.yjit = true
       app.config.active_record.belongs_to_required_by_default = false
       ###
       app.config.time_zone = 'Europe/Vienna'

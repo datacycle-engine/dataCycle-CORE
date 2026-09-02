@@ -33,7 +33,7 @@ module DataCycleCore
         def users_outside_grace_period
           return DataCycleCore::User.none unless configuration.key?('consent_grace_period')
 
-          query_base = DataCycleCore::User.where(locked_at: nil)
+          query_base = DataCycleCore::User.not_effectively_locked
           query = []
 
           if configuration.key?('terms_condition_updated_at') && Time.zone.now >= (configuration['terms_condition_updated_at'].in_time_zone + configuration['consent_grace_period'])

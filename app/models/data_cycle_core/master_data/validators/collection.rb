@@ -18,9 +18,7 @@ module DataCycleCore
         # @param _strict [Boolean] Unused strict mode flag
         # @return [Hash] Collected validation errors and warnings
         def validate(data, template, _strict = false)
-          if blank?(data)
-            return @error
-          elsif data.is_a?(::Array) || data.is_a?(ActiveRecord::Relation) || data.is_a?(::String)
+          if blank?(data) || data.is_a?(::Array) || data.is_a?(ActiveRecord::Relation) || data.is_a?(::String)
             check_reference_array(Array.wrap(data), template)
           else
             (@error[:error][@template_key] ||= []) << {
@@ -37,6 +35,13 @@ module DataCycleCore
 
         private
 
+        # Extends validations that are allowed on blank values.
+        #
+        # @return [Array<String>] List of validation keys allowed on blank data
+        def validations_on_blank
+          (super + ['min', 'soft_min', 'max', 'soft_max']).uniq
+        end
+
         # Normalizes and validates reference arrays for collections.
         #
         # Converts input values, applies validations, and checks referenced IDs.
@@ -48,11 +53,7 @@ module DataCycleCore
           converted_data = convert_data(data, template)
           return if converted_data == false
 
-          if template.key?('validations')
-            template['validations'].each_key do |key|
-              validate_with_method(key, converted_data, template['validations'][key])
-            end
-          end
+          run_validations(converted_data, template)
 
           return if blank?(converted_data)
 
@@ -68,6 +69,8 @@ module DataCycleCore
         # @param template [Hash] Validation template
         # @return [Array<ActiveRecord::Base>, false] Resolved records or false on error
         def convert_data(data, template)
+          return [] if blank?(data)
+
           converted_data = data.deep_dup
           converted_data = converted_data.pluck(:id) if data.first.is_a?(ActiveRecord::Base)
 
@@ -100,6 +103,74 @@ module DataCycleCore
               key: (data - collection_ids).join(', '),
               template: template['label'],
               table: 'things'
+            }
+          }
+        end
+
+        # Validates minimum number of collections (error level).
+        #
+        # @param data [Array<WatchList, StoredFilter>] Collection objects
+        # @param value [Integer] Minimum required size
+        # @return [void]
+        def min(data, value)
+          return unless data.size < value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data.size,
+              value:
+            }
+          }
+        end
+
+        # Validates minimum number of collections (warning level).
+        #
+        # @param data [Array<WatchList, StoredFilter>] Collection objects
+        # @param value [Integer] Minimum required size
+        # @return [void]
+        def soft_min(data, value)
+          return unless data.size < value
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data.size,
+              value:
+            }
+          }
+        end
+
+        # Validates maximum number of collections (error level).
+        #
+        # @param data [Array<WatchList, StoredFilter>] Collection objects
+        # @param value [Integer] Maximum allowed size
+        # @return [void]
+        def max(data, value)
+          return unless data.size > value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data.size,
+              value:
+            }
+          }
+        end
+
+        # Validates maximum number of collections (warning level).
+        #
+        # @param data [Array<WatchList, StoredFilter>] Collection objects
+        # @param value [Integer] Maximum allowed size
+        # @return [void]
+        def soft_max(data, value)
+          return unless data.size > value
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data.size,
+              value:
             }
           }
         end

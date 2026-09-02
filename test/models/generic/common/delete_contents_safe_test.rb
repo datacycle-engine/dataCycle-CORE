@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   class DeleteContentsSafeTest < DataCycleCore::TestCases::ActiveSupportTestCase
-    DummyUtilityObject = Struct.new(:external_source)
+    DummyUtilityObject = Struct.new(:external_source, :step_name)
     RawItem = Struct.new(:dumped) do
       def dump
         dumped
@@ -14,7 +14,7 @@ module DataCycleCore
     before(:all) do
       @subject = DataCycleCore::Generic::Common::DeleteContentsSafe
       @local_system = DataCycleCore::ExternalSystem.find_by(identifier: 'local-system')
-      @utility_object = DummyUtilityObject.new(@local_system)
+      @utility_object = DummyUtilityObject.new(@local_system, 'delete_safe')
     end
 
     # raw_data items respond to #dump → { locale => { path => external_key } }
@@ -57,11 +57,19 @@ module DataCycleCore
       assert_equal(0, @subject.process_content(utility_object: @utility_object, raw_data: raw_for('dcs-none'), locale: :de, options:))
     end
 
-    test 'process_content deletes a matching single-locale content' do
+    test 'process_content deletes a matching single-locale content and counts it as deleted' do
       create_content('POI', { name: 'DCS One', external_key: 'dcs-1', external_source_id: @local_system.id })
       options = { import: { external_key_path: 'id', template_name: 'POI' } }
+      events = []
 
-      assert_equal(1, @subject.process_content(utility_object: @utility_object, raw_data: raw_for('dcs-1'), locale: :de, options:))
+      ActiveSupport::Notifications.subscribed(->(_name, _s, _f, _id, payload) { events << payload }, DataCycleCore::Generic::Common::ImportCounters::EVENTS[:deleted]) do
+        assert_equal(1, @subject.process_content(utility_object: @utility_object, raw_data: raw_for('dcs-1'), locale: :de, options:))
+      end
+
+      assert_equal(1, events.size)
+      assert_equal(@local_system, events.first[:external_system])
+      assert_equal('delete_safe', events.first[:step_name])
+      assert_equal('POI', events.first[:template_name])
     end
 
     test 'process_content deletes all duplicates when delete_all_duplicates is set' do

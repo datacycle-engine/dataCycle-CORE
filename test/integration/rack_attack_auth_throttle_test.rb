@@ -39,6 +39,25 @@ module DataCycleCore
         assert_response :too_many_requests
         assert_equal '429', response.status.to_s
         assert_predicate response.headers['Retry-After'], :present?
+        assert_equal 'text/plain', response.media_type
+      end
+    end
+
+    test 'rack-attack answers the API auth endpoint in the api error format' do
+      user = DataCycleCore::User.first
+      ip = '4.3.2.1'
+
+      # freeze time, so all requests fall into the same throttle window
+      freeze_time do
+        11.times do |i|
+          post api_v4_authentication_login_path, params: { email: user.email, password: "wrong_extra#{i}", warden_strategy: 'email_password' }, headers: { 'REMOTE_ADDR' => ip }
+          break if response.status.to_s == '429'
+        end
+
+        assert_response :too_many_requests
+        assert_equal 'application/json', response.media_type
+        assert_equal 'too_many_requests', response.parsed_body.dig('errors', 0, 'detail')
+        assert_predicate response.headers['Retry-After'], :present?
       end
     end
 

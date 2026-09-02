@@ -83,6 +83,10 @@ thing_actions:
     - show_admin_panel
     - show_related
     - show_external_connections
+    - show_raw_data
+    # #50677: reveal the classifications a content only carries through a hidden mapping
+    # (system_admin loads this file too, so it covers super_admin and above)
+    - show_hidden_classifications
     - subscribe
     - history
     - merge_duplicates
@@ -299,7 +303,9 @@ classification_tree_label_actions:
   parameters: DataCycleCore::ClassificationTreeLabel
 
 classification_tree_label_update:
-  actions: update
+  # #50677: update_hidden_mappings gates the hidden_mappings checkbox — deliberately a separate action,
+  # so a role may edit a tree without being able to hide its mappings from every content at once
+  actions: [update, update_hidden_mappings]
   segment: SubjectNotExternal
   parameters: DataCycleCore::ClassificationTreeLabel
 
@@ -393,3 +399,8 @@ live_logs:
     segment: UsersByRoleAndProvider
     parameters:
       - pixelpoint_aad_v2
+
+additional_menu_links:
+  actions: show
+  segment: AdditionalMenuLinkByKeys
+  parameters: all

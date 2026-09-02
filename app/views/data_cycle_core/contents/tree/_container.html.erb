@@ -1,3 +1,7 @@
+<% if local_assigns[:external_system].present? %>
+  <%# within an external-system content list a container is shown as a plain row (no classification-tree drill-in) %>
+  <%= render 'data_cycle_core/contents/tree/default', item:, external_system: local_assigns[:external_system], language: local_assigns[:language] %>
+<% else %>
 <li id="<%= item.id %>" data-parent-classification="<%= local_assigns[:classification_parent_tree]&.id || classification_tree.id %>" class="content-row tree-link-container">
   <div class="inner-item container">
     <%= link_to '#',
@@ -38,3 +42,4 @@
 
   <ul class="contents no-bullet"></ul>
 </li>
+<% end %>

@@ -1,8 +1,5 @@
 <div class="glass home-container reset-password">
   <div class="home-container-content">
-    <!--[if lt IE 9]>
-      <div class="legacy-ie-fix"></div>
-    <![endif]-->
     <div class="columns">
       <%= render 'logo' %>
     </div>
@@ -23,18 +20,14 @@
         <% end %>
 
         <div class="row">
-          <div class="small-5 columns">
-            <label for="user_password" class="text-right middle">
-              <%= t('activerecord.attributes.user.password', locale: active_ui_locale) %>:
-            </label>
-          </div>
-          <div class="small-6 columns end password-field">
+          <div class="small-12 columns password-field">
+            <label for="user_password"><%= t('activerecord.attributes.user.password', locale: active_ui_locale) %></label>
             <%= f.password_field :password, required: false %>
           </div>
         </div>
 
         <div class="row">
-          <div class="small-7 small-offset-5 columns end">
+          <div class="small-12 columns">
             <div class="form-actions">
               <%= f.button :button, class: 'button', type: 'submit' do %>
                 <%= t('devise.passwords.edit.change_your_password', locale: active_ui_locale) %>

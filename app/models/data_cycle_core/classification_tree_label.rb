@@ -4,10 +4,26 @@ require 'csv'
 
 module DataCycleCore
   class ClassificationTreeLabel < ApplicationRecord
+    CCC_REFRESH_BATCH_SIZE = 1_000
+
     validates :name, presence: true
 
     after_update :add_things_cache_invalidation_job_update, if: :trigger_things_cache_invalidation?
     after_update :add_things_webhooks_job_update, if: :trigger_things_webhooks?
+    # Redmine #50677: hidden_mappings changes which concepts of this tree the mapped contents
+    # effectively carry, so collected_classification_contents, the search index and the webhooks of
+    # every affected content have to be handled. Always async: a flagged tree can hold thousands of
+    # mappings.
+    #
+    # This callback is the *only* thing that materialises the flag. `concept_schemes.hidden_mappings`
+    # itself is kept in sync by the trigger functions, so the flag is never wrong — but a write that
+    # skips the model (upsert_all in the concept importer, an update_all, a manual UPDATE) leaves the
+    # already-materialised collected_classification_contents.hidden rows behind, and a hidden concept
+    # gives no visible sign of being stale. Deliberately not a DB trigger: the refresh rewrites CCC for
+    # every content reaching the tree (six figures on a large tree), which is exactly the work this job
+    # exists to keep out of the writing transaction. After such a write, queue it by hand:
+    #   DataCycleCore::CacheInvalidationJob.perform_later('DataCycleCore::ClassificationTreeLabel', id, 'refresh_hidden_mappings')
+    after_update :add_hidden_mappings_job_update, if: :saved_change_to_hidden_mappings?
     after_destroy :clean_stored_filters
 
     acts_as_paranoid
@@ -32,6 +48,12 @@ module DataCycleCore
     scope :visible, ->(context) { where('? = ANY("classification_tree_labels"."visibility")', context) }
     scope :search, ->(q) { where('classification_tree_labels.name ILIKE :q', { q: "%#{q.squish.gsub(/\s/, '%')}%" }) }
     scope :order_by_similarity, ->(term) { order([Arel.sql('similarity(classification_tree_labels.name, ?) DESC'), term]) }
+
+    # whether a change to this tree or any of its concepts is allowed to webhook the affected contents
+    # at all — the switch every webhook fan-out here and in ClassificationAlias is gated on
+    def trigger_webhooks?
+      change_behaviour.to_a.include?('trigger_webhooks')
+    end
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
@@ -158,6 +180,9 @@ module DataCycleCore
           sql_values.push(ancestor) if ancestor.present? && sql_values.none? { |sv| sv[3] == ancestor[3] }
         end
       end
+
+      # an empty list would render `VALUES` without a single tuple -- a syntax error, not a no-op
+      return if sql_values.blank?
 
       sql_values.each do |v|
         v[3].reverse!
@@ -451,36 +476,46 @@ module DataCycleCore
     end
 
     def do_classification_aliases_sql(upsert: false, add_missing: false)
-      do_classification_aliases = 'DO NOTHING'
+      return 'DO NOTHING' unless upsert || add_missing
 
-      if upsert || add_missing
-        name_value = "COALESCE(classification_aliases.name_i18n, '{}'::jsonb) || coalesce(EXCLUDED.name_i18n, '{}'::jsonb)"
-        name_value = "coalesce(EXCLUDED.name_i18n, '{}'::jsonb) || COALESCE(classification_aliases.name_i18n, '{}'::jsonb)" if add_missing
-        description_value = "COALESCE(classification_aliases.description_i18n, '{}'::jsonb) || coalesce(EXCLUDED.description_i18n, '{}'::jsonb)"
-        description_value = "coalesce(EXCLUDED.description_i18n, '{}'::jsonb) || COALESCE(classification_aliases.description_i18n, '{}'::jsonb)" if add_missing
-        uri_value = 'EXCLUDED.uri'
-        uri_value = "COALESCE(NULLIF(classification_aliases.uri, ''), #{uri_value})" if add_missing
-        order_sql = 'order_a = COALESCE(EXCLUDED.order_a, classification_aliases.order_a), '
-        order_sql = '' if add_missing
-        order_cond = 'OR classification_aliases.order_a IS DISTINCT FROM EXCLUDED.order_a'
-        order_cond = '' if add_missing
-        internal_name = ', internal_name = EXCLUDED.internal_name' if I18n.locale == I18n.default_locale && upsert
+      name_value = "COALESCE(classification_aliases.name_i18n, '{}'::jsonb) || coalesce(EXCLUDED.name_i18n, '{}'::jsonb)"
+      name_value = "coalesce(EXCLUDED.name_i18n, '{}'::jsonb) || COALESCE(classification_aliases.name_i18n, '{}'::jsonb)" if add_missing
+      description_value = "COALESCE(classification_aliases.description_i18n, '{}'::jsonb) || coalesce(EXCLUDED.description_i18n, '{}'::jsonb)"
+      description_value = "coalesce(EXCLUDED.description_i18n, '{}'::jsonb) || COALESCE(classification_aliases.description_i18n, '{}'::jsonb)" if add_missing
+      uri_value = 'EXCLUDED.uri'
+      uri_value = "COALESCE(NULLIF(classification_aliases.uri, ''), #{uri_value})" if add_missing
 
-        do_classification_aliases = <<~SQL.squish
-          DO UPDATE SET name_i18n = #{name_value},
-            description_i18n = #{description_value},
-            uri = #{uri_value},
-            #{order_sql}
-            updated_at = NOW()
-            #{internal_name}
-          WHERE classification_aliases.name_i18n IS DISTINCT FROM EXCLUDED.name_i18n
-            OR classification_aliases.description_i18n IS DISTINCT FROM EXCLUDED.description_i18n
-            OR classification_aliases.uri IS DISTINCT FROM EXCLUDED.uri
-            #{order_cond}
-        SQL
+      set_clauses = [
+        "name_i18n = #{name_value}",
+        "description_i18n = #{description_value}",
+        "uri = #{uri_value}"
+      ]
+      # Compare the *resulting* value against the current one (not against the incoming,
+      # possibly single-locale, EXCLUDED value) so a no-op merge does not rewrite the row
+      # and bump updated_at on every re-import.
+      where_clauses = [
+        "classification_aliases.name_i18n IS DISTINCT FROM (#{name_value})",
+        "classification_aliases.description_i18n IS DISTINCT FROM (#{description_value})",
+        "classification_aliases.uri IS DISTINCT FROM (#{uri_value})"
+      ]
+
+      unless add_missing
+        order_value = 'COALESCE(EXCLUDED.order_a, classification_aliases.order_a)'
+        set_clauses << "order_a = #{order_value}"
+        where_clauses << "classification_aliases.order_a IS DISTINCT FROM (#{order_value})"
       end
 
-      do_classification_aliases
+      if I18n.locale == I18n.default_locale && upsert
+        set_clauses << 'internal_name = EXCLUDED.internal_name'
+        where_clauses << 'classification_aliases.internal_name IS DISTINCT FROM EXCLUDED.internal_name'
+      end
+
+      set_clauses << 'updated_at = NOW()'
+
+      <<~SQL.squish
+        DO UPDATE SET #{set_clauses.join(', ')}
+        WHERE #{where_clauses.join(' OR ')}
+      SQL
     end
 
     def do_classification_trees_sql(upsert: false)
@@ -548,12 +583,22 @@ module DataCycleCore
           JOIN inserted_ca
             ON data.external_system_id IS NOT DISTINCT FROM inserted_ca.external_source_id AND
               data.parent_external_key IS NOT DISTINCT FROM inserted_ca.external_key
+        ), all_ca AS (
+          SELECT classification_aliases.id, classification_aliases.external_source_id, classification_aliases.external_key
+          FROM data
+          JOIN classification_aliases
+            ON data.external_system_id IS NOT DISTINCT FROM classification_aliases.external_source_id AND
+              data.external_key IS NOT DISTINCT FROM classification_aliases.external_key AND
+              classification_aliases.deleted_at IS NULL
+          UNION
+          SELECT inserted_ca.id, inserted_ca.external_source_id, inserted_ca.external_key
+          FROM inserted_ca
         ), classification_trees_data AS (
           SELECT
-            classification_tree_label_id, parent_ca.id parent_classification_alias_id, inserted_ca.id classification_alias_id, inserted_ca.external_source_id external_source_id,
+            classification_tree_label_id, parent_ca.id parent_classification_alias_id, all_ca.id classification_alias_id, all_ca.external_source_id external_source_id,
             NOW() created_at, NOW() updated_at
-          FROM inserted_ca
-          JOIN data ON data.external_system_id IS NOT DISTINCT FROM inserted_ca.external_source_id AND data.external_key IS NOT DISTINCT FROM inserted_ca.external_key
+          FROM all_ca
+          JOIN data ON data.external_system_id IS NOT DISTINCT FROM all_ca.external_source_id AND data.external_key IS NOT DISTINCT FROM all_ca.external_key
           LEFT OUTER JOIN parent_ca ON data.external_system_id IS NOT DISTINCT FROM parent_ca.external_source_id AND
             data.parent_external_key = parent_ca.external_key
         ), inserted_ct AS (
@@ -594,13 +639,19 @@ module DataCycleCore
       cached_attributes_changed?
     end
 
+    # #50677: an update that also flips hidden_mappings is webhooked by refresh_hidden_mappings instead,
+    # over the contents that *reach* the tree — a superset of `things`, so nothing is lost by stepping
+    # aside here, while running both would deliver every directly classified content twice.
     def trigger_things_webhooks?
-      change_behaviour&.include?('trigger_webhooks') && cached_attributes_changed?
+      trigger_webhooks? && cached_attributes_changed? && !saved_change_to_hidden_mappings?
     end
 
     def cached_attributes_changed?
       return @cached_attributes_changed if defined? @cached_attributes_changed
 
+      # NB: hidden_mappings is deliberately absent — the contents it changes are the ones reaching this
+      # tree through a mapping, which `things` (the directly classified contents) does not contain.
+      # refresh_hidden_mappings handles them over the set it materialises CCC for.
       @cached_attributes_changed = saved_changes.key?('name') ||
                                    saved_changes.dig('visibility', 0)&.to_set&.^(saved_changes.dig('visibility', 1)&.to_set)&.include?('api')
     end
@@ -611,10 +662,11 @@ module DataCycleCore
       DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'execute_things_webhooks')
     end
 
+    # Invalidated from here rather than left to #invalidate_things_cache: that one lifts the directly
+    # classified contents, not the ones linking them that the fan-out re-exports, and it runs in a
+    # CacheInvalidationJob of its own with no ordering against this one.
     def execute_things_webhooks
-      things.find_each do |content|
-        content.send(:execute_update_webhooks) unless content.embedded?
-      end
+      DataCycleCore::Content::RelatedWebhooks.fan_out(things, invalidate_related_cache: true)
     end
 
     def add_things_cache_invalidation_job_update
@@ -623,6 +675,68 @@ module DataCycleCore
 
     def invalidate_things_cache
       things.invalidate_all
+    end
+
+    def add_hidden_mappings_job_update
+      DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'refresh_hidden_mappings')
+    end
+
+    # Redmine #50677: collected_classification_contents.hidden is derived per (path, concept) from
+    # this tree's hidden_mappings flag, so flipping it only has to re-materialise the CCC rows of this
+    # tree's own concepts — not a single path row: classification_alias_paths_transitive.mapped_ids
+    # ("reached through a mapping") is pure path structure and does not depend on the flag. Batched,
+    # because a flagged tree can carry thousands of concepts and every batch touches all contents that
+    # reach them.
+    #
+    # Search index and webhooks are refreshed from here, over the contents that reach the tree, rather than
+    # through cached_attributes_changed? — its `things` are the *directly* classified contents, which
+    # leaves out every content that only reaches the tree through a mapping, i.e. exactly the ones the
+    # flag changes. cache_valid_since needs no help: invalidate_things_trigger on
+    # collected_classification_contents bumps it for every non-'broader' row this rewrites, and a
+    # content whose broader rows flip always has one — the mapped concept itself sorts deepest in its
+    # path partition, so it holds the 'related' row and flips together with its ancestors.
+    def refresh_hidden_mappings
+      concept_ids = classification_aliases.reorder(nil).ids
+      return if concept_ids.blank?
+
+      affected_things = DataCycleCore::Thing.where(id: DataCycleCore::CollectedClassificationContent.where(classification_alias_id: concept_ids).select(:thing_id))
+
+      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
+        concept_ids.each_slice(CCC_REFRESH_BATCH_SIZE) do |ids|
+          execute_ccc_refresh('SELECT public.generate_ccc_from_ca_ids_transitive(ARRAY[?]::uuid[])', ids)
+        end
+      else
+        affected_things.in_batches(of: CCC_REFRESH_BATCH_SIZE) do |batch|
+          execute_ccc_refresh('SELECT public.generate_collected_classification_content_relations(ARRAY[?]::uuid[], ARRAY[]::uuid[])', batch.ids)
+        end
+      end
+
+      enqueue_hidden_mappings_side_effects(affected_things)
+    end
+
+    # Fanned out rather than run inline: both are a find_each over a set the CCC half above has already
+    # spent its batches on, so keeping them here would put six figures of re-indexing and webhook
+    # deliveries behind a single job that restarts from zero — redoing nothing of the committed CCC work
+    # but all of its own — on any failure.
+    def enqueue_hidden_mappings_side_effects(affected_things)
+      affected_things.in_batches(of: CCC_REFRESH_BATCH_SIZE).each_with_index do |batch, index|
+        thing_ids = batch.ids
+
+        # the batch index belongs in arguments[1]: CacheInvalidationDestroyJob dedups on
+        # (queue, delayed_reference_id, delayed_reference_type) = (arguments[1], "class#method"), so a
+        # bare id would make each batch delete the ones enqueued before it. Neither method reads it.
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, "#{id}:#{index}", 'update_things_search', thing_ids)
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, "#{id}:#{index}", 'execute_things_webhooks_destroy', thing_ids) if trigger_webhooks?
+      end
+    end
+
+    def execute_ccc_refresh(sql, ids)
+      return if ids.blank?
+
+      self.class.transaction do
+        self.class.connection.execute('SET LOCAL statement_timeout = 0')
+        self.class.connection.execute(self.class.sanitize_sql([sql, ids]))
+      end
     end
 
     def clean_stored_filters

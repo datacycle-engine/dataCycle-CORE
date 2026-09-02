@@ -4,18 +4,66 @@
   </button>
 
   <div class="reveal-header">
+    <i class="fa fa-crosshairs" aria-hidden="true"></i>
     <%= t('feature.ai_lector.context.title', locale: active_ui_locale) %>
   </div>
+
+  <%
+    field_label = I18n.exists?("feature.ai_lector.context_labels.#{key}", locale: active_ui_locale) ? t("feature.ai_lector.context_labels.#{key}", locale: active_ui_locale) : t('feature.ai_lector.context.title', locale: active_ui_locale)
+    field_help = I18n.exists?("feature.ai_lector.context_help.#{key}", locale: active_ui_locale) ? t("feature.ai_lector.context_help.#{key}", locale: active_ui_locale) : t('feature.ai_lector.context.help', default: nil, locale: active_ui_locale)
+    field_placeholder = I18n.exists?("feature.ai_lector.context_placeholders.#{key}", locale: active_ui_locale) ? t("feature.ai_lector.context_placeholders.#{key}", locale: active_ui_locale) : t('feature.ai_lector.context.placeholder', locale: active_ui_locale)
+
+    # Targeting improvements pin a classification_tree_label (e.g. "Zielgruppen",
+    # "Ausgabekanäle"): pick the target from that tree instead of typing it. The
+    # option's *value* carries name + description (fed verbatim to the AI as
+    # user_context), while its *label* shows just the name. Falls back to the
+    # free-text textarea when no tree is configured or the tree is empty/missing.
+    classification_tree_label = local_assigns[:classification_tree_label].presence
+    frame_locale = local_assigns[:locale].presence || I18n.locale
+
+    classification_options =
+      if classification_tree_label.present?
+        DataCycleCore::ClassificationAlias
+          .for_tree(classification_tree_label)
+          .assignable
+          .map { |ca|
+            name = ca.name(locale: frame_locale).presence || ca.internal_name
+            # Descriptions are stored as HTML; strip tags + collapse whitespace so
+            # the AI receives clean prose, not markup, as its targeting context.
+            description = strip_tags(ca.description(locale: frame_locale).to_s).squish.presence
+            [name, description ? "#{name}. #{description}" : name]
+          }
+      else
+        []
+      end
+  %>
 
   <form class="ai-lector-context-form">
     <div class="reveal-body">
       <%= hidden_field_tag 'id', overlay_id %>
       <div class="form-element">
-        <%= label_tag 'context_prompt', I18n.exists?("feature.ai_lector.context_placeholders.#{key}", locale: active_ui_locale) ? t("feature.ai_lector.context_placeholders.#{key}", locale: active_ui_locale) : t('feature.ai_lector.context.placeholder', locale: active_ui_locale) %>
-        <%= text_area_tag 'context_prompt', nil,
-                          class: 'input-text ai-lector-context-textarea',
-                          rows: 4,
-                          autofocus: true %>
+        <%= label_tag 'context_prompt' do %>
+          <%= field_label %>
+          <%# Only the classification picker is required; mark it with the app's standard required-field marker. %>
+          <%= tag.i '*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) } if classification_options.present? %>
+        <% end %>
+        <% if field_help.present? %>
+          <p class="ai-lector-field-help"><%= field_help %></p>
+        <% end %>
+        <% if classification_options.present? %>
+          <%= select_tag 'context_prompt',
+                         options_for_select(classification_options),
+                         include_blank: t('feature.ai_lector.context.select_prompt', default: '…', locale: active_ui_locale),
+                         class: 'input-text ai-lector-context-select',
+                         required: true,
+                         autofocus: true %>
+        <% else %>
+          <%= text_area_tag 'context_prompt', nil,
+                            class: 'input-text ai-lector-context-textarea',
+                            rows: 4,
+                            placeholder: field_placeholder,
+                            autofocus: true %>
+        <% end %>
       </div>
     </div>
 

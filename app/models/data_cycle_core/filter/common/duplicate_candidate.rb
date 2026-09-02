@@ -42,9 +42,11 @@ module DataCycleCore
           max_score = value['max'].presence&.to_f
           min_score, max_score = max_score, min_score if min_score.present? && max_score.present? && min_score > max_score
 
+          # the bounds stay floats: score is a numeric column, and truncating them here silently
+          # widened every fractional bound to the next lower integer
           subquery = DataCycleCore::Thing::DuplicateCandidate.without_fp
-          subquery = subquery.where(score: min_score.to_i..) if min_score.present?
-          subquery = subquery.where(score: ..max_score.to_i) if max_score.present?
+          subquery = subquery.where(score: min_score..) if min_score.present?
+          subquery = subquery.where(score: ..max_score) if max_score.present?
           subquery = subquery.where(duplicate_method:) if duplicate_method.present? && duplicate_method != 'all'
 
           subquery.where('duplicate_candidates.original_id = things.id')

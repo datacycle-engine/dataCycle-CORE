@@ -23,6 +23,29 @@ module DataCycleCore
         assert_includes(identifiers, '"image"')
         assert_includes(identifiers, '"dc:contentScore"')
       end
+
+      test 'include_config builds the dc:iconId include from the stored primary icon relation' do
+        renderer = DataCycleCore::Geo::BaseRenderer.new(include_parameters: [['dc:iconId']])
+
+        icon = renderer.include_config('things').find { |c| c[:identifier] == '"dc:iconId"' }
+
+        assert(icon)
+        assert_includes(icon[:joins], "classification_contents.relation = 'primary_icon_classifications'")
+        assert_includes(icon[:joins], "'api' = ANY(concept_schemes.visibility)")
+      end
+
+      test 'dc:iconId include is also recognized via fields and filters by requested trees' do
+        tree_id = SecureRandom.uuid
+        renderer = DataCycleCore::Geo::BaseRenderer.new(
+          fields_parameters: [['dc:iconId']],
+          classification_trees_parameters: [tree_id]
+        )
+
+        icon = renderer.include_config('things').find { |c| c[:identifier] == '"dc:iconId"' }
+
+        assert(icon)
+        assert_includes(icon[:joins], "concepts.concept_scheme_id IN ('#{tree_id}')")
+      end
     end
   end
 end

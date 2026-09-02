@@ -32,6 +32,16 @@
     </div>
   <% end %>
 
+  <%# 47172/50677: concepts of this tree stay invisible on contents that only got them through a mapping %>
+  <% if can?(:update_hidden_mappings, classification_tree_label) %>
+    <div class="ca-input checkbox">
+      <span class="dc-checkbox">
+        <%= f.check_box :hidden_mappings %>
+        <%= f.label :hidden_mappings, classification_tree_label.class.human_attribute_name(:hidden_mappings, locale: active_ui_locale) %>
+      </span>
+    </div>
+  <% end %>
+
   <% classification_tree_label.visibility = DataCycleCore.default_classification_visibilities if classification_tree_label.new_record? %>
 
   <div class="ca-input">

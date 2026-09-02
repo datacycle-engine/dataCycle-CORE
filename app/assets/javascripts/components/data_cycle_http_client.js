@@ -33,6 +33,8 @@ const DataCycleHttpClient = {
 		return {
 			"X-CSRF-Token": document.getElementsByName("csrf-token")[0].content,
 			Accept: "application/json",
+			// advertise these fetches as AJAX so request.xhr? is true server-side
+			"X-Requested-With": "XMLHttpRequest",
 		};
 	},
 	flattenParamsRecursive(key, value, params = []) {

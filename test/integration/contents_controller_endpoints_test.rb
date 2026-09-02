@@ -39,6 +39,19 @@ module DataCycleCore
       assert_response :not_found
     end
 
+    test 'asset responds with not_found for a path relative asset url' do
+      content = DataCycleCore::Thing.find(@bild.id)
+      # imported data can carry a path relative url; since Rails 8.1 redirecting to one raises
+      # ActionController::PathRelativeRedirectError instead of logging a warning
+      content.define_singleton_method(:content_url) { 'uploads/relative.jpg' }
+
+      DataCycleCore::Thing.stub(:find, content) do
+        get "/things/#{@bild.id}/asset/content"
+      end
+
+      assert_response :not_found
+    end
+
     test 'select_search returns matching contents as select options' do
       get select_search_things_path, params: { q: 'EndpointsArtikel', template_name: 'Artikel', max: '10' }
 

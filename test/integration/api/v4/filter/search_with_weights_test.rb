@@ -17,7 +17,8 @@ module DataCycleCore
             # name: Headline used for event, event_series and poi
             @event = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
-            @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: { name: 'Headline POI', slug: 'headline-tourist-attraction' })
+            @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: { name: 'Headline POI', slug: 'headline-tourist-attraction', text: 'Wanderweg' })
+            perform_enqueued_jobs
           end
 
           after(:all) do
@@ -79,6 +80,32 @@ module DataCycleCore
                 search: {
                   value: 'tourist',
                   fields: 'dc:classification'
+                }
+              }
+            }
+            post api_v4_things_path(params)
+
+            assert_api_count_result(0)
+          end
+
+          test 'api/v4/things parameter filter ts_query search restricted to text attributes' do
+            params = {
+              filter: {
+                search: {
+                  value: 'Wanderweg',
+                  fields: 'dc:text'
+                }
+              }
+            }
+            post api_v4_things_path(params)
+
+            assert_api_count_result(1)
+
+            params = {
+              filter: {
+                search: {
+                  value: 'Wanderweg',
+                  fields: 'name,dc:slug,dc:classification'
                 }
               }
             }

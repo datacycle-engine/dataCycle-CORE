@@ -112,6 +112,7 @@ module DataCycleCore
             'cc' => 'http://creativecommons.org/ns#',
             'dc' => 'https://schema.datacycle.at/',
             'dcls' => "#{DataCycleCore::UrlService.instance.schema_url}/",
+            'og' => 'https://ogp.me/ns#',
             'odta' => 'https://odta.io/voc/',
             'sdm' => 'https://smartdatamodels.org/',
             'alps' => 'http://json-schema.org/draft-07/schema/destinationdata/schemas/2022-04/datatypes#/definitions/'

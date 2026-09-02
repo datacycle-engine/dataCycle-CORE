@@ -18,6 +18,7 @@ ActiveSupport::Notifications.subscribe(/(download|import)_failed_repeatedly.data
   ).deliver_later
 end
 
+# logger for importers
 ActiveSupport::Notifications.subscribe('instrumentation_logging.datacycle') do |_name, _started, _finished, _unique_id, data|
   log_methods = {
     'error' => :error,
@@ -49,6 +50,15 @@ ActiveSupport::Notifications.subscribe('object_template_conversion_failed.datacy
   end
 end
 
+# An import run rejected items whose template_name this instance does not know - e.g. a
+# legacy template removed here while the remote still delivers it. Not an error: the run
+# completed, the items were skipped. The payload carries one aggregated report per run.
+ActiveSupport::Notifications.subscribe('object_template_rejected.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'import') do |logger|
+    logger.dc_log(:warn, data)
+  end
+end
+
 ActiveSupport::Notifications.subscribe(/(download|dump|mark_deleted)_failed.datacycle/) do |_name, _started, _finished, _unique_id, data|
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'download') do |logger|
     data[:external_system]&.check_for_repeated_failure('download', data[:exception], data[:step_name])
@@ -65,6 +75,12 @@ end
 
 ActiveSupport::Notifications.subscribe('webhooks_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'webhooks') do |logger|
+    logger.dc_log(:error, data)
+  end
+end
+
+ActiveSupport::Notifications.subscribe('duplicate_merge_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'datacycle') do |logger|
     logger.dc_log(:error, data)
   end
 end
@@ -104,6 +120,16 @@ ActiveSupport::Notifications.subscribe('object_import_failed.datacycle') do |_na
   end
 end
 
+# A single item a download step could not write. Not part of the (download|dump|mark_deleted)_failed
+# group: the step itself did not fail, so it must not reach check_for_repeated_failure.
+# Logger::Instrumentation#item_failed is not download-only -- it takes the channel as an argument --
+# so the payload's own kind decides the log file, as it does for job_failed above.
+ActiveSupport::Notifications.subscribe('download_item_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: data[:type].presence || 'download') do |logger|
+    logger.dc_log(:error, data)
+  end
+end
+
 ActiveSupport::Notifications.subscribe(/(download|import|export)_faulty_items_processing_report.datacycle/) do |_name, _started, _finished, _unique_id, data|
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: data[:namespace]) do |logger|
     data[:faulty_items].each do |faulty_item|
@@ -127,6 +153,12 @@ end
 
 ActiveSupport::Notifications.subscribe('migration_failed.datacycle') do |_name, _started, _finished, _unique_id, data|
   DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'datacycle') do |logger|
+    logger.dc_log(:error, data)
+  end
+end
+
+ActiveSupport::Notifications.subscribe(/\A(error|failure)\.active_job\z/) do |_name, _started, _finished, _unique_id, data|
+  DataCycleCore::Loggers::InstrumentationLogger.with_logger(type: 'jobs') do |logger|
     logger.dc_log(:error, data)
   end
 end

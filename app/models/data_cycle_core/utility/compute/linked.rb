@@ -37,6 +37,33 @@ module DataCycleCore
               .uniq
           end
 
+          # Returns the linked ids of the first parameter minus the linked ids
+          # of all following parameters. Used to combine an automatically
+          # computed linked set with a manually maintained exclusion list.
+          #
+          # @param computed_parameters [Hash] linked values keyed by attribute
+          # @return [Array<String>] base ids without the excluded ids
+          # @example YAML schema configuration
+          #   :dc_linked_protected_areas:
+          #     :type: linked
+          #     :compute:
+          #       :module: Linked
+          #       :method: difference
+          #       :parameters:
+          #         - dc_linked_protected_areas_automatic
+          #         - dc_excluded_protected_areas
+          def difference(computed_parameters:, computed_definition:, **_args)
+            parameter_keys = Array.wrap(computed_definition.dig('compute', 'parameters'))
+            return [] if parameter_keys.blank?
+
+            base_ids = extract_ids(computed_parameters[parameter_keys.first])
+            return base_ids if base_ids.blank?
+
+            excluded_ids = parameter_keys.drop(1).flat_map { |key| extract_ids(computed_parameters[key]) }
+
+            base_ids - excluded_ids
+          end
+
           def linked_from_text(content:, computed_parameters:, **_args)
             ids = []
 
@@ -98,6 +125,18 @@ module DataCycleCore
           end
 
           private
+
+          def extract_ids(value)
+            Array.wrap(value).map { |v|
+              if v.is_a?(::Hash)
+                v['id'] || v[:id]
+              elsif v.respond_to?(:id)
+                v.id
+              else
+                v
+              end
+            }.compact_blank.uniq
+          end
 
           def get_ids_from_text(text)
             ids = []

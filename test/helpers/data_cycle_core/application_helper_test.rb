@@ -8,7 +8,13 @@ module DataCycleCore
     include DataCycleCore::ApplicationHelper
     include DataCycleCore::UiLocaleHelper
 
+    def current_user = nil
+    def can?(*_args) = true
+
     CacheItemDouble = Struct.new(:id, :updated_at, :cache_valid_since)
+    MessagesDouble = Struct.new(:present, :messages) do
+      def present? = present
+    end
 
     test 'valid_mode normalizes unknown modes to grid' do
       assert_equal 'list', valid_mode('list')
@@ -103,6 +109,105 @@ module DataCycleCore
       assert_includes send(:alert_box, 'message', :info, true), 'message'
       assert_includes send(:alert_box, { 'errors' => ['x'] }, :alert, false), 'Errors: x'
       assert_includes send(:alert_box, ['a', 'b'], :info, false), 'a&lt;br&gt;b'
+      assert_includes send(:alert_box, 42, :info, true), '42'
+    end
+
+    test 'uploader_validation_to_text formats file size and resolution values' do
+      assert_includes uploader_validation_to_text(1024, ['uploader', 'validation', 'file_size', 'max']), '<li>'
+      assert_includes uploader_validation_to_text(100, ['uploader', 'validation', 'resolution', 'width']), '<li>'
+    end
+
+    test 'validation_messages renders error and warning messages' do
+      content = struct_double(
+        errors: MessagesDouble.new(true, { name: ['is invalid'] }),
+        warnings: MessagesDouble.new(true, { name: ['looks odd'] })
+      )
+
+      html = validation_messages(content, struct_double(attribute_name_from_key: 'name'))
+
+      assert_includes html.to_s, 'is invalid'
+      assert_includes html.to_s, 'looks odd'
+    end
+
+    test 'content_uploader_data_hash memoizes and returns the asset id' do
+      content = Object.new
+      def content.asset_property_names = ['image']
+      def content.set_memoized_attribute(_key, _value) = nil
+
+      result = content_uploader_data_hash(content, struct_double(id: 'asset-1'))
+
+      assert_equal 'asset-1', result['image']
+    end
+
+    test 'new_dialog_config resolves aggregate, template-name and schema-type dialogs' do
+      agg = DataCycleCore::MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME
+
+      DataCycleCore::Feature::Aggregate.stub(:enabled?, true) do
+        DataCycleCore::Feature::Aggregate.stub(:aggregate?, true) do
+          assert_equal [agg], new_dialog_config(struct_double(template_name: 'x', schema_type: 'y'))['name']
+        end
+      end
+
+      DataCycleCore::Feature::Aggregate.stub(:enabled?, false) do
+        DataCycleCore.stub(:new_dialog, { 'poi' => { 'section' => [['Label **note', 'val']] }, 'thing' => { 'section' => ['name'] } }) do
+          assert_equal [['Label', 'val']], new_dialog_config(struct_double(template_name: 'poi', schema_type: 'thing'))['section']
+          assert new_dialog_config(struct_double(template_name: 'unknown', schema_type: 'thing')).key?('section')
+        end
+      end
+    end
+
+    test 'new_attribute_labels maps template schema properties to uploader labels' do
+      DataCycleCore::Feature::Aggregate.stub(:enabled?, false) do
+        DataCycleCore.stub(:new_dialog, { 'default' => { 'section' => ['name **list'] } }) do
+          template = struct_double(schema: { 'properties' => { 'name' => { 'type' => 'string', 'label' => 'Name' } } }, template_name: 'x', schema_type: 'y')
+
+          assert_equal({ 'type' => 'string', 'label' => 'Name', default_value: false }, new_attribute_labels(template)['name'])
+        end
+      end
+    end
+
+    test 'new_content_select_options filters and orders creatable templates' do
+      with_value = new_content_select_options(query_methods: [{ 'method_name' => 'where', 'value' => { template_name: 'POI' } }], ordered_array: ['POI'])
+      without_value = new_content_select_options(query_methods: [{ 'method_name' => 'all' }])
+
+      assert_kind_of Array, with_value
+      assert_kind_of Array, without_value
+    end
+
+    test 'sort_templates_by_translated_name orders by the displayed name, not the template_name' do
+      # keys are the internal template_names — sorting by those would give
+      # Icon Banner, Teaser-Kachel, Zitate, Öffnungszeiten
+      templates = {
+        'KachelManuell' => 'Teaser-Kachel',
+        'WidgetsBannersIcons' => 'Icon Banner',
+        'ZOpeningHours' => 'Öffnungszeiten',
+        'AQuote' => 'Zitate'
+      }.values.map do |label|
+        Object.new.tap { |t| t.define_singleton_method(:translated_template_name) { |_locale| label } }
+      end
+
+      result = sort_templates_by_translated_name(templates).map { |t| t.translated_template_name(:de) }
+
+      assert_equal ['Icon Banner', 'Öffnungszeiten', 'Teaser-Kachel', 'Zitate'], result
+    end
+
+    test 'uploader_validation returns config for text files and asset templates' do
+      assert_equal 'DataCycleCore::TextFile', uploader_validation(asset_type: 'text_file')[:class]
+      assert_kind_of Hash, uploader_validation(asset_type: 'image')
+    end
+
+    test 'render_new_partial_by_name returns nil for a blank partial name' do
+      assert_nil render_new_partial_by_name(partial_name: '', template: nil, config: {})
+    end
+
+    test 'render_* helpers build partial candidates and delegate to the first existing partial' do
+      key = struct_double(attribute_name_from_key: 'foo')
+
+      stub(:render_first_existing_partial, nil) do
+        assert_nil render_linked_history_viewer(key:, definition: { 'ui' => { 'show' => { 'type' => 'thing' } }, 'template_name' => 'poi' }, value: nil)
+        assert_nil render_asset_editor(key:, value: nil, definition: { 'asset_type' => 'image' })
+        assert_nil render_content_tile_details(item: Object.new)
+      end
     end
   end
 end

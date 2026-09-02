@@ -6,10 +6,10 @@ module DataCycleCore
   class SuggestTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
       tags = DataCycleCore::Concept.for_tree('Tags').limit(1).pluck(:classification_id)
-      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Anfang 1', internal_name: 'Ende', tags: })
-      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Anfang 2', internal_name: 'Ende', tags: })
-      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Ende', internal_name: 'Anfang', tags: })
-      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Überschrift', internal_name: 'Untertitel Anfang Ende' })
+      create_content('Artikel', { name: 'Anfang 1', internal_name: 'Ende', tags: })
+      create_content('Artikel', { name: 'Anfang 2', internal_name: 'Ende', tags: })
+      create_content('Artikel', { name: 'Ende', internal_name: 'Anfang', tags: })
+      create_content('Artikel', { name: 'Überschrift', internal_name: 'Untertitel Anfang Ende' })
     end
 
     test 'suggest_by_weight with all weights finds all articles' do

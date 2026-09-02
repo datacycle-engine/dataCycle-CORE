@@ -1,0 +1,12 @@
+<%# The token is masked wherever it is rendered, so it stays out of screen shares (#51344).
+    The id is per user because the user tiles render one of these per item in a list. %>
+<span class="password-field access-token-field">
+  <%= password_field_tag "access_token_#{user.id}", user.access_token, readonly: true, autocomplete: 'off', size: user.access_token.length %>
+
+  <%= tag.span tag.i(class: 'fa fa-clipboard', aria_hidden: true),
+    class: 'copy-to-clipboard',
+    data: {
+      value: user.access_token,
+      dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+    } %>
+</span>

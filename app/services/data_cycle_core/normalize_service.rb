@@ -16,8 +16,12 @@ module DataCycleCore
       params.each do |key, value|
         next unless value.is_a?(::Hash)
 
-        # If any non-integer keys
-        if value.keys.find { |k, _| k =~ /\D/ }
+        # Only an integer-keyed hash (Rack's form-encoded array, e.g.
+        # `{ '0' => a, '1' => b }`) is turned back into an array. An empty hash
+        # has no keys to inspect and must stay a hash - otherwise a legitimately
+        # empty `{}` (e.g. `ui: {}`) would be turned into `[]` and crash the many
+        # `dig('ui', ...)` reads downstream.
+        if value.empty? || value.keys.find { |k, _| k =~ /\D/ }
           normalize_parameters(value)
         else
           params[key] = value.values

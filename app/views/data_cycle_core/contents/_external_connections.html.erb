@@ -20,7 +20,7 @@
           <ul class="list-items sync-list no-bullet">
             <% sync_list.each do |sync| %>
               <li>
-                <%= external_sync_status_icon(sync[:status], sync_type, true) %>
+                <%= external_sync_status_icon(sync[:status], sync_type, exception_data: sync[:exception_data], include_status_message: true, show_webhook_error: can?(:show_webhook_error_message, content)) %>
 
                 <%= tag.span(class: 'sync-external-key') do %>
                   <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', data: { value: sync[:external_key], dc_tooltip: safe_join([tag.b(t('actions.copy_to_clipboard_data', data: DataCycleCore::ExternalSystemSync.human_attribute_name(:external_key, locale: active_ui_locale), locale: active_ui_locale)), sync[:title]], tag.br) }) %>
@@ -56,6 +56,19 @@
                               confirmation_button_class: 'success',
                               disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
                             } if sync_type == DataCycleCore::ExternalSystemSync::SYNC_TYPES[:import] && sync[:primary] && can?(:demote_primary_external_system, content) %>
+
+                <%= link_to tag.i(class: 'trigger-webhook-update-icon fa fa-refresh'),
+                            trigger_webhooks_thing_path(content, webhook_action: 'update', external_system_id: sync[:external_system_id]),
+                            class: 'trigger-webhook-update-link external-connection-button button icon',
+                            data: {
+                              method: :post,
+                              dc_tooltip: t('external_connections.trigger_webhook_update.tooltip', locale: active_ui_locale),
+                              confirm: t('external_connections.trigger_webhook_update.warning_html', locale: active_ui_locale),
+                              confirmation_button_class: 'success',
+                              disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
+                            } if sync_type == DataCycleCore::ExternalSystemSync::SYNC_TYPES[:export] &&
+                                 sync[:external_system_id].present? &&
+                                 can?(:trigger_update_webhooks, content) %>
 
                 <%= link_to tag.i(class: 'remove-external-system-icon fa fa-trash'),
                             remove_external_connection_thing_path(content, external_system_sync_id: sync[:id]),

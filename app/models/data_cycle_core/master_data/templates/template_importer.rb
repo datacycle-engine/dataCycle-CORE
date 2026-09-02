@@ -107,11 +107,18 @@ module DataCycleCore
 
         private
 
-        # touch file for DataCycleCore::Thing to trigger reload of STI subclasses
+        # A template import always runs as a rake process in the web container, never in the Puma
+        # server or the jobs container, so the in-process cache reset in #update_templates clears only
+        # its own short-lived caches and leaves both of those serving stale templates. Touch a watched
+        # source file instead — both reload code in development, discarding the class-level caches on
+        # ThingTemplate/ExternalSystem (ivars on reloadable models): Puma on its next request, a worker
+        # on its next job, since Rails wraps ActiveJob execution in the reloader. We touch
+        # thing_template.rb, the file whose class owns the cache. Production has no reloading and
+        # relies on the redeploy that ships the template change to restart its workers.
         def trigger_code_reload!
-          thing_file = DataCycleCore::Engine.root.join('app', 'models', 'data_cycle_core', 'thing.rb')
+          thing_template_file = DataCycleCore::Engine.root.join('app', 'models', 'data_cycle_core', 'thing_template.rb')
 
-          FileUtils.touch(thing_file) if thing_file.present?
+          FileUtils.touch(thing_template_file) if thing_template_file.present?
         end
 
         def update_templates
@@ -131,6 +138,9 @@ module DataCycleCore
               template_paths: t[:paths]
             }
           end, unique_by: :template_name)
+
+          # upsert_all skips model callbacks, so the after_commit cache invalidation does not fire.
+          DataCycleCore::ThingTemplate.reset_template_caches!
         end
 
         def update_schema_types

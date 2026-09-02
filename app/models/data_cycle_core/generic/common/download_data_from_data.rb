@@ -9,7 +9,12 @@ module DataCycleCore
       # ```yaml
       # options:
       #   # data_path defines the path to the data in the document. '[]' must be added to any part of the path that is an array. It will be removed for the query.
+      #   # It is relative to the dump of the currently imported locale, unless it already starts with 'dump.<locale>.' -> then it is used as it is.
       #   data_path: 'data.field[].items[]'
+      #   data_path: 'dump.de.field[].items[]' # always read from the german dump, no matter which locale is imported
+      #   # NOTE: pin source_filter to the same locale then. A filter key below data_path that names a different
+      #   # locale is dropped from the match stage applied after the $unwind (it cannot be rewritten to the
+      #   # unwound path), so it would only filter the root document and let every nested item through.
       #   # data_id_path defines the path to the id of the data in the document. It is relative to data_path. The default value is 'id'.
       #   data_id_path: 'custom_id'
       #   data_id_path: ~ # if the value of the data path should be used
@@ -22,9 +27,11 @@ module DataCycleCore
       #     - 'name_fallback1'
       #     - '<%= 'name.' + locale %>'
       #   # additional_data_paths can be used to add additional fields to the data, e.g. the id of the root document. Must be relative to the root document.
+      #   # Same as data_path, paths starting with 'dump.<locale>.' are used as they are.
       #   additional_data_paths:
       #     name_add1: 'attribute1'
       #     name_add2: 'attribute3'
+      #     name_add3: 'dump.de.attribute3'
       #  # group_to_array_paths can be used to group certain attributes into arrays to keep all references. The attributes must be relative to data_path.
       # group_to_array_paths:
       #   - attribute_name1
@@ -43,6 +50,13 @@ module DataCycleCore
       module DownloadDataFromData
         extend Extensions::DownloadFromData
 
+        DUMP_PATH_REGEX = /\Adump\.[^.]+(\.|\z)/
+
+        # Without a `data_path` this copies the whole dump.<locale> into the target collection, so it
+        # used to carry the source collection's dc_step_priority along with it. [#50666] strips it on
+        # the way in, which leaves the target claimed only if the step configures a `priority:` of its
+        # own. Safe while no step may configure one above DEFAULT_STEP_PRIORITY (enforced by
+        # ExternalSystemStepContract); centralising the default here is what that cap buys us out of.
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_content(
             download_object: utility_object,
@@ -97,6 +111,7 @@ module DataCycleCore
           paths = prepare_data_paths(options:, locale:)
 
           data_path = paths[:data_path]
+          data_path_prefix = paths[:data_path_prefix]
           path_array_positions = paths[:path_array_positions]
           data_id_path = paths[:data_id_path]
           data_name_path = paths[:data_name_path]
@@ -111,7 +126,7 @@ module DataCycleCore
 
           proj_match_unwind_phases = []
           path_array_positions.each_with_index do |position, index|
-            current_full_name_path = ["dump.#{locale}", data_path.split('.')[0..index].join('.')].compact_blank.join('.')
+            current_full_name_path = [data_path_prefix, data_path.split('.')[0..index].join('.')].compact_blank.join('.')
             project_stage = if index.zero?
                               {
                                 'data' => ["$#{current_full_name_path}"].compact_blank.join('.'),
@@ -274,7 +289,8 @@ module DataCycleCore
           data_id_path = [data_id].compact_blank.join('.')
           data_name_path = [data_name].compact_blank.join('.')
 
-          full_data_path = ["dump.#{locale}", data_path].compact_blank.join('.')
+          data_path_prefix = dump_path?(data_path) ? nil : "dump.#{locale}"
+          full_data_path = [data_path_prefix, data_path].compact_blank.join('.')
           full_id_path = [full_data_path, data_id_path].compact_blank.join('.')
 
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
@@ -282,17 +298,18 @@ module DataCycleCore
 
           if additional_data_paths.is_a?(Array)
             additional_data_paths.each do |attr|
-              additional_paths[attr[:name].to_s] = ['$dump', locale, attr[:path]].compact_blank.join('.')
+              additional_paths[attr[:name].to_s] = dump_field_reference(path: attr[:path], locale:)
             end
           elsif additional_data_paths.is_a?(Hash)
             additional_data_paths.each do |name, path|
-              additional_paths[name.to_s] = ['$dump', locale, path].compact_blank.join('.')
+              additional_paths[name.to_s] = dump_field_reference(path:, locale:)
             end
           end
 
           group_to_array_paths = Array.wrap(options.dig(:download, :group_to_array_paths))
 
           paths[:data_path] = data_path
+          paths[:data_path_prefix] = data_path_prefix
           paths[:path_array_positions] = path_array_positions
           paths[:data_id_path] = data_id_path
           paths[:data_name_path] = data_name_path
@@ -302,6 +319,18 @@ module DataCycleCore
           paths[:additional_paths] = additional_paths
           paths[:group_to_array_paths] = group_to_array_paths
           paths.with_indifferent_access
+        end
+
+        # paths are relative to the dump of the currently imported locale, unless they already
+        # carry a 'dump.<locale>.' prefix themselves -> then they are used as they are
+        def self.dump_path?(path)
+          path.to_s.match?(DUMP_PATH_REGEX)
+        end
+
+        def self.dump_field_reference(path:, locale:)
+          return "$#{path}" if dump_path?(path)
+
+          ['$dump', locale, path].compact_blank.join('.')
         end
       end
     end

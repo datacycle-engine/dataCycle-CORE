@@ -219,6 +219,77 @@ module DataCycleCore
       end
     end
 
+    test 'data_path starting with dump.<locale> is not prefixed again' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dump.de.dataPath[].obj'
+        }
+      }
+      ['en', 'de'].each do |locale|
+        paths = DataCycleCore::Generic::Common::DownloadDataFromData.prepare_data_paths(options:, locale:)
+
+        assert_nil paths['data_path_prefix']
+        assert_equal 'dump.de.dataPath.obj', paths['data_path']
+        assert_equal 'dump.de.dataPath.obj', paths['full_data_path']
+        assert_equal 'dump.de.dataPath.obj.id', paths['full_id_path']
+        assert_equal [0, 0, 1, 1], paths['path_array_positions']
+      end
+    end
+
+    test 'data_path consisting only of dump.<locale> is not prefixed again' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dump.de'
+        }
+      }
+      paths = DataCycleCore::Generic::Common::DownloadDataFromData.prepare_data_paths(options:, locale: 'en')
+
+      assert_nil paths['data_path_prefix']
+      assert_equal 'dump.de', paths['full_data_path']
+      assert_equal 'dump.de.id', paths['full_id_path']
+    end
+
+    test 'data_path not starting with dump.<locale> is still prefixed' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dump'
+        }
+      }
+      paths = DataCycleCore::Generic::Common::DownloadDataFromData.prepare_data_paths(options:, locale: 'en')
+
+      assert_equal 'dump.en', paths['data_path_prefix']
+      assert_equal 'dump.en.dump', paths['full_data_path']
+    end
+
+    test 'additional_data_paths starting with dump.<locale> are not prefixed again' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dataPath',
+          additional_data_paths: {
+            attr1: 'dump.de.path1',
+            attr2: 'path2'
+          }
+        }
+      }
+      ['en', 'de'].each do |locale|
+        paths = DataCycleCore::Generic::Common::DownloadDataFromData.prepare_data_paths(options:, locale:)
+        exp = {
+          'attr1' => '$dump.de.path1',
+          'attr2' => "$dump.#{locale}.path2"
+        }
+
+        assert_equal exp, paths['additional_paths']
+      end
+    end
+
     test 'bulk_mark_deleted_options reset read collection options to target collection structure' do
       last_download = Time.zone.local(2026, 6, 1)
       options = {
@@ -527,6 +598,40 @@ module DataCycleCore
           { '$project' => { 'attr1' => 1, 'attr2' => 1, 'id' => 1, 'name' => 1 } },
           { '$match' => { 'id' => { '$nin' => [nil, ''] } } }
         ]
+
+        assert_equal exp, pipelines
+      end
+    end
+
+    test 'test complex pipeline with data_path pointing to a fixed locale dump' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dump.de.dataPath[]'
+        }
+      }
+      source_filter = { 'dump.de.dataPath.type' => 'type' }
+      exp = [
+        { '$match' => { 'dump.de.dataPath.id' => { '$exists' => true }, 'dump.de.dataPath.type' => 'type' } },
+        { '$project' => { 'data' => '$dump', 'add_data' => nil, 'external_system' => 1 } },
+        { '$project' => { 'data' => '$data.de', 'add_data' => '$add_data', 'external_system' => 1 } },
+        { '$project' => { 'data' => '$data.dataPath', 'add_data' => '$add_data', 'external_system' => 1 } },
+        { '$unwind' => '$data' },
+        { '$match' => { 'data.id' => { '$exists' => true }, 'data.type' => 'type' } },
+        { '$addFields' =>
+          { 'data.id' => { '$ifNull' => ['$data.id', '$data.name'] },
+            'data.name' => '$data.name' } },
+        { '$group' => { '_id' => '$data.id', 'data' => { '$first' => '$data' }, 'external_system' => { '$mergeObjects' => '$external_system' } } },
+        { '$addFields' => { 'data.external_system' => '$external_system' } },
+        { '$replaceRoot' => { 'newRoot' => '$data' } },
+        { '$addFields' => { 'name' => { '$trim' => { 'input' => { '$toString' => '$name' } } } } },
+        { '$match' => { 'id' => { '$nin' => [nil, ''] } } }
+      ]
+
+      # the pipeline is independent of the imported locale
+      ['en', 'de'].each do |locale|
+        pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options: options, locale:, source_filter:)
 
         assert_equal exp, pipelines
       end

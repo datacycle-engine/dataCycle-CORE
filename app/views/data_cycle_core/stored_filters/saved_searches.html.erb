@@ -2,16 +2,37 @@
 
 <% content_for(:title, t('data_cycle_core.stored_searches.my_saved', locale: active_ui_locale)) %>
 
-<section class="stored-searches-list" data-pages="<%= @pages %>">
+<section class="stored-searches-list" data-pages="<%= @pages %>" data-classification-usage-ids="<%= @classification_usage_ids&.join(',') %>">
   <div class="row saved-searches">
     <div class="title">
       <span class="title-text"><%= t('data_cycle_core.stored_searches.saved', count: 2, locale: active_ui_locale) %></span>
-      <div class="fulltext-search">
-        <%= form_with(url: saved_searches_stored_filters_path, local: true, class: 'fulltext-search-form', method: :get) do |f| %>
-          <%= f.button tag.i(class: 'fa fa-search'), type: :submit, class: 'fulltext-search-submit' %>
-          <%= f.text_field :q, value: @search_param, id: nil, class: 'fulltext-search-field', placeholder: t('data_cycle_core.stored_searches.filter_searches', locale: active_ui_locale) %>
-          <%= f.button tag.i(class: 'fa fa-times'), type: :reset, class: 'fulltext-search-reset' %>
+
+      <div class="classification-usage-search">
+        <% if @classification_usage_ids.present? %>
+          <span class="tag-group tags classification-usage-chip i">
+            <% classification_usage_label = @classification_usage_group_label.presence || t('data_cycle_core.stored_searches.classification_usage_label', locale: active_ui_locale) %>
+            <span class="tag-group-label">
+              <%= render 'data_cycle_core/shared/icon', icon_type: classification_usage_label.underscore_blanks, icon_class: 'classification_tree_label' %>
+              <span><%= classification_usage_label %></span>
+            </span>
+            <span class="tags-container">
+              <span class="tag">
+                <%= @classification_usage_title.presence || t('data_cycle_core.stored_searches.classification_usage_fallback', locale: active_ui_locale) %>
+              </span>
+            </span>
+            <button type="button" class="remove-tag" data-dc-tooltip="<%= t('data_cycle_core.stored_searches.classification_usage_remove', locale: active_ui_locale) %>">
+              <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+          </span>
         <% end %>
+
+        <div class="fulltext-search">
+          <%= form_with(url: saved_searches_stored_filters_path, local: true, class: 'fulltext-search-form', method: :post) do |f| %>
+            <%= f.button tag.i(class: 'fa fa-search'), type: :submit, class: 'fulltext-search-submit' %>
+            <%= f.text_field :q, value: @search_param, id: nil, class: 'fulltext-search-field', placeholder: t('data_cycle_core.stored_searches.filter_searches', locale: active_ui_locale) %>
+            <%= f.button tag.i(class: 'fa fa-times'), type: :reset, class: 'fulltext-search-reset' %>
+          <% end %>
+        </div>
       </div>
       <span class="pages"><span class="pages-count"><%= t('data_cycle_core.stored_searches.count_html', count: @saved_count.to_i, count_string: number_with_delimiter(@saved_count.to_i, locale: active_ui_locale), locale: active_ui_locale) %></span> </span>
     </div>

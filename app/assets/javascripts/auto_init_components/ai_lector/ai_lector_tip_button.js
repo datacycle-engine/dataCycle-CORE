@@ -101,16 +101,26 @@ export default class AiLectorTipButton {
 		const data = event.detail;
 		if (this.streamId !== data.stream_id) return;
 
-		if (data?.error)
-			this.state.transition("error", {
-				enter: [data.error],
-			});
-		else if (data?.warning)
-			this.state.transition("error", {
+		// Errors/warnings (e.g. the "no text" rejection): show the message, then
+		// return to idle so the "thinking" box is cleared and the button works
+		// again. We must AWAIT the "error" transition before firing "reset" — a
+		// transition issued while the previous one is still running is dropped by
+		// the state machine's re-entrancy guard. (This is also why renderError
+		// can't reset itself: it runs inside the "error" transition.)
+		if (data?.error) {
+			await this.state.transition("error", { enter: [data.error] });
+			this.state.transition("reset");
+			return;
+		}
+		if (data?.warning) {
+			await this.state.transition("error", {
 				enter: [data.warning, "info", "warnings"],
 			});
-		else if (data?.data) this.appendData(data.data);
+			this.state.transition("reset");
+			return;
+		}
 
+		if (data?.data) this.appendData(data.data);
 		if (data?.finished) this.state.transition("finish");
 	}
 
@@ -193,7 +203,10 @@ export default class AiLectorTipButton {
 			message = await I18n.translate(`feature.ai_lector.${key}.generic`);
 		}
 		CalloutHelpers.show(message, cssClass);
-		this.state.transition("reset");
+		// No state transition here: renderError runs inside the "error" state's
+		// onEnter, so any transition() call is swallowed by the re-entrancy guard.
+		// The caller (tip dataHandler, or the improvement's closeModalHandler on
+		// modal close) drives the return to idle once this transition settles.
 	}
 
 	showTipResult() {
@@ -238,6 +251,11 @@ export default class AiLectorTipButton {
 	}
 
 	async loadTip() {
+		// Re-read the current field value at click time. Capturing it once in the
+		// constructor sends stale (usually empty) text, because the user types after
+		// the button is initialized and Quill only syncs into the hidden field on read.
+		this.originalContent = this.getValue();
+
 		await this.contentFieldLoading();
 
 		this.sendQuery();

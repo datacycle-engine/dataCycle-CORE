@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module Compute
       module Pdf
+        extend Extensions::AssetPreviewUrlExtension
+
         class << self
           def width(**args)
             # not implemented
@@ -13,36 +15,12 @@ module DataCycleCore
             # not implemented
           end
 
-          def thumbnail_url(computed_parameters:, **_args)
-            pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
-            thumb_url = nil
-            if pdf&.file&.attached?
-              begin
-                DataCycleCore::ActiveStorageService.with_current_options do
-                  thumb_url = pdf.file.preview(resize_to_limit: [300, 300]).processed.url
-                end
-              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
-                # @todo: add some logging
-                return nil
-              end
-            end
-            thumb_url
+          def thumbnail_url(**args)
+            asset_thumbnail_url(asset_class: DataCycleCore::Pdf, **args)
           end
 
-          def preview_url(computed_parameters:, **_args)
-            pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
-            preview_url = nil
-            if pdf&.file&.attached?
-              begin
-                DataCycleCore::ActiveStorageService.with_current_options do
-                  preview_url = pdf.file.preview({}).processed.url
-                end
-              rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
-                # @todo: add some logging
-                return nil
-              end
-            end
-            preview_url
+          def preview_url(**args)
+            asset_preview_url(asset_class: DataCycleCore::Pdf, **args)
           end
 
           def exif_value(pdf_id, path)
@@ -53,8 +31,8 @@ module DataCycleCore
             pdf&.metadata&.dig(*path)
           end
 
-          def extract_content(computed_parameters:, **_args)
-            pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
+          def extract_content(computed_parameters:, content:, **_args)
+            pdf = DataCycleCore::Pdf.find_by(id: asset_ids(computed_parameters:, content:))
 
             return nil if pdf.blank?
 

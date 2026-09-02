@@ -1,5 +1,13 @@
 <% if @count_only %>
   <%= result_count(@count_mode, @total_count, @content_class || 'things') %>
+<% elsif @mode == 'tree' && !@external_system.nil? %>
+  <% if params[:page].present? %>
+    <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, external_system: @external_system, language: @language, page: @page, total_pages: @total_pages, link_type: 'direct' %>
+  <% else %>
+    <ul class="contents no-bullet">
+      <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, external_system: @external_system, language: @language, page: @page, total_pages: @total_pages, link_type: 'direct' %>
+    </ul>
+  <% end %>
 <% else %>
   <% if @mode == 'tree' && params[:tree_page].present? && !(@classification_tree || @classification_tree_label).nil? %>
     <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees %>

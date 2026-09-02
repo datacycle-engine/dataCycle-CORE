@@ -163,6 +163,160 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     assert_includes(transformed_data['days'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Tuesday'])
   end
 
+  it 'should create ai agent references for the delivered degree of involvement' do
+    raw_data = {
+      'ai' => { 'degree' => 'odta:AIGenerated' }
+    }
+
+    transformed_data = subject.add_ai_agent_references(raw_data, ['ai', 'degree'])
+
+    assert_equal(1, transformed_data['contributor'].size)
+    assert_equal('odta:AIGenerated', transformed_data['contributor'].first.degree)
+    assert_nil(transformed_data['contributor'].first.name)
+  end
+
+  it 'should create ai agent references with the delivered agent name' do
+    raw_data = {
+      'ai' => { 'degree' => 'odta:AIModified', 'agent' => 'Opus 5' }
+    }
+
+    transformed_data = subject.add_ai_agent_references(raw_data, ['ai', 'degree'], ['ai', 'agent'])
+
+    assert_equal('odta:AIModified', transformed_data['contributor'].first.degree)
+    assert_equal('Opus 5', transformed_data['contributor'].first.name)
+  end
+
+  # the name is part of the agent's key, so pairing it with the wrong degree links the wrong agent
+  it 'should pair every delivered agent name with the degree at its own position' do
+    raw_data = {
+      'images' => [
+        { 'degree' => 'odta:AIGenerated', 'agent' => 'Opus 5' },
+        { 'degree' => 'odta:AIModified', 'agent' => 'Sonnet 5' },
+        { 'degree' => 'odta:AIInvolved' },
+        { 'agent' => 'no degree, no reference' }
+      ]
+    }
+
+    references = subject.add_ai_agent_references(raw_data, ['images', 'degree'], ['images', 'agent'])['contributor']
+
+    assert_equal(
+      [['odta:AIGenerated', 'Opus 5'], ['odta:AIModified', 'Sonnet 5'], ['odta:AIInvolved', nil]],
+      references.map { |reference| [reference.degree, reference.name] }
+    )
+  end
+
+  # one name for the whole record describes one agent used at several degrees - pairing it away from
+  # all but the first would key a second, nameless agent for the rest
+  it 'should name every degree of involvement with a single delivered agent name' do
+    raw_data = {
+      'supplier' => { 'aiName' => 'Opus 5' },
+      'images' => [
+        { 'degree' => 'odta:AIGenerated' },
+        { 'degree' => 'odta:AIModified' }
+      ]
+    }
+
+    references = subject.add_ai_agent_references(
+      raw_data, ['images', 'degree'], ->(data) { data.dig('supplier', 'aiName') }
+    )['contributor']
+
+    assert_equal(
+      [['odta:AIGenerated', 'Opus 5'], ['odta:AIModified', 'Opus 5']],
+      references.map { |reference| [reference.degree, reference.name] }
+    )
+  end
+
+  # the boundary of that broadcast: two names resolved, one of them blank, is still a pairing - and
+  # counting only the delivered one would put it on the second degree as well
+  it 'should not name a degree of involvement the supplier delivered no agent for' do
+    raw_data = {
+      'images' => [
+        { 'degree' => 'odta:AIGenerated', 'agent' => 'Opus 5' },
+        { 'degree' => 'odta:AIModified' }
+      ]
+    }
+
+    references = subject.add_ai_agent_references(raw_data, ['images', 'degree'], ['images', 'agent'])['contributor']
+
+    assert_equal(
+      [['odta:AIGenerated', 'Opus 5'], ['odta:AIModified', nil]],
+      references.map { |reference| [reference.degree, reference.name] }
+    )
+  end
+
+  it 'should create ai agent references using lambdas' do
+    raw_data = {
+      'isAiGenerated' => true
+    }
+
+    transformed_data = subject.add_ai_agent_references(raw_data, ->(data) { data['isAiGenerated'] ? 'odta:AIGenerated' : nil })
+
+    assert_equal(1, transformed_data['contributor'].size)
+    assert_equal('odta:AIGenerated', transformed_data['contributor'].first.degree)
+  end
+
+  it 'should keep references already present on the property when adding ai agent references' do
+    raw_data = {
+      'organization_id' => 'EXTERNAL ORGANIZATION ID',
+      'degree' => 'odta:AIGenerated'
+    }
+
+    transformed_data = subject.add_external_content_references(raw_data, 'contributor', 'EXTERNAL SOURCE ID', 'organization_id')
+    transformed_data = subject.add_ai_agent_references(transformed_data, 'degree')
+
+    assert_equal(2, transformed_data['contributor'].size)
+    assert_equal('EXTERNAL ORGANIZATION ID', transformed_data['contributor'].grep(subject::ExternalReference).first.external_key)
+    assert_equal('odta:AIGenerated', transformed_data['contributor'].grep(subject::AiAgentReference).first.degree)
+  end
+
+  it 'should add ai agent references to a given property' do
+    raw_data = {
+      'degree' => 'odta:AIInvolved'
+    }
+
+    transformed_data = subject.add_ai_agent_references(raw_data, 'degree', nil, 'creator')
+
+    assert_nil(transformed_data['contributor'])
+    assert_equal('odta:AIInvolved', transformed_data['creator'].first.degree)
+  end
+
+  it 'should not create ai agent references for a blank degree of involvement' do
+    raw_data = {
+      'degree' => nil,
+      'agent' => 'Opus 5'
+    }
+
+    transformed_data = subject.add_ai_agent_references(raw_data, 'degree', 'agent')
+
+    assert_equal(raw_data, transformed_data)
+    assert_not(transformed_data.key?('contributor'))
+  end
+
+  it 'should resolve ai agent references' do
+    raw_data = {
+      'images' => [
+        { 'degree' => 'odta:AIGenerated' },
+        { 'degree' => 'odta:AIGenerated' },
+        { 'degree' => 'odta:AIModified' }
+      ]
+    }
+
+    transformed_data = subject.add_ai_agent_references(raw_data, ['images', 'degree'])
+
+    mapping_table_stub = lambda do |references|
+      # the agents are created per unique reference, an unmapped degree is left out
+      assert_equal(2, references.uniq.size)
+
+      { subject::AiAgentReference.new('odta:AIGenerated', nil) => '00000000-0000-0000-0000-000000000001' }
+    end
+
+    DataCycleCore::AiAgentService.stub :mapping_table, mapping_table_stub do
+      transformed_data = subject.resolve_references(transformed_data)
+
+      assert_equal(['00000000-0000-0000-0000-000000000001'], transformed_data['contributor'])
+    end
+  end
+
   it 'should create external references using lambdas' do
     raw_data = {
       'content' => ['some external id', 'another external id']

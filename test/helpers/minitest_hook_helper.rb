@@ -9,6 +9,11 @@ module DataCycleCore
 
     included do
       around(:all) do |&block|
+        # Some before(:all) blocks upsert_all template schemas directly (bypassing the cache
+        # invalidation the importer performs), so a ThingTemplate cache warmed by an earlier test
+        # class would be stale for the content those blocks build. Reset before setup.
+        DataCycleCore::ThingTemplate.reset_template_caches!
+
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           super(&block)
         ensure

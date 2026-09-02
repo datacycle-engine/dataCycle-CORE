@@ -2,15 +2,14 @@
 
 require 'active_support/core_ext/integer/time'
 
-# Register the :pixelpoint_aad_v2 omniauth provider in the test suite by supplying dummy
-# AAD credentials when none are set (e.g. CI, fresh checkouts), so omniauth-dependent code
-# stays exercised consistently (User.from_omniauth, the provider's `*_uid` store accessor).
-# Must run before the engine's config/initializers/devise.rb, which registers the provider
-# from these ENV vars — this environment file loads before engine initializers. EntraId
-# resolves endpoints lazily, so placeholder credentials never trigger network calls.
-ENV['PIXELPOINT_AAD_V2_CLIENT_ID'] ||= 'test-client-id'
-ENV['PIXELPOINT_AAD_V2_CLIENT_SECRET'] ||= 'test-client-secret'
-ENV['PIXELPOINT_AAD_V2_TENANT_ID'] ||= 'test-tenant-id'
+# Always register the pixelpoint_aad_v2 OmniAuth provider in the test env. config/initializers/
+# devise.rb only configures it when PIXELPOINT_AAD_V2_CLIENT_ID is present, and User generates its
+# <provider>_uid store accessors from Devise.omniauth_configs at load time — so without credentials
+# (e.g. on CI, where they are not set) the accessor is missing and from_omniauth / DC-25 allowlist
+# tests error. Supply dummies here unless real values are already set (e.g. locally via docker).
+ENV['PIXELPOINT_AAD_V2_CLIENT_ID'] = ENV['PIXELPOINT_AAD_V2_CLIENT_ID'].presence || 'test-dummy-client-id'
+ENV['PIXELPOINT_AAD_V2_CLIENT_SECRET'] = ENV['PIXELPOINT_AAD_V2_CLIENT_SECRET'].presence || 'test-dummy-client-secret'
+ENV['PIXELPOINT_AAD_V2_TENANT_ID'] = ENV['PIXELPOINT_AAD_V2_TENANT_ID'].presence || 'test-dummy-tenant-id'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -20,8 +19,7 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.enable_reloading = false
 
-  # config.active_job.queue_adapter = :test # problems with backtrace in test failures
-  config.active_job.queue_adapter = :delayed_job
+  config.active_job.queue_adapter = :test # problems with backtrace in test failures
   # config.action_view.cache_template_loading = true
 
   # Do not eager load code on boot. This avoids loading your whole application
@@ -30,8 +28,6 @@ Rails.application.configure do
   # @todo validate after fixed tests
   config.eager_load = true
 
-  # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
-  # the I18n.default_locale when a translation cannot be found).
   config.i18n.fallbacks = false
 
   # Configure public file server for tests with Cache-Control for performance.
@@ -84,9 +80,12 @@ Rails.application.configure do
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
 
+  config.active_job.logger = Logger.new(nil)
+  config.action_cable.logger = Logger.new(nil)
+
   config.action_mailer.default_url_options = { host: 'localhost:3000', protocol: 'http' } # required for action_mailer (Missing host to link to! Please provide the :host parameter, set default_url_options[:host])
 
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
   config.action_cable.url = '/cable'
-  config.action_cable.allowed_request_origins = [config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')]
+  config.action_cable.allowed_request_origins = [config.asset_host]
 end

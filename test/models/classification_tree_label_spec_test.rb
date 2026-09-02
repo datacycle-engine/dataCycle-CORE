@@ -174,4 +174,9 @@ describe DataCycleCore::ClassificationTreeLabel do
       end
     end
   end
+
+  it 'insert_all_classifications_by_path does nothing for an empty list' do
+    assert_nil(tree_one.insert_all_classifications_by_path([]))
+    assert_empty(tree_one.classification_aliases)
+  end
 end

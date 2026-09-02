@@ -1,0 +1,45 @@
+---
+# [#50050] Test template for AiAgentService, mirroring the one a project ships: the
+# external_key is a plain column the resolver writes, not a computed property.
+- :data:
+    :name: ArtificialIntelligenceAgent
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - odta:ArtificialIntelligenceAgent
+    :boost: 1.0
+    :features:
+      :creatable:
+        :allowed: true
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :odta_ai_degree_of_involvement:
+        :label: Grad der KI-Beteiligung
+        :type: classification
+        :tree_label: ODTA - AI-DegreeOfInvolvement
+        :validations:
+          :required: true
+          :max: 1
+      # no default_value: the resolver writes the localized name per locale
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: String
+          :method: classification_name
+          :tree_label: ODTA - AI-DegreeOfInvolvement
+          :parameters:
+            - odta_ai_degree_of_involvement
+      # external_key and schema_types come from here, as in the project template
+      :meta_data:
+        :type: mixin
+        :name: meta_data

@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class MissingAssetTest < ActionDispatch::IntegrationTest
+  class MissingAssetTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
     include DataCycleCore::ActiveStorageHelper
@@ -104,6 +104,18 @@ module DataCycleCore
 
       assert_response :not_found
       assert_equal '', response.body
+    end
+
+    test 'js probes get a bare 404 instead of a cross-origin error' do
+      get '/assets/env.js'
+
+      assert_response :not_found
+      assert_empty response.body
+
+      get '/assets/env.js', headers: { 'X-Requested-With' => 'XMLHttpRequest' }
+
+      assert_response :not_found
+      assert_match 'console.warn', response.body
     end
 
     test 'valid asset paths should be served correctly when single dot is encoded' do

@@ -12,7 +12,9 @@ class SplitView {
 		);
 		this.rightContainer = this.container
 			.closest(".flex-box")
-			.querySelector(".split-content.edit-content");
+			?.querySelector(".split-content.edit-content");
+		// no editable split view present (e.g. the read-only merge preview): nothing to wire up
+		if (!this.leftContainer || !this.rightContainer) return;
 		this.embedLocale = this.leftContainer.dataset.embedLocale;
 		this.leftLocaleSwitcher = this.leftContainer.getElementsByClassName(
 			"attribute-locale-switcher",

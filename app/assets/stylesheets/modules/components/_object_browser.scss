@@ -57,12 +57,12 @@ a.show-sidebar-details {
     min-width: 1.6rem;
   }
 
-  .image:not(.tile-property) {
+  li.image:not(.tile-property) {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    .content-linkd {
+    .content-link {
       position: relative;
       height: 100%;
       width: 100%;

@@ -10,7 +10,8 @@ module DataCycleCore
 
       @mode = mode_params[:mode].in?(['list', 'tree', 'map']) ? mode_params[:mode].to_s : 'grid'
 
-      @contents = query.preload(:role, :user_groups).page(params[:page])
+      # :locked_by is rendered by users/_lock_status for every locked row
+      @contents = query.preload(:role, :user_groups, :locked_by).page(params[:page])
 
       if count_only_params[:count_only].present?
         @count_only = true
@@ -66,10 +67,7 @@ module DataCycleCore
 
         bypass_sign_in(@user) if current_user == @user && !@permitted_params[:password].nil?
 
-        if params[:user_settings]
-          flash.clear[:success] = I18n.t('controllers.success.updated_user_settings', locale: helpers.active_ui_locale)
-          redirect_to(settings_path)
-        elsif Rails.env.development?
+        if Rails.env.development?
           redirect_to edit_user_path(@user)
         elsif can? :index, DataCycleCore::User
           redirect_to users_path
@@ -91,7 +89,7 @@ module DataCycleCore
     end
 
     def lock
-      @user.lock_access!
+      @user.lock_access!(locked_by: current_user)
 
       redirect_back_or_to(root_path, notice: I18n.t('controllers.success.locked', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
@@ -111,7 +109,8 @@ module DataCycleCore
     def search
       authorize! :search, :users
 
-      users = DataCycleCore::User.limit(20)
+      # :locked_by is rendered by full_name_with_status for every locked option
+      users = DataCycleCore::User.limit(20).preload(:locked_by)
       users = users.fulltext_search(search_params[:q]) if search_params[:q].present?
       users = users.to_a
 
@@ -239,7 +238,7 @@ module DataCycleCore
     def filterd_users
       query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
 
-      query = query.where(locked_at: nil) unless current_user.has_rank?(10)
+      query = query.not_effectively_locked unless current_user.has_rank?(10)
 
       @filters = filter_params
       @filters&.select { |f| f.key?('c') }&.each { |f| f['identifier'] = SecureRandom.hex(10) }

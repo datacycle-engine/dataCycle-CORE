@@ -105,6 +105,7 @@ module DataCycleCore
               })
 
             @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
+            perform_enqueued_jobs
           end
 
           setup do

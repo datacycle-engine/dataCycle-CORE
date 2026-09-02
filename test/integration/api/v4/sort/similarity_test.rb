@@ -21,6 +21,7 @@ module DataCycleCore
             @poi_d.set_data_hash(partial_update: true, prevent_history: true, data_hash: { name: 'ccc - headline' })
 
             @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
+            perform_enqueued_jobs
           end
 
           setup do

@@ -1,85 +1,83 @@
-<%#= ai_lector_dropdown(content, key) %>
 <% dropdown_id = "#{sanitize_to_id(key)}-ai-lector-dropdown" %>
+
+<%
+  tips = DataCycleCore::Feature['AiLector'].config_by_type(content, key, 'tips', I18n.locale)
+  improvements = DataCycleCore::Feature['AiLector'].config_by_type(content, key, 'improvements', I18n.locale)
+  proofing_improvements = improvements.select { |_k, v| v[:category].to_s == 'proofing' }
+  targeting_improvements = improvements.select { |_k, v| v[:category].to_s == 'targeting' }
+%>
+
 <div class="ai-lector-dropdown-container">
-  <button type="button" class="ai-lector-dropdown-button" data-toggle="<%= dropdown_id %>">
+  <button
+    type="button"
+    class="ai-lector-dropdown-button"
+    data-toggle="<%= dropdown_id %>"
+    aria-haspopup="true"
+    data-dc-tooltip="<%= t('feature.ai_lector.title', default: 'data.pixies', locale: active_ui_locale) %>"
+  >
     <i class="fa fa-magic" aria-hidden="true"></i>
   </button>
 
-  <div id="<%= dropdown_id %>"
-       class="dropdown-pane ai-lector-dropdown"
-       data-hover="false"
-       data-dropdown="true"
-       data-close-on-click="true"
-       data-position="bottom">
+  <div
+    id="<%= dropdown_id %>"
+    class="dropdown-pane ai-lector-dropdown"
+    data-hover="false"
+    data-dropdown="true"
+    data-close-on-click="true"
+    data-position="bottom"
+  >
     <ul class="no-bullet">
-      <% if (tips = DataCycleCore::Feature['AiLector'].config_by_type(content, key, 'tips', I18n.locale)).present? %>
-        <li class="ai-lector-section-header">
-          <%= t('feature.ai_lector.tips.title', locale: active_ui_locale) %>
+      <% if tips.present? %>
+        <li class="ai-lector-section-header tips">
+          <i class="fa fa-lightbulb-o ai-lector-section-icon" aria-hidden="true"></i>
+          <span>
+            <span class="ai-lector-section-title"><%= t('feature.ai_lector.tips.title', default: 'Tips', locale: active_ui_locale) %></span>
+            <% if (subtitle = t('feature.ai_lector.tips.subtitle', default: nil, locale: active_ui_locale)).present? %>
+              <span class="ai-lector-section-subtitle"><%= subtitle %></span>
+            <% end %>
+          </span>
         </li>
+
         <% tips.each do |k, v| %>
-          <% identifier = SecureRandom.hex(10) %>
-          <li class="ai-lector-row">
-            <button type="button"
-                    id="<%= identifier %>"
-                    class="ai-lector-button ai-lector-tip-button"
-                    data-template-name="<%= content.template_name %>"
-                    data-content-id="<%= content.id %>"
-                    data-tip-key="<%= k %>"
-                    data-key="<%= key %>"
-                    data-prompt-type="tips"
-                    data-locale="<%= I18n.locale %>">
-              <%= t("feature.ai_lector.tips.#{k}", default: k, locale: active_ui_locale) %>
-            </button>
-            <div class="ai-lector-result">
-              <button class="close-button ai-lector-close-result" aria-label="Close results" type="button">
-                <span aria-hidden="true">&times;</span>
-              </button>
-              <div class="ai-lector-result-content ellipsis-loading">
-                <%= t('feature.ai_lector.tips.thinking', locale: active_ui_locale) %>
-              </div>
-            </div>
-          </li>
+          <%= render 'data_cycle_core/contents/editors/features/ai_lector_tip_row',
+                content:, key:, k:, category: 'tips',
+                icon: (v.is_a?(Hash) ? v[:icon].presence : nil) || 'fa-lightbulb-o' %>
         <% end %>
       <% end %>
 
-      <% if (improvements = DataCycleCore::Feature['AiLector'].config_by_type(content, key, 'improvements', I18n.locale)).present? %>
-        <li class="ai-lector-section-header">
-          <%= t('feature.ai_lector.improvements.title', locale: active_ui_locale) %>
+      <% if proofing_improvements.present? %>
+        <li class="ai-lector-section-header proofing">
+          <i class="fa fa-magic ai-lector-section-icon" aria-hidden="true"></i>
+          <span>
+            <span class="ai-lector-section-title"><%= t('feature.ai_lector.proofing.title', default: 'Proofing Pixie', locale: active_ui_locale) %></span>
+            <% if (subtitle = t('feature.ai_lector.proofing.subtitle', default: nil, locale: active_ui_locale)).present? %>
+              <span class="ai-lector-section-subtitle"><%= subtitle %></span>
+            <% end %>
+          </span>
         </li>
-        <% improvements.each do |k, v| %>
-          <% identifier = SecureRandom.hex(10) %>
-          <li class="ai-lector-row">
-            <button type="button"
-                    id="<%= identifier %>"
-                    class="ai-lector-button ai-lector-improvement-button"
-                    data-template-name="<%= content.template_name %>"
-                    data-content-id="<%= content.id %>"
-                    data-tip-key="<%= k %>"
-                    data-key="<%= key %>"
-                    data-identifier="<%= identifier %>"
-                    data-prompt-type="improvement"
-                    data-locale="<%= I18n.locale %>">
-              <%= t("feature.ai_lector.improvements.#{k}", default: k, locale: active_ui_locale) %>
-            </button>
-            <%= turbo_frame_tag("#{identifier}-context-overlay",  loading: 'lazy',
-              src: remote_render_path(
-                options: { overlay_id: "#{identifier}-context-overlay", key: k }.to_json,
-                partial: 'data_cycle_core/contents/editors/features/ai_lector_context_frame',
-              ),
-              class: 'ai-lector-context-overlay reveal', data: { reveal: true }) if v[:allow_direct_user_input] %>
-            <%= turbo_frame_tag("#{identifier}-diff-overlay", loading: 'lazy',
-              src: remote_render_path(
-                options: { overlay_id: "#{identifier}-diff-overlay", identifier: , allow_feedback_loop: v[:allow_feedback_loop] }.to_json,
-                partial: 'data_cycle_core/contents/editors/features/ai_lector_diff_frame',
-              ),
-              class: 'ai-lector-diff-overlay reveal', data: { reveal: true }) %>
-            <%= turbo_frame_tag("#{identifier}-finetune-overlay",  loading: 'lazy',
-              src: remote_render_path(
-                options: { overlay_id: "#{identifier}-finetune-overlay" }.to_json,
-                partial: 'data_cycle_core/contents/editors/features/ai_lector_finetune_frame',
-              ),
-              class: 'ai-lector-finetune-overlay reveal', data: { reveal: true }) if v[:allow_feedback_loop] %>
-          </li>
+
+        <% proofing_improvements.each do |k, v| %>
+          <%= render 'data_cycle_core/contents/editors/features/ai_lector_improvement_row',
+                content:, key:, k:, v:, category: 'proofing',
+                icon: v[:icon].presence || 'fa-magic' %>
+        <% end %>
+      <% end %>
+
+      <% if targeting_improvements.present? %>
+        <li class="ai-lector-section-header targeting">
+          <i class="fa fa-bullseye ai-lector-section-icon" aria-hidden="true"></i>
+          <span>
+            <span class="ai-lector-section-title"><%= t('feature.ai_lector.targeting.title', default: 'Targeting Pixie', locale: active_ui_locale) %></span>
+            <% if (subtitle = t('feature.ai_lector.targeting.subtitle', default: nil, locale: active_ui_locale)).present? %>
+              <span class="ai-lector-section-subtitle"><%= subtitle %></span>
+            <% end %>
+          </span>
+        </li>
+
+        <% targeting_improvements.each do |k, v| %>
+          <%= render 'data_cycle_core/contents/editors/features/ai_lector_improvement_row',
+                content:, key:, k:, v:, category: 'targeting',
+                icon: v[:icon].presence || 'fa-crosshairs' %>
         <% end %>
       <% end %>
     </ul>

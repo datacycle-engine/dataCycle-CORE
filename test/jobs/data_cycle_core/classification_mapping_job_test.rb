@@ -45,12 +45,11 @@ module DataCycleCore
       assert_equal [['classification_update', { type: 'lock', id: UUID }]], broadcasts
     end
 
-    test 'exposes reference id, type and priority' do
+    test 'exposes its concurrency key and priority' do
       job = DataCycleCore::ClassificationMappingJob.new(UUID)
 
-      assert_equal UUID, job.delayed_reference_id
-      assert_equal 'ClassificationMappingJob', job.delayed_reference_type
-      assert_equal DataCycleCore::ClassificationMappingJob::PRIORITY, job.priority
+      assert_equal "DataCycleCore::ClassificationMappingJob/#{UUID}", job.concurrency_key
+      assert_equal 10, job.priority
     end
   end
 end

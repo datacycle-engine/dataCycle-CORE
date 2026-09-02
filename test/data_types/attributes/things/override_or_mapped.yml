@@ -1,0 +1,97 @@
+---
+- :data:
+    :name: OverrideOrMapped-Place
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :universal_classifications:
+        :label: Universal Classifications
+        :type: classification
+        :universal: true
+      :override_tag:
+        :label: Override Tag
+        :type: classification
+        :tree_label: Tags
+        :local: true
+      :effective_tag:
+        :label: Effective Tag
+        :type: classification
+        :tree_label: Tags
+        :ui:
+          :edit:
+            :disabled: true
+        :compute:
+          :module: Classification
+          :method: override_or_mapped
+          :fallback: false
+          :after_save: true
+          :recompute_on_classification_change: true
+          :override_parameter: override_tag
+          :parameters:
+            - override_tag
+            - universal_classifications
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+# Same compute in the other post-save mode. override_or_mapped works in both (it only needs the
+# persisted state, not a particular mode), and this keeps a subject for the assertion that
+# compute.after_save is opt-in: a template using compute.async must not enter the post-save
+# recompute at all.
+- :data:
+    :name: OverrideOrMappedAsync-Place
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - Place
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :universal_classifications:
+        :label: Universal Classifications
+        :type: classification
+        :universal: true
+      :override_tag:
+        :label: Override Tag
+        :type: classification
+        :tree_label: Tags
+        :local: true
+      :effective_tag:
+        :label: Effective Tag
+        :type: classification
+        :tree_label: Tags
+        :ui:
+          :edit:
+            :disabled: true
+        :compute:
+          :module: Classification
+          :method: override_or_mapped
+          :fallback: false
+          :async: true
+          :recompute_on_classification_change: true
+          :override_parameter: override_tag
+          :parameters:
+            - override_tag
+            - universal_classifications
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false

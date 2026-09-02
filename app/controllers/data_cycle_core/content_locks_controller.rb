@@ -31,10 +31,6 @@ module DataCycleCore
 
     private
 
-    def hopefully_not_triggered
-      raise 'Content Lock destroy/update failed - Browser Windows closed'
-    end
-
     def decode_token
       @decoded = DataCycleCore::JsonWebToken.decode(params[:token]) || {}
     rescue JWT::DecodeError, JSON::ParserError

@@ -43,6 +43,7 @@ module DataCycleCore
               'dc_nominal_capacity' => 45,
               'dcls_active' => false
             })
+            perform_enqueued_jobs
           end
 
           test 'api/v4/things with filter for additional attribute' do

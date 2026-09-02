@@ -4,6 +4,7 @@ module DataCycleCore
   class ExternalSystem < ApplicationRecord
     include ExternalSystemExtensions::Import
     include ExternalSystemExtensions::Status
+    include ExternalSystemExtensions::UrlTemplate
 
     attribute :last_import_time, :interval
     attribute :last_successful_import_time, :interval
@@ -32,6 +33,38 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    # The set of external systems is small and effectively static, but imports resolve them for
+    # every content record (by id via the belongs_to, and by name/identifier when attaching sync
+    # data). Cache the whole set indexed both ways to avoid a query per record. Invalidated on any
+    # write; ExternalSystem is only ever created/updated through model callbacks (no bulk upserts).
+    after_commit { DataCycleCore::ExternalSystem.reset_cache! }
+
+    def self.cached_index
+      @cached_index ||= begin
+        systems = unscoped.to_a
+        {
+          by_id: systems.index_by(&:id).freeze,
+          by_key: systems.index_by(&:identifier).merge(systems.index_by(&:name)).freeze
+        }.freeze
+      end
+    end
+
+    def self.cached_by_id(id)
+      return if id.blank?
+
+      cached_index[:by_id][id]
+    end
+
+    # Hash of { identifier/name => ExternalSystem } across all systems (name wins on collision,
+    # matching the previous by_names_or_identifiers.index_by(&:identifier).merge(index_by(&:name))).
+    def self.cached_by_key
+      cached_index[:by_key]
+    end
+
+    def self.reset_cache!
+      @cached_index = nil
+    end
+
     scope :by_names_or_identifiers, ->(value) { value.blank? ? none : where(identifier: value).or(where(name: value)) }
     scope :by_names_identifiers_or_ids, lambda { |value|
       return none if value.blank?
@@ -50,6 +83,22 @@ module DataCycleCore
     validates :name, presence: true
     validates :identifier, presence: true
 
+    # The single system an operator addressed, by id, identifier or name. Ambiguity raises rather
+    # than resolving by row order: the rake tasks reading this import into, export to and delete at
+    # the system they get back, and the wrong one is not recoverable.
+    # @param value [String] id, identifier or name
+    # @return [DataCycleCore::ExternalSystem]
+    def self.find_unique_by_names_identifiers_or_ids!(value)
+      raise 'External system missing!' if value.blank?
+
+      found = by_names_identifiers_or_ids(value).to_a
+
+      raise "External system not found: #{value}" if found.empty?
+      raise "Ambiguous external system: #{found.map(&:name).join(', ')}" if found.many?
+
+      found.first
+    end
+
     def name_with_types
       nwt = name
       type = []
@@ -64,6 +113,34 @@ module DataCycleCore
       return @export_config if defined? @export_config
 
       @export_config = config&.dig('export_config')&.with_indifferent_access
+    end
+
+    # transformation module used by the export api, e.g. Datacycle::Connector::Foo::Transformations
+    # the configured constant is only accepted if it implements the export contract
+    def export_transformations
+      return @export_transformations if defined? @export_transformations
+
+      transformations = export_config&.dig('transformations')&.safe_constantize
+      transformations = nil unless transformations.respond_to?(:render) && transformations.respond_to?(:format)
+
+      @export_transformations = transformations
+    end
+
+    # strategy module used to refresh exported contents, e.g. DataCycleCore::Export::Foo::Refresh
+    def export_refresh_strategy
+      return @export_refresh_strategy if defined? @export_refresh_strategy
+
+      strategy = export_config&.dig('refresh', 'strategy')&.safe_constantize
+      strategy = nil unless strategy.respond_to?(:process)
+
+      @export_refresh_strategy = strategy
+    end
+
+    # when enabled, a successful delete export removes the external_system_sync link(s)
+    # (for the content and its orphaned linked children) instead of keeping a 'duplicate' row
+    def remove_external_system_syncs_on_delete?
+      export_config&.dig('delete', 'remove_external_system_syncs') ||
+        export_config&.dig('remove_external_system_syncs') || false
     end
 
     def refresh_config
@@ -132,6 +209,16 @@ module DataCycleCore
       export_config&.dig(method_name.to_sym, 'filter', key) || export_config&.dig(:filter, key)
     end
 
+    # The name the export filters of an action are keyed by: strategies pass their demodulised class
+    # name, which is the action only as long as the class is named after it (Export::Onlim::Update ->
+    # update, Export::Onlim::ForceDelete -> force_delete). Falls back to the action for the generic
+    # strategy DataCycleCore::Export::PushObject#webhook builds when none is configured.
+    def export_filter_method_name(action)
+      export_config&.dig(action.to_s, 'strategy')&.demodulize&.underscore || action.to_s
+    end
+
+    # #export_config_by_filter_key minus the root `filter` fallback, deliberately: the only caller is
+    # dc:sync:delete, where picking up a root-level endpoints list widens a mass delete.
     def export_config_by_method_name_and_filter_key(method_name, key)
       export_config&.dig(method_name.to_sym, 'filter', key)
     end
@@ -193,6 +280,21 @@ module DataCycleCore
       @default_options[type.to_s]
     end
 
+    # Queue used to run download/import jobs for this external system, configured via the top-level
+    # default_options['queue']; defaults to :importers.
+    #
+    # Anything that is not a known importer queue falls back to the default instead of reaching
+    # +ImportJob.queue_as+ as it stands: the config contract rejects such a value, but nothing does
+    # when default_options is written straight to the database, and a queue no worker listens on
+    # accepts the job and then never runs it. +dc:jobs:validate+ reports the mismatch.
+    # @return [Symbol]
+    def import_queue
+      options = self[:default_options]
+      queue = options['queue'].presence&.to_sym if options.is_a?(Hash)
+
+      queue.in?(DataCycleCore.importer_queues) ? queue : :importers
+    end
+
     def handle_import_error_notification(last_exception = nil)
     end
 
@@ -208,11 +310,13 @@ module DataCycleCore
       return if Time.zone.now < last_success + grace_period
 
       error_text = "The #{type} for #{name} has been repeatedly failing for more than #{grace_period.inspect}.\n\nLast successful #{type}: #{last_success.strftime('%d.%m.%Y %H:%M')}."
-      error_text += "\n\nThe last exception was: #{exception}" if exception.present?
+      # same rendering as the import log — this text is what the failure mail renders verbatim
+      error_text += "\n\nThe last exception was: #{DataCycleCore::Error.describe(exception)}" if exception.present?
       error = "DataCycleCore::Error::#{type.to_s.classify}::RepeatedFailureError".safe_constantize&.new(error_text)
-      error.set_backtrace(exception.backtrace) if exception.present?
 
       return if error.nil?
+
+      error.set_backtrace(exception.backtrace) if exception.present?
 
       ActiveSupport::Notifications.instrument "#{type}_failed_repeatedly.datacycle", {
         exception: error,
@@ -224,13 +328,13 @@ module DataCycleCore
     end
 
     def refresh(options = {})
-      raise "Missing refresh_strategy for #{name}, options given: #{options}" if export_config.dig(:refresh, :strategy).blank?
+      raise "Missing refresh_strategy for #{name}, options given: #{options}" if export_refresh_strategy.nil?
 
       utility_object = DataCycleCore::Export::PushObject.new(
         external_system: self,
         action: :refresh
       )
-      export_config.dig(:refresh, :strategy).safe_constantize.process(utility_object:, options:)
+      export_refresh_strategy.process(utility_object:, options:)
     end
 
     def collections
@@ -268,16 +372,18 @@ module DataCycleCore
       reload
     end
 
+    # the content is the primary source of this system, so the templates are read from the
+    # import options (ExternalSystemSync reads them for its own sync_type)
     def external_url(content)
-      return if default_options&.dig('external_url').blank? || content&.external_key.blank?
+      return if content&.external_key.blank?
 
-      format(default_options['external_url'], locale: I18n.locale, external_key: content.external_key)
+      format_url_template(default_options&.dig('external_url'), locale: I18n.locale, external_key: content.external_key)
     end
 
     def external_detail_url(content)
-      return if default_options&.dig('external_detail_url').blank? || content&.external_key.blank?
+      return if content&.external_key.blank?
 
-      format(default_options['external_detail_url'], locale: I18n.locale, external_key: content.external_key)
+      format_url_template(default_options&.dig('external_detail_url'), locale: I18n.locale, external_key: content.external_key)
     end
 
     def self.find_from_hash(data)
@@ -387,6 +493,8 @@ module DataCycleCore
 
     def reset_memoized_variables!
       remove_instance_variable(:@export_config) if instance_variable_defined?(:@export_config)
+      remove_instance_variable(:@export_transformations) if instance_variable_defined?(:@export_transformations)
+      remove_instance_variable(:@export_refresh_strategy) if instance_variable_defined?(:@export_refresh_strategy)
       remove_instance_variable(:@refresh_config) if instance_variable_defined?(:@refresh_config)
       remove_instance_variable(:@download_config) if instance_variable_defined?(:@download_config)
       remove_instance_variable(:@import_config) if instance_variable_defined?(:@import_config)

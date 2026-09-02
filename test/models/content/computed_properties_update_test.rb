@@ -7,28 +7,21 @@ module DataCycleCore
   module Content
     class ComputedPropertiesUpdateTest < DataCycleCore::TestCases::ActiveSupportTestCase
       before(:all) do
-        @organization = DataCycleCore::TestPreparations.create_content(
-          template_name: 'Organization',
-          data_hash: { name: 'Test Organization 1' }
-        )
+        @organization = create_content('Organization', { name: 'Test Organization 1' })
+        @organization2 = create_content('Organization', { name: 'Test Organization 2' })
 
-        @organization2 = DataCycleCore::TestPreparations.create_content(
-          template_name: 'Organization',
-          data_hash: { name: 'Test Organization 2' }
-        )
-
-        @person = DataCycleCore::TestPreparations.create_content(
-          template_name: 'Person',
-          data_hash: {
+        @person = create_content(
+          'Person',
+          {
             given_name: 'Test',
             family_name: 'Person 1',
             member_of: [@organization.id]
           }
         )
 
-        @image = DataCycleCore::TestPreparations.create_content(
-          template_name: 'ImageWithComputedAttribute',
-          data_hash: {
+        @image = create_content(
+          'ImageWithComputedAttribute',
+          {
             name: 'Test Bild 1',
             author: [@person.id],
             copyright_holder: [@organization.id]
@@ -41,6 +34,7 @@ module DataCycleCore
         assert_equal('(c) Test Person 1 / Test Organization 1', @image.copyright_notice)
 
         @organization.set_data_hash(data_hash: { 'name' => 'Test Organization 1 - UPDATED' })
+        perform_enqueued_jobs
 
         assert_equal('(c) Test Person 1 / Test Organization 1 - UPDATED', @image.reload.copyright_notice)
       end
@@ -49,12 +43,14 @@ module DataCycleCore
         @image.set_data_hash(data_hash: @image.get_data_hash.except(*@image.computed_property_names).except('author').merge({
           'name' => 'Test Bild 1 - UPDATED'
         }))
+        perform_enqueued_jobs
 
         assert_equal('(c) Test Person 1 / Test Organization 1', @image.copyright_notice_override || @image.copyright_notice_computed)
       end
 
       test 'update copyright_holder updates translated attribution_name in all languages' do
         @image.set_data_hash_with_translations(data_hash: { copyright_holder: [@organization2.id] })
+        perform_enqueued_jobs
 
         assert_equal '(c) Test Organization 2 / Test Person 1', I18n.with_locale(:de) { @image.attribution_name }
         assert_equal '(c) Test Organization 2 / Test Person 1', I18n.with_locale(:en) { @image.reload.attribution_name }

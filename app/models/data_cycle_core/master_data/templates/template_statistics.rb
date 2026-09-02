@@ -31,7 +31,7 @@ module DataCycleCore
           }
         end
 
-        # rubocop:disable Rails/Output
+        # rubocop:disable-next Rails/Output
         def render_statistics
           puts AmazingPrint::Colors.yellow("🧐 WARNING: things without template found: #{@contents_without_templates[:things]}") if @contents_without_templates[:things].positive?
           puts "WARNING: thing_histories without template found: #{@contents_without_templates[:thing_histories]}" if @contents_without_templates[:thing_histories].positive?
@@ -45,7 +45,6 @@ module DataCycleCore
             puts "#{value[:name].to_s.ljust(40)} | #{value[:cache_valid_since].to_fs(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
           end
         end
-        # rubocop:enable Rails/Output
       end
     end
   end

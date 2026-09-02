@@ -60,6 +60,57 @@ module DataCycleCore
       assert_equal(0, @data_set.external_system_syncs.count)
     end
 
+    test 'exception_data_from extracts a readable message from the first present known key' do
+      assert_equal 'boom', DataCycleCore::ExternalSystemSync.exception_data_from({ 'errors' => 'boom' })['text']
+      assert_equal 'boom', DataCycleCore::ExternalSystemSync.exception_data_from({ 'job_message' => 'boom' })['text']
+      # symbol-keyed payloads work too
+      assert_equal 'boom', DataCycleCore::ExternalSystemSync.exception_data_from({ error: 'boom' })['text']
+      # 'errors' takes precedence over 'message'
+      assert_equal 'first', DataCycleCore::ExternalSystemSync.exception_data_from({ 'errors' => 'first', 'message' => 'second' })['text']
+    end
+
+    test 'exception_data_from handles blanks and strings, and ignores hashes without a known error key' do
+      assert_nil DataCycleCore::ExternalSystemSync.exception_data_from(nil)
+      assert_nil DataCycleCore::ExternalSystemSync.exception_data_from({})
+      assert_equal 'plain error', DataCycleCore::ExternalSystemSync.exception_data_from('plain error')['text']
+      # a hash carrying only unrelated keys must not be dumped as an error message
+      assert_nil DataCycleCore::ExternalSystemSync.exception_data_from({ 'external_key' => 'x' })
+    end
+
+    test 'add_external_system_data records exception_data on failure and clears it on success' do
+      @data_set.add_external_system_data(@external_system, { 'errors' => 'geometry invalid' }, 'failure')
+      sync = @data_set.external_system_syncs.export.find_by(external_system_id: @external_system.id)
+
+      assert_equal 'failure', sync.status
+      assert_equal 'geometry invalid', sync.exception_data['text']
+
+      @data_set.add_external_system_data(@external_system, nil, 'success')
+
+      assert_nil sync.reload.exception_data
+    end
+
+    test 'display_exception_data falls back to raw sync data for failures recorded before exception_data existed' do
+      sync = @data_set.external_system_syncs.export.find_by(external_system_id: @external_system.id)
+
+      # simulate a pre-existing failure: error status, message only in the raw data, no exception key
+      sync.update!(status: 'error', data: { 'errors' => 'legacy geometry error' })
+
+      assert_nil sync.exception_data
+      assert_equal 'legacy geometry error', sync.display_exception_data['text']
+    end
+
+    test 'display_exception_data returns nil for failures without error text and for non-failures' do
+      sync = @data_set.external_system_syncs.export.find_by(external_system_id: @external_system.id)
+
+      sync.update!(status: 'error', data: { 'external_key' => 'x' })
+
+      assert_nil sync.display_exception_data
+
+      sync.update!(status: 'success', data: { 'errors' => 'stale error' })
+
+      assert_nil sync.display_exception_data
+    end
+
     test 'external source to external systems sync' do
       external_source_id = DataCycleCore::ExternalSystem.first.id
       external_key = '1234'

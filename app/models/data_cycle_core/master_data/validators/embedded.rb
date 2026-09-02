@@ -66,10 +66,14 @@ module DataCycleCore
             return
           end
 
+          referenced_templates = referenced_template_names(data)
+
           data.each do |item|
             next if item.blank?
 
             if item.is_a?(::Hash)
+              next if reference_only?(item) && reference_allowed?(item, referenced_templates, embedded_templates.keys)
+
               template_name = template['template_name']
 
               if template_name.is_a?(Array)
@@ -98,6 +102,85 @@ module DataCycleCore
               name: 'things'
             }
           }
+        end
+
+        # Whether the item carries nothing but an id.
+        #
+        # Such an item references embedded content written elsewhere -- DataHash#set_embedded
+        # only wires up the relation for it. There is no payload to validate, and no
+        # template_name to resolve a multi-template slot with. Keys are stringified rather than
+        # read by symbol so the check holds for a plain Hash too, not only the indifferent one
+        # the rest of this class assumes.
+        #
+        # @param item [Hash] Embedded item data
+        # @return [Boolean]
+        def reference_only?(item)
+          item.keys.map(&:to_s) == ['id']
+        end
+
+        # The id a reference-only item carries, nil for anything that is not one.
+        #
+        # The id has to be a single string: an array would resolve through an IN clause and pass
+        # as a reference, only for set_embedded to write nothing for it.
+        #
+        # @param item [Object] Embedded data item
+        # @return [String, nil]
+        def reference_id(item)
+          return unless item.is_a?(::Hash) && reference_only?(item)
+
+          id = item.values.first
+          id if id.is_a?(::String) && id.present?
+        end
+
+        # An id in the spelling the column stores it in, nil if it is no uuid.
+        #
+        # The lookup below answers with the ids as Postgres holds them, so a reference written in
+        # another spelling has to be normalised before it can be matched against them. The
+        # column's own type does exactly that, down to the nil for something that is no uuid --
+        # which then matches nothing, just as a lookup on it would have found nothing.
+        #
+        # @param id [String, nil]
+        # @return [String, nil]
+        def stored_id(id)
+          DataCycleCore::Thing.type_for_attribute(:id).cast(id)
+        end
+
+        # Templates of the content the reference-only items point at, keyed by id.
+        #
+        # Resolved in one query up front. APIv4 reduces every embedded item to a bare id and
+        # validation re-runs once per pushed locale, so looking each one up on its own would cost
+        # items x locales single-row queries on exactly the path these references come from.
+        #
+        # @param data [Array] Embedded data items
+        # @return [Hash{String => String}] template_name by id, ids without content absent
+        def referenced_template_names(data)
+          ids = data.filter_map { |item| stored_id(reference_id(item)) }
+          return {} if ids.blank?
+
+          DataCycleCore::Thing.where(id: ids).pluck(:id, :template_name).to_h
+        end
+
+        # Whether a reference-only item points at existing content of an allowed template.
+        #
+        # Takes over the slot's template restriction from the skipped validation: the item
+        # names no template, so only the stored record can answer which one it has. Without
+        # this the slot would accept any id -- attaching independently managed content that
+        # the next push omitting it would destroy, or a dangling id that fails on the
+        # content_contents foreign key.
+        #
+        # Content already embedded elsewhere passes: a second parent does not endanger it, as
+        # embedded content is destroyed with check_ancestors and survives being dropped from one
+        # parent as long as another still holds it.
+        #
+        # @param item [Hash] Embedded item data, reference-only as per #reference_only?
+        # @param referenced_templates [Hash{String => String}] see #referenced_template_names
+        # @param allowed_template_names [Array<String>] Templates the slot accepts
+        # @return [Boolean]
+        def reference_allowed?(item, referenced_templates, allowed_template_names)
+          id = reference_id(item)
+          return false if id.nil?
+
+          allowed_template_names.include?(referenced_templates[stored_id(id)])
         end
 
         # Validates a single embedded item against its template.

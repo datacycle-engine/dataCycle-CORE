@@ -120,8 +120,8 @@ module DataCycleCore
       def sort_proximity_in_time(_ordering = '', value = {})
         date = Time.zone.now
         if value.present? && value.is_a?(::Hash) && value['q'] == 'relative'
-          date = relative_to_absolute_arel_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          date = relative_to_absolute_arel_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
+          date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
+          date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
         elsif value.present? && value.is_a?(::Hash)
           date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
@@ -447,6 +447,60 @@ module DataCycleCore
         )
       end
 
+      # #50554: order things by a prioritized list of content UUIDs; content not in the list sorts
+      # last (NULLS LAST). Without a list this is a plain sort on things.id.
+      def sort_id(ordering, value = nil)
+        ids = sanitized_uuid_list(value, '@id')
+
+        return reflect(query_without_order.order(thing[:id].send(sanitized_ordering(ordering)))) if ids.blank?
+
+        order_string = sanitize_sql(['array_position(ARRAY[?]::uuid[], things.id)', ids])
+
+        reflect(
+          query_without_order
+            .order(
+              sanitized_order_string(order_string, ordering, true),
+              thing[:updated_at].desc,
+              thing[:id].desc
+            )
+        )
+      end
+
+      # #50091: order things by a prioritized list of classification_alias UUIDs.
+      # Content tagged with the first listed UUID (or any of its descendants) comes first, etc.;
+      # content matching none of them sorts last (NULLS LAST).
+      def sort_dc_classification(ordering, value)
+        ids = sanitized_uuid_list(value, 'dc:classification')
+
+        # #50091: at least one UUID must be given -> reject empty (do NOT silently fall back like sort_type)
+        raise DataCycleCore::Error::Api::InvalidArgumentError, 'sort: dc:classification requires at least one classification UUID' if ids.blank?
+
+        # Aggregate the priority ONCE in a non-correlated derived table (index scan on
+        # classification_alias_id -> GROUP BY thing_id) and hash-join 1:1 to things, instead of a
+        # per-row correlated subquery. array_position is 1-based; MIN picks the earliest-listed
+        # matching UUID. hidden = false mirrors CollectedClassificationContent.without_hidden (#47172);
+        # no link_type filter keeps it subtree-inclusive like the default classification filter.
+        join_query = sanitize_sql([<<~SQL.squish, ids, ids])
+          LEFT OUTER JOIN (
+            SELECT thing_id, MIN(array_position(ARRAY[?]::uuid[], classification_alias_id)) AS sort_position
+            FROM collected_classification_contents
+            WHERE hidden = false
+              AND classification_alias_id = ANY(ARRAY[?]::uuid[])
+            GROUP BY thing_id
+          ) dc_classification_sort ON dc_classification_sort.thing_id = things.id
+        SQL
+
+        reflect(
+          query_without_order
+            .joins(join_query)
+            .order(
+              sanitized_order_string('dc_classification_sort.sort_position', ordering, true),
+              thing[:updated_at].desc,
+              thing[:id].desc
+            )
+        )
+      end
+
       def sanitized_ordering(ordering)
         ordering = ordering&.downcase
 
@@ -476,6 +530,17 @@ module DataCycleCore
       alias sort_similarity sort_fulltext_search
 
       private
+
+      # SECURITY (#50091, #50554): the anchored uuid? check is the injection boundary for sort values
+      # that end up inside a raw ARRAY[...] literal. Callers decide what a blank list means.
+      def sanitized_uuid_list(value, sort_key)
+        ids = Array.wrap(value).flat_map { |v| v.to_s.split(',') }.filter_map { |v| v.strip.presence }
+        invalid_ids = ids.reject(&:uuid?)
+
+        raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid UUID for sort: #{sort_key}: #{invalid_ids.join(', ')}" if invalid_ids.present?
+
+        ids
+      end
 
       def query_without_order
         @query.reorder(nil).except(:joins)

@@ -32,7 +32,7 @@ namespace :dc do
         queue << DataCycleCore::ImportPartialJob.new(external_source.id, import_name.squish.to_sym, args.mode)
       end
 
-      abort('Some jobs already exist') if queue.any? { |job| Delayed::Job.exists?(queue: job.queue_name, delayed_reference_type: job.delayed_reference_type, delayed_reference_id: job.delayed_reference_id, locked_at: nil, failed_at: nil) }
+      abort('Some jobs already exist') if queue.any?(&:duplicate_queued_with_args?)
 
       ActiveJob.perform_all_later(queue)
     end
@@ -48,7 +48,7 @@ namespace :dc do
     task :append_vacuum_job, [:full] => [:environment] do |_, args|
       full = args.fetch(:full, false)
       task_name = 'db:maintenance:vacuum'
-      DataCycleCore::RunTaskJobImport.perform_later(task_name, full) unless Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'rake_task_importers', delayed_reference_id: task_name)
+      DataCycleCore::RunTaskJobImport.perform_later(task_name, full)
     end
   end
 end

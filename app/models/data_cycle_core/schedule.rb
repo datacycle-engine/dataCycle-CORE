@@ -48,13 +48,20 @@ module DataCycleCore
     end
 
     def schedule_object=(value)
-      schedule_object_will_change!(:rrule, :dtstart, :duration, :dtend, :rdate, :exdate) if @schedule_object != value
+      current_schedule_object = if instance_variable_defined?(:@schedule_object)
+                                  @schedule_object
+                                elsif persisted?
+                                  load_schedule_object
+                                end
+
+      schedule_object_will_change!(:rrule, :dtstart, :duration, :dtend, :rdate, :exdate) if current_schedule_object != value
 
       @schedule_object = value
     end
 
     def rrule=(value)
-      schedule_object_will_change!(:dtend, :dtstart) if @rrule != value
+      current_rrule = instance_variable_defined?(:@rrule) ? @rrule : self[:rrule]
+      schedule_object_will_change!(:dtend, :dtstart) if current_rrule != value
       @rrule = super
     end
 
@@ -83,7 +90,8 @@ module DataCycleCore
     end
 
     def duration=(value)
-      schedule_object_will_change!(:dtend) if @duration != value
+      current_duration = instance_variable_defined?(:@duration) ? @duration : self[:duration]
+      schedule_object_will_change!(:dtend) if current_duration != value
       @duration = super
     end
 
@@ -132,7 +140,8 @@ module DataCycleCore
     end
 
     def rdate=(value)
-      schedule_object_will_change!(:dtend) if @rdate != value
+      current_rdate = instance_variable_defined?(:@rdate) ? @rdate : self[:rdate]
+      schedule_object_will_change!(:dtend) if current_rdate != value
       @rdate = super
     end
 
@@ -147,7 +156,8 @@ module DataCycleCore
     end
 
     def exdate=(value)
-      schedule_object_will_change!(:dtend) if @exdate != value
+      current_exdate = instance_variable_defined?(:@exdate) ? @exdate : self[:exdate]
+      schedule_object_will_change!(:dtend) if current_exdate != value
       @exdate = super
     end
 
@@ -177,7 +187,7 @@ module DataCycleCore
     end
 
     def from_h(hash)
-      self.schedule_object = nil
+      remove_instance_variable(:@schedule_object) if instance_variable_defined?(:@schedule_object)
       hash = hash.with_indifferent_access
       hash[:duration] = parse_iso8601_duration(hash[:duration]) if hash.key?(:duration)
 
